@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "#residual:cables",
+    "#residual:cables",
+    "minecraft:copper_ingot",
+    "residual:insight_attention"
+  ],
+  "result": {
+    "id": "residual:add"
+  }
+}

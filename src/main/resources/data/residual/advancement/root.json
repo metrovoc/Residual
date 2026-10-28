@@ -1,0 +1,26 @@
+{
+  "criteria": {
+    "joined": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:model_core"
+    },
+    "title": {
+      "translate": "advancements.residual.root.title"
+    },
+    "description": {
+      "translate": "advancements.residual.root.description"
+    },
+    "background": "residual:block/tensor_casing",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "joined"
+    ]
+  ]
+}

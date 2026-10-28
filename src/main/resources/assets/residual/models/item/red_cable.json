@@ -1,0 +1,6 @@
+{
+  "parent": "residual:item/template_cable",
+  "textures": {
+    "cable": "residual:block/red_cable"
+  }
+}

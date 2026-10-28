@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/softmax_side",
+    "north": "residual:block/softmax_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/softmax_side",
+    "west": "residual:block/softmax_side",
+    "up": "residual:block/softmax_side",
+    "down": "residual:block/softmax_side"
+  }
+}

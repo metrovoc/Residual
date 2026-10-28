@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "residual:block/matmul"
+    },
+    "facing=south": {
+      "model": "residual:block/matmul",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "residual:block/matmul",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "residual:block/matmul",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "residual:block/matmul",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "residual:block/matmul",
+      "x": 90
+    }
+  }
+}

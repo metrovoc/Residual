@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "minecraft:iron_chain",
+    "residual:insight_counting"
+  ],
+  "result": {
+    "id": "residual:concat"
+  }
+}

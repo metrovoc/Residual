@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "#residual:cables",
+    "D": "minecraft:pink_dye"
+  },
+  "pattern": [
+    "CCC",
+    "CDC",
+    "CCC"
+  ],
+  "result": {
+    "id": "residual:pink_cable",
+    "count": 8
+  }
+}

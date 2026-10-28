@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "minecraft:repeater",
+    "residual:insight_counting"
+  ],
+  "result": {
+    "id": "residual:shift"
+  }
+}

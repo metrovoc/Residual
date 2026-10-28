@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/concat_side",
+    "north": "residual:block/concat_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/concat_side",
+    "west": "residual:block/concat_side",
+    "up": "residual:block/concat_side",
+    "down": "residual:block/concat_side"
+  }
+}

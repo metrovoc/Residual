@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "residual:block/causal_mask"
+    },
+    "facing=south": {
+      "model": "residual:block/causal_mask",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "residual:block/causal_mask",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "residual:block/causal_mask",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "residual:block/causal_mask",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "residual:block/causal_mask",
+      "x": 90
+    }
+  }
+}

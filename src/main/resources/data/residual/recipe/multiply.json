@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "#minecraft:fence_gates",
+    "minecraft:redstone",
+    "residual:insight_position"
+  ],
+  "result": {
+    "id": "residual:multiply"
+  }
+}

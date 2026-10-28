@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/merge_heads_side",
+    "north": "residual:block/merge_heads_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/merge_heads_side",
+    "west": "residual:block/merge_heads_side",
+    "up": "residual:block/merge_heads_side",
+    "down": "residual:block/merge_heads_side"
+  }
+}

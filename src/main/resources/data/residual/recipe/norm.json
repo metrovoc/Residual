@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "residual:weight_crystal",
+    "minecraft:compass",
+    "residual:insight_attention"
+  ],
+  "result": {
+    "id": "residual:norm"
+  }
+}

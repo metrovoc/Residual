@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "residual:block/softmax"
+    },
+    "facing=south": {
+      "model": "residual:block/softmax",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "residual:block/softmax",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "residual:block/softmax",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "residual:block/softmax",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "residual:block/softmax",
+      "x": 90
+    }
+  }
+}

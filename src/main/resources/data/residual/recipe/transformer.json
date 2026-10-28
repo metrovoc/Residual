@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:attention",
+    "residual:mlp",
+    "residual:norm",
+    "residual:insight_circuits"
+  ],
+  "result": {
+    "id": "residual:transformer"
+  }
+}

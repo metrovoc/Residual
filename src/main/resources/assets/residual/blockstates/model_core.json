@@ -1,0 +1,50 @@
+{
+  "variants": {
+    "facing=north,running=false": {
+      "model": "residual:block/model_core"
+    },
+    "facing=south,running=false": {
+      "model": "residual:block/model_core",
+      "y": 180
+    },
+    "facing=east,running=false": {
+      "model": "residual:block/model_core",
+      "y": 90
+    },
+    "facing=west,running=false": {
+      "model": "residual:block/model_core",
+      "y": 270
+    },
+    "facing=up,running=false": {
+      "model": "residual:block/model_core",
+      "x": 270
+    },
+    "facing=down,running=false": {
+      "model": "residual:block/model_core",
+      "x": 90
+    },
+    "facing=north,running=true": {
+      "model": "residual:block/model_core_on"
+    },
+    "facing=south,running=true": {
+      "model": "residual:block/model_core_on",
+      "y": 180
+    },
+    "facing=east,running=true": {
+      "model": "residual:block/model_core_on",
+      "y": 90
+    },
+    "facing=west,running=true": {
+      "model": "residual:block/model_core_on",
+      "y": 270
+    },
+    "facing=up,running=true": {
+      "model": "residual:block/model_core_on",
+      "x": 270
+    },
+    "facing=down,running=true": {
+      "model": "residual:block/model_core_on",
+      "x": 90
+    }
+  }
+}

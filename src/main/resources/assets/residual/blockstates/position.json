@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "residual:block/position"
+    },
+    "facing=south": {
+      "model": "residual:block/position",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "residual:block/position",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "residual:block/position",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "residual:block/position",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "residual:block/position",
+      "x": 90
+    }
+  }
+}

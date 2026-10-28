@@ -1,0 +1,25 @@
+{
+  "values": [
+    "residual:embedding",
+    "residual:position",
+    "residual:linear",
+    "residual:activation",
+    "residual:add",
+    "residual:multiply",
+    "residual:norm",
+    "residual:matmul",
+    "residual:scale",
+    "residual:causal_mask",
+    "residual:softmax",
+    "residual:split_heads",
+    "residual:merge_heads",
+    "residual:shift",
+    "residual:concat",
+    "residual:attention",
+    "residual:mlp",
+    "residual:transformer",
+    "residual:model_core",
+    "residual:accelerator",
+    "residual:tensor_casing"
+  ]
+}

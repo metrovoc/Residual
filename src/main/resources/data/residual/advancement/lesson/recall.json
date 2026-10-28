@@ -1,0 +1,26 @@
+{
+  "parent": "residual:lesson/case_diverge",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:insight_attention"
+    },
+    "title": {
+      "translate": "residual.lesson.recall.title"
+    },
+    "description": {
+      "translate": "advancements.residual.recall.description"
+    },
+    "frame": "task",
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

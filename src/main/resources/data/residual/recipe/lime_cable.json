@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "#residual:cables",
+    "D": "minecraft:lime_dye"
+  },
+  "pattern": [
+    "CCC",
+    "CDC",
+    "CCC"
+  ],
+  "result": {
+    "id": "residual:lime_cable",
+    "count": 8
+  }
+}

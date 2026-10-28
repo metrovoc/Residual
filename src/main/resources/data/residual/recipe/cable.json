@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "C": "minecraft:copper_ingot",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    " G ",
+    "CRC",
+    " G "
+  ],
+  "result": {
+    "id": "residual:cable",
+    "count": 8
+  }
+}

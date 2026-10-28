@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "G": "minecraft:gold_ingot",
+    "W": "residual:weight_crystal",
+    "B": "minecraft:redstone_block"
+  },
+  "pattern": [
+    "KGK",
+    "WBW",
+    "KGK"
+  ],
+  "result": {
+    "id": "residual:model_core"
+  }
+}

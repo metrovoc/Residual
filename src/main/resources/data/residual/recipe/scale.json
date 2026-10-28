@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "minecraft:heavy_weighted_pressure_plate",
+    "residual:insight_context"
+  ],
+  "result": {
+    "id": "residual:scale"
+  }
+}

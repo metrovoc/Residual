@@ -1,0 +1,26 @@
+{
+  "parent": "residual:lesson/induction",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:insight_language"
+    },
+    "title": {
+      "translate": "residual.lesson.language.title"
+    },
+    "description": {
+      "translate": "advancements.residual.language.description"
+    },
+    "frame": "challenge",
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

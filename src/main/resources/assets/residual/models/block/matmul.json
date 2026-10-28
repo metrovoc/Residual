@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/matmul_side",
+    "north": "residual:block/matmul_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/matmul_side",
+    "west": "residual:block/matmul_side",
+    "up": "residual:block/matmul_side",
+    "down": "residual:block/matmul_side"
+  }
+}

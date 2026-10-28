@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "minecraft:string",
+    "minecraft:string",
+    "residual:insight_position"
+  ],
+  "result": {
+    "id": "residual:merge_heads"
+  }
+}

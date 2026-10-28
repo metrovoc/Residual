@@ -1,0 +1,21 @@
+{
+  "values": [
+    "residual:cable",
+    "residual:white_cable",
+    "residual:orange_cable",
+    "residual:magenta_cable",
+    "residual:light_blue_cable",
+    "residual:yellow_cable",
+    "residual:lime_cable",
+    "residual:pink_cable",
+    "residual:gray_cable",
+    "residual:light_gray_cable",
+    "residual:cyan_cable",
+    "residual:purple_cable",
+    "residual:blue_cable",
+    "residual:brown_cable",
+    "residual:green_cable",
+    "residual:red_cable",
+    "residual:black_cable"
+  ]
+}

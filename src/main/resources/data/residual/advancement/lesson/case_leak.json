@@ -1,0 +1,26 @@
+{
+  "parent": "residual:lesson/recall",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:tensor_probe"
+    },
+    "title": {
+      "translate": "residual.lesson.case_leak.title"
+    },
+    "description": {
+      "translate": "advancements.residual.case_leak.description"
+    },
+    "frame": "goal",
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

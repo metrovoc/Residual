@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "minecraft:shears",
+    "residual:insight_position"
+  ],
+  "result": {
+    "id": "residual:split_heads"
+  }
+}

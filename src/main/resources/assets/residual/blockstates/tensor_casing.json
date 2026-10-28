@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "residual:block/tensor_casing"
+    }
+  }
+}

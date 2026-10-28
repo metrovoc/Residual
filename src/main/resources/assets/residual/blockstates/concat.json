@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "residual:block/concat"
+    },
+    "facing=south": {
+      "model": "residual:block/concat",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "residual:block/concat",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "residual:block/concat",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "residual:block/concat",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "residual:block/concat",
+      "x": 90
+    }
+  }
+}

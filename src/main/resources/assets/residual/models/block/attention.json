@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/attention_side",
+    "north": "residual:block/attention_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/attention_side",
+    "west": "residual:block/attention_side",
+    "up": "residual:block/attention_side",
+    "down": "residual:block/attention_side"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "residual:block/template_cable_joint",
+  "textures": {
+    "cable": "residual:block/lime_cable"
+  }
+}

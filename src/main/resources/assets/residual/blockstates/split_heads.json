@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "residual:block/split_heads"
+    },
+    "facing=south": {
+      "model": "residual:block/split_heads",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "residual:block/split_heads",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "residual:block/split_heads",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "residual:block/split_heads",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "residual:block/split_heads",
+      "x": 90
+    }
+  }
+}

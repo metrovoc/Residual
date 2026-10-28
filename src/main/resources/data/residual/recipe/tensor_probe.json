@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "R": "minecraft:redstone",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "  G",
+    " R ",
+    "I  "
+  ],
+  "result": {
+    "id": "residual:tensor_probe"
+  }
+}

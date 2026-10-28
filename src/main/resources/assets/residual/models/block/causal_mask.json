@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/causal_mask_side",
+    "north": "residual:block/causal_mask_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/causal_mask_side",
+    "west": "residual:block/causal_mask_side",
+    "up": "residual:block/causal_mask_side",
+    "down": "residual:block/causal_mask_side"
+  }
+}

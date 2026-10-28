@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "#minecraft:wool",
+    "minecraft:redstone",
+    "residual:insight_context"
+  ],
+  "result": {
+    "id": "residual:softmax"
+  }
+}
