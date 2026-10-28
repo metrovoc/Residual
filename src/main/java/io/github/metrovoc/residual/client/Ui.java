@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.client;
 
 import io.github.metrovoc.residual.view.Heatmap;
 import java.util.Locale;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
@@ -132,6 +133,11 @@ public final class Ui {
     /** A count with thousands separators. */
     public static String count(long v) {
         return String.format(Locale.ROOT, "%,d", v);
+    }
+
+    /** {@code text} cut to {@code width} pixels, ending in an ellipsis when something had to go. */
+    public static String fit(Font font, String text, int width) {
+        return font.width(text) <= width ? text : font.plainSubstrByWidth(text, width - font.width("…")) + "…";
     }
 
     public static boolean inside(double mx, double my, int x, int y, int w, int h) {

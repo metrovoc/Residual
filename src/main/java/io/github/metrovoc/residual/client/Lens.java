@@ -76,7 +76,8 @@ public final class Lens {
                 net.stream().filter(t -> t.port().drives()).findFirst().ifPresent(t -> lines.add(
                         Component.translatable("residual.lens.carries", source(mc, t)).withColor(Ui.TEAL)));
             }
-            lines.add(Component.translatable("residual.lens.readers", readers).withColor(Ui.DIM));
+            lines.add(Component.translatable(readers == 0 ? "residual.lens.unread" : readers == 1 ? "residual.lens.reader" : "residual.lens.readers",
+                    readers).withColor(Ui.DIM));
         } else {
             return;
         }

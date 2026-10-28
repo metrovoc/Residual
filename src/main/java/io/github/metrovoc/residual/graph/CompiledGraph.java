@@ -43,7 +43,7 @@ public final class CompiledGraph {
         List<Issue> issues = new ArrayList<>();
         int n = spec.size();
         if (spec.output == GraphSpec.MISSING) {
-            issues.add(new Issue(-1, "Nothing is connected to the Model Core's input. Its back face expects scores for every next token: " + vocabShape(env) + "."));
+            issues.add(new Issue(-1, "Nothing is connected to the Model Core's input: every face but its front takes in the scores for every next token, " + vocabShape(env) + "."));
             throw new CompileException(issues);
         }
         if (spec.output == GraphSpec.CONFLICT) {
@@ -77,7 +77,7 @@ public final class CompiledGraph {
                     issues.add(new Issue(node, nd.op.title + ": nothing is connected to its " + port + " input."));
                     ok = false;
                 } else if (src == GraphSpec.CONFLICT) {
-                    issues.add(new Issue(node, nd.op.title + ": its " + port + " input's cable network has more than one source. Each network carries exactly one value - use separate cable colors."));
+                    issues.add(new Issue(node, nd.op.title + ": its " + port + " input's cable network has more than one source. Each network carries exactly one value: use separate cable colors."));
                     ok = false;
                 } else if (src == GraphSpec.TOKENS) {
                     in[i] = Sym.tokens();
@@ -101,9 +101,14 @@ public final class CompiledGraph {
         if (issues.isEmpty()) {
             Sym out = shapes[spec.output];
             if (out.tokens || out.rank() != 3 || out.dim(0) != Sym.B || out.dim(1) != Sym.T || out.dim(2) != env.vocab()) {
-                String hint = out.rank() == 3 && out.dim(0) == Sym.B && out.dim(1) == Sym.T
-                        ? " Set the last Linear Layer's width to 'vocab' so it scores every token."
-                        : "";
+                String hint = "";
+                if (out.rank() == 3 && out.dim(0) == Sym.B && out.dim(1) == Sym.T) {
+                    hint = switch (spec.node(spec.output).op) {
+                        case LINEAR -> " Set the last Linear Layer's Outputs to V, one per token.";
+                        case EMBEDDING -> " Set the Embedding Table's Width to V, one per token.";
+                        default -> " End the model with a Linear Layer whose Outputs are V, one per token.";
+                    };
+                }
                 issues.add(new Issue(spec.output, "The Model Core needs one score per vocabulary entry at every position: "
                         + vocabShape(env) + ". It is getting " + out + "." + hint));
             }

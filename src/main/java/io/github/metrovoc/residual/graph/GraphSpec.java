@@ -63,4 +63,29 @@ public final class GraphSpec {
     public int size() {
         return nodes.size();
     }
+
+    /** Every node, each after the nodes it reads (a cycle is cut anywhere): the order to list machines in. */
+    public int[] readingOrder() {
+        int[] order = new int[size()];
+        boolean[] seen = new boolean[size()];
+        int next = 0;
+        for (int i = 0; i < size(); i++) {
+            next = visit(i, seen, order, next);
+        }
+        return order;
+    }
+
+    private int visit(int node, boolean[] seen, int[] order, int next) {
+        if (seen[node]) {
+            return next;
+        }
+        seen[node] = true;
+        for (int in : nodes.get(node).inputs) {
+            if (in >= 0) {
+                next = visit(in, seen, order, next);
+            }
+        }
+        order[next] = node;
+        return next + 1;
+    }
 }

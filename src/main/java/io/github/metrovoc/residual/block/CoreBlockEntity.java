@@ -397,7 +397,7 @@ public class CoreBlockEntity extends BlockEntity {
         }
         List<CoreSync.Node> rows = new ArrayList<>();
         long total = 0;
-        for (int i = 0; i < scan.nodes().size(); i++) {
+        for (int i : scan.spec().readingOrder()) {
             BlockPos p = scan.nodes().get(i);
             if (!(level.getBlockEntity(p) instanceof OperatorBlockEntity be)) {
                 continue;
@@ -427,8 +427,8 @@ public class CoreBlockEntity extends BlockEntity {
         nodes = rows;
         parameters = total;
         if (!found.isEmpty()) {
-            say("residual.status.issues", Integer.toString(found.size()));
-        } else if (job == null && message.equals("residual.status.issues")) {
+            say(found.size() == 1 ? "residual.status.issue" : "residual.status.issues", Integer.toString(found.size()));
+        } else if (job == null && message.startsWith("residual.status.issue")) {
             say("residual.status.ready");
         }
         touch();

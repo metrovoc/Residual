@@ -15,6 +15,7 @@ import io.github.metrovoc.residual.progress.Progress;
 import io.github.metrovoc.residual.registry.ModAttachments;
 import io.github.metrovoc.residual.train.TrainingJob;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -28,6 +29,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 /** The Model Core's screen: pick a lesson, train, talk to the model, inspect it and read it as PyTorch. */
 public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
@@ -35,12 +37,19 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
 
     private static final List<String> TEMPERATURES = List.of("0", "0.5", "0.8", "1.0", "1.5");
     private static final int[] TEMPERATURE_VALUES = {0, 50, 80, 100, 150};
+    // the lesson tab: the list of lessons on the left, the browsed one on the right
+    private static final int LIST_W = 136;
+    private static final int DETAIL_X = 148;
+    private static final int DETAIL_W = 166;
     private static Tab lastTab = Tab.LESSON;
     private static int lastTemperature = 2;
 
     private Tab tab = lastTab;
     private int browsed = -1;
     private int scroll;
+    /** The code the Code tab last showed: a new copy opens at the model itself rather than at the imports. */
+    @Nullable
+    private String shownCode;
     private Button train;
     private Button load;
     private Button build;
@@ -53,7 +62,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private Cycler temperature;
 
     public CoreScreen(CoreMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 300, 212);
+        super(menu, inventory, title, 320, 212);
     }
 
     private static CoreSync sync() {
@@ -94,11 +103,11 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         switch (tab) {
             case LESSON -> {
                 load = addRenderableWidget(Button.builder(Component.translatable("residual.core.load"), b -> send(CoreAction.Kind.SELECT, browsed))
-                        .bounds(x + 124, y + 172, 64, 16).build());
+                        .bounds(x + DETAIL_X, y + 172, 64, 16).build());
                 build = addRenderableWidget(Button.builder(Component.translatable("residual.core.build"), b -> send(CoreAction.Kind.BUILD_CASE, 0))
-                        .bounds(x + 192, y + 172, 82, 16).build());
+                        .bounds(x + DETAIL_X + 68, y + 172, 78, 16).build());
                 addRenderableWidget(Button.builder(Component.literal("?"), b -> openGuide())
-                        .bounds(x + 278, y + 172, 16, 16).build());
+                        .bounds(x + imageWidth - 22, y + 172, 16, 16).build());
             }
             case TRAIN -> {
                 train = addRenderableWidget(Button.builder(Component.empty(), b -> {
@@ -106,24 +115,24 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                     send(s != null && s.running() ? CoreAction.Kind.STOP : CoreAction.Kind.START, 0);
                 }).bounds(x + 6, y + 150, 64, 16).build());
                 addRenderableWidget(Button.builder(Component.translatable("residual.core.reset"), b -> send(CoreAction.Kind.RESET, 0))
-                        .bounds(x + 74, y + 150, 64, 16).build());
+                        .bounds(x + 74, y + 150, 65, 16).build());
                 addRenderableWidget(Button.builder(Component.translatable("residual.core.check"), b -> send(CoreAction.Kind.CHECK, 0))
-                        .bounds(x + 142, y + 150, 60, 16).build());
+                        .bounds(x + 143, y + 150, 65, 16).build());
                 CoreSync s = sync();
-                speed = addRenderableWidget(new Cycler(x + 208, y + 150, 86, Component.translatable("residual.core.speed"),
+                speed = addRenderableWidget(new Cycler(x + 214, y + 150, 100, Component.translatable("residual.core.speed"),
                         List.of(I18n.get("residual.speed.watch"), I18n.get("residual.speed.normal"), I18n.get("residual.speed.max")),
                         s == null ? 1 : s.speed(), i -> send(CoreAction.Kind.SPEED, i)));
-                learningRate = addRenderableWidget(new Cycler(x + 6, y + 170, 96, Component.translatable("residual.core.learning_rate"),
+                learningRate = addRenderableWidget(new Cycler(x + 6, y + 170, 104, Component.translatable("residual.core.learning_rate"),
                         labels(CoreBlockEntity.LEARNING_RATES), s == null ? 0 : s.learningRate(), i -> send(CoreAction.Kind.LEARNING_RATE, i)));
-                batchSize = addRenderableWidget(new Cycler(x + 106, y + 170, 96, Component.translatable("residual.core.batch"),
+                batchSize = addRenderableWidget(new Cycler(x + 114, y + 170, 104, Component.translatable("residual.core.batch"),
                         labels(CoreBlockEntity.BATCH_SIZES), s == null ? 0 : s.batchSize(), i -> send(CoreAction.Kind.BATCH_SIZE, i)));
-                clip = addRenderableWidget(new Cycler(x + 206, y + 170, 88, Component.translatable("residual.core.clip"),
+                clip = addRenderableWidget(new Cycler(x + 222, y + 170, 92, Component.translatable("residual.core.clip"),
                         clipLabels(), s == null ? 0 : s.clip(), i -> send(CoreAction.Kind.CLIP, i)));
             }
             case SAMPLE -> {
                 boolean text = current().makeTask().metric == Task.Metric.LOSS;
                 if (text) {
-                    prompt = addRenderableWidget(new EditBox(font, x + 6, y + 24, 200, 16, Component.translatable("residual.sample.prompt")));
+                    prompt = addRenderableWidget(new EditBox(font, x + 6, y + 24, 220, 16, Component.translatable("residual.sample.prompt")));
                     prompt.setMaxLength(200);
                     prompt.setHint(Component.translatable("residual.sample.hint").withColor(Ui.DIM));
                 }
@@ -132,9 +141,9 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                     CoreView.sample = null;
                     ClientPacketDistributor.sendToServer(new CoreAction(menu.pos, CoreAction.Kind.SAMPLE,
                             TEMPERATURE_VALUES[lastTemperature], prompt == null ? "" : prompt.getValue()));
-                }).bounds(x + 210, y + 24, 84, 16).build());
+                }).bounds(x + 230, y + 24, 84, 16).build());
                 if (text) {
-                    temperature = addRenderableWidget(new Cycler(x + 210, y + 44, 84, Component.translatable("residual.sample.temperature"),
+                    temperature = addRenderableWidget(new Cycler(x + 230, y + 44, 84, Component.translatable("residual.sample.temperature"),
                             TEMPERATURES, lastTemperature, i -> lastTemperature = i));
                 }
             }
@@ -154,7 +163,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                     }
                 }).bounds(x + 80, y + 172, 70, 16).build());
                 addRenderableWidget(Button.builder(Component.translatable("residual.code.export"), b -> send(CoreAction.Kind.EXPORT, 0))
-                        .bounds(x + 154, y + 172, 140, 16).build());
+                        .bounds(x + 154, y + 172, 160, 16).build());
             }
         }
         refresh();
@@ -235,13 +244,14 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                 if (t != tab) {
                     tab = lastTab = t;
                     scroll = 0;
+                    shownCode = null;
                     rebuild();
                 }
                 return true;
             }
             tx += w + 2;
         }
-        if (tab == Tab.LESSON && Ui.inside(mx, my, leftPos + 6, topPos + 22, 112, 166)) {
+        if (tab == Tab.LESSON && Ui.inside(mx, my, leftPos + 6, topPos + 22, LIST_W, 166)) {
             int row = (int) (my - topPos - 23) / 15;
             if (row >= 0 && row < Curriculum.ALL.size()) {
                 browsed = row;
@@ -312,10 +322,10 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             case INSPECT -> inspectTab(g, s);
             case CODE -> codeTab(g);
         }
-        statusLine(g, s);
+        statusLine(g, s, mx, my);
     }
 
-    private void statusLine(GuiGraphicsExtractor g, CoreSync s) {
+    private void statusLine(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
         int y = 196;
         if (s == null) {
             g.text(font, Component.translatable("residual.status.connecting"), 10, y, Ui.DIM, false);
@@ -324,10 +334,14 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         boolean running = s.running();
         int dot = running ? (minecraft.level.getGameTime() / 10 % 2 == 0 ? Ui.TEAL : 0xFF1F7A72) : s.issues().isEmpty() ? Ui.DIM : Ui.RED;
         g.fill(10, y + 2, 14, y + 6, dot);
-        Component message = Component.translatable(s.message(), s.args().toArray());
-        int max = imageWidth - 30 - font.width(stepsText(s));
-        g.text(font, font.plainSubstrByWidth(message.getString(), max), 18, y, Ui.TEXT, false);
-        g.text(font, stepsText(s), imageWidth - 10 - font.width(stepsText(s)), y, Ui.DIM, false);
+        String message = Component.translatable(s.message(), s.args().toArray()).getString();
+        String steps = stepsText(s);
+        int max = imageWidth - 34 - font.width(steps);
+        g.text(font, Ui.fit(font, message, max), 18, y, Ui.TEXT, false);
+        g.text(font, steps, imageWidth - 10 - font.width(steps), y, Ui.DIM, false);
+        if (font.width(message) > max && Ui.inside(mx, my, 6, 194, imageWidth - 12, 12)) {
+            g.setTooltipForNextFrame(font.split(Component.literal(message), 240), mx + leftPos, my + topPos);
+        }
     }
 
     private String stepsText(CoreSync s) {
@@ -337,7 +351,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     // ---------------------------------------------------------------- lesson tab
 
     private void lessonTab(GuiGraphicsExtractor g, int mx, int my) {
-        Ui.screen(g, 6, 22, 112, 166);
+        Ui.screen(g, 6, 22, LIST_W, 166);
         Progress progress = progress();
         Curriculum.Lesson loaded = current();
         int lessonNo = 0, caseNo = 0;
@@ -347,28 +361,28 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             String number = isCase ? "C" + ++caseNo : Integer.toString(++lessonNo);
             int y = 23 + i * 15;
             if (i == browsed) {
-                g.fill(7, y, 117, y + 15, Ui.SELECTION);
-            } else if (Ui.inside(mx, my, 7, y, 110, 15)) {
-                g.fill(7, y, 117, y + 15, 0xFF1A222A);
+                g.fill(7, y, 5 + LIST_W, y + 15, Ui.SELECTION);
+            } else if (Ui.inside(mx, my, 7, y, LIST_W - 2, 15)) {
+                g.fill(7, y, 5 + LIST_W, y + 15, 0xFF1A222A);
             }
             boolean done = progress.has(l.id());
             boolean open = Curriculum.unlocked(l, progress.done());
-            int color = !open ? 0xFF56616B : l == loaded ? Ui.TEAL : Ui.TEXT;
+            int color = l == loaded ? Ui.TEAL : open ? Ui.TEXT : 0xFF56616B;
             g.text(font, number, 11, y + 4, isCase ? Ui.AMBER : Ui.DIM, false);
             String title = I18n.get("residual.lesson." + l.id() + ".title");
-            g.text(font, font.plainSubstrByWidth(title, 78), 25, y + 4, color, false);
+            g.text(font, Ui.fit(font, title, LIST_W - 31), 25, y + 4, color, false);
             String mark = done ? "✔" : l == loaded ? "▶" : "";
-            g.text(font, mark, 108, y + 4, done ? Ui.GREEN : Ui.DIM, false);
+            g.text(font, mark, 2 + LIST_W - font.width(mark), y + 4, done ? Ui.GREEN : Ui.DIM, false);
         }
 
         Curriculum.Lesson l = Curriculum.ALL.get(browsed);
-        int x = 124;
+        int x = DETAIL_X;
         boolean isCase = l.kind() == Curriculum.Kind.CASE;
         g.text(font, Component.translatable(isCase ? "residual.core.kind_case" : "residual.core.kind_lesson"), x, 24,
                 isCase ? 0xFFB7791F : 0xFF1F8A80, false);
         g.text(font, Component.translatable("residual.lesson." + l.id() + ".title"), x, 35, Ui.LABEL, false);
         int y = 49;
-        for (FormattedCharSequence line : font.split(Component.translatable("residual.lesson." + l.id() + ".brief"), 170)) {
+        for (FormattedCharSequence line : font.split(Component.translatable("residual.lesson." + l.id() + ".brief"), DETAIL_W)) {
             if (y > 140) {
                 break;
             }
@@ -378,11 +392,10 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         Task task = l.makeTask();
         g.text(font, Component.translatable("residual.core.goal", task.goal()), x, 146, Ui.LABEL, false);
         String paper = "residual.lesson." + l.id() + ".paper";
-        if (I18n.exists(paper)) {
-            g.text(font, font.plainSubstrByWidth(I18n.get(paper), 170), x, 157, Ui.LABEL_DIM, false);
-        }
-        if (!Curriculum.unlocked(l, progress.done())) {
-            g.text(font, Component.translatable("residual.core.locked"), x, 157, 0xFFA04040, false);
+        if (!Curriculum.unlocked(l, progress.done()) && !minecraft.player.isCreative()) {
+            g.text(font, Ui.fit(font, I18n.get("residual.core.locked"), DETAIL_W), x, 157, 0xFFA04040, false);
+        } else if (I18n.exists(paper)) {
+            g.text(font, Ui.fit(font, I18n.get(paper), DETAIL_W), x, 157, Ui.LABEL_DIM, false);
         }
     }
 
@@ -391,9 +404,9 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private void trainTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
         Curriculum.Lesson l = current();
         Task task = l.makeTask();
-        chart(g, s, task, 6, 22, 196, 112, mx, my);
+        chart(g, s, task, 6, 22, 202, 112, mx, my);
 
-        Ui.screen(g, 208, 22, 86, 112);
+        Ui.screen(g, 214, 22, 100, 112);
         int y = 26;
         y = metric(g, y, "residual.metric.train_loss", s == null ? "–" : Ui.num(s.trainLoss()), Ui.TEAL);
         y = metric(g, y, "residual.metric.val_loss", s == null ? "–" : Ui.num(s.valLoss()), Ui.AMBER);
@@ -406,8 +419,8 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             y = metric(g, y, "residual.metric.budget", Ui.count(Math.max(0, l.budget() - s.runSteps())), Ui.AMBER);
         }
         if (s != null && !s.causal()) {
-            g.text(font, Component.translatable("residual.metric.leak"), 212, y + 2, Ui.RED, false);
-            if (Ui.inside(mx, my, 208, y, 86, 12)) {
+            g.text(font, Component.translatable("residual.metric.leak"), 218, y + 2, Ui.RED, false);
+            if (Ui.inside(mx, my, 214, y, 100, 12)) {
                 g.setComponentTooltipForNextFrame(font, List.of(Component.translatable("residual.metric.leak_help")),
                         mx + leftPos, my + topPos);
             }
@@ -418,12 +431,12 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         double fraction = s == null ? 0 : task.progress(Float.isNaN(s.valLoss()) ? Math.log(task.vocab.size()) : s.valLoss(),
                 Float.isNaN(s.accuracy()) ? 0 : s.accuracy());
         int bx = 12 + font.width(goal);
-        Ui.bar(g, bx, 138, 202 - bx, 6, (float) fraction, fraction >= 1 ? Ui.GREEN : 0xFF2A9D92);
+        Ui.bar(g, bx, 138, 208 - bx, 6, (float) fraction, fraction >= 1 ? Ui.GREEN : 0xFF2A9D92);
     }
 
     private int metric(GuiGraphicsExtractor g, int y, String key, String value, int color) {
-        g.text(font, Component.translatable(key), 212, y, Ui.DIM, false);
-        g.text(font, value, 290 - font.width(value), y, color, false);
+        g.text(font, Component.translatable(key), 218, y, Ui.DIM, false);
+        g.text(font, value, 310 - font.width(value), y, color, false);
         return y + 13;
     }
 
@@ -535,7 +548,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         if (!text) {
             g.text(font, Component.translatable("residual.sample.puzzle_hint"), 6, 28, Ui.LABEL, false);
         }
-        Ui.screen(g, 6, 44, 200, 110);
+        Ui.screen(g, 6, 44, 220, 110);
         SampleResult r = CoreView.sample;
         if (CoreView.sampling) {
             g.text(font, Component.translatable("residual.sample.thinking"), 10, 48, Ui.DIM, false);
@@ -543,7 +556,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         }
         if (r == null) {
             int y = 48;
-            for (FormattedCharSequence line : font.split(Component.translatable(text ? "residual.sample.empty" : "residual.sample.empty_puzzle"), 192)) {
+            for (FormattedCharSequence line : font.split(Component.translatable(text ? "residual.sample.empty" : "residual.sample.empty_puzzle"), 212)) {
                 g.text(font, line, 10, y, Ui.DIM, false);
                 y += 10;
             }
@@ -552,7 +565,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         Component shown = Component.literal(r.prompt()).withColor(Ui.DIM)
                 .append(Component.literal(r.text().substring(Math.min(r.prompt().length(), r.text().length()))).withColor(Ui.TEXT));
         int y = 48;
-        for (FormattedCharSequence line : font.split(shown, 192)) {
+        for (FormattedCharSequence line : font.split(shown, 212)) {
             if (y > 144) {
                 break;
             }
@@ -560,12 +573,13 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             y += 10;
         }
         int ny = 158;
-        for (FormattedCharSequence line : font.split(Component.literal(r.note()), 288)) {
+        Component note = r.note().isEmpty() ? Component.translatable("residual.sample.legend") : Component.literal(r.note());
+        for (FormattedCharSequence line : font.split(note, 308)) {
             g.text(font, line, 6, ny, Ui.LABEL, false);
             ny += 10;
         }
         if (!r.labels().isEmpty()) {
-            int bx = 210, by = text ? 66 : 46;
+            int bx = 230, by = text ? 66 : 46;
             g.text(font, Component.translatable("residual.sample.next"), bx, by, Ui.LABEL_DIM, false);
             for (int i = 0; i < r.labels().size(); i++) {
                 int ry = by + 12 + i * 14;
@@ -586,14 +600,14 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     // ---------------------------------------------------------------- inspect tab
 
     private void inspectTab(GuiGraphicsExtractor g, CoreSync s) {
-        Ui.screen(g, 6, 22, 288, 166);
+        Ui.screen(g, 6, 22, 308, 166);
         if (s == null) {
             return;
         }
         List<Row> rows = new ArrayList<>();
         for (CoreSync.Issue issue : s.issues()) {
             String where = issue.pos() == null ? "" : " (" + issue.pos().toShortString() + ")";
-            for (FormattedCharSequence line : font.split(Component.literal("⚠ " + issue.message() + where), 278)) {
+            for (FormattedCharSequence line : font.split(Component.literal("⚠ " + issue.message() + where), 298)) {
                 rows.add((gg, y) -> gg.text(font, line, 10, y, Ui.RED, false));
             }
         }
@@ -604,9 +618,9 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         rows.add((gg, y) -> gg.text(font, summary, 10, y, Ui.DIM, false));
         rows.add((gg, y) -> {
             gg.text(font, Component.translatable("residual.inspect.machine"), 10, y, Ui.DIM, false);
-            gg.text(font, Component.translatable("residual.inspect.output"), 118, y, Ui.DIM, false);
-            gg.text(font, Component.translatable("residual.inspect.params"), 190, y, Ui.DIM, false);
-            gg.text(font, Component.translatable("residual.inspect.gradient"), 236, y, Ui.DIM, false);
+            gg.text(font, Component.translatable("residual.inspect.output"), 128, y, Ui.DIM, false);
+            gg.text(font, Component.translatable("residual.inspect.params"), 212, y, Ui.DIM, false);
+            gg.text(font, Component.translatable("residual.inspect.gradient"), 254, y, Ui.DIM, false);
         });
         double maxLog = -6;
         for (CoreSync.Node n : s.nodes()) {
@@ -620,15 +634,15 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             String name = n.name().isEmpty() ? (op == null ? n.op() : op.title) : n.name();
             rows.add((gg, y) -> {
                 int color = n.active() ? Ui.TEXT : 0xFF56616B;
-                gg.text(font, font.plainSubstrByWidth(name, 104), 10, y, color, false);
-                gg.text(font, font.plainSubstrByWidth(n.shape(), 70), 118, y, n.active() ? Ui.TEAL : 0xFF56616B, false);
+                gg.text(font, Ui.fit(font, name, 114), 10, y, color, false);
+                gg.text(font, Ui.fit(font, n.shape(), 78), 128, y, n.active() ? Ui.TEAL : 0xFF56616B, false);
                 String params = n.parameters() == 0 ? "" : Ui.count(n.parameters());
-                gg.text(font, params, 230 - font.width(params), y, color, false);
+                gg.text(font, params, 248 - font.width(params), y, color, false);
                 if (n.gradNorm() > 0) {
                     float f = (float) ((Math.log10(n.gradNorm()) - (top - 6)) / 6);
-                    Ui.bar(gg, 236, y + 1, 52, 6, f, f < 0.25f ? Ui.RED : Ui.AMBER);
+                    Ui.bar(gg, 254, y + 1, 54, 6, f, f < 0.25f ? Ui.RED : Ui.AMBER);
                 } else if (n.parameters() > 0) {
-                    gg.text(font, "–", 236, y, Ui.DIM, false);
+                    gg.text(font, "–", 254, y, Ui.DIM, false);
                 }
             });
         }
@@ -646,7 +660,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     // ---------------------------------------------------------------- code tab
 
     private void codeTab(GuiGraphicsExtractor g) {
-        Ui.screen(g, 6, 22, 288, 146);
+        Ui.screen(g, 6, 22, 308, 146);
         String code = CoreView.code;
         if (code == null) {
             g.text(font, Component.translatable("residual.code.loading"), 10, 26, Ui.DIM, false);
@@ -657,7 +671,11 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             return;
         }
         String[] lines = code.split("\n", -1);
-        int visible = 13;
+        if (code != shownCode) {
+            shownCode = code;
+            scroll = Math.max(0, Arrays.asList(lines).indexOf("class ResidualModel(nn.Module):"));
+        }
+        int visible = 12;
         scroll = Math.min(scroll, Math.max(0, lines.length - visible));
         for (int i = 0; i < visible && scroll + i < lines.length; i++) {
             String line = lines[scroll + i];
@@ -665,9 +683,9 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             int color = trimmed.startsWith("#") ? Ui.DIM
                     : trimmed.startsWith("def ") || trimmed.startsWith("class ") ? Ui.TEAL
                     : trimmed.startsWith("import ") || trimmed.startsWith("from ") ? Ui.AMBER : Ui.TEXT;
-            g.text(font, font.plainSubstrByWidth(line.replace("\t", "    "), 280), 10, 25 + i * 11, color, false);
+            g.text(font, Ui.fit(font, line.replace("\t", "    "), 300), 10, 25 + i * 11, color, false);
         }
         String where = I18n.get("residual.code.lines", scroll + 1, Math.min(lines.length, scroll + visible), lines.length);
-        g.text(font, where, 294 - font.width(where) - 4, 158, Ui.DIM, false);
+        g.text(font, where, imageWidth - 10 - font.width(where), 158, Ui.DIM, false);
     }
 }

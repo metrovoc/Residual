@@ -15,6 +15,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -125,15 +126,11 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
             g.setTooltipForNextFrame(font.split(Component.translatable("residual.op." + op.id + ".desc"), 200), mouseX, mouseY);
         }
 
-        // what the last check found
+        // what the last check found: beside the pictures, then across the window below them
         int y = 42 + op.fields().size() * 18;
         if (!status.error().isEmpty()) {
-            for (FormattedCharSequence line : font.split(Component.literal(status.error()), 116)) {
-                if (y > 120) {
-                    break;
-                }
-                g.text(font, line, 8, y, 0xFFB03030, false);
-                y += 10;
+            if (flow(g, status.error(), y, 0xFFB03030) && Ui.inside(mx, my, 8, y, 232, 128 - y)) {
+                g.setTooltipForNextFrame(font.split(Component.literal(status.error()), 240), mouseX, mouseY);
             }
         } else if (!status.shape().isEmpty()) {
             g.text(font, Component.translatable("residual.machine.output", status.shape()), 8, y, 0xFF1F7A72, false);
@@ -146,10 +143,7 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
                 g.text(font, Component.translatable("residual.machine.gradient", Ui.num(status.gradNorm())), 8, y, Ui.LABEL, false);
             }
         } else {
-            for (FormattedCharSequence line : font.split(Component.translatable("residual.machine.unchecked"), 116)) {
-                g.text(font, line, 8, y, Ui.LABEL_DIM, false);
-                y += 10;
-            }
+            flow(g, I18n.get("residual.machine.unchecked"), y, Ui.LABEL_DIM);
         }
 
         // pictures: what comes out of the front, and the main weight matrix on the sides
@@ -171,14 +165,12 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
             String scale = "±" + Ui.num(be.weights().scale());
             g.text(font, scale, 190, 86, Ui.LABEL_DIM, false);
         }
-        if (be.provided()) {
-            for (FormattedCharSequence line : font.split(Component.translatable("residual.machine.provided"), 108)) {
-                g.text(font, line, 132, 100, Ui.LABEL_DIM, false);
-            }
-        }
-
         // the same machine in PyTorch
         g.text(font, Component.translatable("residual.machine.pytorch"), 8, 128, Ui.LABEL_DIM, false);
+        if (be.provided()) {
+            String provided = I18n.get("residual.machine.provided");
+            g.text(font, provided, imageWidth - 8 - font.width(provided), 128, Ui.LABEL_DIM, false);
+        }
         Ui.screen(g, 8, 138, 232, 50);
         Env env = new Env(status.vocab(), status.context());
         String shownName = name == null ? be.name() : name.getValue();
@@ -195,5 +187,20 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
                 ly += 10;
             }
         }
+    }
+
+    /** Writes text beside the pictures and then across the window below them; true if it had to be cut short. */
+    private boolean flow(GuiGraphicsExtractor g, String text, int y, int color) {
+        for (; !text.isEmpty(); y += 10) {
+            int width = y < 96 ? 116 : 232;
+            if (y + 10 > 118) {
+                g.text(font, Ui.fit(font, text, width), 8, y, color, false);
+                return font.width(text) > width;
+            }
+            int end = font.getSplitter().findLineBreak(text, width, Style.EMPTY);
+            g.text(font, text.substring(0, end), 8, y, color, false);
+            text = text.substring(end).stripLeading();
+        }
+        return false;
     }
 }
