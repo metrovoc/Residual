@@ -1,0 +1,40 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "${mod_license}"
+issueTrackerURL = "https://github.com/metrovoc/Residual/issues"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+authors = "metrovoc"
+displayURL = "https://github.com/metrovoc/Residual"
+logoFile = "residual_logo.png"
+description = '''
+Build a language model from the ground up, one block at a time.
+
+Wire embeddings, attention heads and MLPs together with stream cables, train them on real text
+with real gradients, watch the weights change on the machines' faces, and export what you built
+as working PyTorch code.
+'''
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neo_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "guideme"
+type = "required"
+versionRange = "[${guideme_version},)"
+ordering = "NONE"
+side = "BOTH"

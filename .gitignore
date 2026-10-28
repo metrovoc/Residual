@@ -1,0 +1,12 @@
+.gradle/
+build/
+out/
+run/
+runs/
+repo/
+*.iml
+*.ipr
+*.iws
+.venv/
+__pycache__/
+src/generated/resources/.cache/
