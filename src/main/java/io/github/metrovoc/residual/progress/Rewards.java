@@ -23,13 +23,16 @@ public final class Rewards {
         Component title = Component.translatable("residual.lesson." + lesson.id() + ".title");
         if (first) {
             player.setData(ModAttachments.PROGRESS, progress.with(lesson.id()));
-            if (lesson.insight() != null) {
-                ItemStack insight = new ItemStack(ModItems.INSIGHTS.get(lesson.insight()).get());
+            player.level().playSound(null, player.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.6f, 1f);
+        }
+        // passing again replaces an Insight that was lost
+        if (lesson.insight() != null) {
+            ItemStack insight = new ItemStack(ModItems.INSIGHTS.get(lesson.insight()).get());
+            if (first || !player.getInventory().contains(insight)) {
                 if (!player.getInventory().add(insight)) {
                     player.drop(insight, false);
                 }
             }
-            player.level().playSound(null, player.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.6f, 1f);
         }
         AdvancementHolder advancement = player.level().getServer().getAdvancements().get(Residual.id("lesson/" + lesson.id()));
         if (advancement != null) {
