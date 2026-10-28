@@ -13,9 +13,9 @@ logoFile = "residual_logo.png"
 description = '''
 Build a language model from the ground up, one block at a time.
 
-Wire embeddings, attention heads and MLPs together with stream cables, train them on real text
-with real gradients, watch the weights change on the machines' faces, and export what you built
-as working PyTorch code.
+Wire embedding tables, attention heads and feed-forward blocks together with signal cables,
+train them on real text with real gradients, watch the weights change on the machines' faces,
+and export what you built as working PyTorch code.
 '''
 
 [[dependencies.${mod_id}]]
