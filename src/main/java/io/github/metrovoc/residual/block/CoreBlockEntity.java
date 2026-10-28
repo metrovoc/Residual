@@ -92,6 +92,8 @@ public class CoreBlockEntity extends BlockEntity {
     private int jobRunSteps;
     private boolean dirty;
     private long lastSync;
+    /** A block the last check read has changed since, so the model gets checked again. */
+    private boolean stale;
 
     public CoreBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.CORE.get(), pos, state);
@@ -385,6 +387,7 @@ public class CoreBlockEntity extends BlockEntity {
 
     /** Records what a check found, on the Core and on each machine. */
     private void publish(GraphScanner.Scan scan, @Nullable CompiledGraph model, @Nullable Sym[] shapes, Env env, List<CoreSync.Issue> found) {
+        Jobs.watch(this, level, scan.footprint(), () -> stale = true);
         issues = List.copyOf(found);
         Map<BlockPos, String> errors = new HashMap<>();
         for (CoreSync.Issue i : found) {
@@ -456,6 +459,10 @@ public class CoreBlockEntity extends BlockEntity {
             }
         } else if (getBlockState().getValue(CoreBlock.RUNNING)) {
             setRunning(false);
+        }
+        if (stale && job == null) {
+            stale = false;
+            check();
         }
         if (dirty && System.currentTimeMillis() - lastSync > 250) {
             sync();
@@ -597,6 +604,9 @@ public class CoreBlockEntity extends BlockEntity {
     @Override
     public void setRemoved() {
         super.setRemoved();
+        if (level instanceof ServerLevel) {
+            Jobs.unwatch(this);
+        }
         if (job != null) {
             job.requestStop(TrainingJob.Outcome.STOPPED);
             Jobs.forget(job);

@@ -1,7 +1,10 @@
 package io.github.metrovoc.residual.train;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,8 +12,12 @@ import java.util.concurrent.locks.LockSupport;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
-/** Every running training job, so world edits can stop the jobs they affect. Server thread only. */
+/**
+ * Every running training job and every checked model, so world edits can stop the jobs they affect and get the
+ * models they touch checked again. Server thread only.
+ */
 public final class Jobs {
     private static final AtomicInteger THREAD_IDS = new AtomicInteger();
     /** Also runs one-off work such as sampling, so it never blocks the server thread. */
@@ -21,6 +28,11 @@ public final class Jobs {
         return t;
     });
     private static final List<TrainingJob> ACTIVE = new ArrayList<>();
+    /** The blocks each checked model was read from, by its owner. */
+    private static final Map<Object, Watch> WATCHES = new HashMap<>();
+
+    private record Watch(Level level, Set<Long> footprint, Runnable onEdit) {
+    }
 
     private Jobs() {
     }
@@ -34,24 +46,44 @@ public final class Jobs {
         ACTIVE.remove(job);
     }
 
-    /** A block at {@code pos} was placed, removed, turned or reconfigured: stop any job whose model it touches. */
+    /** Runs {@code onEdit} whenever a block in or next to {@code footprint} changes, until replaced or forgotten. */
+    public static void watch(Object owner, Level level, Set<Long> footprint, Runnable onEdit) {
+        WATCHES.put(owner, new Watch(level, footprint, onEdit));
+    }
+
+    public static void unwatch(Object owner) {
+        WATCHES.remove(owner);
+    }
+
+    /** A block at {@code pos} was placed, removed, turned or reconfigured: stop the jobs and tell the watchers it touches. */
     public static void changed(ServerLevel level, BlockPos pos) {
         for (TrainingJob job : ACTIVE) {
-            if (job.level != level) {
-                continue;
-            }
-            boolean touched = job.footprint.contains(pos.asLong());
-            for (Direction d : Direction.values()) {
-                touched |= job.footprint.contains(pos.relative(d).asLong());
-            }
-            if (touched) {
+            if (job.level == level && touches(job.footprint, pos)) {
                 job.requestStop(TrainingJob.Outcome.CHANGED);
+            }
+        }
+        for (Watch w : WATCHES.values()) {
+            if (w.level == level && touches(w.footprint, pos)) {
+                w.onEdit.run();
             }
         }
     }
 
-    /** Stops every job and waits briefly for each to hand back its weights; returns the jobs it stopped. */
+    private static boolean touches(Set<Long> footprint, BlockPos pos) {
+        if (footprint.contains(pos.asLong())) {
+            return true;
+        }
+        for (Direction d : Direction.values()) {
+            if (footprint.contains(pos.relative(d).asLong())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** The server is stopping: stops every job, waiting briefly for each to hand back its weights, and forgets every watch. */
     public static List<TrainingJob> stopAll() {
+        WATCHES.clear();
         List<TrainingJob> stopped = List.copyOf(ACTIVE);
         for (TrainingJob job : stopped) {
             job.requestStop(TrainingJob.Outcome.STOPPED);
