@@ -94,7 +94,6 @@ public final class PyTorch {
         // a machine that was never checked has no vocabulary yet: name the sizes instead
         String vocab = env.vocab() > 0 ? Integer.toString(env.vocab()) : "vocab_size";
         String context = env.context() > 0 ? Integer.toString(env.context()) : "context";
-        String hidden = features > 0 ? Integer.toString(features * c.integer("expand")) : c.get("expand") + " * in_features";
         return switch (op) {
             case EMBEDDING -> "self." + id + " = nn.Embedding(" + vocab + ", " + width(c, "dim", vocab) + ")";
             case POSITION -> "self." + id + " = nn.Embedding(" + context + ", " + width(c, "dim", vocab) + ")";
@@ -102,11 +101,15 @@ public final class PyTorch {
                     + (c.flag("bias") ? "" : ", bias=False") + ")";
             case NORM -> "self." + id + " = " + ("rms".equals(c.get("kind")) ? "RMSNorm(" : "nn.LayerNorm(") + in + ")";
             case ATTENTION -> "self." + id + " = CausalSelfAttention(" + in + ", heads=" + c.get("heads") + ")";
-            case MLP -> "self." + id + " = FeedForward(" + in + ", " + hidden + ", " + activation(c.get("fn")) + ")";
-            case TRANSFORMER -> "self." + id + " = Block(" + in + ", heads=" + c.get("heads") + ", hidden=" + hidden
+            case MLP -> "self." + id + " = FeedForward(" + in + ", " + hidden(c, features) + ", " + activation(c.get("fn")) + ")";
+            case TRANSFORMER -> "self." + id + " = Block(" + in + ", heads=" + c.get("heads") + ", hidden=" + hidden(c, features)
                     + ", act=" + activation(c.get("fn")) + ")";
             default -> null;
         };
+    }
+
+    private static String hidden(Config c, int features) {
+        return features > 0 ? Integer.toString(features * c.integer("expand")) : c.get("expand") + " * in_features";
     }
 
     private static String width(Config c, String key, String vocab) {
