@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -540,7 +541,7 @@ public class CoreBlockEntity extends BlockEntity {
                 if ("NaN".equals(u.detail)) {
                     say("residual.status.nan");
                 } else {
-                    say("residual.status.diverged", u.detail, String.format("%.2f", Math.log(running.task.vocab.size())));
+                    say("residual.status.diverged", u.detail, String.format(Locale.ROOT, "%.2f", Math.log(running.task.vocab.size())));
                 }
                 level.playSound(null, worldPosition, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.6f, 0.8f);
             }

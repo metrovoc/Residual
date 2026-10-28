@@ -13,6 +13,7 @@ import io.github.metrovoc.residual.view.Heatmap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -173,7 +174,7 @@ public final class TrainingJob {
             ema = Double.isNaN(ema) ? loss : 0.95 * ema + 0.05 * loss;
             if (done >= 50 && ema > 3 * start) {
                 Update u = update(ema, eval, done, Outcome.DIVERGED, true);
-                u.detail = String.format("%.2f", ema);
+                u.detail = String.format(Locale.ROOT, "%.2f", ema);
                 pending.set(u);
                 return;
             }

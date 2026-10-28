@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.learn;
 
 import io.github.metrovoc.residual.graph.Op;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 
@@ -45,7 +46,7 @@ public abstract class Task {
 
     public String goal() {
         return metric == Metric.LOSS
-                ? String.format("validation loss ≤ %.2f", target)
-                : String.format("answer accuracy ≥ %d%%", Math.round(target * 100));
+                ? String.format(Locale.ROOT, "validation loss ≤ %.2f", target)
+                : String.format(Locale.ROOT, "answer accuracy ≥ %d%%", Math.round(target * 100));
     }
 }
