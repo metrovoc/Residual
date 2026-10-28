@@ -160,9 +160,9 @@
   "residual.sample.thinking": "Thinking…",
   "residual.sample.empty": "Generate some text to hear what the model has learned so far.",
   "residual.sample.empty_puzzle": "Ask for a puzzle to watch the model answer it.",
-  "residual.sample.legend": "Grey is the prompt, white is what the model wrote. The bars show its odds for the first letter it chose; ⏎ ends a word.",
+  "residual.sample.legend": "Grey is the prompt, white is what the model wrote. The bars show its odds for the first token it chose; ⏎ is a line break.",
   "residual.sample.puzzle_hint": "New puzzles, answered by the model.",
-  "residual.sample.next": "Next letter",
+  "residual.sample.next": "Next token",
 
   "residual.inspect.summary": "%s machines · %s parameters",
   "residual.inspect.machine": "Machine",
