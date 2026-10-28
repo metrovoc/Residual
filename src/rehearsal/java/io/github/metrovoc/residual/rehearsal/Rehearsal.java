@@ -3,6 +3,13 @@ package io.github.metrovoc.residual.rehearsal;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.block.CoreBlock;
+import io.github.metrovoc.residual.block.OperatorBlockEntity;
+import io.github.metrovoc.residual.graph.GraphSpec;
+import io.github.metrovoc.residual.learn.Blueprints;
+import io.github.metrovoc.residual.registry.ModBlocks;
+import io.github.metrovoc.residual.world.CaseBuilder;
+import io.github.metrovoc.residual.world.CaseLayout;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -25,12 +32,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -66,6 +76,8 @@ import org.slf4j.Logger;
  * fly on|off                 hover in place (creative), so the camera stays where cmd tp put it
  * hud on|off
  * gui SCALE                  set the GUI scale (0 = auto)
+ * blueprint NAME X Y Z FACING  place a Model Core and build a reference model in front of it, as a player would
+ *                            (bigram, context, recall, reverse, induction, gpt)
  * shot NAME                  save screenshots/NAME.png in the game directory
  * quit
  * </pre>
@@ -213,6 +225,7 @@ public final class Rehearsal {
                 mc.options.guiScale().set(Integer.parseInt(arg));
                 mc.resizeGui();
             }
+            case "blueprint" -> blueprint(mc, args);
             case "shot" -> Screenshot.grab(mc.gameDirectory, arg + ".png", mc.getMainRenderTarget(), 1,
                     message -> LOG.info("[rehearsal] {}", message.getString()));
             case "quit" -> {
@@ -243,6 +256,42 @@ public final class Rehearsal {
         mc.createWorldOpenFlows().createFreshLevel(WORLD, settings, new WorldOptions(0, false, false),
                 WorldPresets::createFlatWorldDimensions, mc.screen);
         loading = true;
+    }
+
+    private static void blueprint(Minecraft mc, String[] args) {
+        GraphSpec spec = switch (args[0]) {
+            case "bigram" -> Blueprints.bigram();
+            case "context" -> Blueprints.context();
+            case "recall" -> Blueprints.recall();
+            case "reverse" -> Blueprints.reverse();
+            case "induction" -> Blueprints.induction();
+            case "gpt" -> Blueprints.gpt(64, 2, 4);
+            default -> throw new IllegalArgumentException("no blueprint named " + args[0]);
+        };
+        BlockPos core = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+        Direction forward = Direction.byName(args[4]);
+        MinecraftServer server = mc.getSingleplayerServer();
+        server.execute(() -> {
+            ServerLevel level = server.overworld();
+            level.setBlock(core, ModBlocks.CORE.get().defaultBlockState().setValue(CoreBlock.FACING, forward), Block.UPDATE_ALL);
+            CaseLayout layout = CaseLayout.of(spec);
+            CaseBuilder.build(level, core, spec, layout);
+            // a case's machines are marked as provided; these are the player's own
+            for (CaseLayout.Machine m : layout.machines) {
+                BlockPos p = core.relative(forward, m.at().x()).relative(forward.getClockWise(), m.at().l()).above(m.at().y());
+                if (level.getBlockEntity(p) instanceof OperatorBlockEntity be) {
+                    try {
+                        Field provided = OperatorBlockEntity.class.getDeclaredField("provided");
+                        provided.setAccessible(true);
+                        provided.setBoolean(be, false);
+                        be.setChanged();
+                        level.sendBlockUpdated(p, be.getBlockState(), be.getBlockState(), Block.UPDATE_CLIENTS);
+                    } catch (ReflectiveOperationException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+            }
+        });
     }
 
     /** Puts the mouse at the centre of GUI pixel (x, y), counted from a container screen's corner when one is open. */
