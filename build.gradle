@@ -22,8 +22,14 @@ sourceSets.main.resources {
     exclude('**/*.bbmodel')
 }
 
+// Development-only driver that plays scripted sessions in the client (see the rehearsal run); never packaged.
+sourceSets {
+    rehearsal
+}
+
 neoForge {
     version = project.neo_version
+    addModdingDependenciesTo sourceSets.rehearsal
 
     runs {
         configureEach {
@@ -35,6 +41,16 @@ neoForge {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
             // Live-reload guide pages from the source tree while developing.
             systemProperty 'guideme.residual.guide.sources', file('src/main/resources/assets/residual/guides/residual/guide').absolutePath
+            programArguments.addAll '--width', '1600', '--height', '1000'
+        }
+        // ./gradlew runRehearsal -Pscript=<file> [-Pmonitor=<display name>]
+        rehearsal {
+            client()
+            sourceSet = sourceSets.rehearsal
+            gameDirectory = file('run/rehearsal')
+            var projectDir = layout.projectDirectory
+            systemProperties.put 'residual.rehearsal', providers.gradleProperty('script').map { projectDir.file(it).asFile.absolutePath }.orElse('')
+            systemProperties.put 'residual.rehearsal.monitor', providers.gradleProperty('monitor').orElse('')
             programArguments.addAll '--width', '1600', '--height', '1000'
         }
         server {
@@ -50,6 +66,7 @@ neoForge {
     mods {
         "${mod_id}" {
             sourceSet(sourceSets.main)
+            sourceSet(sourceSets.rehearsal)
         }
     }
 
@@ -61,6 +78,8 @@ neoForge {
 
 dependencies {
     implementation "org.appliedenergistics:guideme:${guideme_version}"
+    rehearsalImplementation sourceSets.main.output
+    rehearsalRuntimeOnly "org.appliedenergistics:guideme:${guideme_version}"
 
     testImplementation "org.junit.jupiter:junit-jupiter:${junit_version}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -97,6 +116,7 @@ neoForge.ideSyncTask generateModMetadata
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:deprecation'
 }
 
 idea {
