@@ -14,11 +14,11 @@
   "custom_colors": {
     "residual:teal": {
       "dark_mode": "#3CD6C6",
-      "light_mode": "#1F8A80"
+      "light_mode": "#3CD6C6"
     },
     "residual:amber": {
       "dark_mode": "#FFB547",
-      "light_mode": "#B0700F"
+      "light_mode": "#FFB547"
     }
   }
 }
