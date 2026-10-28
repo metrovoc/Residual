@@ -109,7 +109,7 @@ public final class CompiledGraph {
             }
         }
         if (!issues.isEmpty()) {
-            throw new CompileException(issues);
+            throw new CompileException(issues, shapes);
         }
 
         List<Map<String, Tensor>> params = new ArrayList<>(n);

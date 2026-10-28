@@ -42,19 +42,19 @@ public final class Curriculum {
     private static final Map<String, Task> TASKS = new ConcurrentHashMap<>();
     private static final Map<String, String> CORPORA = new ConcurrentHashMap<>();
 
+    /** Lessons and cases in the order they unlock: each needs everything before it. */
     public static final List<Lesson> ALL = List.of(
             lesson("counting", () -> new TextTask("counting", corpus("words.txt"), 16, 2.62, Set.of()), new Settings(1e-2f, 32, 1f), "insight_counting"),
-            lesson("context", () -> new TextTask("context", corpus("words.txt"), 16, 2.45, Set.of()), Settings.DEFAULT, "insight_context"),
-            lesson("recall", () -> PuzzleTask.recall("recall", 8, 0.9), Settings.DEFAULT, "insight_attention"),
-            lesson("reverse", () -> PuzzleTask.reverse("reverse", 6, 0.9), Settings.DEFAULT, "insight_position"),
-            lesson("induction", () -> PuzzleTask.induction("induction", 24, 0.9, Set.of(Op.SHIFT)), Settings.DEFAULT, "insight_circuits"),
-            lesson("language", () -> new TextTask("language", corpus("shakespeare.txt"), 64, 1.95, Set.of()), new Settings(3e-3f, 16, 1f), "insight_language"),
-
             broken("case_shape", "counting", Settings.DEFAULT, Curriculum::caseShape),
+            lesson("context", () -> new TextTask("context", corpus("words.txt"), 16, 2.45, Set.of()), Settings.DEFAULT, "insight_context"),
             broken("case_diverge", "context", new Settings(1.5f, 32, 0f), Blueprints::context),
+            lesson("recall", () -> PuzzleTask.recall("recall", 8, 0.9), Settings.DEFAULT, "insight_attention"),
             broken("case_leak", "context", Settings.DEFAULT, Curriculum::caseLeak),
+            lesson("reverse", () -> PuzzleTask.reverse("reverse", 6, 0.9), Settings.DEFAULT, "insight_position"),
             broken("case_order", "reverse", Settings.DEFAULT, Curriculum::caseOrder),
-            broken("case_depth", "context", Settings.DEFAULT, Curriculum::caseDepth));
+            broken("case_depth", "context", Settings.DEFAULT, Curriculum::caseDepth),
+            lesson("induction", () -> PuzzleTask.induction("induction", 24, 0.9, Set.of(Op.SHIFT)), Settings.DEFAULT, "insight_circuits"),
+            lesson("language", () -> new TextTask("language", corpus("shakespeare.txt"), 64, 1.95, Set.of()), new Settings(3e-3f, 16, 1f), "insight_language"));
 
     private Curriculum() {
     }
@@ -66,6 +66,19 @@ public final class Curriculum {
     /** A case reuses a lesson's task, starting from a deliberately broken machine. */
     private static Lesson broken(String id, String taskOf, Settings settings, Supplier<GraphSpec> machine) {
         return new Lesson(id, Kind.CASE, () -> byId(taskOf).makeTask(), settings, null, machine, CASE_BUDGET);
+    }
+
+    /** Whether a player who has completed {@code done} may start {@code lesson}. */
+    public static boolean unlocked(Lesson lesson, Set<String> done) {
+        for (Lesson l : ALL) {
+            if (l == lesson) {
+                return true;
+            }
+            if (!done.contains(l.id())) {
+                return false;
+            }
+        }
+        return false;
     }
 
     public static Lesson byId(String id) {

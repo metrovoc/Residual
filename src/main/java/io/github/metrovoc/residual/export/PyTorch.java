@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.export;
 
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Config;
+import io.github.metrovoc.residual.graph.ConfigField;
 import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
@@ -83,24 +84,37 @@ public final class PyTorch {
         return sb.toString();
     }
 
-    /** The constructor line for a node's module, or null if it has no parameters. */
-    public static String declaration(String id, Op op, Config c, Sym[] in, Env env) {
+    /**
+     * The constructor line for a node's module, or null if it has no parameters.
+     *
+     * @param features size of the main input's last dimension, or -1 if not known yet
+     */
+    public static String declaration(String id, Op op, Config c, int features, Env env) {
+        String in = features > 0 ? Integer.toString(features) : "in_features";
+        // a machine that was never checked has no vocabulary yet: name the sizes instead
+        String vocab = env.vocab() > 0 ? Integer.toString(env.vocab()) : "vocab_size";
+        String context = env.context() > 0 ? Integer.toString(env.context()) : "context";
+        String hidden = features > 0 ? Integer.toString(features * c.integer("expand")) : c.get("expand") + " * in_features";
         return switch (op) {
-            case EMBEDDING -> "self." + id + " = nn.Embedding(" + env.vocab() + ", " + c.width("dim", env.vocab()) + ")";
-            case POSITION -> "self." + id + " = nn.Embedding(" + env.context() + ", " + c.width("dim", env.vocab()) + ")";
-            case LINEAR -> "self." + id + " = nn.Linear(" + in[0].dim(-1) + ", " + c.width("out", env.vocab())
+            case EMBEDDING -> "self." + id + " = nn.Embedding(" + vocab + ", " + width(c, "dim", vocab) + ")";
+            case POSITION -> "self." + id + " = nn.Embedding(" + context + ", " + width(c, "dim", vocab) + ")";
+            case LINEAR -> "self." + id + " = nn.Linear(" + in + ", " + width(c, "out", vocab)
                     + (c.flag("bias") ? "" : ", bias=False") + ")";
-            case NORM -> "self." + id + " = " + ("rms".equals(c.get("kind")) ? "RMSNorm(" : "nn.LayerNorm(") + in[0].dim(-1) + ")";
-            case ATTENTION -> "self." + id + " = CausalSelfAttention(" + in[0].dim(-1) + ", heads=" + c.get("heads") + ")";
-            case MLP -> "self." + id + " = FeedForward(" + in[0].dim(-1) + ", " + in[0].dim(-1) * c.integer("expand") + ", " + activation(c.get("fn")) + ")";
-            case TRANSFORMER -> "self." + id + " = Block(" + in[0].dim(-1) + ", heads=" + c.get("heads") + ", hidden="
-                    + in[0].dim(-1) * c.integer("expand") + ", act=" + activation(c.get("fn")) + ")";
+            case NORM -> "self." + id + " = " + ("rms".equals(c.get("kind")) ? "RMSNorm(" : "nn.LayerNorm(") + in + ")";
+            case ATTENTION -> "self." + id + " = CausalSelfAttention(" + in + ", heads=" + c.get("heads") + ")";
+            case MLP -> "self." + id + " = FeedForward(" + in + ", " + hidden + ", " + activation(c.get("fn")) + ")";
+            case TRANSFORMER -> "self." + id + " = Block(" + in + ", heads=" + c.get("heads") + ", hidden=" + hidden
+                    + ", act=" + activation(c.get("fn")) + ")";
             default -> null;
         };
     }
 
+    private static String width(Config c, String key, String vocab) {
+        return ConfigField.VOCAB.equals(c.get(key)) ? vocab : c.get(key);
+    }
+
     /** The right-hand side of a node's line in {@code forward}. */
-    public static String expression(String id, Op op, Config c, String[] args, Sym[] in) {
+    public static String expression(String id, Op op, Config c, String[] args, int features) {
         String a = args.length > 0 ? args[0] : "";
         String b = args.length > 1 ? args[1] : "";
         return switch (op) {
@@ -117,7 +131,7 @@ public final class PyTorch {
             case MULTIPLY -> a + " * " + b;
             case MATMUL -> a + " @ " + b + (c.flag("transpose") ? ".transpose(-2, -1)" : "");
             case SCALE -> "inv_sqrt".equals(c.get("factor"))
-                    ? a + " / math.sqrt(" + (in == null ? "d" : Integer.toString(in[0].dim(-1))) + ")"
+                    ? a + " / math.sqrt(" + (features > 0 ? Integer.toString(features) : a + ".shape[-1]") + ")"
                     : a + " * " + c.get("factor");
             case CAUSAL_MASK -> "causal_mask(" + a + ")";
             case SOFTMAX -> "F.softmax(" + a + ", dim=-1)";
@@ -128,19 +142,24 @@ public final class PyTorch {
         };
     }
 
-    /** A few lines of PyTorch describing a single machine, for its screen. */
-    public static String preview(GraphSpec.Node node, Sym[] in, Env env) {
-        String id = sanitize(node.name);
+    /** The PyTorch lines for a single machine, shown on its screen: its module (if any) and its forward step. */
+    public static List<String> preview(Op op, Config c, String name, int features, Env env) {
+        String id = sanitize(name);
         if (id.isEmpty() || RESERVED.contains(id)) {
-            id = node.op.id;
+            id = op.id;
         }
-        String[] args = node.op.arity == 0 ? new String[0] : node.op.arity == 1 ? new String[]{"x"} : new String[]{"a", "b"};
-        if (node.op == Op.EMBEDDING) {
-            args = new String[]{"tokens"};
+        String[] args = switch (op.arity) {
+            case 0 -> new String[0];
+            case 1 -> new String[]{op == Op.EMBEDDING ? "tokens" : "x"};
+            default -> new String[]{"x", "y"};
+        };
+        List<String> lines = new ArrayList<>();
+        String decl = declaration(id, op, c, features, env);
+        if (decl != null) {
+            lines.add(decl);
         }
-        String decl = in == null ? null : declaration(id, node.op, node.config, in, env);
-        String line = id + " = " + expression(id, node.op, node.config, args, in);
-        return decl == null ? line : decl + "\n" + line;
+        lines.add(id + " = " + expression(id, op, c, args, features));
+        return lines;
     }
 
     static String activation(String fn) {
@@ -166,8 +185,8 @@ public final class PyTorch {
         List<String> forward = new ArrayList<>();
         for (int node : g.order) {
             GraphSpec.Node n = spec.node(node);
-            Sym[] in = inputs(g, n);
-            String decl = declaration(ids[node], n.op, n.config, in, env);
+            int features = n.op.arity > 0 ? inputs(g, n)[0].dim(-1) : -1;
+            String decl = declaration(ids[node], n.op, n.config, features, env);
             if (decl != null) {
                 init.add(decl);
             }
@@ -175,7 +194,7 @@ public final class PyTorch {
             for (int i = 0; i < args.length; i++) {
                 args[i] = n.inputs[i] == GraphSpec.TOKENS ? "tokens" : ids[n.inputs[i]];
             }
-            forward.add(ids[node] + " = " + expression(ids[node], n.op, n.config, args, in));
+            forward.add(ids[node] + " = " + expression(ids[node], n.op, n.config, args, features));
         }
 
         StringBuilder py = new StringBuilder();
