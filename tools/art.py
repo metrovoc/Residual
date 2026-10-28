@@ -700,6 +700,48 @@ def guide():
     return c
 
 
+# ---------------------------------------------------------------- logo
+
+LETTERS = {
+    "R": ["#######.", "########", "##....##", "##....##", "##....##", "########", "#######.", "##..##..", "##...##.",
+          "##....##", "##....##", "##....##"],
+    "E": ["#######", "#######", "##.....", "##.....", "##.....", "######.", "######.", "##.....", "##.....", "##.....",
+          "#######", "#######"],
+    "S": [".#######", "########", "##......", "##......", "##......", "#######.", ".#######", "......##", "......##",
+          "......##", "########", "#######."],
+    "I": ["##"] * 12,
+    "D": ["#######.", "########"] + ["##....##"] * 8 + ["########", "#######."],
+    "U": ["##....##"] * 10 + ["########", ".######."],
+    "A": [".######.", "########", "##....##", "##....##", "##....##", "########", "########"] + ["##....##"] * 5,
+    "L": ["##....."] * 10 + ["#######", "#######"],
+}
+AROUND = [(dx, dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1, 2)]
+
+
+def logo():
+    """The Residual Junction's face beside the name, both outlined, the letters lit from above."""
+    cells, x = set(), 0
+    for ch in "RESIDUAL":
+        rows = LETTERS[ch]
+        cells |= {(x + dx, y) for y, row in enumerate(rows) for dx, c in enumerate(row) if c == "#"}
+        x += len(rows[0]) + 2
+    c = Canvas(21 + x, 18)
+    face = operator_faces("add")[0]
+    c.rect(0, 0, 17, 17, NEUTRAL[0])
+    c.im.paste(face.im, (1, 1))
+    x0, y0 = 22, 2
+    ramp = [K0] * 3 + [K1] * 4 + [K2] * 3 + [K3] * 2
+    for (x, y) in cells:
+        for dx, dy in AROUND:
+            if (x + dx, y + dy) not in cells:
+                c.px(x0 + x + dx, y0 + y + dy, NEUTRAL[0])
+    for (x, y) in cells:
+        if (x, y + 1) not in cells:
+            c.px(x0 + x, y0 + y + 1, K4)
+        c.px(x0 + x, y0 + y, ramp[y])
+    return c
+
+
 # ---------------------------------------------------------------- output
 
 def build():
@@ -736,6 +778,9 @@ def build():
     for name, (accent, rows) in INSIGHTS.items():
         insight(accent, rows).save(f"item/{name}.png")
     guide().save("item/guide.png")
+    # the mod list scales it down to 50 px high
+    mark = logo().im
+    mark.resize((mark.width * 8, mark.height * 8), Image.NEAREST).save(ROOT / "src/main/resources/residual_logo.png")
 
 
 def preview(path):
