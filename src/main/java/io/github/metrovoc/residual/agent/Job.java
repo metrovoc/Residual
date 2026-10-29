@@ -1,18 +1,32 @@
 package io.github.metrovoc.residual.agent;
 
-import io.github.metrovoc.residual.learn.Benchmark;
 import java.util.Locale;
 import org.jetbrains.annotations.Nullable;
 
-/** The standing work an agent does, and the benchmark its model is asked for while doing it. */
+/**
+ * A ready-made program: one of its routines for good. Worlds from before programs saved the job by its place here, so
+ * a new one goes last.
+ */
 public enum Job {
-    REST(null), FARM(Benchmark.REACTING), STORE(Benchmark.RECALL), HAUL(Benchmark.REVERSAL), BUILD(Benchmark.INDUCTION);
+    REST(""), FARM("repeat (farm)"), STORE("repeat (store)"), HAUL("repeat (haul)"), BUILD("repeat (build)"),
+    SORT("repeat (sort)");
 
     public final String id = name().toLowerCase(Locale.ROOT);
-    @Nullable
-    public final Benchmark benchmark;
+    /** Its program, as a player would write it. */
+    public final String program;
 
-    Job(@Nullable Benchmark benchmark) {
-        this.benchmark = benchmark;
+    Job(String program) {
+        this.program = program;
+    }
+
+    /** The job {@code program} is, or null for a program of its own. */
+    @Nullable
+    public static Job of(String program) {
+        for (Job j : values()) {
+            if (j.program.equals(program)) {
+                return j;
+            }
+        }
+        return null;
     }
 }

@@ -37,13 +37,16 @@ final class Storing extends Work {
             chests = chests.subList(0, Dataset.CHESTS.length());
         }
         if (chests.isEmpty()) {
-            a.status("residual.agent.status.no_chests", RADIUS);
+            fail("residual.agent.status.no_chests", RADIUS);
             a.pause(100);
             return;
         }
-        int slot = carried();
+        int slot = carried(a);
         if (slot < 0) {
-            fetch(level);
+            // the barrels are empty: that is a round
+            if (!collect(a, level)) {
+                finish("residual.program.barrels_empty");
+            }
             return;
         }
         ItemStack stack = a.items.getItem(slot);
@@ -67,7 +70,8 @@ final class Storing extends Work {
             });
             return;
         }
-        BlockPos target = chests.get(Math.min(chosen, chests.size() - 1));
+        int number = Math.min(chosen, chests.size() - 1);
+        BlockPos target = chests.get(number);
         a.status("residual.agent.status.storing", chests.size());
         switch (a.walk(target, 2.2)) {
             case ON_THE_WAY -> {
@@ -83,9 +87,15 @@ final class Storing extends Work {
         }
         Container c = Stores.at(level, target);
         if (c != null) {
+            int count = stack.getCount();
+            String name = Things.name(stack);
             ItemStack rest = Stores.insert(c, stack);
             a.items.setItem(slot, rest);
             a.handle(target);
+            if (rest.getCount() < count) {
+                a.trace(Trace.Kind.DONE, Program.Verb.STORE.word, "residual.program.stored",
+                        List.of(String.valueOf(count - rest.getCount()), name, String.valueOf(number)));
+            }
             if (!rest.isEmpty()) {
                 a.status("residual.agent.status.chest_full", chosen);
                 a.pause(60);
@@ -94,8 +104,8 @@ final class Storing extends Work {
         chosen = -1;
     }
 
-    /** The first slot it carries something in, or -1. */
-    private int carried() {
+    /** The first slot {@code a} carries something in, or -1. */
+    static int carried(Agent a) {
         for (int i = 0; i < Agent.CARRY; i++) {
             if (!a.items.getItem(i).isEmpty()) {
                 return i;
@@ -104,8 +114,8 @@ final class Storing extends Work {
         return -1;
     }
 
-    /** Takes one stack out of the barrels around home. */
-    private void fetch(ServerLevel level) {
+    /** Takes one stack out of the barrels around home; false once they are empty. */
+    static boolean collect(Agent a, ServerLevel level) {
         for (BlockPos barrel : Stores.near(level, a.home(), RADIUS, Stores.BARRELS)) {
             Container c = Stores.at(level, barrel);
             if (c == null || c.isEmpty()) {
@@ -114,11 +124,11 @@ final class Storing extends Work {
             a.status("residual.agent.status.collecting");
             switch (a.walk(barrel, 2.2)) {
                 case ON_THE_WAY -> {
-                    return;
+                    return true;
                 }
                 case LOST -> {
                     a.pause(60);
-                    return;
+                    return true;
                 }
                 case HERE -> {
                 }
@@ -126,10 +136,11 @@ final class Storing extends Work {
             ItemStack got = Stores.take(c, s -> true, 64);
             a.keep(got);
             a.handle(barrel);
-            return;
+            return true;
         }
         a.status("residual.agent.status.nothing_to_store");
         a.pause(60);
+        return false;
     }
 
     /** Which chest holds the most of each kind. */

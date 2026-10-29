@@ -62,7 +62,7 @@ final class Building extends Work {
     void tick(ServerLevel level) {
         List<BlockPos> row = row();
         if (row == null) {
-            a.status("residual.agent.status.no_row");
+            fail("residual.agent.status.no_row");
             a.pause(100);
             return;
         }
@@ -79,6 +79,7 @@ final class Building extends Work {
         if (next == null) {
             a.status("residual.agent.status.row_done");
             a.pause(200);
+            finish();
             return;
         }
         if (chosen == null) {
@@ -112,7 +113,7 @@ final class Building extends Work {
     /** Asks its model which kind of block comes next. */
     private void choose(List<BlockState> laid) {
         if (laid.size() < 2) {
-            a.status("residual.agent.status.pattern_short");
+            fail("residual.agent.status.pattern_short");
             a.pause(100);
             return;
         }
@@ -130,7 +131,7 @@ final class Building extends Work {
         int last = prompt.length() - 1;
         int before = prompt.lastIndexOf(String.valueOf(prompt.charAt(last)), last - 1);
         if (before < 0) {
-            a.status("residual.agent.status.pattern_short");
+            fail("residual.agent.status.pattern_short");
             a.pause(100);
             return;
         }
@@ -196,7 +197,7 @@ final class Building extends Work {
                 }
             }
             if (fetchingFrom == null) {
-                a.status("residual.agent.status.needs_block", block.getName().getString());
+                fail("residual.agent.status.needs_block", block.getName().getString());
                 a.pause(100);
                 return false;
             }

@@ -123,7 +123,7 @@ import org.slf4j.Logger;
  * hud on|off
  * gui SCALE                  set the GUI scale (0 = auto)
  * blueprint NAME X Y Z FACING  place a Model Core and build a reference model in front of it, as a player would
- *                            (bigram, context, recall, reverse, induction, gpt)
+ *                            (bigram, context, recall, reverse, induction, gpt, gpt32)
  * shot NAME                  save screenshots/NAME.png in the game directory
  * quit
  * </pre>
@@ -390,6 +390,7 @@ public final class Rehearsal {
             case "reverse" -> Blueprints.reverse();
             case "induction" -> Blueprints.induction();
             case "gpt" -> Blueprints.gpt(64, 2, 4);
+            case "gpt32" -> Blueprints.gpt(32, 2, 4);
             default -> throw new IllegalArgumentException("no blueprint named " + args[0]);
         };
         BlockPos core = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));

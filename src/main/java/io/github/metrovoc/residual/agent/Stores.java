@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.agent;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -22,6 +23,8 @@ final class Stores {
     static final Predicate<BlockEntity> CHESTS = be -> be instanceof ChestBlockEntity;
     static final Predicate<BlockEntity> BARRELS = be -> be instanceof BarrelBlockEntity;
     static final Predicate<BlockEntity> ANY = be -> be instanceof ChestBlockEntity || be instanceof BarrelBlockEntity;
+    /** How far from home it looks for stores to take from and put into. */
+    static final int AROUND = Storing.RADIUS + 4;
 
     private Stores() {
     }
@@ -99,6 +102,72 @@ final class Stores {
         int moved = count - left.getCount();
         insert(c, left);
         return moved;
+    }
+
+    /** How many of what matches {@code what} there are in {@code c}. */
+    static int count(Container c, Predicate<ItemStack> what) {
+        int n = 0;
+        for (int i = 0; i < c.getContainerSize(); i++) {
+            ItemStack s = c.getItem(i);
+            if (!s.isEmpty() && what.test(s)) {
+                n += s.getCount();
+            }
+        }
+        return n;
+    }
+
+    /** The nearest store around {@code home} with exactly {@code wanted}, else with a kind of it, leaving out {@code tried}. */
+    @Nullable
+    static BlockPos find(ServerLevel level, BlockPos home, Things.Wanted wanted, Set<BlockPos> tried) {
+        BlockPos loose = null;
+        for (BlockPos p : near(level, home, AROUND, ANY)) {
+            Container c = tried.contains(p) ? null : at(level, p);
+            if (c == null) {
+                continue;
+            }
+            if (has(c, wanted::exactly)) {
+                return p;
+            }
+            if (loose == null && has(c, wanted::loosely)) {
+                loose = p;
+            }
+        }
+        return loose;
+    }
+
+    /**
+     * Where {@code stack} goes around {@code home}: a store that already keeps some of it, else the store at home, else
+     * the nearest with room; null if none has room, leaving out {@code tried}.
+     */
+    @Nullable
+    static BlockPos into(ServerLevel level, BlockPos home, ItemStack stack, Set<BlockPos> tried) {
+        BlockPos roomy = null;
+        BlockPos homeChest = homeChest(level, home);
+        for (BlockPos p : near(level, home, AROUND, ANY)) {
+            Container c = tried.contains(p) ? null : at(level, p);
+            if (c == null || !room(c, stack)) {
+                continue;
+            }
+            if (has(c, s -> ItemStack.isSameItemSameComponents(s, stack))) {
+                return p;
+            }
+            if (roomy == null || p.equals(homeChest)) {
+                roomy = p;
+            }
+        }
+        return roomy;
+    }
+
+    /** Whether {@code c} has room for some of {@code stack}. */
+    static boolean room(Container c, ItemStack stack) {
+        for (int i = 0; i < c.getContainerSize(); i++) {
+            ItemStack in = c.getItem(i);
+            if (in.isEmpty() && c.canPlaceItem(i, stack)
+                    || ItemStack.isSameItemSameComponents(in, stack) && in.getCount() < in.getMaxStackSize()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static boolean has(Container c, Predicate<ItemStack> what) {

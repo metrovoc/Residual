@@ -50,6 +50,7 @@ public final class Residual {
         NeoForge.EVENT_BUS.addListener(Residual::onServerStopping);
         NeoForge.EVENT_BUS.addListener(Residual::onLogIn);
         NeoForge.EVENT_BUS.addListener(Agents::onChat);
+        NeoForge.EVENT_BUS.addListener(Agents::commands);
         NeoForge.EVENT_BUS.addListener(ForecasterBlockEntity::grew);
     }
 

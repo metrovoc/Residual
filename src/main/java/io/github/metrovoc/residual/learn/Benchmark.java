@@ -20,7 +20,15 @@ public enum Benchmark {
     REVERSAL(12, Task.Metric.ACCURACY, 0.9),
     /** Building: continue the pattern seen so far. */
     INDUCTION(24, Task.Metric.ACCURACY, 0.9),
-    /** Orders: what was meant by what was said. */
+    /**
+     * Sorting: what kind a thing is, by its name. The test names only things practice never does, some of them made
+     * up.
+     */
+    SORTING(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Orders: what was meant by what was said. A two-layer model of width 64 passes in about 2,250 steps; one of width
+     * 32, small enough to carry, stalls near 74%.
+     */
     ORDERS(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
     /**
      * Reading: the next letter of archive text it has never seen. Getting below 1.40 takes nearly the whole archive,

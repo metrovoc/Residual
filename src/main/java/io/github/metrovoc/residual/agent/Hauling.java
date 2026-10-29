@@ -34,13 +34,13 @@ final class Hauling extends Work {
     void tick(ServerLevel level) {
         List<BlockPos> route = a.marks();
         if (route.isEmpty()) {
-            a.status("residual.agent.status.no_route");
+            fail("residual.agent.status.no_route");
             a.pause(100);
             return;
         }
         // the errand test always names six waymarks; a route of any other length would ask its model something new
         if (route.size() != Dataset.LEG) {
-            a.status("residual.agent.status.route_length", Dataset.LEG, route.size());
+            fail("residual.agent.status.route_length", Dataset.LEG, route.size());
             a.pause(100);
             return;
         }
@@ -168,5 +168,6 @@ final class Hauling extends Work {
         index = 0;
         labels = "";
         a.pause(100);
+        finish();
     }
 }

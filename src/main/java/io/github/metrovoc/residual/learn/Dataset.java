@@ -62,6 +62,7 @@ public final class Dataset extends Task {
                 case RECALL -> storage(rng, seq, answer);
                 case REVERSAL -> errand(rng, seq, answer);
                 case INDUCTION -> pattern(rng, seq, answer);
+                case SORTING -> sorting(rng, seq, answer, test);
                 case ORDERS -> orders(rng, seq, answer, test);
                 default -> throw new IllegalStateException();
             }
@@ -161,6 +162,22 @@ public final class Dataset extends Task {
                 seq[i] = vocab.id(LETTERS.charAt(letters[i < start ? i : start + (i - start) % len]));
                 answer[i] = i > start + len;
             }
+        }
+    }
+
+    /** {@code cooked salmon? f⏎}, repeated: the letter of each thing's kind is the answer. */
+    private void sorting(Random rng, int[] seq, boolean[] answer, boolean test) {
+        StringBuilder text = new StringBuilder();
+        while (text.length() < seq.length) {
+            Kinds.Example ex = Kinds.example(rng, test);
+            text.append(Kinds.prompt(ex.name()));
+            if (text.length() < seq.length) {
+                answer[text.length()] = true;
+            }
+            text.append(ex.kind().letter).append('\n');
+        }
+        for (int i = 0; i < seq.length; i++) {
+            seq[i] = vocab.id(text.charAt(i));
         }
     }
 

@@ -1,0 +1,28 @@
+{
+  "parent": "residual:agent/made",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:program_card"
+    },
+    "title": {
+      "translate": "advancements.residual.agent.program.title"
+    },
+    "description": {
+      "translate": "advancements.residual.agent.program.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

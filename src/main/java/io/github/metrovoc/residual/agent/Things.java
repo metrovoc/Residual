@@ -14,7 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /** Which items a name said aloud could mean: "iron ingots", "seeds", "a pickaxe". */
-final class Things {
+public final class Things {
     private static final Map<String, String> ALIASES = Map.of("lapis", "lapis_lazuli", "steak", "cooked_beef",
             "honey", "honey_bottle", "milk", "milk_bucket", "clay balls", "clay_ball");
 
@@ -53,6 +53,11 @@ final class Things {
     }
 
     private Things() {
+    }
+
+    /** What a program calls the thing in {@code stack}, as the sorting test names things too: {@code cooked salmon}. */
+    public static String name(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().replace('_', ' ');
     }
 
     static Wanted of(String thing) {

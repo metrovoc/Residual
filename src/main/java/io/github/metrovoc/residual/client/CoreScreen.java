@@ -5,6 +5,7 @@ import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
+import io.github.metrovoc.residual.learn.Kinds;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.learn.Wrecks;
@@ -21,6 +22,7 @@ import java.util.Locale;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -123,7 +125,8 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             }
             case TESTS -> {
                 testAll = addRenderableWidget(Button.builder(Component.translatable("residual.core.test_all"),
-                        b -> send(CoreAction.Kind.TEST, 0)).bounds(x + 6, y + 172, 110, 16).build());
+                        b -> send(CoreAction.Kind.TEST, 0)).bounds(x + 6, y + 172, 110, 16)
+                        .tooltip(Tooltip.create(Component.translatable("residual.tests.held_out"))).build());
                 save = addRenderableWidget(Button.builder(Component.translatable("residual.core.save"), b -> send(CoreAction.Kind.SAVE, 0))
                         .bounds(x + 120, y + 172, 110, 16).build());
             }
@@ -138,19 +141,18 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                     CoreView.sample = null;
                     rebuild();
                 }));
-                boolean typed = lastBenchmark == Benchmark.ORDERS || lastBenchmark == Benchmark.READING;
+                boolean typed = lastBenchmark == Benchmark.ORDERS || lastBenchmark == Benchmark.SORTING || lastBenchmark == Benchmark.READING;
                 if (lastBenchmark == Benchmark.READING) {
                     addRenderableWidget(new Cycler(x + 150, y + 24, 76, Component.translatable("residual.sample.temperature"),
                             TEMPERATURES, lastTemperature, i -> lastTemperature = i));
                 }
                 if (typed) {
                     prompt = addRenderableWidget(new EditBox(font, x + 6, y + 44, 308, 16, Component.translatable("residual.sample.prompt")));
-                    prompt.setMaxLength(lastBenchmark == Benchmark.ORDERS ? 60 : 200);
-                    prompt.setHint(Component.translatable(lastBenchmark == Benchmark.ORDERS ? "residual.try.order_hint" : "residual.try.text_hint")
-                            .withColor(Ui.DIM));
+                    prompt.setMaxLength(lastBenchmark == Benchmark.ORDERS ? 60 : lastBenchmark == Benchmark.SORTING ? Kinds.LONGEST : 200);
+                    prompt.setHint(Component.translatable(lastBenchmark == Benchmark.ORDERS ? "residual.try.order_hint"
+                            : lastBenchmark == Benchmark.SORTING ? "residual.try.thing_hint" : "residual.try.text_hint").withColor(Ui.DIM));
                 }
-                String label = lastBenchmark == Benchmark.ORDERS ? "residual.try.ask" : lastBenchmark == Benchmark.READING ? "residual.try.write"
-                        : "residual.try.example";
+                String label = lastBenchmark == Benchmark.READING ? "residual.try.write" : typed ? "residual.try.ask" : "residual.try.example";
                 generate = addRenderableWidget(Button.builder(Component.translatable(label), b -> {
                     CoreView.sampling = true;
                     CoreView.sample = null;
@@ -602,30 +604,30 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     // ---------------------------------------------------------------- tests tab
 
     private void testsTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
-        Ui.screen(g, 6, 22, 308, 138);
+        Ui.screen(g, 6, 22, 308, 146);
         for (Benchmark a : Benchmark.values()) {
-            int y = 24 + a.ordinal() * 19;
+            int y = 24 + a.ordinal() * 18;
             CoreSync.Score score = s == null ? CoreSync.Score.NONE : s.tests().get(a.ordinal());
             boolean practising = s != null && s.practising().get(a.ordinal());
             boolean tested = score.step() >= 0;
             boolean pass = tested && s.causal() && passes(a, score);
             g.text(font, Component.translatable("residual.benchmark." + a.id), 10, y, practising ? Ui.TEAL : Ui.TEXT, false);
-            g.text(font, Component.translatable("residual.benchmark." + a.id + ".job"), 10, y + 10, Ui.DIM, false);
+            g.text(font, Component.translatable("residual.benchmark." + a.id + ".job"), 10, y + 9, Ui.DIM, false);
             float fraction = tested ? progress(a, a.target, score) : 0;
             Ui.bar(g, 108, y + 2, 116, 6, fraction, pass ? Ui.GREEN : 0xFF2A9D92);
             String detail = tested ? I18n.get("residual.tests.tested", Ui.count(score.step())) : I18n.get("residual.tests.never");
-            g.text(font, detail, 108, y + 10, Ui.DIM, false);
+            g.text(font, detail, 108, y + 9, Ui.DIM, false);
             String value = !tested ? "–" : a.metric == Task.Metric.LOSS ? Ui.num(score.loss())
                     : String.format(Locale.ROOT, "%.0f%%", 100 * score.accuracy());
             g.text(font, value, 268 - font.width(value), y, pass ? Ui.GREEN : Ui.TEXT, false);
             String target = goal(a, a.target);
-            g.text(font, target, 268 - font.width(target), y + 10, Ui.DIM, false);
+            g.text(font, target, 268 - font.width(target), y + 9, Ui.DIM, false);
             if (pass) {
                 g.text(font, "✔", 276, y, Ui.GREEN, false);
             } else if (tested && !s.causal()) {
                 g.text(font, "⚠", 276, y, Ui.RED, false);
             }
-            if (Ui.inside(mx, my, 6, y - 1, 308, 19)) {
+            if (Ui.inside(mx, my, 6, y - 1, 308, 18)) {
                 // split here rather than by the tooltip, which would wrap the lines again near the screen's edge
                 List<FormattedCharSequence> lines = new ArrayList<>();
                 lines.add(Component.translatable("residual.benchmark." + a.id).withColor(Ui.TEAL).getVisualOrderText());
@@ -636,7 +638,6 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                 g.setTooltipForNextFrame(lines, mx + leftPos, my + topPos);
             }
         }
-        g.text(font, Component.translatable("residual.tests.held_out"), 6, 162, Ui.LABEL_DIM, false);
         ItemStack crystal = menu.getSlot(CoreMenu.CRYSTAL).getItem();
         Component where = !(crystal.getItem() instanceof CrystalItem) ? Component.translatable("residual.tests.no_crystal")
                 : CrystalItem.model(crystal) instanceof ModelInfo m ? Component.translatable("residual.tests.over", m.tag())

@@ -5,17 +5,16 @@ navigation:
   position: 60
 item_ids:
   - checkpoint
-  - field_dataset
-  - growth_dataset
   - storage_dataset
   - errand_dataset
   - pattern_dataset
+  - sorting_dataset
   - orders_dataset
 ---
 
 # Models and Tests
 
-Every model is tested on seven benchmarks. Each test uses examples practice never shows, and each job asks its model in
+Every model is tested on eight benchmarks. Each test uses examples practice never shows, and each job asks its model in
 exactly the test's format, so a test score is how often an agent will decide right.
 
 | Benchmark   | Practice                              | The test                                           | Passes at   | Used for    |
@@ -25,6 +24,7 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Recall    | <ItemLink id="storage_dataset" />       | goods and their chests, then one kind asked again  | 90%         | storing     |
 | Reversal  | <ItemLink id="errand_dataset" />        | waymarks on the way out, then the way home         | 90%         | hauling     |
 | Induction | <ItemLink id="pattern_dataset" />       | letters where a run comes round again              | 90%         | building    |
+| Sorting   | <ItemLink id="sorting_dataset" />       | things named, and the kind of each, some made up   | 90%         | sorting     |
 | Orders    | <ItemLink id="orders_dataset" />        | orders, and what was meant by them                 | 90%         | orders      |
 | Reading   | <ItemLink id="archive_drive" />       | records no shard carries                           | loss ≤ 1.40 | the Reader  |
 
@@ -36,7 +36,8 @@ example, the way an agent would ask it.
 The Core's four **Data** slots are practised together: every step draws its batch from one of them in turn. One model
 can learn everything, if it is big enough and shaped for it. Each benchmark asks for something different: farming only
 needs the character just before, and so does forecasting an average field; recall has to find a pair far back;
-reversal needs to know where each waymark was; induction has to look back for what followed the same letter last time.
+reversal needs to know where each waymark was; induction has to look back for what followed the same letter last time;
+sorting has to find the word in a name that settles its kind.
 
 ## Checkpoints
 

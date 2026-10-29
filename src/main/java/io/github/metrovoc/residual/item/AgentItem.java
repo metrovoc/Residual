@@ -36,6 +36,9 @@ public class AgentItem extends Item {
         Component name = stack.get(DataComponents.CUSTOM_NAME);
         a.setCustomName(name != null ? name : Component.literal(Agent.NAMES.get(level.getRandom().nextInt(Agent.NAMES.size()))));
         a.setHome(pos);
+        if (ctx.getPlayer() != null) {
+            a.setBoss(ctx.getPlayer());
+        }
         level.addFreshEntity(a);
         level.playSound(null, pos, SoundEvents.COPPER_PLACE, SoundSource.NEUTRAL, 1f, 1.4f);
         stack.consume(1, ctx.getPlayer());

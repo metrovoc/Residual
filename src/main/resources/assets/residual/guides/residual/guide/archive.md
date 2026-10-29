@@ -27,8 +27,8 @@ copy: whatever any of them kept is kept. The drive's tooltip counts its records 
 
 In a Model Core's **Data** slots, a drive is practice for **Reading**: the model learns to predict the next letter of
 everything legible on it, or the next token with a [tokenizer](tokenizers.md), so the more you recover, the more it has
-to learn from. Reading is tested on records no
-shard ever carries. A model can only pass by learning how the old world wrote, not by remembering what it read.
+to learn from. Reading is tested on records no shard ever carries. A model can only pass by learning how the old world
+wrote, not by remembering what it read.
 
 ## The Reader
 

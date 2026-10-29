@@ -2,6 +2,8 @@ package io.github.metrovoc.residual.menu;
 
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.item.CrystalItem;
+import io.github.metrovoc.residual.learn.Benchmark;
+import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.registry.ModMenus;
 import net.minecraft.world.Container;
@@ -13,10 +15,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-/** An agent's screen: what it carries, the model slot, and the player's inventory. */
+/** An agent's screen: what it carries, its model and filter slots, and the player's inventory. */
 public class AgentMenu extends AbstractContainerMenu {
     public static final int CARRY_X = 8;
     public static final int CARRY_Y = 104;
+    public static final int FILTER_X = 134;
     public static final int MODEL_X = 152;
     public static final int MODEL_Y = 104;
     public static final int INVENTORY_X = 8;
@@ -39,11 +42,24 @@ public class AgentMenu extends AbstractContainerMenu {
         super(ModMenus.AGENT.get(), id);
         this.agent = agent;
         this.entityId = entityId;
-        Container c = agent != null ? agent.items : new SimpleContainer(Agent.CARRY + 1);
+        Container c = agent != null ? agent.items : new SimpleContainer(Agent.CARRY + 2);
         for (int i = 0; i < Agent.CARRY; i++) {
             addSlot(new Slot(c, i, CARRY_X + i % 6 * 18, CARRY_Y + i / 6 * 18));
         }
-        addSlot(new Slot(c, Agent.MODEL, MODEL_X, MODEL_Y) {
+        addSlot(modelSlot(c, Agent.MODEL, MODEL_X));
+        addSlot(modelSlot(c, Agent.FILTER, FILTER_X));
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 9; col++) {
+                addSlot(new Slot(inventory, 9 + row * 9 + col, INVENTORY_X + col * 18, INVENTORY_Y + row * 18));
+            }
+        }
+        for (int col = 0; col < 9; col++) {
+            addSlot(new Slot(inventory, col, INVENTORY_X + col * 18, INVENTORY_Y + 58));
+        }
+    }
+
+    private static Slot modelSlot(Container c, int index, int x) {
+        return new Slot(c, index, x, MODEL_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return isModel(stack);
@@ -53,15 +69,15 @@ public class AgentMenu extends AbstractContainerMenu {
             public int getMaxStackSize() {
                 return 1;
             }
-        });
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(inventory, 9 + row * 9 + col, INVENTORY_X + col * 18, INVENTORY_Y + row * 18));
-            }
-        }
-        for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(inventory, col, INVENTORY_X + col * 18, INVENTORY_Y + 58));
-        }
+        };
+    }
+
+    /** A model that sorts goes to the filter slot first, any other to the model slot first. */
+    private boolean intoModelSlot(ItemStack stack) {
+        ModelInfo info = CrystalItem.model(stack);
+        int first = info != null && info.passes(Benchmark.SORTING) ? Agent.FILTER : Agent.MODEL;
+        int second = first == Agent.FILTER ? Agent.MODEL : Agent.FILTER;
+        return moveItemStackTo(stack, first, first + 1, false) || moveItemStackTo(stack, second, second + 1, false);
     }
 
     public static boolean isModel(ItemStack stack) {
@@ -81,13 +97,12 @@ public class AgentMenu extends AbstractContainerMenu {
         }
         ItemStack stack = slot.getItem();
         ItemStack before = stack.copy();
-        int own = Agent.CARRY + 1;
+        int own = Agent.CARRY + 2;
         if (index < own) {
             if (!moveItemStackTo(stack, own, slots.size(), true)) {
                 return ItemStack.EMPTY;
             }
-        } else if (!(isModel(stack) && moveItemStackTo(stack, Agent.MODEL, own, false))
-                && !moveItemStackTo(stack, 0, Agent.CARRY, false)) {
+        } else if (!(isModel(stack) && intoModelSlot(stack)) && !moveItemStackTo(stack, 0, Agent.CARRY, false)) {
             return ItemStack.EMPTY;
         }
         if (stack.isEmpty()) {

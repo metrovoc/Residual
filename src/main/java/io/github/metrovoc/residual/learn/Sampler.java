@@ -1,5 +1,7 @@
 package io.github.metrovoc.residual.learn;
 
+import io.github.metrovoc.residual.agent.Job;
+import io.github.metrovoc.residual.agent.Program;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Tensor;
@@ -109,7 +111,7 @@ public final class Sampler {
         if (benchmark == Benchmark.ORDERS) {
             Orders.Example example = prompt.isBlank() ? Orders.example(rng, true) : null;
             String given = Orders.prompt(example == null ? prompt : example.said());
-            List<Step> steps = generate(model, vocab.spell(given), 24, 0f, rng);
+            List<Step> steps = generate(model, vocab.spell(given), Orders.WRITTEN, 0f, rng);
             StringBuilder out = new StringBuilder(given);
             for (Step s : steps) {
                 String piece = vocab.piece(s.token());
@@ -119,10 +121,25 @@ public final class Sampler {
                     break;
                 }
             }
-            Orders.Command c = Orders.parse(out.substring(given.length()));
+            Program.Parsed p = Program.parse(out.substring(given.length()));
             String note = (example == null ? "" : "Meant: " + example.meant() + ". ")
-                    + (c == null ? "An agent would not know what to do." : "An agent would " + describe(c) + ".");
+                    + (!p.ok() || p.program().steps().isEmpty() ? "An agent would not know what to do."
+                    : p.program().size() > 1 && Job.of(p.program().toString()) == null ? "An agent would read it back and run it once you say yes."
+                    : p.program().endless() ? "An agent would make it its program."
+                    : "An agent would do it at once.");
             return new Demo(given, out.toString(), labels(vocab, steps.getFirst().topIds()), floats(steps.getFirst().topProbs()), note);
+        }
+        if (benchmark == Benchmark.SORTING) {
+            Kinds.Example example = prompt.isBlank() ? Kinds.example(rng, true) : null;
+            String given = Kinds.prompt(example == null ? prompt : example.name());
+            Step step = generate(model, vocab.spell(given), 1, 0f, rng).getFirst();
+            char letter = vocab.piece(step.token()).charAt(0);
+            Kinds.Kind kind = Kinds.Kind.of(letter);
+            String note = (example == null ? "" : "Really: " + example.kind().id + ". ")
+                    + (kind == null ? "An agent would not know where it goes."
+                    : kind == Kinds.Kind.OTHER || step.topProbs()[0] < Kinds.SURE ? "An agent would put it in a chest labelled other, or one with no label."
+                    : "An agent would put it in the chest labelled " + kind.id + ".");
+            return new Demo(given, given + letter, labels(vocab, step.topIds()), floats(step.topProbs()), note);
         }
         if (benchmark == Benchmark.FORECASTING) {
             return forecast(model, rng);
@@ -170,19 +187,6 @@ public final class Sampler {
         String note = "Really: " + life.substring(cut, Math.min(life.length(), cut + 60)) + ".";
         Step first = steps.getFirst();
         return new Demo(given, out.toString(), labels(vocab, first.topIds()), floats(first.topProbs()), note);
-    }
-
-    private static String describe(Orders.Command c) {
-        return switch (c.meaning()) {
-            case FARM -> "go and farm";
-            case STORE -> "put things away";
-            case FETCH -> "fetch " + c.thing();
-            case COME -> "come to you";
-            case STAY -> "stay where it is";
-            case BUILD -> "carry on building";
-            case HAUL -> "run its errand";
-            case HOME -> "go home";
-        };
     }
 
     /** A test example, spelled out; the model may still answer with any token it knows. */

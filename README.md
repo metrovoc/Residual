@@ -43,7 +43,7 @@ fairly.
 <img src="docs/images/train.jpg" alt="The Train tab: the loss on practice and on the test" width="49%">
 </p>
 
-Every model is tested on seven benchmarks. A test uses examples that practice never shows, and a job asks its model in
+Every model is tested on eight benchmarks. A test uses examples that practice never shows, and a job asks its model in
 exactly the test's format, so a test score is how often an agent decides right.
 
 | Benchmark   | Practice      | Passes at   | Put to work                  |
@@ -53,13 +53,15 @@ exactly the test's format, so a test score is how often an agent decides right.
 | Recall    | Storage Dataset | 90%         | keeping a storeroom          |
 | Reversal  | Errand Dataset  | 90%         | hauling                      |
 | Induction | Pattern Dataset | 90%         | building                     |
+| Sorting   | Sorting Dataset | 90%         | sorting things by kind       |
 | Orders    | Orders Dataset  | 90%         | understanding what you say   |
 | Reading   | Archive Drive | loss ≤ 1.40 | restoring the archive        |
 
 A single embedding table can learn to farm. Recall needs attention, reversal needs to know positions, induction takes
-two layers of attention, and understanding orders takes a model too big to carry. The Model Core trains a model on up to
-four kinds of practice at once and shows the learning curves, the tests, every machine's output shape, weights and
-gradient. Saving a model to a checkpoint tests it on all seven benchmarks first.
+two layers of attention, sorting has to tell what a thing is from its name alone, and understanding orders takes a model
+too big to carry. The Model Core trains a model on up to four kinds of practice at once and shows the learning curves,
+the tests, every machine's output shape, weights and gradient. Saving a model to a checkpoint tests it on all eight
+benchmarks first.
 
 While a model trains, waves run through its blocks: a teal pulse from the tokens to the loss as the batch goes forward,
 then an amber one back as the gradient returns, each block lighting as brightly as what it carries. A block that stays
@@ -73,12 +75,19 @@ shows where each token looks.
 <img src="docs/images/terminal.jpg" alt="A Terminal: writing with a model served from a Model Server" width="49%">
 </p>
 
-An agent is a body for a model. It walks, reaps, carries and lays blocks on its own. Whenever there is a real
-decision to make (harvest, wait or plant; which chest the iron went into; the way home; the next block of a pattern;
-what you meant), it asks its model in the format of the test and does what the model answers. Its screen shows the
-question, the answer and how sure the model was. A model that passes its test at 98% decides right 98 times in 100.
+An agent is a frame that runs a program, such as `repeat (harvest, plant wheat seeds, put wheat)` or
+`take bread, come, give bread`, typed in its screen or clicked together from a palette of pieces, checked as you go, and
+carried from agent to agent on Program Cards. Walking, carrying, mining and laying blocks are its own. Wherever there is
+a real decision to make (harvest, wait or plant; which chest the iron went into; the way home; the next block of a
+pattern; what kind of thing this is; what you meant), it asks a model in the format of the test and does what the model
+answers. Its trace shows every step it took, what it checked, and why a step failed. A model that passes its test at 98%
+decides right 98 times in 100.
 
-Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it.
+Besides its model, an agent carries a filter: a model that tells what kind a thing is from its name alone, so that
+`sort` can file things it has never seen into chests labelled Food, Wood or Ores.
+
+Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it. Its model
+writes the order as a program; anything longer than one step it reads back, and runs only once you click Do it.
 
 ## Forecasting
 

@@ -193,44 +193,51 @@ class CalibrationTest {
     @Test
     void calibrate() throws Exception {
         String which = System.getenv("RESIDUAL_CALIBRATE");
-        boolean all = which.equals("all");
+        List<String> runs = List.of(which.split("[ ,]+"));
+        boolean all = runs.contains("all");
         Wrecks.Settings st = Wrecks.Settings.DEFAULT;
-        if (all || which.contains("reacting")) {
+        if (all || runs.contains("reacting")) {
             run("reacting", Blueprints.bigram(), Benchmark.REACTING, st, 1500, 250);
         }
-        if (all || which.contains("recall")) {
+        if (all || runs.contains("recall")) {
             run("recall", Blueprints.recall(), Benchmark.RECALL, st, 3000, 250);
         }
-        if (all || which.contains("reversal")) {
+        if (all || runs.contains("reversal")) {
             run("reversal", Blueprints.reverse(), Benchmark.REVERSAL, st, 3000, 250);
         }
-        if (all || which.contains("induction")) {
+        if (all || runs.contains("induction")) {
             run("induction", Blueprints.induction(), Benchmark.INDUCTION, st, 4000, 250);
         }
-        if (all || which.contains("orders")) {
+        if (all || runs.contains("sorting")) {
+            run("sorting", Blueprints.gpt(32, 2, 4), Benchmark.SORTING, st, 3000, 250);
+        }
+        if (runs.contains("small_sorting")) {
+            run("sorting_rev", Blueprints.reverse(), Benchmark.SORTING, st, 3000, 500);
+        }
+        if (all || runs.contains("orders")) {
             run("orders", Blueprints.gpt(64, 2, 4), Benchmark.ORDERS, st, 4000, 250);
         }
-        if (which.contains("small_orders")) {
+        if (runs.contains("small_orders")) {
             run("orders32", Blueprints.gpt(32, 2, 4), Benchmark.ORDERS, st, 4000, 500);
         }
-        if (all || which.contains("reading")) {
+        if (all || runs.contains("reading")) {
             run("reading", Blueprints.gpt(64, 2, 4), Benchmark.READING, st, 4000, 250);
         }
-        if (which.contains("weak_reading")) {
+        if (runs.contains("weak_reading")) {
             run("reading_ctx", Blueprints.context(), Benchmark.READING, st, 3000, 500);
         }
-        if (which.contains("collected")) {
+        if (runs.contains("collected")) {
             for (int n : new int[]{30, 60, 120}) {
                 collected("gpt32", Blueprints.gpt(32, 2, 4), n, 3000, 1000);
             }
             collected("gpt64", Blueprints.gpt(64, 2, 4), 60, 3000, 1000);
         }
-        if (which.contains("restore")) {
+        if (runs.contains("restore")) {
             restore("restore64", Blueprints.gpt(64, 2, 4), 4000, 1000);
             restore("restore32", Blueprints.gpt(32, 2, 4), 4000, 1000);
             restore("restore_ctx", Blueprints.context(), 3000, 1000);
         }
-        if (which.contains("tokens")) {
+        if (runs.contains("tokens")) {
             for (int records : new int[]{120, 1000}) {
                 for (int size : new int[]{78, 512, 2048}) {
                     tokenized("bigram", Blueprints.bigram(), records, size, 3000, 1000);
@@ -240,20 +247,20 @@ class CalibrationTest {
                 }
             }
         }
-        if (which.contains("generalist")) {
+        if (runs.contains("generalist")) {
             List<Mixture.Source> sources = new ArrayList<>();
             for (Benchmark a : Benchmark.values()) {
                 sources.add(new Mixture.Source(a, a == Benchmark.READING ? reading() : Dataset.of(a)));
             }
             run("generalist", Blueprints.gpt(64, 3, 4), new Mixture(sources, Vocab.WORLD), List.of(Benchmark.values()), Double.NaN, st, 12000, 1000);
         }
-        if (which.contains("wrecks")) {
+        if (runs.contains("wrecks")) {
             for (Wrecks.Wreck w : Wrecks.ALL) {
                 run("wreck_" + w.id(), w.machine().get(), w.practice(), List.of(w.benchmark()), w.target(), w.settings(),
                         Wrecks.BUDGET, 250);
             }
         }
-        if (which.contains("fixes")) {
+        if (runs.contains("fixes")) {
             run("shape_fix", fixedShape(), Dataset.of(Benchmark.REACTING), List.of(Benchmark.REACTING), 0.98, st, Wrecks.BUDGET, 250);
             run("diverge_fix", Blueprints.recall(), Dataset.of(Benchmark.RECALL), List.of(Benchmark.RECALL), 0.9, st, Wrecks.BUDGET, 250);
             run("leak_fix", fixedLeak(), Dataset.of(Benchmark.REACTING), List.of(Benchmark.REACTING), 0.98, st, Wrecks.BUDGET, 250);

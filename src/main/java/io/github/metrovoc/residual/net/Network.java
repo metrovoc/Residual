@@ -7,6 +7,7 @@ import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
+import io.github.metrovoc.residual.item.ProgramCardItem;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.menu.AgentMenu;
@@ -89,11 +90,16 @@ public final class Network {
         switch (a.kind()) {
             case JOB -> {
                 if (a.job() >= 0 && a.job() < Job.values().length) {
-                    agent.setJob(Job.values()[a.job()]);
+                    agent.setProgram(Job.values()[a.job()].program, player);
                 }
             }
+            case PROGRAM -> agent.setProgram(a.said(), player);
+            case STOP -> agent.stop();
+            case RUN -> agent.run();
             case SAY -> agent.order(player, a.said());
             case HOME -> agent.setHome(agent.blockPosition());
+            case CARD -> ProgramCardItem.write(player, menu.getCarried(), a.said());
+            case ANSWER -> agent.answer(player, a.job() == 1);
         }
         PacketDistributor.sendToPlayer(player, agent.snapshot());
     }

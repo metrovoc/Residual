@@ -33,6 +33,9 @@ public final class ModComponents {
     /** Blocks marked with a Survey Marker, oldest first. */
     public static final Supplier<DataComponentType<List<BlockPos>>> MARKS = COMPONENTS.registerComponentType("marks",
             b -> b.persistent(BlockPos.CODEC.listOf()).networkSynchronized(BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list())));
+    /** The program a Program Card carries, as a player would write it. */
+    public static final Supplier<DataComponentType<String>> PROGRAM = COMPONENTS.registerComponentType("program",
+            b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
     /** Which wreck a Salvaged Model is. */
     public static final Supplier<DataComponentType<String>> WRECK = COMPONENTS.registerComponentType("wreck",
             b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));

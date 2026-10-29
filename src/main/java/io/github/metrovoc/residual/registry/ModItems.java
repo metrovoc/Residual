@@ -12,6 +12,7 @@ import io.github.metrovoc.residual.item.LinkItem;
 import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
 import io.github.metrovoc.residual.item.ProbeItem;
+import io.github.metrovoc.residual.item.ProgramCardItem;
 import io.github.metrovoc.residual.item.SchematicItem;
 import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.item.SurveyRodItem;
@@ -52,6 +53,7 @@ public final class ModItems {
     public static final DeferredItem<ShardItem> SHARD = ITEMS.registerItem("archive_shard", ShardItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<AgentItem> AGENT = ITEMS.registerItem("agent", AgentItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<SurveyRodItem> SURVEY_ROD = ITEMS.registerItem("survey_rod", SurveyRodItem::new, p -> p.stacksTo(1));
+    public static final DeferredItem<ProgramCardItem> PROGRAM_CARD = ITEMS.registerItem("program_card", ProgramCardItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<LinkItem> RELAY_CARD = ITEMS.registerItem("relay_card", LinkItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<TerminalItem> TERMINAL = ITEMS.registerItem("terminal", TerminalItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<WreckItem> WRECK = ITEMS.registerItem("salvaged_model", WreckItem::new,
@@ -85,6 +87,7 @@ public final class ModItems {
             case RECALL -> "storage_dataset";
             case REVERSAL -> "errand_dataset";
             case INDUCTION -> "pattern_dataset";
+            case SORTING -> "sorting_dataset";
             case ORDERS -> "orders_dataset";
             case READING -> throw new IllegalArgumentException();
         };

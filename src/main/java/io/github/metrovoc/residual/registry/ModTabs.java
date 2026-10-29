@@ -60,6 +60,7 @@ public final class ModTabs {
                 ModItems.SCHEMATICS.values().forEach(schematic -> out.accept(schematic.get()));
                 out.accept(ModItems.AGENT.get());
                 out.accept(ModItems.SURVEY_ROD.get());
+                out.accept(ModItems.PROGRAM_CARD.get());
                 out.accept(ModBlocks.SERVER.get());
                 out.accept(ModBlocks.RELAY.get());
                 out.accept(ModItems.RELAY_CARD.get());

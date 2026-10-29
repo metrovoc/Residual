@@ -4,7 +4,6 @@ navigation:
   icon: archive_shard
   position: 20
 item_ids:
-  - archive_shard
   - schematic_relays
 ---
 
