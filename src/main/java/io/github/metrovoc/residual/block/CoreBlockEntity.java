@@ -63,6 +63,7 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -367,6 +368,7 @@ public class CoreBlockEntity extends BlockEntity {
         float temperature = Math.floorMod(value, 1000) / 100f;
         long seed = level.getRandom().nextLong();
         MinecraftServer server = player.level().getServer();
+        AbstractContainerMenu menu = player.containerMenu;
         Jobs.EXECUTOR.execute(() -> {
             SampleResult result;
             try {
@@ -377,7 +379,11 @@ public class CoreBlockEntity extends BlockEntity {
                 result = new SampleResult("", "", List.of(), List.of(), "Sampling failed: " + e);
             }
             SampleResult reply = result;
-            Jobs.back(server, () -> PacketDistributor.sendToPlayer(player, reply));
+            Jobs.back(server, () -> {
+                if (player.containerMenu == menu) {
+                    PacketDistributor.sendToPlayer(player, reply);
+                }
+            });
         });
     }
 
@@ -404,7 +410,8 @@ public class CoreBlockEntity extends BlockEntity {
             return;
         }
         busy = true;
-        MindInfo old = CrystalItem.mind(items.getItem(CoreMenu.CRYSTAL));
+        ItemStack target = items.getItem(CoreMenu.CRYSTAL);
+        MindInfo old = CrystalItem.mind(target);
         // saving over a crystal keeps its mind's name
         UUID id = old != null ? old.id() : UUID.randomUUID();
         int at = steps;
@@ -414,19 +421,22 @@ public class CoreBlockEntity extends BlockEntity {
         Jobs.EXECUTOR.execute(() -> {
             Map<Ability, Trainer.Eval> results = new EnumMap<>(Ability.class);
             String failure = null;
+            byte[] checkpoint = null;
             try {
                 for (Ability a : Ability.values()) {
                     results.put(a, Trainer.evaluate(checked.model(), a.test(), BATTERY));
                 }
                 if (saver != null) {
-                    Checkpoints.save(mc, id, checked.model());
+                    checkpoint = Checkpoints.encode(checked.model());
                 }
             } catch (IOException | RuntimeException e) {
                 Residual.LOG.error("Testing or saving a mind failed", e);
                 failure = String.valueOf(e);
             }
             String failed = failure;
-            Jobs.back(mc, () -> tested(results, failed, saver, new MindInfo(id, count, at, scores(results), causal(results))));
+            byte[] encoded = checkpoint;
+            Jobs.back(mc, () -> tested(results, failed, saver, target, new MindInfo(id, count, at, scores(results), causal(results)),
+                    checked.model(), encoded));
         });
     }
 
@@ -440,9 +450,10 @@ public class CoreBlockEntity extends BlockEntity {
         return results.values().stream().allMatch(Trainer.Eval::causal);
     }
 
-    private void tested(Map<Ability, Trainer.Eval> results, @Nullable String failure, @Nullable ServerPlayer saver, MindInfo mind) {
+    private void tested(Map<Ability, Trainer.Eval> results, @Nullable String failure, @Nullable ServerPlayer saver,
+                        ItemStack target, MindInfo mind, CompiledGraph model, @Nullable byte[] checkpoint) {
         busy = false;
-        if (isRemoved()) {
+        if (isRemoved() || !(level instanceof ServerLevel server)) {
             return;
         }
         results.forEach((a, e) -> tests.put(a, new CoreSync.Score((float) e.loss(), (float) e.accuracy(), mind.steps())));
@@ -455,8 +466,15 @@ public class CoreBlockEntity extends BlockEntity {
             return;
         }
         ItemStack crystal = items.getItem(CoreMenu.CRYSTAL);
-        if (!(crystal.getItem() instanceof CrystalItem)) {
+        if (crystal != target || !(crystal.getItem() instanceof CrystalItem)) {
             say("residual.status.no_crystal");
+            return;
+        }
+        try {
+            Checkpoints.save(server.getServer(), mind.id(), model, checkpoint);
+        } catch (IOException | RuntimeException e) {
+            Residual.LOG.error("Saving a mind failed", e);
+            say("residual.status.crashed", String.valueOf(e));
             return;
         }
         crystal.set(ModComponents.MIND.get(), mind);

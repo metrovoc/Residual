@@ -157,6 +157,10 @@ public class Apprentice extends PathfinderMob {
     }
 
     public void setJob(Job job) {
+        question++;
+        waiting = false;
+        entityData.set(THINKING, false);
+        pause = 0;
         entityData.set(JOB, job.ordinal());
         errand = null;
         work = switch (job) {

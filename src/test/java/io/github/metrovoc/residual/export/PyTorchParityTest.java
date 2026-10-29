@@ -44,6 +44,7 @@ class PyTorchParityTest {
         world(root, "wreck_leak", Wrecks.byId("leak").machine().get(), 3, 16);
         world(root, "wreck_depth", Wrecks.byId("depth").machine().get(), 3, 16);
         dump(root.resolve("kitchen"), kitchenSink(), new Env(20, 12), "abcdefghijklmnopqrst", 3, 9);
+        dump(root.resolve("kitchen_single"), kitchenSink(), new Env(20, 12), "abcdefghijklmnopqrst", 1, 9);
     }
 
     /** A model in the world's vocabulary and context, run on sequences of {@code time} characters. */
@@ -55,7 +56,7 @@ class PyTorchParityTest {
     static GraphSpec kitchenSink() {
         GraphSpec g = new GraphSpec();
         int e = g.add("embed", Op.EMBEDDING, Config.of(Op.EMBEDDING, "dim", "16"), GraphSpec.TOKENS);
-        int x = g.add("x", Op.ADD, e, g.add("pos", Op.POSITION, Config.of(Op.POSITION, "dim", "16")));
+        int x = g.add("x", Op.ADD, g.add("pos", Op.POSITION, Config.of(Op.POSITION, "dim", "16")), e);
         int n = g.add("rms", Op.NORM, Config.of(Op.NORM, "kind", "rms"), x);
         int q = g.add("q", Op.SPLIT_HEADS, Config.of(Op.SPLIT_HEADS, "heads", "2"),
                 g.add("query", Op.LINEAR, Config.of(Op.LINEAR, "out", "16", "bias", "false"), n));

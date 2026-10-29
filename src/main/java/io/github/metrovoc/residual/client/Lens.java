@@ -106,7 +106,7 @@ public final class Lens {
     /** Flooding a network is cheap but not free: redo it at most twice a second per cable. */
     private static List<GraphScanner.Touch> network(Minecraft mc, BlockPos pos) {
         long now = mc.level.getGameTime();
-        if (!pos.equals(cachedCable) || now - cachedAt > 10) {
+        if (!pos.equals(cachedCable) || now < cachedAt || now - cachedAt > 10) {
             cachedCable = pos.immutable();
             cachedAt = now;
             cachedNetwork = GraphScanner.network(mc.level, pos);

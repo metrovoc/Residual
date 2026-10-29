@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.tensor;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -82,6 +83,20 @@ class OpsGradientTest {
         for (Ops.Activation f : Ops.Activation.values()) {
             check(f.id, List.of(a), tape -> Ops.activate(tape, a, f));
         }
+    }
+
+    @Test
+    void broadcastKeepsLeadingSingletonDimensionsInEitherInputOrder() {
+        Tensor positions = rand(3, 4);
+        Tensor sequence = rand(1, 3, 4);
+        Tensor sum = Ops.add(null, positions, sequence);
+        Tensor product = Ops.mul(null, positions, sequence);
+        assertArrayEquals(sequence.shape, sum.shape);
+        assertArrayEquals(sequence.shape, product.shape);
+        assertArrayEquals(Ops.add(null, sequence, positions).data, sum.data);
+        assertArrayEquals(Ops.mul(null, sequence, positions).data, product.data);
+        check("add single batch", List.of(positions, sequence), tape -> Ops.add(tape, positions, sequence));
+        check("mul single batch", List.of(positions, sequence), tape -> Ops.mul(tape, positions, sequence));
     }
 
     @Test

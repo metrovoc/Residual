@@ -96,8 +96,9 @@ final class Stores {
         ItemStack got = take(c, what, max);
         int count = got.getCount();
         ItemStack left = a.keep(got);
+        int moved = count - left.getCount();
         insert(c, left);
-        return count - left.getCount();
+        return moved;
     }
 
     static boolean has(Container c, Predicate<ItemStack> what) {

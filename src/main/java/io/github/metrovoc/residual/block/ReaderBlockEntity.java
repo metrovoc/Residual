@@ -4,23 +4,19 @@ import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.learn.Reading;
 import io.github.metrovoc.residual.menu.ReaderMenu;
-import io.github.metrovoc.residual.mind.Checkpoints;
 import io.github.metrovoc.residual.mind.MindInfo;
 import io.github.metrovoc.residual.mind.MindLink;
 import io.github.metrovoc.residual.mind.Minds;
 import io.github.metrovoc.residual.mind.Recovered;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModComponents;
-import io.github.metrovoc.residual.train.Jobs;
 import java.util.BitSet;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -60,6 +56,9 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
         @Override
         public void setChanged() {
             super.setChanged();
+            request++;
+            busy = false;
+            tried.clear();
             ReaderBlockEntity.this.setChanged();
         }
     };
@@ -75,7 +74,7 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
     private final BitSet tried = new BitSet();
     private int triedRecord = -1;
     @Nullable
-    private UUID triedMind;
+    private MindInfo triedMind;
     private int ticks;
 
     private final ContainerData data = new ContainerData() {
@@ -112,10 +111,13 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private void step(ServerLevel level) {
-        if (busy && ticks - askedAt < Minds.PATIENCE) {
-            return;
+        if (busy) {
+            if (ticks - askedAt < Minds.PATIENCE) {
+                return;
+            }
+            request++;
+            busy = false;
         }
-        busy = false;
         ItemStack shard = items.getItem(SHARD);
         Recovered r = ShardItem.record(shard);
         if (!(shard.getItem() instanceof ShardItem)) {
@@ -141,10 +143,10 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
             show(State.PEEKS);
             return;
         }
-        if (r.record() != triedRecord || !info.id().equals(triedMind)) {
+        if (r.record() != triedRecord || !info.equals(triedMind)) {
             tried.clear();
             triedRecord = r.record();
-            triedMind = info.id();
+            triedMind = info;
         }
         int b = r.lost().nextSetBit(0);
         while (b >= 0 && tried.get(b)) {
@@ -169,14 +171,7 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
         };
         switch (link) {
             case MindLink.Served s -> s.server().submit(read, done);
-            case MindLink.Onboard o -> {
-                MinecraftServer server = level.getServer();
-                Jobs.EXECUTOR.execute(() -> {
-                    CompiledGraph model = Checkpoints.load(server, info.id());
-                    Float acc = model == null ? null : read.apply(model);
-                    Jobs.back(server, () -> done.accept(acc));
-                });
-            }
+            case MindLink.Onboard o -> Minds.submit(level.getServer(), info.id(), read, done);
             case MindLink.Missing m -> busy = false;
         }
     }

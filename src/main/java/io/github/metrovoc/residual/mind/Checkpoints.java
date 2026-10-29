@@ -9,9 +9,13 @@ import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.tensor.Tensor;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,9 +35,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class Checkpoints {
     private static final int KEEP = 32;
-    private static final Map<UUID, CompiledGraph> LOADED = new LinkedHashMap<>(16, 0.75f, true) {
+    private static final Map<Path, CompiledGraph> LOADED = new LinkedHashMap<>(16, 0.75f, true) {
         @Override
-        protected boolean removeEldestEntry(Map.Entry<UUID, CompiledGraph> eldest) {
+        protected boolean removeEldestEntry(Map.Entry<Path, CompiledGraph> eldest) {
             return size() > KEEP;
         }
     };
@@ -46,36 +50,67 @@ public final class Checkpoints {
     }
 
     public static void save(MinecraftServer server, UUID id, CompiledGraph model) throws IOException {
-        Path path = file(server, id);
-        Files.createDirectories(path.getParent());
-        NbtIo.writeCompressed(write(model), path);
+        save(file(server, id), model);
+    }
+
+    public static byte[] encode(CompiledGraph model) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        NbtIo.writeCompressed(write(model), bytes);
+        return bytes.toByteArray();
+    }
+
+    public static void save(MinecraftServer server, UUID id, CompiledGraph model, byte[] encoded) throws IOException {
+        save(file(server, id), model, encoded);
+    }
+
+    static void save(Path file, CompiledGraph model) throws IOException {
+        save(file, model, encode(model));
+    }
+
+    private static void save(Path file, CompiledGraph model, byte[] encoded) throws IOException {
+        Path path = file.toAbsolutePath().normalize();
         synchronized (LOADED) {
-            LOADED.put(id, model);
+            Files.createDirectories(path.getParent());
+            Path pending = Files.createTempFile(path.getParent(), path.getFileName().toString(), ".tmp");
+            try {
+                Files.write(pending, encoded, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+                try {
+                    Files.move(pending, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                } catch (AtomicMoveNotSupportedException e) {
+                    Files.move(pending, path, StandardCopyOption.REPLACE_EXISTING);
+                }
+                LOADED.put(path, model);
+            } finally {
+                Files.deleteIfExists(pending);
+            }
         }
     }
 
     /** The mind, ready to answer, or null if its file is missing or unreadable. Thread-safe. */
     @Nullable
     public static CompiledGraph load(MinecraftServer server, UUID id) {
+        return load(file(server, id));
+    }
+
+    @Nullable
+    static CompiledGraph load(Path file) {
+        Path path = file.toAbsolutePath().normalize();
         synchronized (LOADED) {
-            CompiledGraph model = LOADED.get(id);
+            CompiledGraph model = LOADED.get(path);
             if (model != null) {
                 return model;
             }
-        }
-        Path path = file(server, id);
-        if (!Files.exists(path)) {
-            return null;
-        }
-        try {
-            CompiledGraph model = read(NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap()));
-            synchronized (LOADED) {
-                LOADED.put(id, model);
+            if (!Files.exists(path)) {
+                return null;
             }
-            return model;
-        } catch (IOException | CompileException | RuntimeException e) {
-            Residual.LOG.error("Could not load mind {}", id, e);
-            return null;
+            try {
+                model = read(NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap()));
+                LOADED.put(path, model);
+                return model;
+            } catch (IOException | CompileException | RuntimeException e) {
+                Residual.LOG.error("Could not load mind {}", path, e);
+                return null;
+            }
         }
     }
 

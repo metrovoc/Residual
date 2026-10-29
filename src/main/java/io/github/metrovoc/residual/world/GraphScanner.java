@@ -260,6 +260,9 @@ public final class GraphScanner {
             for (Direction d : Direction.values()) {
                 BlockPos n = p.relative(d);
                 if (level.isLoaded(n) && level.getBlockState(n).getBlock() instanceof AcceleratorBlock && seen.add(n)) {
+                    if (seen.size() == MAX_ACCELERATORS) {
+                        return seen;
+                    }
                     todo.add(n);
                 }
             }

@@ -206,7 +206,7 @@ public final class Ops {
 
     /** {@code a + b} where the smaller shape must be a suffix of the larger one (PyTorch broadcasting). */
     public static Tensor add(Tape tape, Tensor a, Tensor b) {
-        Tensor big = a.size() >= b.size() ? a : b;
+        Tensor big = a.rank() >= b.rank() ? a : b;
         Tensor small = big == a ? b : a;
         if (!isSuffix(small.shape, big.shape)) {
             throw new ShapeException("Can't add " + a.shapeString() + " and " + b.shapeString() + ": shapes don't line up");
@@ -243,7 +243,7 @@ public final class Ops {
 
     /** Elementwise {@code a * b} with the same broadcasting rule as {@link #add}. */
     public static Tensor mul(Tape tape, Tensor a, Tensor b) {
-        Tensor big = a.size() >= b.size() ? a : b;
+        Tensor big = a.rank() >= b.rank() ? a : b;
         Tensor small = big == a ? b : a;
         if (!isSuffix(small.shape, big.shape)) {
             throw new ShapeException("Can't multiply " + a.shapeString() + " and " + b.shapeString() + " elementwise");

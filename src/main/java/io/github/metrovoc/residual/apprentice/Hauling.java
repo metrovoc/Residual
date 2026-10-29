@@ -66,7 +66,11 @@ final class Hauling extends Work {
             case ON_THE_WAY -> {
                 return;
             }
-            case LOST -> a.status("residual.apprentice.status.waymark_unreachable", index + 1);
+            case LOST -> {
+                a.status("residual.apprentice.status.waymark_unreachable", index + 1);
+                a.pause(100);
+                return;
+            }
             case HERE -> {
             }
         }
@@ -82,6 +86,17 @@ final class Hauling extends Work {
             Container c = Stores.at(level, p);
             if (c == null) {
                 continue;
+            }
+            switch (a.walk(p, 2.2)) {
+                case ON_THE_WAY -> {
+                    return;
+                }
+                case LOST -> {
+                    a.pause(100);
+                    return;
+                }
+                case HERE -> {
+                }
             }
             while (!a.full()) {
                 ItemStack got = Stores.take(c, s -> true, 64);
@@ -130,8 +145,16 @@ final class Hauling extends Work {
         BlockPos chest = Stores.homeChest(level, a.home());
         BlockPos target = chest != null ? chest : a.home();
         a.status("residual.apprentice.status.hauling_home");
-        if (a.walk(target, chest != null ? 2.2 : 1.5) == Apprentice.Arrival.ON_THE_WAY) {
-            return;
+        switch (a.walk(target, chest != null ? 2.2 : 1.5)) {
+            case ON_THE_WAY -> {
+                return;
+            }
+            case LOST -> {
+                a.pause(100);
+                return;
+            }
+            case HERE -> {
+            }
         }
         Container c = chest == null ? null : Stores.at(level, chest);
         if (c != null) {

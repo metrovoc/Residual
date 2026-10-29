@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.client;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.net.ApprenticeSync;
 import io.github.metrovoc.residual.net.CodeText;
 import io.github.metrovoc.residual.net.CoreSync;
@@ -37,7 +38,11 @@ public final class ResidualClient {
     }
 
     private static void payloads(RegisterClientPayloadHandlersEvent event) {
-        event.register(CoreSync.TYPE, (sync, ctx) -> CoreView.sync = sync);
+        event.register(CoreSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof CoreMenu menu && menu.pos.equals(sync.pos())) {
+                CoreView.sync = sync;
+            }
+        });
         event.register(SampleResult.TYPE, (result, ctx) -> {
             CoreView.sample = result;
             CoreView.sampling = false;

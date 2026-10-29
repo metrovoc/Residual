@@ -4,10 +4,9 @@ import io.github.metrovoc.residual.ResidualConfig;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.learn.Sampler;
-import io.github.metrovoc.residual.mind.Checkpoints;
 import io.github.metrovoc.residual.mind.MindInfo;
+import io.github.metrovoc.residual.mind.Minds;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
-import io.github.metrovoc.residual.train.Jobs;
 import io.github.metrovoc.residual.world.Cooling;
 import io.github.metrovoc.residual.world.Relays;
 import java.util.ArrayDeque;
@@ -44,6 +43,7 @@ public class ServerBlockEntity extends BlockEntity {
     private int answered;
     private int quiet;
     private int ticks;
+    private int revision;
 
     private record Request<T>(Function<CompiledGraph, T> work, Consumer<@Nullable T> reply) {
     }
@@ -65,8 +65,7 @@ public class ServerBlockEntity extends BlockEntity {
     public ItemStack swap(ItemStack stack) {
         ItemStack old = crystal;
         crystal = stack;
-        queue.forEach(r -> r.reply().accept(null));
-        queue.clear();
+        cancelQueued();
         setChanged();
         if (level != null) {
             BlockState s = getBlockState();
@@ -121,15 +120,23 @@ public class ServerBlockEntity extends BlockEntity {
 
     private <T> void run(MinecraftServer server, MindInfo info, Request<T> r) {
         inFlight++;
-        Jobs.EXECUTOR.execute(() -> {
-            CompiledGraph model = Checkpoints.load(server, info.id());
-            T out = model == null ? null : r.work().apply(model);
-            Jobs.back(server, () -> {
-                inFlight--;
+        int at = revision;
+        Minds.submit(server, info.id(), r.work(), out -> {
+            inFlight--;
+            boolean current = at == revision && !isRemoved();
+            if (current && out != null) {
                 answered++;
-                r.reply().accept(out);
-            });
+                setChanged();
+            }
+            r.reply().accept(current ? out : null);
         });
+    }
+
+    private void cancelQueued() {
+        revision++;
+        var cancelled = new ArrayDeque<>(queue);
+        queue.clear();
+        cancelled.forEach(r -> r.reply().accept(null));
     }
 
     /** One line about it for the action bar. */
@@ -160,8 +167,7 @@ public class ServerBlockEntity extends BlockEntity {
         super.setRemoved();
         if (level != null && !level.isClientSide()) {
             Relays.server(level, worldPosition, false);
-            queue.forEach(r -> r.reply().accept(null));
-            queue.clear();
+            cancelQueued();
         }
     }
 
@@ -170,6 +176,7 @@ public class ServerBlockEntity extends BlockEntity {
         super.onChunkUnloaded();
         if (level != null && !level.isClientSide()) {
             Relays.server(level, worldPosition, false);
+            cancelQueued();
         }
     }
 

@@ -81,9 +81,9 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
     }
 
     @Override
-    public void removed() {
+    public void onClose() {
         sendName();
-        super.removed();
+        super.onClose();
     }
 
     @Override
