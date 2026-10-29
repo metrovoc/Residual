@@ -6,7 +6,7 @@
     "residual:weight_crystal",
     "residual:weight_crystal",
     "minecraft:clock",
-    "residual:insight_attention"
+    "residual:schematic_positions"
   ],
   "result": {
     "id": "residual:position"

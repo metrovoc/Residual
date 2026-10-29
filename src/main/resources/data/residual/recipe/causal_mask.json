@@ -4,7 +4,7 @@
   "ingredients": [
     "residual:tensor_casing",
     "minecraft:carved_pumpkin",
-    "residual:insight_context"
+    "residual:schematic_context"
   ],
   "result": {
     "id": "residual:causal_mask"

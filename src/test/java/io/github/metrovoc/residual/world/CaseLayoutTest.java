@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.learn.Blueprints;
-import io.github.metrovoc.residual.learn.Curriculum;
+import io.github.metrovoc.residual.learn.Wrecks;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,10 +28,8 @@ class CaseLayoutTest {
 
     static Stream<Arguments> machines() {
         List<Arguments> out = new ArrayList<>();
-        for (Curriculum.Lesson l : Curriculum.ALL) {
-            if (l.brokenMachine() != null) {
-                out.add(Arguments.of(l.id(), l.brokenMachine().get()));
-            }
+        for (Wrecks.Wreck w : Wrecks.ALL) {
+            out.add(Arguments.of("wreck_" + w.id(), w.machine().get()));
         }
         out.add(Arguments.of("bigram", Blueprints.bigram()));
         out.add(Arguments.of("context", Blueprints.context()));

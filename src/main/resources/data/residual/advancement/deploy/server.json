@@ -1,0 +1,40 @@
+{
+  "parent": "residual:apprentice/made",
+  "criteria": {
+    "placed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": "residual:model_server"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:model_server"
+    },
+    "title": {
+      "translate": "advancements.residual.deploy.server.title"
+    },
+    "description": {
+      "translate": "advancements.residual.deploy.server.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "placed"
+    ]
+  ]
+}

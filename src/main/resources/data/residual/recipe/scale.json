@@ -4,7 +4,7 @@
   "ingredients": [
     "residual:tensor_casing",
     "minecraft:heavy_weighted_pressure_plate",
-    "residual:insight_context"
+    "residual:schematic_context"
   ],
   "result": {
     "id": "residual:scale"

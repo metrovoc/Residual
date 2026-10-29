@@ -20,6 +20,9 @@
     "residual:transformer",
     "residual:model_core",
     "residual:accelerator",
-    "residual:tensor_casing"
+    "residual:tensor_casing",
+    "residual:model_server",
+    "residual:reader",
+    "residual:relay"
   ]
 }

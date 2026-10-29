@@ -6,30 +6,27 @@ import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.tensor.Parallel;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
-/** Trains each blueprint on its task and prints the learning curve. Run with RESIDUAL_CALIBRATE=1. */
+/**
+ * Trains blueprints and wrecks on the abilities' practice and prints their test scores, to set targets and budgets.
+ * Run with {@code RESIDUAL_CALIBRATE} set to the names of the runs wanted (or {@code all}).
+ */
 @EnabledIfEnvironmentVariable(named = "RESIDUAL_CALIBRATE", matches = ".+")
 class CalibrationTest {
-    static String corpus(String name) throws IOException {
-        try (InputStream in = CalibrationTest.class.getResourceAsStream("/corpus/" + name)) {
-            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
-        }
-    }
+    static final Env WORLD = new Env(Vocab.WORLD.size(), Vocab.CONTEXT);
 
-    static void run(String label, GraphSpec spec, Task task, float lr, int batch, int steps, int every) throws Exception {
-        run(label, spec, task, lr, batch, 1f, steps, every);
-    }
-
-    static void run(String label, GraphSpec spec, Task task, float lr, int batch, float clip, int steps, int every) throws Exception {
-        CompiledGraph g = CompiledGraph.compile(spec, new Env(task.vocab.size(), task.context), null, 1);
-        Trainer tr = new Trainer(g, task, 1, lr, batch, clip);
+    static void run(String label, GraphSpec spec, Task practice, List<Ability> tested, double target, Wrecks.Settings st,
+                    int steps, int every) throws Exception {
+        CompiledGraph g = CompiledGraph.compile(spec, WORLD, null, 1);
+        Trainer tr = new Trainer(g, practice, 1, st.learningRate(), st.batchSize(), st.clip());
         ForkJoinPool pool = new ForkJoinPool(4);
         long t0 = System.nanoTime();
         Parallel.with(pool, () -> {
@@ -38,15 +35,89 @@ class CalibrationTest {
                 float loss = tr.train();
                 ema = Double.isNaN(ema) ? loss : 0.95 * ema + 0.05 * loss;
                 if (s % every == 0 || s == steps) {
-                    Trainer.Eval ev = tr.evaluate(8);
                     double secs = (System.nanoTime() - t0) / 1e9;
-                    System.out.printf("%-12s step %5d  train %.3f  val %.3f  acc %.3f  causal %s  pass %s  %.1fs (%.1f ms/step) params %d%n",
-                            label, s, ema, ev.loss(), ev.accuracy(), ev.causal(), task.passes(ev.loss(), ev.accuracy()), secs,
-                            secs * 1000 / s, g.parameterCount());
+                    StringBuilder line = new StringBuilder(String.format("%-14s step %5d  train %.3f", label, s, ema));
+                    for (Ability a : tested) {
+                        Trainer.Eval ev = Trainer.evaluate(g, a.test(), 8);
+                        double score = a.test().score(ev.loss(), ev.accuracy());
+                        boolean pass = ev.causal() && (a.metric == Task.Metric.LOSS ? score <= target : score >= target);
+                        line.append(String.format("  %s %.3f%s%s", a.id, score, pass ? "✔" : "", ev.causal() ? "" : " (reads ahead)"));
+                    }
+                    line.append(String.format("  %.1fs (%.1f ms/step) params %d", secs, secs * 1000 / s, g.parameterCount()));
+                    System.out.println(line);
                 }
             }
         });
         pool.shutdown();
+    }
+
+    static void run(String label, GraphSpec spec, Ability a, Wrecks.Settings st, int steps, int every) throws Exception {
+        Task practice = a == Ability.READING ? reading() : Drill.of(a);
+        run(label, spec, practice, List.of(a), a.target, st, steps, every);
+    }
+
+    /** How many held-out blocks a reading mind would restore, at a few thresholds, as it trains. */
+    static void restore(String label, GraphSpec spec, int steps, int every) throws Exception {
+        CompiledGraph g = CompiledGraph.compile(spec, WORLD, null, 1);
+        Wrecks.Settings st = Wrecks.Settings.DEFAULT;
+        Trainer tr = new Trainer(g, reading(), 1, st.learningRate(), st.batchSize(), st.clip());
+        float[] at = {0.4f, 0.5f, 0.6f, 0.7f};
+        ForkJoinPool pool = new ForkJoinPool(4);
+        Parallel.with(pool, () -> {
+            for (int s = 1; s <= steps; s++) {
+                tr.train();
+                if (s % every == 0) {
+                    Trainer.Eval ev = Trainer.evaluate(g, Ability.READING.test(), 8);
+                    int[] over = new int[at.length];
+                    int blocks = 0;
+                    double sum = 0;
+                    for (Archive.Record r : Archive.records()) {
+                        if (!Archive.heldOut(r.id())) {
+                            continue;
+                        }
+                        for (int b = 0; b < r.blocks(); b++) {
+                            float acc = Reading.accuracy(g, r.text(), b);
+                            sum += acc;
+                            blocks++;
+                            for (int i = 0; i < at.length; i++) {
+                                over[i] += acc >= at[i] ? 1 : 0;
+                            }
+                        }
+                    }
+                    StringBuilder line = new StringBuilder(String.format("%-14s step %5d  loss %.3f  mean %.3f", label, s,
+                            ev.loss(), sum / blocks));
+                    for (int i = 0; i < at.length; i++) {
+                        line.append(String.format("  >=%.1f %.0f%%", at[i], 100.0 * over[i] / blocks));
+                    }
+                    line.append(String.format("  params %d", g.parameterCount()));
+                    System.out.println(line);
+                }
+            }
+        });
+        pool.shutdown();
+    }
+
+    /** Reading's test loss when a mind has only the first {@code records} shard-borne records to practise on. */
+    static void collected(String label, GraphSpec spec, int records, int steps, int every) throws Exception {
+        Map<Integer, BitSet> some = new HashMap<>();
+        for (Archive.Record r : Archive.records()) {
+            if (!Archive.heldOut(r.id()) && some.size() < records) {
+                some.put(r.id(), new BitSet());
+            }
+        }
+        TextTask practice = Archive.practice(some);
+        long chars = practice.characters();
+        run(label + "_" + records + "r_" + chars / 1000 + "k", spec, practice, List.of(Ability.READING), Ability.READING.target,
+                Wrecks.Settings.DEFAULT, steps, every);
+    }
+
+    /** Every record a player could recover, whole. */
+    static TextTask reading() {
+        Map<Integer, BitSet> all = new HashMap<>();
+        for (Archive.Record r : Archive.records()) {
+            all.put(r.id(), new BitSet());
+        }
+        return Archive.practice(all);
     }
 
     static GraphSpec fixedShape() {
@@ -75,6 +146,19 @@ class CalibrationTest {
         return g;
     }
 
+    /** The order wreck with the Position Table it was missing. */
+    static GraphSpec fixedOrder() {
+        GraphSpec g = new GraphSpec();
+        int e = g.add("embed", Op.EMBEDDING, Config.of(Op.EMBEDDING, "dim", "32"), GraphSpec.TOKENS);
+        int x = g.add("x", Op.ADD, e, g.add("pos", Op.POSITION, Config.of(Op.POSITION, "dim", "32")));
+        int a = g.add("attn", Op.ATTENTION, Config.of(Op.ATTENTION, "heads", "2"), g.add("norm1", Op.NORM, x));
+        int r1 = g.add("res1", Op.ADD, x, a);
+        int f = g.add("ffn", Op.MLP, g.add("norm2", Op.NORM, r1));
+        int r2 = g.add("res2", Op.ADD, r1, f);
+        g.output = g.add("logits", Op.LINEAR, Config.of(Op.LINEAR, "out", "vocab"), g.add("norm_out", Op.NORM, r2));
+        return g;
+    }
+
     static GraphSpec fixedDepth(String fn, boolean shortcuts) {
         GraphSpec g = new GraphSpec();
         int e = g.add("embed", Op.EMBEDDING, Config.of(Op.EMBEDDING, "dim", "16"), GraphSpec.TOKENS);
@@ -93,43 +177,64 @@ class CalibrationTest {
     @Test
     void calibrate() throws Exception {
         String which = System.getenv("RESIDUAL_CALIBRATE");
-        String words = corpus("words.txt");
-        if (which.contains("bigram") || which.equals("all")) {
-            run("bigram", Blueprints.bigram(), new TextTask("bigram", words, 16, 0, Set.of()), 1e-2f, 32, 1500, 250);
+        boolean all = which.equals("all");
+        Wrecks.Settings st = Wrecks.Settings.DEFAULT;
+        if (all || which.contains("reacting")) {
+            run("reacting", Blueprints.bigram(), Ability.REACTING, st, 1500, 250);
         }
-        if (which.contains("context") || which.equals("all")) {
-            run("context", Blueprints.context(), new TextTask("context", words, 16, 0, Set.of()), 3e-3f, 32, 3000, 500);
+        if (all || which.contains("recall")) {
+            run("recall", Blueprints.recall(), Ability.RECALL, st, 3000, 250);
         }
-        if (which.contains("recall") || which.equals("all")) {
-            run("recall", Blueprints.recall(), PuzzleTask.recall("recall", 8, 0.9), 3e-3f, 32, 3000, 250);
+        if (all || which.contains("reversal")) {
+            run("reversal", Blueprints.reverse(), Ability.REVERSAL, st, 3000, 250);
         }
-        if (which.contains("reverse") || which.equals("all")) {
-            run("reverse", Blueprints.reverse(), PuzzleTask.reverse("reverse", 6, 0.9), 3e-3f, 32, 3000, 250);
+        if (all || which.contains("induction")) {
+            run("induction", Blueprints.induction(), Ability.INDUCTION, st, 4000, 250);
         }
-        if (which.contains("induction") || which.equals("all")) {
-            run("induction", Blueprints.induction(), PuzzleTask.induction("induction", 24, 0.9, Set.of(Op.SHIFT)), 3e-3f, 32, 4000, 250);
-            GraphSpec one = Blueprints.reverse();
-            run("induction1", one, PuzzleTask.induction("induction", 24, 0.9, Set.of(Op.SHIFT)), 3e-3f, 32, 2000, 500);
+        if (all || which.contains("orders")) {
+            run("orders", Blueprints.gpt(64, 2, 4), Ability.ORDERS, st, 4000, 250);
         }
-        if (which.contains("cases")) {
-            for (Curriculum.Lesson l : Curriculum.ALL) {
-                if (l.kind() == Curriculum.Kind.CASE && !l.id().equals("case_shape")) {
-                    Curriculum.Settings st = l.settings();
-                    run(l.id(), l.brokenMachine().get(), l.makeTask(), st.learningRate(), st.batchSize(), st.clip(), 2000, 500);
-                }
+        if (which.contains("small_orders")) {
+            run("orders32", Blueprints.gpt(32, 2, 4), Ability.ORDERS, st, 4000, 500);
+        }
+        if (all || which.contains("reading")) {
+            run("reading", Blueprints.gpt(64, 2, 4), Ability.READING, st, 4000, 250);
+        }
+        if (which.contains("weak_reading")) {
+            run("reading_ctx", Blueprints.context(), Ability.READING, st, 3000, 500);
+        }
+        if (which.contains("collected")) {
+            for (int n : new int[]{30, 60, 120}) {
+                collected("gpt32", Blueprints.gpt(32, 2, 4), n, 3000, 1000);
+            }
+            collected("gpt64", Blueprints.gpt(64, 2, 4), 60, 3000, 1000);
+        }
+        if (which.contains("restore")) {
+            restore("restore64", Blueprints.gpt(64, 2, 4), 4000, 1000);
+            restore("restore32", Blueprints.gpt(32, 2, 4), 4000, 1000);
+            restore("restore_ctx", Blueprints.context(), 3000, 1000);
+        }
+        if (which.contains("generalist")) {
+            List<Mixture.Source> sources = new ArrayList<>();
+            for (Ability a : Ability.values()) {
+                sources.add(new Mixture.Source(a, a == Ability.READING ? reading() : Drill.of(a)));
+            }
+            run("generalist", Blueprints.gpt(64, 3, 4), new Mixture(sources), List.of(Ability.values()), Double.NaN, st, 12000, 1000);
+        }
+        if (which.contains("wrecks")) {
+            for (Wrecks.Wreck w : Wrecks.ALL) {
+                run("wreck_" + w.id(), w.machine().get(), w.practice(), List.of(w.ability()), w.target(), w.settings(),
+                        Wrecks.BUDGET, 250);
             }
         }
         if (which.contains("fixes")) {
-            Curriculum.Settings st = Curriculum.Settings.DEFAULT;
-            run("shape_fix", fixedShape(), Curriculum.byId("counting").makeTask(), st.learningRate(), st.batchSize(), 1500, 250);
-            run("leak_fix", fixedLeak(), Curriculum.byId("context").makeTask(), st.learningRate(), st.batchSize(), 2000, 250);
-            run("depth_broken", Curriculum.caseDepth(), Curriculum.byId("context").makeTask(), st.learningRate(), st.batchSize(), 3000, 500);
-            run("depth_relu", fixedDepth("relu", false), Curriculum.byId("context").makeTask(), st.learningRate(), st.batchSize(), 2000, 250);
-            run("depth_res", fixedDepth("sigmoid", true), Curriculum.byId("context").makeTask(), st.learningRate(), st.batchSize(), 2000, 250);
-            run("depth_gelu_res", fixedDepth("gelu", true), Curriculum.byId("context").makeTask(), st.learningRate(), st.batchSize(), 2000, 250);
-        }
-        if (which.contains("gpt") || which.equals("all")) {
-            run("gpt", Blueprints.gpt(64, 2, 4), new TextTask("shakespeare", corpus("shakespeare.txt"), 64, 0, Set.of()), 3e-3f, 16, 3000, 250);
+            run("shape_fix", fixedShape(), Drill.of(Ability.REACTING), List.of(Ability.REACTING), 0.98, st, Wrecks.BUDGET, 250);
+            run("diverge_fix", Blueprints.recall(), Drill.of(Ability.RECALL), List.of(Ability.RECALL), 0.9, st, Wrecks.BUDGET, 250);
+            run("leak_fix", fixedLeak(), Drill.of(Ability.REACTING), List.of(Ability.REACTING), 0.98, st, Wrecks.BUDGET, 250);
+            run("order_fix", fixedOrder(), Drill.of(Ability.REVERSAL), List.of(Ability.REVERSAL), 0.9, st, Wrecks.BUDGET, 250);
+            Task depth = Wrecks.byId("depth").practice();
+            run("depth_relu", fixedDepth("relu", false), depth, List.of(Ability.READING), 2.4, st, Wrecks.BUDGET, 250);
+            run("depth_res", fixedDepth("sigmoid", true), depth, List.of(Ability.READING), 2.4, st, Wrecks.BUDGET, 250);
         }
     }
 }

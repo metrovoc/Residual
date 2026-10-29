@@ -5,7 +5,7 @@
     "residual:attention",
     "residual:mlp",
     "residual:norm",
-    "residual:insight_circuits"
+    "residual:schematic_blocks"
   ],
   "result": {
     "id": "residual:transformer"

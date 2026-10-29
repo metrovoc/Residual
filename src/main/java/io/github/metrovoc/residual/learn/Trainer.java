@@ -16,7 +16,8 @@ public final class Trainer {
     }
 
     public final CompiledGraph model;
-    public final Task task;
+    /** What it practises on; may be swapped between steps. */
+    public volatile Task task;
     private final AdamW optimizer;
     private final Random rng;
     public float learningRate;

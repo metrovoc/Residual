@@ -14,7 +14,7 @@
     "description": {
       "translate": "advancements.residual.root.description"
     },
-    "background": "residual:block/tensor_casing",
+    "background": "minecraft:block/tuff_bricks",
     "show_toast": false,
     "announce_to_chat": false
   },

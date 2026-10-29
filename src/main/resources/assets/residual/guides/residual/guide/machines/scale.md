@@ -39,6 +39,6 @@ same result.
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_context" />, from [More Context](../lessons/context.md).
+Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="scale" />

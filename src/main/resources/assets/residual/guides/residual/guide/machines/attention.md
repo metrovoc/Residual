@@ -12,9 +12,9 @@ item_ids:
 
 <BlockImage id="attention" scale="3" float="left" />
 
-Multi-head causal self-attention in one machine: the attention you built from parts in
-[Looking Things Up](../lessons/recall.md), with queries, keys and values all computed from its one input, a causal mask
-built in, several heads and an output projection.
+Multi-head causal self-attention in one machine: the attention you can build from Linear Layers, a Matrix Multiplier,
+a Causal Mask and a Softmax, with queries, keys and values all computed from its one input, a causal mask built in,
+several heads and an output projection.
 
 ![attention](/formulas/attention.png)
 
@@ -44,6 +44,6 @@ position it can see.
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_attention" />, from [Looking Things Up](../lessons/recall.md).
+Its plans are on <ItemLink id="schematic_attention" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="attention" />

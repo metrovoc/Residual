@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:archaeology",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "residual:archive_shard",
+          "weight": 9
+        },
+        {
+          "type": "minecraft:item",
+          "name": "residual:schematic_context",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "residual:weight_crystal",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "random_sequence": "residual:archaeology/ruin"
+}

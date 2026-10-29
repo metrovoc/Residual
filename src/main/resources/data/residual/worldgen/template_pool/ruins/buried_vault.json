@@ -1,0 +1,14 @@
+{
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/buried_vault",
+        "processors": "residual:ruin_decay",
+        "projection": "rigid"
+      }
+    }
+  ]
+}

@@ -9,7 +9,7 @@ import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.learn.Blueprints;
-import io.github.metrovoc.residual.learn.Curriculum;
+import io.github.metrovoc.residual.learn.Wrecks;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ class PyTorchSourceTest {
         Env env = new Env(27, 16);
         List<GraphSpec> specs = List.of(Blueprints.bigram(), Blueprints.context(), Blueprints.recall(), Blueprints.reverse(),
                 Blueprints.induction(), Blueprints.gpt(32, 2, 4), PyTorchParityTest.kitchenSink(),
-                Curriculum.byId("case_leak").brokenMachine().get(), Curriculum.byId("case_depth").brokenMachine().get());
+                Wrecks.byId("leak").machine().get(), Wrecks.byId("depth").machine().get());
         for (GraphSpec spec : specs) {
             String py = PyTorch.module(CompiledGraph.compile(spec, env, null, 1), "abcdefghijklmnopqrstuvwxyz.", "test");
             assertTrue(py.contains("def forward(self, tokens)"), py);

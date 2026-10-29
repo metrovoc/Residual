@@ -42,6 +42,6 @@ Its picture shows the attention pattern of its first head, like the Attention He
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_circuits" />, from [Induction Heads](../lessons/induction.md).
+Its plans are on <ItemLink id="schematic_blocks" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="transformer" />

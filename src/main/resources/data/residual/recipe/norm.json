@@ -5,7 +5,7 @@
     "residual:tensor_casing",
     "residual:weight_crystal",
     "minecraft:compass",
-    "residual:insight_attention"
+    "residual:schematic_attention"
   ],
   "result": {
     "id": "residual:norm"

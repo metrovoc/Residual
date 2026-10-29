@@ -35,10 +35,10 @@ None.
 ## Notes
 
 The identity term in its gradient gives every layer a direct path back to the loss. That is why stacks of
-residual layers keep learning when plain stacks stall: see [Too Deep to Learn](../cases/case_depth.md).
+residual layers keep learning when plain stacks stall.
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_attention" />, from [Looking Things Up](../lessons/recall.md).
+Its plans are on <ItemLink id="schematic_attention" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="add" />

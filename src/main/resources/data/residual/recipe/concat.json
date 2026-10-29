@@ -4,7 +4,7 @@
   "ingredients": [
     "residual:tensor_casing",
     "minecraft:iron_chain",
-    "residual:insight_counting"
+    "residual:schematic_context"
   ],
   "result": {
     "id": "residual:concat"

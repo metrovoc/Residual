@@ -251,7 +251,7 @@ public final class GraphScanner {
     }
 
     /** Accelerators touching the Core, directly or through each other. */
-    public static int accelerators(Level level, BlockPos core) {
+    public static Set<BlockPos> accelerators(Level level, BlockPos core) {
         Set<BlockPos> seen = new HashSet<>();
         Deque<BlockPos> todo = new ArrayDeque<>();
         todo.add(core);
@@ -264,6 +264,6 @@ public final class GraphScanner {
                 }
             }
         }
-        return Math.min(seen.size(), MAX_ACCELERATORS);
+        return seen;
     }
 }

@@ -48,6 +48,15 @@ public final class Ui {
         g.fill(x, y, x + w, y + h, SCREEN);
     }
 
+    /** The sunken frame of an item slot whose item sits at {@code (x, y)}. */
+    public static void slot(GuiGraphicsExtractor g, int x, int y) {
+        g.fill(x - 1, y - 1, x + 17, y + 17, 0xFF373737);
+        g.fill(x, y, x + 18, y + 18, HIGHLIGHT);
+        g.fill(x, y, x + 17, y + 17, 0xFF8B8B8B);
+        g.fill(x - 1, y + 17, x, y + 18, 0xFF8B8B8B);
+        g.fill(x + 17, y - 1, x + 18, y, 0xFF8B8B8B);
+    }
+
     /** A thin separator line on a panel. */
     public static void rule(GuiGraphicsExtractor g, int x, int y, int w) {
         g.fill(x, y, x + w, y + 1, 0xFF8B8B8B);

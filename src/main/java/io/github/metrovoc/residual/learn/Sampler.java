@@ -53,9 +53,43 @@ public final class Sampler {
         return steps;
     }
 
+    /** A greedy answer: the characters a mind wrote and how sure it was of each. */
+    public record Answer(String text, float[] probs) {
+        /** How sure it was of its least sure character. */
+        public float confidence() {
+            float min = 1f;
+            for (float p : probs) {
+                min = Math.min(min, p);
+            }
+            return min;
+        }
+    }
+
+    /** Writes the most likely next characters after {@code prompt}, stopping after {@code stop} or {@code max} characters. */
+    public static Answer answer(CompiledGraph model, String prompt, int max, char stop) {
+        int[] seq = Vocab.WORLD.encode(prompt);
+        StringBuilder out = new StringBuilder();
+        float[] probs = new float[max];
+        int n = 0;
+        while (n < max) {
+            float[] p = nextProbs(model, seq, Vocab.CONTEXT, 1f);
+            int token = Trainer.argmax(p, 0, p.length);
+            probs[n++] = p[token];
+            char c = Vocab.WORLD.symbol(token);
+            if (c == stop) {
+                break;
+            }
+            out.append(c);
+            seq = Arrays.copyOf(seq, seq.length + 1);
+            seq[seq.length - 1] = token;
+        }
+        return new Answer(out.toString(), Arrays.copyOf(probs, n));
+    }
+
     /**
-     * What the Sample tab shows: for text, a continuation of {@code prompt} (or of a validation snippet when it is
-     * empty); for puzzles, the model's answers to a fresh one next to the right ones.
+     * What the Tests tab shows: for reading, a continuation of {@code prompt} (or of unseen archive text when it is
+     * empty); for orders with a prompt, what the mind takes it to mean; otherwise its answers to a fresh test
+     * example next to the right ones.
      *
      * @param labels the most likely tokens at the first generated (or answered) position
      * @param probs  their probabilities
@@ -63,20 +97,51 @@ public final class Sampler {
     public record Demo(String prompt, String text, List<String> labels, List<Float> probs, String note) {
     }
 
-    public static Demo demo(CompiledGraph model, Task task, String prompt, float temperature, Random rng) {
-        if (!(task instanceof TextTask text)) {
-            return puzzle(model, task, rng);
+    public static Demo demo(CompiledGraph model, Ability ability, String prompt, float temperature, Random rng) {
+        Vocab vocab = Vocab.WORLD;
+        if (ability == Ability.ORDERS) {
+            Orders.Example example = prompt.isBlank() ? Orders.example(rng, true) : null;
+            String given = Orders.prompt(example == null ? prompt : example.said());
+            int[] ids = vocab.encode(given);
+            List<Step> steps = generate(model, ids, 24, Vocab.CONTEXT, 0f, rng);
+            StringBuilder out = new StringBuilder(given);
+            for (Step s : steps) {
+                if (vocab.symbol(s.token()) == '\n') {
+                    break;
+                }
+                out.append(vocab.symbol(s.token()));
+            }
+            Orders.Command c = Orders.parse(out.substring(given.length()));
+            String note = (example == null ? "" : "Meant: " + example.meant() + ". ")
+                    + (c == null ? "An apprentice would not know what to do." : "An apprentice would " + describe(c) + ".");
+            return new Demo(given, out.toString(), labels(vocab, steps.getFirst().topIds()), floats(steps.getFirst().topProbs()), note);
         }
-        int[] ids = task.vocab.encode(prompt);
+        if (ability != Ability.READING) {
+            return puzzle(model, Drill.of(ability), rng);
+        }
+        int[] ids = vocab.encode(prompt);
         if (ids.length == 0) {
-            ids = task.vocab.encode(text.prompt(rng, Math.min(32, task.context)));
+            ids = vocab.encode(Archive.test().prompt(rng, 32));
         }
-        String given = task.vocab.decode(ids);
-        List<Step> steps = generate(model, ids, 160, task.context, temperature, rng);
+        String given = vocab.decode(ids);
+        List<Step> steps = generate(model, ids, 160, Vocab.CONTEXT, temperature, rng);
         StringBuilder out = new StringBuilder(given);
-        steps.forEach(s -> out.append(task.vocab.symbol(s.token())));
+        steps.forEach(s -> out.append(vocab.symbol(s.token())));
         Step first = steps.getFirst();
-        return new Demo(given, out.toString(), labels(task.vocab, first.topIds()), floats(first.topProbs()), "");
+        return new Demo(given, out.toString(), labels(vocab, first.topIds()), floats(first.topProbs()), "");
+    }
+
+    private static String describe(Orders.Command c) {
+        return switch (c.meaning()) {
+            case FARM -> "go and farm";
+            case STORE -> "put things away";
+            case FETCH -> "fetch " + c.thing();
+            case COME -> "come to you";
+            case STAY -> "stay where it is";
+            case BUILD -> "carry on building";
+            case HAUL -> "run its errand";
+            case HOME -> "go home";
+        };
     }
 
     private static Demo puzzle(CompiledGraph model, Task task, Random rng) {

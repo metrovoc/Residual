@@ -10,11 +10,19 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jetbrains.annotations.Nullable;
 
-/** Everything the Model Core's screen shows, sent to players who have it open. */
-public record CoreSync(BlockPos pos, String lesson, int learningRate, int batchSize, int clip, int speed, boolean running,
+/**
+ * Everything the Model Core's screen shows, sent to players who have it open.
+ *
+ * @param tests      the latest test of each ability, in ability order
+ * @param practising which abilities the loaded data practises, in ability order
+ * @param budgetLeft steps left to repair a wreck, or -1 when no wreck is loaded
+ * @param busy       a test run or a save is under way
+ */
+public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, int speed, boolean running,
                        int steps, int runSteps, float trainLoss, float valLoss, float accuracy, boolean causal, float gradNorm,
                        String message, List<String> args, List<TrainingJob.Point> history, List<Issue> issues,
-                       List<Node> nodes, int threads, long parameters) implements CustomPacketPayload {
+                       List<Node> nodes, int threads, int throttled, long parameters, List<Score> tests,
+                       List<Boolean> practising, int budgetLeft, boolean busy) implements CustomPacketPayload {
     public static final Type<CoreSync> TYPE = new Type<>(Residual.id("core_sync"));
 
     /** A problem with the model, at a machine (or at the Core when {@code pos} is null). */
@@ -25,11 +33,15 @@ public record CoreSync(BlockPos pos, String lesson, int learningRate, int batchS
     public record Node(BlockPos pos, String op, String name, String shape, long parameters, float gradNorm, boolean active) {
     }
 
+    /** A test result; NaN when the ability was never tested. */
+    public record Score(float loss, float accuracy, int step) {
+        public static final Score NONE = new Score(Float.NaN, Float.NaN, -1);
+    }
+
     public static final StreamCodec<RegistryFriendlyByteBuf, CoreSync> STREAM_CODEC = StreamCodec.of(CoreSync::write, CoreSync::read);
 
     private static void write(RegistryFriendlyByteBuf buf, CoreSync s) {
         buf.writeBlockPos(s.pos);
-        buf.writeUtf(s.lesson);
         buf.writeVarInt(s.learningRate);
         buf.writeVarInt(s.batchSize);
         buf.writeVarInt(s.clip);
@@ -70,12 +82,21 @@ public record CoreSync(BlockPos pos, String lesson, int learningRate, int batchS
             buf.writeBoolean(n.active);
         }
         buf.writeVarInt(s.threads);
+        buf.writeVarInt(s.throttled);
         buf.writeVarLong(s.parameters);
+        buf.writeVarInt(s.tests.size());
+        for (Score t : s.tests) {
+            buf.writeFloat(t.loss);
+            buf.writeFloat(t.accuracy);
+            buf.writeVarInt(t.step + 1);
+        }
+        buf.writeCollection(s.practising, (b, p) -> b.writeBoolean(p));
+        buf.writeVarInt(s.budgetLeft + 1);
+        buf.writeBoolean(s.busy);
     }
 
     private static CoreSync read(RegistryFriendlyByteBuf buf) {
         BlockPos pos = buf.readBlockPos();
-        String lesson = buf.readUtf();
         int lr = buf.readVarInt();
         int batch = buf.readVarInt();
         int clip = buf.readVarInt();
@@ -106,8 +127,19 @@ public record CoreSync(BlockPos pos, String lesson, int learningRate, int batchS
         for (int i = 0; i < n; i++) {
             nodes.add(new Node(buf.readBlockPos(), buf.readUtf(), buf.readUtf(), buf.readUtf(), buf.readVarLong(), buf.readFloat(), buf.readBoolean()));
         }
-        return new CoreSync(pos, lesson, lr, batch, clip, speed, running, steps, runSteps, train, val, acc, causal, grad,
-                message, args, history, issues, nodes, buf.readVarInt(), buf.readVarLong());
+        int threads = buf.readVarInt();
+        int throttled = buf.readVarInt();
+        long parameters = buf.readVarLong();
+        n = buf.readVarInt();
+        List<Score> tests = new ArrayList<>(n);
+        for (int i = 0; i < n; i++) {
+            tests.add(new Score(buf.readFloat(), buf.readFloat(), buf.readVarInt() - 1));
+        }
+        List<Boolean> practising = buf.readList(b -> b.readBoolean());
+        int budgetLeft = buf.readVarInt() - 1;
+        boolean busy = buf.readBoolean();
+        return new CoreSync(pos, lr, batch, clip, speed, running, steps, runSteps, train, val, acc, causal, grad, message, args,
+                history, issues, nodes, threads, throttled, parameters, tests, practising, budgetLeft, busy);
     }
 
     @Override

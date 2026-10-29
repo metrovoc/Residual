@@ -34,6 +34,6 @@ Follow it with a Linear Layer to mix what the heads found: that is the output pr
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_position" />, from [Knowing Where](../lessons/reverse.md).
+Its plans are on <ItemLink id="schematic_positions" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="merge_heads" />

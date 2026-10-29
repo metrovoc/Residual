@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "residual:buried_vault",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 28,
+    "separation": 9,
+    "salt": 50417729
+  }
+}

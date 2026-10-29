@@ -2,11 +2,14 @@ package io.github.metrovoc.residual;
 
 import com.mojang.logging.LogUtils;
 import guideme.Guides;
+import io.github.metrovoc.residual.apprentice.Apprentices;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.net.Network;
 import io.github.metrovoc.residual.registry.ModAttachments;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModBlocks;
+import io.github.metrovoc.residual.registry.ModComponents;
+import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.registry.ModMenus;
 import io.github.metrovoc.residual.registry.ModTabs;
@@ -33,8 +36,11 @@ public final class Residual {
     public Residual(IEventBus modBus, ModContainer container) {
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
+        ModComponents.COMPONENTS.register(modBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modBus);
         ModMenus.MENUS.register(modBus);
+        ModEntities.ENTITIES.register(modBus);
+        modBus.addListener(ModEntities::attributes);
         ModAttachments.ATTACHMENTS.register(modBus);
         ModTabs.TABS.register(modBus);
         modBus.addListener(Network::register);
@@ -42,6 +48,7 @@ public final class Residual {
 
         NeoForge.EVENT_BUS.addListener(Residual::onServerStopping);
         NeoForge.EVENT_BUS.addListener(Residual::onLogIn);
+        NeoForge.EVENT_BUS.addListener(Apprentices::onChat);
     }
 
     public static Identifier id(String path) {

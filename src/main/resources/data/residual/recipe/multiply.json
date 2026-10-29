@@ -5,7 +5,7 @@
     "residual:tensor_casing",
     "#minecraft:fence_gates",
     "minecraft:redstone",
-    "residual:insight_position"
+    "residual:schematic_positions"
   ],
   "result": {
     "id": "residual:multiply"

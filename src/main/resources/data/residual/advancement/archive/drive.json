@@ -1,0 +1,35 @@
+{
+  "parent": "residual:archive/shard",
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "residual:archive_drive"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:archive_drive"
+    },
+    "title": {
+      "translate": "advancements.residual.archive.drive.title"
+    },
+    "description": {
+      "translate": "advancements.residual.archive.drive.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ]
+}

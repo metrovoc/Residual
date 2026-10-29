@@ -1,0 +1,31 @@
+{
+  "parent": "residual:wreck/found",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:salvaged_mind",
+      "components": {
+        "residual:wreck": "shape"
+      }
+    },
+    "title": {
+      "translate": "advancements.residual.wreck.shape.title"
+    },
+    "description": {
+      "translate": "advancements.residual.wreck.shape.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

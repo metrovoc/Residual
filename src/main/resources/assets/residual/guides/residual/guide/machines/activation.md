@@ -28,7 +28,7 @@ Any shape in, the same shape out.
 - **GELU** is a smooth ReLU, used by GPT-2 and BERT.
 - **SiLU** is z·σ(z), used inside the feed-forward layers of LLaMA and its relatives.
 - **tanh** squashes into (−1, 1), as in Bengio et al.'s 2003 model.
-- **sigmoid** squashes into (0, 1). Its slope is at most a quarter: see [Too Deep to Learn](../cases/case_depth.md).
+- **sigmoid** squashes into (0, 1). Its slope is at most a quarter, so every sigmoid layer shrinks the gradient that passes back through it.
 
 ## Parameters
 
@@ -44,6 +44,6 @@ None.
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_counting" />, from [Counting Pairs](../lessons/counting.md).
+Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="activation" />

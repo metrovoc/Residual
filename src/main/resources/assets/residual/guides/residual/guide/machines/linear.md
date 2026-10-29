@@ -41,6 +41,6 @@ PyTorch stores the matrix the other way round, as [C_out × C_in]. The export ta
 
 ## Recipe
 
-Needs no Insight.
+Needs no schematic.
 
 <RecipeFor id="linear" />

@@ -1,0 +1,28 @@
+{
+  "parent": "residual:mind/saved",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:checkpoint"
+    },
+    "title": {
+      "translate": "advancements.residual.ability.orders.title"
+    },
+    "description": {
+      "translate": "advancements.residual.ability.orders.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

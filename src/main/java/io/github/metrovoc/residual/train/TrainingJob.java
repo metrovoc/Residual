@@ -4,13 +4,18 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.graph.Captures;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.learn.Ability;
+import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Trainer;
+import io.github.metrovoc.residual.learn.Vocab;
+import io.github.metrovoc.residual.learn.Wrecks;
 import io.github.metrovoc.residual.tensor.Parallel;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.tensor.Tokens;
 import io.github.metrovoc.residual.view.Heatmap;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -41,9 +46,15 @@ public final class TrainingJob {
         }
     }
 
+    /** {@code PASSED} and {@code BUDGET} only end the repair of a wreck; other training runs until stopped. */
     public enum Outcome { PASSED, BUDGET, DIVERGED, STOPPED, CHANGED, CRASHED }
 
-    /** One point of the learning curve. */
+    /**
+     * One point of the learning curve.
+     *
+     * @param val      mean test loss over the abilities being practised
+     * @param accuracy mean test accuracy over those scored by accuracy
+     */
     public record Point(int step, float train, float val, float accuracy) {
     }
 
@@ -52,8 +63,8 @@ public final class TrainingJob {
         /** Steps this job has taken. */
         public int steps;
         public float trainLoss;
-        @Nullable
-        public Trainer.Eval eval;
+        /** The latest test of every ability being practised. */
+        public Map<Ability, Trainer.Eval> tests = Map.of();
         public float gradNorm;
         /** Weight copies by node; null when they must not be kept (they turned into NaN). */
         @Nullable
@@ -73,12 +84,17 @@ public final class TrainingJob {
     public final Set<Long> footprint;
     public final List<BlockPos> nodes;
     public final CompiledGraph model;
-    public final Task task;
+    /** The wreck being repaired, whose test ends the run, or null. */
+    @Nullable
+    public final Wrecks.Wreck wreck;
     public final int threads;
     private final Trainer trainer;
     private final Tokens probe;
-    /** Steps this job may take before the case's budget runs out; 0 for no limit. */
+    /** Steps this job may take before the wreck's budget runs out; 0 for no limit. */
     private final int budget;
+
+    /** What it practises on; the Core swaps it when its data slots change. */
+    public volatile Mixture data;
 
     public volatile Speed speed;
     public volatile float learningRate;
@@ -92,21 +108,23 @@ public final class TrainingJob {
     private final ConcurrentLinkedQueue<Point> points = new ConcurrentLinkedQueue<>();
 
     public TrainingJob(ServerLevel level, BlockPos core, Set<Long> footprint, List<BlockPos> nodes, CompiledGraph model,
-                       Task task, long seed, int threads, int budget, Speed speed, float learningRate, int batchSize, float clip) {
+                       Mixture data, @Nullable Wrecks.Wreck wreck, long seed, int threads, int budget, Speed speed,
+                       float learningRate, int batchSize, float clip) {
         this.level = level;
         this.core = core;
         this.footprint = footprint;
         this.nodes = nodes;
         this.model = model;
-        this.task = task;
+        this.data = data;
+        this.wreck = wreck;
         this.threads = threads;
         this.budget = budget;
         this.speed = speed;
         this.learningRate = learningRate;
         this.batchSize = batchSize;
         this.clip = clip;
-        this.trainer = new Trainer(model, task, seed, learningRate, batchSize, clip);
-        this.probe = task.batch(new java.util.Random(99), 1, true).input();
+        this.trainer = new Trainer(model, data, seed, learningRate, batchSize, clip);
+        this.probe = data.batch(new java.util.Random(99), 1, true).input();
     }
 
     public void requestStop(Outcome as) {
@@ -154,50 +172,55 @@ public final class TrainingJob {
 
     private void loop() {
         double ema = Double.NaN;
-        double start = Math.log(task.vocab.size());
-        Trainer.Eval eval = null;
+        double start = Math.log(Vocab.WORLD.size());
+        Map<Ability, Trainer.Eval> tests = Map.of();
         long lastPublish = System.currentTimeMillis();
         long next = System.nanoTime();
         int done = 0;
         while (!stopRequested) {
+            Mixture d = data;
+            trainer.task = d;
             trainer.learningRate = learningRate;
             trainer.batchSize = batchSize;
             trainer.clip = clip;
             float loss = trainer.train();
             done++;
             if (!Float.isFinite(loss)) {
-                Update u = update(ema, eval, done, Outcome.DIVERGED, false);
+                Update u = update(ema, tests, done, Outcome.DIVERGED, false);
                 u.detail = "NaN";
                 pending.set(u);
                 return;
             }
             ema = Double.isNaN(ema) ? loss : 0.95 * ema + 0.05 * loss;
             if (done >= 50 && ema > 3 * start) {
-                Update u = update(ema, eval, done, Outcome.DIVERGED, true);
+                Update u = update(ema, tests, done, Outcome.DIVERGED, true);
                 u.detail = String.format(Locale.ROOT, "%.2f", ema);
                 pending.set(u);
                 return;
             }
             Speed s = speed;
             if (done % s.evalEvery == 0) {
-                eval = trainer.evaluate(4);
-                points.add(new Point(trainer.step(), (float) ema, (float) eval.loss(), (float) eval.accuracy()));
-                if (eval.causal() && task.passes(eval.loss(), eval.accuracy())) {
-                    // a lucky estimate shouldn't pass a lesson: confirm on four times as much data
-                    Trainer.Eval sure = trainer.evaluate(16);
-                    if (sure.causal() && task.passes(sure.loss(), sure.accuracy())) {
-                        pending.set(update(ema, sure, done, Outcome.PASSED, true));
+                tests = test(d, 4);
+                points.add(point(trainer.step(), ema, tests));
+                Trainer.Eval mine = wreck == null ? null : tests.get(wreck.ability());
+                if (mine != null && wreck.passes(mine)) {
+                    // a lucky estimate shouldn't count: confirm on four times as much data
+                    Trainer.Eval sure = Trainer.evaluate(model, wreck.ability().test(), 16);
+                    if (wreck.passes(sure)) {
+                        Map<Ability, Trainer.Eval> confirmed = new EnumMap<>(tests);
+                        confirmed.put(wreck.ability(), sure);
+                        pending.set(update(ema, confirmed, done, Outcome.PASSED, true));
                         return;
                     }
                 }
             }
             if (budget > 0 && done >= budget) {
-                pending.set(update(ema, eval, done, Outcome.BUDGET, true));
+                pending.set(update(ema, tests, done, Outcome.BUDGET, true));
                 return;
             }
             long now = System.currentTimeMillis();
             if (now - lastPublish >= PUBLISH_MS) {
-                pending.set(update(ema, eval, done, null, true));
+                pending.set(update(ema, tests, done, null, true));
                 lastPublish = now;
             }
             if (s.stepsPerSecond > 0) {
@@ -211,14 +234,37 @@ public final class TrainingJob {
                 }
             }
         }
-        pending.set(update(ema, eval, done, stopAs, true));
+        pending.set(update(ema, tests, done, stopAs, true));
     }
 
-    private Update update(double ema, @Nullable Trainer.Eval eval, int done, @Nullable Outcome outcome, boolean keepWeights) {
+    /** Tests every ability {@code d} practises, on {@code batches} batches of held-out examples each. */
+    private Map<Ability, Trainer.Eval> test(Mixture d, int batches) {
+        Map<Ability, Trainer.Eval> out = new EnumMap<>(Ability.class);
+        for (Mixture.Source s : d.sources) {
+            out.computeIfAbsent(s.ability(), a -> Trainer.evaluate(model, a.test(), batches));
+        }
+        return out;
+    }
+
+    private static Point point(int step, double ema, Map<Ability, Trainer.Eval> tests) {
+        double loss = 0, acc = 0;
+        int accs = 0;
+        for (Map.Entry<Ability, Trainer.Eval> e : tests.entrySet()) {
+            loss += e.getValue().loss();
+            if (e.getKey().metric == Task.Metric.ACCURACY) {
+                acc += e.getValue().accuracy();
+                accs++;
+            }
+        }
+        return new Point(step, (float) ema, tests.isEmpty() ? Float.NaN : (float) (loss / tests.size()),
+                accs == 0 ? Float.NaN : (float) (acc / accs));
+    }
+
+    private Update update(double ema, Map<Ability, Trainer.Eval> tests, int done, @Nullable Outcome outcome, boolean keepWeights) {
         Update u = new Update();
         u.steps = done;
         u.trainLoss = (float) ema;
-        u.eval = eval;
+        u.tests = tests;
         u.gradNorm = (float) trainer.lastGradNorm();
         u.outcome = outcome;
         if (!keepWeights) {

@@ -7,39 +7,34 @@ navigation:
 
 # Residual
 
-Residual turns the inside of a language model into machines. Each machine performs one real operation: a table
-lookup, a matrix multiplication, a softmax, a whole transformer layer. Cable them together, connect the result to a
-<ItemLink id="model_core" />, and train it on text while you watch the loss fall. The arithmetic is what PyTorch does,
-down to the optimizer, and every model you build can leave the game as a PyTorch module with its trained weights.
+Someone lived here before you. They built machines that thought, and they wrote everything down. Then they were gone,
+and nothing they left says why. What remains is scattered through the ruins: broken tablets of their writing, the plans
+of their machines, and minds that no longer work.
 
-You learn by building. **Lessons** retrace how language models came to be, from counting letter pairs to a small GPT.
-**Cases** hand you a model that is broken the way real models break, and leave the diagnosis to you. Every lesson
-awards an [Insight](insights.md), which unlocks the recipes of new machines.
+These are field notes on building minds again. A mind here is a real language model: machines that each do one real
+operation, cabled into a network, trained on text, and tested on text it has never seen. A good one can farm, keep a
+storeroom, run errands, carry on a pattern, understand what you tell it, and read what the old world wrote.
 
 ## Start here
 
-1. [Getting Started](getting-started.md): craft a Model Core and train your first model.
-2. [Machines and Cables](wiring.md): how values travel between blocks.
-3. [Shapes](shapes.md): what [B×T×C] means, and how to fix a shape error.
-4. [Training](training.md): reading a loss curve, and the settings that shape it.
+1. [Getting Started](getting-started.md): a first mind, and a body for it.
+2. [Ruins](ruins.md): where the old world's things are.
+3. [The Archive](archive.md): shards, drives, and restoring what was lost.
 
-## The path
+## Minds
 
-1. [Counting Pairs](lessons/counting.md): a table of letter pairs.
-2. [The Wrong Shape](cases/case_shape.md): a case.
-3. [More Context](lessons/context.md): embeddings and a hidden layer.
-4. [Exploding Loss](cases/case_diverge.md): a case.
-5. [Looking Things Up](lessons/recall.md): attention, built by hand.
-6. [Too Good to Be True](cases/case_leak.md): a case.
-7. [Knowing Where](lessons/reverse.md): positions and the transformer layer.
-8. [Lost in Order](cases/case_order.md): a case.
-9. [Too Deep to Learn](cases/case_depth.md): a case.
-10. [Induction Heads](lessons/induction.md): two layers working together.
-11. [Language](lessons/language.md): a small GPT, trained on Shakespeare.
+- [The Model Core](core.md): where minds are built, trained, tested and saved.
+- [Training](training.md): reading a loss curve, and the settings that shape it.
+- [Minds and Tests](minds.md): the six abilities, checkpoints, and how big a mind may be.
+- [Salvaged Minds](salvage.md): broken minds from the ruins.
+
+## Putting minds to work
+
+- [Apprentices](apprentices.md): bodies for minds, and the jobs they do.
+- [Serving Minds](deployment.md): Model Servers, relays and the Terminal.
 
 ## Reference
 
-- [The Model Core](core.md), its tabs and settings
-- [Machines](machines/index.md), one page each
-- [Papers](papers.md) behind the lessons
-- [Beyond Residual](beyond.md): where to go next
+- [Machines and Cables](wiring.md): how values travel between blocks.
+- [Shapes](shapes.md): what [B×T×C] means, and how to fix a shape error.
+- [Machines](machines/index.md), one page each.

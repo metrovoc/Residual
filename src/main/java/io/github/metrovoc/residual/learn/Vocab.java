@@ -4,6 +4,11 @@ import java.util.Arrays;
 
 /** A character-level vocabulary: token id i is the character {@code symbols.charAt(i)}. */
 public final class Vocab {
+    /** The vocabulary of every model in the world, so any model can be tested on anything. */
+    public static final Vocab WORLD = new Vocab("\n !\"'(),-.0123456789:;=>?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz|");
+    /** The longest stretch of text any model reads at once. */
+    public static final int CONTEXT = 64;
+
     public final String symbols;
     private final int[] index = new int[65536];
 
@@ -15,20 +20,6 @@ public final class Vocab {
         }
     }
 
-    /** All distinct characters of {@code text}, sorted. */
-    public static Vocab of(String text) {
-        boolean[] seen = new boolean[65536];
-        for (int i = 0; i < text.length(); i++) {
-            seen[text.charAt(i)] = true;
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int c = 0; c < seen.length; c++) {
-            if (seen[c]) {
-                sb.append((char) c);
-            }
-        }
-        return new Vocab(sb.toString());
-    }
 
     public int size() {
         return symbols.length();

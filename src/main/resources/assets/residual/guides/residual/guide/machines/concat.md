@@ -35,6 +35,6 @@ together.
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_counting" />, from [Counting Pairs](../lessons/counting.md).
+Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="concat" />

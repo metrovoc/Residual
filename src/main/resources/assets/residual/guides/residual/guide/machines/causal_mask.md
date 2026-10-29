@@ -35,10 +35,10 @@ None.
 ## Notes
 
 It belongs between the scores and the Softmax. Without it, a model trained to predict the next token can
-simply read it: see [Too Good to Be True](../cases/case_leak.md).
+simply read it, and its loss falls to almost nothing while it learns nothing.
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_context" />, from [More Context](../lessons/context.md).
+Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="causal_mask" />

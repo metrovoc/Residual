@@ -7,10 +7,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
@@ -35,6 +37,15 @@ public final class Jobs {
     }
 
     private Jobs() {
+    }
+
+    /** From a worker: hands what it finished to the server thread, or drops it once the server is shutting down. */
+    public static void back(MinecraftServer server, Runnable task) {
+        try {
+            server.executeIfPossible(task);
+        } catch (RejectedExecutionException e) {
+            // the world is being saved and closed; nothing waits for this any more
+        }
     }
 
     public static void start(TrainingJob job) {

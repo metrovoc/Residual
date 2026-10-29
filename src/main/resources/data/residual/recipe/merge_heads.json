@@ -5,7 +5,7 @@
     "residual:tensor_casing",
     "minecraft:string",
     "minecraft:string",
-    "residual:insight_position"
+    "residual:schematic_positions"
   ],
   "result": {
     "id": "residual:merge_heads"

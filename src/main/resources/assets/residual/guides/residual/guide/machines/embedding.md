@@ -23,7 +23,7 @@ Tokens [B×T] in, [B×T×C] out, where C is the Width.
 
 ## Settings
 
-- **Width**: V, or 4 to 256. 32 by default. At V, each row can serve directly as the scores for the next token: the bigram model of [Counting Pairs](../lessons/counting.md).
+- **Width**: V, or 4 to 256. 32 by default. At V, each row can serve directly as the scores for the next token: a bigram model.
 
 ## Parameters
 
@@ -41,6 +41,6 @@ similar rows, which is how what the model learns about one carries over to other
 
 ## Recipe
 
-Needs no Insight.
+Needs no schematic.
 
 <RecipeFor id="embedding" />

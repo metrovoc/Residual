@@ -1,0 +1,35 @@
+{
+  "parent": "residual:ruins/found",
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "residual:salvaged_mind"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:salvaged_mind"
+    },
+    "title": {
+      "translate": "advancements.residual.wreck.found.title"
+    },
+    "description": {
+      "translate": "advancements.residual.wreck.found.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ]
+}

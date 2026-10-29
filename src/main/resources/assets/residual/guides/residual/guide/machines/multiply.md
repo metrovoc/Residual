@@ -37,6 +37,6 @@ width. LSTMs, the recurrent networks that came before transformers, controlled t
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_position" />, from [Knowing Where](../lessons/reverse.md).
+Its plans are on <ItemLink id="schematic_positions" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="multiply" />

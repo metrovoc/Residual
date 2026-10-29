@@ -42,6 +42,6 @@ these layers store much of what a model knows about the world (Geva et al., 2021
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_attention" />, from [Looking Things Up](../lessons/recall.md).
+Its plans are on <ItemLink id="schematic_attention" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="mlp" />

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "residual:tensor_casing",
+    "residual:weight_crystal",
+    "residual:weight_crystal",
+    "minecraft:gold_ingot",
+    "minecraft:redstone_block",
+    "residual:schematic_relays"
+  ],
+  "result": {
+    "id": "residual:model_server"
+  }
+}

@@ -6,7 +6,7 @@
     "#residual:cables",
     "#residual:cables",
     "minecraft:copper_ingot",
-    "residual:insight_attention"
+    "residual:schematic_attention"
   ],
   "result": {
     "id": "residual:add"

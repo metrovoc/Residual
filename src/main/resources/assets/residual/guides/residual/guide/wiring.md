@@ -2,7 +2,7 @@
 navigation:
   title: Machines and Cables
   icon: cable
-  position: 20
+  position: 100
 item_ids:
   - cable
   - white_cable

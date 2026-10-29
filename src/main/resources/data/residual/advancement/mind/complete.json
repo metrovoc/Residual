@@ -1,0 +1,28 @@
+{
+  "parent": "residual:ability/reading",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:checkpoint"
+    },
+    "title": {
+      "translate": "advancements.residual.mind.complete.title"
+    },
+    "description": {
+      "translate": "advancements.residual.mind.complete.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

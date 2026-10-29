@@ -34,8 +34,14 @@ W0, W1, W2, W3 = map(rgb, ["0b1014", "121920", "19222a", "28333e"])
 TEAL = [rgb(h) for h in ["0d3835", "166b62", "21a092", "3cd6c6", "9cf1e6", "e6fffb"]]
 AMBER = [rgb(h) for h in ["472c09", "8a5613", "cf8a22", "ffb547", "ffd690", "fff3da"]]
 DIM = [rgb(h) for h in ["161e25", "222c35", "2d3a46", "3b4b5a"]]
-# graphite for the Model Core
+# graphite for the Model Core and the Model Server
 G0, G1, G2, G3 = map(rgb, ["1d2229", "252b33", "2e353f", "3a434f"])
+BRASS = [rgb(h) for h in ["3b2810", "6a4819", "9a6c2a", "c8973f", "e6c06e", "faeab8"]]
+AMETHYST = [rgb(h) for h in ["2c1c47", "4c2f78", "7650ad", "a57fdf", "d0b6ff", "f2e9ff"]]
+STONE = [rgb(h) for h in ["4b4842", "6f6b63", "9b968b", "beb9ae", "dcd8cf", "f1efe9"]]
+PRINT = [rgb(h) for h in ["10253d", "17324f", "1f4166", "2c5784", "a9d2ff", "e6f3ff"]]
+# item outlines
+INK = rgb("161b21")
 CLEAR = (0, 0, 0, 0)
 
 
@@ -499,6 +505,319 @@ def casing():
     return c
 
 
+def accelerator_hot():
+    """The same chip running hot: leads and die glowing amber."""
+    c = plate(NEUTRAL, salt=6)
+    c.stamp(2, 2, CHIP, {"l": AMBER[2], "d": NEUTRAL[0], "h": rgb("7a3a16"), "G": rgb("4a2412"), "t": AMBER[4]})
+    c.px(7, 7, AMBER[5])
+    return c
+
+
+# ---------------------------------------------------------------- Model Server
+
+SERVER_CRYSTAL = [
+    "..TA..",
+    ".TtaA.",
+    "TttaaA",
+    ".TtaA.",
+    "..TA..",
+]
+
+
+def server_base(line, salt):
+    c = plate(line, salt=salt, base=(G1, G2))
+    for i in range(2, 14):
+        c.px(i, 2, G3)
+        c.px(2, i, G3)
+        c.px(i, 13, G0)
+        c.px(13, i, G0)
+    return c
+
+
+def server_front(crystal=False, phase=None):
+    """A rack face: the crystal's bay above, request lights below that run while it answers."""
+    on = phase is not None
+    c = server_base(TEAL_LINE, salt=8)
+    window(c, 4, 3, 11, 9)
+    # the cradle a crystal sits in
+    for x in (6, 9):
+        c.px(x, 4, G3)
+        c.px(x, 8, G3)
+    if crystal:
+        tones = (TEAL[4], TEAL[3], AMBER[3], AMBER[4]) if on else (TEAL[2], TEAL[1], AMBER[1], AMBER[2])
+        c.stamp(5, 4, SERVER_CRYSTAL, dict(zip("TtaA", tones)))
+        if on:
+            c.px(7, 6, TEAL[5])
+            c.px(8, 6, AMBER[5])
+    c.rect(4, 11, 11, 11, W0)
+    for i, x in enumerate((4, 6, 9, 11)):
+        if not crystal:
+            color = DIM[2]
+        elif not on:
+            color = AMBER[3] if i == 0 else DIM[3]
+        else:
+            color = TEAL[4] if (i + phase) % 4 in (0, 1) else TEAL[1]
+        c.px(x, 11, color)
+    return c
+
+
+def server_side():
+    """Vents: a Model Server runs warm."""
+    c = server_base(NEUTRAL, salt=9)
+    for y in (4, 6, 8, 10):
+        for x in range(4, 12):
+            c.px(x, y, G0)
+            c.px(x, y + 1, G3)
+    return c
+
+
+def server_top():
+    c = server_base(NEUTRAL, salt=10)
+    for gy in (4, 7, 10):
+        for gx in (4, 7, 10):
+            c.rect(gx, gy, gx + 1, gy + 1, G0)
+            c.px(gx + 1, gy + 1, G1)
+            c.px(gx, gy + 2, G3)
+            c.px(gx + 1, gy + 2, G3)
+    return c
+
+
+# ---------------------------------------------------------------- Reader
+
+READER_LINES = [
+    "###.####",
+    "#####.##",
+    "##.#####",
+    "####.##.",
+]
+PAGE = [
+    "#######.",
+    "#.....##",
+    "#.###..#",
+    "#......#",
+    "#.####.#",
+    "#......#",
+    "#.###..#",
+    "########",
+]
+
+
+def reader_front(step=None):
+    """Lines of an old text behind glass: grey while idle, lighting amber as a mind reads them."""
+    c = plate(TEAL_LINE, salt=11)
+    window(c)
+    for row, line in enumerate(READER_LINES):
+        y = 4 + row * 2
+        for i, ch in enumerate(line):
+            if ch != "#":
+                continue
+            x = 4 + i
+            if step is None:
+                color = DIM[2]
+            elif row < 2:
+                color = AMBER[3]
+            elif row == 2 and i < step:
+                color = AMBER[3]
+            elif row == 2 and i == step:
+                color = AMBER[5]
+            else:
+                color = DIM[2]
+            c.px(x, y, color)
+    if step is not None:
+        c.px(4 + step, 9, AMBER[2])
+    return c
+
+
+def reader_top():
+    """A shallow tray to lay a shard in."""
+    c = plate(AMBER_LINE, salt=12)
+    c.rect(4, 4, 11, 11, K3)
+    for i in range(4, 12):
+        c.px(i, 4, K4)
+        c.px(4, i, K4)
+        c.px(i, 11, K1)
+        c.px(11, i, K1)
+    for y in (6, 8):
+        for x in range(6, 10):
+            c.px(x, y, K2)
+    return c
+
+
+def reader_side():
+    c = plate(NEUTRAL, salt=13)
+    engraved_glyph(c, PAGE)
+    return c
+
+
+# ---------------------------------------------------------------- Relay
+
+def relay():
+    """One sheet for the relay's three parts, laid out where its model samples them."""
+    c = Canvas(fill=G2)
+    # lamp sides, 6x5: a lit glass band between a cap and a collar
+    for x in range(6):
+        c.px(x, 0, G3)
+        c.px(x, 4, G0)
+        for y in (1, 2, 3):
+            c.px(x, y, G1 if x in (0, 5) else TEAL[4] if y == 2 and x in (2, 3) else TEAL[3])
+    # lamp top and bottom, 6x6
+    c.rect(10, 0, 15, 5, G2)
+    for i in range(10, 16):
+        c.px(i, 0, G3)
+        c.px(i, 5, G0)
+    for i in range(6):
+        c.px(10, i, G3)
+        c.px(15, i, G0)
+    c.rect(12, 2, 13, 3, TEAL[4])
+    c.px(12, 2, TEAL[5])
+    # post sides, 3x9, with a lit trace running up the middle
+    for y in range(5, 14):
+        c.px(0, y, G3)
+        c.px(1, y, TEAL[2] if y % 3 == 1 else G2)
+        c.px(2, y, G1)
+    c.rect(3, 5, 5, 7, G2)
+    c.px(3, 5, G3)
+    # base sides, 8x2, and its top, 8x8: a small casing plate
+    for x in range(8):
+        c.px(x, 14, K1)
+        c.px(x, 15, K3)
+    c.rect(8, 8, 15, 15, K1)
+    for i in range(8, 16):
+        c.px(i, 8, K0)
+        c.px(8, i, K0)
+        c.px(i, 15, K2)
+        c.px(15, i, K2)
+    for i in range(9, 15):
+        for x, y in ((i, 9), (9, i), (i, 14), (14, i)):
+            c.px(x, y, NEUTRAL[1])
+    return c
+
+
+# ---------------------------------------------------------------- Apprentice
+
+GLASS = (196, 238, 232, 72)
+GLINT = (255, 255, 255, 150)
+
+
+def box(c, u, v, w, h, d, paint):
+    """Paints one model box's unwrapped faces; paint(c, face, x, y, w, h) draws each."""
+    faces = {
+        "top": (u + d, v, w, d),
+        "bottom": (u + d + w, v, w, d),
+        "right": (u, v + d, d, h),
+        "front": (u + d, v + d, w, h),
+        "left": (u + d + w, v + d, d, h),
+        "back": (u + 2 * d + w, v + d, w, h),
+    }
+    for face, (x, y, fw, fh) in faces.items():
+        paint(c, face, x, y, fw, fh)
+
+
+def body_face(c, face, x, y, w, h):
+    c.rect(x, y, x + w - 1, y + h - 1, BRASS[3])
+    for j in range(h):
+        for i in range(w):
+            if speckle(i, j, 9):
+                c.px(x + i, y + j, BRASS[2])
+    if face in ("top", "bottom"):
+        if face == "bottom":
+            c.rect(x, y, x + w - 1, y + h - 1, BRASS[1])
+        else:
+            c.rect(x + w // 2 - 1, y + h // 2 - 1, x + w // 2, y + h // 2, G1)
+        return
+    for i in range(w):
+        c.px(x + i, y, BRASS[4])
+        c.px(x + i, y + h - 1, BRASS[1])
+    if face == "front":
+        # a gauge on the chest
+        c.rect(x + 2, y + 2, x + 5, y + 4, G1)
+        c.rect(x + 3, y + 3, x + 4, y + 3, TEAL[3])
+        c.px(x + 3, y + 3, TEAL[4])
+        for i in (0, w - 1):
+            c.px(x + i, y + 1, BRASS[5])
+    elif face == "back":
+        c.rect(x + 3, y + 2, x + 4, y + 4, BRASS[2])
+        c.px(x + 3, y + 3, G0)
+        c.px(x + 4, y + 3, G0)
+    else:
+        c.px(x + w // 2, y + 2, BRASS[5])
+
+
+def head_face(c, face, x, y, w, h):
+    if face == "top":
+        c.rect(x, y, x + w - 1, y + h - 1, BRASS[3])
+        for i in range(w):
+            c.px(x + i, y, BRASS[4])
+            c.px(x, y + i, BRASS[4])
+        c.px(x + w // 2, y + h // 2, G0)
+        return
+    if face == "bottom":
+        c.rect(x, y, x + w - 1, y + h - 1, BRASS[2])
+        c.rect(x + 2, y + 2, x + w - 3, y + h - 3, BRASS[1])
+        return
+    c.rect(x, y, x + w - 1, y + h - 1, GLASS)
+    for i in range(w):
+        c.px(x + i, y, BRASS[4])
+        c.px(x + i, y + h - 1, BRASS[2])
+    for j in range(h):
+        c.px(x, y + j, BRASS[3])
+        c.px(x + w - 1, y + j, BRASS[3])
+    c.px(x + 1, y + 1, GLINT)
+    c.px(x + 2, y + 1, GLINT)
+    c.px(x + 1, y + 2, GLINT)
+
+
+def antenna_face(c, face, x, y, w, h):
+    if face == "top":
+        c.px(x, y, TEAL[5])
+    elif face == "bottom":
+        c.px(x, y, BRASS[2])
+    else:
+        c.rect(x, y, x, y + h - 1, BRASS[3])
+        c.px(x, y, TEAL[4])
+
+
+def core_face(c, face, x, y, w, h):
+    for j in range(h):
+        for i in range(w):
+            edge = (i in (0, w - 1)) + (j in (0, h - 1))
+            c.px(x + i, y + j, [TEAL[5], TEAL[4], TEAL[3]][edge])
+
+
+def limb(foot):
+    def paint(c, face, x, y, w, h):
+        if face == "top":
+            c.rect(x, y, x + w - 1, y + h - 1, BRASS[3] if not foot else G1)
+            return
+        if face == "bottom":
+            c.rect(x, y, x + w - 1, y + h - 1, G0 if foot else BRASS[2])
+            return
+        c.rect(x, y, x + w - 1, y + h - 1, G2)
+        c.rect(x, y, x, y + h - 1, G3)
+        if foot:
+            c.rect(x, y + h - 1, x + w - 1, y + h - 1, BRASS[2])
+            if face == "front":
+                c.px(x + w // 2, y + 1, BRASS[3])
+        else:
+            c.rect(x, y, x + w - 1, y, BRASS[3])
+            c.rect(x, y + h - 1, x + w - 1, y + h - 1, BRASS[3])
+            c.px(x, y + h - 1, BRASS[4])
+    return paint
+
+
+def apprentice_skin():
+    c = Canvas(64, 64)
+    box(c, 0, 0, 8, 7, 5, body_face)
+    box(c, 0, 14, 7, 7, 7, head_face)
+    box(c, 30, 22, 1, 3, 1, antenna_face)
+    box(c, 30, 14, 3, 3, 3, core_face)
+    box(c, 0, 30, 3, 5, 3, limb(True))
+    box(c, 14, 30, 3, 5, 3, limb(True))
+    box(c, 28, 30, 2, 6, 2, limb(False))
+    box(c, 38, 30, 2, 6, 2, limb(False))
+    return c
+
+
 # ---------------------------------------------------------------- cables
 
 DYES = {
@@ -580,15 +899,15 @@ def probe():
         for d, color in zip((-1, 0, 1), row):
             if color is not None:
                 c.px(15 - y + d, y, color)
-    outline(c, rgb("161b21"))
+    outline(c, INK)
     return c
 
 
 PAPER = [
     "..oooooooooo....",
     "..oPPPPPPPPpo...",
-    "..oPPPPPPPPpPo..",
-    "..oPPPPPPPPppPo.",
+    "..oPPPPPPPPppo..",
+    "..oPPPPPPPPpppo.",
     "..oPPPPPPPPPPPo.",
     "..oPPPPPPPPPPPo.",
     "..oPPPPPPPPPPPo.",
@@ -603,16 +922,9 @@ PAPER = [
     "..ooooooooooooo.",
 ]
 
-INSIGHTS = {
-    "insight_counting": ("3cd6c6", [
-        "......#..",
-        "......#..",
-        "..#...#..",
-        "..#.#.#..",
-        "#.#.#.#.#",
-        "#.#.#.#.#",
-    ]),
-    "insight_context": ("ffb547", [
+# a schematic is a machine's plan: a white line drawing on blueprint, sealed in the color of what it unlocks
+SCHEMATICS = {
+    "schematic_context": ("ffb547", [
         "##.##.##.",
         "##.##.##.",
         ".........",
@@ -620,7 +932,7 @@ INSIGHTS = {
         "########.",
         "......#..",
     ]),
-    "insight_attention": ("b48cff", [
+    "schematic_attention": ("b48cff", [
         "..#####..",
         ".#.....#.",
         "#...#...#",
@@ -628,7 +940,7 @@ INSIGHTS = {
         ".#.....#.",
         "..#####..",
     ]),
-    "insight_position": ("84e08a", [
+    "schematic_positions": ("84e08a", [
         ".##......",
         "#..#....#",
         "....#..#.",
@@ -636,40 +948,340 @@ INSIGHTS = {
         ".........",
         "#.#.#.#.#",
     ]),
-    "insight_circuits": ("ff7a6b", [
-        "#.#....#.",
-        "#.#....#.",
-        ".........",
-        ".#######.",
-        "#.......#",
-        "#.......#",
-    ]),
-    "insight_language": ("6cb8ff", [
+    "schematic_blocks": ("ff7a6b", [
         "#######..",
-        ".........",
-        "#####.##.",
-        ".........",
-        "##.######",
-        ".........",
+        "#.....#..",
+        "#######.#",
+        "....#...#",
+        "#######.#",
+        "#.....###",
+    ]),
+    "schematic_relays": ("3cd6c6", [
+        "#.......#",
+        ".#..#..#.",
+        "...###...",
+        "....#....",
+        "...#.#...",
+        "..#...#..",
     ]),
 }
 
 
-def insight(accent, rows):
+def schematic(accent, rows):
     c = Canvas()
-    paper, shade, fold = rgb("eef1f4"), rgb("cfd5dc"), rgb("b8c0ca")
-    c.stamp(0, 0, PAPER, {"o": rgb("2a313b"), "P": paper, "p": fold, "S": shade})
-    a = rgb(accent)
-    # title rule
+    c.stamp(0, 0, PAPER, {"o": rgb("0c1a2a"), "P": PRINT[2], "p": PRINT[4], "S": PRINT[1]})
+    for y in range(4, 14, 3):
+        for x in range(4, 14, 3):
+            c.px(x, y, PRINT[3])
     for x in range(4, 10):
-        c.px(x, 3, rgb("8f97a4"))
+        c.px(x, 3, PRINT[4])
     for y, row in enumerate(rows):
         for x, ch in enumerate(row):
             if ch == "#":
-                c.px(4 + x, 6 + y, mix(a, (20, 24, 30, 255), 0.15))
-    # seal
-    c.rect(11, 11, 12, 12, a)
-    c.px(11, 11, mix(a, (255, 255, 255, 255), 0.5))
+                c.px(4 + x, 6 + y, PRINT[5])
+    a = rgb(accent)
+    c.rect(11, 12, 12, 13, a)
+    c.px(11, 12, mix(a, (255, 255, 255, 255), 0.5))
+    c.px(12, 13, mix(a, (0, 0, 0, 255), 0.3))
+    return c
+
+
+# one color per ability, on its drill's header
+ABILITY_COLORS = {"field": "84e08a", "storage": "ffb547", "errand": "6cb8ff", "pattern": "b48cff", "orders": "3cd6c6"}
+# what each drill practices, punched into the card
+DRILL_HOLES = {
+    "field": [
+        "#..#..#.",
+        ".#.#.#..",
+        "..###...",
+        "...#....",
+        "...#....",
+        "........",
+        "########",
+    ],
+    "storage": [
+        "########",
+        "#..#...#",
+        "#..#...#",
+        "########",
+        "#...#..#",
+        "#...#..#",
+        "########",
+    ],
+    "errand": [
+        ".....#..",
+        "#######.",
+        ".....#..",
+        "........",
+        "..#.....",
+        ".#######",
+        "..#.....",
+    ],
+    "pattern": [
+        "##..##..",
+        "##..##..",
+        "........",
+        "#.#.#.#.",
+        "........",
+        "##..##..",
+        "##..##..",
+    ],
+    "orders": [
+        "#######.",
+        "#.....#.",
+        "#.###.#.",
+        "#.....#.",
+        "###.###.",
+        "..##....",
+        "..#.....",
+    ],
+}
+CARD = [
+    "................",
+    "..HHHHHHHHHh....",
+    "..HHHHHHHHHHh...",
+    "..hhhhhhhhhhhh..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..SSSSSSSSSSSS..",
+    "................",
+]
+
+
+def drill(kind):
+    """A punch card: the header in its ability's color, the practice punched below."""
+    c = Canvas()
+    a = rgb(ABILITY_COLORS[kind])
+    c.stamp(0, 0, CARD, {"H": a, "h": mix(a, (0, 0, 0, 255), 0.35), "P": K0, "S": K3})
+    for y in range(4, 14):
+        for x in range(2, 14):
+            if speckle(x, y, 3):
+                c.px(x, y, K1)
+    holes = glyph_cells(DRILL_HOLES[kind])
+    for (x, y) in holes:
+        c.px(4 + x, 5 + y, rgb("2a313b"))
+        if (x, y + 1) not in holes:
+            c.px(4 + x, 6 + y, K2)
+    outline(c, INK)
+    return c
+
+
+CHECKPOINT = [
+    "................",
+    "......kKKk......",
+    ".....kKKKKk.....",
+    "....gGGGGGGg....",
+    "....gwwwwwhg....",
+    "....gwwTAwwg....",
+    "....gwTtaAwg....",
+    "....gTttaaAg....",
+    "....gwTtaAwg....",
+    "....gwwTAwwg....",
+    "....gwwwwwwg....",
+    "....gGGGGGGg....",
+    ".....kKKKKk.....",
+    "......kKKk......",
+    "................",
+    "................",
+]
+
+
+def checkpoint():
+    """A vial for a mind: a weight crystal sealed in glass between two steel caps."""
+    c = Canvas()
+    c.stamp(0, 0, CHECKPOINT, {"k": K3, "K": K1, "g": G1, "G": G3, "w": rgb("cfe6ea"), "h": K0,
+                               "T": TEAL[3], "t": TEAL[2], "A": AMBER[3], "a": AMBER[2]})
+    c.px(8, 7, TEAL[5])
+    outline(c, INK)
+    return c
+
+
+DRIVE = [
+    "................",
+    "................",
+    "...kKKKKKKKKk...",
+    "...GGGGGGGGGG...",
+    "...GPPPPPPPPG...",
+    "...GPllllllPG...",
+    "...GPPPPPPPPG...",
+    "...GPlllllPPG...",
+    "...GPPPPPPPPG...",
+    "...GPllllPPPG...",
+    "...GPPPPPPPPG...",
+    "...GGGGGGGGtG...",
+    "...gGGGGGGGGg...",
+    "....y.y.y.y.....",
+    "................",
+    "................",
+]
+
+
+def archive_drive():
+    """A cartridge for recovered text: a paper label of lines, a light that says it is written."""
+    c = Canvas()
+    c.stamp(0, 0, DRIVE, {"k": K3, "K": K1, "G": G2, "g": G1, "P": K0, "l": K4, "t": TEAL[4], "y": AMBER[3]})
+    outline(c, INK)
+    return c
+
+
+SHARD = [
+    "................",
+    "................",
+    "..LLLLLLLLLL....",
+    "..LSSSSSSSSSL...",
+    "..LSggggSggSS...",
+    "..LSSSSSSSSSSe..",
+    "..LSgggSgggSSe..",
+    "..LSSSSSSSSSce..",
+    "..LSggSgggScSe..",
+    "..LSSSSSSSScee..",
+    "..LSgggSSSce....",
+    "..LSSSSSSee.....",
+    "..LSSSSSSe......",
+    "..eeeeeeee......",
+    "................",
+    "................",
+]
+
+
+def archive_shard():
+    """A broken tablet with a few lines of writing left on it."""
+    c = Canvas()
+    c.stamp(0, 0, SHARD, {"L": STONE[5], "S": STONE[4], "s": STONE[3], "e": STONE[2], "g": STONE[2], "c": STONE[1]})
+    outline(c, INK)
+    return c
+
+
+def salvaged_mind():
+    """A weight crystal gone dark, cracked through, still warm inside."""
+    c = Canvas()
+    c.stamp(0, 0, WEIGHT_CRYSTAL, {"o": rgb("12171c"), "T": rgb("51606a"), "t": rgb("3a464f"),
+                                   "A": rgb("5e4c3a"), "a": rgb("45382b")})
+    for x, y in ((9, 2), (10, 3), (10, 4), (11, 5)):
+        c.px(x, y, CLEAR)
+    for x, y in ((8, 2), (9, 3), (9, 4), (10, 5), (11, 6)):
+        c.px(x, y, rgb("12171c"))
+    crack = [(8, 4), (7, 5), (7, 6), (8, 7), (8, 8), (7, 9), (6, 10), (7, 11), (7, 12)]
+    for i, (x, y) in enumerate(crack):
+        c.px(x, y, AMBER[4] if i in (3, 4) else AMBER[3])
+    for x, y in ((9, 8), (6, 6), (8, 10)):
+        c.px(x, y, AMBER[1])
+    return c
+
+
+APPRENTICE = [
+    "................",
+    ".......tt.......",
+    ".......bb.......",
+    "....BBBBBBBB....",
+    "....BhgggggB....",
+    "....BgggcggB....",
+    "....BggcCcgB....",
+    "....BBBBBBBB....",
+    "..aDDDDDDDDDDa..",
+    "..aDdddddddDDa..",
+    "..aDddDvvDdDDa..",
+    "..sDddDvvDdDDs..",
+    "....dddddddd....",
+    ".....LL..LL.....",
+    ".....LL..LL.....",
+    ".....ff..ff.....",
+]
+
+
+def apprentice_item():
+    """Brass body, graphite limbs, and a glass lantern for a head with a mind glowing in it."""
+    c = Canvas()
+    c.stamp(0, 0, APPRENTICE, {"t": TEAL[4], "b": BRASS[3], "B": BRASS[3], "h": rgb("eafaf7"), "g": rgb("a9d9d2"),
+                               "c": TEAL[3], "C": TEAL[5], "D": BRASS[3], "d": BRASS[2], "v": G1, "a": G2,
+                               "s": BRASS[4], "L": G2, "f": BRASS[2]})
+    for x in range(4, 12):
+        c.px(x, 3, BRASS[4])
+        c.px(x, 8, BRASS[4])
+    c.px(8, 10, TEAL[4])
+    outline(c, INK)
+    return c
+
+
+def survey_rod():
+    """A rod with an amethyst at its tip, to mark where things go."""
+    c = Canvas()
+    for t in range(10):
+        x, y = 2 + t, 13 - t
+        c.px(x, y, BRASS[2] if t in (0, 1) else rgb("9b7449"))
+        c.px(x + 1, y, BRASS[1] if t in (0, 1) else rgb("6e5131"))
+    c.px(11, 4, BRASS[4])
+    c.px(12, 4, BRASS[3])
+    c.px(11, 5, BRASS[3])
+    for (x, y), tone in {(12, 1): 4, (13, 1): 5, (11, 2): 3, (12, 2): 4, (13, 2): 3, (14, 2): 2,
+                         (12, 3): 3, (13, 3): 2, (11, 3): 2, (13, 0): 4}.items():
+        c.px(x, y, AMETHYST[tone])
+    outline(c, INK)
+    return c
+
+
+RELAY_CARD = [
+    "................",
+    "................",
+    "................",
+    "..GGGGGGGGGg....",
+    "..GgggggggggG...",
+    "..GgyyyygggtgG..",
+    "..GgyYYyggtgtG..",
+    "..GgyyyygLgtgt..",
+    "..GgyYYyggtgtG..",
+    "..GgyyyygggtgG..",
+    "..GggggggggggG..",
+    "..GgggggggggLG..",
+    "..GGGGGGGGGGGG..",
+    "................",
+    "................",
+    "................",
+]
+
+
+def relay_card():
+    """A card that knows which Model Server to ask: a chip, and an antenna drawn on in teal."""
+    c = Canvas()
+    c.stamp(0, 0, RELAY_CARD, {"G": G3, "g": G1, "y": AMBER[3], "Y": AMBER[2], "t": TEAL[3], "L": TEAL[5]})
+    outline(c, INK)
+    return c
+
+
+TERMINAL = [
+    "................",
+    "............b...",
+    "...GGGGGGGGGb...",
+    "...GWWWWWWWGG...",
+    "...GWtttWtWGG...",
+    "...GWWWWWWWGG...",
+    "...GWttWtttGG...",
+    "...GWWWWWWWGG...",
+    "...GWtcWWWWGG...",
+    "...GWWWWWWWGG...",
+    "...GGGGGGGGGG...",
+    "...GkGkGkGlGG...",
+    "...GGGGGGGGGG...",
+    "...GkGkGkGkGG...",
+    "...gGGGGGGGGg...",
+    "................",
+]
+
+
+def terminal():
+    """A handheld screen for asking a served mind from anywhere its relays reach."""
+    c = Canvas()
+    c.stamp(0, 0, TERMINAL, {"G": G2, "g": G1, "W": W1, "t": TEAL[3], "c": TEAL[5], "k": K2, "l": TEAL[4],
+                             "b": BRASS[3]})
+    outline(c, INK)
     return c
 
 
@@ -761,7 +1373,21 @@ def build():
     SAVED["block/model_core_side_on.png"] = core_side(0).im
 
     accelerator().save("block/accelerator.png")
+    accelerator_hot().save("block/accelerator_hot.png")
     casing().save("block/tensor_casing.png")
+
+    server_front().save("block/model_server_front.png")
+    server_front(crystal=True).save("block/model_server_front_loaded.png")
+    animated([server_front(True, i) for i in range(4)], "block/model_server_front_on.png", 3)
+    SAVED["block/model_server_front_on.png"] = server_front(True, 0).im
+    server_side().save("block/model_server_side.png")
+    server_top().save("block/model_server_top.png")
+    reader_front().save("block/reader_front.png")
+    animated([reader_front(i) for i in range(8)], "block/reader_front_on.png", 4)
+    SAVED["block/reader_front_on.png"] = reader_front(5).im
+    reader_top().save("block/reader_top.png")
+    reader_side().save("block/reader_side.png")
+    relay().save("block/relay.png")
 
     plain = cable(K2, K0, NEUTRAL[1], TEAL[4])
     for i in range(16):
@@ -775,9 +1401,20 @@ def build():
 
     weight_crystal().save("item/weight_crystal.png")
     probe().save("item/tensor_probe.png")
-    for name, (accent, rows) in INSIGHTS.items():
-        insight(accent, rows).save(f"item/{name}.png")
+    checkpoint().save("item/checkpoint.png")
+    archive_drive().save("item/archive_drive.png")
+    archive_shard().save("item/archive_shard.png")
+    salvaged_mind().save("item/salvaged_mind.png")
+    for kind in ABILITY_COLORS:
+        drill(kind).save(f"item/{kind}_drill.png")
+    for name, (accent, rows) in SCHEMATICS.items():
+        schematic(accent, rows).save(f"item/{name}.png")
+    apprentice_item().save("item/apprentice.png")
+    survey_rod().save("item/survey_rod.png")
+    relay_card().save("item/relay_card.png")
+    terminal().save("item/terminal.png")
     guide().save("item/guide.png")
+    apprentice_skin().save("entity/apprentice.png")
     # the mod list scales it down to 50 px high
     mark = logo().im
     mark.resize((mark.width * 8, mark.height * 8), Image.NEAREST).save(ROOT / "src/main/resources/residual_logo.png")
@@ -785,17 +1422,22 @@ def build():
 
 def preview(path):
     scale, pad = 6, 6
-    names = list(SAVED)
+    names = [n for n in SAVED if SAVED[n].width == 16]
+    large = [SAVED[n] for n in SAVED if SAVED[n].width > 16 and SAVED[n].width <= 64]
     cols = 9
     cell = 16 * scale + pad
     rows = (len(names) + cols - 1) // cols
-    sheet = Image.new("RGBA", (cols * cell + pad, rows * cell + pad), (58, 64, 74, 255))
+    extra = max((im.height * 4 + pad for im in large), default=0)
+    sheet = Image.new("RGBA", (cols * cell + pad, rows * cell + pad + extra), (58, 64, 74, 255))
     for i, name in enumerate(names):
-        im = SAVED[name]
-        if im.height > 16:
-            im = im.crop((0, 0, 16, 16))
-        sheet.paste(im.resize((16 * scale, 16 * scale), Image.NEAREST), (pad + (i % cols) * cell, pad + (i // cols) * cell),
-                    im.resize((16 * scale, 16 * scale), Image.NEAREST))
+        im = SAVED[name].crop((0, 0, 16, 16))
+        big = im.resize((16 * scale, 16 * scale), Image.NEAREST)
+        sheet.paste(big, (pad + (i % cols) * cell, pad + (i // cols) * cell), big)
+    x = pad
+    for im in large:
+        big = im.resize((im.width * 4, im.height * 4), Image.NEAREST)
+        sheet.paste(big, (x, rows * cell + pad), big)
+        x += big.width + pad
     sheet.save(path)
 
 

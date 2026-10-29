@@ -5,6 +5,9 @@ import io.github.metrovoc.residual.block.AcceleratorBlock;
 import io.github.metrovoc.residual.block.CableBlock;
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.block.OperatorBlock;
+import io.github.metrovoc.residual.block.ReaderBlock;
+import io.github.metrovoc.residual.block.RelayBlock;
+import io.github.metrovoc.residual.block.ServerBlock;
 import io.github.metrovoc.residual.graph.Op;
 import java.util.EnumMap;
 import java.util.Map;
@@ -28,6 +31,12 @@ public final class ModBlocks {
     public static final DeferredBlock<AcceleratorBlock> ACCELERATOR = BLOCKS.registerBlock("accelerator", AcceleratorBlock::new,
             p -> machine(p).lightLevel(s -> 4));
     public static final DeferredBlock<Block> CASING = BLOCKS.registerSimpleBlock("tensor_casing", ModBlocks::machine);
+    public static final DeferredBlock<ServerBlock> SERVER = BLOCKS.registerBlock("model_server", ServerBlock::new,
+            p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(ServerBlock.SERVING) ? 10 : s.getValue(ServerBlock.LOADED) ? 5 : 2));
+    public static final DeferredBlock<ReaderBlock> READER = BLOCKS.registerBlock("reader", ReaderBlock::new,
+            p -> machine(p).noOcclusion().lightLevel(s -> s.getValue(ReaderBlock.READING) ? 8 : 0));
+    public static final DeferredBlock<RelayBlock> RELAY = BLOCKS.registerBlock("relay", RelayBlock::new,
+            p -> machine(p).strength(1.5f, 6f).noOcclusion().lightLevel(s -> 9));
 
     static {
         for (Op op : Op.values()) {

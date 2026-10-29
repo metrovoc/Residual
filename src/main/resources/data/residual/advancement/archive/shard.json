@@ -1,0 +1,35 @@
+{
+  "parent": "residual:ruins/found",
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "residual:archive_shard"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:archive_shard"
+    },
+    "title": {
+      "translate": "advancements.residual.archive.shard.title"
+    },
+    "description": {
+      "translate": "advancements.residual.archive.shard.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ]
+}

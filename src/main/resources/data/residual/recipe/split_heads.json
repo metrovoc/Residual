@@ -4,7 +4,7 @@
   "ingredients": [
     "residual:tensor_casing",
     "minecraft:shears",
-    "residual:insight_position"
+    "residual:schematic_positions"
   ],
   "result": {
     "id": "residual:split_heads"

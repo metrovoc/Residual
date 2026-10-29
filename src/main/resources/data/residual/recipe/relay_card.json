@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:paper",
+    "minecraft:copper_ingot",
+    "minecraft:redstone",
+    "residual:schematic_relays"
+  ],
+  "result": {
+    "id": "residual:relay_card",
+    "count": 2
+  }
+}

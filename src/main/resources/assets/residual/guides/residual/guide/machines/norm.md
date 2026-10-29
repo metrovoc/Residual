@@ -42,6 +42,6 @@ Linear Layer. This pre-norm layout is GPT-2's, and nearly every model since uses
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_attention" />, from [Looking Things Up](../lessons/recall.md).
+Its plans are on <ItemLink id="schematic_attention" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="norm" />

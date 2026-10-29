@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "W": "residual:weight_crystal"
+  },
+  "pattern": [
+    " A ",
+    "AWA",
+    " A "
+  ],
+  "result": {
+    "id": "residual:checkpoint"
+  }
+}

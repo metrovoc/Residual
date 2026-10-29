@@ -40,10 +40,9 @@ None.
 
 Attention can look back any distance, so transformers rarely need a fixed delay. Some architectures keep one
 anyway: RWKV mixes every token with the one before it, a learned blend called token shift.
-[Induction Heads](../lessons/induction.md) forbids Delay Lines.
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_counting" />, from [Counting Pairs](../lessons/counting.md).
+Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="shift" />

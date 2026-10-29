@@ -1,11 +1,14 @@
 package io.github.metrovoc.residual.client;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.net.ApprenticeSync;
 import io.github.metrovoc.residual.net.CodeText;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.ExportChunk;
 import io.github.metrovoc.residual.net.SampleResult;
+import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
+import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModMenus;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -23,11 +26,14 @@ public final class ResidualClient {
         modBus.addListener(ResidualClient::payloads);
         modBus.addListener(ResidualClient::renderers);
         modBus.addListener(ResidualClient::layers);
+        modBus.addListener(ResidualClient::models);
     }
 
     private static void screens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.CORE.get(), CoreScreen::new);
         event.register(ModMenus.OPERATOR.get(), OperatorScreen::new);
+        event.register(ModMenus.APPRENTICE.get(), ApprenticeScreen::new);
+        event.register(ModMenus.READER.get(), ReaderScreen::new);
     }
 
     private static void payloads(RegisterClientPayloadHandlersEvent event) {
@@ -38,10 +44,20 @@ public final class ResidualClient {
         });
         event.register(CodeText.TYPE, (code, ctx) -> CoreView.code = code.code());
         event.register(ExportChunk.TYPE, (chunk, ctx) -> Exports.accept(chunk));
+        event.register(ApprenticeSync.TYPE, (sync, ctx) -> ApprenticeView.sync = sync);
+        event.register(TerminalAnswer.TYPE, (answer, ctx) -> {
+            ApprenticeView.answer = answer;
+            ApprenticeView.asking = false;
+        });
     }
 
     private static void renderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.OPERATOR.get(), context -> new MachineRenderer());
+        event.registerEntityRenderer(ModEntities.APPRENTICE.get(), ApprenticeRenderer::new);
+    }
+
+    private static void models(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(ApprenticeModel.LAYER, ApprenticeModel::createLayer);
     }
 
     private static void layers(RegisterGuiLayersEvent event) {

@@ -1,0 +1,40 @@
+{
+  "parent": "residual:archive/drive",
+  "criteria": {
+    "placed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": "residual:reader"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:reader"
+    },
+    "title": {
+      "translate": "advancements.residual.deploy.reader.title"
+    },
+    "description": {
+      "translate": "advancements.residual.deploy.reader.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "placed"
+    ]
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,loaded=false,serving=false": {
+      "model": "residual:block/model_server"
+    },
+    "facing=south,loaded=false,serving=false": {
+      "model": "residual:block/model_server",
+      "y": 180
+    },
+    "facing=east,loaded=false,serving=false": {
+      "model": "residual:block/model_server",
+      "y": 90
+    },
+    "facing=west,loaded=false,serving=false": {
+      "model": "residual:block/model_server",
+      "y": 270
+    },
+    "facing=north,loaded=false,serving=true": {
+      "model": "residual:block/model_server"
+    },
+    "facing=south,loaded=false,serving=true": {
+      "model": "residual:block/model_server",
+      "y": 180
+    },
+    "facing=east,loaded=false,serving=true": {
+      "model": "residual:block/model_server",
+      "y": 90
+    },
+    "facing=west,loaded=false,serving=true": {
+      "model": "residual:block/model_server",
+      "y": 270
+    },
+    "facing=north,loaded=true,serving=false": {
+      "model": "residual:block/model_server_loaded"
+    },
+    "facing=south,loaded=true,serving=false": {
+      "model": "residual:block/model_server_loaded",
+      "y": 180
+    },
+    "facing=east,loaded=true,serving=false": {
+      "model": "residual:block/model_server_loaded",
+      "y": 90
+    },
+    "facing=west,loaded=true,serving=false": {
+      "model": "residual:block/model_server_loaded",
+      "y": 270
+    },
+    "facing=north,loaded=true,serving=true": {
+      "model": "residual:block/model_server_on"
+    },
+    "facing=south,loaded=true,serving=true": {
+      "model": "residual:block/model_server_on",
+      "y": 180
+    },
+    "facing=east,loaded=true,serving=true": {
+      "model": "residual:block/model_server_on",
+      "y": 90
+    },
+    "facing=west,loaded=true,serving=true": {
+      "model": "residual:block/model_server_on",
+      "y": 270
+    }
+  }
+}

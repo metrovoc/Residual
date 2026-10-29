@@ -6,8 +6,8 @@ import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.learn.Blueprints;
-import io.github.metrovoc.residual.learn.Curriculum;
-import io.github.metrovoc.residual.learn.Task;
+import io.github.metrovoc.residual.learn.Vocab;
+import io.github.metrovoc.residual.learn.Wrecks;
 import io.github.metrovoc.residual.tensor.AdamW;
 import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Tape;
@@ -35,20 +35,20 @@ class PyTorchParityTest {
     @Test
     void export() throws Exception {
         Path root = Path.of(System.getenv("RESIDUAL_PARITY_DIR"));
-        lesson(root, "bigram", Blueprints.bigram(), "counting", 3, 16);
-        lesson(root, "context", Blueprints.context(), "context", 3, 16);
-        lesson(root, "recall", Blueprints.recall(), "recall", 3, 18);
-        lesson(root, "reverse", Blueprints.reverse(), "reverse", 3, 12);
-        lesson(root, "induction", Blueprints.induction(), "induction", 3, 24);
-        lesson(root, "gpt", Blueprints.gpt(32, 2, 4), "language", 2, 64);
-        lesson(root, "case_leak", Curriculum.byId("case_leak").brokenMachine().get(), "context", 3, 16);
-        lesson(root, "case_depth", Curriculum.byId("case_depth").brokenMachine().get(), "context", 3, 16);
+        world(root, "bigram", Blueprints.bigram(), 3, 16);
+        world(root, "context", Blueprints.context(), 3, 16);
+        world(root, "recall", Blueprints.recall(), 3, 18);
+        world(root, "reverse", Blueprints.reverse(), 3, 12);
+        world(root, "induction", Blueprints.induction(), 3, 24);
+        world(root, "gpt", Blueprints.gpt(32, 2, 4), 2, 64);
+        world(root, "wreck_leak", Wrecks.byId("leak").machine().get(), 3, 16);
+        world(root, "wreck_depth", Wrecks.byId("depth").machine().get(), 3, 16);
         dump(root.resolve("kitchen"), kitchenSink(), new Env(20, 12), "abcdefghijklmnopqrst", 3, 9);
     }
 
-    static void lesson(Path root, String name, GraphSpec spec, String lesson, int batch, int time) throws Exception {
-        Task task = Curriculum.byId(lesson).makeTask();
-        dump(root.resolve(name), spec, new Env(task.vocab.size(), task.context), task.vocab.symbols, batch, time);
+    /** A model in the world's vocabulary and context, run on sequences of {@code time} characters. */
+    static void world(Path root, String name, GraphSpec spec, int batch, int time) throws Exception {
+        dump(root.resolve(name), spec, new Env(Vocab.WORLD.size(), Vocab.CONTEXT), Vocab.WORLD.symbols, batch, time);
     }
 
     /** Every operator at least once, at a sequence length shorter than the context. */

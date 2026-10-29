@@ -27,7 +27,7 @@ No input. [T×C] out, which a Residual Junction adds to every sequence in the ba
 
 ## Parameters
 
-T × C, where T is the lesson's context length.
+T × C, where T is the context length, 64.
 
 ## In PyTorch
 
@@ -41,6 +41,6 @@ depends on its position (RoPE), so that attention scores depend on how far apart
 
 ## Recipe
 
-Unlocked by <ItemLink id="insight_attention" />, from [Looking Things Up](../lessons/recall.md).
+Its plans are on <ItemLink id="schematic_positions" />, found in [ruins](../ruins.md).
 
 <RecipeFor id="position" />

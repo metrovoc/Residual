@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "B": "minecraft:book",
+    "K": "residual:tensor_casing",
+    "W": "residual:weight_crystal"
+  },
+  "pattern": [
+    "GBG",
+    "KWK",
+    "KKK"
+  ],
+  "result": {
+    "id": "residual:reader"
+  }
+}

@@ -2,6 +2,8 @@ package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.item.WreckItem;
+import io.github.metrovoc.residual.learn.Wrecks;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -29,7 +31,21 @@ public final class ModTabs {
                 for (Op op : Op.values()) {
                     out.accept(ModBlocks.OPERATORS.get(op).get());
                 }
-                ModItems.INSIGHTS.values().forEach(insight -> out.accept(insight.get()));
+                out.accept(ModItems.CHECKPOINT.get());
+                out.accept(ModItems.ARCHIVE_DRIVE.get());
+                out.accept(ModItems.SHARD.get());
+                out.accept(ModBlocks.READER.get());
+                ModItems.DRILLS.values().forEach(drill -> out.accept(drill.get()));
+                for (Wrecks.Wreck w : Wrecks.ALL) {
+                    out.accept(WreckItem.of(ModItems.WRECK.get(), w));
+                }
+                ModItems.SCHEMATICS.values().forEach(schematic -> out.accept(schematic.get()));
+                out.accept(ModItems.APPRENTICE.get());
+                out.accept(ModItems.SURVEY_ROD.get());
+                out.accept(ModBlocks.SERVER.get());
+                out.accept(ModBlocks.RELAY.get());
+                out.accept(ModItems.RELAY_CARD.get());
+                out.accept(ModItems.TERMINAL.get());
             })
             .build());
 

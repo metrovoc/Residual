@@ -1,0 +1,531 @@
+Beetroot soup
+Mira, at Northpoint. This is how our mother made it on Kettle Ridge. I make it up here now, on nights when the wind is loud.
+You need:
+Six beetroots. Always six.
+One potato.
+A bowl of water for each person, and one more for the pot.
+A pinch of salt.
+1. Wash the beetroots. Cut off the leaves, but keep them.
+2. Peel the beetroots and the potato. Cut them into small pieces.
+3. Put them in the pot with the water and the salt.
+4. Cook it slowly, until a spoon goes through a piece of beetroot.
+5. Chop the leaves and add them at the end. They only need a moment.
+6. Mash some of the pieces with the back of the spoon. Leave the rest whole.
+The soup should be dark red. If it is pink, you used too much water.
+Eat it hot, with bread. It is better on the second day.
+Tam says this is too much salt. Tam is wrong.
+Wash your hands after. Beetroot gets into everything. One winter my hands were red for days, and Lantern thought I was hurt. It brought me a bandage and stood by me until I laughed.
+%%
+Kettle Ridge bread
+Tam, Kettle Ridge. Everyone on the ridge makes bread a little differently. Mine is the best. Ask anyone except Mira.
+You need:
+Three big handfuls of wheat flour. Take your wheat up to the windmill and ask for it fine.
+A fist of old dough, saved from the last bake.
+Warm water.
+A pinch of salt.
+1. Put the flour in a bowl. Make a hole in the middle.
+2. Put the old dough in the hole with a little warm water. Squeeze it soft.
+3. Add the salt. Add water bit by bit and mix with your hand.
+4. Knead it on the table until it is smooth. This takes a long time. Sing something.
+5. Pull off a fist of dough and keep it in a cool jar for next time. If you forget, you have to beg some from the neighbors.
+6. Cover the rest with a cloth. Leave it by the hearth until it is twice as big.
+7. Shape it round. Bake it in a hot oven until the bottom sounds hollow when you knock on it.
+Pip fetches the flour from the store for me now.
+> bring me the flour
+= fetch flour
+The first time, Pip brought me a sack of beetroot. The second time, a sack of seed. The ninth time, flour. Pip gets a little better every time it is wrong. So do I. I used to forget step 5 all the time.
+%%
+Wren's remedy for a cold
+Wren, healer at Lowmarsh. A cold is not dangerous. It is only miserable. Here is how to be less miserable.
+1. Rest. Stay home. Do not go to market and give it to everyone.
+2. Drink a lot. Warm water with a spoon of honey is best. Honey soothes the throat.
+3. Eat soup. Mushroom stew or carrot soup, something hot and easy.
+4. Keep your feet dry and warm in wool socks. Change them when they get wet. In Lowmarsh they always get wet, so keep two pairs.
+5. Breathe the steam from a bowl of hot water, with a cloth over your head. It looks silly. It helps.
+6. Sleep as much as you can.
+A cold lasts about seven days. Three days getting worse, three days getting better, and one day feeling sorry for yourself.
+Is there a high fever? Does the cough go on after that? Then come and see me. Moss will put the kettle on.
+%%
+Mushroom stew
+Wren, Lowmarsh. I give this to anyone who is tired, cold or sad. It works on all three.
+Mushrooms grow well here in the damp. Look under the big trees and in the shade of the reeds.
+You need:
+One red mushroom and one brown mushroom, the two kinds everyone knows.
+A bowl.
+Water and a pinch of salt.
+1. Brush the dirt off the mushrooms. Do not soak them. They drink water like a sponge.
+2. Cut them in slices.
+3. Cook them in a small pot with a little water and the salt.
+4. When they are soft and dark, the stew is ready.
+5. Pour it into the bowl and eat it while it steams.
+Only pick the kinds you know. If you are not sure of a mushroom, leave it alone. A mushroom you do not know is not food. It is a lesson.
+Moss picks them for me now. It learned the two kinds in one morning. It still brings me a frog sometimes. I put the frog back.
+%%
+Rabbit stew
+Mira, Northpoint, winter. The white rabbits come close to the tower when the snow is deep. I do not like catching them. I do like eating them. I have made my peace with this.
+You need:
+One rabbit, skinned and cut in pieces.
+One carrot.
+One baked potato.
+One brown mushroom.
+Water and salt.
+1. Brown the rabbit in the pot with a little fat.
+2. Add water to cover. Cook it slowly for a long time, until the meat falls off the bones.
+3. Take out the bones. Count them. You do not want to find one later.
+4. Cut the carrot, the potato and the mushroom in pieces. Add them.
+5. Cook until the carrot is soft.
+6. Salt it. Taste it. Salt it again if Tam is not here.
+Lantern stirs the pot for me. Lantern is very good at stirring. Lantern does not know when to stop. I come back from the lamps and the stew is as smooth as porridge.
+Keep the skin. A rabbit skin makes a warm lining for a boot.
+%%
+How to make cookies, by Bel
+School essay. Bel, Three Wells, age nine.
+Cookies are the best food. This is how we make them at our house.
+You need wheat flour and cocoa beans. Cocoa beans come on the boats to Saltreach, and then up the Long Road in carts. They cost a lot. That is why we only make cookies at midwinter and on birthdays.
+1. Grind the cocoa beans. Mother does this part because the grinder pinches.
+2. Mix the flour and the cocoa with a little milk, a little sugar and one egg.
+3. Roll the dough into balls. Press them flat with your hand.
+4. Bake them until the edges are brown.
+5. Let them cool. This is the hardest step.
+Two handfuls of flour and one handful of cocoa make eight cookies. They always make eight cookies. I tried to make nine. The nine were very small. Mother said they were still eight cookies, only cut up wrong.
+I asked our teacher why it is always eight. She said some things just are. Then I wrote to the archive at Vell to ask. I am still waiting for an answer.
+The end.
+%%
+Wren's remedy for bee stings
+Wren, Lowmarsh. A bee does not want to sting you. A bee that stings you dies after. So if you are stung, you upset it somehow. Think about what you did.
+1. Get the sting out at once. Scrape it out sideways with a fingernail or the back of a knife. Do not pinch it. Pinching squeezes more in.
+2. Wash the place with cold water.
+3. Hold something cold on it. A wet cloth from the well is good. Cool mud from the marsh is good too. We have plenty.
+4. A slice of raw potato helps some people. It does no harm, so try it.
+5. Do not scratch it. I know. Do not scratch it.
+It will swell and itch for a day or two. That is normal.
+If the face or the throat swells, or the person cannot breathe well, that is not normal. Send for help at once and keep them sitting up.
+Ama at Ambrook keeps more bees than anyone. She says she has been stung a hundred times, and now she hardly feels it. I do not suggest this as a remedy.
+%%
+Keeping bees
+Ama, beekeeper at Ambrook. I have kept bees for thirty years. Here is what I know.
+1. Bees need flowers. Plant them near the hives: dandelions, poppies, cornflowers, daisies. In spring the apple blossom is their favorite.
+2. Bees go home at night and when it rains. Do not open a hive then. Everybody is home and nobody is happy.
+3. Light a small fire under the hive before you take honey. The smoke makes the bees calm and slow. Without smoke they will come out angry, all of them at once.
+4. Take honey with a glass bottle when the hive is full and dripping at the edges.
+5. Cut the honeycomb with shears. Leave some for the bees. A hive with no honey has a hard winter.
+6. Never hit a bee. If one bee is angry, the whole hive comes out to help it.
+7. Keep the hives away from the door. Bees are good neighbors, but they do not like visitors.
+Bees help the orchard. Where the bees go, the apples come.
+At Ambrook we tell the bees our news. A wedding, a new baby, a good harvest. It does no harm. They listen better than most people.
+%%
+Oren's honey cakes
+Copied out neatly by Oren, clerk at the Archive at Vell. This recipe came to me from Ama at Ambrook. I have changed nothing except the spelling.
+You need:
+Two cups of wheat flour.
+One cup of honey.
+Two eggs.
+Half a cup of milk.
+A pinch of salt.
+1. Warm the honey a little so it pours.
+2. Beat the eggs. Add the honey and the milk.
+3. Add the flour and the salt. Stir until there are no dry spots.
+4. Drop spoonfuls on a flat pan. Leave room between them. They spread.
+5. Bake until they are golden and spring back when you touch them.
+Rules for honey cakes in the Archive:
+Do not eat them at the copying desks.
+Do not eat them near the shelves.
+Do not eat them anywhere near paper.
+Crumbs bring mice, and mice eat paper. Honey makes pages stick together, and they tear when you open them. This happened once to a book of weather notes from Northpoint. I am still sorry about it.
+Eat them in the kitchen. They are very good. I eat two.
+%%
+Dyeing wool
+Mira, Northpoint. Winter work. The nights are long and the wool does not dye itself.
+Colors from what you have:
+Red from poppies or beetroot.
+Yellow from dandelions.
+Blue from cornflowers. Deep blue from lapis, ground very fine.
+Green from cactus, cooked first, if Pell has any to sell.
+Brown from cocoa beans.
+Black from the ink of a squid.
+White from bone meal, to make pale wool brighter.
+Mix them for more. Red and yellow make orange. Red and white make pink. Blue and red make purple.
+1. Wash the wool well in warm water. Dirty wool takes color badly.
+2. Crush the flowers or the roots. Boil them in water for a long time.
+3. Strain the water. Put the wet wool in it.
+4. Keep it just under a boil. Stir now and then.
+5. Leave it in overnight. In the morning, rinse it until the water runs clear.
+6. Hang it to dry, out of the sun.
+Use a pot that is only for dyeing. Never use the soup pot. Tam did this once. His shirt came out a fine blue. So did the next three soups.
+%%
+Baked potatoes
+Hesk, Copperhold. Miner's food. Simple.
+1. Take big potatoes. Wash off the dirt.
+2. Poke each one with a knife, twice. If you do not, it can burst. Then you are scraping potato off the inside of the furnace.
+3. Put them in the furnace, or bury them in the hot coals at the side of the fire.
+4. Wait. About as long as it takes to fill a cart with stone.
+5. Push a knife in. If it goes in soft, they are done.
+6. Split them open. Salt. Eat.
+Wrap them in a cloth and they stay warm a long time.
+Clank carries the pail down to the crew at noon. The potatoes are still warm at the bottom of the shaft.
+Clank does not eat. Still, it guards that pail like a wolf guards a bone. Nobody touches the potatoes before noon. Not even me.
+Do not eat a green potato. Do not eat one that sat in the dark and grew long white shoots. Throw those on the compost.
+%%
+Kettle Ridge planting calendar
+Tam, Kettle Ridge. For Pip, and for anyone new on the ridge. The wind up here is strong and the frost leaves late. Do not plant early just because the valley does.
+Early spring: Mend the fences. Turn the soil. Fix the windmill sails before the big winds.
+Spring, when the frost is done: Sow the wheat. Plant the potatoes and the carrots.
+Late spring: Sow the beetroot. Plant pumpkin and melon seeds on the warm side of the hill, by the stone walls.
+Early summer: Weed. Weed again. Water if it is dry. Keep the rabbits out of the carrots.
+Summer: Weed. Pick the first beetroot while it is young and sweet.
+Late summer: Cut the wheat when it is gold and dry. Take it up to the windmill.
+Autumn: Dig the potatoes and the beetroot. Bring in the pumpkins before the first frost. Save the best seeds in dry jars, with names on them.
+Winter: Rest the soil. Spread ash from the hearth and bone meal on the beds. Mend the tools. Sit by the fire and argue about next year.
+When I go to market, I tell Pip:
+> keep the fields
+= farm
+Pip knows every row now. But Pip does not know when to stop weeding. So I have stopped growing anything Pip thinks is a weed. That is why we have no daisies.
+%%
+Waking day cake
+Tam, Kettle Ridge. On the ridge, everyone gets a cake on their birthday. Pip has no birthday. Pip has a waking day, the day it first woke up in our barn. So Pip gets a cake.
+You need:
+Three cups of milk.
+Two cups of sugar.
+One egg.
+Three cups of wheat flour.
+1. Beat the egg and the sugar together until pale.
+2. Add the milk.
+3. Add the flour bit by bit. Stir out the lumps.
+4. Pour it into a round pan. Bake it until a straw comes out clean.
+5. Let it cool before you put anything on top. Honey is good on top. Sweet berries are better.
+Pip cannot eat cake. So Pip carries the cake to the table. That is Pip's part. Pip carries it very slowly and very carefully, and everyone sings.
+Then we eat it, and Pip watches.
+Last year Pip carried it so slowly that we sang the song four times. Nobody minded. Mira sent a message from Northpoint, just one line: "Happy waking day, Pip. Do not drop it."
+%%
+Wren's remedy for scrapes
+Wren, Lowmarsh. Children fall down. Grown folk fall down too, and complain more. Here is what to do with a scrape.
+1. Wash your own hands first.
+2. Wash the scrape with clean water. Boil the water and let it cool if you can. Marsh water is not clean water, however clear it looks.
+3. Get out all the grit and dirt. Be gentle, but get all of it. Dirt left in is what makes a scrape go bad.
+4. Pat it dry with a clean cloth.
+5. Put a little honey on it. Honey keeps a wound clean.
+6. Cover it with a clean cloth and tie it loosely.
+7. Change the cloth every day, and look at the scrape each time.
+A scrape that is healing goes pink at the edges, then dry, then itchy. Good.
+A scrape that is going bad gets red and hot and swollen. It hurts more each day, not less. Come and see me then. Do not wait.
+Some folk put dried marsh moss on a cut. That is not bad. I mean the moss from the bog, not Moss my apprentice. Moss does not like to be put on things.
+%%
+Salmon on an oak plank
+Corin, shipwright at Saltreach. There are always good offcuts of oak in the yard. This is the best thing to do with them.
+1. Take a clean oak plank, a little longer than the fish. No tar on it, no nails in it.
+2. Soak the plank in sea water all morning.
+3. Clean a salmon. Split it open and lay it flat on the plank, skin down.
+4. Rub it with salt and a little honey.
+5. Stand the plank up by the fire, leaning on a stone, with the fish facing the flames.
+6. Turn the plank now and then so it cooks evenly.
+7. When the fish breaks into flakes, it is ready.
+The wet plank smokes, and the smoke goes into the fish. That is the whole secret.
+Cod works too, but salmon is better. Do not use birch. It burns too fast. Do not use spruce. The fish tastes of sap. Oak, every time.
+We cook this on the beach when a new boat goes into the water. Everyone who worked on the boat gets a piece. The apprentices carry the planks down from the yard. Then they stand in a row and watch the fire. They look as if they are waiting for a piece too.
+%%
+Dried kelp
+Marit, Saltreach. Kelp grows in long ropes in the shallow water off the harbor. Children pick it at low tide in summer.
+1. Rinse the kelp in fresh water to get the sand off.
+2. Hang it on the drying lines, in the sun and the wind. Two or three good days.
+3. If the weather is wet, dry it in the furnace instead, a little at a time.
+4. It is done when it snaps instead of bending.
+5. Keep it in a dry barrel with a lid.
+Eat it as it is, or crumble it into fish soup.
+Children hate dried kelp. Then they go out on a boat for the first time, and come home, and love it. Every sailor at Saltreach has some in a pocket.
+Packed tight into blocks, dried kelp burns slow and hot. Some folk at Saltreach burn it in winter instead of coal. The whole street smells of the sea. You get used to it.
+%%
+Mending a net
+Marit, net mender at Saltreach. I have mended nets on this harbor wall since I was ten. Every net tears. A good net tears and is mended a hundred times.
+You need:
+A wooden net needle, loaded with string.
+A gauge stick, as wide as one square of the net.
+A sharp knife.
+1. Hang the net on two pegs, so the hole is open in front of you.
+2. Cut away the broken string around the hole. Make the hole tidy, with clean corners.
+3. Tie the new string on at the top corner with a good knot.
+4. Make each new square around the gauge stick, so it is the same size as the rest.
+5. Tie a knot at every corner. Pull every knot tight.
+6. Work across, row by row, until the hole is closed.
+7. Tie off the end and cut it short.
+The best net string is spider string. It is strong and it does not rot in salt water. We get it from the spiders that come at night. So at Saltreach we are almost glad to see a spider. Almost.
+Sit with your back to the wind. Wear gloves in winter. Sing if you like. The nets do not mind.
+%%
+Sweet berry jam
+Mira, Northpoint, late summer. Sweet berries grow on low bushes in the spruce woods below the tower. The bushes have thorns. Wear gloves and long sleeves, or you will come home looking like you fought a cat.
+You need:
+Two baskets of sweet berries.
+One basket of sugar.
+Clean jars.
+1. Pick over the berries. Throw out the leaves and the bad ones.
+2. Put them in a pot with a splash of water. Crush them a little.
+3. Cook them slowly until the juice runs.
+4. Add the sugar. Stir until it is gone.
+5. Boil it hard, stirring all the time, until it is thick.
+6. To test, drop a little on a cold plate. If it wrinkles when you push it, it is ready.
+7. Pour it into hot clean jars. Seal them with a little melted wax.
+Lantern picks the berries for me. Lantern does not mind thorns. The foxes like the berries too. A fox will sit and watch Lantern pick, then eat from the next bush. Lantern lets it.
+I send a jar down the Long Road to Tam every autumn. He sends back the empty jar and a note that says MORE.
+%%
+Making candles
+Ama, Ambrook. After the honey is out, the wax is left. Do not throw it away. It makes the best candles there are.
+1. Put the old honeycomb in a pot of water and heat it slowly. The wax melts and floats on top.
+2. Let it cool. The wax sets in a cake on top of the water. Lift it off. The dirt stays below.
+3. Melt the clean wax again in a small deep pot. Slowly. Never on a high flame. Hot wax catches fire.
+4. Cut a length of string for the wick.
+5. Dip the string in the wax. Lift it out. Let it cool. Dip it again.
+6. Keep dipping until the candle is as thick as you want. Twenty dips makes a good one.
+7. Hang the candles by their wicks to harden overnight.
+8. Trim the wick to the width of a fingernail.
+For colored candles, stir a pinch of dye into the wax. Red for winter. Yellow for spring. Blue for my sister, who likes blue.
+Wax candles burn clean and smell of honey. Fat candles smell of mutton. You can tell an Ambrook house in the dark by its smell.
+%%
+Caring for a horse
+Pell, merchant on the Long Road. My horse has walked the Long Road more times than I have. She is in better shape, too. Here is how.
+1. Water first, always. A horse drinks more than you think. Stop at every well.
+2. Feed her hay morning and night. Give her wheat too if she has worked hard.
+3. Apples and carrots are treats, not food. Give one at a time, on a flat hand.
+4. Brush her every evening. Look for cuts and ticks while you brush.
+5. Pick out her hooves every night. A stone in a hoof makes a lame horse by morning.
+6. Never load the cart heavier than she can pull up the hill to Vell.
+7. Rest her one day in seven. Rest yourself too.
+8. At night, keep her inside a fence, with a torch at every corner. Zombies do not bother horses much. Horses do not know that.
+A golden carrot is the best treat in the land. I bought her one once at Three Wells, for the price of a good coat. She ate it in two bites and looked at me for another. I did not have another. She has not forgiven me.
+%%
+Wren's remedy for sore feet
+Wren, Lowmarsh. For travelers off the Long Road. Pell comes to me every spring with feet like two old boots.
+1. Take off your boots. Take off your socks. Yes, both.
+2. Soak your feet in a bowl of warm water with a handful of salt. Stay until the water cools.
+3. Dry them well, between the toes too. Wet feet crack.
+4. Look for blisters. Do not pop a blister. Cover it with a clean cloth and leave it be.
+5. If a blister has popped, wash it and put honey on it, like any scrape.
+6. Rub your feet with a little soft beeswax. Put on clean, dry wool socks.
+7. Sleep with your feet up on a pillow.
+Before the next trip:
+Wear boots that fit. Break them in at home, not on the road.
+Take two pairs of socks, and change them at noon.
+Stop at the inns. The Halfway Inn keeps a bowl of warm water by the door for this.
+Pell says a merchant cannot afford to rest. A merchant cannot afford new feet either.
+%%
+Carrot soup
+Hobb, the Halfway Inn on the Long Road. Travelers come in cold and tired. The soup must be ready before they ask for it. This pot is on the fire every day from the first frost to spring.
+You need:
+Ten carrots.
+Two potatoes.
+A good piece of pork, or a bone with some meat on it.
+Water and salt.
+1. Put the pork in the big pot with water. Let it simmer all morning.
+2. Take out the pork. Cut off the meat and keep it.
+3. Chop the carrots and the potatoes. Put them in the broth.
+4. Cook until they are soft. Mash them in the pot with a big spoon.
+5. Put the meat back in. Salt it.
+6. Keep it hot at the side of the fire. Add water and carrots as the day goes on.
+The second bowl is always free at the Halfway Inn. Pell says I will go broke this way. I have kept this inn for twenty years. Pell has had a second bowl every time.
+%%
+Keeping a hearth
+Hobb, the Halfway Inn. The hearth at this inn has not gone out in twenty years. Here is how.
+1. Start the fire small: dry grass and thin sticks, then bigger sticks, then a log.
+2. Burn the right wood. Oak burns long and steady. Birch burns bright and quick and smells sweet. Spruce spits and pops. Use spruce to start a fire, not to keep one.
+3. Coal burns longest of all. Buy it from the Copperhold carts in autumn, when it is cheap.
+4. At night, rake the hot coals into a pile at the back and cover them with ash. In the morning, brush off the ash and blow. There they are, still red.
+5. Sweep out the cold ash every morning. Keep it in a bucket. It is good for the garden beds.
+6. Keep a bucket of water by the hearth, every night. You will need it once. Once is enough.
+7. Never leave the fire burning with a rug in front of it.
+Travelers walk past two other inns to sit by our hearth. It is the oak, and the soup, and the cat asleep on the warm stone.
+%%
+Ambrook apple tarts
+Ama, Ambrook. Every house in Ambrook has its own apple tart, and every house thinks its own is best. This is ours. It is best.
+For the crust:
+Two cups of wheat flour, a spoon of pork fat, a pinch of salt, and cold water.
+For the inside:
+Four apples, a spoon of honey, a little sugar.
+1. Rub the fat into the flour with your fingers until it looks like sand.
+2. Add cold water a spoon at a time, until it holds together. Do not knead it. Rest it somewhere cool.
+3. Peel the apples, take out the cores, and slice them thin.
+4. Roll out the crust. Cut it in rounds with the rim of a cup. Press each round into a small pan.
+5. Lay the apple slices in a circle, like the petals of a flower.
+6. Put a drop of honey and a pinch of sugar on each.
+7. Bake until the crust is brown and the apples are soft.
+Use the sour apples from the old trees by the mill pond. Sweet apples go to mush. Ask anyone in Ambrook which trees are the right ones. Everyone knows, and everyone will show you a different tree.
+%%
+Pumpkin pie
+Hollis, baker at Three Wells. We sell this at the autumn fair. The line goes past the notice board.
+You need:
+One pumpkin.
+One cup of sugar.
+One egg.
+1. Cut the pumpkin open. Scoop out the seeds and the strings. Keep the seeds for next year, or roast them with salt.
+2. Cut the flesh in pieces and steam it until soft.
+3. Mash it smooth. Let it drain in a cloth so it is not watery.
+4. Beat in the sugar and the egg.
+5. Pour it into a greased pan.
+6. Bake it slowly, until the middle no longer shakes.
+That is all. Pumpkin, sugar, egg.
+People ask about the crust. There is no crust. A pie at Three Wells has never had a crust. A traveler once told me that without a crust it is only a pudding. I sold him two puddings.
+Mayor Dace buys the first pie every year. Then the line moves.
+%%
+Wren's remedy for sleeplessness
+Wren, Lowmarsh. Some nights sleep will not come. Here is what I tell people. Try one thing at a time.
+1. Go to bed at the same time every night. Get up at the same time, even after a bad night.
+2. Do not eat a big meal late. A little bread is fine.
+3. Warm a cup of milk. Stir in a spoon of honey. Drink it slowly, sitting down.
+4. Blue orchid tea helps some people. Two flowers to a cup of hot water. It grows only in the marsh. The rest of the land has to ask us for it.
+5. Put a warm brick, wrapped in wool, at your feet.
+6. Keep the room dark. One small candle, and put it out before you lie down.
+7. If you cannot sleep, do not lie there and be angry. Get up. Sit by the fire. Mend something. Go back when you are yawning.
+Some folk count sheep. In Lowmarsh I tell them to count the frogs. There are more frogs than sheep here, and they keep singing, so you never run out.
+Sometimes it is a worry that keeps you awake. Tell someone. A worry said out loud is smaller.
+%%
+Winter stores
+Tam, Kettle Ridge. Written for Pip, who sorts the stores, and for me, who forgets.
+Potatoes: In the cool dark cellar, in a box of dry sand. Never in the light, or they go green. Green potatoes make you sick.
+Carrots: Twist off the tops. Lay them in a barrel of damp sand, not touching.
+Beetroot: The same as carrots.
+Apples: Wrap each one in straw. Keep them away from the potatoes, or both go bad faster.
+Pumpkins: Whole, on a shelf, not touching. A good pumpkin keeps till spring.
+Wheat: Dry, in a barrel with a tight lid. Keep a cat near the wheat for the mice.
+Honey: Anywhere. Honey never goes bad.
+Salt fish: In the barrel of Saltreach salt. Soak it overnight before you cook it.
+Mira's jam: On the high shelf, so I cannot reach it without the stool. This does not work.
+Check the stores every seven days. One bad apple spoils the box.
+When the cart comes in from the field, I say:
+> put all this in the store
+= store
+Pip puts like with like, every time. The first winter, Pip read "keep a cat near the wheat". So Pip put the cat in the wheat barrel. The cat was not pleased. Now I write more carefully.
+%%
+Notice: melon cooler at the fair
+From Dace, mayor of Three Wells.
+The town will serve melon cooler at the summer fair, free, by the north well. So that nobody argues about how it is made, here is how it is made.
+1. Cut three melons into slices. Take off the rind. Pick out the seeds.
+2. Crush the slices in the big tub until it is all juice.
+3. Add cold water from the north well. The north well is the coldest. This is known.
+4. Stir in two cups of sugar.
+5. Add a basket of sweet berries for color.
+6. Keep the tub in the shade, under a wet cloth.
+One cup each. Children may have two. Grown folk who say they are children may not.
+The melon seeds go to whoever asks first. Last year that was Bel, who planted every one of them behind the school. The school now has more melons than it can eat. Thank you, Bel.
+%%
+Care of an apprentice at home
+Nessa, tutor of apprentices at Vell. For every household with an apprentice. A body that is cared for works longer. Do these things and your apprentice will keep your fields for many years.
+Every evening:
+1. Wipe off the mud, the dust and the water with a dry cloth. Mind the knees and the hands.
+2. Watch the joints as it moves. If a joint squeaks or sticks, oil it.
+Oiling a joint:
+1. Tell it to stay still.
+> stay there
+= stay
+2. Clean the joint first. Oil on grit makes a paste, and the paste wears the joint away.
+3. Put one drop of pumpkin seed oil in the joint. One drop. Not three.
+4. Move the joint slowly, back and forth, ten times.
+5. Wipe off what comes out.
+Once a season:
+1. If the copper has gone green, scrape it gently with the back of a knife until it shines.
+2. Rub the copper with a little beeswax. Waxed copper stays bright for years.
+3. Look at the crystal. If it is cloudy, do not wipe it and do not open it. Bring it to a tutor.
+After rain, dry it. After snow, dry it twice. An apprentice does not feel the cold, so you must notice the cold for it.
+%%
+Keeping a cat
+Hollis, baker at Three Wells. Every bakery needs a cat. Every house does, if you ask me.
+Why keep a cat:
+It keeps the mice out of the flour.
+Creepers will not come near a cat. Nobody knows why. They just will not. A house with a cat has fewer holes in it.
+How to get a cat:
+Cats come to you. Leave a bit of raw fish by the door. Do not chase the cat. Sit still. It will decide.
+How to keep a cat:
+Feed it fish, cod or salmon, raw. A little milk now and then.
+Give it a warm place. It will find a warmer one.
+What a cat will do:
+Sit on the warm oven.
+Sit on the flour chest, so you cannot open it.
+Sit on your bed, in the middle.
+Bring you gifts in the morning. A feather. A bit of string. Once, a rabbit's foot. Say thank you. It means it.
+My cat is called Crumb. Crumb has never caught a mouse. But we have no mice, and no creepers, so Crumb is doing something right.
+%%
+Cleaning the relay lamp
+Mira, keeper at Northpoint, to her brother Tam, who has never cleaned anything.
+Tam. Your messages have been strange. The last one said the cow was on the roof. I hope that was the lamp. Here is how to clean it. Read it twice.
+1. Wait for a dry day. Never clean a lamp in the rain.
+2. Cover the lamp so it does not send while you work. Tell Pip to leave it alone.
+3. Wipe the glass with a dry wool rag. Not a wet one. Not your sleeve.
+4. Look for webs. Spiders love a warm lamp. One web across the glass and every word comes out wrong.
+5. Look at the copper ring. If it has gone green, scrape it gently with the back of a knife until it shines.
+6. Rub a little beeswax on the copper so it stays bright.
+7. Brush the dust out of the redstone with a feather. Do not blow on it. You will only move the dust somewhere worse.
+8. Uncover it. Send me one word to test it.
+Do this every season, and after every storm.
+Lantern cleans my lamps every morning. Lantern has never once sent a message about a cow on a roof.
+If the cow really was on the roof, write and tell me how.
+Your sister, Mira
+%%
+Golden carrots for the feast
+From Dace, mayor of Three Wells. For the harvest feast only. The gold comes out of the town box, so every carrot is counted.
+You need:
+Carrots, one for each guest, the best and straightest.
+Honey.
+Gold, beaten so thin it floats. Eight small pieces for each carrot.
+1. Wash the carrots. Leave a little green at the top.
+2. Boil them until they are just soft.
+3. Brush them with warm honey while they are hot.
+4. Lay the gold on with a dry brush. Breathe out, not in. Gold this thin flies away.
+5. Set them on the long table in a row, where the lamps can catch them.
+The gold tastes of nothing. It is for looking at. When the carrots go round the table and catch the light, everyone goes quiet for a moment. Then everyone cheers. That is what the gold is for.
+Note for the town box: last year we made sixty carrots and served fifty-eight. Two are missing. Pell's horse was seen near the table. We are not saying anything.
+%%
+Wren on flowers in the kitchen
+Wren, Lowmarsh. People ask me which flowers are good to eat or drink. Here is a short list. If a flower is not on it, do not eat it.
+Dandelion: The young leaves are good in soup in spring. The flowers make a tea that tastes of not much.
+Oxeye daisy: A tea from the dried flowers, for someone who is slow to heal. It does no harm, and it tastes of summer.
+Blue orchid: Tea for sleep. It only grows in the marsh.
+Cornflower: Pretty on a plate. That is all it does.
+Poppy: Some say a poppy in your stew helps you see in the dark. I tried it. I saw the dark. Carry a torch.
+Lily of the valley: Never. It smells sweet and it will make you very sick. Keep it out of the kitchen, and away from children and cats.
+Leave anything you found in a cave. Leave anything you did not plant and do not know.
+Flowers are mostly for looking at. Put some in a cup on the table. That is good for you too.
+%%
+Packing for the Long Road
+Pell, merchant. I have packed for the Long Road two hundred times. Here is my list. Copy it.
+For you:
+Two pairs of wool socks, and a third pair.
+A good coat, even in summer. The hills above Vell are cold at night.
+Bread for three days. It will be hard by the third day. Soak it in soup.
+Dried kelp, apples, and a bit of salt pork.
+A water skin.
+Flint and steel, and dry tinder in a little box.
+Six torches. Keep the torches lit.
+For the horse:
+A bag of wheat, a brush, a hoof pick, and two apples for when she is cross.
+For trade:
+The ledger, and a stick of charcoal to write with. Emeralds in two places, never all in one.
+For home:
+A letter already written, in case you meet someone going the other way.
+Do not pack more than the horse can pull up the hill to Vell. She will tell you. Then you will have to unpack in the road with everyone watching. I know this.
+%%
+Wren's shelf, for Moss
+Wren, Lowmarsh. These are the things on my shelf, top to bottom, left to right. Moss learned them in twelve days. On the first day it brought me salt for a bee sting. On the fifth day it brought me honey for everything. By the twelfth day it had them all.
+Top shelf: honey, salt, dried daisies, blue orchid.
+Middle shelf: beeswax, dried marsh moss, clean cloths, wool socks.
+Bottom shelf: dried kelp, the good knife, a bottle of boiled water, sugar.
+When I need something, I say so, and Moss brings it.
+> bring me the honey
+= fetch honey
+> I need the salt
+= fetch salt
+> come here, Moss
+= come
+> stay by the door
+= stay
+Moss puts every jar back in its place, with the label to the front. Moss is tidier than I am. Moss is tidier than anyone in Lowmarsh. On quiet days Moss lines up the jars by size, then by color, then back again. I do not know why. It does no harm.
+%%
+Torches for a new house
+Hesk, Copperhold. You build a house, you light it. Same day.
+Making torches: a stick and a lump of coal. Charcoal works if you have no coal. Push the coal onto the end of the stick and wrap it tight.
+Where to put them:
+1. One on each side of the door.
+2. One at every corner of the house, outside.
+3. Along the path to the well, about every ten steps.
+4. Inside, one in each room, high up, away from the beds.
+5. One on the roof. Spiders climb.
+6. One behind the woodpile. Creepers like a dark corner, and they come in quiet.
+The night things do not come where it is bright. Zombies stay out of the light. So do skeletons, mostly.
+Check them at dusk, every night. A dark corner is an invitation.
+In the Deep Works we put a torch every eight steps on the left wall going in. Then you can always find the way out. Keep the torches on your right and walk. Do the same at home if you have a deep cellar.
+Clank watched me check the torches on our street every night for a year. Now it goes out at dusk before I do. Nobody told it to. Nobody has told it to stop, either.

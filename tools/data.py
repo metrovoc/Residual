@@ -1,10 +1,13 @@
-"""Writes the mod's JSON: blockstates, models, item definitions, loot tables, tags, recipes and advancements.
+"""Writes the mod's JSON and structure templates: blockstates, models, item definitions, loot tables, tags,
+recipes, advancements and the ruins.
 
     uv run python tools/data.py
 """
 import json
 import shutil
 from pathlib import Path
+
+import ruins
 
 ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / "src/main/resources"
@@ -17,15 +20,18 @@ ARITY = {"position": 0, "add": 2, "multiply": 2, "matmul": 2, "concat": 2}
 DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray", "cyan", "purple",
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
-# lessons and cases in unlock order (see learn/Curriculum.java), with the insight a lesson awards
-LESSONS = [("counting", "insight_counting"), ("case_shape", None), ("context", "insight_context"),
-           ("case_diverge", None), ("recall", "insight_attention"), ("case_leak", None),
-           ("reverse", "insight_position"), ("case_order", None), ("case_depth", None),
-           ("induction", "insight_circuits"), ("language", "insight_language")]
+# see learn/Ability.java and registry/ModItems.java
+ABILITIES = ["reacting", "recall", "reversal", "induction", "orders", "reading"]
+DRILLS = {"field_drill": "minecraft:wheat_seeds", "storage_drill": "minecraft:chest", "errand_drill": "minecraft:compass",
+          "pattern_drill": "minecraft:bricks", "orders_drill": "minecraft:writable_book"}
+SCHEMATICS = ["schematic_context", "schematic_attention", "schematic_positions", "schematic_blocks", "schematic_relays"]
+WRECKS = ruins.WRECKS
 
 FACING = {"north": {}, "south": {"y": 180}, "east": {"y": 90}, "west": {"y": 270}, "up": {"x": 270}, "down": {"x": 90}}
+HORIZONTAL = {k: FACING[k] for k in ("north", "south", "east", "west")}
 GENERATED = ["assets/residual/blockstates", "assets/residual/models", "assets/residual/items",
-             "data/residual/loot_table", "data/residual/recipe", "data/residual/advancement", "data/residual/tags"]
+             "data/residual/loot_table", "data/residual/recipe", "data/residual/advancement", "data/residual/tags",
+             "data/residual/worldgen", "data/residual/structure", "data/minecraft/tags"]
 
 
 def rid(path):
@@ -38,12 +44,22 @@ def write(rel, obj):
     path.write_text(json.dumps(obj, indent=2) + "\n")
 
 
+write.root = RES
+
+
 def item_definition(name, model):
     write(f"assets/{NS}/items/{name}.json", {"model": {"type": "minecraft:model", "model": model}})
 
 
-def facing_variants(model, extra=""):
-    return {f"facing={f}{extra}": {"model": model, **rot} for f, rot in FACING.items()}
+def facing_variants(model, extra="", facings=FACING):
+    return {f"facing={f}{extra}": {"model": model, **rot} for f, rot in facings.items()}
+
+
+def cube(name, north, south, side, up=None, down=None):
+    write(f"assets/{NS}/models/block/{name}.json", {
+        "parent": "minecraft:block/cube",
+        "textures": {"particle": side, "north": north, "south": south, "east": side, "west": side,
+                     "up": up or side, "down": down or side}})
 
 
 # ---------------------------------------------------------------- blocks
@@ -52,10 +68,7 @@ def operators():
     for op in OPS:
         side = rid(f"block/{op}_side")
         back = rid(f"block/{op}_back") if ARITY.get(op, 1) == 0 else rid("block/machine_back")
-        write(f"assets/{NS}/models/block/{op}.json", {
-            "parent": "minecraft:block/cube",
-            "textures": {"particle": side, "north": rid(f"block/{op}_front"), "south": back,
-                         "east": side, "west": side, "up": side, "down": side}})
+        cube(op, rid(f"block/{op}_front"), back, side)
         write(f"assets/{NS}/blockstates/{op}.json", {"variants": facing_variants(rid(f"block/{op}"))})
         item_definition(op, rid(f"block/{op}"))
 
@@ -63,10 +76,7 @@ def operators():
 def core():
     for suffix in ("", "_on"):
         side = rid(f"block/model_core_side{suffix}")
-        write(f"assets/{NS}/models/block/model_core{suffix}.json", {
-            "parent": "minecraft:block/cube",
-            "textures": {"particle": side, "north": rid(f"block/model_core_front{suffix}"), "south": side,
-                         "east": side, "west": side, "up": side, "down": side}})
+        cube(f"model_core{suffix}", rid(f"block/model_core_front{suffix}"), side, side)
     variants = {}
     for running, suffix in (("false", ""), ("true", "_on")):
         for key, value in facing_variants(rid(f"block/model_core{suffix}")).items():
@@ -81,8 +91,64 @@ def simple(name):
     item_definition(name, rid(f"block/{name}"))
 
 
+def accelerator():
+    for name in ("accelerator", "accelerator_hot"):
+        write(f"assets/{NS}/models/block/{name}.json", {"parent": "minecraft:block/cube_all", "textures": {"all": rid(f"block/{name}")}})
+    write(f"assets/{NS}/blockstates/accelerator.json", {"variants": {
+        "hot=false": {"model": rid("block/accelerator")}, "hot=true": {"model": rid("block/accelerator_hot")}}})
+    item_definition("accelerator", rid("block/accelerator"))
+
+
+def server():
+    """Front shows the crystal bay: empty, loaded, or serving with its lights running."""
+    side, top = rid("block/model_server_side"), rid("block/model_server_top")
+    fronts = {"": "model_server_front", "_loaded": "model_server_front_loaded", "_on": "model_server_front_on"}
+    for suffix, front in fronts.items():
+        cube(f"model_server{suffix}", rid(f"block/{front}"), side, side, top, top)
+    variants = {}
+    for loaded in ("false", "true"):
+        for serving in ("false", "true"):
+            suffix = "_on" if serving == "true" and loaded == "true" else "_loaded" if loaded == "true" else ""
+            for key, value in facing_variants(rid(f"block/model_server{suffix}"), facings=HORIZONTAL).items():
+                variants[f"{key},loaded={loaded},serving={serving}"] = value
+    write(f"assets/{NS}/blockstates/model_server.json", {"variants": variants})
+    item_definition("model_server", rid("block/model_server"))
+
+
+def reader():
+    side, top = rid("block/reader_side"), rid("block/reader_top")
+    for suffix in ("", "_on"):
+        cube(f"reader{suffix}", rid(f"block/reader_front{suffix}"), side, side, top, rid("block/machine_back"))
+    variants = {}
+    for reading, suffix in (("false", ""), ("true", "_on")):
+        for key, value in facing_variants(rid(f"block/reader{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},reading={reading}"] = value
+    write(f"assets/{NS}/blockstates/reader.json", {"variants": variants})
+    item_definition("reader", rid("block/reader"))
+
+
 def box(frm, to, faces):
     return {"from": frm, "to": to, "faces": faces}
+
+
+def all_faces(uv_side, uv_end, texture="#relay", cull_down=False):
+    faces = {f: {"uv": uv_side, "texture": texture} for f in ("north", "south", "east", "west")}
+    faces["up"] = {"uv": uv_end, "texture": texture}
+    faces["down"] = {"uv": uv_end, "texture": texture} | ({"cullface": "down"} if cull_down else {})
+    return faces
+
+
+def relay():
+    """A footing, a mast and a lamp head; the texture keeps each part in its own band."""
+    write(f"assets/{NS}/models/block/relay.json", {
+        "parent": "minecraft:block/block", "textures": {"relay": rid("block/relay"), "particle": rid("block/relay")},
+        "elements": [
+            box([4, 0, 4], [12, 2, 12], all_faces([0, 14, 8, 16], [8, 8, 16, 16], cull_down=True)),
+            box([6.5, 2, 6.5], [9.5, 11, 9.5], all_faces([0, 5, 3, 14], [3, 5, 6, 8])),
+            box([5, 11, 5], [11, 16, 11], all_faces([0, 0, 6, 5], [10, 0, 16, 6])),
+        ]})
+    write(f"assets/{NS}/blockstates/relay.json", {"variants": {"": {"model": rid("block/relay")}}})
+    item_definition("relay", rid("block/relay"))
 
 
 def cables():
@@ -117,12 +183,14 @@ def cables():
 
 
 def items():
-    flat = ["weight_crystal"] + [insight for _, insight in LESSONS if insight]
+    flat = (["weight_crystal", "checkpoint", "archive_drive", "archive_shard", "salvaged_mind", "apprentice", "relay_card",
+             "terminal"] + list(DRILLS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
-    write(f"assets/{NS}/models/item/tensor_probe.json", {"parent": "minecraft:item/handheld", "textures": {"layer0": rid("item/tensor_probe")}})
-    item_definition("tensor_probe", rid("item/tensor_probe"))
+    for name in ("tensor_probe", "survey_rod"):
+        write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/handheld", "textures": {"layer0": rid(f"item/{name}")}})
+        item_definition(name, rid(f"item/{name}"))
     # the guide book is GuideME's item; its guide definition points at this model
     write(f"assets/{NS}/models/item/guide.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid("item/guide")}})
     item_definition("guide", rid("item/guide"))
@@ -130,8 +198,11 @@ def items():
 
 # ---------------------------------------------------------------- data
 
+MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay"]
+
+
 def blocks():
-    return OPS + ["model_core", "accelerator", "tensor_casing"] + CABLES
+    return OPS + MACHINE_BLOCKS + CABLES
 
 
 def loot_tables():
@@ -144,8 +215,7 @@ def loot_tables():
 
 
 def tags():
-    machines = [rid(n) for n in OPS + ["model_core", "accelerator", "tensor_casing"]]
-    write("data/minecraft/tags/block/mineable/pickaxe.json", {"values": machines})
+    write("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [rid(n) for n in OPS + MACHINE_BLOCKS]})
     write(f"data/{NS}/tags/item/cables.json", {"values": [rid(n) for n in CABLES]})
 
 
@@ -161,26 +231,26 @@ def shapeless(name, ingredients, count=1, file=None):
                                                      "ingredients": ingredients, "result": result})
 
 
-# Each machine is a casing, a part that hints at what it does, and, past the first lesson, the Insight that unlocks
-# it. Insights stay in the grid.
+# Each machine is a casing, a part that hints at what it does, and, past the first two, the schematic it is copied
+# from. Schematics stay in the grid.
 MACHINES = {
     "embedding": (None, ["residual:weight_crystal", "residual:weight_crystal", "minecraft:book"]),
     "linear": (None, ["residual:weight_crystal", "residual:weight_crystal", "minecraft:iron_ingot"]),
-    "shift": ("insight_counting", ["minecraft:repeater"]),
-    "concat": ("insight_counting", ["minecraft:iron_chain"]),
-    "activation": ("insight_counting", ["minecraft:redstone_torch", "minecraft:redstone"]),
-    "matmul": ("insight_context", ["minecraft:crafting_table", "minecraft:redstone"]),
-    "scale": ("insight_context", ["minecraft:heavy_weighted_pressure_plate"]),
-    "causal_mask": ("insight_context", ["minecraft:carved_pumpkin"]),
-    "softmax": ("insight_context", ["#minecraft:wool", "minecraft:redstone"]),
-    "position": ("insight_attention", ["residual:weight_crystal", "residual:weight_crystal", "minecraft:clock"]),
-    "add": ("insight_attention", ["#residual:cables", "#residual:cables", "minecraft:copper_ingot"]),
-    "norm": ("insight_attention", ["residual:weight_crystal", "minecraft:compass"]),
-    "attention": ("insight_attention", ["residual:weight_crystal", "residual:weight_crystal", "minecraft:spyglass"]),
-    "mlp": ("insight_attention", ["residual:weight_crystal", "residual:weight_crystal", "minecraft:hopper"]),
-    "multiply": ("insight_position", ["#minecraft:fence_gates", "minecraft:redstone"]),
-    "split_heads": ("insight_position", ["minecraft:shears"]),
-    "merge_heads": ("insight_position", ["minecraft:string", "minecraft:string"]),
+    "shift": ("schematic_context", ["minecraft:repeater"]),
+    "concat": ("schematic_context", ["minecraft:iron_chain"]),
+    "activation": ("schematic_context", ["minecraft:redstone_torch", "minecraft:redstone"]),
+    "matmul": ("schematic_context", ["minecraft:crafting_table", "minecraft:redstone"]),
+    "scale": ("schematic_context", ["minecraft:heavy_weighted_pressure_plate"]),
+    "causal_mask": ("schematic_context", ["minecraft:carved_pumpkin"]),
+    "softmax": ("schematic_context", ["#minecraft:wool", "minecraft:redstone"]),
+    "add": ("schematic_attention", ["#residual:cables", "#residual:cables", "minecraft:copper_ingot"]),
+    "norm": ("schematic_attention", ["residual:weight_crystal", "minecraft:compass"]),
+    "attention": ("schematic_attention", ["residual:weight_crystal", "residual:weight_crystal", "minecraft:spyglass"]),
+    "mlp": ("schematic_attention", ["residual:weight_crystal", "residual:weight_crystal", "minecraft:hopper"]),
+    "position": ("schematic_positions", ["residual:weight_crystal", "residual:weight_crystal", "minecraft:clock"]),
+    "multiply": ("schematic_positions", ["#minecraft:fence_gates", "minecraft:redstone"]),
+    "split_heads": ("schematic_positions", ["minecraft:shears"]),
+    "merge_heads": ("schematic_positions", ["minecraft:string", "minecraft:string"]),
 }
 
 
@@ -198,9 +268,48 @@ def recipes():
     shaped("accelerator", ["KGK", "RDR", "KGK"], {"K": rid("tensor_casing"), "G": "minecraft:gold_ingot",
                                                   "R": "minecraft:redstone", "D": "minecraft:diamond"})
     shaped("tensor_probe", ["  G", " R ", "I  "], {"G": "minecraft:glass_pane", "R": "minecraft:redstone", "I": "minecraft:iron_ingot"})
-    for op, (insight, parts) in MACHINES.items():
-        shapeless(op, [rid("tensor_casing")] + parts + ([rid(insight)] if insight else []))
-    shapeless("transformer", [rid("attention"), rid("mlp"), rid("norm"), rid("insight_circuits")])
+    for op, (schematic, parts) in MACHINES.items():
+        shapeless(op, [rid("tensor_casing")] + parts + ([rid(schematic)] if schematic else []))
+    shapeless("transformer", [rid("attention"), rid("mlp"), rid("norm"), rid("schematic_blocks")])
+
+    shaped("checkpoint", [" A ", "AWA", " A "], {"A": "minecraft:amethyst_shard", "W": rid("weight_crystal")})
+    shaped("archive_drive", ["IRI", "IBI", "III"], {"I": "minecraft:iron_ingot", "R": "minecraft:redstone", "B": "minecraft:book"})
+    for drill, part in DRILLS.items():
+        shapeless(drill, ["minecraft:paper", "minecraft:paper", "minecraft:redstone", part])
+    shaped("apprentice", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
+    shaped("survey_rod", ["  A", " S ", "S  "], {"A": "minecraft:amethyst_shard", "S": "minecraft:stick"})
+    shaped("reader", ["GBG", "KWK", "KKK"], {"G": "minecraft:glass_pane", "B": "minecraft:book", "K": rid("tensor_casing"),
+                                             "W": rid("weight_crystal")})
+    shapeless("model_server", [rid("tensor_casing"), rid("tensor_casing"), rid("weight_crystal"), rid("weight_crystal"),
+                               "minecraft:gold_ingot", "minecraft:redstone_block", rid("schematic_relays")])
+    shapeless("relay", ["minecraft:lightning_rod", "minecraft:lantern", "minecraft:copper_ingot", "minecraft:redstone",
+                        rid("schematic_relays")], 2)
+    shapeless("relay_card", ["minecraft:paper", "minecraft:copper_ingot", "minecraft:redstone", rid("schematic_relays")], 2)
+    shapeless("terminal", [rid("relay_card"), "minecraft:glass_pane", "minecraft:copper_ingot", "minecraft:redstone"])
+
+
+def advancement(path, parent, icon, criteria, frame="task", hidden=False, toast=True, components=None):
+    icon_obj = {"id": icon if ":" in icon else rid(icon)} | ({"components": components} if components else {})
+    write(f"data/{NS}/advancement/{path}.json", {
+        "parent": rid(parent),
+        "criteria": criteria,
+        "display": {"icon": icon_obj, "title": {"translate": f"advancements.residual.{path.replace('/', '.')}.title"},
+                    "description": {"translate": f"advancements.residual.{path.replace('/', '.')}.description"},
+                    "frame": frame, "hidden": hidden, "show_toast": toast, "announce_to_chat": frame != "task"},
+        "requirements": [[k] for k in criteria]})
+
+
+def awarded():
+    return {"done": {"trigger": "minecraft:impossible"}}
+
+
+def has(item):
+    return {"got": {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": rid(item)}]}}}
+
+
+def placed(block):
+    return {"placed": {"trigger": "minecraft:placed_block", "conditions": {"location": [
+        {"condition": "minecraft:location_check", "predicate": {"block": {"blocks": rid(block)}}}]}}}
 
 
 def advancements():
@@ -208,21 +317,27 @@ def advancements():
         "criteria": {"joined": {"trigger": "minecraft:tick"}},
         "display": {"icon": {"id": rid("model_core")}, "title": {"translate": "advancements.residual.root.title"},
                     "description": {"translate": "advancements.residual.root.description"},
-                    "background": rid("block/tensor_casing"), "show_toast": False, "announce_to_chat": False},
+                    "background": "minecraft:block/tuff_bricks", "show_toast": False, "announce_to_chat": False},
         "requirements": [["joined"]]})
-    parent = rid("root")
-    for lesson, insight in LESSONS:
-        last = lesson == LESSONS[-1][0]
-        write(f"data/{NS}/advancement/lesson/{lesson}.json", {
-            "parent": parent,
-            "criteria": {"done": {"trigger": "minecraft:impossible"}},
-            "display": {"icon": {"id": rid(insight or "tensor_probe")},
-                        "title": {"translate": f"residual.lesson.{lesson}.title"},
-                        "description": {"translate": f"advancements.residual.{lesson}.description"},
-                        "frame": "challenge" if last else "task" if insight else "goal",
-                        "announce_to_chat": False},
-            "requirements": [["done"]]})
-        parent = rid(f"lesson/{lesson}")
+    advancement("ruins/found", "root", "minecraft:chiseled_tuff",
+                {"found": {"trigger": "minecraft:location", "conditions": {"player": [{"condition": "minecraft:entity_properties",
+                    "entity": "this", "predicate": {"location": {"structures": "#residual:ruins"}}}]}}})
+    advancement("archive/shard", "ruins/found", "archive_shard", has("archive_shard"))
+    advancement("archive/drive", "archive/shard", "archive_drive", has("archive_drive"))
+    advancement("mind/saved", "root", "checkpoint", awarded())
+    for a in ABILITIES:
+        parent = "archive/drive" if a == "reading" else "mind/saved"
+        advancement(f"ability/{a}", parent, "checkpoint", awarded(), frame="goal")
+    advancement("mind/complete", "ability/reading", "checkpoint", awarded(), frame="challenge")
+    advancement("apprentice/made", "root", "apprentice", has("apprentice"))
+    advancement("apprentice/order", "apprentice/made", "minecraft:writable_book", awarded(), frame="goal")
+    advancement("deploy/server", "apprentice/made", "model_server", placed("model_server"))
+    advancement("deploy/relay", "deploy/server", "relay", placed("relay"))
+    advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
+    advancement("wreck/found", "ruins/found", "salvaged_mind", has("salvaged_mind"))
+    for w in WRECKS:
+        advancement(f"wreck/{w}", "wreck/found", "salvaged_mind", awarded(), frame="goal",
+                    components={"residual:wreck": w})
 
 
 if __name__ == "__main__":
@@ -230,11 +345,15 @@ if __name__ == "__main__":
         shutil.rmtree(RES / rel, ignore_errors=True)
     operators()
     core()
-    simple("accelerator")
+    accelerator()
     simple("tensor_casing")
+    server()
+    reader()
+    relay()
     cables()
     items()
     loot_tables()
     tags()
     recipes()
     advancements()
+    ruins.write_all(write, rid)

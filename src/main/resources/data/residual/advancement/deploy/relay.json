@@ -1,0 +1,40 @@
+{
+  "parent": "residual:deploy/server",
+  "criteria": {
+    "placed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": "residual:relay"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:relay"
+    },
+    "title": {
+      "translate": "advancements.residual.deploy.relay.title"
+    },
+    "description": {
+      "translate": "advancements.residual.deploy.relay.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "placed"
+    ]
+  ]
+}

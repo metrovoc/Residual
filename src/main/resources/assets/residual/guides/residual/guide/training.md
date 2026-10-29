@@ -2,7 +2,7 @@
 navigation:
   title: Training
   icon: accelerator
-  position: 40
+  position: 50
 ---
 
 # Training
@@ -26,15 +26,15 @@ A model that knows nothing spreads its bets evenly over all V tokens, and so sta
 ![chance](/formulas/chance.png)
 
 Every curve starts there. A loss of 0 would mean certainty about every next token, which no honest model reaches on
-real text. For puzzles, where only some positions have a right answer, the Core also measures **accuracy**: how often
+real text. For drills, where only some positions have a right answer, the Core also measures **accuracy**: how often
 the top-scoring token is the right one.
 
-## Train and validation
+## Practice and test
 
-The **training loss** is measured on the batches the model learns from, averaged over recent steps. The **validation
-loss** is measured on text the model never trains on. When the two part ways, with training loss still falling while
-validation stalls or rises, the model is memorising its training text instead of learning what generalises. Lessons
-are judged on validation alone.
+The **training loss** is measured on the batches the model practises on, averaged over recent steps. The **test loss**
+is measured on examples practice never shows. When the two part ways, with training loss still falling while the test
+loss stalls or rises, the model is memorising its practice instead of learning what generalises. Minds are judged on
+their tests alone.
 
 ## The settings
 
@@ -64,14 +64,14 @@ too large on every step.
 - **Falling, then flattening above the goal:** the model has learned all it can see. Give it more to work with: more
   context, more width, more layers.
 - **Jagged and climbing:** the steps are too big. Lower the learning rate.
-- **Both losses suspiciously low:** something lets the model see the answer. See
-  [Too Good to Be True](cases/case_leak.md).
+- **Both losses suspiciously low:** something lets the model see the answer. The Core flags a model that reads
+  ahead.
 
 ## When training stops
 
-Training stops when the goal is reached, when you press Stop, or when a machine of the model changes. It also stops
-when the loss diverges: if it turns into NaN, or climbs far above where it started. Cases add a **budget**: a
-limited number of steps per run, after which you reset the weights and try again.
+Training stops when you press Stop or when a machine of the model changes. It also stops when the loss diverges: if
+it turns into NaN, or climbs far above where it started. A salvaged mind adds a **budget**: a limited number of steps
+per run, after which you reset the weights and try again.
 
 **Reset** throws the learned weights away so the next run starts fresh. **Check** reads the model again and reports
 any problem without training.

@@ -1,0 +1,35 @@
+{
+  "parent": "residual:root",
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "residual:apprentice"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:apprentice"
+    },
+    "title": {
+      "translate": "advancements.residual.apprentice.made.title"
+    },
+    "description": {
+      "translate": "advancements.residual.apprentice.made.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ]
+}
