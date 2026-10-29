@@ -195,7 +195,7 @@
   "residual.metric.budget": "Budget",
   "residual.metric.leak": "Leak?",
   "residual.metric.leak_help": "Changing later tokens changed earlier predictions. The model can see the token it is meant to predict, so its loss means nothing.",
-  "residual.chart.empty": "Press Train. The loss curve draws here.",
+  "residual.chart.empty": "Press Train to draw the loss curve.",
 
   "residual.tests.held_out": "Tests use examples practice never shows.",
   "residual.tests.tested": "at step %s",
