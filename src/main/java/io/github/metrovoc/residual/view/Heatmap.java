@@ -9,9 +9,10 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * A small picture of a matrix for machine faces and screens: at most {@link #MAX}×{@link #MAX} cells, each a signed
- * byte relative to the largest magnitude ({@link #scale}).
+ * byte relative to the largest magnitude ({@link #scale}). A bigger matrix is averaged down; {@link #height} and
+ * {@link #width} are its own size.
  */
-public record Heatmap(int rows, int cols, float scale, byte[] cells) {
+public record Heatmap(int rows, int cols, float scale, byte[] cells, int height, int width) {
     public static final int MAX = 24;
 
     public static final StreamCodec<ByteBuf, Heatmap> STREAM_CODEC = StreamCodec.composite(
@@ -19,6 +20,8 @@ public record Heatmap(int rows, int cols, float scale, byte[] cells) {
             ByteBufCodecs.VAR_INT, Heatmap::cols,
             ByteBufCodecs.FLOAT, Heatmap::scale,
             ByteBufCodecs.BYTE_ARRAY, Heatmap::cells,
+            ByteBufCodecs.VAR_INT, Heatmap::height,
+            ByteBufCodecs.VAR_INT, Heatmap::width,
             Heatmap::new);
 
     /** Cell value in [-1, 1]. */
@@ -64,12 +67,31 @@ public record Heatmap(int rows, int cols, float scale, byte[] cells) {
             float v = Float.isFinite(binned[i]) && scale > 0 ? binned[i] / scale : 0;
             cells[i] = (byte) Math.round(v * 127);
         }
-        return new Heatmap(r, c, scale, cells);
+        return new Heatmap(r, c, scale, cells, rows, cols);
+    }
+
+    /** The first and last row of the matrix that cell row {@code row} averages, likewise for columns. */
+    public int firstRow(int row) {
+        return row * height / rows;
+    }
+
+    public int lastRow(int row) {
+        return (row + 1) * height / rows - 1;
+    }
+
+    public int firstCol(int col) {
+        return col * width / cols;
+    }
+
+    public int lastCol(int col) {
+        return (col + 1) * width / cols - 1;
     }
 
     public void write(ValueOutput out) {
         out.putInt("rows", rows);
         out.putInt("cols", cols);
+        out.putInt("height", height);
+        out.putInt("width", width);
         out.putFloat("scale", scale);
         int[] packed = new int[(cells.length + 3) / 4];
         for (int i = 0; i < cells.length; i++) {
@@ -89,6 +111,6 @@ public record Heatmap(int rows, int cols, float scale, byte[] cells) {
         for (int i = 0; i < cells.length; i++) {
             cells[i] = (byte) (packed[i >> 2] >> ((i & 3) * 8));
         }
-        return new Heatmap(rows, cols, in.getFloatOr("scale", 0), cells);
+        return new Heatmap(rows, cols, in.getFloatOr("scale", 0), cells, in.getIntOr("height", rows), in.getIntOr("width", cols));
     }
 }

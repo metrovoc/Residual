@@ -11,11 +11,13 @@ import io.github.metrovoc.residual.graph.Sym;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
+import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Archive;
 import io.github.metrovoc.residual.learn.Dataset;
+import io.github.metrovoc.residual.learn.FieldTask;
 import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.Task;
@@ -27,6 +29,7 @@ import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.model.Checkpoints;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.net.CoreSync;
+import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModComponents;
@@ -39,8 +42,10 @@ import io.github.metrovoc.residual.world.Cooling;
 import io.github.metrovoc.residual.world.GraphScanner;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -61,6 +66,7 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -81,6 +87,9 @@ public class CoreBlockEntity extends BlockEntity {
     private static final int HISTORY = 400;
     /** Batches per benchmark when every test is run: twice what training checks with, for a steadier score. */
     private static final int BATTERY = 8;
+    /** How often a training model sends a pair of waves through its blocks, and the Core's own place in them. */
+    private static final long WAVE_MS = 2000;
+    private static final int LOSS = Integer.MIN_VALUE;
 
     private final SimpleContainer items = new SimpleContainer(CoreMenu.SLOTS) {
         @Override
@@ -123,6 +132,7 @@ public class CoreBlockEntity extends BlockEntity {
     private boolean busy;
     private boolean dirty;
     private long lastSync;
+    private long lastWave;
     private int ticks;
     /** A block the last check read has changed since, so the model gets checked again. */
     private boolean stale;
@@ -195,6 +205,11 @@ public class CoreBlockEntity extends BlockEntity {
                 TextTask text = Archive.practice(DriveItem.contents(stack), vocab);
                 if (!text.isEmpty()) {
                     sources.add(new Mixture.Source(Benchmark.READING, text));
+                }
+            } else if (stack.getItem() instanceof FieldLogItem) {
+                FieldTask field = new FieldTask(FieldLogItem.log(stack), vocab);
+                if (!field.isEmpty()) {
+                    sources.add(new Mixture.Source(Benchmark.FORECASTING, field));
                 }
             } else if (WreckItem.wreck(stack) instanceof Wrecks.Wreck w) {
                 sources.add(new Mixture.Source(w.benchmark(), w.practice()));
@@ -312,9 +327,8 @@ public class CoreBlockEntity extends BlockEntity {
             return;
         }
         compute = compute();
-        job = new TrainingJob(server, worldPosition, checked.scan.footprint(), checked.scan.nodes(), checked.model, data, w,
-                server.getRandom().nextLong(), compute.threads(), remaining, speed, LEARNING_RATES[learningRate],
-                BATCH_SIZES[batchSize], CLIPS[clip]);
+        job = new TrainingJob(server, worldPosition, checked.scan, checked.model, data, w, server.getRandom().nextLong(),
+                compute.threads(), remaining, speed, LEARNING_RATES[learningRate], BATCH_SIZES[batchSize], CLIPS[clip]);
         jobSteps = steps;
         jobRunSteps = runSteps;
         owner = player.getUUID();
@@ -729,6 +743,57 @@ public class CoreBlockEntity extends BlockEntity {
             rows.add(new CoreSync.Node(n.pos(), n.op(), n.name(), n.shape(), n.parameters(), norms.getOrDefault(n.pos(), n.gradNorm()), n.active()));
         }
         nodes = rows;
+        long now = System.currentTimeMillis();
+        if (now - lastWave >= WAVE_MS && !u.activity.isEmpty()) {
+            lastWave = now;
+            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, ChunkPos.containing(worldPosition), waves(running, u));
+        }
+    }
+
+    /**
+     * Lights the model's blocks in the order its nodes run: the cables from the Core's front carry the tokens, every
+     * other block carries one node's output, and the Core takes in the loss. Brightness follows the size of what each
+     * block carries on a log scale, two decades for activations and four for gradients, which fade faster.
+     */
+    private WaveSync waves(TrainingJob running, TrainingJob.Update u) {
+        int[] order = running.model.order;
+        int[] place = new int[running.model.spec.size()];
+        for (int i = 0; i < order.length; i++) {
+            place[order[i]] = i + 1;
+        }
+        int slots = order.length + 2;
+        Map<Long, Integer> lit = new LinkedHashMap<>();
+        for (int node : order) {
+            lit.put(running.nodes.get(node).asLong(), node);
+        }
+        running.carries.forEach((pos, node) -> {
+            if (node == GraphSpec.TOKENS || place[node] > 0) {
+                lit.putIfAbsent(pos, node);
+            }
+        });
+        lit.put(worldPosition.asLong(), LOSS);
+        float topA = Collections.max(u.activity.values()), topG = Collections.max(u.gradient.values());
+        int n = lit.size(), i = 0;
+        long[] blocks = new long[n];
+        int[] slot = new int[n];
+        byte[] forward = new byte[n], backward = new byte[n];
+        for (Map.Entry<Long, Integer> e : lit.entrySet()) {
+            int node = e.getValue();
+            blocks[i] = e.getKey();
+            slot[i] = node == GraphSpec.TOKENS ? 0 : node == LOSS ? slots - 1 : place[node];
+            forward[i] = node < 0 ? (byte) 255 : bright(u.activity.getOrDefault(node, 0f), topA, 2);
+            backward[i] = node == LOSS ? (byte) 255 : node < 0 ? 0 : bright(u.gradient.getOrDefault(node, 0f), topG, 4);
+            i++;
+        }
+        return new WaveSync(worldPosition, slots, blocks, slot, forward, backward);
+    }
+
+    private static byte bright(float value, float top, int decades) {
+        if (!(value > 0) || !(top > 0)) {
+            return 0;
+        }
+        double b = 1 + Math.log10(value / top) / decades;
+        return (byte) Math.round(255 * Math.max(0.06, Math.min(1, b)));
     }
 
     private void finish(TrainingJob running, TrainingJob.Update u) {

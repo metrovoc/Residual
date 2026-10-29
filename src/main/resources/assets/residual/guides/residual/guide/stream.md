@@ -75,6 +75,8 @@ additions included, so it goes on a line of its own, not on a stream: there it w
 Each layer refines the sum rather than replacing it, so a layer that has nothing useful to add yet can leave it alone.
 Training sees the same shortcut: the gradient flows back along the stream to every layer directly. In a plain stack of
 layers it has to pass through every layer on the way down, and in a deep one it fades before it reaches the bottom.
+You can watch it happen: the amber wave that runs back while a model trains reaches every layer on a stream as bright
+as it started, and dims layer by layer down a deep plain stack.
 
 ## Rules
 

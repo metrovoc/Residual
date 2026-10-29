@@ -6,6 +6,7 @@ import io.github.metrovoc.residual.block.BenchBlock;
 import io.github.metrovoc.residual.block.CableBlock;
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.block.FabricatorBlock;
+import io.github.metrovoc.residual.block.ForecasterBlock;
 import io.github.metrovoc.residual.block.ForgeBlock;
 import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.block.ReaderBlock;
@@ -45,6 +46,8 @@ public final class ModBlocks {
             p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(FabricatorBlock.WORKING) ? 11 : 3));
     public static final DeferredBlock<ForgeBlock> FORGE = BLOCKS.registerBlock("bpe_forge", ForgeBlock::new,
             p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(ForgeBlock.WORKING) ? 11 : 4));
+    public static final DeferredBlock<ForecasterBlock> FORECASTER = BLOCKS.registerBlock("forecaster", ForecasterBlock::new,
+            p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(ForecasterBlock.WORKING) ? 10 : 3));
     public static final DeferredBlock<StreamBlock> STREAM = BLOCKS.registerBlock("stream", StreamBlock::new,
             p -> p.mapColor(MapColor.COLOR_CYAN).strength(1f, 6f).sound(SoundType.AMETHYST).lightLevel(s -> 7));
     public static final DeferredBlock<RelayBlock> RELAY = BLOCKS.registerBlock("relay", RelayBlock::new,

@@ -1,0 +1,28 @@
+{
+  "parent": "residual:forecast/watching",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "minecraft:wheat"
+    },
+    "title": {
+      "translate": "advancements.residual.forecast.ahead.title"
+    },
+    "description": {
+      "translate": "advancements.residual.forecast.ahead.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

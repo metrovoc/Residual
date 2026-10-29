@@ -604,7 +604,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private void testsTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
         Ui.screen(g, 6, 22, 308, 138);
         for (Benchmark a : Benchmark.values()) {
-            int y = 25 + a.ordinal() * 22;
+            int y = 24 + a.ordinal() * 19;
             CoreSync.Score score = s == null ? CoreSync.Score.NONE : s.tests().get(a.ordinal());
             boolean practising = s != null && s.practising().get(a.ordinal());
             boolean tested = score.step() >= 0;
@@ -625,7 +625,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             } else if (tested && !s.causal()) {
                 g.text(font, "⚠", 276, y, Ui.RED, false);
             }
-            if (Ui.inside(mx, my, 6, y - 2, 308, 22)) {
+            if (Ui.inside(mx, my, 6, y - 1, 308, 19)) {
                 // split here rather than by the tooltip, which would wrap the lines again near the screen's edge
                 List<FormattedCharSequence> lines = new ArrayList<>();
                 lines.add(Component.translatable("residual.benchmark." + a.id).withColor(Ui.TEAL).getVisualOrderText());

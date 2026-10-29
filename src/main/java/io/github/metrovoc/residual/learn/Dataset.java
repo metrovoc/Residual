@@ -58,6 +58,7 @@ public final class Dataset extends Task {
             boolean[] answer = new boolean[t + 1];
             switch (benchmark) {
                 case REACTING -> field(rng, seq, answer);
+                case FORECASTING -> growth(rng, seq, answer);
                 case RECALL -> storage(rng, seq, answer);
                 case REVERSAL -> errand(rng, seq, answer);
                 case INDUCTION -> pattern(rng, seq, answer);
@@ -84,6 +85,25 @@ public final class Dataset extends Task {
                 seq[i + 1] = vocab.id(decide(plot));
                 answer[i + 1] = true;
             }
+        }
+    }
+
+    /**
+     * {@code 0000111…77⏎00…}: the crops of one field, each one's age at every look, a line per crop, starting anywhere.
+     * Fields come from the benchmark's mix, so how fast the crops before grew tells how fast the next one will. Scored
+     * on every look that follows another of the same crop.
+     */
+    private void growth(Random rng, int[] seq, boolean[] answer) {
+        double chance = Growth.chance(rng);
+        StringBuilder text = new StringBuilder();
+        int start = rng.nextInt(200);
+        while (text.length() < start + seq.length) {
+            text.append(Growth.life(rng, chance)).append('\n');
+        }
+        for (int i = 0; i < seq.length; i++) {
+            char c = text.charAt(start + i);
+            seq[i] = vocab.id(c);
+            answer[i] = i > 0 && c != '\n' && text.charAt(start + i - 1) != '\n';
         }
     }
 

@@ -9,6 +9,11 @@ import java.util.Locale;
 public enum Benchmark {
     /** Farming: a plot's state, then harvest, wait or plant. */
     REACTING(16, Task.Metric.ACCURACY, 0.98),
+    /**
+     * Forecasting: how far a crop will have grown at the next look. On the test, knowing only a crop's age leaves about
+     * 0.219, and knowing its field exactly about 0.212.
+     */
+    FORECASTING(Vocab.CONTEXT, Task.Metric.LOSS, 0.23),
     /** Storage: which chest holds this kind of thing. */
     RECALL(18, Task.Metric.ACCURACY, 0.9),
     /** Errands: the landmarks passed on the way out, named again in reverse. */

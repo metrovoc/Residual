@@ -45,6 +45,7 @@ FORMULAS = {
     "matmul": r"Y = A B \qquad Y = A B^\top \;\; \mathrm{with\ Transpose}",
     "shift": r"y_t = x_{t-k} \;\; \mathrm{for} \;\; t \geq k, \qquad y_t = 0 \;\; \mathrm{for} \;\; t < k",
     "concat": r"y = [a;\, b] \qquad C_y = C_a + C_b",
+    "calibration": r"r = \dfrac{\sum_t \mathbb{E}_\theta[a_{t+1} - a_t]}{\sum_t (a_{t+1} - a_t)}",
 }
 
 

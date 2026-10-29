@@ -1,0 +1,40 @@
+{
+  "parent": "residual:root",
+  "criteria": {
+    "placed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": "residual:forecaster"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:forecaster"
+    },
+    "title": {
+      "translate": "advancements.residual.forecast.watching.title"
+    },
+    "description": {
+      "translate": "advancements.residual.forecast.watching.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "placed"
+    ]
+  ]
+}

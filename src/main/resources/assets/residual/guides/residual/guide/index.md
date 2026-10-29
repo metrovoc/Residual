@@ -13,7 +13,8 @@ of their machines, and models that no longer work.
 
 These are field notes on building models again. A model here is a real language model: machines that each do one real
 operation, cabled into a network, trained on text, and tested on text it has never seen. A good one can farm, keep a
-storeroom, run errands, carry on a pattern, understand what you tell it, and read what the old world wrote.
+storeroom, run errands, carry on a pattern, understand what you tell it, read what the old world wrote, and see where
+a field is going.
 
 ## Start here
 
@@ -27,12 +28,13 @@ storeroom, run errands, carry on a pattern, understand what you tell it, and rea
 - [The Model Core](core.md): where models are built, trained, tested and saved.
 - [Tokens](tokenizers.md): the BPE Forge, and vocabularies learned from the archive.
 - [Training](training.md): reading a loss curve, and the settings that shape it.
-- [Models and Tests](models.md): the six benchmarks, checkpoints, and how big a model may be.
+- [Models and Tests](models.md): the seven benchmarks, checkpoints, and how big a model may be.
 - [Salvaged Models](salvage.md): broken models from the ruins.
 
 ## Putting models to work
 
 - [Agents](agents.md): bodies for models, and the jobs they do.
+- [The Forecaster](forecaster.md): a model of a field, trusted only as far as it is right.
 - [Serving Models](deployment.md): Model Servers, relays and the Terminal.
 
 ## Reference

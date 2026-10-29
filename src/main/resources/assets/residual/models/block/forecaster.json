@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/forecaster_side",
+    "north": "residual:block/forecaster_front",
+    "south": "residual:block/forecaster_side",
+    "east": "residual:block/forecaster_side",
+    "west": "residual:block/forecaster_side",
+    "up": "residual:block/forecaster_top",
+    "down": "residual:block/machine_back"
+  }
+}

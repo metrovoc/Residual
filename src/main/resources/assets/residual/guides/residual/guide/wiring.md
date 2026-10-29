@@ -88,3 +88,6 @@ side by side without mixing. Dye eight cables at a time; a water bucket washes t
 
 With a <ItemLink id="tensor_probe" /> in hand, looking at a cable tells you which machine drives it and how many
 inputs read it. Use the probe on a cable to list every port on its network in chat.
+
+The probe also shows every machine's output as a hologram above it, from the last time the model ran: look at one to
+read its values. See [Training](training.md) for what they show while a model learns.

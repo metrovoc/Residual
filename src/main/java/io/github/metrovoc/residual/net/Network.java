@@ -41,6 +41,7 @@ public final class Network {
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
         r.playToClient(SampleResult.TYPE, SampleResult.STREAM_CODEC);
+        r.playToClient(WaveSync.TYPE, WaveSync.STREAM_CODEC);
     }
 
     /** Only the player looking at a Core's screen may operate it. */

@@ -43,12 +43,13 @@ fairly.
 <img src="docs/images/train.jpg" alt="The Train tab: the loss on practice and on the test" width="49%">
 </p>
 
-Every model is tested on six benchmarks. A test uses examples that practice never shows, and a job asks its model in
+Every model is tested on seven benchmarks. A test uses examples that practice never shows, and a job asks its model in
 exactly the test's format, so a test score is how often an agent decides right.
 
 | Benchmark   | Practice      | Passes at   | Put to work                  |
 | --------- | ------------- | ----------- | ---------------------------- |
 | Reacting  | Field Dataset   | 98%         | farming                      |
+| Forecasting | Growth Dataset | loss ≤ 0.23 | running a field ahead        |
 | Recall    | Storage Dataset | 90%         | keeping a storeroom          |
 | Reversal  | Errand Dataset  | 90%         | hauling                      |
 | Induction | Pattern Dataset | 90%         | building                     |
@@ -58,7 +59,12 @@ exactly the test's format, so a test score is how often an agent decides right.
 A single embedding table can learn to farm. Recall needs attention, reversal needs to know positions, induction takes
 two layers of attention, and understanding orders takes a model too big to carry. The Model Core trains a model on up to
 four kinds of practice at once and shows the learning curves, the tests, every machine's output shape, weights and
-gradient. Saving a model to a checkpoint tests it on all six benchmarks first.
+gradient. Saving a model to a checkpoint tests it on all seven benchmarks first.
+
+While a model trains, waves run through its blocks: a teal pulse from the tokens to the loss as the batch goes forward,
+then an amber one back as the gradient returns, each block lighting as brightly as what it carries. A block that stays
+dark on the way back is hardly learning. Above every machine floats its output as a hologram, and an attention head
+shows where each token looks.
 
 ## Agents
 
@@ -73,6 +79,15 @@ what you meant), it asks its model in the format of the test and does what the m
 question, the answer and how sure the model was. A model that passes its test at 98% decides right 98 times in 100.
 
 Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it.
+
+## Forecasting
+
+A Forecaster watches the crops around it and writes down how they grow: one line per crop, its age at every look. A
+model trained on lines like these is a small model of the world, and knows what a field will do next. The Forecaster
+checks it against everything the field did by itself. If the growth the model expects is within 11% of the growth
+there was, the Forecaster runs the field four looks ahead for every one it takes, drawing each crop's next looks from
+the model; within 25%, two. A model that is wrong on average is refused. A model of fields in general expects an
+average field, so the way to forecast yours is to train on the Forecaster's own log.
 
 ## Serving models
 

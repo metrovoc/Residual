@@ -817,6 +817,62 @@ def forge_top():
             c.px(x, y, K4)
     return c
 
+# ---------------------------------------------------------------- Forecaster
+
+# a crop by age, from a seedling to ripe wheat, as the Forecaster's screen draws it
+CROP = [rgb(h) for h in ["2f5a2a", "3a6b2c", "467c2e", "568c30", "6e9a33", "8ca637", "aeaf3e", "d9b44a"]]
+# the front's nine crops: the age each starts at, and the frame of every four it grows on
+FIELD = [(0, 0), (3, 2), (5, 1), (2, 3), (6, 0), (1, 2), (4, 3), (7, 1), (2, 2)]
+SPROUT = [
+    "##....##",
+    "###..###",
+    ".##..##.",
+    "..####..",
+    "...##...",
+    "...##...",
+    "########",
+]
+HOURGLASS = [
+    "########",
+    ".#....#.",
+    "..#++#..",
+    "...++...",
+    "...##...",
+    "..#..#..",
+    ".#++++#.",
+    "########",
+]
+
+
+def forecaster_front(step=None):
+    """A field from above: nine crops by age, still while it only watches. Running ahead, they grow a look at a time
+    and each one lights teal as the model grows it."""
+    c = plate(TEAL_LINE, salt=21)
+    window(c)
+    for i, (start, phase) in enumerate(FIELD):
+        x, y = 4 + i % 3 * 3, 4 + i // 3 * 3
+        if step is None:
+            color = mix(CROP[start], W1, 0.3)
+        else:
+            grew = (step + phase) % 4 == 0
+            color = TEAL[4] if grew else CROP[(start + (step + phase) // 4) % 8]
+        c.rect(x, y, x + 1, y + 1, color)
+    return c
+
+
+def forecaster_side():
+    c = plate(NEUTRAL, salt=22)
+    engraved_glyph(c, SPROUT)
+    return c
+
+
+def forecaster_top():
+    """An hourglass: it sees where the field is going."""
+    c = plate(AMBER_LINE, salt=23)
+    engraved_glyph(c, HOURGLASS)
+    return c
+
+
 WAFER = [
     "................",
     ".....oooooo.....",
@@ -1244,7 +1300,8 @@ def schematic(accent, rows):
 
 
 # one color per benchmark, on its dataset's header
-BENCHMARK_COLORS = {"field": "84e08a", "storage": "ffb547", "errand": "6cb8ff", "pattern": "b48cff", "orders": "3cd6c6"}
+BENCHMARK_COLORS = {"field": "84e08a", "growth": "d9b44a", "storage": "ffb547", "errand": "6cb8ff", "pattern": "b48cff",
+                    "orders": "3cd6c6"}
 # what each dataset practices, punched into the card
 DATASET_HOLES = {
     "field": [
@@ -1254,6 +1311,15 @@ DATASET_HOLES = {
         "...#....",
         "...#....",
         "........",
+        "########",
+    ],
+    "growth": [
+        "......##",
+        ".....#..",
+        "....#...",
+        "..##....",
+        ".#......",
+        "#.......",
         "########",
     ],
     "storage": [
@@ -1367,6 +1433,38 @@ def tokenizer(written):
                 c.px(x, y, K4)
     outline(c, INK)
     return c
+
+FIELD_LOG = [
+    "................",
+    "......kKKk......",
+    "...bbbkKKkbbb...",
+    "...bPPPPPPPPb...",
+    "...bPPPPPPPPb...",
+    "...bPPPPPPPPb...",
+    "...bPPPPPPPPb...",
+    "...bPPPPPPPPb...",
+    "...bPPPPPPPPb...",
+    "...bPPPPPPPPb...",
+    "...bPPPPPPPPb...",
+    "...bPPPPPPPPb...",
+    "...bPPPPPPPPb...",
+    "...bbbbbbbbbb...",
+    "...dddddddddd...",
+    "................",
+]
+
+
+def field_log():
+    """A clipboard of crops' lines: each a row of looks, growing from green to ripe gold."""
+    c = Canvas()
+    c.stamp(0, 0, FIELD_LOG, {"k": K3, "K": K1, "b": rgb("9b7449"), "d": rgb("6e5131"), "P": K0})
+    for row, (y, ages) in enumerate(((4, [0, 1, 1, 3, 5, 7]), (6, [0, 0, 2, 4, 4]), (8, [1, 2, 5, 6, 7, 7]),
+                                     (10, [0, 3, 3, 6]), (12, [2, 4, 7]))):
+        for i, age in enumerate(ages):
+            c.px(5 + i, y, CROP[age])
+    outline(c, INK)
+    return c
+
 
 CHECKPOINT = [
     "................",
@@ -1694,6 +1792,11 @@ def build():
     SAVED["block/bpe_forge_front_on.png"] = forge_front(5).im
     forge_side().save("block/bpe_forge_side.png")
     forge_top().save("block/bpe_forge_top.png")
+    forecaster_front().save("block/forecaster_front.png")
+    animated([forecaster_front(i) for i in range(32)], "block/forecaster_front_on.png", 3)
+    SAVED["block/forecaster_front_on.png"] = forecaster_front(5).im
+    forecaster_side().save("block/forecaster_side.png")
+    forecaster_top().save("block/forecaster_top.png")
     animated([stream_side(i) for i in range(8)], "block/stream_side.png", 2)
     SAVED["block/stream_side.png"] = stream_side(0).im
     stream_end().save("block/stream_end.png")
@@ -1714,6 +1817,7 @@ def build():
     archive_drive().save("item/archive_drive.png")
     tokenizer(False).save("item/tokenizer.png")
     tokenizer(True).save("item/tokenizer_written.png")
+    field_log().save("item/field_log.png")
     archive_shard().save("item/archive_shard.png")
     salvaged_model().save("item/salvaged_model.png")
     for kind in BENCHMARK_COLORS:

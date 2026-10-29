@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
+import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.registry.ModMenus;
@@ -90,7 +91,8 @@ public class CoreMenu extends AbstractContainerMenu {
     }
 
     public static boolean isData(ItemStack stack) {
-        return stack.getItem() instanceof DatasetItem || stack.getItem() instanceof DriveItem || stack.getItem() instanceof WreckItem;
+        return stack.getItem() instanceof DatasetItem || stack.getItem() instanceof DriveItem || stack.getItem() instanceof WreckItem
+                || stack.getItem() instanceof FieldLogItem;
     }
 
     private class Shown extends Slot {

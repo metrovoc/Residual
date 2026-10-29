@@ -40,9 +40,11 @@ public final class GraphScanner {
      * The model found in the world: node {@code i} of {@link #spec} is the machine at {@code nodes.get(i)}.
      *
      * @param footprint every block the model depends on, as packed positions
+     * @param carries   what each cable and stream block carries, by packed position: a node, or {@link GraphSpec#TOKENS}
      * @param problem   why the scan gave up early, or null
      */
-    public record Scan(GraphSpec spec, List<BlockPos> nodes, Set<Long> footprint, @Nullable String problem) {
+    public record Scan(GraphSpec spec, List<BlockPos> nodes, Set<Long> footprint, Map<Long, Integer> carries,
+                       @Nullable String problem) {
         public int indexOf(BlockPos pos) {
             return nodes.indexOf(pos);
         }
@@ -59,6 +61,8 @@ public final class GraphScanner {
     private final List<List<Attachment>> nets = new ArrayList<>();
     private final Map<Long, Integer> portNet = new HashMap<>();
     private final Set<BlockPos> cables = new HashSet<>();
+    /** The network each cable belongs to. */
+    private final Map<Long, Integer> cableNet = new HashMap<>();
     private final Set<BlockPos> streams = new LinkedHashSet<>();
     /** Each stream block's successor, and what the stream carries as it arrives at a block and as it leaves. */
     private final Map<BlockPos, BlockPos> next = new HashMap<>();
@@ -117,7 +121,19 @@ public final class GraphScanner {
             }
         }
         spec.output = out;
-        return new Scan(spec, List.copyOf(nodes), footprint, problem);
+        Map<Long, Integer> carries = new HashMap<>();
+        cableNet.forEach((cable, net) -> {
+            int from = source(net);
+            if (from >= 0 || from == GraphSpec.TOKENS) {
+                carries.put(cable, from);
+            }
+        });
+        leaving.forEach((stream, from) -> {
+            if (from >= 0) {
+                carries.put(stream.asLong(), from);
+            }
+        });
+        return new Scan(spec, List.copyOf(nodes), footprint, carries, problem);
     }
 
     /** Combines two sources reaching the same input: one wins over nothing, two different ones conflict. */
@@ -236,6 +252,7 @@ public final class GraphScanner {
         while (!todo.isEmpty()) {
             BlockPos c = todo.poll();
             footprint.add(c.asLong());
+            cableNet.put(c.asLong(), net);
             CableBlock cable = (CableBlock) level.getBlockState(c).getBlock();
             for (Direction d : Direction.values()) {
                 BlockPos n = c.relative(d);

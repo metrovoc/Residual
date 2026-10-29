@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "L": "minecraft:clock",
+    "K": "residual:tensor_casing",
+    "W": "residual:weight_crystal",
+    "C": "minecraft:composter"
+  },
+  "pattern": [
+    "GLG",
+    "KWK",
+    "KCK"
+  ],
+  "result": {
+    "id": "residual:forecaster"
+  }
+}

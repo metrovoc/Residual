@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,working=false": {
+      "model": "residual:block/forecaster"
+    },
+    "facing=south,working=false": {
+      "model": "residual:block/forecaster",
+      "y": 180
+    },
+    "facing=east,working=false": {
+      "model": "residual:block/forecaster",
+      "y": 90
+    },
+    "facing=west,working=false": {
+      "model": "residual:block/forecaster",
+      "y": 270
+    },
+    "facing=north,working=true": {
+      "model": "residual:block/forecaster_on"
+    },
+    "facing=south,working=true": {
+      "model": "residual:block/forecaster_on",
+      "y": 180
+    },
+    "facing=east,working=true": {
+      "model": "residual:block/forecaster_on",
+      "y": 90
+    },
+    "facing=west,working=true": {
+      "model": "residual:block/forecaster_on",
+      "y": 270
+    }
+  }
+}

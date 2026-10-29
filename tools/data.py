@@ -21,9 +21,9 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["reacting", "recall", "reversal", "induction", "orders", "reading"]
-DATASETS = {"field_dataset": "minecraft:wheat_seeds", "storage_dataset": "minecraft:chest", "errand_dataset": "minecraft:compass",
-          "pattern_dataset": "minecraft:bricks", "orders_dataset": "minecraft:writable_book"}
+BENCHMARKS = ["reacting", "forecasting", "recall", "reversal", "induction", "orders", "reading"]
+DATASETS = {"field_dataset": "minecraft:wheat_seeds", "growth_dataset": "minecraft:bone_meal", "storage_dataset": "minecraft:chest",
+            "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "orders_dataset": "minecraft:writable_book"}
 SCHEMATICS = ["schematic_relays"]
 # see bench/Specs.java, in the order the Bench lists them, each with the spec whose module it builds on first
 SPECS = {"mean": None, "softmax": None, "matmul": None, "linear": "matmul", "gelu": None, "layer_norm": "mean",
@@ -174,6 +174,18 @@ def forge():
     item_definition("bpe_forge", rid("block/bpe_forge"))
 
 
+def forecaster():
+    side, top = rid("block/forecaster_side"), rid("block/forecaster_top")
+    for suffix in ("", "_on"):
+        cube(f"forecaster{suffix}", rid(f"block/forecaster_front{suffix}"), side, side, top, rid("block/machine_back"))
+    variants = {}
+    for working, suffix in (("false", ""), ("true", "_on")):
+        for key, value in facing_variants(rid(f"block/forecaster{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},working={working}"] = value
+    write(f"assets/{NS}/blockstates/forecaster.json", {"variants": variants})
+    item_definition("forecaster", rid("block/forecaster"))
+
+
 def stream():
     """The channel seen end on at both ends; on the four sides, chevrons pointing the way it flows. The side texture
     points up, so each side face turns it toward north, the model's flow; the blockstate turns the whole block."""
@@ -245,7 +257,7 @@ def cables():
 
 def items():
     flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
-             "agent", "relay_card", "terminal"] + list(DATASETS) + SCHEMATICS)
+             "agent", "relay_card", "terminal", "field_log"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -273,7 +285,8 @@ def items():
 
 # ---------------------------------------------------------------- data
 
-MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream", "bpe_forge"]
+MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream",
+                  "bpe_forge", "forecaster"]
 
 
 def blocks():
@@ -339,6 +352,9 @@ def recipes():
     shapeless("tokenizer", ["minecraft:paper", "minecraft:paper", "minecraft:ink_sac", "minecraft:amethyst_shard"], 2)
     for dataset, part in DATASETS.items():
         shapeless(dataset, ["minecraft:paper", "minecraft:paper", "minecraft:redstone", part])
+    shaped("forecaster", ["GLG", "KWK", "KCK"], {"G": "minecraft:glass_pane", "L": "minecraft:clock", "K": rid("tensor_casing"),
+                                                 "W": rid("weight_crystal"), "C": "minecraft:composter"})
+    shapeless("field_log", ["minecraft:paper", "minecraft:paper", "minecraft:wheat", "#minecraft:planks"])
     shaped("agent", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
     shaped("survey_rod", ["  A", " S ", "S  "], {"A": "minecraft:amethyst_shard", "S": "minecraft:stick"})
     shaped("reader", ["GBG", "KWK", "KKK"], {"G": "minecraft:glass_pane", "B": "minecraft:book", "K": rid("tensor_casing"),
@@ -398,6 +414,8 @@ def advancements():
     advancement("deploy/server", "agent/made", "model_server", placed("model_server"))
     advancement("deploy/relay", "deploy/server", "relay", placed("relay"))
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
+    advancement("forecast/watching", "root", "forecaster", placed("forecaster"))
+    advancement("forecast/ahead", "forecast/watching", "minecraft:wheat", awarded(), frame="goal")
     advancement("bench/made", "root", "bench", placed("bench"))
     advancement("model/stream", "bench/made", "stream", placed("stream"))
     advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))
@@ -425,6 +443,7 @@ if __name__ == "__main__":
     bench()
     fabricator()
     forge()
+    forecaster()
     stream()
     cables()
     items()

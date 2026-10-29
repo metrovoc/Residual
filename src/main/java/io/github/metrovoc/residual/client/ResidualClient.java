@@ -6,6 +6,7 @@ import io.github.metrovoc.residual.net.AgentSync;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.net.TerminalAnswer;
+import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModMenus;
@@ -17,6 +18,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(value = Residual.MOD_ID, dist = Dist.CLIENT)
 public final class ResidualClient {
@@ -26,6 +28,8 @@ public final class ResidualClient {
         modBus.addListener(ResidualClient::renderers);
         modBus.addListener(ResidualClient::layers);
         modBus.addListener(ResidualClient::models);
+        NeoForge.EVENT_BUS.addListener(Waves::extract);
+        NeoForge.EVENT_BUS.addListener(Waves::submit);
     }
 
     private static void screens(RegisterMenuScreensEvent event) {
@@ -35,6 +39,7 @@ public final class ResidualClient {
         event.register(ModMenus.READER.get(), ReaderScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
         event.register(ModMenus.FORGE.get(), ForgeScreen::new);
+        event.register(ModMenus.FORECASTER.get(), ForecasterScreen::new);
     }
 
     private static void payloads(RegisterClientPayloadHandlersEvent event) {
@@ -48,6 +53,7 @@ public final class ResidualClient {
             CoreView.sampling = false;
         });
         event.register(AgentSync.TYPE, (sync, ctx) -> AgentView.sync = sync);
+        event.register(WaveSync.TYPE, (wave, ctx) -> Waves.receive(wave));
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {
             AgentView.answer = answer;
             AgentView.asking = false;

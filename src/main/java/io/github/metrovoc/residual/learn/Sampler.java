@@ -124,6 +124,9 @@ public final class Sampler {
                     + (c == null ? "An agent would not know what to do." : "An agent would " + describe(c) + ".");
             return new Demo(given, out.toString(), labels(vocab, steps.getFirst().topIds()), floats(steps.getFirst().topProbs()), note);
         }
+        if (benchmark == Benchmark.FORECASTING) {
+            return forecast(model, rng);
+        }
         if (benchmark != Benchmark.READING) {
             return puzzle(model, Dataset.of(benchmark), rng);
         }
@@ -137,6 +140,36 @@ public final class Sampler {
         steps.forEach(s -> out.append(vocab.piece(s.token())));
         Step first = steps.getFirst();
         return new Demo(given, out.toString(), labels(vocab, first.topIds()), floats(first.topProbs()), "");
+    }
+
+    /**
+     * Runs one crop ahead: the end of a made-up field's record and the first stretch of its next crop's line are given,
+     * the model draws the rest a look at a time from its own probabilities, and the note shows how the crop really
+     * went on.
+     */
+    private static Demo forecast(CompiledGraph model, Random rng) {
+        Vocab vocab = model.env.tokenizer();
+        double chance = Growth.chance(rng);
+        StringBuilder field = new StringBuilder();
+        while (field.length() < Vocab.CONTEXT) {
+            field.append(Growth.life(rng, chance)).append('\n');
+        }
+        String life = Growth.life(rng, chance);
+        int cut = Math.min(life.length() - 1, 20 + rng.nextInt(30));
+        String given = (field + life.substring(0, cut)).substring(field.length() + cut - Vocab.CONTEXT);
+        List<Step> steps = generate(model, vocab.encode(given), Math.min(60, life.length() - cut), 1f, rng);
+        StringBuilder out = new StringBuilder(given);
+        for (Step s : steps) {
+            String piece = vocab.piece(s.token());
+            int end = piece.indexOf('\n');
+            out.append(piece, 0, end < 0 ? piece.length() : end);
+            if (end >= 0) {
+                break;
+            }
+        }
+        String note = "Really: " + life.substring(cut, Math.min(life.length(), cut + 60)) + ".";
+        Step first = steps.getFirst();
+        return new Demo(given, out.toString(), labels(vocab, first.topIds()), floats(first.topProbs()), note);
     }
 
     private static String describe(Orders.Command c) {

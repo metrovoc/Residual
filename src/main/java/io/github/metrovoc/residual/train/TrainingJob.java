@@ -4,15 +4,18 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.graph.Captures;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.learn.Batch;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.learn.Wrecks;
+import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Parallel;
+import io.github.metrovoc.residual.tensor.Tape;
 import io.github.metrovoc.residual.tensor.Tensor;
-import io.github.metrovoc.residual.tensor.Tokens;
 import io.github.metrovoc.residual.view.Heatmap;
+import io.github.metrovoc.residual.world.GraphScanner;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -71,6 +74,9 @@ public final class TrainingJob {
         public final Map<Integer, Heatmap> outputs = new HashMap<>();
         public final Map<Integer, Heatmap> weights = new HashMap<>();
         public final Map<Integer, Float> gradNorms = new HashMap<>();
+        /** How big each node's output is, and the gradient of the loss with respect to it, as root mean squares. */
+        public final Map<Integer, Float> activity = new HashMap<>();
+        public final Map<Integer, Float> gradient = new HashMap<>();
         @Nullable
         public Outcome outcome;
         public String detail = "";
@@ -82,13 +88,16 @@ public final class TrainingJob {
     public final BlockPos core;
     public final Set<Long> footprint;
     public final List<BlockPos> nodes;
+    /** What each cable and stream block of the model carries, from its scan. */
+    public final Map<Long, Integer> carries;
     public final CompiledGraph model;
     /** The wreck being repaired, whose test ends the run, or null. */
     @Nullable
     public final Wrecks.Wreck wreck;
     public final int threads;
     private final Trainer trainer;
-    private final Tokens probe;
+    /** One fixed example the pictures and the waves are taken from. */
+    private final Batch probe;
     /** Steps this job may take before the wreck's budget runs out; 0 for no limit. */
     private final int budget;
 
@@ -106,13 +115,14 @@ public final class TrainingJob {
     private final AtomicReference<Update> pending = new AtomicReference<>();
     private final ConcurrentLinkedQueue<Point> points = new ConcurrentLinkedQueue<>();
 
-    public TrainingJob(ServerLevel level, BlockPos core, Set<Long> footprint, List<BlockPos> nodes, CompiledGraph model,
-                       Mixture data, @Nullable Wrecks.Wreck wreck, long seed, int threads, int budget, Speed speed,
-                       float learningRate, int batchSize, float clip) {
+    public TrainingJob(ServerLevel level, BlockPos core, GraphScanner.Scan scan, CompiledGraph model, Mixture data,
+                       @Nullable Wrecks.Wreck wreck, long seed, int threads, int budget, Speed speed, float learningRate,
+                       int batchSize, float clip) {
         this.level = level;
         this.core = core;
-        this.footprint = footprint;
-        this.nodes = nodes;
+        this.footprint = scan.footprint();
+        this.nodes = scan.nodes();
+        this.carries = scan.carries();
         this.model = model;
         this.data = data;
         this.wreck = wreck;
@@ -123,7 +133,7 @@ public final class TrainingJob {
         this.batchSize = batchSize;
         this.clip = clip;
         this.trainer = new Trainer(model, data, seed, learningRate, batchSize, clip);
-        this.probe = data.batch(new java.util.Random(99), 1, true).input();
+        this.probe = data.batch(new java.util.Random(99), 1, true);
     }
 
     public void requestStop(Outcome as) {
@@ -270,24 +280,45 @@ public final class TrainingJob {
             return u;
         }
         u.params = model.snapshot();
-        Captures captures = new Captures();
-        model.forward(null, probe, captures);
         for (int node : model.order) {
-            Op op = model.spec.node(node).op;
-            Tensor shown = op == Op.ATTENTION || op == Op.TRANSFORMER ? captures.patterns.get(node) : captures.outputs.get(node);
+            Map<String, Tensor> p = model.params(node);
+            if (!p.isEmpty()) {
+                u.weights.put(node, Heatmap.of(mainWeight(op(node), p)));
+                u.gradNorms.put(node, gradNorm(p));
+            }
+        }
+        // the probe's backward pass adds into the weights' gradients, which the next step clears before its own
+        Tape tape = new Tape();
+        Captures captures = new Captures();
+        Tensor logits = model.forward(tape, probe.input(), captures);
+        tape.backward(Ops.crossEntropy(tape, logits, probe.targets(), probe.weights()));
+        for (int node : model.order) {
+            Tensor out = captures.outputs.get(node);
+            Tensor shown = op(node) == Op.ATTENTION || op(node) == Op.TRANSFORMER ? captures.patterns.get(node) : out;
             if (shown == null) {
-                shown = captures.outputs.get(node);
+                shown = out;
             }
             if (shown != null) {
                 u.outputs.put(node, Heatmap.of(shown));
             }
-            Map<String, Tensor> p = model.params(node);
-            if (!p.isEmpty()) {
-                u.weights.put(node, Heatmap.of(mainWeight(op, p)));
-                u.gradNorms.put(node, gradNorm(p));
+            if (out != null) {
+                u.activity.put(node, rms(out.data));
+                u.gradient.put(node, out.hasGrad() ? rms(out.grad()) : 0f);
             }
         }
         return u;
+    }
+
+    private Op op(int node) {
+        return model.spec.node(node).op;
+    }
+
+    private static float rms(float[] v) {
+        double sum = 0;
+        for (float x : v) {
+            sum += (double) x * x;
+        }
+        return v.length == 0 ? 0 : (float) Math.sqrt(sum / v.length);
     }
 
     /** The matrix shown on a machine's sides. */

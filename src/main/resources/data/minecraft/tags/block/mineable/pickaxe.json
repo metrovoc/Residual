@@ -27,6 +27,7 @@
     "residual:bench",
     "residual:fabricator",
     "residual:stream",
-    "residual:bpe_forge"
+    "residual:bpe_forge",
+    "residual:forecaster"
   ]
 }

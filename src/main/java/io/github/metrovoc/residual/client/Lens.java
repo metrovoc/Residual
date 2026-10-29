@@ -7,10 +7,12 @@ import io.github.metrovoc.residual.block.Port;
 import io.github.metrovoc.residual.block.StreamBlock;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.registry.ModItems;
+import io.github.metrovoc.residual.view.Heatmap;
 import io.github.metrovoc.residual.world.GraphScanner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -21,6 +23,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -29,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class Lens {
     private static final int WIDTH = 150;
+    private static final double HOLOGRAM_REACH = 12;
     @Nullable
     private static BlockPos cachedCable;
     private static long cachedAt;
@@ -39,8 +43,15 @@ public final class Lens {
 
     public static void render(GuiGraphicsExtractor g, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || mc.screen != null || mc.level == null || mc.player == null
-                || !(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) {
+        if (mc.options.hideGui || mc.screen != null || mc.level == null || mc.player == null) {
+            return;
+        }
+        List<Component> reading = hologram(mc, delta.getGameTimeDeltaPartialTick(false));
+        if (!reading.isEmpty()) {
+            draw(g, mc.font, reading);
+            return;
+        }
+        if (!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) {
             return;
         }
         BlockPos pos = hit.getBlockPos();
@@ -94,6 +105,43 @@ public final class Lens {
             return;
         }
         draw(g, mc.font, lines);
+    }
+
+    /** The cell of a hologram under the crosshair, if one is nearer than the block it points at. */
+    private static List<Component> hologram(Minecraft mc, float partial) {
+        Vec3 eye = mc.player.getEyePosition(partial), look = mc.player.getViewVector(partial);
+        double reach = mc.hitResult != null && mc.hitResult.getType() != HitResult.Type.MISS
+                ? mc.hitResult.getLocation().distanceTo(eye) : HOLOGRAM_REACH;
+        Hologram.Shown best = null;
+        Hologram.Hit at = null;
+        for (Map.Entry<BlockPos, Hologram.Shown> e : Hologram.shown().entrySet()) {
+            Hologram.Shown s = e.getValue();
+            Hologram.Hit h = Hologram.hit(Hologram.frame(e.getKey(), s.map(), eye), s.map(), eye, look);
+            if (h != null && h.distance() < Math.min(reach, HOLOGRAM_REACH) && (at == null || h.distance() < at.distance())) {
+                best = s;
+                at = h;
+            }
+        }
+        if (best == null) {
+            return List.of();
+        }
+        Heatmap map = best.map();
+        float value = map.value(at.row(), at.col()) * map.scale();
+        boolean averaged = map.firstRow(at.row()) != map.lastRow(at.row()) || map.firstCol(at.col()) != map.lastCol(at.col());
+        List<Component> lines = new ArrayList<>();
+        lines.add(best.title().copy().withColor(Ui.TEXT));
+        if (!best.shape().isEmpty()) {
+            lines.add(Component.translatable("residual.lens.output", best.shape()).withColor(Ui.TEAL));
+        }
+        lines.add(Component.translatable("residual.lens.cell", span(map.firstRow(at.row()), map.lastRow(at.row())),
+                span(map.firstCol(at.col()), map.lastCol(at.col()))).withColor(Ui.DIM));
+        lines.add(Component.translatable(averaged ? "residual.lens.mean" : "residual.lens.value",
+                String.format(Locale.ROOT, "%+.3g", value)).withColor(value >= 0 ? Ui.AMBER : Ui.BLUE));
+        return lines;
+    }
+
+    private static String span(int first, int last) {
+        return first == last ? Integer.toString(first) : first + "–" + last;
     }
 
     private static Component port(Port port) {

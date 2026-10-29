@@ -6,6 +6,7 @@ navigation:
 item_ids:
   - checkpoint
   - field_dataset
+  - growth_dataset
   - storage_dataset
   - errand_dataset
   - pattern_dataset
@@ -14,27 +15,28 @@ item_ids:
 
 # Models and Tests
 
-Every model is tested on six benchmarks. Each test uses examples practice never shows, and each job asks its model in
+Every model is tested on seven benchmarks. Each test uses examples practice never shows, and each job asks its model in
 exactly the test's format, so a test score is how often an agent will decide right.
 
 | Benchmark   | Practice                              | The test                                           | Passes at   | Used for    |
 |-----------|---------------------------------------|----------------------------------------------------|-------------|-------------|
 | Reacting  | <ItemLink id="field_dataset" />         | plots, and what to do with each                    | 98%         | farming     |
+| Forecasting | <ItemLink id="growth_dataset" />      | crops' ages at every look                          | loss ≤ 0.23 | the Forecaster |
 | Recall    | <ItemLink id="storage_dataset" />       | goods and their chests, then one kind asked again  | 90%         | storing     |
 | Reversal  | <ItemLink id="errand_dataset" />        | waymarks on the way out, then the way home         | 90%         | hauling     |
 | Induction | <ItemLink id="pattern_dataset" />       | letters where a run comes round again              | 90%         | building    |
 | Orders    | <ItemLink id="orders_dataset" />        | orders, and what was meant by them                 | 90%         | orders      |
 | Reading   | <ItemLink id="archive_drive" />       | records no shard carries                           | loss ≤ 1.70 | the Reader  |
 
-Hover over an benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
+Hover over a benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
 example, the way an agent would ask it.
 
 ## Practising several things
 
 The Core's four **Data** slots are practised together: every step draws its batch from one of them in turn. One model
 can learn everything, if it is big enough and shaped for it. Each benchmark asks for something different: farming only
-needs the character just before; recall has to find a pair far back; reversal needs to know where each waymark was;
-induction has to look back for what followed the same letter last time.
+needs the character just before, and so does forecasting an average field; recall has to find a pair far back;
+reversal needs to know where each waymark was; induction has to look back for what followed the same letter last time.
 
 ## Checkpoints
 

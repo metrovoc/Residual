@@ -68,6 +68,18 @@ too large on every step.
 - **Both losses suspiciously low:** something lets the model see the answer. The Core flags a model that reads
   ahead.
 
+## Watching it learn
+
+While a model trains, waves run through its blocks every two seconds. A teal pulse travels from the tokens to the
+loss, lighting each machine as the batch reaches it, as brightly as the values it puts out. Then an amber pulse runs
+back from the loss, lighting each machine as brightly as the gradient that reaches it. A machine that stays dark on the
+way back hardly learns: almost no gradient reaches it.
+
+Above each machine floats its output for one example of practice: a bar per entry for a vector, a cell per entry for
+a matrix, amber above zero and blue below. An attention head shows its pattern instead, which earlier tokens each
+token looks at. Look at a hologram to read the value under your crosshair. Hold a <ItemLink id="tensor_probe" /> to
+see the holograms when nothing is training.
+
 ## When training stops
 
 Training stops when you press Stop or when a machine of the model changes. It also stops when the loss diverges: if

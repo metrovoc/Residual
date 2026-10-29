@@ -43,6 +43,9 @@ public final class ModComponents {
     /** The vocabulary on a Tokenizer. */
     public static final Supplier<DataComponentType<Vocab>> VOCAB = COMPONENTS.registerComponentType("vocab",
             b -> b.persistent(Vocab.CODEC).networkSynchronized(Vocab.STREAM_CODEC));
+    /** What a Field Log recorded: one line per crop, its age at every look. */
+    public static final Supplier<DataComponentType<String>> FIELD_LOG = COMPONENTS.registerComponentType("field_log",
+            b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
     /** False on a machine fabricated from a salvaged design, which runs one primitive at a time. */
     public static final Supplier<DataComponentType<Boolean>> FUSED = COMPONENTS.registerComponentType("fused",
             b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
