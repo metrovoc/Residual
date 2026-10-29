@@ -35,11 +35,13 @@ public final class Sampler {
         return Ops.softmax(null, Tensor.of(new int[]{v}, last)).data;
     }
 
-    public static List<Step> generate(CompiledGraph model, int[] prompt, int count, int context, float temperature, Random rng) {
+    /** Writes after {@code prompt} until it has written at least {@code chars} characters. */
+    public static List<Step> generate(CompiledGraph model, int[] prompt, int chars, float temperature, Random rng) {
+        Vocab vocab = model.env.tokenizer();
         List<Step> steps = new ArrayList<>();
         int[] seq = prompt.clone();
-        for (int n = 0; n < count; n++) {
-            float[] p = nextProbs(model, seq, context, temperature);
+        for (int n = 0; n < chars; n += vocab.piece(steps.getLast().token()).length()) {
+            float[] p = nextProbs(model, seq, Vocab.CONTEXT, temperature);
             int token = temperature <= 0.01f ? Trainer.argmax(p, 0, p.length) : draw(p, rng);
             int[] top = top(p, 5);
             float[] topP = new float[top.length];
@@ -53,9 +55,9 @@ public final class Sampler {
         return steps;
     }
 
-    /** A greedy answer: the characters a model wrote and how sure it was of each. */
+    /** A greedy answer: what a model wrote and how sure it was of each token. */
     public record Answer(String text, float[] probs) {
-        /** How sure it was of its least sure character. */
+        /** How sure it was of its least sure token. */
         public float confidence() {
             float min = 1f;
             for (float p : probs) {
@@ -65,25 +67,30 @@ public final class Sampler {
         }
     }
 
-    /** Writes the most likely next characters after {@code prompt}, stopping after {@code stop} or {@code max} characters. */
+    /**
+     * Writes the most likely next tokens after {@code prompt}, a task format and so spelled out, stopping at
+     * {@code stop} or after {@code max} characters.
+     */
     public static Answer answer(CompiledGraph model, String prompt, int max, char stop) {
-        int[] seq = Vocab.WORLD.encode(prompt);
+        Vocab vocab = model.env.tokenizer();
+        int[] seq = vocab.spell(prompt);
         StringBuilder out = new StringBuilder();
         float[] probs = new float[max];
         int n = 0;
-        while (n < max) {
+        while (out.length() < max) {
             float[] p = nextProbs(model, seq, Vocab.CONTEXT, 1f);
             int token = Trainer.argmax(p, 0, p.length);
             probs[n++] = p[token];
-            char c = Vocab.WORLD.symbol(token);
-            if (c == stop) {
+            String piece = vocab.piece(token);
+            int end = piece.indexOf(stop);
+            out.append(piece, 0, end < 0 ? piece.length() : end);
+            if (end >= 0) {
                 break;
             }
-            out.append(c);
             seq = Arrays.copyOf(seq, seq.length + 1);
             seq[seq.length - 1] = token;
         }
-        return new Answer(out.toString(), Arrays.copyOf(probs, n));
+        return new Answer(out.length() > max ? out.substring(0, max) : out.toString(), Arrays.copyOf(probs, n));
     }
 
     /**
@@ -98,18 +105,19 @@ public final class Sampler {
     }
 
     public static Demo demo(CompiledGraph model, Benchmark benchmark, String prompt, float temperature, Random rng) {
-        Vocab vocab = Vocab.WORLD;
+        Vocab vocab = model.env.tokenizer();
         if (benchmark == Benchmark.ORDERS) {
             Orders.Example example = prompt.isBlank() ? Orders.example(rng, true) : null;
             String given = Orders.prompt(example == null ? prompt : example.said());
-            int[] ids = vocab.encode(given);
-            List<Step> steps = generate(model, ids, 24, Vocab.CONTEXT, 0f, rng);
+            List<Step> steps = generate(model, vocab.spell(given), 24, 0f, rng);
             StringBuilder out = new StringBuilder(given);
             for (Step s : steps) {
-                if (vocab.symbol(s.token()) == '\n') {
+                String piece = vocab.piece(s.token());
+                int end = piece.indexOf('\n');
+                out.append(piece, 0, end < 0 ? piece.length() : end);
+                if (end >= 0) {
                     break;
                 }
-                out.append(vocab.symbol(s.token()));
             }
             Orders.Command c = Orders.parse(out.substring(given.length()));
             String note = (example == null ? "" : "Meant: " + example.meant() + ". ")
@@ -121,12 +129,12 @@ public final class Sampler {
         }
         int[] ids = vocab.encode(prompt);
         if (ids.length == 0) {
-            ids = vocab.encode(Archive.test().prompt(rng, 32));
+            ids = vocab.encode(Archive.test(vocab).prompt(rng, 32));
         }
         String given = vocab.decode(ids);
-        List<Step> steps = generate(model, ids, 160, Vocab.CONTEXT, temperature, rng);
+        List<Step> steps = generate(model, ids, 160, temperature, rng);
         StringBuilder out = new StringBuilder(given);
-        steps.forEach(s -> out.append(vocab.symbol(s.token())));
+        steps.forEach(s -> out.append(vocab.piece(s.token())));
         Step first = steps.getFirst();
         return new Demo(given, out.toString(), labels(vocab, first.topIds()), floats(first.topProbs()), "");
     }
@@ -144,7 +152,9 @@ public final class Sampler {
         };
     }
 
+    /** A test example, spelled out; the model may still answer with any token it knows. */
     private static Demo puzzle(CompiledGraph model, Task task, Random rng) {
+        Vocab vocab = model.env.tokenizer();
         Batch b = task.batch(rng, 1, true);
         Tensor logits = model.forward(null, b.input(), null);
         int v = logits.dim(-1);
@@ -164,19 +174,19 @@ public final class Sampler {
                 first = i;
                 firstProbs = Ops.softmax(null, Tensor.of(new int[]{v}, Arrays.copyOfRange(logits.data, i * v, (i + 1) * v))).data;
             }
-            said.append(task.vocab.symbol(guess));
-            expected.append(task.vocab.symbol(b.targets()[i]));
+            said.append(vocab.piece(guess));
+            expected.append(vocab.piece(b.targets()[i]));
             total++;
             right += guess == b.targets()[i] ? 1 : 0;
         }
-        String given = task.vocab.decode(Arrays.copyOfRange(in, 0, first + 1));
+        String given = vocab.decode(Arrays.copyOfRange(in, 0, first + 1));
         int[] top = top(firstProbs, 5);
         float[] topP = new float[top.length];
         for (int i = 0; i < top.length; i++) {
             topP[i] = firstProbs[top[i]];
         }
         String note = "Expected " + expected + ": " + right + " of " + total + " right.";
-        return new Demo(given, given + said, labels(task.vocab, top), floats(topP), note);
+        return new Demo(given, given + said, labels(vocab, top), floats(topP), note);
     }
 
     private static List<String> labels(Vocab vocab, int[] ids) {

@@ -31,7 +31,7 @@ public final class Dataset extends Task {
     public final Benchmark benchmark;
 
     private Dataset(Benchmark benchmark) {
-        super(benchmark.length, benchmark.metric, benchmark.target);
+        super(Vocab.WORLD, benchmark.length, benchmark.metric, benchmark.target);
         this.benchmark = benchmark;
     }
 

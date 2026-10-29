@@ -3,18 +3,23 @@ package io.github.metrovoc.residual.learn;
 import java.util.Locale;
 import java.util.Random;
 
-/** A source of examples in the world's vocabulary, plus the bar a model has to clear on it. */
+/**
+ * A source of examples, plus the bar a model has to clear on it. Losses are per character, so models that read with
+ * different tokenizers compare fairly.
+ */
 public abstract class Task {
     public enum Metric { LOSS, ACCURACY }
 
-    public final Vocab vocab = Vocab.WORLD;
+    /** What its examples are written in. */
+    public final Vocab vocab;
     /** Sequence length of its examples. */
     public final int context;
     public final Metric metric;
     /** Loss at most this, or answer accuracy at least this. */
     public final double target;
 
-    protected Task(int context, Metric metric, double target) {
+    protected Task(Vocab vocab, int context, Metric metric, double target) {
+        this.vocab = vocab;
         this.context = context;
         this.metric = metric;
         this.target = target;
@@ -30,15 +35,6 @@ public abstract class Task {
     /** The score that is compared with the target. */
     public double score(double loss, double accuracy) {
         return metric == Metric.LOSS ? loss : accuracy;
-    }
-
-    /** Fraction of the way from a fresh model to the target, for progress bars. */
-    public double progress(double loss, double accuracy) {
-        if (metric == Metric.ACCURACY) {
-            return Math.max(0, Math.min(1, accuracy / target));
-        }
-        double start = Math.log(vocab.size());
-        return Math.max(0, Math.min(1, (start - loss) / (start - target)));
     }
 
     public String goal() {

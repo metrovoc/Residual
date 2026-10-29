@@ -117,6 +117,7 @@ public final class Checkpoints {
     static CompoundTag write(CompiledGraph model) {
         CompoundTag root = new CompoundTag();
         root.putInt("output", model.spec.output);
+        root.putIntArray("merges", model.env.tokenizer().mergeIds());
         ListTag nodes = new ListTag();
         for (int i = 0; i < model.spec.size(); i++) {
             GraphSpec.Node n = model.spec.node(i);
@@ -177,6 +178,7 @@ public final class Checkpoints {
             params.add(p);
         }
         spec.output = root.getIntOr("output", GraphSpec.MISSING);
-        return CompiledGraph.compile(spec, new Env(Vocab.WORLD.size(), Vocab.CONTEXT), params::get, 0);
+        Vocab vocab = Vocab.of(root.getIntArray("merges").orElse(new int[0]));
+        return CompiledGraph.compile(spec, new Env(vocab, Vocab.CONTEXT), params::get, 0);
     }
 }

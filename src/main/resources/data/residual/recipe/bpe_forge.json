@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "B": "minecraft:book",
+    "G": "minecraft:glass",
+    "W": "residual:weight_crystal",
+    "F": "minecraft:blast_furnace"
+  },
+  "pattern": [
+    "KBK",
+    "GWG",
+    "KFK"
+  ],
+  "result": {
+    "id": "residual:bpe_forge"
+  }
+}

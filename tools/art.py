@@ -759,6 +759,64 @@ def fabricator_top():
     return c
 
 
+# the forge's display: four lines of text, a character on every other pixel
+FORGE_ROWS = (4, 6, 8, 10)
+FORGE_GAPS = [(0, 4), (2, 8), (1, 6), (3, 4), (0, 10), (2, 4), (1, 10), (3, 8), (0, 6), (2, 6), (1, 4)]
+CHIP_TONES = [TEAL[2], AMBER[2], AMETHYST[2]]
+
+
+def forge_front(step=None):
+    """Lines of text behind glass; while it learns, neighbouring tokens join one pair at a time and the new one flashes."""
+    c = plate(TEAL_LINE, salt=17)
+    window(c)
+    joined = set(FORGE_GAPS[:step or 0])
+    last = FORGE_GAPS[step - 1] if step else None
+    for row, y in enumerate(FORGE_ROWS):
+        tokens, run = [], []
+        for x in range(3, 13):
+            if x % 2 == 1 or (row, x) in joined:
+                run.append(x)
+            elif run:
+                tokens.append(run)
+                run = []
+        if run:
+            tokens.append(run)
+        for token in tokens:
+            if step is None:
+                tone = DIM[3]
+            elif last and last[0] == row and last[1] in token:
+                tone = TEAL[5]
+            else:
+                tone = CHIP_TONES[(token[0] // 2 + row) % len(CHIP_TONES)]
+            for x in token:
+                c.px(x, y, tone)
+    return c
+
+
+def forge_side():
+    """The slot a tokenizer card goes into."""
+    c = plate(NEUTRAL, salt=18)
+    for x in range(4, 12):
+        c.px(x, 7, W0)
+        c.px(x, 8, K0)
+    for x in range(5, 11):
+        c.px(x, 6, AMETHYST[3] if x % 2 else AMETHYST[2])
+    for y in (10, 11):
+        for x in range(4, 12, 2):
+            c.px(x, y, K3)
+    return c
+
+
+def forge_top():
+    """The intake: a page of text going down."""
+    c = plate(TEAL_LINE, salt=19)
+    window(c, 4, 4, 11, 11)
+    c.rect(5, 5, 10, 10, K1)
+    for y in (6, 8, 10):
+        for x in range(6, 10 if y != 10 else 8):
+            c.px(x, y, K4)
+    return c
+
 WAFER = [
     "................",
     ".....oooooo.....",
@@ -1273,6 +1331,43 @@ def dataset(kind):
     return c
 
 
+TOKEN_CARD = [
+    "................",
+    "..VVVVVVVVVVVV..",
+    "..vvvvvvvvvvvv..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..PPPPPPPPPPPP..",
+    "..SSSSSSSSSSSS..",
+    "................",
+]
+# what each line of a written tokenizer shows: runs of the same letter are one token
+TOKEN_LINES = ["aaab.cccc.", "bb.aaaa.cc", "cccc.ab.aa", "aa.bbb.c.."]
+
+
+def tokenizer(written):
+    """A violet-headed card. Blank, its lines are separate characters; written, they are tokens of every length."""
+    c = Canvas()
+    c.stamp(0, 0, TOKEN_CARD, {"V": AMETHYST[3], "v": AMETHYST[2], "P": K0, "S": K3})
+    tones = {"a": TEAL[2], "b": AMBER[2], "c": AMETHYST[2]}
+    for row, y in enumerate((5, 7, 9, 11)):
+        for i, ch in enumerate(TOKEN_LINES[row]):
+            x = 3 + i
+            if written and ch in tones:
+                c.px(x, y, tones[ch])
+            elif not written and i % 2 == 0 and i < 9:
+                c.px(x, y, K4)
+    outline(c, INK)
+    return c
+
 CHECKPOINT = [
     "................",
     "......kKKk......",
@@ -1594,6 +1689,11 @@ def build():
     SAVED["block/fabricator_front_on.png"] = fabricator_front(6).im
     fabricator_side().save("block/fabricator_side.png")
     fabricator_top().save("block/fabricator_top.png")
+    forge_front().save("block/bpe_forge_front.png")
+    animated([forge_front(i) for i in range(len(FORGE_GAPS) + 1)], "block/bpe_forge_front_on.png", 3)
+    SAVED["block/bpe_forge_front_on.png"] = forge_front(5).im
+    forge_side().save("block/bpe_forge_side.png")
+    forge_top().save("block/bpe_forge_top.png")
     animated([stream_side(i) for i in range(8)], "block/stream_side.png", 2)
     SAVED["block/stream_side.png"] = stream_side(0).im
     stream_end().save("block/stream_end.png")
@@ -1612,6 +1712,8 @@ def build():
     probe().save("item/tensor_probe.png")
     checkpoint().save("item/checkpoint.png")
     archive_drive().save("item/archive_drive.png")
+    tokenizer(False).save("item/tokenizer.png")
+    tokenizer(True).save("item/tokenizer_written.png")
     archive_shard().save("item/archive_shard.png")
     salvaged_model().save("item/salvaged_model.png")
     for kind in BENCHMARK_COLORS:

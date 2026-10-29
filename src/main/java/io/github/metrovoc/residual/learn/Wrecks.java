@@ -54,7 +54,7 @@ public final class Wrecks {
         return null;
     }
 
-    /** The depth wreck still holds the first records it read, whole. */
+    /** The depth wreck still holds the first records it read, whole. It reads by the character, like every wreck. */
     private static synchronized TextTask reading() {
         if (reading == null) {
             Map<Integer, BitSet> records = new HashMap<>();
@@ -63,7 +63,7 @@ public final class Wrecks {
                     records.put(r.id(), new BitSet());
                 }
             }
-            reading = Archive.practice(records);
+            reading = Archive.practice(records, Vocab.WORLD);
         }
         return reading;
     }

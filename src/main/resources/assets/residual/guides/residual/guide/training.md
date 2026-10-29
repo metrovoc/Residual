@@ -26,7 +26,8 @@ A model that knows nothing spreads its bets evenly over all V tokens, and so sta
 ![chance](/formulas/chance.png)
 
 Every curve starts there. A loss of 0 would mean certainty about every next token, which no honest model reaches on
-real text. For datasets, where only some positions have a right answer, the Core also measures **accuracy**: how often
+real text. Losses are counted per character: a token's loss is shared among the characters it stands for, so a model
+that reads with a [tokenizer](tokenizers.md) compares fairly with one that reads by the character. For datasets, where only some positions have a right answer, the Core also measures **accuracy**: how often
 the top-scoring token is the right one.
 
 ## Practice and test

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/bpe_forge_side",
+    "north": "residual:block/bpe_forge_front",
+    "south": "residual:block/bpe_forge_side",
+    "east": "residual:block/bpe_forge_side",
+    "west": "residual:block/bpe_forge_side",
+    "up": "residual:block/bpe_forge_top",
+    "down": "residual:block/machine_back"
+  }
+}

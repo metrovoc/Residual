@@ -1,0 +1,34 @@
+{
+  "parent": "residual:archive/drive",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:tokenizer",
+      "components": {
+        "residual:vocab": [
+          70,
+          58
+        ]
+      }
+    },
+    "title": {
+      "translate": "advancements.residual.archive.tokenizer.title"
+    },
+    "description": {
+      "translate": "advancements.residual.archive.tokenizer.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

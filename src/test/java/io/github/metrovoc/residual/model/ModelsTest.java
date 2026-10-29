@@ -6,12 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.learn.Blueprints;
-import io.github.metrovoc.residual.learn.Vocab;
 import org.junit.jupiter.api.Test;
 
 class ModelsTest {
     private CompiledGraph model() throws Exception {
-        return CompiledGraph.compile(Blueprints.bigram(), new Env(Vocab.WORLD.size(), Vocab.CONTEXT), null, 1);
+        return CompiledGraph.compile(Blueprints.bigram(), Env.WORLD, null, 1);
     }
 
     @Test

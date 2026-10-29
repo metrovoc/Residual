@@ -34,6 +34,7 @@ public final class ResidualClient {
         event.register(ModMenus.AGENT.get(), AgentScreen::new);
         event.register(ModMenus.READER.get(), ReaderScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
+        event.register(ModMenus.FORGE.get(), ForgeScreen::new);
     }
 
     private static void payloads(RegisterClientPayloadHandlersEvent event) {

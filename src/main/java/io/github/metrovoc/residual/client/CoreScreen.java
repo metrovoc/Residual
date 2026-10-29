@@ -13,6 +13,7 @@ import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.net.CoreAction;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.SampleResult;
+import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.train.TrainingJob;
 import java.util.ArrayList;
 import java.util.List;
@@ -295,6 +296,12 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             for (Slot slot : menu.slots) {
                 Ui.slot(g, leftPos + slot.x, topPos + slot.y);
             }
+            Slot tokens = menu.getSlot(CoreMenu.TOKENIZER);
+            if (!tokens.hasItem()) {
+                int sx = leftPos + tokens.x, sy = topPos + tokens.y;
+                g.item(new ItemStack(ModItems.TOKENIZER.get()), sx, sy);
+                g.fill(sx, sy, sx + 16, sy + 16, 0xB08B8B8B);
+            }
         }
         Ui.screen(g, leftPos + 6, topPos + 194, imageWidth - 12, 12);
     }
@@ -304,7 +311,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         CoreSync s = sync();
         int mx = mouseX - leftPos, my = mouseY - topPos;
         switch (tab) {
-            case DATA -> dataTab(g, s);
+            case DATA -> dataTab(g, s, mx, my);
             case TRAIN -> trainTab(g, s, mx, my);
             case TESTS -> testsTab(g, s, mx, my);
             case TRY -> tryTab(g);
@@ -335,8 +342,12 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
 
     // ---------------------------------------------------------------- data tab
 
-    private void dataTab(GuiGraphicsExtractor g, CoreSync s) {
+    private void dataTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
         g.text(font, Component.translatable("residual.core.data"), 8, 24, Ui.LABEL, false);
+        g.text(font, Component.translatable("residual.core.tokenizer"), CoreMenu.TOKENIZER_X - 6, 24, Ui.LABEL, false);
+        if (!menu.getSlot(CoreMenu.TOKENIZER).hasItem() && Ui.inside(mx, my, CoreMenu.TOKENIZER_X, CoreMenu.DATA_Y, 16, 16)) {
+            g.setTooltipForNextFrame(font.split(Component.translatable("residual.core.tokenizer_hint"), 200), mx + leftPos, my + topPos);
+        }
         g.text(font, Component.translatable("residual.core.crystal"), 176, 24, Ui.LABEL, false);
         int y = 60;
         boolean any = false;
@@ -461,7 +472,8 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         if (a.metric == Task.Metric.ACCURACY) {
             f = Float.isNaN(s.accuracy()) ? 0 : s.accuracy() / target;
         } else {
-            double start = Math.log(Vocab.WORLD.size());
+            // a fresh model that reads by the character; a tokenizer is a head start
+            double start = Math.log(Vocab.CHARACTERS);
             f = Float.isNaN(s.loss()) ? 0 : (start - s.loss()) / (start - target);
         }
         return (float) Math.max(0, Math.min(1, f));

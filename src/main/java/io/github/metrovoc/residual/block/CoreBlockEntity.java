@@ -11,12 +11,14 @@ import io.github.metrovoc.residual.graph.Sym;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
+import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Archive;
 import io.github.metrovoc.residual.learn.Dataset;
 import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Sampler;
+import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.TextTask;
 import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.learn.Vocab;
@@ -124,6 +126,10 @@ public class CoreBlockEntity extends BlockEntity {
     private int ticks;
     /** A block the last check read has changed since, so the model gets checked again. */
     private boolean stale;
+    /** The practice the slots hold, kept until they change: a drive's text takes a while to cut into tokens. */
+    @Nullable
+    private Mixture practice;
+    private boolean practiceKnown;
 
     public CoreBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.CORE.get(), pos, state);
@@ -162,16 +168,31 @@ public class CoreBlockEntity extends BlockEntity {
 
     // ---------------------------------------------------------------- data
 
+    /** The vocabulary models built here read and write with. */
+    public Vocab tokenizer() {
+        return TokenizerItem.vocab(items.getItem(CoreMenu.TOKENIZER));
+    }
+
     /** What the loaded data practises, or null if nothing loaded can be practised on. */
     @Nullable
     public Mixture mixture() {
+        if (!practiceKnown) {
+            practice = practice();
+            practiceKnown = true;
+        }
+        return practice;
+    }
+
+    @Nullable
+    private Mixture practice() {
+        Vocab vocab = tokenizer();
         List<Mixture.Source> sources = new ArrayList<>();
         for (int i = 0; i < CoreMenu.DATA_SLOTS; i++) {
             ItemStack stack = items.getItem(i);
             if (stack.getItem() instanceof DatasetItem dataset) {
                 sources.add(new Mixture.Source(dataset.benchmark, Dataset.of(dataset.benchmark)));
             } else if (stack.getItem() instanceof DriveItem) {
-                TextTask text = Archive.practice(DriveItem.contents(stack));
+                TextTask text = Archive.practice(DriveItem.contents(stack), vocab);
                 if (!text.isEmpty()) {
                     sources.add(new Mixture.Source(Benchmark.READING, text));
                 }
@@ -179,7 +200,7 @@ public class CoreBlockEntity extends BlockEntity {
                 sources.add(new Mixture.Source(w.benchmark(), w.practice()));
             }
         }
-        return sources.isEmpty() ? null : new Mixture(sources);
+        return sources.isEmpty() ? null : new Mixture(sources, vocab);
     }
 
     /** The wreck loaded in the data slots, if any. */
@@ -195,6 +216,7 @@ public class CoreBlockEntity extends BlockEntity {
     }
 
     private void slotsChanged() {
+        practiceKnown = false;
         if (level == null || level.isClientSide()) {
             return;
         }
@@ -204,16 +226,20 @@ public class CoreBlockEntity extends BlockEntity {
         wreck = id;
         if (job != null) {
             Mixture m = mixture();
-            if (newWreck) {
+            // a new tokenizer reshapes the model's first and last layers
+            if (newWreck || !tokenizer().equals(job.model.env.tokenizer())) {
                 job.requestStop(TrainingJob.Outcome.CHANGED);
             } else if (m == null) {
                 job.requestStop(TrainingJob.Outcome.STOPPED);
             } else {
                 job.data = m;
             }
-        } else if (newWreck && w != null) {
-            // a wreck comes with the settings it was trained with, faults and all
-            applySettings(w.settings());
+        } else {
+            stale = true;
+            if (newWreck && w != null) {
+                // a wreck comes with the settings it was trained with, faults and all
+                applySettings(w.settings());
+            }
         }
         touch();
     }
@@ -418,7 +444,7 @@ public class CoreBlockEntity extends BlockEntity {
             byte[] checkpoint = null;
             try {
                 for (Benchmark a : Benchmark.values()) {
-                    results.put(a, Trainer.evaluate(checked.model(), a.test(), BATTERY));
+                    results.put(a, Trainer.evaluate(checked.model(), a.test(checked.model().env.tokenizer()), BATTERY));
                 }
                 if (saver != null) {
                     checkpoint = Checkpoints.encode(checked.model());
@@ -436,7 +462,7 @@ public class CoreBlockEntity extends BlockEntity {
 
     private static Map<String, Float> scores(Map<Benchmark, Trainer.Eval> results) {
         Map<String, Float> out = new HashMap<>();
-        results.forEach((a, e) -> out.put(a.id, (float) a.test().score(e.loss(), e.accuracy())));
+        results.forEach((a, e) -> out.put(a.id, (float) (a.metric == Task.Metric.LOSS ? e.loss() : e.accuracy())));
         return out;
     }
 
@@ -507,7 +533,7 @@ public class CoreBlockEntity extends BlockEntity {
         if (level == null) {
             return null;
         }
-        Env env = new Env(Vocab.WORLD.size(), Vocab.CONTEXT);
+        Env env = new Env(tokenizer(), Vocab.CONTEXT);
         GraphScanner.Scan scan = GraphScanner.scan(level, worldPosition);
         if (job == null) {
             compute = compute();
@@ -724,7 +750,7 @@ public class CoreBlockEntity extends BlockEntity {
                 if ("NaN".equals(u.detail)) {
                     say("residual.status.nan");
                 } else {
-                    say("residual.status.diverged", u.detail, String.format(Locale.ROOT, "%.2f", Math.log(Vocab.WORLD.size())));
+                    say("residual.status.diverged", u.detail, String.format(Locale.ROOT, "%.2f", Math.log(running.model.env.vocab())));
                 }
                 level.playSound(null, worldPosition, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.6f, 0.8f);
             }

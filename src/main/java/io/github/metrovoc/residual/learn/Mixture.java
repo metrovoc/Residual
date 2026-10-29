@@ -11,8 +11,8 @@ public final class Mixture extends Task {
 
     public final List<Source> sources;
 
-    public Mixture(List<Source> sources) {
-        super(sources.stream().mapToInt(s -> s.data().context).max().orElse(Vocab.CONTEXT), Metric.LOSS, 0);
+    public Mixture(List<Source> sources, Vocab vocab) {
+        super(vocab, sources.stream().mapToInt(s -> s.data().context).max().orElse(Vocab.CONTEXT), Metric.LOSS, 0);
         this.sources = List.copyOf(sources);
     }
 

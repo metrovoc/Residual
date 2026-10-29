@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:paper",
+    "minecraft:paper",
+    "minecraft:ink_sac",
+    "minecraft:amethyst_shard"
+  ],
+  "result": {
+    "id": "residual:tokenizer",
+    "count": 2
+  }
+}

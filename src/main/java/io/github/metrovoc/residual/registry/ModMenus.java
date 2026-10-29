@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.menu.AgentMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.FabricatorMenu;
+import io.github.metrovoc.residual.menu.ForgeMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.ReaderMenu;
 import java.util.function.Supplier;
@@ -26,6 +27,8 @@ public final class ModMenus {
 
     public static final Supplier<MenuType<FabricatorMenu>> FABRICATOR = MENUS.register("fabricator",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new FabricatorMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<ForgeMenu>> FORGE = MENUS.register("bpe_forge",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new ForgeMenu(id, inv, buf.readBlockPos())));
 
     private ModMenus() {
     }

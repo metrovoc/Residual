@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Next-character prediction on stretches of text. A window never spans two stretches, so damaged text and the
- * seams between records are never read as if they were whole.
+ * Next-token prediction on stretches of text. A window never spans two stretches, so damaged text and the seams
+ * between records are never read as if they were whole.
  */
 public final class TextTask extends Task {
     private final List<int[]> runs = new ArrayList<>();
@@ -16,14 +16,16 @@ public final class TextTask extends Task {
     private final long[] starts;
     private final long characters;
 
-    public TextTask(List<String> texts, double target) {
-        super(Vocab.CONTEXT, Metric.LOSS, target);
+    public TextTask(List<String> texts, double target, Vocab vocab) {
+        super(vocab, Vocab.CONTEXT, Metric.LOSS, target);
         long chars = 0;
         for (String text : texts) {
             int[] ids = vocab.encode(text);
             if (ids.length > context) {
                 runs.add(ids);
-                chars += ids.length;
+                for (int id : ids) {
+                    chars += vocab.piece(id).length();
+                }
             }
         }
         starts = new long[runs.size()];
@@ -49,6 +51,7 @@ public final class TextTask extends Task {
         int t = context;
         int[] in = new int[size * t];
         int[] tg = new int[size * t];
+        long chars = 0;
         for (int b = 0; b < size; b++) {
             long pick = (long) (rng.nextDouble() * starts[starts.length - 1]);
             int run = Arrays.binarySearch(starts, pick + 1);
@@ -58,13 +61,19 @@ public final class TextTask extends Task {
             System.arraycopy(src, start, in, b * t, t);
             System.arraycopy(src, start + 1, tg, b * t, t);
         }
-        return new Batch(new Tokens(in, size, t), tg, null);
+        for (int id : tg) {
+            chars += vocab.piece(id).length();
+        }
+        return new Batch(new Tokens(in, size, t), tg, null, (double) tg.length / chars);
     }
 
-    /** A random slice of the text to start writing from. */
-    public String prompt(Random rng, int length) {
+    /** A random slice of the text, at least {@code chars} characters long, to start writing from. */
+    public String prompt(Random rng, int chars) {
         int[] src = runs.get(rng.nextInt(runs.size()));
-        int start = rng.nextInt(src.length - length);
-        return vocab.decode(Arrays.copyOfRange(src, start, start + length));
+        StringBuilder out = new StringBuilder();
+        for (int i = rng.nextInt(src.length - context); out.length() < chars; i++) {
+            out.append(vocab.piece(src[i]));
+        }
+        return out.toString();
     }
 }

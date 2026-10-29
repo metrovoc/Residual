@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.registry;
 import com.mojang.serialization.Codec;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.bench.MaskData;
+import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.model.Recovered;
 import java.util.List;
@@ -39,6 +40,9 @@ public final class ModComponents {
     /** The design a Photomask carries. */
     public static final Supplier<DataComponentType<MaskData>> MASK = COMPONENTS.registerComponentType("mask",
             b -> b.persistent(MaskData.CODEC).networkSynchronized(MaskData.STREAM_CODEC));
+    /** The vocabulary on a Tokenizer. */
+    public static final Supplier<DataComponentType<Vocab>> VOCAB = COMPONENTS.registerComponentType("vocab",
+            b -> b.persistent(Vocab.CODEC).networkSynchronized(Vocab.STREAM_CODEC));
     /** False on a machine fabricated from a salvaged design, which runs one primitive at a time. */
     public static final Supplier<DataComponentType<Boolean>> FUSED = COMPONENTS.registerComponentType("fused",
             b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));

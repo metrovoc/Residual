@@ -6,6 +6,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,13 @@ public final class Archive {
     private static final List<String> FILES = List.of("01-letters", "02-journals", "03-stories", "04-songs",
             "05-household", "06-manuals", "07-notices", "08-late");
     private static List<Record> records;
-    private static TextTask test;
+    /** Reading's test as each recent vocabulary encodes it. */
+    private static final Map<Vocab, TextTask> TESTS = new LinkedHashMap<>(8, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Vocab, TextTask> eldest) {
+            return size() > 8;
+        }
+    };
 
     private Archive() {
     }
@@ -75,22 +82,21 @@ public final class Archive {
         return id % 10 == 3;
     }
 
-    /** Reading's test: every held-out record, whole. */
-    public static synchronized TextTask test() {
-        if (test == null) {
+    /** Reading's test, every held-out record whole, for a model that reads with {@code vocab}. */
+    public static synchronized TextTask test(Vocab vocab) {
+        return TESTS.computeIfAbsent(vocab, v -> {
             List<String> texts = new ArrayList<>();
             for (Record r : records()) {
                 if (heldOut(r.id())) {
                     texts.add(r.text());
                 }
             }
-            test = new TextTask(texts, Benchmark.READING.target);
-        }
-        return test;
+            return new TextTask(texts, Benchmark.READING.target, v);
+        });
     }
 
-    /** Practice text: the legible parts of the given records, each with the blocks it has lost. */
-    public static TextTask practice(Map<Integer, BitSet> recovered) {
+    /** The legible parts of the given records, each with the blocks it has lost. */
+    public static List<String> legible(Map<Integer, BitSet> recovered) {
         List<String> texts = new ArrayList<>();
         recovered.forEach((id, lost) -> {
             Record r = get(id);
@@ -98,7 +104,12 @@ public final class Archive {
                 texts.addAll(r.legible(lost));
             }
         });
-        return new TextTask(texts, Benchmark.READING.target);
+        return texts;
+    }
+
+    /** Practice text: the legible parts of the given records, as {@code vocab} reads them. */
+    public static TextTask practice(Map<Integer, BitSet> recovered, Vocab vocab) {
+        return new TextTask(legible(recovered), Benchmark.READING.target, vocab);
     }
 
     private static String read(String path) {

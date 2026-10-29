@@ -162,6 +162,18 @@ def fabricator():
     item_definition("fabricator", rid("block/fabricator"))
 
 
+def forge():
+    side, top = rid("block/bpe_forge_side"), rid("block/bpe_forge_top")
+    for suffix in ("", "_on"):
+        cube(f"bpe_forge{suffix}", rid(f"block/bpe_forge_front{suffix}"), side, side, top, rid("block/machine_back"))
+    variants = {}
+    for working, suffix in (("false", ""), ("true", "_on")):
+        for key, value in facing_variants(rid(f"block/bpe_forge{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},working={working}"] = value
+    write(f"assets/{NS}/blockstates/bpe_forge.json", {"variants": variants})
+    item_definition("bpe_forge", rid("block/bpe_forge"))
+
+
 def stream():
     """The channel seen end on at both ends; on the four sides, chevrons pointing the way it flows. The side texture
     points up, so each side face turns it toward north, the model's flow; the blockstate turns the whole block."""
@@ -247,6 +259,13 @@ def items():
         "type": "minecraft:condition", "property": "minecraft:has_component", "component": rid("mask"),
         "on_true": {"type": "minecraft:model", "model": rid("item/photomask_recorded")},
         "on_false": {"type": "minecraft:model", "model": rid("item/photomask")}}})
+    # a tokenizer shows tokens once a vocabulary is written on it
+    for name in ("tokenizer", "tokenizer_written"):
+        write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
+    write(f"assets/{NS}/items/tokenizer.json", {"model": {
+        "type": "minecraft:condition", "property": "minecraft:has_component", "component": rid("vocab"),
+        "on_true": {"type": "minecraft:model", "model": rid("item/tokenizer_written")},
+        "on_false": {"type": "minecraft:model", "model": rid("item/tokenizer")}}})
     # the guide book is GuideME's item; its guide definition points at this model
     write(f"assets/{NS}/models/item/guide.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid("item/guide")}})
     item_definition("guide", rid("item/guide"))
@@ -254,7 +273,7 @@ def items():
 
 # ---------------------------------------------------------------- data
 
-MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream"]
+MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream", "bpe_forge"]
 
 
 def blocks():
@@ -315,6 +334,9 @@ def recipes():
 
     shaped("checkpoint", [" A ", "AWA", " A "], {"A": "minecraft:amethyst_shard", "W": rid("weight_crystal")})
     shaped("archive_drive", ["IRI", "IBI", "III"], {"I": "minecraft:iron_ingot", "R": "minecraft:redstone", "B": "minecraft:book"})
+    shaped("bpe_forge", ["KBK", "GWG", "KFK"], {"K": rid("tensor_casing"), "B": "minecraft:book", "G": "minecraft:glass",
+                                                "W": rid("weight_crystal"), "F": "minecraft:blast_furnace"})
+    shapeless("tokenizer", ["minecraft:paper", "minecraft:paper", "minecraft:ink_sac", "minecraft:amethyst_shard"], 2)
     for dataset, part in DATASETS.items():
         shapeless(dataset, ["minecraft:paper", "minecraft:paper", "minecraft:redstone", part])
     shaped("agent", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
@@ -365,6 +387,7 @@ def advancements():
                     "entity": "this", "predicate": {"location": {"structures": "#residual:ruins"}}}]}}})
     advancement("archive/shard", "ruins/found", "archive_shard", has("archive_shard"))
     advancement("archive/drive", "archive/shard", "archive_drive", has("archive_drive"))
+    advancement("archive/tokenizer", "archive/drive", "tokenizer", awarded(), components={rid("vocab"): [70, 58]})
     advancement("model/saved", "root", "checkpoint", awarded())
     for a in BENCHMARKS:
         parent = "archive/drive" if a == "reading" else "model/saved"
@@ -401,6 +424,7 @@ if __name__ == "__main__":
     relay()
     bench()
     fabricator()
+    forge()
     stream()
     cables()
     items()

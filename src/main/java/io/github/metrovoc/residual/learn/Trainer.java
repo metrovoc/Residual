@@ -45,7 +45,7 @@ public final class Trainer {
         return lastGradNorm;
     }
 
-    /** One optimisation step; returns the training loss before the update. */
+    /** One optimisation step; returns the training loss per character before the update. */
     public float train() {
         Batch b = task.batch(rng, batchSize, false);
         Tape tape = new Tape();
@@ -57,10 +57,10 @@ public final class Trainer {
         float warm = Math.min(1f, (step + 1f) / WARMUP);
         optimizer.step(learningRate * warm);
         step++;
-        return loss.item();
+        return (float) (loss.item() * b.perChar());
     }
 
-    /** Validation loss and answer accuracy over a fixed set of batches, plus the causality check. */
+    /** Validation loss per character and answer accuracy over a fixed set of batches, plus the causality check. */
     public Eval evaluate(int batches) {
         return evaluate(model, task, batches);
     }
@@ -73,7 +73,7 @@ public final class Trainer {
         for (int i = 0; i < batches; i++) {
             Batch b = task.batch(rng, 32, true);
             Tensor logits = model.forward(null, b.input(), null);
-            loss += Ops.crossEntropy(null, logits, b.targets(), b.weights()).item();
+            loss += Ops.crossEntropy(null, logits, b.targets(), b.weights()).item() * b.perChar();
             int v = logits.dim(-1);
             for (int r = 0; r < b.targets().length; r++) {
                 if (b.weights() != null && b.weights()[r] == 0f) {

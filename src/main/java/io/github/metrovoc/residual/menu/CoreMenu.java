@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
+import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.registry.ModMenus;
 import net.minecraft.core.BlockPos;
@@ -16,16 +17,18 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * The Model Core's screen: four data slots for what the model practises on and a crystal slot to save it into. The
- * screen shows the slots and the player's inventory only on its Data tab.
+ * The Model Core's screen: four data slots for what the model practises on, a slot for the tokenizer it reads with and
+ * a crystal slot to save it into. The screen shows the slots and the player's inventory only on its Data tab.
  */
 public class CoreMenu extends AbstractContainerMenu {
     public static final int DATA_SLOTS = 4;
     public static final int CRYSTAL = 4;
-    public static final int SLOTS = 5;
+    public static final int TOKENIZER = 5;
+    public static final int SLOTS = 6;
     /** Where the slots sit on the Data tab. */
     public static final int DATA_X = 14;
     public static final int DATA_Y = 36;
+    public static final int TOKENIZER_X = 110;
     public static final int CRYSTAL_X = 176;
     public static final int INVENTORY_X = 80;
     public static final int INVENTORY_Y = 112;
@@ -58,6 +61,17 @@ public class CoreMenu extends AbstractContainerMenu {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return stack.getItem() instanceof CrystalItem;
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+        addSlot(new Shown(container, TOKENIZER, TOKENIZER_X, DATA_Y) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getItem() instanceof TokenizerItem;
             }
 
             @Override
@@ -104,6 +118,10 @@ public class CoreMenu extends AbstractContainerMenu {
             }
         } else if (stack.getItem() instanceof CrystalItem) {
             if (!moveItemStackTo(stack, CRYSTAL, CRYSTAL + 1, false)) {
+                return ItemStack.EMPTY;
+            }
+        } else if (stack.getItem() instanceof TokenizerItem) {
+            if (!moveItemStackTo(stack, TOKENIZER, TOKENIZER + 1, false)) {
                 return ItemStack.EMPTY;
             }
         } else if (!isData(stack) || !moveItemStackTo(stack, 0, DATA_SLOTS, false)) {

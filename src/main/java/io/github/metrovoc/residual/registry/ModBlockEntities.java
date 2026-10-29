@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.FabricatorBlockEntity;
+import io.github.metrovoc.residual.block.ForgeBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
 import io.github.metrovoc.residual.block.RelayBlockEntity;
@@ -35,6 +36,8 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(BenchBlockEntity::new, Set.of(ModBlocks.BENCH.get())));
     public static final Supplier<BlockEntityType<FabricatorBlockEntity>> FABRICATOR = BLOCK_ENTITIES.register("fabricator",
             () -> new BlockEntityType<>(FabricatorBlockEntity::new, Set.of(ModBlocks.FABRICATOR.get())));
+    public static final Supplier<BlockEntityType<ForgeBlockEntity>> FORGE = BLOCK_ENTITIES.register("bpe_forge",
+            () -> new BlockEntityType<>(ForgeBlockEntity::new, Set.of(ModBlocks.FORGE.get())));
 
     private ModBlockEntities() {
     }

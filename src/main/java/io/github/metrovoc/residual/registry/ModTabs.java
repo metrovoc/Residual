@@ -47,6 +47,8 @@ public final class ModTabs {
                 }
                 out.accept(ModItems.CHECKPOINT.get());
                 out.accept(ModItems.ARCHIVE_DRIVE.get());
+                out.accept(ModBlocks.FORGE.get());
+                out.accept(ModItems.TOKENIZER.get());
                 out.accept(ModItems.SHARD.get());
                 out.accept(ModBlocks.READER.get());
                 ModItems.DATASETS.values().forEach(dataset -> out.accept(dataset.get()));

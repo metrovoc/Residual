@@ -124,10 +124,10 @@ public final class Network {
         }
         switch (ModelLink.of(player.level(), player.blockPosition(), held)) {
             case ModelLink.Served s -> s.server().submit(model -> {
-                int[] prompt = Vocab.WORLD.encode(a.prompt());
+                Vocab vocab = model.env.tokenizer();
                 StringBuilder out = new StringBuilder();
-                for (Sampler.Step step : Sampler.generate(model, prompt, 160, Vocab.CONTEXT, 0.8f, new Random())) {
-                    out.append(Vocab.WORLD.symbol(step.token()));
+                for (Sampler.Step step : Sampler.generate(model, vocab.encode(a.prompt()), 160, 0.8f, new Random())) {
+                    out.append(vocab.piece(step.token()));
                 }
                 return out.toString();
             }, text -> PacketDistributor.sendToPlayer(player, text == null

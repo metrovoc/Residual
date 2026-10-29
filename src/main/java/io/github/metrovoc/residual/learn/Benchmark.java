@@ -32,9 +32,9 @@ public enum Benchmark {
         this.target = target;
     }
 
-    /** The held-out test. */
-    public Task test() {
-        return this == READING ? Archive.test() : Dataset.of(this);
+    /** The held-out test, for a model that reads with {@code vocab}. */
+    public Task test(Vocab vocab) {
+        return this == READING ? Archive.test(vocab) : Dataset.of(this);
     }
 
     public static Benchmark byId(String id) {

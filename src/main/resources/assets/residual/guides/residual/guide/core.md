@@ -23,7 +23,8 @@ machines themselves, so a model keeps what it learned when you leave and come ba
 ## Data
 
 Four slots for what the model practises on: datasets, archive drives, or a salvaged model. Everything in them is practised
-together, a batch from each in turn. Beside them is the checkpoint slot, with what the checkpoint in it holds.
+together, a batch from each in turn. Beside them are the tokenizer slot, for the [tokens](tokenizers.md) the model reads
+and writes, and the checkpoint slot, with what the checkpoint in it holds.
 **Save to checkpoint** tests the model on every benchmark and saves it into that checkpoint. With a salvaged model loaded,
 **Rebuild** builds its machines in front of the Core: see [Salvaged Models](salvage.md).
 

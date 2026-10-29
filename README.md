@@ -31,6 +31,11 @@ some of its text worn away. Filed into an Archive Drive, what you recover become
 practises on it learns to read the way the old world wrote. A Reader restores lost text with a model of your own, and a
 lost block comes back only if your model can predict it. Each restored block is more text to learn from.
 
+Models start out reading one character at a time. A BPE Forge learns a vocabulary from the text you have recovered,
+merging the most frequent pair of tokens over and over, and writes it onto a Tokenizer. A model that reads with it sees
+words where it used to see letters. Losses are counted per character, so models with different tokenizers compare
+fairly.
+
 ## Models
 
 <p>
@@ -124,10 +129,12 @@ uv run --with matplotlib python tools/formulas.py
 The machines are built on these ideas:
 
 - Claude Shannon, *A Mathematical Theory of Communication*, 1948.
+- Philip Gage, *A New Algorithm for Data Compression*, 1994.
 - Yoshua Bengio, Réjean Ducharme, Pascal Vincent and Christian Jauvin, *A Neural Probabilistic Language Model*, 2003.
 - Diederik Kingma and Jimmy Ba, *Adam: A Method for Stochastic Optimization*, 2014.
 - Dzmitry Bahdanau, Kyunghyun Cho and Yoshua Bengio, *Neural Machine Translation by Jointly Learning to Align and
   Translate*, 2014.
+- Rico Sennrich, Barry Haddow and Alexandra Birch, *Neural Machine Translation of Rare Words with Subword Units*, 2015.
 - Kaiming He, Xiangyu Zhang, Shaoqing Ren and Jian Sun, *Deep Residual Learning for Image Recognition*, 2015.
 - Jimmy Lei Ba, Jamie Ryan Kiros and Geoffrey Hinton, *Layer Normalization*, 2016.
 - Dan Hendrycks and Kevin Gimpel, *Gaussian Error Linear Units (GELUs)*, 2016.

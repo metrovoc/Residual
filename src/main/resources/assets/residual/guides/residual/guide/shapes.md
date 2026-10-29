@@ -22,7 +22,7 @@ every position.
 | T      | Time: positions in a sequence, up to the context length of 64.   |
 
 Every other number is a size you chose, like the 32 above, or the vocabulary size **V**, which shows as its value: 78,
-one for each letter, digit and mark a model knows, and the line break. The last dimension is the one machines work on: a
+one for each letter, digit and mark a model knows, and the line break, or more with a [tokenizer](tokenizers.md). The last dimension is the one machines work on: a
 <ItemLink id="linear" /> turns [B×T×32] into [B×T×64] by mixing the 32 numbers at each position into 64 new ones, the
 same way at every position.
 

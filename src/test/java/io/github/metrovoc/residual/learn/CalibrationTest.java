@@ -21,11 +21,11 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
  */
 @EnabledIfEnvironmentVariable(named = "RESIDUAL_CALIBRATE", matches = ".+")
 class CalibrationTest {
-    static final Env WORLD = new Env(Vocab.WORLD.size(), Vocab.CONTEXT);
+    static final Env WORLD = Env.WORLD;
 
     static void run(String label, GraphSpec spec, Task practice, List<Benchmark> tested, double target, Wrecks.Settings st,
                     int steps, int every) throws Exception {
-        CompiledGraph g = CompiledGraph.compile(spec, WORLD, null, 1);
+        CompiledGraph g = CompiledGraph.compile(spec, new Env(practice.vocab, Vocab.CONTEXT), null, 1);
         Trainer tr = new Trainer(g, practice, 1, st.learningRate(), st.batchSize(), st.clip());
         ForkJoinPool pool = new ForkJoinPool(4);
         long t0 = System.nanoTime();
@@ -38,8 +38,8 @@ class CalibrationTest {
                     double secs = (System.nanoTime() - t0) / 1e9;
                     StringBuilder line = new StringBuilder(String.format("%-14s step %5d  train %.3f", label, s, ema));
                     for (Benchmark a : tested) {
-                        Trainer.Eval ev = Trainer.evaluate(g, a.test(), 8);
-                        double score = a.test().score(ev.loss(), ev.accuracy());
+                        Trainer.Eval ev = Trainer.evaluate(g, a.test(practice.vocab), 8);
+                        double score = a.test(practice.vocab).score(ev.loss(), ev.accuracy());
                         boolean pass = ev.causal() && (a.metric == Task.Metric.LOSS ? score <= target : score >= target);
                         line.append(String.format("  %s %.3f%s%s", a.id, score, pass ? "✔" : "", ev.causal() ? "" : " (reads ahead)"));
                     }
@@ -67,7 +67,7 @@ class CalibrationTest {
             for (int s = 1; s <= steps; s++) {
                 tr.train();
                 if (s % every == 0) {
-                    Trainer.Eval ev = Trainer.evaluate(g, Benchmark.READING.test(), 8);
+                    Trainer.Eval ev = Trainer.evaluate(g, Benchmark.READING.test(Vocab.WORLD), 8);
                     int[] over = new int[at.length];
                     int blocks = 0;
                     double sum = 0;
@@ -105,10 +105,26 @@ class CalibrationTest {
                 some.put(r.id(), new BitSet());
             }
         }
-        TextTask practice = Archive.practice(some);
+        TextTask practice = Archive.practice(some, Vocab.WORLD);
         long chars = practice.characters();
         run(label + "_" + records + "r_" + chars / 1000 + "k", spec, practice, List.of(Benchmark.READING), Benchmark.READING.target,
                 Wrecks.Settings.DEFAULT, steps, every);
+    }
+
+    /** Reading's test loss with a tokenizer of {@code size} learned on the first {@code records} records' text. */
+    static void tokenized(String label, GraphSpec spec, int records, int size, int steps, int every) throws Exception {
+        Map<Integer, BitSet> some = new HashMap<>();
+        for (Archive.Record r : Archive.records()) {
+            if (!Archive.heldOut(r.id()) && some.size() < records) {
+                some.put(r.id(), new BitSet());
+            }
+        }
+        Bpe bpe = new Bpe(Archive.legible(some), Vocab.WORLD);
+        while (bpe.vocab().size() < size && bpe.step()) {
+        }
+        TextTask practice = Archive.practice(some, bpe.vocab());
+        run(String.format("%s_%dr_v%d", label, records, size), spec, practice, List.of(Benchmark.READING),
+                Benchmark.READING.target, Wrecks.Settings.DEFAULT, steps, every);
     }
 
     /** Every record a player could recover, whole. */
@@ -117,7 +133,7 @@ class CalibrationTest {
         for (Archive.Record r : Archive.records()) {
             all.put(r.id(), new BitSet());
         }
-        return Archive.practice(all);
+        return Archive.practice(all, Vocab.WORLD);
     }
 
     static GraphSpec fixedShape() {
@@ -214,12 +230,22 @@ class CalibrationTest {
             restore("restore32", Blueprints.gpt(32, 2, 4), 4000, 1000);
             restore("restore_ctx", Blueprints.context(), 3000, 1000);
         }
+        if (which.contains("tokens")) {
+            for (int records : new int[]{120, 1000}) {
+                for (int size : new int[]{78, 512, 2048}) {
+                    tokenized("bigram", Blueprints.bigram(), records, size, 3000, 1000);
+                    tokenized("context", Blueprints.context(), records, size, 3000, 1000);
+                    tokenized("gpt32", Blueprints.gpt(32, 2, 4), records, size, 3000, 1000);
+                    tokenized("gpt64", Blueprints.gpt(64, 2, 4), records, size, 3000, 1000);
+                }
+            }
+        }
         if (which.contains("generalist")) {
             List<Mixture.Source> sources = new ArrayList<>();
             for (Benchmark a : Benchmark.values()) {
                 sources.add(new Mixture.Source(a, a == Benchmark.READING ? reading() : Dataset.of(a)));
             }
-            run("generalist", Blueprints.gpt(64, 3, 4), new Mixture(sources), List.of(Benchmark.values()), Double.NaN, st, 12000, 1000);
+            run("generalist", Blueprints.gpt(64, 3, 4), new Mixture(sources, Vocab.WORLD), List.of(Benchmark.values()), Double.NaN, st, 12000, 1000);
         }
         if (which.contains("wrecks")) {
             for (Wrecks.Wreck w : Wrecks.ALL) {

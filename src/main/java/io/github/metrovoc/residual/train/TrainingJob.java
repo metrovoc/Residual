@@ -8,7 +8,6 @@ import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Trainer;
-import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.learn.Wrecks;
 import io.github.metrovoc.residual.tensor.Parallel;
 import io.github.metrovoc.residual.tensor.Tensor;
@@ -172,7 +171,7 @@ public final class TrainingJob {
 
     private void loop() {
         double ema = Double.NaN;
-        double start = Math.log(Vocab.WORLD.size());
+        double start = Math.log(model.env.vocab());
         Map<Benchmark, Trainer.Eval> tests = Map.of();
         long lastPublish = System.currentTimeMillis();
         long next = System.nanoTime();
@@ -205,7 +204,7 @@ public final class TrainingJob {
                 Trainer.Eval mine = wreck == null ? null : tests.get(wreck.benchmark());
                 if (mine != null && wreck.passes(mine)) {
                     // a lucky estimate shouldn't count: confirm on four times as much data
-                    Trainer.Eval sure = Trainer.evaluate(model, wreck.benchmark().test(), 16);
+                    Trainer.Eval sure = Trainer.evaluate(model, wreck.benchmark().test(model.env.tokenizer()), 16);
                     if (wreck.passes(sure)) {
                         Map<Benchmark, Trainer.Eval> confirmed = new EnumMap<>(tests);
                         confirmed.put(wreck.benchmark(), sure);
@@ -241,7 +240,7 @@ public final class TrainingJob {
     private Map<Benchmark, Trainer.Eval> test(Mixture d, int batches) {
         Map<Benchmark, Trainer.Eval> out = new EnumMap<>(Benchmark.class);
         for (Mixture.Source s : d.sources) {
-            out.computeIfAbsent(s.benchmark(), a -> Trainer.evaluate(model, a.test(), batches));
+            out.computeIfAbsent(s.benchmark(), a -> Trainer.evaluate(model, a.test(model.env.tokenizer()), batches));
         }
         return out;
     }

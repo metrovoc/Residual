@@ -36,7 +36,7 @@ class CheckpointsTest {
     }
 
     private CompiledGraph model(long seed) throws Exception {
-        return CompiledGraph.compile(Blueprints.gpt(4, 1, 1), new Env(Vocab.WORLD.size(), Vocab.CONTEXT), null, seed);
+        return CompiledGraph.compile(Blueprints.gpt(4, 1, 1), Env.WORLD, null, seed);
     }
 
     @Test
@@ -62,6 +62,17 @@ class CheckpointsTest {
         Files.copy(saved, copied);
         CompiledGraph restored = Checkpoints.load(copied);
         assertNotSame(original, restored);
+        assertModelEquals(original, restored);
+    }
+
+    @Test
+    void aModelKeepsTheTokenizerItWasBuiltWith() throws Exception {
+        Vocab vocab = Vocab.WORLD.with(Vocab.WORLD.id('t'), Vocab.WORLD.id('h')).with(Vocab.CHARACTERS, Vocab.WORLD.id('e'));
+        CompiledGraph original = CompiledGraph.compile(Blueprints.gpt(4, 1, 1), new Env(vocab, Vocab.CONTEXT), null, 7);
+        Path path = checkpoint("tokens");
+        Checkpoints.save(path, original);
+        CompiledGraph restored = Checkpoints.read(NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap()));
+        assertEquals(vocab.size(), restored.env.vocab());
         assertModelEquals(original, restored);
     }
 
