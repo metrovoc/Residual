@@ -1,15 +1,15 @@
 package io.github.metrovoc.residual.net;
 
-import io.github.metrovoc.residual.apprentice.Apprentice;
-import io.github.metrovoc.residual.apprentice.Job;
+import io.github.metrovoc.residual.agent.Agent;
+import io.github.metrovoc.residual.agent.Job;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.Vocab;
-import io.github.metrovoc.residual.menu.ApprenticeMenu;
+import io.github.metrovoc.residual.menu.AgentMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
-import io.github.metrovoc.residual.mind.MindLink;
+import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.registry.ModItems;
 import java.util.List;
 import java.util.Random;
@@ -30,14 +30,12 @@ public final class Network {
         PayloadRegistrar r = event.registrar("1");
         r.playToServer(CoreAction.TYPE, CoreAction.STREAM_CODEC, Network::onCoreAction);
         r.playToServer(MachineEdit.TYPE, MachineEdit.STREAM_CODEC, Network::onMachineEdit);
-        r.playToServer(ApprenticeAction.TYPE, ApprenticeAction.STREAM_CODEC, Network::onApprenticeAction);
+        r.playToServer(AgentAction.TYPE, AgentAction.STREAM_CODEC, Network::onAgentAction);
         r.playToServer(TerminalAsk.TYPE, TerminalAsk.STREAM_CODEC, Network::onTerminalAsk);
-        r.playToClient(ApprenticeSync.TYPE, ApprenticeSync.STREAM_CODEC);
+        r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
         r.playToClient(SampleResult.TYPE, SampleResult.STREAM_CODEC);
-        r.playToClient(CodeText.TYPE, CodeText.STREAM_CODEC);
-        r.playToClient(ExportChunk.TYPE, ExportChunk.STREAM_CODEC);
     }
 
     /** Only the player looking at a Core's screen may operate it. */
@@ -58,8 +56,6 @@ public final class Network {
             case SPEED -> core.setSpeed(a.value());
             case BUILD_WRECK -> core.buildWreck();
             case SAMPLE -> core.sample(player, a.text(), a.value());
-            case CODE -> core.code(player);
-            case EXPORT -> core.export(player);
             case TEST -> core.runTests();
             case SAVE -> core.save(player);
         }
@@ -78,25 +74,25 @@ public final class Network {
         }
     }
 
-    private static void onApprenticeAction(ApprenticeAction a, IPayloadContext ctx) {
-        if (!(ctx.player() instanceof ServerPlayer player) || !(player.containerMenu instanceof ApprenticeMenu menu)
-                || menu.entityId != a.entity() || !menu.stillValid(player) || menu.apprentice == null) {
+    private static void onAgentAction(AgentAction a, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player) || !(player.containerMenu instanceof AgentMenu menu)
+                || menu.entityId != a.entity() || !menu.stillValid(player) || menu.agent == null) {
             return;
         }
-        Apprentice apprentice = menu.apprentice;
+        Agent agent = menu.agent;
         switch (a.kind()) {
             case JOB -> {
                 if (a.job() >= 0 && a.job() < Job.values().length) {
-                    apprentice.setJob(Job.values()[a.job()]);
+                    agent.setJob(Job.values()[a.job()]);
                 }
             }
-            case SAY -> apprentice.order(player, a.said());
-            case HOME -> apprentice.setHome(apprentice.blockPosition());
+            case SAY -> agent.order(player, a.said());
+            case HOME -> agent.setHome(agent.blockPosition());
         }
-        PacketDistributor.sendToPlayer(player, apprentice.snapshot());
+        PacketDistributor.sendToPlayer(player, agent.snapshot());
     }
 
-    /** Continues the player's text with the mind their Terminal is tuned to, if the network reaches them. */
+    /** Continues the player's text with the model their Terminal is tuned to, if the network reaches them. */
     private static void onTerminalAsk(TerminalAsk a, IPayloadContext ctx) {
         if (!(ctx.player() instanceof ServerPlayer player)) {
             return;
@@ -105,8 +101,8 @@ public final class Network {
         if (!held.is(ModItems.TERMINAL.get())) {
             return;
         }
-        switch (MindLink.of(player.level(), player.blockPosition(), held)) {
-            case MindLink.Served s -> s.server().submit(model -> {
+        switch (ModelLink.of(player.level(), player.blockPosition(), held)) {
+            case ModelLink.Served s -> s.server().submit(model -> {
                 int[] prompt = Vocab.WORLD.encode(a.prompt());
                 StringBuilder out = new StringBuilder();
                 for (Sampler.Step step : Sampler.generate(model, prompt, 160, Vocab.CONTEXT, 0.8f, new Random())) {
@@ -114,10 +110,10 @@ public final class Network {
                 }
                 return out.toString();
             }, text -> PacketDistributor.sendToPlayer(player, text == null
-                    ? new TerminalAnswer(a.prompt(), "", "residual.mind.failed", List.of())
+                    ? new TerminalAnswer(a.prompt(), "", "residual.model.failed", List.of())
                     : new TerminalAnswer(a.prompt(), text, "", List.of())));
-            case MindLink.Missing m -> PacketDistributor.sendToPlayer(player, new TerminalAnswer(a.prompt(), "", m.problem(), m.args()));
-            case MindLink.Onboard o -> {
+            case ModelLink.Missing m -> PacketDistributor.sendToPlayer(player, new TerminalAnswer(a.prompt(), "", m.problem(), m.args()));
+            case ModelLink.Onboard o -> {
             }
         }
     }

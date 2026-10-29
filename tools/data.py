@@ -20,10 +20,10 @@ ARITY = {"position": 0, "add": 2, "multiply": 2, "matmul": 2, "concat": 2}
 DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray", "cyan", "purple",
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
-# see learn/Ability.java and registry/ModItems.java
-ABILITIES = ["reacting", "recall", "reversal", "induction", "orders", "reading"]
-DRILLS = {"field_drill": "minecraft:wheat_seeds", "storage_drill": "minecraft:chest", "errand_drill": "minecraft:compass",
-          "pattern_drill": "minecraft:bricks", "orders_drill": "minecraft:writable_book"}
+# see learn/Benchmark.java and registry/ModItems.java
+BENCHMARKS = ["reacting", "recall", "reversal", "induction", "orders", "reading"]
+DATASETS = {"field_dataset": "minecraft:wheat_seeds", "storage_dataset": "minecraft:chest", "errand_dataset": "minecraft:compass",
+          "pattern_dataset": "minecraft:bricks", "orders_dataset": "minecraft:writable_book"}
 SCHEMATICS = ["schematic_context", "schematic_attention", "schematic_positions", "schematic_blocks", "schematic_relays"]
 WRECKS = ruins.WRECKS
 
@@ -183,8 +183,8 @@ def cables():
 
 
 def items():
-    flat = (["weight_crystal", "checkpoint", "archive_drive", "archive_shard", "salvaged_mind", "apprentice", "relay_card",
-             "terminal"] + list(DRILLS) + SCHEMATICS)
+    flat = (["weight_crystal", "checkpoint", "archive_drive", "archive_shard", "salvaged_model", "agent", "relay_card",
+             "terminal"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -274,9 +274,9 @@ def recipes():
 
     shaped("checkpoint", [" A ", "AWA", " A "], {"A": "minecraft:amethyst_shard", "W": rid("weight_crystal")})
     shaped("archive_drive", ["IRI", "IBI", "III"], {"I": "minecraft:iron_ingot", "R": "minecraft:redstone", "B": "minecraft:book"})
-    for drill, part in DRILLS.items():
-        shapeless(drill, ["minecraft:paper", "minecraft:paper", "minecraft:redstone", part])
-    shaped("apprentice", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
+    for dataset, part in DATASETS.items():
+        shapeless(dataset, ["minecraft:paper", "minecraft:paper", "minecraft:redstone", part])
+    shaped("agent", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
     shaped("survey_rod", ["  A", " S ", "S  "], {"A": "minecraft:amethyst_shard", "S": "minecraft:stick"})
     shaped("reader", ["GBG", "KWK", "KKK"], {"G": "minecraft:glass_pane", "B": "minecraft:book", "K": rid("tensor_casing"),
                                              "W": rid("weight_crystal")})
@@ -324,19 +324,19 @@ def advancements():
                     "entity": "this", "predicate": {"location": {"structures": "#residual:ruins"}}}]}}})
     advancement("archive/shard", "ruins/found", "archive_shard", has("archive_shard"))
     advancement("archive/drive", "archive/shard", "archive_drive", has("archive_drive"))
-    advancement("mind/saved", "root", "checkpoint", awarded())
-    for a in ABILITIES:
-        parent = "archive/drive" if a == "reading" else "mind/saved"
-        advancement(f"ability/{a}", parent, "checkpoint", awarded(), frame="goal")
-    advancement("mind/complete", "ability/reading", "checkpoint", awarded(), frame="challenge")
-    advancement("apprentice/made", "root", "apprentice", has("apprentice"))
-    advancement("apprentice/order", "apprentice/made", "minecraft:writable_book", awarded(), frame="goal")
-    advancement("deploy/server", "apprentice/made", "model_server", placed("model_server"))
+    advancement("model/saved", "root", "checkpoint", awarded())
+    for a in BENCHMARKS:
+        parent = "archive/drive" if a == "reading" else "model/saved"
+        advancement(f"benchmark/{a}", parent, "checkpoint", awarded(), frame="goal")
+    advancement("model/complete", "benchmark/reading", "checkpoint", awarded(), frame="challenge")
+    advancement("agent/made", "root", "agent", has("agent"))
+    advancement("agent/order", "agent/made", "minecraft:writable_book", awarded(), frame="goal")
+    advancement("deploy/server", "agent/made", "model_server", placed("model_server"))
     advancement("deploy/relay", "deploy/server", "relay", placed("relay"))
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
-    advancement("wreck/found", "ruins/found", "salvaged_mind", has("salvaged_mind"))
+    advancement("wreck/found", "ruins/found", "salvaged_model", has("salvaged_model"))
     for w in WRECKS:
-        advancement(f"wreck/{w}", "wreck/found", "salvaged_mind", awarded(), frame="goal",
+        advancement(f"wreck/{w}", "wreck/found", "salvaged_model", awarded(), frame="goal",
                     components={"residual:wreck": w})
 
 

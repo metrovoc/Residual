@@ -1,7 +1,7 @@
 package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
-import io.github.metrovoc.residual.menu.ApprenticeMenu;
+import io.github.metrovoc.residual.menu.AgentMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.ReaderMenu;
@@ -20,8 +20,8 @@ public final class ModMenus {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new OperatorMenu(id, buf.readBlockPos())));
     public static final Supplier<MenuType<ReaderMenu>> READER = MENUS.register("reader",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ReaderMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<ApprenticeMenu>> APPRENTICE = MENUS.register("apprentice",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new ApprenticeMenu(id, inv, buf.readVarInt())));
+    public static final Supplier<MenuType<AgentMenu>> AGENT = MENUS.register("agent",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new AgentMenu(id, inv, buf.readVarInt())));
 
     private ModMenus() {
     }

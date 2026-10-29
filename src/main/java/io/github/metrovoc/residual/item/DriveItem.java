@@ -1,7 +1,7 @@
 package io.github.metrovoc.residual.item;
 
 import io.github.metrovoc.residual.learn.Archive;
-import io.github.metrovoc.residual.mind.Recovered;
+import io.github.metrovoc.residual.model.Recovered;
 import io.github.metrovoc.residual.registry.ModComponents;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -26,7 +26,7 @@ import net.minecraft.world.level.Level;
 
 /**
  * Holds the archive as far as it has been recovered. Use it to file every shard you carry into it; in a Model
- * Core's data slots, its legible text is what a mind learns to read on.
+ * Core's data slots, its legible text is what a model learns to read on.
  */
 public class DriveItem extends Item {
     public DriveItem(Properties properties) {

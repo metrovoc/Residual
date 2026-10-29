@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "residual:salvaged_mind",
+          "name": "residual:salvaged_model",
           "weight": 1,
           "functions": [
             {
@@ -24,7 +24,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "residual:salvaged_mind",
+          "name": "residual:salvaged_model",
           "weight": 1,
           "functions": [
             {
@@ -37,7 +37,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "residual:salvaged_mind",
+          "name": "residual:salvaged_model",
           "weight": 1,
           "functions": [
             {
@@ -50,7 +50,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "residual:salvaged_mind",
+          "name": "residual:salvaged_model",
           "weight": 1,
           "functions": [
             {
@@ -63,7 +63,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "residual:salvaged_mind",
+          "name": "residual:salvaged_model",
           "weight": 1,
           "functions": [
             {

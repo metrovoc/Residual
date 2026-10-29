@@ -13,7 +13,7 @@ item_ids:
 <BlockImage id="model_core" scale="3" float="left" />
 
 The Model Core feeds text into your machines and judges what comes back. Its front sends out tokens; every other face
-takes in the model's scores. It trains the model, tests it, and saves it as a mind. The trained weights stay in the
+takes in the model's scores. It trains the model, tests it, and saves it as a model. The trained weights stay in the
 machines themselves, so a model keeps what it learned when you leave and come back.
 
 <br clear="all" />
@@ -22,10 +22,10 @@ machines themselves, so a model keeps what it learned when you leave and come ba
 
 ## Data
 
-Four slots for what the model practises on: drills, archive drives, or a salvaged mind. Everything in them is practised
+Four slots for what the model practises on: datasets, archive drives, or a salvaged model. Everything in them is practised
 together, a batch from each in turn. Beside them is the checkpoint slot, with what the checkpoint in it holds.
-**Save to checkpoint** tests the model on every ability and saves it into that checkpoint. With a salvaged mind loaded,
-**Rebuild** builds its machines in front of the Core: see [Salvaged Minds](salvage.md).
+**Save to checkpoint** tests the model on every benchmark and saves it into that checkpoint. With a salvaged model loaded,
+**Rebuild** builds its machines in front of the Core: see [Salvaged Models](salvage.md).
 
 ## Train
 
@@ -35,14 +35,14 @@ of your computer's threads the Core trains with.
 
 ## Tests
 
-Every ability, its score at the last test, and the score that passes. The test of each ability is taken while the
-model trains on it; **Test all** runs every test now. Hover over an ability for the format its test uses. See
-[Minds and Tests](minds.md).
+Every benchmark, its score at the last test, and the score that passes. The test of each benchmark is taken while the
+model trains on it; **Test all** runs every test now. Hover over an benchmark for the format its test uses. See
+[Models and Tests](models.md).
 
 ## Try
 
-Runs the model. Choose an ability: **Example** draws a fresh test example and shows the model answering it, the way an
-apprentice would ask. For Orders, type an order and **Ask**; for Reading, type the start of something and **Write**:
+Runs the model. Choose an benchmark: **Example** draws a fresh test example and shows the model answering it, the way an
+agent would ask. For Orders, type an order and **Ask**; for Reading, type the start of something and **Write**:
 the model carries it on one letter at a time, drawing each from its predicted probabilities. **Temp** (temperature)
 sharpens or flattens those probabilities before drawing:
 
@@ -56,11 +56,6 @@ model found each candidate for the first letter it wrote.
 Every machine of the model in the order data reaches it, with its output shape, its number of weights and the size of
 its last gradient. Problems found by Check are listed here too. A bar that shrinks to nothing as you go down the list
 is a gradient that never arrives.
-
-## Code
-
-The model as a PyTorch module, generated from your machines. **Copy** puts it on the clipboard; **Export model +
-weights** saves it, with the trained weights and a script that samples from them, next to your game.
 
 ## More threads
 

@@ -24,14 +24,8 @@ jobs:
           name: residual
           path: build/libs/*.jar
 
-      # the exported PyTorch code must compute exactly what the game computes
-      - uses: astral-sh/setup-uv@v6
-      - run: RESIDUAL_PARITY_DIR=$PWD/build/parity ./gradlew test --rerun --tests '*PyTorchParityTest*'
-      - run: >-
-          uv run --no-project --with torch --with numpy
-          --extra-index-url https://download.pytorch.org/whl/cpu
-          python src/test/python/parity.py build/parity
-
+      - if: startsWith(github.ref, 'refs/tags/v')
+        uses: astral-sh/setup-uv@v6
       - if: startsWith(github.ref, 'refs/tags/v')
         run: uv run python tools/pack.py
       - if: startsWith(github.ref, 'refs/tags/v')

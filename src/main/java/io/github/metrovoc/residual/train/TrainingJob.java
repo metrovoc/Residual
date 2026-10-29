@@ -4,7 +4,7 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.graph.Captures;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Op;
-import io.github.metrovoc.residual.learn.Ability;
+import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Trainer;
@@ -52,7 +52,7 @@ public final class TrainingJob {
     /**
      * One point of the learning curve.
      *
-     * @param val      mean test loss over the abilities being practised
+     * @param val      mean test loss over the benchmarks being practised
      * @param accuracy mean test accuracy over those scored by accuracy
      */
     public record Point(int step, float train, float val, float accuracy) {
@@ -63,8 +63,8 @@ public final class TrainingJob {
         /** Steps this job has taken. */
         public int steps;
         public float trainLoss;
-        /** The latest test of every ability being practised. */
-        public Map<Ability, Trainer.Eval> tests = Map.of();
+        /** The latest test of every benchmark being practised. */
+        public Map<Benchmark, Trainer.Eval> tests = Map.of();
         public float gradNorm;
         /** Weight copies by node; null when they must not be kept (they turned into NaN). */
         @Nullable
@@ -173,7 +173,7 @@ public final class TrainingJob {
     private void loop() {
         double ema = Double.NaN;
         double start = Math.log(Vocab.WORLD.size());
-        Map<Ability, Trainer.Eval> tests = Map.of();
+        Map<Benchmark, Trainer.Eval> tests = Map.of();
         long lastPublish = System.currentTimeMillis();
         long next = System.nanoTime();
         int done = 0;
@@ -202,13 +202,13 @@ public final class TrainingJob {
             if (done % s.evalEvery == 0) {
                 tests = test(d, 4);
                 points.add(point(trainer.step(), ema, tests));
-                Trainer.Eval mine = wreck == null ? null : tests.get(wreck.ability());
+                Trainer.Eval mine = wreck == null ? null : tests.get(wreck.benchmark());
                 if (mine != null && wreck.passes(mine)) {
                     // a lucky estimate shouldn't count: confirm on four times as much data
-                    Trainer.Eval sure = Trainer.evaluate(model, wreck.ability().test(), 16);
+                    Trainer.Eval sure = Trainer.evaluate(model, wreck.benchmark().test(), 16);
                     if (wreck.passes(sure)) {
-                        Map<Ability, Trainer.Eval> confirmed = new EnumMap<>(tests);
-                        confirmed.put(wreck.ability(), sure);
+                        Map<Benchmark, Trainer.Eval> confirmed = new EnumMap<>(tests);
+                        confirmed.put(wreck.benchmark(), sure);
                         pending.set(update(ema, confirmed, done, Outcome.PASSED, true));
                         return;
                     }
@@ -237,19 +237,19 @@ public final class TrainingJob {
         pending.set(update(ema, tests, done, stopAs, true));
     }
 
-    /** Tests every ability {@code d} practises, on {@code batches} batches of held-out examples each. */
-    private Map<Ability, Trainer.Eval> test(Mixture d, int batches) {
-        Map<Ability, Trainer.Eval> out = new EnumMap<>(Ability.class);
+    /** Tests every benchmark {@code d} practises, on {@code batches} batches of held-out examples each. */
+    private Map<Benchmark, Trainer.Eval> test(Mixture d, int batches) {
+        Map<Benchmark, Trainer.Eval> out = new EnumMap<>(Benchmark.class);
         for (Mixture.Source s : d.sources) {
-            out.computeIfAbsent(s.ability(), a -> Trainer.evaluate(model, a.test(), batches));
+            out.computeIfAbsent(s.benchmark(), a -> Trainer.evaluate(model, a.test(), batches));
         }
         return out;
     }
 
-    private static Point point(int step, double ema, Map<Ability, Trainer.Eval> tests) {
+    private static Point point(int step, double ema, Map<Benchmark, Trainer.Eval> tests) {
         double loss = 0, acc = 0;
         int accs = 0;
-        for (Map.Entry<Ability, Trainer.Eval> e : tests.entrySet()) {
+        for (Map.Entry<Benchmark, Trainer.Eval> e : tests.entrySet()) {
             loss += e.getValue().loss();
             if (e.getKey().metric == Task.Metric.ACCURACY) {
                 acc += e.getValue().accuracy();
@@ -260,7 +260,7 @@ public final class TrainingJob {
                 accs == 0 ? Float.NaN : (float) (acc / accs));
     }
 
-    private Update update(double ema, Map<Ability, Trainer.Eval> tests, int done, @Nullable Outcome outcome, boolean keepWeights) {
+    private Update update(double ema, Map<Benchmark, Trainer.Eval> tests, int done, @Nullable Outcome outcome, boolean keepWeights) {
         Update u = new Update();
         u.steps = done;
         u.trainLoss = (float) ema;

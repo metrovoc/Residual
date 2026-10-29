@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: Serving Minds
+  title: Serving Models
   icon: model_server
   position: 90
 item_ids:
@@ -10,17 +10,17 @@ item_ids:
   - terminal
 ---
 
-# Serving Minds
+# Serving Models
 
-A mind too big for an apprentice's head can still work for it. A Model Server holds the mind and answers questions
+A model too big for an agent's head can still work for it. A Model Server holds the model and answers questions
 for everything tuned to it, as far as its relays reach.
 
 ## The Model Server
 
 <RecipeFor id="model_server" />
 
-Use a saved <ItemLink id="checkpoint" /> on a <ItemLink id="model_server" /> to load its mind; sneak-use the server with
-an empty hand to take the checkpoint back. Use it to see what it is doing: the mind it serves, how many answers a second
+Use a saved <ItemLink id="checkpoint" /> on a <ItemLink id="model_server" /> to load its model; sneak-use the server with
+an empty hand to take the checkpoint back. Use it to see what it is doing: the model it serves, how many answers a second
 it can give, how many questions are waiting and how many it has answered.
 
 A server gives 4 answers a second on its own. Each <ItemLink id="accelerator" /> touching it adds as many again, or half
@@ -39,16 +39,16 @@ many other relays are in reach and which servers it is linked to.
 
 <RecipeFor id="relay_card" />
 
-Use a <ItemLink id="relay_card" /> on a Model Server to tune it. In an apprentice's or a Reader's mind slot, the card
-asks the server instead of carrying a mind: any size of mind, wherever the server's network reaches. Every apprentice
+Use a <ItemLink id="relay_card" /> on a Model Server to tune it. In an agent's or a Reader's model slot, the card
+asks the server instead of carrying a model: any size of model, wherever the server's network reaches. Every agent
 tuned to one server shares its answers per second.
 
 ## The Terminal
 
 <RecipeFor id="terminal" />
 
-Tune a <ItemLink id="terminal" /> on a Model Server the same way, then use it to talk to the served mind: write the
-start of something and the mind carries it on. While you hold a tuned Terminal within the server's reach, every apprentice
+Tune a <ItemLink id="terminal" /> on a Model Server the same way, then use it to talk to the served model: write the
+start of something and the model carries it on. While you hold a tuned Terminal within the server's reach, every agent
 the server reaches hears the orders you give by name in chat.
 
 ## Heat

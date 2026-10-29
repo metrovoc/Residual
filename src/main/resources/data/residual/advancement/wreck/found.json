@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "residual:salvaged_mind"
+            "items": "residual:salvaged_model"
           }
         ]
       }
@@ -14,7 +14,7 @@
   },
   "display": {
     "icon": {
-      "id": "residual:salvaged_mind"
+      "id": "residual:salvaged_model"
     },
     "title": {
       "translate": "advancements.residual.wreck.found.title"

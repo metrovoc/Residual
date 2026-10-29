@@ -242,7 +242,7 @@ LOOT = {
         item("archive_shard", 8, (1, 2)), item("relay_card", 4), item("schematic_relays", 2),
         item("minecraft:copper_ingot", 6, (2, 6)), item("minecraft:redstone", 5, (2, 5))])],
     "chests/buried_vault": [
-        pool((1, 1), [item("salvaged_mind", 1, components={"residual:wreck": w}) for w in WRECKS]),
+        pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS]),
         pool((2, 4), [
             item("schematic_attention", 2), item("schematic_positions", 2), item("schematic_blocks", 1),
             item("schematic_relays", 1), item("checkpoint", 3), item("weight_crystal", 5, (2, 4)),

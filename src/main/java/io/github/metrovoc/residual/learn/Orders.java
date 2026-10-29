@@ -5,8 +5,8 @@ import java.util.Locale;
 import java.util.Random;
 
 /**
- * The language of orders: many ways of saying a few things. A mind reads {@code > what was said} and writes
- * {@code = what was meant}; an apprentice acts only on what its mind wrote.
+ * The language of orders: many ways of saying a few things. A model reads {@code > what was said} and writes
+ * {@code = what was meant}; an agent acts only on what its model wrote.
  */
 public final class Orders {
     /** Everything an order can mean. Only {@code fetch} takes something after it. */
@@ -15,11 +15,11 @@ public final class Orders {
     public record Example(String said, String meant) {
     }
 
-    /** What a mind's answer means, or null if it means nothing an apprentice knows. */
+    /** What a model's answer means, or null if it means nothing an agent knows. */
     public record Command(Meaning meaning, String thing) {
     }
 
-    /** The longest order a mind is shown. */
+    /** The longest order a model is shown. */
     public static final int LONGEST = 40;
 
     private static final List<String> FETCH = List.of(
@@ -36,7 +36,7 @@ public final class Orders {
     private static final List<List<String>> PLAIN = List.of(
             List.of("farm", "go farm", "go and farm", "tend the fields", "tend the crops", "look after the crops",
                     "look after the fields", "work the fields", "work the farm", "see to the wheat", "see to the crops",
-                    "harvest the field", "harvest the crops", "keep the fields", "mind the crops", "back to the fields",
+                    "harvest the field", "harvest the crops", "keep the fields", "model the crops", "back to the fields",
                     "go to the fields", "go work the farm", "take care of the farm", "do the farming", "go harvest",
                     "time to farm", "the crops need you", "watch the fields"),
             List.of("store", "store everything", "store it all", "put this away", "put these away", "put the things away",
@@ -62,7 +62,7 @@ public final class Orders {
                     "go back to your post", "back home", "go back", "go to your home", "return to your post",
                     "off you go home", "back to base"));
     private static final List<String> NAMES = List.of("pip", "clank", "moss", "lantern", "bolt", "tinker", "wick",
-            "pebble", "copper", "apprentice");
+            "pebble", "copper", "agent");
     private static final List<String> BEFORE = List.of("", "", "", "", "please ", "now ", "ok ", "hey ", "%s, ",
             "%s ", "right, ", "and ", "quick, ", "listen, ");
     private static final List<String> AFTER = List.of("", "", "", "", " please", " now", " thanks", " thank you",
@@ -94,7 +94,7 @@ public final class Orders {
 
     /**
      * One order in a random wording, short enough to be shown whole. {@code test} draws the things to fetch from the
-     * ones practice never shows; practice also asks for made-up things, so a mind learns to copy any name it hears.
+     * ones practice never shows; practice also asks for made-up things, so a model learns to copy any name it hears.
      */
     public static Example example(Random rng, boolean test) {
         while (true) {
@@ -146,12 +146,12 @@ public final class Orders {
         return sb.toString();
     }
 
-    /** What a mind is shown for an order, in the format it practised. */
+    /** What a model is shown for an order, in the format it practised. */
     public static String prompt(String said) {
         return "> " + clean(said) + "\n= ";
     }
 
-    /** Lower case, only characters minds know, single spaces, at most {@link #LONGEST} characters. */
+    /** Lower case, only characters models know, single spaces, at most {@link #LONGEST} characters. */
     public static String clean(String said) {
         StringBuilder sb = new StringBuilder();
         for (char c : said.toLowerCase(Locale.ROOT).toCharArray()) {
@@ -167,7 +167,7 @@ public final class Orders {
         return s.length() > LONGEST ? s.substring(0, LONGEST).strip() : s;
     }
 
-    /** Reads what a mind wrote after {@code =}. */
+    /** Reads what a model wrote after {@code =}. */
     public static Command parse(String meant) {
         String s = meant.strip();
         for (Meaning m : Meaning.values()) {

@@ -11,7 +11,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import org.jetbrains.annotations.Nullable;
 
-/** A broken mind from the ruins. In a Model Core's data slots it can be rebuilt in front of the Core and repaired. */
+/** A broken model from the ruins. In a Model Core's data slots it can be rebuilt in front of the Core and repaired. */
 public class WreckItem extends Item {
     public WreckItem(Properties properties) {
         super(properties);
@@ -36,7 +36,7 @@ public class WreckItem extends Item {
             return;
         }
         out.accept(Component.translatable("residual.wreck." + w.id() + ".title").withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
-        out.accept(Component.translatable("residual.wreck.ability", Component.translatable("residual.ability." + w.ability().id))
+        out.accept(Component.translatable("residual.wreck.benchmark", Component.translatable("residual.benchmark." + w.benchmark().id))
                 .withStyle(ChatFormatting.DARK_GRAY));
     }
 }

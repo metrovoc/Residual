@@ -1,6 +1,6 @@
 package io.github.metrovoc.residual.item;
 
-import io.github.metrovoc.residual.apprentice.Apprentice;
+import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.registry.ModComponents;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +27,8 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Marks blocks for an apprentice: the two ends of a row to build, or the waymarks of a haul. Use it on blocks to mark
- * or unmark them, on an apprentice to hand it the marks, and sneak-use it in the air to clear them.
+ * Marks blocks for an agent: the two ends of a row to build, or the waymarks of a haul. Use it on blocks to mark
+ * or unmark them, on an agent to hand it the marks, and sneak-use it in the air to clear them.
  */
 public class SurveyRodItem extends Item {
     public static final int MOST = 8;
@@ -65,7 +65,7 @@ public class SurveyRodItem extends Item {
 
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-        if (!(target instanceof Apprentice a)) {
+        if (!(target instanceof Agent a)) {
             return InteractionResult.PASS;
         }
         if (!player.level().isClientSide()) {

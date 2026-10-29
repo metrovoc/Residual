@@ -4,10 +4,10 @@ import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.learn.Reading;
 import io.github.metrovoc.residual.menu.ReaderMenu;
-import io.github.metrovoc.residual.mind.MindInfo;
-import io.github.metrovoc.residual.mind.MindLink;
-import io.github.metrovoc.residual.mind.Minds;
-import io.github.metrovoc.residual.mind.Recovered;
+import io.github.metrovoc.residual.model.ModelInfo;
+import io.github.metrovoc.residual.model.ModelLink;
+import io.github.metrovoc.residual.model.Models;
+import io.github.metrovoc.residual.model.Recovered;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModComponents;
 import java.util.BitSet;
@@ -38,19 +38,19 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Restores an Archive Shard with a reading mind. It goes through the shard's lost blocks one by one, has the mind read
- * each from the text before it, and brings back every block whose characters the mind gets mostly right.
+ * Restores an Archive Shard with a reading model. It goes through the shard's lost blocks one by one, has the model read
+ * each from the text before it, and brings back every block whose characters the model gets mostly right.
  */
 public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
-    public static final int SHARD = 0, MIND = 1;
+    public static final int SHARD = 0, MODEL = 1;
     /** What its screen shows, as container data. */
     public static final int STATE = 0, BLOCK = 1, ACCURACY = 2, RESTORED = 3, PROBLEM = 4, DATA = 5;
-    /** Why there is no mind to read with, in the order {@link #PROBLEM} counts them. */
-    public static final List<String> PROBLEMS = List.of("residual.mind.none", "residual.mind.blank", "residual.mind.unbound",
-            "residual.mind.out_of_range", "residual.mind.no_server", "residual.mind.server_empty", "residual.reader.too_big",
-            "residual.mind.failed");
+    /** Why there is no model to read with, in the order {@link #PROBLEM} counts them. */
+    public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.unbound",
+            "residual.model.out_of_range", "residual.model.no_server", "residual.model.server_empty", "residual.reader.too_big",
+            "residual.model.failed");
 
-    public enum State { NO_SHARD, NO_MIND, PEEKS, READING, WHOLE, STUCK }
+    public enum State { NO_SHARD, NO_MODEL, PEEKS, READING, WHOLE, STUCK }
 
     private final SimpleContainer items = new SimpleContainer(2) {
         @Override
@@ -74,7 +74,7 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
     private final BitSet tried = new BitSet();
     private int triedRecord = -1;
     @Nullable
-    private MindInfo triedMind;
+    private ModelInfo triedModel;
     private int ticks;
 
     private final ContainerData data = new ContainerData() {
@@ -112,7 +112,7 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
 
     private void step(ServerLevel level) {
         if (busy) {
-            if (ticks - askedAt < Minds.PATIENCE) {
+            if (ticks - askedAt < Models.PATIENCE) {
                 return;
             }
             request++;
@@ -132,21 +132,21 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
             show(State.WHOLE);
             return;
         }
-        MindLink link = MindLink.of(level, worldPosition, items.getItem(MIND));
-        if (link instanceof MindLink.Missing m) {
-            problem = Math.max(0, PROBLEMS.indexOf(m.problem().equals("residual.mind.too_big") ? "residual.reader.too_big" : m.problem()));
-            show(State.NO_MIND);
+        ModelLink link = ModelLink.of(level, worldPosition, items.getItem(MODEL));
+        if (link instanceof ModelLink.Missing m) {
+            problem = Math.max(0, PROBLEMS.indexOf(m.problem().equals("residual.model.too_big") ? "residual.reader.too_big" : m.problem()));
+            show(State.NO_MODEL);
             return;
         }
-        MindInfo info = link.info();
+        ModelInfo info = link.info();
         if (!info.causal()) {
             show(State.PEEKS);
             return;
         }
-        if (r.record() != triedRecord || !info.equals(triedMind)) {
+        if (r.record() != triedRecord || !info.equals(triedModel)) {
             tried.clear();
             triedRecord = r.record();
-            triedMind = info;
+            triedModel = info;
         }
         int b = r.lost().nextSetBit(0);
         while (b >= 0 && tried.get(b)) {
@@ -170,9 +170,9 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
             }
         };
         switch (link) {
-            case MindLink.Served s -> s.server().submit(read, done);
-            case MindLink.Onboard o -> Minds.submit(level.getServer(), info.id(), read, done);
-            case MindLink.Missing m -> busy = false;
+            case ModelLink.Served s -> s.server().submit(read, done);
+            case ModelLink.Onboard o -> Models.submit(level.getServer(), info.id(), read, done);
+            case ModelLink.Missing m -> busy = false;
         }
     }
 
@@ -182,8 +182,8 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
         if (acc == null) {
-            problem = PROBLEMS.indexOf("residual.mind.failed");
-            show(State.NO_MIND);
+            problem = PROBLEMS.indexOf("residual.model.failed");
+            show(State.NO_MODEL);
             return;
         }
         accuracy = acc;

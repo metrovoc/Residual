@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-/** The Reader: a lectern for Archive Shards, where a reading mind restores what was lost. */
+/** The Reader: a lectern for Archive Shards, where a reading model restores what was lost. */
 public class ReaderBlock extends BaseEntityBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty READING = BooleanProperty.create("reading");

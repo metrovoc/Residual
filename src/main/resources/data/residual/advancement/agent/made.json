@@ -1,0 +1,35 @@
+{
+  "parent": "residual:root",
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "residual:agent"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:agent"
+    },
+    "title": {
+      "translate": "advancements.residual.agent.made.title"
+    },
+    "description": {
+      "translate": "advancements.residual.agent.made.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ]
+}

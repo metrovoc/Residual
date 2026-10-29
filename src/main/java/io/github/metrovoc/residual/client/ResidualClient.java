@@ -2,10 +2,8 @@ package io.github.metrovoc.residual.client;
 
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.menu.CoreMenu;
-import io.github.metrovoc.residual.net.ApprenticeSync;
-import io.github.metrovoc.residual.net.CodeText;
+import io.github.metrovoc.residual.net.AgentSync;
 import io.github.metrovoc.residual.net.CoreSync;
-import io.github.metrovoc.residual.net.ExportChunk;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
@@ -33,7 +31,7 @@ public final class ResidualClient {
     private static void screens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.CORE.get(), CoreScreen::new);
         event.register(ModMenus.OPERATOR.get(), OperatorScreen::new);
-        event.register(ModMenus.APPRENTICE.get(), ApprenticeScreen::new);
+        event.register(ModMenus.AGENT.get(), AgentScreen::new);
         event.register(ModMenus.READER.get(), ReaderScreen::new);
     }
 
@@ -47,22 +45,20 @@ public final class ResidualClient {
             CoreView.sample = result;
             CoreView.sampling = false;
         });
-        event.register(CodeText.TYPE, (code, ctx) -> CoreView.code = code.code());
-        event.register(ExportChunk.TYPE, (chunk, ctx) -> Exports.accept(chunk));
-        event.register(ApprenticeSync.TYPE, (sync, ctx) -> ApprenticeView.sync = sync);
+        event.register(AgentSync.TYPE, (sync, ctx) -> AgentView.sync = sync);
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {
-            ApprenticeView.answer = answer;
-            ApprenticeView.asking = false;
+            AgentView.answer = answer;
+            AgentView.asking = false;
         });
     }
 
     private static void renderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.OPERATOR.get(), context -> new MachineRenderer());
-        event.registerEntityRenderer(ModEntities.APPRENTICE.get(), ApprenticeRenderer::new);
+        event.registerEntityRenderer(ModEntities.AGENT.get(), AgentRenderer::new);
     }
 
     private static void models(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(ApprenticeModel.LAYER, ApprenticeModel::createLayer);
+        event.registerLayerDefinition(AgentFrameModel.LAYER, AgentFrameModel::createLayer);
     }
 
     private static void layers(RegisterGuiLayersEvent event) {

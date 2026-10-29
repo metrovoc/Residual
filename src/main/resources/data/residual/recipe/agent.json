@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": "minecraft:lantern",
+    "C": "minecraft:copper_ingot",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    " L ",
+    "CRC",
+    "C C"
+  ],
+  "result": {
+    "id": "residual:agent"
+  }
+}

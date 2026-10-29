@@ -5,16 +5,16 @@ import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.tensor.Tokens;
 import java.util.Arrays;
 
-/** How a Reader tells whether a mind can restore a lost block of a record. */
+/** How a Reader tells whether a model can restore a lost block of a record. */
 public final class Reading {
-    /** A block comes back when the mind gets at least this share of its characters right. */
+    /** A block comes back when the model gets at least this share of its characters right. */
     public static final float RESTORE = 0.5f;
 
     private Reading() {
     }
 
     /**
-     * The share of block {@code block}'s characters the mind predicts as its first choice, each from the true text
+     * The share of block {@code block}'s characters the model predicts as its first choice, each from the true text
      * before it (up to its context).
      */
     public static float accuracy(CompiledGraph model, String text, int block) {

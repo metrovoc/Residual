@@ -11,12 +11,12 @@ authors = "metrovoc"
 displayURL = "https://github.com/metrovoc/Residual"
 logoFile = "residual_logo.png"
 description = '''
-Build minds from the ground up, one block at a time.
+Build models from the ground up, one block at a time.
 
 Someone lived in this world before you and built machines that thought. Recover their writing
 from the ruins, wire embedding tables, attention heads and feed-forward blocks into a language
-model, train it on real text with real gradients, and put it to work in the body of an apprentice.
-Every mind you build exports as working PyTorch code.
+model, train it on real text with real gradients, and put it to work in the body of an agent.
+Every model you build exports as working PyTorch code.
 '''
 
 [[dependencies.${mod_id}]]

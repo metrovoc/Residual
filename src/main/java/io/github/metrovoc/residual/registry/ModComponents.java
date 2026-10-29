@@ -2,8 +2,8 @@ package io.github.metrovoc.residual.registry;
 
 import com.mojang.serialization.Codec;
 import io.github.metrovoc.residual.Residual;
-import io.github.metrovoc.residual.mind.MindInfo;
-import io.github.metrovoc.residual.mind.Recovered;
+import io.github.metrovoc.residual.model.ModelInfo;
+import io.github.metrovoc.residual.model.Recovered;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
@@ -16,9 +16,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModComponents {
     public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Residual.MOD_ID);
 
-    /** The mind a Checkpoint Crystal holds. */
-    public static final Supplier<DataComponentType<MindInfo>> MIND = COMPONENTS.registerComponentType("mind",
-            b -> b.persistent(MindInfo.CODEC).networkSynchronized(MindInfo.STREAM_CODEC));
+    /** The model a Checkpoint Crystal holds. */
+    public static final Supplier<DataComponentType<ModelInfo>> MODEL = COMPONENTS.registerComponentType("model",
+            b -> b.persistent(ModelInfo.CODEC).networkSynchronized(ModelInfo.STREAM_CODEC));
     /** The record an Archive Shard carries. */
     public static final Supplier<DataComponentType<Recovered>> SHARD = COMPONENTS.registerComponentType("shard",
             b -> b.persistent(Recovered.CODEC).networkSynchronized(Recovered.STREAM_CODEC));
@@ -31,7 +31,7 @@ public final class ModComponents {
     /** Blocks marked with a Survey Marker, oldest first. */
     public static final Supplier<DataComponentType<List<BlockPos>>> MARKS = COMPONENTS.registerComponentType("marks",
             b -> b.persistent(BlockPos.CODEC.listOf()).networkSynchronized(BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list())));
-    /** Which wreck a Salvaged Mind is. */
+    /** Which wreck a Salvaged Model is. */
     public static final Supplier<DataComponentType<String>> WRECK = COMPONENTS.registerComponentType("wreck",
             b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
 

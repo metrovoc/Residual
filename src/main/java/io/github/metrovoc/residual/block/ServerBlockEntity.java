@@ -4,8 +4,8 @@ import io.github.metrovoc.residual.ResidualConfig;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.learn.Sampler;
-import io.github.metrovoc.residual.mind.MindInfo;
-import io.github.metrovoc.residual.mind.Minds;
+import io.github.metrovoc.residual.model.ModelInfo;
+import io.github.metrovoc.residual.model.Models;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.world.Cooling;
 import io.github.metrovoc.residual.world.Relays;
@@ -28,7 +28,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Serves the mind in its crystal to everything in reach of its relay network, a few answers a second. Accelerators
+ * Serves the model in its crystal to everything in reach of its relay network, a few answers a second. Accelerators
  * touching it answer more at once, and run hot unless something cools them.
  */
 public class ServerBlockEntity extends BlockEntity {
@@ -53,8 +53,8 @@ public class ServerBlockEntity extends BlockEntity {
     }
 
     @Nullable
-    public MindInfo mind() {
-        return CrystalItem.mind(crystal);
+    public ModelInfo model() {
+        return CrystalItem.model(crystal);
     }
 
     public ItemStack crystal() {
@@ -83,9 +83,9 @@ public class ServerBlockEntity extends BlockEntity {
         submit(m -> Sampler.answer(m, prompt, max, stop), reply);
     }
 
-    /** Runs {@code work} on the mind when its turn comes; {@code reply} gets the result (or null) on the server thread. */
+    /** Runs {@code work} on the model when its turn comes; {@code reply} gets the result (or null) on the server thread. */
     public <T> void submit(Function<CompiledGraph, T> work, Consumer<@Nullable T> reply) {
-        if (mind() == null || queue.size() >= QUEUE) {
+        if (model() == null || queue.size() >= QUEUE) {
             reply.accept(null);
             return;
         }
@@ -102,7 +102,7 @@ public class ServerBlockEntity extends BlockEntity {
             Cooling.working(level, worldPosition, quiet < 100);
         }
         credit = Math.min(rate(), credit + rate() / 20f);
-        MindInfo info = mind();
+        ModelInfo info = model();
         while (info != null && credit >= 1 && !queue.isEmpty() && inFlight < 2 * compute.threads()) {
             credit--;
             run(level.getServer(), info, queue.poll());
@@ -118,10 +118,10 @@ public class ServerBlockEntity extends BlockEntity {
         return getBlockState();
     }
 
-    private <T> void run(MinecraftServer server, MindInfo info, Request<T> r) {
+    private <T> void run(MinecraftServer server, ModelInfo info, Request<T> r) {
         inFlight++;
         int at = revision;
-        Minds.submit(server, info.id(), r.work(), out -> {
+        Models.submit(server, info.id(), r.work(), out -> {
             inFlight--;
             boolean current = at == revision && !isRemoved();
             if (current && out != null) {
@@ -145,7 +145,7 @@ public class ServerBlockEntity extends BlockEntity {
             // count an accelerator placed a moment ago
             compute = Cooling.compute(server, worldPosition, 1, ResidualConfig.MAX_THREADS.get());
         }
-        MindInfo info = mind();
+        ModelInfo info = model();
         if (info == null) {
             return Component.translatable("residual.server.empty");
         }

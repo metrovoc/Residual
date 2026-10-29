@@ -10,9 +10,6 @@ public final class CoreView {
     public static CoreSync sync;
     @Nullable
     public static SampleResult sample;
-    /** The model as PyTorch source; null until requested and received. */
-    @Nullable
-    public static String code;
     public static boolean sampling;
 
     private CoreView() {
@@ -21,7 +18,6 @@ public final class CoreView {
     static void clear() {
         sync = null;
         sample = null;
-        code = null;
         sampling = false;
     }
 }

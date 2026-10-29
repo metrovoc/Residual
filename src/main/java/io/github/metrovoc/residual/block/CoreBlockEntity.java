@@ -3,19 +3,18 @@ package io.github.metrovoc.residual.block;
 import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.ResidualConfig;
-import io.github.metrovoc.residual.export.PyTorch;
 import io.github.metrovoc.residual.graph.CompileException;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Sym;
 import io.github.metrovoc.residual.item.CrystalItem;
-import io.github.metrovoc.residual.item.DrillItem;
+import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
 import io.github.metrovoc.residual.item.WreckItem;
-import io.github.metrovoc.residual.learn.Ability;
+import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Archive;
-import io.github.metrovoc.residual.learn.Drill;
+import io.github.metrovoc.residual.learn.Dataset;
 import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.TextTask;
@@ -23,11 +22,9 @@ import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.learn.Wrecks;
 import io.github.metrovoc.residual.menu.CoreMenu;
-import io.github.metrovoc.residual.mind.Checkpoints;
-import io.github.metrovoc.residual.mind.MindInfo;
-import io.github.metrovoc.residual.net.CodeText;
+import io.github.metrovoc.residual.model.Checkpoints;
+import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.net.CoreSync;
-import io.github.metrovoc.residual.net.ExportChunk;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModComponents;
@@ -39,10 +36,7 @@ import io.github.metrovoc.residual.world.CaseLayout;
 import io.github.metrovoc.residual.world.Cooling;
 import io.github.metrovoc.residual.world.GraphScanner;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -83,7 +77,7 @@ public class CoreBlockEntity extends BlockEntity {
     public static final int[] BATCH_SIZES = {8, 16, 32, 64};
     public static final float[] CLIPS = {0f, 0.5f, 1f, 5f};
     private static final int HISTORY = 400;
-    /** Batches per ability when every test is run: twice what training checks with, for a steadier score. */
+    /** Batches per benchmark when every test is run: twice what training checks with, for a steadier score. */
     private static final int BATTERY = 8;
 
     private final SimpleContainer items = new SimpleContainer(CoreMenu.SLOTS) {
@@ -106,7 +100,7 @@ public class CoreBlockEntity extends BlockEntity {
     private float accuracy = Float.NaN;
     private float gradNorm = Float.NaN;
     private boolean causal = true;
-    private final Map<Ability, CoreSync.Score> tests = new EnumMap<>(Ability.class);
+    private final Map<Benchmark, CoreSync.Score> tests = new EnumMap<>(Benchmark.class);
     private String message = "residual.status.ready";
     private List<String> args = List.of();
     private List<CoreSync.Issue> issues = List.of();
@@ -174,15 +168,15 @@ public class CoreBlockEntity extends BlockEntity {
         List<Mixture.Source> sources = new ArrayList<>();
         for (int i = 0; i < CoreMenu.DATA_SLOTS; i++) {
             ItemStack stack = items.getItem(i);
-            if (stack.getItem() instanceof DrillItem drill) {
-                sources.add(new Mixture.Source(drill.ability, Drill.of(drill.ability)));
+            if (stack.getItem() instanceof DatasetItem dataset) {
+                sources.add(new Mixture.Source(dataset.benchmark, Dataset.of(dataset.benchmark)));
             } else if (stack.getItem() instanceof DriveItem) {
                 TextTask text = Archive.practice(DriveItem.contents(stack));
                 if (!text.isEmpty()) {
-                    sources.add(new Mixture.Source(Ability.READING, text));
+                    sources.add(new Mixture.Source(Benchmark.READING, text));
                 }
             } else if (WreckItem.wreck(stack) instanceof Wrecks.Wreck w) {
-                sources.add(new Mixture.Source(w.ability(), w.practice()));
+                sources.add(new Mixture.Source(w.benchmark(), w.practice()));
             }
         }
         return sources.isEmpty() ? null : new Mixture(sources);
@@ -356,7 +350,7 @@ public class CoreBlockEntity extends BlockEntity {
         check();
     }
 
-    /** Runs the model on a prompt, or on a fresh example of one ability, and sends the player what it wrote. */
+    /** Runs the model on a prompt, or on a fresh example of one benchmark, and sends the player what it wrote. */
     public void sample(ServerPlayer player, String prompt, int value) {
         Checked checked = check();
         if (checked == null) {
@@ -364,7 +358,7 @@ public class CoreBlockEntity extends BlockEntity {
                     "The model doesn't check out yet: see the Inspect tab."));
             return;
         }
-        Ability ability = Ability.values()[Math.floorMod(value / 1000, Ability.values().length)];
+        Benchmark benchmark = Benchmark.values()[Math.floorMod(value / 1000, Benchmark.values().length)];
         float temperature = Math.floorMod(value, 1000) / 100f;
         long seed = level.getRandom().nextLong();
         MinecraftServer server = player.level().getServer();
@@ -372,7 +366,7 @@ public class CoreBlockEntity extends BlockEntity {
         Jobs.EXECUTOR.execute(() -> {
             SampleResult result;
             try {
-                Sampler.Demo d = Sampler.demo(checked.model(), ability, prompt, temperature, new Random(seed));
+                Sampler.Demo d = Sampler.demo(checked.model(), benchmark, prompt, temperature, new Random(seed));
                 result = new SampleResult(d.prompt(), d.text(), d.labels(), d.probs(), d.note());
             } catch (RuntimeException e) {
                 Residual.LOG.error("Sampling failed", e);
@@ -387,7 +381,7 @@ public class CoreBlockEntity extends BlockEntity {
         });
     }
 
-    /** Runs every ability's test on the model as it stands. */
+    /** Runs every benchmark's test on the model as it stands. */
     public void runTests() {
         battery(null);
     }
@@ -411,58 +405,58 @@ public class CoreBlockEntity extends BlockEntity {
         }
         busy = true;
         ItemStack target = items.getItem(CoreMenu.CRYSTAL);
-        MindInfo old = CrystalItem.mind(target);
-        // saving over a crystal keeps its mind's name
+        ModelInfo old = CrystalItem.model(target);
+        // saving over a crystal keeps its model's name
         UUID id = old != null ? old.id() : UUID.randomUUID();
         int at = steps;
         long count = parameters;
         MinecraftServer mc = server.getServer();
         say(saver != null ? "residual.status.saving" : "residual.status.testing");
         Jobs.EXECUTOR.execute(() -> {
-            Map<Ability, Trainer.Eval> results = new EnumMap<>(Ability.class);
+            Map<Benchmark, Trainer.Eval> results = new EnumMap<>(Benchmark.class);
             String failure = null;
             byte[] checkpoint = null;
             try {
-                for (Ability a : Ability.values()) {
+                for (Benchmark a : Benchmark.values()) {
                     results.put(a, Trainer.evaluate(checked.model(), a.test(), BATTERY));
                 }
                 if (saver != null) {
                     checkpoint = Checkpoints.encode(checked.model());
                 }
             } catch (IOException | RuntimeException e) {
-                Residual.LOG.error("Testing or saving a mind failed", e);
+                Residual.LOG.error("Testing or saving a model failed", e);
                 failure = String.valueOf(e);
             }
             String failed = failure;
             byte[] encoded = checkpoint;
-            Jobs.back(mc, () -> tested(results, failed, saver, target, new MindInfo(id, count, at, scores(results), causal(results)),
+            Jobs.back(mc, () -> tested(results, failed, saver, target, new ModelInfo(id, count, at, scores(results), causal(results)),
                     checked.model(), encoded));
         });
     }
 
-    private static Map<String, Float> scores(Map<Ability, Trainer.Eval> results) {
+    private static Map<String, Float> scores(Map<Benchmark, Trainer.Eval> results) {
         Map<String, Float> out = new HashMap<>();
         results.forEach((a, e) -> out.put(a.id, (float) a.test().score(e.loss(), e.accuracy())));
         return out;
     }
 
-    private static boolean causal(Map<Ability, Trainer.Eval> results) {
+    private static boolean causal(Map<Benchmark, Trainer.Eval> results) {
         return results.values().stream().allMatch(Trainer.Eval::causal);
     }
 
-    private void tested(Map<Ability, Trainer.Eval> results, @Nullable String failure, @Nullable ServerPlayer saver,
-                        ItemStack target, MindInfo mind, CompiledGraph model, @Nullable byte[] checkpoint) {
+    private void tested(Map<Benchmark, Trainer.Eval> results, @Nullable String failure, @Nullable ServerPlayer saver,
+                        ItemStack target, ModelInfo info, CompiledGraph model, @Nullable byte[] checkpoint) {
         busy = false;
         if (isRemoved() || !(level instanceof ServerLevel server)) {
             return;
         }
-        results.forEach((a, e) -> tests.put(a, new CoreSync.Score((float) e.loss(), (float) e.accuracy(), mind.steps())));
+        results.forEach((a, e) -> tests.put(a, new CoreSync.Score((float) e.loss(), (float) e.accuracy(), info.steps())));
         if (failure != null) {
             say("residual.status.crashed", failure);
             return;
         }
         if (saver == null) {
-            say(mind.causal() ? "residual.status.tested" : "residual.status.leak");
+            say(info.causal() ? "residual.status.tested" : "residual.status.leak");
             return;
         }
         ItemStack crystal = items.getItem(CoreMenu.CRYSTAL);
@@ -471,50 +465,26 @@ public class CoreBlockEntity extends BlockEntity {
             return;
         }
         try {
-            Checkpoints.save(server.getServer(), mind.id(), model, checkpoint);
+            Checkpoints.save(server.getServer(), info.id(), model, checkpoint);
         } catch (IOException | RuntimeException e) {
-            Residual.LOG.error("Saving a mind failed", e);
+            Residual.LOG.error("Saving a model failed", e);
             say("residual.status.crashed", String.valueOf(e));
             return;
         }
-        crystal.set(ModComponents.MIND.get(), mind);
+        crystal.set(ModComponents.MODEL.get(), info);
         items.setChanged();
         level.playSound(null, worldPosition, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 1f, 1.2f);
-        say("residual.status.saved", mind.tag());
-        Awards.grant(saver, "mind/saved");
+        say("residual.status.saved", info.tag());
+        Awards.grant(saver, "model/saved");
         int passed = 0;
-        for (Ability a : Ability.values()) {
-            if (mind.passes(a)) {
-                Awards.grant(saver, "ability/" + a.id);
+        for (Benchmark a : Benchmark.values()) {
+            if (info.passes(a)) {
+                Awards.grant(saver, "benchmark/" + a.id);
                 passed++;
             }
         }
-        if (passed == Ability.values().length) {
-            Awards.grant(saver, "mind/complete");
-        }
-    }
-
-    /** Sends the player the model as PyTorch source, or an empty text if it doesn't check out. */
-    public void code(ServerPlayer player) {
-        Checked checked = check();
-        PacketDistributor.sendToPlayer(player, new CodeText(checked == null ? ""
-                : PyTorch.module(checked.model(), Vocab.WORLD.symbols, "mind")));
-    }
-
-    /** Sends the player the model's source and trained weights to save next to their game. */
-    public void export(ServerPlayer player) {
-        Checked checked = check();
-        if (checked == null) {
-            say("residual.status.export_broken");
-            return;
-        }
-        String code = PyTorch.module(checked.model(), Vocab.WORLD.symbols, "mind");
-        byte[] data = PyTorch.weightBytes(PyTorch.weights(checked.model()));
-        String folder = "mind-" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-        int total = Math.max(1, (data.length + ExportChunk.CHUNK - 1) / ExportChunk.CHUNK);
-        for (int i = 0; i < total; i++) {
-            byte[] piece = Arrays.copyOfRange(data, i * ExportChunk.CHUNK, Math.min(data.length, (i + 1) * ExportChunk.CHUNK));
-            PacketDistributor.sendToPlayer(player, new ExportChunk(folder, i == 0 ? code : "", i, total, piece));
+        if (passed == Benchmark.values().length) {
+            Awards.grant(saver, "model/complete");
         }
     }
 
@@ -686,7 +656,7 @@ public class CoreBlockEntity extends BlockEntity {
             double loss = 0, acc = 0;
             int accs = 0;
             boolean allCausal = true;
-            for (Map.Entry<Ability, Trainer.Eval> e : u.tests.entrySet()) {
+            for (Map.Entry<Benchmark, Trainer.Eval> e : u.tests.entrySet()) {
                 Trainer.Eval ev = e.getValue();
                 tests.put(e.getKey(), new CoreSync.Score((float) ev.loss(), (float) ev.accuracy(), steps));
                 loss += ev.loss();
@@ -788,9 +758,9 @@ public class CoreBlockEntity extends BlockEntity {
         Mixture m = mixture();
         List<CoreSync.Score> scores = new ArrayList<>();
         List<Boolean> practising = new ArrayList<>();
-        for (Ability a : Ability.values()) {
+        for (Benchmark a : Benchmark.values()) {
             scores.add(tests.getOrDefault(a, CoreSync.Score.NONE));
-            practising.add(m != null && m.sources.stream().anyMatch(s -> s.ability() == a));
+            practising.add(m != null && m.sources.stream().anyMatch(s -> s.benchmark() == a));
         }
         int budgetLeft = wreck() == null ? -1 : Math.max(0, Wrecks.BUDGET - runSteps);
         return new CoreSync(worldPosition, learningRate, batchSize, clip, speed.ordinal(), job != null, steps, runSteps,
@@ -904,7 +874,7 @@ public class CoreBlockEntity extends BlockEntity {
         args = joined.isEmpty() ? List.of() : List.of(joined.split("\u0001", -1));
         tests.clear();
         in.child("tests").ifPresent(t -> {
-            for (Ability a : Ability.values()) {
+            for (Benchmark a : Benchmark.values()) {
                 t.child(a.id).ifPresent(one -> tests.put(a, new CoreSync.Score(one.getFloatOr("loss", Float.NaN),
                         one.getFloatOr("accuracy", Float.NaN), one.getIntOr("step", -1))));
             }

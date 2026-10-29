@@ -33,7 +33,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The Model Server: use a saved crystal on it to serve that mind, and a Relay Card or Terminal to tune it here. With an
+ * The Model Server: use a saved crystal on it to serve that model, and a Relay Card or Terminal to tune it here. With an
  * empty hand it reports how it is doing; sneak with an empty hand to take the crystal out.
  */
 public class ServerBlock extends BaseEntityBlock {
@@ -87,7 +87,7 @@ public class ServerBlock extends BaseEntityBlock {
             }
             return InteractionResult.SUCCESS;
         }
-        if (stack.getItem() instanceof CrystalItem && CrystalItem.mind(stack) != null) {
+        if (stack.getItem() instanceof CrystalItem && CrystalItem.model(stack) != null) {
             if (!level.isClientSide()) {
                 player.setItemInHand(hand, server.swap(stack.copyWithCount(1)));
                 level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_PLACE, SoundSource.BLOCKS, 1f, 1f);

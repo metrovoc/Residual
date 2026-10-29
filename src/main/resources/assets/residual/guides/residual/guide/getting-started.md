@@ -1,17 +1,17 @@
 ---
 navigation:
   title: Getting Started
-  icon: apprentice
+  icon: agent
   position: 10
 item_ids:
   - tensor_casing
   - weight_crystal
-  - field_drill
+  - field_dataset
 ---
 
 # Getting Started
 
-A first mind fits in a few blocks: a <ItemLink id="model_core" />, an <ItemLink id="embedding" /> and some
+A first model fits in a few blocks: a <ItemLink id="model_core" />, an <ItemLink id="embedding" /> and some
 <ItemLink id="cable" />. It will learn to farm. Then you give it a body.
 
 ## Materials
@@ -24,14 +24,14 @@ numbers, so machines with weights need them.
   <RecipeFor id="weight_crystal" />
 </Row>
 
-Then craft the Model Core, an Embedding Table, a stack of cables and a <ItemLink id="field_drill" />: endless
+Then craft the Model Core, an Embedding Table, a stack of cables and a <ItemLink id="field_dataset" />: endless
 practice at farming.
 
 <Row>
   <RecipeFor id="model_core" />
   <RecipeFor id="embedding" />
   <RecipeFor id="cable" />
-  <RecipeFor id="field_drill" />
+  <RecipeFor id="field_dataset" />
 </Row>
 
 ## Build it
@@ -41,7 +41,7 @@ practice at farming.
 3. Place the Embedding Table against the end of that cable. It snaps into the flow: its back reads the cable and
    its front points away.
 4. Lay a cable from the table's front back to any other face of the Core: its sides, its top or its back. That is
-   where the mind's scores go in.
+   where the model's scores go in.
 5. Open the table and set **Width** to **V (vocab)**.
 
 <GameScene zoom="3" interactive={true}>
@@ -73,35 +73,35 @@ the table's scores back.
 
 ## Train it
 
-Open the Core and put the Field Drill in one of its **Data** slots. Switch to **Train** and press **Train**. Two curves
-fall: the loss on practice, and the loss on the test, which only uses plots the mind never practised on.
+Open the Core and put the Field Dataset in one of its **Data** slots. Switch to **Train** and press **Train**. Two curves
+fall: the loss on practice, and the loss on the test, which only uses plots the model never practised on.
 
 Farming takes little thought: harvest a ripe plot, plant a bare one, leave anything else to grow. An Embedding Table
 set to V scores the next character from the one before it, and the character before each decision is the plot, so
-this one table can learn all of farming. When **Reacting** on the **Tests** tab passes 98%, the mind is ready.
+this one table can learn all of farming. When **Reacting** on the **Tests** tab passes 98%, the model is ready.
 
 ## Save it
 
 Craft a <ItemLink id="checkpoint" />, put it in the Core's checkpoint slot and press **Save to checkpoint**. The Core
-tests the mind on every ability and keeps it, scores and all, in the crystal. The machines can go on training; the
+tests the model on every benchmark and keeps it, scores and all, in the crystal. The machines can go on training; the
 checkpoint keeps this moment.
 
 <RecipeFor id="checkpoint" />
 
 ## Give it a body
 
-Craft an <ItemLink id="apprentice" /> and place it beside some farmland with a chest nearby: where it stands becomes
-its home. Open it, put the checkpoint in its **Mind** slot, hand it a few seeds and choose **Farm**.
+Craft an <ItemLink id="agent" /> and place it beside some farmland with a chest nearby: where it stands becomes
+its home. Open it, put the checkpoint in its **Model** slot, hand it a few seeds and choose **Farm**.
 
-<RecipeFor id="apprentice" />
+<RecipeFor id="agent" />
 
-It walks the farmland around home. At every plot it asks its mind what to do, in exactly the format of the test, and
-does what the mind answers. Its screen shows what it asked and what came back. Walking, reaping and carrying are the
-body's work; every decision is your mind's.
+It walks the farmland around home. At every plot it asks its model what to do, in exactly the format of the test, and
+does what the model answers. Its screen shows what it asked and what came back. Walking, reaping and carrying are the
+body's work; every decision is your model's.
 
 ## Further
 
-Other drills teach other jobs, and better minds need machines whose plans were lost. Go looking: see
+Other datasets teach other jobs, and better models need machines whose plans were lost. Go looking: see
 [Ruins](ruins.md).
 
 - Look at any machine to see its name, its output shape (or what is wrong with it) and what the face you are looking

@@ -53,7 +53,7 @@ public final class Sampler {
         return steps;
     }
 
-    /** A greedy answer: the characters a mind wrote and how sure it was of each. */
+    /** A greedy answer: the characters a model wrote and how sure it was of each. */
     public record Answer(String text, float[] probs) {
         /** How sure it was of its least sure character. */
         public float confidence() {
@@ -88,7 +88,7 @@ public final class Sampler {
 
     /**
      * What the Tests tab shows: for reading, a continuation of {@code prompt} (or of unseen archive text when it is
-     * empty); for orders with a prompt, what the mind takes it to mean; otherwise its answers to a fresh test
+     * empty); for orders with a prompt, what the model takes it to mean; otherwise its answers to a fresh test
      * example next to the right ones.
      *
      * @param labels the most likely tokens at the first generated (or answered) position
@@ -97,9 +97,9 @@ public final class Sampler {
     public record Demo(String prompt, String text, List<String> labels, List<Float> probs, String note) {
     }
 
-    public static Demo demo(CompiledGraph model, Ability ability, String prompt, float temperature, Random rng) {
+    public static Demo demo(CompiledGraph model, Benchmark benchmark, String prompt, float temperature, Random rng) {
         Vocab vocab = Vocab.WORLD;
-        if (ability == Ability.ORDERS) {
+        if (benchmark == Benchmark.ORDERS) {
             Orders.Example example = prompt.isBlank() ? Orders.example(rng, true) : null;
             String given = Orders.prompt(example == null ? prompt : example.said());
             int[] ids = vocab.encode(given);
@@ -113,11 +113,11 @@ public final class Sampler {
             }
             Orders.Command c = Orders.parse(out.substring(given.length()));
             String note = (example == null ? "" : "Meant: " + example.meant() + ". ")
-                    + (c == null ? "An apprentice would not know what to do." : "An apprentice would " + describe(c) + ".");
+                    + (c == null ? "An agent would not know what to do." : "An agent would " + describe(c) + ".");
             return new Demo(given, out.toString(), labels(vocab, steps.getFirst().topIds()), floats(steps.getFirst().topProbs()), note);
         }
-        if (ability != Ability.READING) {
-            return puzzle(model, Drill.of(ability), rng);
+        if (benchmark != Benchmark.READING) {
+            return puzzle(model, Dataset.of(benchmark), rng);
         }
         int[] ids = vocab.encode(prompt);
         if (ids.length == 0) {

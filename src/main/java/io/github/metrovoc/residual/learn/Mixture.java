@@ -5,8 +5,8 @@ import java.util.Random;
 
 /** Practice drawn evenly from every source loaded into a Model Core: each batch comes from one of them. */
 public final class Mixture extends Task {
-    /** One source and the ability it practises. */
-    public record Source(Ability ability, Task data) {
+    /** One source and the benchmark it practises. */
+    public record Source(Benchmark benchmark, Task data) {
     }
 
     public final List<Source> sources;

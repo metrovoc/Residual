@@ -16,7 +16,7 @@ public final class ResidualConfig {
                 .defineInRange("baseThreads", 2, 1, 64);
         MAX_THREADS = b.comment("Most threads one Model Core may train with, however many Accelerators it has.")
                 .defineInRange("maxThreads", Math.max(1, Runtime.getRuntime().availableProcessors() - 1), 1, 256);
-        ONBOARD_PARAMETERS = b.comment("Largest mind, in parameters, that an apprentice can run from a crystal in its own head.")
+        ONBOARD_PARAMETERS = b.comment("Largest model, in parameters, that an agent can run from a crystal in its own head.")
                 .defineInRange("onboardParameters", 40_000L, 0L, Long.MAX_VALUE);
         SERVER_ANSWERS = b.comment("Answers per second a Model Server gives on its own. Each cooled Accelerator touching it adds as many again.")
                 .defineInRange("serverAnswers", 4, 1, 1000);

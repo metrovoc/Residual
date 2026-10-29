@@ -1,6 +1,6 @@
 package io.github.metrovoc.residual.client;
 
-import io.github.metrovoc.residual.mind.Recovered;
+import io.github.metrovoc.residual.model.Recovered;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 

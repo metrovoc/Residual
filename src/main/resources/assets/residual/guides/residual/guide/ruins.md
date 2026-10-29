@@ -30,7 +30,7 @@ them; their chests hold relay cards and the plans for relays.
 ## Buried vaults
 
 A lantern on a post beside a trapdoor in the ground. Below is a deep room with a bank of old accelerators, and two
-chests. Every vault holds a [salvaged mind](salvage.md) and the plans for the most advanced machines.
+chests. Every vault holds a [salvaged model](salvage.md) and the plans for the most advanced machines.
 
 ## What they hold
 
@@ -40,4 +40,4 @@ chests. Every vault holds a [salvaged mind](salvage.md) and the plans for the mo
   turn up in houses and vaults; <ItemLink id="schematic_blocks" /> only in vaults; <ItemLink id="schematic_relays" />
   on masts and in vaults.
 - <ItemLink id="weight_crystal" />, blank <ItemLink id="checkpoint" />s and a little gold.
-- <ItemLink id="salvaged_mind" />: see [Salvaged Minds](salvage.md).
+- <ItemLink id="salvaged_model" />: see [Salvaged Models](salvage.md).

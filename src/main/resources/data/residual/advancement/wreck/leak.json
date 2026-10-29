@@ -7,7 +7,7 @@
   },
   "display": {
     "icon": {
-      "id": "residual:salvaged_mind",
+      "id": "residual:salvaged_model",
       "components": {
         "residual:wreck": "leak"
       }

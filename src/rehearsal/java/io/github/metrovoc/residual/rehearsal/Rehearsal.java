@@ -95,7 +95,7 @@ import org.slf4j.Logger;
  * chat TEXT                  say something in chat
  * wait TICKS
  * use X Y Z [FACE]           right-click a block with the main hand
- * entity TYPE                right-click the nearest entity of TYPE (residual:apprentice) with the main hand,
+ * entity TYPE                right-click the nearest entity of TYPE (residual:agent) with the main hand,
  *                            stepping up to it first if it is out of reach
  * useitem                    right-click the air with the main hand
  * creative TAB               open the creative inventory on a tab, by id (residual:main)

@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * What the people of this world wrote, in records. Shards carry records with some of their text lost, block by
- * block. One record in ten never turns up in a shard: reading is tested on those, text no mind has seen.
+ * block. One record in ten never turns up in a shard: reading is tested on those, text no model has seen.
  */
 public final class Archive {
     public record Record(int id, String title, String text) {
@@ -84,7 +84,7 @@ public final class Archive {
                     texts.add(r.text());
                 }
             }
-            test = new TextTask(texts, Ability.READING.target);
+            test = new TextTask(texts, Benchmark.READING.target);
         }
         return test;
     }
@@ -98,7 +98,7 @@ public final class Archive {
                 texts.addAll(r.legible(lost));
             }
         });
-        return new TextTask(texts, Ability.READING.target);
+        return new TextTask(texts, Benchmark.READING.target);
     }
 
     private static String read(String path) {

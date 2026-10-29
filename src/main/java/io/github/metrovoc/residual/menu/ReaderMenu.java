@@ -14,9 +14,9 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-/** The Reader's screen: a shard slot, a mind slot and the player's inventory. */
+/** The Reader's screen: a shard slot, a model slot and the player's inventory. */
 public class ReaderMenu extends AbstractContainerMenu {
-    public static final int SHARD_X = 18, SHARD_Y = 30, MIND_X = 18, MIND_Y = 72;
+    public static final int SHARD_X = 18, SHARD_Y = 30, MODEL_X = 18, MODEL_Y = 72;
     public static final int INVENTORY_X = 48, INVENTORY_Y = 150;
 
     public final BlockPos pos;
@@ -41,10 +41,10 @@ public class ReaderMenu extends AbstractContainerMenu {
                 return 1;
             }
         });
-        addSlot(new Slot(items, ReaderBlockEntity.MIND, MIND_X, MIND_Y) {
+        addSlot(new Slot(items, ReaderBlockEntity.MODEL, MODEL_X, MODEL_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return ApprenticeMenu.isMind(stack);
+                return AgentMenu.isModel(stack);
             }
 
             @Override

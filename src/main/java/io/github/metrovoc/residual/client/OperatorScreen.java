@@ -1,9 +1,7 @@
 package io.github.metrovoc.residual.client;
 
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
-import io.github.metrovoc.residual.export.PyTorch;
 import io.github.metrovoc.residual.graph.ConfigField;
-import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.net.MachineEdit;
@@ -21,7 +19,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-/** A machine's screen: its name and settings, what the last check found, its pictures and its line of PyTorch. */
+/** A machine's screen: its name and settings, what the last check found, its pictures and its math. */
 public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
     private EditBox name;
     private String sentName = "";
@@ -165,28 +163,34 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
             String scale = "±" + Ui.num(be.weights().scale());
             g.text(font, scale, 190, 86, Ui.LABEL_DIM, false);
         }
-        // the same machine in PyTorch
-        g.text(font, Component.translatable("residual.machine.pytorch"), 8, 128, Ui.LABEL_DIM, false);
+        // the same machine as math
+        g.text(font, Component.translatable("residual.machine.math"), 8, 128, Ui.LABEL_DIM, false);
         if (be.provided()) {
             String provided = I18n.get("residual.machine.provided");
             g.text(font, provided, imageWidth - 8 - font.width(provided), 128, Ui.LABEL_DIM, false);
         }
         Ui.screen(g, 8, 138, 232, 50);
-        Env env = new Env(status.vocab(), status.context());
-        String shownName = name == null ? be.name() : name.getValue();
         int ly = 142;
-        List<String> lines = PyTorch.preview(op, be.config(), shownName, status.features(), env);
-        for (int i = 0; i < lines.size(); i++) {
-            // the module's constructor (amber) comes before its step in forward (teal)
-            int color = i < lines.size() - 1 ? Ui.AMBER : Ui.TEAL;
-            for (FormattedCharSequence part : font.split(Component.literal(lines.get(i)), 226)) {
+        for (String line : I18n.get(mathKey(op, be)).split("\n")) {
+            for (FormattedCharSequence part : font.split(Component.literal(line), 226)) {
                 if (ly > 178) {
                     break;
                 }
-                g.text(font, part, 12, ly, color, false);
+                g.text(font, part, 12, ly, Ui.TEAL, false);
                 ly += 10;
             }
         }
+    }
+
+    /** The translation key of the machine's computation, which for some machines depends on a setting. */
+    private static String mathKey(Op op, OperatorBlockEntity be) {
+        String key = "residual.op." + op.id + ".math";
+        return switch (op) {
+            case ACTIVATION -> key + "." + be.config().get("fn");
+            case NORM -> key + "." + be.config().get("kind");
+            case MATMUL -> be.config().flag("transpose") ? key + ".transposed" : key;
+            default -> key;
+        };
     }
 
     /** Writes text beside the pictures and then across the window below them; true if it had to be cut short. */

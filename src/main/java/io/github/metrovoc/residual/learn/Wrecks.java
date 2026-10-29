@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Minds found broken in the ruins. Each comes with the machine it was, the practice it was given and how it was
+ * Models found broken in the ruins. Each comes with the machine it was, the practice it was given and how it was
  * trained; rebuilt in front of a Model Core it has to be repaired and pass its test within a budget of steps.
  */
 public final class Wrecks {
@@ -19,14 +19,14 @@ public final class Wrecks {
         public static final Settings DEFAULT = new Settings(3e-3f, 32, 1f);
     }
 
-    public record Wreck(String id, Ability ability, double target, Settings settings, Supplier<GraphSpec> machine) {
+    public record Wreck(String id, Benchmark benchmark, double target, Settings settings, Supplier<GraphSpec> machine) {
         /** What it practises on. */
         public Task practice() {
-            return ability == Ability.READING ? reading() : Drill.of(ability);
+            return benchmark == Benchmark.READING ? reading() : Dataset.of(benchmark);
         }
 
         public boolean passes(Trainer.Eval eval) {
-            return eval.causal() && (ability.metric == Task.Metric.LOSS ? eval.loss() <= target : eval.accuracy() >= target);
+            return eval.causal() && (benchmark.metric == Task.Metric.LOSS ? eval.loss() <= target : eval.accuracy() >= target);
         }
     }
 
@@ -34,11 +34,11 @@ public final class Wrecks {
     public static final int BUDGET = 1500;
 
     public static final List<Wreck> ALL = List.of(
-            new Wreck("shape", Ability.REACTING, 0.98, Settings.DEFAULT, Wrecks::shape),
-            new Wreck("diverge", Ability.RECALL, 0.9, new Settings(1.5f, 32, 0f), Blueprints::recall),
-            new Wreck("leak", Ability.REACTING, 0.98, Settings.DEFAULT, Wrecks::leak),
-            new Wreck("order", Ability.REVERSAL, 0.9, Settings.DEFAULT, Wrecks::order),
-            new Wreck("depth", Ability.READING, 2.4, Settings.DEFAULT, Wrecks::depth));
+            new Wreck("shape", Benchmark.REACTING, 0.98, Settings.DEFAULT, Wrecks::shape),
+            new Wreck("diverge", Benchmark.RECALL, 0.9, new Settings(1.5f, 32, 0f), Blueprints::recall),
+            new Wreck("leak", Benchmark.REACTING, 0.98, Settings.DEFAULT, Wrecks::leak),
+            new Wreck("order", Benchmark.REVERSAL, 0.9, Settings.DEFAULT, Wrecks::order),
+            new Wreck("depth", Benchmark.READING, 2.4, Settings.DEFAULT, Wrecks::depth));
 
     private static TextTask reading;
 
@@ -68,7 +68,7 @@ public final class Wrecks {
         return reading;
     }
 
-    /** A field mind whose last layer gives 32 scores instead of one per character. */
+    /** A field model whose last layer gives 32 scores instead of one per character. */
     static GraphSpec shape() {
         GraphSpec g = new GraphSpec();
         int e = g.add("embed", Op.EMBEDDING, Config.of(Op.EMBEDDING, "dim", "32"), GraphSpec.TOKENS);
@@ -96,7 +96,7 @@ public final class Wrecks {
         return g;
     }
 
-    /** An errand mind without a Position Table: attention can't tell first from last. */
+    /** An errand model without a Position Table: attention can't tell first from last. */
     static GraphSpec order() {
         GraphSpec g = new GraphSpec();
         int x = g.add("embed", Op.EMBEDDING, Config.of(Op.EMBEDDING, "dim", "32"), GraphSpec.TOKENS);

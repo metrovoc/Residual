@@ -7,7 +7,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-/** What the served mind wrote, or why nothing could be asked (a translation key and its arguments). */
+/** What the served model wrote, or why nothing could be asked (a translation key and its arguments). */
 public record TerminalAnswer(String prompt, String text, String problem, List<String> args) implements CustomPacketPayload {
     public static final Type<TerminalAnswer> TYPE = new Type<>(Residual.id("terminal_answer"));
     public static final StreamCodec<RegistryFriendlyByteBuf, TerminalAnswer> STREAM_CODEC = StreamCodec.composite(

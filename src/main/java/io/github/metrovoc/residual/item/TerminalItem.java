@@ -7,8 +7,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 /**
- * A handheld line to a Model Server. Use it to write with the served mind; while it is in hand, orders said to an
- * apprentice anywhere the network reaches get through.
+ * A handheld line to a Model Server. Use it to write with the served model; while it is in hand, orders said to an
+ * agent anywhere the network reaches get through.
  */
 public class TerminalItem extends LinkItem {
     public TerminalItem(Properties properties) {

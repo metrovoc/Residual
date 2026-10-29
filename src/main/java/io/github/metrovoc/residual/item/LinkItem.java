@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 
-/** Something tuned to a Model Server by using it on one: a Relay Card for an apprentice's mind slot, or a Terminal. */
+/** Something tuned to a Model Server by using it on one: a Relay Card for an agent's model slot, or a Terminal. */
 public class LinkItem extends Item {
     public LinkItem(Properties properties) {
         super(properties);

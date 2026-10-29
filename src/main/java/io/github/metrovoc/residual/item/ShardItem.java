@@ -2,7 +2,7 @@ package io.github.metrovoc.residual.item;
 
 import io.github.metrovoc.residual.client.ClientHooks;
 import io.github.metrovoc.residual.learn.Archive;
-import io.github.metrovoc.residual.mind.Recovered;
+import io.github.metrovoc.residual.model.Recovered;
 import io.github.metrovoc.residual.registry.ModComponents;
 import java.util.BitSet;
 import java.util.Locale;

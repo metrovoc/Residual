@@ -16,7 +16,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-/** Writes with the mind a Model Server serves, from anywhere its relay network reaches. */
+/** Writes with the model a Model Server serves, from anywhere its relay network reaches. */
 public class TerminalScreen extends Screen {
     private static final int W = 260;
     private static final int H = 190;
@@ -37,12 +37,12 @@ public class TerminalScreen extends Screen {
         prompt.setHint(Component.translatable("residual.terminal.hint"));
         setInitialFocus(prompt);
         write = addRenderableWidget(Button.builder(Component.translatable("residual.terminal.write"), b -> {
-            ApprenticeView.asking = true;
+            AgentView.asking = true;
             ClientPacketDistributor.sendToServer(new TerminalAsk(hand == InteractionHand.OFF_HAND, prompt.getValue()));
         }).bounds(x + 8, y + 52, 70, 16).build());
         addRenderableWidget(Button.builder(Component.translatable("residual.terminal.clear"), b -> {
             prompt.setValue("");
-            ApprenticeView.answer = null;
+            AgentView.answer = null;
         }).bounds(x + 82, y + 52, 50, 16).build());
     }
 
@@ -64,10 +64,10 @@ public class TerminalScreen extends Screen {
         GlobalPos link = held.get(ModComponents.LINK.get());
         Component where = link == null ? Component.translatable("residual.link.none") : Component.translatable("residual.link.to", link.pos().toShortString());
         g.text(font, Ui.fit(font, where.getString(), W - 16), x + 8, y + 19, Ui.LABEL_DIM, false);
-        write.active = !ApprenticeView.asking;
+        write.active = !AgentView.asking;
         Ui.screen(g, x + 8, y + 74, W - 16, H - 82);
-        TerminalAnswer answer = ApprenticeView.answer;
-        if (ApprenticeView.asking) {
+        TerminalAnswer answer = AgentView.answer;
+        if (AgentView.asking) {
             g.text(font, Component.translatable("residual.terminal.thinking"), x + 12, y + 78, Ui.DIM, false);
         } else if (answer != null && !answer.problem().isEmpty()) {
             for (FormattedCharSequence line : font.split(Component.translatable(answer.problem(), answer.args().toArray()), W - 24)) {
@@ -87,7 +87,7 @@ public class TerminalScreen extends Screen {
     @Override
     public void removed() {
         super.removed();
-        ApprenticeView.asking = false;
+        AgentView.asking = false;
     }
 
     @Override

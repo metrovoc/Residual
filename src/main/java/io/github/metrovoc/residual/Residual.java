@@ -2,7 +2,7 @@ package io.github.metrovoc.residual;
 
 import com.mojang.logging.LogUtils;
 import guideme.Guides;
-import io.github.metrovoc.residual.apprentice.Apprentices;
+import io.github.metrovoc.residual.agent.Agents;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.net.Network;
 import io.github.metrovoc.residual.registry.ModAttachments;
@@ -48,7 +48,7 @@ public final class Residual {
 
         NeoForge.EVENT_BUS.addListener(Residual::onServerStopping);
         NeoForge.EVENT_BUS.addListener(Residual::onLogIn);
-        NeoForge.EVENT_BUS.addListener(Apprentices::onChat);
+        NeoForge.EVENT_BUS.addListener(Agents::onChat);
     }
 
     public static Identifier id(String path) {

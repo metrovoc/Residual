@@ -2,7 +2,7 @@ package io.github.metrovoc.residual.menu;
 
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.item.CrystalItem;
-import io.github.metrovoc.residual.item.DrillItem;
+import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.registry.ModMenus;
@@ -16,7 +16,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * The Model Core's screen: four data slots for what the mind practises on and a crystal slot to save it into. The
+ * The Model Core's screen: four data slots for what the model practises on and a crystal slot to save it into. The
  * screen shows the slots and the player's inventory only on its Data tab.
  */
 public class CoreMenu extends AbstractContainerMenu {
@@ -76,7 +76,7 @@ public class CoreMenu extends AbstractContainerMenu {
     }
 
     public static boolean isData(ItemStack stack) {
-        return stack.getItem() instanceof DrillItem || stack.getItem() instanceof DriveItem || stack.getItem() instanceof WreckItem;
+        return stack.getItem() instanceof DatasetItem || stack.getItem() instanceof DriveItem || stack.getItem() instanceof WreckItem;
     }
 
     private class Shown extends Slot {

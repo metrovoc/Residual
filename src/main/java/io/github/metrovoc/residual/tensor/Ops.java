@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * Differentiable tensor operations. Every op takes an optional {@link Tape}; when it is non-null and an
  * input requires gradients, the op records how to push gradients back to its inputs.
- * Semantics match the PyTorch functions named in each comment, so exported code reproduces the forward pass.
+ * Semantics match the PyTorch functions named in each comment.
  */
 public final class Ops {
     private Ops() {

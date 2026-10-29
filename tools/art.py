@@ -603,7 +603,7 @@ PAGE = [
 
 
 def reader_front(step=None):
-    """Lines of an old text behind glass: grey while idle, lighting amber as a mind reads them."""
+    """Lines of an old text behind glass: grey while idle, lighting amber as a model reads them."""
     c = plate(TEAL_LINE, salt=11)
     window(c)
     for row, line in enumerate(READER_LINES):
@@ -693,7 +693,7 @@ def relay():
     return c
 
 
-# ---------------------------------------------------------------- Apprentice
+# ---------------------------------------------------------------- Agent
 
 GLASS = (196, 238, 232, 72)
 GLINT = (255, 255, 255, 150)
@@ -805,7 +805,7 @@ def limb(foot):
     return paint
 
 
-def apprentice_skin():
+def agent_skin():
     c = Canvas(64, 64)
     box(c, 0, 0, 8, 7, 5, body_face)
     box(c, 0, 14, 7, 7, 7, head_face)
@@ -986,10 +986,10 @@ def schematic(accent, rows):
     return c
 
 
-# one color per ability, on its drill's header
-ABILITY_COLORS = {"field": "84e08a", "storage": "ffb547", "errand": "6cb8ff", "pattern": "b48cff", "orders": "3cd6c6"}
-# what each drill practices, punched into the card
-DRILL_HOLES = {
+# one color per benchmark, on its dataset's header
+BENCHMARK_COLORS = {"field": "84e08a", "storage": "ffb547", "errand": "6cb8ff", "pattern": "b48cff", "orders": "3cd6c6"}
+# what each dataset practices, punched into the card
+DATASET_HOLES = {
     "field": [
         "#..#..#.",
         ".#.#.#..",
@@ -1056,16 +1056,16 @@ CARD = [
 ]
 
 
-def drill(kind):
-    """A punch card: the header in its ability's color, the practice punched below."""
+def dataset(kind):
+    """A punch card: the header in its benchmark's color, the practice punched below."""
     c = Canvas()
-    a = rgb(ABILITY_COLORS[kind])
+    a = rgb(BENCHMARK_COLORS[kind])
     c.stamp(0, 0, CARD, {"H": a, "h": mix(a, (0, 0, 0, 255), 0.35), "P": K0, "S": K3})
     for y in range(4, 14):
         for x in range(2, 14):
             if speckle(x, y, 3):
                 c.px(x, y, K1)
-    holes = glyph_cells(DRILL_HOLES[kind])
+    holes = glyph_cells(DATASET_HOLES[kind])
     for (x, y) in holes:
         c.px(4 + x, 5 + y, rgb("2a313b"))
         if (x, y + 1) not in holes:
@@ -1095,7 +1095,7 @@ CHECKPOINT = [
 
 
 def checkpoint():
-    """A vial for a mind: a weight crystal sealed in glass between two steel caps."""
+    """A vial for a model: a weight crystal sealed in glass between two steel caps."""
     c = Canvas()
     c.stamp(0, 0, CHECKPOINT, {"k": K3, "K": K1, "g": G1, "G": G3, "w": rgb("cfe6ea"), "h": K0,
                                "T": TEAL[3], "t": TEAL[2], "A": AMBER[3], "a": AMBER[2]})
@@ -1160,7 +1160,7 @@ def archive_shard():
     return c
 
 
-def salvaged_mind():
+def salvaged_model():
     """A weight crystal gone dark, cracked through, still warm inside."""
     c = Canvas()
     c.stamp(0, 0, WEIGHT_CRYSTAL, {"o": rgb("12171c"), "T": rgb("51606a"), "t": rgb("3a464f"),
@@ -1177,7 +1177,7 @@ def salvaged_mind():
     return c
 
 
-APPRENTICE = [
+AGENT = [
     "................",
     ".......tt.......",
     ".......bb.......",
@@ -1197,10 +1197,10 @@ APPRENTICE = [
 ]
 
 
-def apprentice_item():
-    """Brass body, graphite limbs, and a glass lantern for a head with a mind glowing in it."""
+def agent_item():
+    """Brass body, graphite limbs, and a glass lantern for a head with a model glowing in it."""
     c = Canvas()
-    c.stamp(0, 0, APPRENTICE, {"t": TEAL[4], "b": BRASS[3], "B": BRASS[3], "h": rgb("eafaf7"), "g": rgb("a9d9d2"),
+    c.stamp(0, 0, AGENT, {"t": TEAL[4], "b": BRASS[3], "B": BRASS[3], "h": rgb("eafaf7"), "g": rgb("a9d9d2"),
                                "c": TEAL[3], "C": TEAL[5], "D": BRASS[3], "d": BRASS[2], "v": G1, "a": G2,
                                "s": BRASS[4], "L": G2, "f": BRASS[2]})
     for x in range(4, 12):
@@ -1277,7 +1277,7 @@ TERMINAL = [
 
 
 def terminal():
-    """A handheld screen for asking a served mind from anywhere its relays reach."""
+    """A handheld screen for asking a served model from anywhere its relays reach."""
     c = Canvas()
     c.stamp(0, 0, TERMINAL, {"G": G2, "g": G1, "W": W1, "t": TEAL[3], "c": TEAL[5], "k": K2, "l": TEAL[4],
                              "b": BRASS[3]})
@@ -1404,17 +1404,17 @@ def build():
     checkpoint().save("item/checkpoint.png")
     archive_drive().save("item/archive_drive.png")
     archive_shard().save("item/archive_shard.png")
-    salvaged_mind().save("item/salvaged_mind.png")
-    for kind in ABILITY_COLORS:
-        drill(kind).save(f"item/{kind}_drill.png")
+    salvaged_model().save("item/salvaged_model.png")
+    for kind in BENCHMARK_COLORS:
+        dataset(kind).save(f"item/{kind}_dataset.png")
     for name, (accent, rows) in SCHEMATICS.items():
         schematic(accent, rows).save(f"item/{name}.png")
-    apprentice_item().save("item/apprentice.png")
+    agent_item().save("item/agent.png")
     survey_rod().save("item/survey_rod.png")
     relay_card().save("item/relay_card.png")
     terminal().save("item/terminal.png")
     guide().save("item/guide.png")
-    apprentice_skin().save("entity/apprentice.png")
+    agent_skin().save("entity/agent.png")
     # the mod list scales it down to 50 px high
     mark = logo().im
     mark.resize((mark.width * 8, mark.height * 8), Image.NEAREST).save(ROOT / "src/main/resources/residual_logo.png")

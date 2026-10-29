@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Everything the Model Core's screen shows, sent to players who have it open.
  *
- * @param tests      the latest test of each ability, in ability order
- * @param practising which abilities the loaded data practises, in ability order
+ * @param tests      the latest test of each benchmark, in benchmark order
+ * @param practising which benchmarks the loaded data practises, in benchmark order
  * @param budgetLeft steps left to repair a wreck, or -1 when no wreck is loaded
  * @param busy       a test run or a save is under way
  */
@@ -33,7 +33,7 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
     public record Node(BlockPos pos, String op, String name, String shape, long parameters, float gradNorm, boolean active) {
     }
 
-    /** A test result; NaN when the ability was never tested. */
+    /** A test result; NaN when the benchmark was never tested. */
     public record Score(float loss, float accuracy, int step) {
         public static final Score NONE = new Score(Float.NaN, Float.NaN, -1);
     }

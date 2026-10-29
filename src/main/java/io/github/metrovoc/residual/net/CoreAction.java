@@ -9,8 +9,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 /** A button pressed on the Model Core's screen. */
 public record CoreAction(BlockPos pos, Kind kind, int value, String text) implements CustomPacketPayload {
-    /** {@code SAMPLE}'s value is the ability's index times 1000 plus the temperature in hundredths. */
-    public enum Kind { CHECK, START, STOP, RESET, LEARNING_RATE, BATCH_SIZE, CLIP, SPEED, BUILD_WRECK, SAMPLE, CODE, EXPORT, TEST, SAVE }
+    /** {@code SAMPLE}'s value is the benchmark's index times 1000 plus the temperature in hundredths. */
+    public enum Kind { CHECK, START, STOP, RESET, LEARNING_RATE, BATCH_SIZE, CLIP, SPEED, BUILD_WRECK, SAMPLE, TEST, SAVE }
 
     public static final Type<CoreAction> TYPE = new Type<>(Residual.id("core_action"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CoreAction> STREAM_CODEC = StreamCodec.composite(

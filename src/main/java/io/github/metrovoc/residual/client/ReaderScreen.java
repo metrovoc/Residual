@@ -5,7 +5,7 @@ import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.learn.Archive;
 import io.github.metrovoc.residual.learn.Reading;
 import io.github.metrovoc.residual.menu.ReaderMenu;
-import io.github.metrovoc.residual.mind.Recovered;
+import io.github.metrovoc.residual.model.Recovered;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -52,7 +52,7 @@ public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
     protected void extractLabels(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         g.text(font, title, 8, 6, Ui.LABEL, false);
         g.text(font, Component.translatable("residual.reader.shard"), ReaderMenu.SHARD_X - 2, ReaderMenu.SHARD_Y - 10, Ui.LABEL, false);
-        g.text(font, Component.translatable("residual.apprentice.mind_slot"), ReaderMenu.MIND_X - 2, ReaderMenu.MIND_Y - 10, Ui.LABEL, false);
+        g.text(font, Component.translatable("residual.agent.model_slot"), ReaderMenu.MODEL_X - 2, ReaderMenu.MODEL_Y - 10, Ui.LABEL, false);
         Recovered r = ShardItem.record(menu.shard());
         Archive.Record record = r == null ? null : r.text();
         if (record != null) {
@@ -61,14 +61,14 @@ public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
         ReaderBlockEntity.State state = ReaderBlockEntity.State.values()[Math.floorMod(data(ReaderBlockEntity.STATE), ReaderBlockEntity.State.values().length)];
         Component line = switch (state) {
             case NO_SHARD -> Component.translatable("residual.reader.no_shard");
-            case NO_MIND -> Component.translatable(ReaderBlockEntity.PROBLEMS.get(Math.floorMod(data(ReaderBlockEntity.PROBLEM), ReaderBlockEntity.PROBLEMS.size())));
+            case NO_MODEL -> Component.translatable(ReaderBlockEntity.PROBLEMS.get(Math.floorMod(data(ReaderBlockEntity.PROBLEM), ReaderBlockEntity.PROBLEMS.size())));
             case PEEKS -> Component.translatable("residual.reader.peeks");
             case READING -> Component.translatable("residual.reader.reading", data(ReaderBlockEntity.BLOCK) + 1,
                     record == null ? 0 : record.blocks(), String.format(Locale.ROOT, "%.0f%%", r == null ? 0 : 100 * r.legible()));
             case WHOLE -> Component.translatable("residual.reader.whole");
             case STUCK -> Component.translatable("residual.reader.stuck");
         };
-        int color = state == ReaderBlockEntity.State.NO_MIND || state == ReaderBlockEntity.State.PEEKS ? 0xFFB3261E : Ui.LABEL;
+        int color = state == ReaderBlockEntity.State.NO_MODEL || state == ReaderBlockEntity.State.PEEKS ? 0xFFB3261E : Ui.LABEL;
         int y = TEXT_Y + LINES * 10 + 7;
         for (var l : font.split(line, imageWidth - TEXT_X - 8)) {
             g.text(font, l, TEXT_X, y, color, false);

@@ -35,12 +35,12 @@ public final class ModTabs {
                 out.accept(ModItems.ARCHIVE_DRIVE.get());
                 out.accept(ModItems.SHARD.get());
                 out.accept(ModBlocks.READER.get());
-                ModItems.DRILLS.values().forEach(drill -> out.accept(drill.get()));
+                ModItems.DATASETS.values().forEach(dataset -> out.accept(dataset.get()));
                 for (Wrecks.Wreck w : Wrecks.ALL) {
                     out.accept(WreckItem.of(ModItems.WRECK.get(), w));
                 }
                 ModItems.SCHEMATICS.values().forEach(schematic -> out.accept(schematic.get()));
-                out.accept(ModItems.APPRENTICE.get());
+                out.accept(ModItems.AGENT.get());
                 out.accept(ModItems.SURVEY_ROD.get());
                 out.accept(ModBlocks.SERVER.get());
                 out.accept(ModBlocks.RELAY.get());

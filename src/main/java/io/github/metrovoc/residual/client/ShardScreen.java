@@ -1,7 +1,7 @@
 package io.github.metrovoc.residual.client;
 
 import io.github.metrovoc.residual.learn.Archive;
-import io.github.metrovoc.residual.mind.Recovered;
+import io.github.metrovoc.residual.model.Recovered;
 import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
