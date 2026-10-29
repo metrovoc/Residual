@@ -26,7 +26,7 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Reversal  | <ItemLink id="errand_dataset" />        | waymarks on the way out, then the way home         | 90%         | hauling     |
 | Induction | <ItemLink id="pattern_dataset" />       | letters where a run comes round again              | 90%         | building    |
 | Orders    | <ItemLink id="orders_dataset" />        | orders, and what was meant by them                 | 90%         | orders      |
-| Reading   | <ItemLink id="archive_drive" />       | records no shard carries                           | loss ≤ 1.70 | the Reader  |
+| Reading   | <ItemLink id="archive_drive" />       | records no shard carries                           | loss ≤ 1.40 | the Reader  |
 
 Hover over a benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
 example, the way an agent would ask it.

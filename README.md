@@ -54,7 +54,7 @@ exactly the test's format, so a test score is how often an agent decides right.
 | Reversal  | Errand Dataset  | 90%         | hauling                      |
 | Induction | Pattern Dataset | 90%         | building                     |
 | Orders    | Orders Dataset  | 90%         | understanding what you say   |
-| Reading   | Archive Drive | loss ≤ 1.70 | restoring the archive        |
+| Reading   | Archive Drive | loss ≤ 1.40 | restoring the archive        |
 
 A single embedding table can learn to farm. Recall needs attention, reversal needs to know positions, induction takes
 two layers of attention, and understanding orders takes a model too big to carry. The Model Core trains a model on up to

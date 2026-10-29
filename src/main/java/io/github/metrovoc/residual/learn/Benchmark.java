@@ -22,8 +22,11 @@ public enum Benchmark {
     INDUCTION(24, Task.Metric.ACCURACY, 0.9),
     /** Orders: what was meant by what was said. */
     ORDERS(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
-    /** Reading: the next letter of archive text it has never seen. */
-    READING(Vocab.CONTEXT, Task.Metric.LOSS, 1.7);
+    /**
+     * Reading: the next letter of archive text it has never seen. Getting below 1.40 takes nearly the whole archive,
+     * and a tokenizer or a large model.
+     */
+    READING(Vocab.CONTEXT, Task.Metric.LOSS, 1.4);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */
