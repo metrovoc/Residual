@@ -2,14 +2,14 @@
 
 <img src="src/main/resources/residual_logo.png" alt="Residual" width="372">
 
-**Real language models, from the matrix multiply up.**
+**Rediscover the lost art of building intelligence from scratch.**
 
 </div>
 
 ![A model training by a river: a wave of light runs along its cables and each machine's output floats above it, with an archive house and a farm behind](docs/images/hero.webp)
 
 Someone lived in this world before you. They built machines that thought, and they wrote everything down. Then they
-were gone, and nothing they left says why. Their writing survives in the ruins as broken shards.
+were gone. But there still seem to be pieces of it in the ruins.
 
 Residual is a Minecraft mod about building those models again, and every model is a real language model. Each machine
 performs one real operation: a table lookup, a matrix multiplication, a softmax, a whole transformer layer. Design the
@@ -170,24 +170,6 @@ uv run --with matplotlib python tools/formulas.py
 the field notes as a website in `build/guideWebsite`.
 
 ## Credits
-
-The machines are built on these ideas:
-
-- Claude Shannon, *A Mathematical Theory of Communication*, 1948.
-- Philip Gage, *A New Algorithm for Data Compression*, 1994.
-- Yoshua Bengio, Réjean Ducharme, Pascal Vincent and Christian Jauvin, *A Neural Probabilistic Language Model*, 2003.
-- Diederik Kingma and Jimmy Ba, *Adam: A Method for Stochastic Optimization*, 2014.
-- Dzmitry Bahdanau, Kyunghyun Cho and Yoshua Bengio, *Neural Machine Translation by Jointly Learning to Align and
-  Translate*, 2014.
-- Rico Sennrich, Barry Haddow and Alexandra Birch, *Neural Machine Translation of Rare Words with Subword Units*, 2015.
-- Kaiming He, Xiangyu Zhang, Shaoqing Ren and Jian Sun, *Deep Residual Learning for Image Recognition*, 2015.
-- Jimmy Lei Ba, Jamie Ryan Kiros and Geoffrey Hinton, *Layer Normalization*, 2016.
-- Dan Hendrycks and Kevin Gimpel, *Gaussian Error Linear Units (GELUs)*, 2016.
-- Ashish Vaswani et al., *Attention Is All You Need*, 2017.
-- Ilya Loshchilov and Frank Hutter, *Decoupled Weight Decay Regularization*, 2017.
-- Alec Radford et al., *Language Models are Unsupervised Multitask Learners*, 2019.
-- Biao Zhang and Rico Sennrich, *Root Mean Square Layer Normalization*, 2019.
-- Catherine Olsson et al., *In-context Learning and Induction Heads*, 2022.
 
 The guide runs on [GuideME](https://github.com/AppliedEnergistics/GuideME).
 

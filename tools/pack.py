@@ -58,7 +58,7 @@ def main():
         "game": "minecraft",
         "versionId": props["mod_version"],
         "name": "Residual",
-        "summary": "Build models from the ground up, one block at a time.",
+        "summary": "Rediscover the lost art of building intelligence from scratch.",
         "files": files,
         "dependencies": {"minecraft": props["minecraft_version"], "neoforge": props["neo_version"]},
     }

@@ -10,8 +10,8 @@ item_ids:
 # The Residual Stream
 
 A transformer is built around a running sum. The embedding starts it; every layer reads it, computes something, and
-adds its result back; the last layer turns the sum into scores. That running sum is the **residual stream**, and it is
-what this mod is named after. A <ItemLink id="stream" /> is a conduit for it.
+adds its result back; the last layer turns the sum into scores. That running sum is the **residual stream**.
+A <ItemLink id="stream" /> is a conduit for it.
 
 <RecipeFor id="stream" />
 

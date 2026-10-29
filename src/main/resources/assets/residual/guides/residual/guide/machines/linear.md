@@ -37,7 +37,7 @@ C_in × C_out, plus C_out for the bias. They start as PyTorch's do: uniform with
 
 ## Notes
 
-PyTorch stores the matrix the other way round, as [C_out × C_in]. The export takes care of that.
+PyTorch stores the matrix the other way round, as [C_out × C_in].
 
 ## Making it
 
