@@ -80,6 +80,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.system.JNI;
+import org.lwjgl.system.Platform;
+import org.lwjgl.system.macosx.ObjCRuntime;
 import org.slf4j.Logger;
 
 /**
@@ -116,6 +119,7 @@ import org.slf4j.Logger;
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
  *                            T a tree)
  * fly on|off                 hover in place (creative), so the camera stays where cmd tp put it
+ * sneak on|off               hold the sneak key, to place blocks against machines and turn them (flying, it sinks)
  * hud on|off
  * gui SCALE                  set the GUI scale (0 = auto)
  * blueprint NAME X Y Z FACING  place a Model Core and build a reference model in front of it, as a player would
@@ -146,7 +150,11 @@ public final class Rehearsal {
     @SubscribeEvent
     static void tick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
-        if (SCRIPT.isEmpty() || mc.getOverlay() != null) {
+        if (SCRIPT.isEmpty()) {
+            return;
+        }
+        yieldFocus(mc);
+        if (mc.getOverlay() != null) {
             return;
         }
         if (steps == null) {
@@ -198,7 +206,24 @@ public final class Rehearsal {
         mc.options.onboardAccessibility = false;
         mc.options.tutorialStep = TutorialSteps.NONE;
         mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0);
+        mc.options.save();
         moveWindow(mc, System.getProperty("residual.rehearsal.monitor", ""));
+    }
+
+    /**
+     * Gives keyboard focus back to the app that had it. On macOS the window takes focus when it opens, and while it
+     * has focus the game moves the cursor whenever it grabs or releases the mouse. Hiding the app and showing it again
+     * without activating it hands focus to the app that had it before.
+     */
+    private static void yieldFocus(Minecraft mc) {
+        if (Platform.get() != Platform.MACOSX || GLFW.glfwGetWindowAttrib(mc.getWindow().handle(), GLFW.GLFW_FOCUSED) == 0) {
+            return;
+        }
+        long send = ObjCRuntime.getLibrary().getFunctionAddress("objc_msgSend");
+        long app = JNI.invokePPP(ObjCRuntime.objc_getClass("NSApplication"), ObjCRuntime.sel_getUid("sharedApplication"), send);
+        JNI.invokePPPP(app, ObjCRuntime.sel_getUid("hide:"), 0L, send);
+        JNI.invokePPV(app, ObjCRuntime.sel_getUid("unhideWithoutActivation"), send);
+        LOG.info("[rehearsal] gave focus back");
     }
 
     /** Puts the window on the named monitor, such as a virtual display, so it stays out of the way. */
@@ -313,6 +338,7 @@ public final class Rehearsal {
                 mc.player.getAbilities().flying = hover;
                 mc.player.onUpdateAbilities();
             }
+            case "sneak" -> mc.options.keyShift.setDown(arg.equals("on"));
             case "hud" -> mc.options.hideGui = arg.equals("off");
             case "gui" -> {
                 mc.options.guiScale().set(Integer.parseInt(arg));
