@@ -2,19 +2,19 @@
 
 <img src="src/main/resources/residual_logo.png" alt="Residual" width="372">
 
-**Build models from the ground up, one block at a time.**
+**Real language models, from the matrix multiply up.**
 
 </div>
 
-![An agent farming by a ruined archive house, beside the model whose model it carries](docs/images/world.jpg)
+![A model training by a river: a wave of light runs along its cables and each machine's output floats above it, with an archive house and a farm behind](docs/images/hero.webp)
 
 Someone lived in this world before you. They built machines that thought, and they wrote everything down. Then they
 were gone, and nothing they left says why. Their writing survives in the ruins as broken shards.
 
 Residual is a Minecraft mod about building those models again, and every model is a real language model. Each machine
-performs one real operation: a table lookup, a matrix multiplication, a softmax, a whole transformer layer. Cable
-machines into a network, train it on text, test it on text it has never seen, and put it to work in the body of an
-agent. The arithmetic is what PyTorch does, down to the optimizer.
+performs one real operation: a table lookup, a matrix multiplication, a softmax, a whole transformer layer. Design the
+machines from the smallest operations there are, cable them into a network, train it on text, test it on text it has
+never seen, and put it to work in the body of an agent. The arithmetic is what PyTorch does, down to the optimizer.
 
 ## The archive
 
@@ -36,11 +36,27 @@ merging the most frequent pair of tokens over and over, and writes it onto a Tok
 words where it used to see letters. Losses are counted per character, so models with different tokenizers compare
 fairly.
 
+## Machines from scratch
+
+![Softmax on the Bench: wired straight from its formula it overflows on scores near 1000; with each row's maximum taken off first, every case passes](docs/images/bench.webp)
+
+The machines that do the real computing, from the matrix multiplier to the transformer block, are made from designs
+you wire yourself. On a Bench, a module is built from the smallest operations there are: add and multiply, exp and
+log, a sum or a maximum along the last axis, a transpose. A spec says what the module must compute and checks it on
+cases worked out exactly, among them the inputs that break the obvious design. Softmax wired straight from its formula
+passes the ordinary cases and turns red on scores near 1000, where the exponential overflows; take each row's maximum
+off first and it passes them all. Specs build on each other, from matrix multiply and softmax up to attention and a
+whole transformer block.
+
+A verified design is recorded onto a photomask, and a Fabricator makes machines from it out of wafers, a smaller
+design costing fewer. The ruins hold old photomasks too. Their designs are correct but written out one operation at a
+time: their machines give the same answers, use more memory and train more slowly.
+
 ## Models
 
 <p>
-<img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each of the six benchmarks" width="49%">
-<img src="docs/images/train.jpg" alt="The Train tab: the loss on practice and on the test" width="49%">
+<img src="docs/images/train.webp" alt="The Train tab as a small GPT learns to sort: the loss on practice and on the test falling together" width="49%">
+<img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each of the eight benchmarks" width="49%">
 </p>
 
 Every model is tested on eight benchmarks. A test uses examples that practice never shows, and a job asks its model in
@@ -71,8 +87,8 @@ shows where each token looks.
 ## Agents
 
 <p>
-<img src="docs/images/agent.jpg" alt="An agent's screen: what it asked its model, and what came back" width="49%">
-<img src="docs/images/terminal.jpg" alt="A Terminal: writing with a model served from a Model Server" width="49%">
+<img src="docs/images/program.webp" alt="A program clicked together from an agent's palette and from things held, then run" width="49%">
+<img src="docs/images/sort.webp" alt="An agent's trace as it sorts a barrel by kind, filing each thing where its filter model says" width="49%">
 </p>
 
 An agent is a frame that runs a program, such as `repeat (harvest, plant wheat seeds, put wheat)` or
@@ -100,6 +116,10 @@ average field, so the way to forecast yours is to train on the Forecaster's own 
 
 ## Serving models
 
+<p align="center">
+<img src="docs/images/terminal.jpg" alt="A Terminal: writing with a model served from a Model Server" width="60%">
+</p>
+
 An agent carries a model of up to 40,000 parameters. A bigger model stays in a Model Server and answers over relays.
 A Relay Card in an agent's model slot asks the server instead, anywhere the relays reach. A Terminal lets you write
 with the served model and carries your orders as far as the relays go. Training Accelerators give the Core more threads
@@ -125,7 +145,7 @@ You get the field notes the first time you join a world. Hold **G** over any Res
 
 ### Modpack
 
-`Residual-2.0.0.mrpack`, also on the Releases page, sets up Residual with Applied Energistics 2, JEI, Jade, Sodium,
+`Residual-0.3.0-alpha.mrpack`, also on the Releases page, sets up Residual with Applied Energistics 2, JEI, Jade, Sodium,
 ModernFix and FerriteCore. Import it in Prism Launcher or the Modrinth App.
 
 ## Building
@@ -133,7 +153,7 @@ ModernFix and FerriteCore. Import it in Prism Launcher or the Modrinth App.
 Building needs Java 25.
 
 ```sh
-./gradlew build       # build/libs/residual-26.1.2-2.0.0.jar
+./gradlew build       # build/libs/residual-26.1.2-0.3.0-alpha.jar
 ./gradlew runClient
 ```
 
@@ -146,7 +166,8 @@ uv run python tools/data.py
 uv run --with matplotlib python tools/formulas.py
 ```
 
-`uv run python tools/pack.py` builds the modpack around the jar in `build/libs`.
+`uv run python tools/pack.py` builds the modpack around the jar in `build/libs`, and `./gradlew guideWebsite` builds
+the field notes as a website in `build/guideWebsite`.
 
 ## Credits
 
