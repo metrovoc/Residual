@@ -39,8 +39,8 @@ C_in × C_out, plus C_out for the bias. They start as PyTorch's do: uniform with
 
 PyTorch stores the matrix the other way round, as [C_out × C_in]. The export takes care of that.
 
-## Recipe
+## Making it
 
-Needs no schematic.
-
-<RecipeFor id="linear" />
+The <ItemLink id="fabricator" /> makes it from a photomask of **Linear Layer**: verify the spec on a
+<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
+[The Bench and the Fabricator](../bench.md).

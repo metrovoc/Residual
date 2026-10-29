@@ -5,10 +5,6 @@ navigation:
   position: 20
 item_ids:
   - archive_shard
-  - schematic_context
-  - schematic_attention
-  - schematic_positions
-  - schematic_blocks
   - schematic_relays
 ---
 
@@ -30,14 +26,15 @@ them; their chests hold relay cards and the plans for relays.
 ## Buried vaults
 
 A lantern on a post beside a trapdoor in the ground. Below is a deep room with a bank of old accelerators, and two
-chests. Every vault holds a [salvaged model](salvage.md) and the plans for the most advanced machines.
+chests. Every vault holds a [salvaged model](salvage.md) and photomasks for the most advanced machines.
 
 ## What they hold
 
 - <ItemLink id="archive_shard" />: pieces of the archive. See [The Archive](archive.md).
-- Schematics: the plans for machines. Each is a pattern to copy, so it stays in the crafting grid and one is enough.
-  <ItemLink id="schematic_context" />, <ItemLink id="schematic_attention" /> and <ItemLink id="schematic_positions" />
-  turn up in houses and vaults; <ItemLink id="schematic_blocks" /> only in vaults; <ItemLink id="schematic_relays" />
-  on masts and in vaults.
+- Photomasks with salvaged designs: the Fabricator makes working but unfused machines from them, without a Bench.
+  Linear layer, softmax and GELU masks turn up in houses, matrix multiply ones under the gravel, and attention, layer
+  norm, feed-forward and transformer masks in vaults. See [The Bench and the Fabricator](bench.md).
+- <ItemLink id="schematic_relays" />: the plans for relays, a pattern to copy that stays in the crafting grid. On masts
+  and in vaults.
 - <ItemLink id="weight_crystal" />, blank <ItemLink id="checkpoint" />s and a little gold.
 - <ItemLink id="salvaged_model" />: see [Salvaged Models](salvage.md).

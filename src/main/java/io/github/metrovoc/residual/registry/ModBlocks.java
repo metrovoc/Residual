@@ -2,8 +2,10 @@ package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.block.AcceleratorBlock;
+import io.github.metrovoc.residual.block.BenchBlock;
 import io.github.metrovoc.residual.block.CableBlock;
 import io.github.metrovoc.residual.block.CoreBlock;
+import io.github.metrovoc.residual.block.FabricatorBlock;
 import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.block.ReaderBlock;
 import io.github.metrovoc.residual.block.RelayBlock;
@@ -35,6 +37,10 @@ public final class ModBlocks {
             p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(ServerBlock.SERVING) ? 10 : s.getValue(ServerBlock.LOADED) ? 5 : 2));
     public static final DeferredBlock<ReaderBlock> READER = BLOCKS.registerBlock("reader", ReaderBlock::new,
             p -> machine(p).noOcclusion().lightLevel(s -> s.getValue(ReaderBlock.READING) ? 8 : 0));
+    public static final DeferredBlock<BenchBlock> BENCH = BLOCKS.registerBlock("bench", BenchBlock::new,
+            p -> machine(p).noOcclusion().lightLevel(s -> 5));
+    public static final DeferredBlock<FabricatorBlock> FABRICATOR = BLOCKS.registerBlock("fabricator", FabricatorBlock::new,
+            p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(FabricatorBlock.WORKING) ? 11 : 3));
     public static final DeferredBlock<RelayBlock> RELAY = BLOCKS.registerBlock("relay", RelayBlock::new,
             p -> machine(p).strength(1.5f, 6f).noOcclusion().lightLevel(s -> 9));
 

@@ -41,8 +41,6 @@ None.
 Attention can look back any distance, so transformers rarely need a fixed delay. Some architectures keep one
 anyway: RWKV mixes every token with the one before it, a learned blend called token shift.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="shift" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

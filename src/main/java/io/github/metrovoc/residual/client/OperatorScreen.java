@@ -168,6 +168,13 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
         if (be.provided()) {
             String provided = I18n.get("residual.machine.provided");
             g.text(font, provided, imageWidth - 8 - font.width(provided), 128, Ui.LABEL_DIM, false);
+        } else if (!be.fused()) {
+            String unfused = I18n.get("residual.machine.unfused_short");
+            int ux = imageWidth - 8 - font.width(unfused);
+            g.text(font, unfused, ux, 128, 0xFF9A5B00, false);
+            if (Ui.inside(mx, my, ux, 127, font.width(unfused), 10)) {
+                g.setTooltipForNextFrame(font.split(Component.translatable("residual.machine.unfused.why"), 200), mouseX, mouseY);
+            }
         }
         Ui.screen(g, 8, 138, 232, 50);
         int ly = 142;

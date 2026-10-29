@@ -23,6 +23,8 @@
     "residual:tensor_casing",
     "residual:model_server",
     "residual:reader",
-    "residual:relay"
+    "residual:relay",
+    "residual:bench",
+    "residual:fabricator"
   ]
 }

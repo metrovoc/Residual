@@ -192,7 +192,7 @@ public final class CompiledGraph {
                 int src = nd.inputs[i];
                 in[i] = src == GraphSpec.TOKENS ? tokens : values[src];
             }
-            Tensor out = nd.op.run(tape, in, params.get(node), nd.config, new Op.Frame(node, tokens.time, captures));
+            Tensor out = nd.op.run(tape, in, params.get(node), nd.config, new Op.Frame(node, tokens.time, captures, nd.fused));
             values[node] = out;
             if (captures != null) {
                 captures.output(node, out);

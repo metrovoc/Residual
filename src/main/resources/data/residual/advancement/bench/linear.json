@@ -1,0 +1,33 @@
+{
+  "parent": "residual:bench/matmul",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:photomask",
+      "components": {
+        "residual:mask": {
+          "spec": "linear"
+        }
+      }
+    },
+    "title": {
+      "translate": "advancements.residual.bench.linear.title"
+    },
+    "description": {
+      "translate": "advancements.residual.bench.linear.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

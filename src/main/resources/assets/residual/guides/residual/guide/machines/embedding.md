@@ -39,8 +39,6 @@ V × C, drawn from a normal distribution with spread 1.
 After training, the weights picture shows the table, a row per token. Tokens that behave alike end up with
 similar rows, which is how what the model learns about one carries over to others.
 
-## Recipe
+## Making it
 
-Needs no schematic.
-
-<RecipeFor id="embedding" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

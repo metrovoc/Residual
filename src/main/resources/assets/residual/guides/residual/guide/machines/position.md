@@ -39,8 +39,6 @@ T × C, where T is the context length, 64.
 Learned positions are what GPT-2 used. Most recent models instead rotate each query and key by an angle that
 depends on its position (RoPE), so that attention scores depend on how far apart two tokens are.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_positions" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="position" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

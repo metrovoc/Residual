@@ -33,8 +33,6 @@ None.
 A Linear Layer after a Concatenator computes the same thing as two Linear Layers, one on each input, added
 together.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="concat" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

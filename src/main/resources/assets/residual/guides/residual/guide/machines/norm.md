@@ -40,8 +40,8 @@ Rescales each vector to a steady size, then applies a learned gain and, for Laye
 Put one at the start of each branch, before attention or the feed-forward block, and one before the final
 Linear Layer. This pre-norm layout is GPT-2's, and nearly every model since uses it.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_attention" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="norm" />
+The <ItemLink id="fabricator" /> makes it from a photomask of **Layer Norm**: verify the spec on a
+<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
+[The Bench and the Fabricator](../bench.md).

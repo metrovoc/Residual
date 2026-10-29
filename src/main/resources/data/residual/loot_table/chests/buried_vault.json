@@ -86,18 +86,67 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "residual:schematic_attention",
-          "weight": 2
+          "name": "residual:photomask",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "attention",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
         },
         {
           "type": "minecraft:item",
-          "name": "residual:schematic_positions",
-          "weight": 2
+          "name": "residual:photomask",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "layer_norm",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
         },
         {
           "type": "minecraft:item",
-          "name": "residual:schematic_blocks",
-          "weight": 1
+          "name": "residual:photomask",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "mlp",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "transformer",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
         },
         {
           "type": "minecraft:item",

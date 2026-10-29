@@ -41,18 +41,66 @@
         },
         {
           "type": "minecraft:item",
-          "name": "residual:schematic_context",
-          "weight": 2
+          "name": "residual:photomask",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "linear",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
         },
         {
           "type": "minecraft:item",
-          "name": "residual:schematic_attention",
-          "weight": 1
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "softmax",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
         },
         {
           "type": "minecraft:item",
-          "name": "residual:schematic_positions",
-          "weight": 1
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "gelu",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "residual:wafer",
+          "weight": 3,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 2,
+                "max": 5
+              }
+            }
+          ]
         },
         {
           "type": "minecraft:item",

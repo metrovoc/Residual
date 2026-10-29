@@ -42,8 +42,8 @@ None.
 > `torch.tanh(x)`\
 > `torch.sigmoid(x)`
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="activation" />
+The <ItemLink id="fabricator" /> makes it from a photomask of **GELU**: verify the spec on a
+<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
+[The Bench and the Fabricator](../bench.md).

@@ -1,6 +1,5 @@
 package io.github.metrovoc.residual.item;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -18,18 +17,10 @@ import net.minecraft.world.item.component.TooltipDisplay;
 public class SchematicItem extends Item {
     /** What each schematic is the plan for, by translation key. */
     private static final Map<String, List<String>> PLANS = Map.of(
-            "schematic_context", ops("shift", "concat", "activation", "matmul", "scale", "causal_mask", "softmax"),
-            "schematic_attention", ops("add", "norm", "attention", "mlp"),
-            "schematic_positions", ops("position", "multiply", "split_heads", "merge_heads"),
-            "schematic_blocks", ops("transformer"),
             "schematic_relays", List.of("block.residual.model_server", "block.residual.relay", "item.residual.relay_card"));
 
     public SchematicItem(Properties properties) {
         super(properties);
-    }
-
-    private static List<String> ops(String... ids) {
-        return Arrays.stream(ids).map(id -> "block.residual." + id).toList();
     }
 
     @Override

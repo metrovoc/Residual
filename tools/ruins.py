@@ -229,13 +229,17 @@ def pool(rolls, entries):
     return {"rolls": {"type": "minecraft:uniform", "min": rolls[0], "max": rolls[1]}, "bonus_rolls": 0.0, "entries": entries}
 
 
+def mask(spec, weight=1):
+    """A photomask carrying the old salvaged design for a spec: it fabricates working but unfused machines."""
+    return item("photomask", weight, components={"residual:mask": {"spec": spec, "salvaged": True}})
+
+
 WRECKS = ["shape", "diverge", "leak", "order", "depth"]
 
 LOOT = {
     "chests/archive_house": [pool((2, 4), [
-        item("archive_shard", 10, (1, 3)), item("weight_crystal", 4, (1, 3)), item("schematic_context", 2),
-        item("schematic_attention", 1), item("schematic_positions", 1), item("minecraft:paper", 4, (2, 6)),
-        item("minecraft:book", 2, (1, 2))])],
+        item("archive_shard", 10, (1, 3)), item("weight_crystal", 4, (1, 3)), mask("linear", 2), mask("softmax", 1),
+        mask("gelu", 1), item("wafer", 3, (2, 5)), item("minecraft:paper", 4, (2, 6)), item("minecraft:book", 2, (1, 2))])],
     "chests/archive_shelf": [pool((1, 3), [item("archive_shard", 8), item("minecraft:paper", 5, (1, 4)),
                                            item("minecraft:ink_sac", 2, (1, 2)), item("minecraft:candle", 2, (1, 2))])],
     "chests/relay_mast": [pool((2, 3), [
@@ -244,11 +248,11 @@ LOOT = {
     "chests/buried_vault": [
         pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS]),
         pool((2, 4), [
-            item("schematic_attention", 2), item("schematic_positions", 2), item("schematic_blocks", 1),
+            mask("attention", 2), mask("layer_norm", 2), mask("mlp", 2), mask("transformer", 1),
             item("schematic_relays", 1), item("checkpoint", 3), item("weight_crystal", 5, (2, 4)),
             item("archive_shard", 6, (1, 3)), item("minecraft:diamond", 1), item("minecraft:gold_ingot", 3, (1, 3))])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
-        item("archive_shard", 9), item("schematic_context", 1), item("weight_crystal", 2)]}],
+        item("archive_shard", 9), mask("matmul", 1), item("weight_crystal", 2)]}],
 }
 
 

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "R": "minecraft:repeater",
+    "K": "residual:tensor_casing",
+    "T": "minecraft:crafting_table",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "GRG",
+    "KTK",
+    "I I"
+  ],
+  "result": {
+    "id": "residual:bench"
+  }
+}

@@ -2,6 +2,9 @@ package io.github.metrovoc.residual.net;
 
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.agent.Job;
+import io.github.metrovoc.residual.bench.Spec;
+import io.github.metrovoc.residual.bench.Specs;
+import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.learn.Sampler;
@@ -32,6 +35,8 @@ public final class Network {
         r.playToServer(MachineEdit.TYPE, MachineEdit.STREAM_CODEC, Network::onMachineEdit);
         r.playToServer(AgentAction.TYPE, AgentAction.STREAM_CODEC, Network::onAgentAction);
         r.playToServer(TerminalAsk.TYPE, TerminalAsk.STREAM_CODEC, Network::onTerminalAsk);
+        r.playToServer(BenchEdit.TYPE, BenchEdit.STREAM_CODEC, Network::onBenchEdit);
+        r.playToServer(BenchRecord.TYPE, BenchRecord.STREAM_CODEC, Network::onBenchRecord);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
@@ -90,6 +95,22 @@ public final class Network {
             case HOME -> agent.setHome(agent.blockPosition());
         }
         PacketDistributor.sendToPlayer(player, agent.snapshot());
+    }
+
+    private static void onBenchEdit(BenchEdit e, IPayloadContext ctx) {
+        Spec spec = Specs.get(e.spec());
+        if (ctx.player() instanceof ServerPlayer player && spec != null && player.distanceToSqr(e.pos().getCenter()) < 64
+                && player.level().getBlockEntity(e.pos()) instanceof BenchBlockEntity bench) {
+            bench.edit(spec, e.design());
+        }
+    }
+
+    private static void onBenchRecord(BenchRecord r, IPayloadContext ctx) {
+        Spec spec = Specs.get(r.spec());
+        if (ctx.player() instanceof ServerPlayer player && spec != null && player.distanceToSqr(r.pos().getCenter()) < 64
+                && player.level().getBlockEntity(r.pos()) instanceof BenchBlockEntity bench) {
+            bench.record(player, spec);
+        }
     }
 
     /** Continues the player's text with the model their Terminal is tuned to, if the network reaches them. */

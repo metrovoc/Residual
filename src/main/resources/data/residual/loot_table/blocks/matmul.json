@@ -7,7 +7,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "residual:matmul"
+          "name": "residual:matmul",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "source": "block_entity",
+              "include": [
+                "residual:fused"
+              ]
+            }
+          ]
         }
       ],
       "conditions": [

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "residual:block/bench"
+    },
+    "facing=south": {
+      "model": "residual:block/bench",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "residual:block/bench",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "residual:block/bench",
+      "y": 270
+    }
+  }
+}

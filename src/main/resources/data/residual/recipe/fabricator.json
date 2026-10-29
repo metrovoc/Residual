@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "S": "minecraft:lantern",
+    "G": "minecraft:glass",
+    "P": "minecraft:piston",
+    "F": "minecraft:furnace"
+  },
+  "pattern": [
+    "KSK",
+    "GPG",
+    "KFK"
+  ],
+  "result": {
+    "id": "residual:fabricator"
+  }
+}

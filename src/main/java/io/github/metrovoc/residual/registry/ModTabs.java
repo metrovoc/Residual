@@ -1,7 +1,11 @@
 package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.bench.MaskData;
+import io.github.metrovoc.residual.bench.Spec;
+import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.item.MaskItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Wrecks;
 import java.util.function.Supplier;
@@ -28,8 +32,17 @@ public final class ModTabs {
                 for (DyeColor color : DyeColor.values()) {
                     out.accept(ModBlocks.COLORED_CABLES.get(color).get());
                 }
+                out.accept(ModBlocks.BENCH.get());
+                out.accept(ModBlocks.FABRICATOR.get());
+                out.accept(ModItems.WAFER.get());
+                out.accept(ModItems.PHOTOMASK.get());
+                for (Spec spec : Specs.all()) {
+                    if (!spec.unlocks().isEmpty()) {
+                        out.accept(MaskItem.of(ModItems.PHOTOMASK.get(), MaskData.salvaged(spec)));
+                    }
+                }
                 for (Op op : Op.values()) {
-                    out.accept(ModBlocks.OPERATORS.get(op).get());
+                    out.accept(ModItems.MACHINES.get(op).get());
                 }
                 out.accept(ModItems.CHECKPOINT.get());
                 out.accept(ModItems.ARCHIVE_DRIVE.get());

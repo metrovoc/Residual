@@ -35,8 +35,6 @@ second projection xW₃ before projecting back down (Shazeer, 2020). To build on
 input, an Activation set to SiLU after one of them, a Gate joining them, and a Linear Layer back to the original
 width. LSTMs, the recurrent networks that came before transformers, controlled their memory with gates like this.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_positions" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="multiply" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

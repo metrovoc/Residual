@@ -12,8 +12,19 @@
         },
         {
           "type": "minecraft:item",
-          "name": "residual:schematic_context",
-          "weight": 1
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "matmul",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
         },
         {
           "type": "minecraft:item",

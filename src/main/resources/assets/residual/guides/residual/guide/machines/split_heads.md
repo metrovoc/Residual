@@ -41,8 +41,6 @@ With a Head Splitter and a <ItemLink id="merge_heads" /> you can build multi-hea
 the queries, keys and values the same way, and the Matrix Multipliers, Scaler, Causal Mask and Softmax all work on
 every head in parallel.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_positions" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="split_heads" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

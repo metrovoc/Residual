@@ -63,6 +63,6 @@ is a gradient that never arrives.
 
 Each <ItemLink id="accelerator" /> touching the Core, directly or through other Accelerators, lends it one more thread,
 up to the limit the server allows. An Accelerator with nothing to cool it runs hot and lends half: give it water, ice
-or snow to touch.
+or snow to touch. The Fabricator makes them from a matrix multiply photomask.
 
 <br clear="all" />

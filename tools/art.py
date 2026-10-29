@@ -649,6 +649,184 @@ def reader_side():
     return c
 
 
+# ---------------------------------------------------------------- Bench and Fabricator
+
+def bench_top():
+    """A breadboard: a hole grid with a few wires and a chip already plugged in."""
+    c = Canvas(fill=G2)
+    for i in range(16):
+        c.px(i, 0, K3)
+        c.px(0, i, K3)
+        c.px(i, 15, G0)
+        c.px(15, i, G0)
+    c.rect(2, 2, 13, 13, W1)
+    for y in range(3, 13, 2):
+        for x in range(3, 13, 2):
+            c.px(x, y, W3)
+    for x in range(3, 9):
+        c.px(x, 5, TEAL[3])
+    for y in range(5, 11):
+        c.px(8, y, TEAL[3])
+    for x in range(4, 13):
+        c.px(x, 11, AMBER[3])
+    c.px(3, 5, TEAL[5])
+    c.px(12, 11, AMBER[5])
+    c.rect(10, 3, 12, 7, NEUTRAL[1])
+    for y in (4, 6):
+        c.px(9, y, K4)
+        c.px(13, y, K4)
+    c.px(11, 4, TEAL[4])
+    return c
+
+
+def bench_side():
+    """Top rows: the table's edge with an accent stripe. Below: the metal its legs and shelf are made of."""
+    c = Canvas()
+    for x in range(16):
+        c.px(x, 0, K0)
+        c.px(x, 1, K1)
+        c.px(x, 2, TEAL[2])
+        c.px(x, 3, K3)
+    for y in range(4, 16):
+        for x in range(16):
+            c.px(x, y, K2 if speckle(x, y, 21) else K1)
+    for y in range(4, 16):
+        c.px(0, y, K0)
+        c.px(1, y, K3)
+    return c
+
+
+WAFER_STAGE = [
+    "...oooo...",
+    ".ooddddoo.",
+    ".oddddddo.",
+    "oddddddddo",
+    "oddddddddo",
+    "oddddddddo",
+    "oddddddddo",
+    ".oddddddo.",
+    ".oodddooo.",
+    "...oooo...",
+]
+
+
+def fabricator_front(scan=None):
+    """A wafer on its stage behind glass; while it works, a violet line sweeps across it, leaving the pattern."""
+    c = plate(AMBER_LINE, salt=14)
+    window(c)
+    c.stamp(3, 3, WAFER_STAGE, {"o": DIM[2], "d": DIM[1]})
+    for y in range(4, 12, 2):
+        for x in range(4, 12, 2):
+            if c.get(x, y) == DIM[1]:
+                c.px(x, y, DIM[3])
+    if scan is not None:
+        for y in range(3, 13):
+            for x in range(3, 13):
+                here = c.get(x, y)
+                if here not in (DIM[1], DIM[3]):
+                    continue
+                if y < 3 + scan:
+                    c.px(x, y, AMETHYST[1] if here == DIM[1] else AMETHYST[3])
+                elif y == 3 + scan:
+                    c.px(x, y, AMETHYST[5])
+    return c
+
+
+def fabricator_side():
+    """Vents for the lamp's heat."""
+    c = plate(NEUTRAL, salt=15)
+    for y in (4, 6, 8, 10):
+        for x in range(4, 12):
+            c.px(x, y, W1)
+            c.px(x, y + 1, K0)
+    return c
+
+
+def fabricator_top():
+    """The lamp's aperture, a ring of lenses looking down."""
+    c = plate(AMBER_LINE, salt=16)
+    ring = [
+        "..oooo..",
+        ".oLLLLo.",
+        "oLlAAlLo",
+        "oLAaaALo",
+        "oLAaaALo",
+        "oLlAAlLo",
+        ".oLLLLo.",
+        "..oooo..",
+    ]
+    c.stamp(4, 4, ring, {"o": G1, "L": K4, "l": AMETHYST[2], "A": AMETHYST[3], "a": AMETHYST[5]})
+    return c
+
+
+WAFER = [
+    "................",
+    ".....oooooo.....",
+    "...ooSsSsSsoo...",
+    "..oSsSsSsSsSso..",
+    "..osSsSsSsSsSo..",
+    ".oSsSsSsSsSsSso.",
+    ".osSsSsSsSsSsSo.",
+    ".oSsSsSsSsSsSso.",
+    ".osSsSsSsSsSsSo.",
+    ".oSsSsSsSsSsSso.",
+    ".osSsSsSsSsSsSo.",
+    "..oSsSsSsSsSso..",
+    "..osSsSsSsSsSo..",
+    "...ooSsSsSsoo...",
+    ".....oooooo.....",
+    "................",
+]
+
+
+def wafer():
+    """A polished disc ruled into dies, with a flat cut on one edge."""
+    c = Canvas()
+    c.stamp(0, 0, WAFER, {"o": rgb("1c2430"), "S": rgb("8fa3b8"), "s": rgb("a9bccf")})
+    for x in range(5, 11):
+        c.px(x, 14, CLEAR)
+        c.px(x, 13, rgb("1c2430"))
+    for i in range(3, 13, 3):
+        for j in range(2, 14):
+            if c.get(i, j)[3] and c.get(i, j) != rgb("1c2430"):
+                c.px(i, j, rgb("6f8399"))
+            if c.get(j, i)[3] and c.get(j, i) != rgb("1c2430"):
+                c.px(j, i, rgb("6f8399"))
+    for x, y in ((5, 3), (4, 4), (4, 5)):
+        c.px(x, y, rgb("e6f3ff"))
+    return c
+
+
+def photomask(pattern):
+    """A square of quartz in a frame; a recorded one carries its design etched in chrome."""
+    c = Canvas()
+    c.rect(2, 2, 13, 13, rgb("2b3540"))
+    c.rect(3, 3, 12, 12, (186, 226, 236, 140))
+    for i in range(3, 13):
+        c.px(i, 3, (230, 248, 252, 190))
+        c.px(3, i, (230, 248, 252, 170))
+    if pattern:
+        rows = [
+            "##.###....",
+            "#..#.#.##.",
+            "####.###..",
+            "...#...#.#",
+            ".###.#.###",
+            ".#...#....",
+            ".#.#####..",
+            "##.#...#.#",
+            "...###.###",
+            ".......#..",
+        ]
+        for y, row in enumerate(rows):
+            for x, ch in enumerate(row):
+                if ch == "#":
+                    c.px(3 + x, 3 + y, rgb("39424d"))
+        c.rect(11, 11, 12, 12, TEAL[3])
+    outline(c, INK)
+    return c
+
+
 # ---------------------------------------------------------------- Relay
 
 def relay():
@@ -924,38 +1102,6 @@ PAPER = [
 
 # a schematic is a machine's plan: a white line drawing on blueprint, sealed in the color of what it unlocks
 SCHEMATICS = {
-    "schematic_context": ("ffb547", [
-        "##.##.##.",
-        "##.##.##.",
-        ".........",
-        "......#..",
-        "########.",
-        "......#..",
-    ]),
-    "schematic_attention": ("b48cff", [
-        "..#####..",
-        ".#.....#.",
-        "#...#...#",
-        "#..###..#",
-        ".#.....#.",
-        "..#####..",
-    ]),
-    "schematic_positions": ("84e08a", [
-        ".##......",
-        "#..#....#",
-        "....#..#.",
-        ".....##..",
-        ".........",
-        "#.#.#.#.#",
-    ]),
-    "schematic_blocks": ("ff7a6b", [
-        "#######..",
-        "#.....#..",
-        "#######.#",
-        "....#...#",
-        "#######.#",
-        "#.....###",
-    ]),
     "schematic_relays": ("3cd6c6", [
         "#.......#",
         ".#..#..#.",
@@ -1388,6 +1534,13 @@ def build():
     reader_top().save("block/reader_top.png")
     reader_side().save("block/reader_side.png")
     relay().save("block/relay.png")
+    bench_top().save("block/bench_top.png")
+    bench_side().save("block/bench_side.png")
+    fabricator_front().save("block/fabricator_front.png")
+    animated([fabricator_front(i) for i in range(11)], "block/fabricator_front_on.png", 2)
+    SAVED["block/fabricator_front_on.png"] = fabricator_front(6).im
+    fabricator_side().save("block/fabricator_side.png")
+    fabricator_top().save("block/fabricator_top.png")
 
     plain = cable(K2, K0, NEUTRAL[1], TEAL[4])
     for i in range(16):
@@ -1413,6 +1566,9 @@ def build():
     survey_rod().save("item/survey_rod.png")
     relay_card().save("item/relay_card.png")
     terminal().save("item/terminal.png")
+    wafer().save("item/wafer.png")
+    photomask(False).save("item/photomask.png")
+    photomask(True).save("item/photomask_recorded.png")
     guide().save("item/guide.png")
     agent_skin().save("entity/agent.png")
     # the mod list scales it down to 50 px high

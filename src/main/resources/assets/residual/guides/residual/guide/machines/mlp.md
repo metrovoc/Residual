@@ -40,8 +40,8 @@ A sequence [B×T×C] in, the same shape out.
 With Expand at 4, it holds two thirds of a transformer layer's weights. Interpretability research suggests
 these layers store much of what a model knows about the world (Geva et al., 2021; Meng et al., 2022).
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_attention" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="mlp" />
+The <ItemLink id="fabricator" /> makes it from a photomask of **Feed-Forward Block**: verify the spec on a
+<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
+[The Bench and the Fabricator](../bench.md).

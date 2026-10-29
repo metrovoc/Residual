@@ -37,8 +37,6 @@ None.
 The identity term in its gradient gives every layer a direct path back to the loss. That is why stacks of
 residual layers keep learning when plain stacks stall.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_attention" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="add" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

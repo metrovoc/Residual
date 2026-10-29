@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/fabricator_side",
+    "north": "residual:block/fabricator_front_on",
+    "south": "residual:block/fabricator_side",
+    "east": "residual:block/fabricator_side",
+    "west": "residual:block/fabricator_side",
+    "up": "residual:block/fabricator_top",
+    "down": "residual:block/machine_back"
+  }
+}

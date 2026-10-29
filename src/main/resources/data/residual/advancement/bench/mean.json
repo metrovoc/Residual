@@ -1,0 +1,33 @@
+{
+  "parent": "residual:bench/made",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:photomask",
+      "components": {
+        "residual:mask": {
+          "spec": "mean"
+        }
+      }
+    },
+    "title": {
+      "translate": "advancements.residual.bench.mean.title"
+    },
+    "description": {
+      "translate": "advancements.residual.bench.mean.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

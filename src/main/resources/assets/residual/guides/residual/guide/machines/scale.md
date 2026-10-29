@@ -37,8 +37,6 @@ None.
 In attention it does not matter much where the 1/√d goes: scaling the queries or scaling the scores gives the
 same result.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="scale" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

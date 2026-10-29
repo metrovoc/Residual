@@ -32,8 +32,6 @@ None.
 
 Follow it with a Linear Layer to mix what the heads found: that is the output projection, W_O.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_positions" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="merge_heads" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

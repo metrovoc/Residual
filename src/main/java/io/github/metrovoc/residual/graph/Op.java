@@ -7,6 +7,7 @@ import io.github.metrovoc.residual.tensor.ShapeException;
 import io.github.metrovoc.residual.tensor.Tape;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.tensor.Tokens;
+import io.github.metrovoc.residual.tensor.Unfused;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,7 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            Tensor y = Ops.matmul(tape, (Tensor) in[0], p.get("weight"), false);
+            Tensor y = matmul(tape, (Tensor) in[0], p.get("weight"), false, f);
             Tensor b = p.get("bias");
             return b == null ? y : Ops.add(tape, y, b);
         }
@@ -89,7 +90,7 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            return Ops.activate(tape, (Tensor) in[0], Activation.byId(c.get("fn")));
+            return activate(tape, (Tensor) in[0], Activation.byId(c.get("fn")), f);
         }
     },
 
@@ -136,8 +137,8 @@ public enum Op {
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
             Tensor x = (Tensor) in[0];
             return "rms".equals(c.get("kind"))
-                    ? Ops.rmsNorm(tape, x, p.get("weight"), EPS)
-                    : Ops.layerNorm(tape, x, p.get("weight"), p.get("bias"), EPS);
+                    ? (f.fused() ? Ops.rmsNorm(tape, x, p.get("weight"), EPS) : Unfused.rmsNorm(tape, x, p.get("weight"), EPS))
+                    : layerNorm(tape, x, p.get("weight"), p.get("bias"), f);
         }
     },
 
@@ -172,7 +173,7 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            return Ops.matmul(tape, (Tensor) in[0], (Tensor) in[1], c.flag("transpose"));
+            return matmul(tape, (Tensor) in[0], (Tensor) in[1], c.flag("transpose"), f);
         }
     },
 
@@ -218,7 +219,7 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            Tensor y = Ops.softmax(tape, (Tensor) in[0]);
+            Tensor y = softmax(tape, (Tensor) in[0], f);
             if (f.captures() != null && y.rank() >= 3 && y.dim(-1) == y.dim(-2)) {
                 f.captures().pattern(f.node(), y);
             }
@@ -333,7 +334,7 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            return mlp(tape, (Tensor) in[0], p, "", Activation.byId(c.get("fn")));
+            return mlp(tape, (Tensor) in[0], p, "", Activation.byId(c.get("fn")), f);
         }
     },
 
@@ -364,10 +365,10 @@ public enum Op {
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
             Tensor x = (Tensor) in[0];
-            Tensor h = Ops.layerNorm(tape, x, p.get("ln1.weight"), p.get("ln1.bias"), EPS);
+            Tensor h = layerNorm(tape, x, p.get("ln1.weight"), p.get("ln1.bias"), f);
             x = Ops.add(tape, x, attention(tape, h, p, "attn.", c.integer("heads"), f));
-            h = Ops.layerNorm(tape, x, p.get("ln2.weight"), p.get("ln2.bias"), EPS);
-            return Ops.add(tape, x, mlp(tape, h, p, "mlp.", Activation.byId(c.get("fn"))));
+            h = layerNorm(tape, x, p.get("ln2.weight"), p.get("ln2.bias"), f);
+            return Ops.add(tape, x, mlp(tape, h, p, "mlp.", Activation.byId(c.get("fn")), f));
         }
     };
 
@@ -411,8 +412,11 @@ public enum Op {
 
     abstract Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f);
 
-    /** Per-call context: the node being run, the sequence length and an optional capture sink. */
-    record Frame(int node, int time, Captures captures) {
+    /**
+     * Per-call context: the node being run, the sequence length, an optional capture sink, and whether the machine
+     * was fabricated from a verified design (fused kernels) or a salvaged one (one primitive at a time).
+     */
+    record Frame(int node, int time, Captures captures, boolean fused) {
     }
 
     public static Op byId(String id) {
@@ -490,21 +494,39 @@ public enum Op {
 
     static Tensor attention(Tape tape, Tensor x, Map<String, Tensor> p, String prefix, int heads, Frame f) {
         int dh = x.dim(-1) / heads;
-        Tensor q = Ops.splitHeads(tape, Ops.matmul(tape, x, p.get(prefix + "q"), false), heads);
-        Tensor k = Ops.splitHeads(tape, Ops.matmul(tape, x, p.get(prefix + "k"), false), heads);
-        Tensor v = Ops.splitHeads(tape, Ops.matmul(tape, x, p.get(prefix + "v"), false), heads);
-        Tensor scores = Ops.scale(tape, Ops.matmul(tape, q, k, true), (float) (1.0 / Math.sqrt(dh)));
-        Tensor probs = Ops.softmax(tape, Ops.causalMask(tape, scores));
+        Tensor q = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "q"), false, f), heads);
+        Tensor k = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "k"), false, f), heads);
+        Tensor v = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "v"), false, f), heads);
+        Tensor scores = Ops.scale(tape, matmul(tape, q, k, true, f), (float) (1.0 / Math.sqrt(dh)));
+        Tensor probs = softmax(tape, Ops.causalMask(tape, scores), f);
         if (f.captures() != null) {
             f.captures().pattern(f.node(), probs);
         }
-        Tensor y = Ops.mergeHeads(tape, Ops.matmul(tape, probs, v, false));
-        return Ops.matmul(tape, y, p.get(prefix + "o"), false);
+        Tensor y = Ops.mergeHeads(tape, matmul(tape, probs, v, false, f));
+        return matmul(tape, y, p.get(prefix + "o"), false, f);
     }
 
-    static Tensor mlp(Tape tape, Tensor x, Map<String, Tensor> p, String prefix, Activation fn) {
-        Tensor h = Ops.add(tape, Ops.matmul(tape, x, p.get(prefix + "w1"), false), p.get(prefix + "b1"));
-        h = Ops.activate(tape, h, fn);
-        return Ops.add(tape, Ops.matmul(tape, h, p.get(prefix + "w2"), false), p.get(prefix + "b2"));
+    static Tensor mlp(Tape tape, Tensor x, Map<String, Tensor> p, String prefix, Activation fn, Frame f) {
+        Tensor h = Ops.add(tape, matmul(tape, x, p.get(prefix + "w1"), false, f), p.get(prefix + "b1"));
+        h = activate(tape, h, fn, f);
+        return Ops.add(tape, matmul(tape, h, p.get(prefix + "w2"), false, f), p.get(prefix + "b2"));
+    }
+
+    // ------------------------------------------------------------------ fused or not
+
+    static Tensor matmul(Tape tape, Tensor a, Tensor b, boolean transB, Frame f) {
+        return f.fused() ? Ops.matmul(tape, a, b, transB) : Unfused.matmul(tape, a, b, transB);
+    }
+
+    static Tensor softmax(Tape tape, Tensor x, Frame f) {
+        return f.fused() ? Ops.softmax(tape, x) : Unfused.softmax(tape, x);
+    }
+
+    static Tensor layerNorm(Tape tape, Tensor x, Tensor gamma, Tensor beta, Frame f) {
+        return f.fused() ? Ops.layerNorm(tape, x, gamma, beta, EPS) : Unfused.layerNorm(tape, x, gamma, beta, EPS);
+    }
+
+    static Tensor activate(Tape tape, Tensor x, Activation fn, Frame f) {
+        return f.fused() ? Ops.activate(tape, x, fn) : Unfused.activate(tape, x, fn);
     }
 }

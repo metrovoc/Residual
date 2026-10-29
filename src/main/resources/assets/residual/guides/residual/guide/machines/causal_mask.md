@@ -37,8 +37,6 @@ None.
 It belongs between the scores and the Softmax. Without it, a model trained to predict the next token can
 simply read it, and its loss falls to almost nothing while it learns nothing.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="causal_mask" />
+The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:sand",
+    "minecraft:sand",
+    "minecraft:redstone",
+    "minecraft:glass_pane"
+  ],
+  "result": {
+    "id": "residual:wafer",
+    "count": 2
+  }
+}

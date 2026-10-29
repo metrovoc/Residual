@@ -8,7 +8,7 @@ navigation:
 # Residual
 
 Someone lived here before you. They built machines that thought, and they wrote everything down. Then they were gone,
-and nothing they left says why. What remains is scattered through the ruins: broken tablets of their writing, the plans
+and nothing they left says why. What remains is scattered through the ruins: broken tablets of their writing, the designs
 of their machines, and models that no longer work.
 
 These are field notes on building models again. A model here is a real language model: machines that each do one real
@@ -23,6 +23,7 @@ storeroom, run errands, carry on a pattern, understand what you tell it, and rea
 
 ## Models
 
+- [The Bench and the Fabricator](bench.md): designs wired from primitives, and the machines made from them.
 - [The Model Core](core.md): where models are built, trained, tested and saved.
 - [Training](training.md): reading a loss curve, and the settings that shape it.
 - [Models and Tests](models.md): the six benchmarks, checkpoints, and how big a model may be.

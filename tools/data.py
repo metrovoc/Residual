@@ -24,7 +24,10 @@ CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 BENCHMARKS = ["reacting", "recall", "reversal", "induction", "orders", "reading"]
 DATASETS = {"field_dataset": "minecraft:wheat_seeds", "storage_dataset": "minecraft:chest", "errand_dataset": "minecraft:compass",
           "pattern_dataset": "minecraft:bricks", "orders_dataset": "minecraft:writable_book"}
-SCHEMATICS = ["schematic_context", "schematic_attention", "schematic_positions", "schematic_blocks", "schematic_relays"]
+SCHEMATICS = ["schematic_relays"]
+# see bench/Specs.java, in the order the Bench lists them, each with the spec whose module it builds on first
+SPECS = {"mean": None, "softmax": None, "matmul": None, "linear": "matmul", "gelu": None, "layer_norm": "mean",
+         "attention": "softmax", "mlp": "linear", "transformer": "attention"}
 WRECKS = ruins.WRECKS
 
 FACING = {"north": {}, "south": {"y": 180}, "east": {"y": 90}, "west": {"y": 270}, "up": {"x": 270}, "down": {"x": 90}}
@@ -127,6 +130,38 @@ def reader():
     item_definition("reader", rid("block/reader"))
 
 
+def bench():
+    """A table: a breadboard top, four legs and a shelf."""
+    side = {"uv": [0, 0, 16, 4], "texture": "#side"}
+    top = {"up": {"uv": [0, 0, 16, 16], "texture": "#top", "cullface": "up"},
+           "down": {"uv": [0, 4, 16, 16], "texture": "#side"}}
+    top |= {f: side | {"cullface": f} for f in ("north", "south", "east", "west")}
+    leg = {f: {"uv": [0, 4, 2, 16], "texture": "#side"} for f in ("north", "south", "east", "west")}
+    leg["down"] = {"uv": [0, 4, 2, 6], "texture": "#side", "cullface": "down"}
+    shelf = {f: {"uv": [2, 4, 14, 5], "texture": "#side"} for f in ("north", "south", "east", "west")}
+    shelf |= {f: {"uv": [2, 4, 14, 16], "texture": "#side"} for f in ("up", "down")}
+    write(f"assets/{NS}/models/block/bench.json", {
+        "parent": "minecraft:block/block",
+        "textures": {"top": rid("block/bench_top"), "side": rid("block/bench_side"), "particle": rid("block/bench_side")},
+        "elements": [box([0, 12, 0], [16, 16, 16], top)]
+                    + [box([x, 0, z], [x + 2, 12, z + 2], leg) for x in (1, 13) for z in (1, 13)]
+                    + [box([2, 3, 2], [14, 4, 14], shelf)]})
+    write(f"assets/{NS}/blockstates/bench.json", {"variants": facing_variants(rid("block/bench"), facings=HORIZONTAL)})
+    item_definition("bench", rid("block/bench"))
+
+
+def fabricator():
+    side, top = rid("block/fabricator_side"), rid("block/fabricator_top")
+    for suffix in ("", "_on"):
+        cube(f"fabricator{suffix}", rid(f"block/fabricator_front{suffix}"), side, side, top, rid("block/machine_back"))
+    variants = {}
+    for working, suffix in (("false", ""), ("true", "_on")):
+        for key, value in facing_variants(rid(f"block/fabricator{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},working={working}"] = value
+    write(f"assets/{NS}/blockstates/fabricator.json", {"variants": variants})
+    item_definition("fabricator", rid("block/fabricator"))
+
+
 def box(frm, to, faces):
     return {"from": frm, "to": to, "faces": faces}
 
@@ -183,14 +218,21 @@ def cables():
 
 
 def items():
-    flat = (["weight_crystal", "checkpoint", "archive_drive", "archive_shard", "salvaged_model", "agent", "relay_card",
-             "terminal"] + list(DATASETS) + SCHEMATICS)
+    flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
+             "agent", "relay_card", "terminal"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
     for name in ("tensor_probe", "survey_rod"):
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/handheld", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
+    # a photomask looks etched once a design is recorded on it
+    for name in ("photomask", "photomask_recorded"):
+        write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
+    write(f"assets/{NS}/items/photomask.json", {"model": {
+        "type": "minecraft:condition", "property": "minecraft:has_component", "component": rid("mask"),
+        "on_true": {"type": "minecraft:model", "model": rid("item/photomask_recorded")},
+        "on_false": {"type": "minecraft:model", "model": rid("item/photomask")}}})
     # the guide book is GuideME's item; its guide definition points at this model
     write(f"assets/{NS}/models/item/guide.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid("item/guide")}})
     item_definition("guide", rid("item/guide"))
@@ -198,7 +240,7 @@ def items():
 
 # ---------------------------------------------------------------- data
 
-MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay"]
+MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator"]
 
 
 def blocks():
@@ -207,9 +249,13 @@ def blocks():
 
 def loot_tables():
     for name in blocks():
+        entry = {"type": "minecraft:item", "name": rid(name)}
+        if name in OPS:
+            # an unfused machine stays unfused when it is picked up
+            entry["functions"] = [{"function": "minecraft:copy_components", "source": "block_entity", "include": [rid("fused")]}]
         write(f"data/{NS}/loot_table/blocks/{name}.json", {
             "type": "minecraft:block",
-            "pools": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [{"type": "minecraft:item", "name": rid(name)}],
+            "pools": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [entry],
                        "conditions": [{"condition": "minecraft:survives_explosion"}]}],
             "random_sequence": rid(f"blocks/{name}")})
 
@@ -231,29 +277,6 @@ def shapeless(name, ingredients, count=1, file=None):
                                                      "ingredients": ingredients, "result": result})
 
 
-# Each machine is a casing, a part that hints at what it does, and, past the first two, the schematic it is copied
-# from. Schematics stay in the grid.
-MACHINES = {
-    "embedding": (None, ["residual:weight_crystal", "residual:weight_crystal", "minecraft:book"]),
-    "linear": (None, ["residual:weight_crystal", "residual:weight_crystal", "minecraft:iron_ingot"]),
-    "shift": ("schematic_context", ["minecraft:repeater"]),
-    "concat": ("schematic_context", ["minecraft:iron_chain"]),
-    "activation": ("schematic_context", ["minecraft:redstone_torch", "minecraft:redstone"]),
-    "matmul": ("schematic_context", ["minecraft:crafting_table", "minecraft:redstone"]),
-    "scale": ("schematic_context", ["minecraft:heavy_weighted_pressure_plate"]),
-    "causal_mask": ("schematic_context", ["minecraft:carved_pumpkin"]),
-    "softmax": ("schematic_context", ["#minecraft:wool", "minecraft:redstone"]),
-    "add": ("schematic_attention", ["#residual:cables", "#residual:cables", "minecraft:copper_ingot"]),
-    "norm": ("schematic_attention", ["residual:weight_crystal", "minecraft:compass"]),
-    "attention": ("schematic_attention", ["residual:weight_crystal", "residual:weight_crystal", "minecraft:spyglass"]),
-    "mlp": ("schematic_attention", ["residual:weight_crystal", "residual:weight_crystal", "minecraft:hopper"]),
-    "position": ("schematic_positions", ["residual:weight_crystal", "residual:weight_crystal", "minecraft:clock"]),
-    "multiply": ("schematic_positions", ["#minecraft:fence_gates", "minecraft:redstone"]),
-    "split_heads": ("schematic_positions", ["minecraft:shears"]),
-    "merge_heads": ("schematic_positions", ["minecraft:string", "minecraft:string"]),
-}
-
-
 def recipes():
     shaped("tensor_casing", ["ICI", "CRC", "ICI"], {"I": "minecraft:iron_ingot", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"}, 4)
     shaped("cable", [" G ", "CRC", " G "], {"G": "minecraft:glass_pane", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"}, 8)
@@ -265,12 +288,14 @@ def recipes():
     shaped("weight_crystal", [" L ", "RGR", " L "], {"L": "minecraft:lapis_lazuli", "R": "minecraft:redstone", "G": "minecraft:glass"}, 2)
     shaped("model_core", ["KGK", "WBW", "KGK"], {"K": rid("tensor_casing"), "G": "minecraft:gold_ingot",
                                                  "W": rid("weight_crystal"), "B": "minecraft:redstone_block"})
-    shaped("accelerator", ["KGK", "RDR", "KGK"], {"K": rid("tensor_casing"), "G": "minecraft:gold_ingot",
-                                                  "R": "minecraft:redstone", "D": "minecraft:diamond"})
     shaped("tensor_probe", ["  G", " R ", "I  "], {"G": "minecraft:glass_pane", "R": "minecraft:redstone", "I": "minecraft:iron_ingot"})
-    for op, (schematic, parts) in MACHINES.items():
-        shapeless(op, [rid("tensor_casing")] + parts + ([rid(schematic)] if schematic else []))
-    shapeless("transformer", [rid("attention"), rid("mlp"), rid("norm"), rid("schematic_blocks")])
+    # every machine comes out of the Fabricator
+    shaped("bench", ["GRG", "KTK", "I I"], {"G": "minecraft:glass_pane", "R": "minecraft:repeater", "K": rid("tensor_casing"),
+                                            "T": "minecraft:crafting_table", "I": "minecraft:iron_ingot"})
+    shaped("fabricator", ["KSK", "GPG", "KFK"], {"K": rid("tensor_casing"), "S": "minecraft:lantern", "G": "minecraft:glass",
+                                                 "P": "minecraft:piston", "F": "minecraft:furnace"})
+    shapeless("wafer", ["minecraft:sand", "minecraft:sand", "minecraft:redstone", "minecraft:glass_pane"], 2)
+    shapeless("photomask", ["minecraft:glass", "minecraft:iron_nugget", "minecraft:iron_nugget"])
 
     shaped("checkpoint", [" A ", "AWA", " A "], {"A": "minecraft:amethyst_shard", "W": rid("weight_crystal")})
     shaped("archive_drive", ["IRI", "IBI", "III"], {"I": "minecraft:iron_ingot", "R": "minecraft:redstone", "B": "minecraft:book"})
@@ -334,6 +359,13 @@ def advancements():
     advancement("deploy/server", "agent/made", "model_server", placed("model_server"))
     advancement("deploy/relay", "deploy/server", "relay", placed("relay"))
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
+    advancement("bench/made", "root", "bench", placed("bench"))
+    advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))
+    for spec, after in SPECS.items():
+        frame = "goal" if spec == "transformer" else "task"
+        advancement(f"bench/{spec}", f"bench/{after}" if after else "bench/made", "photomask", awarded(), frame=frame,
+                    components={rid("mask"): {"spec": spec}})
+    advancement("bench/all", "bench/transformer", "photomask", awarded(), frame="challenge", components={rid("mask"): {"spec": "transformer"}})
     advancement("wreck/found", "ruins/found", "salvaged_model", has("salvaged_model"))
     for w in WRECKS:
         advancement(f"wreck/{w}", "wreck/found", "salvaged_model", awarded(), frame="goal",
@@ -350,6 +382,8 @@ if __name__ == "__main__":
     server()
     reader()
     relay()
+    bench()
+    fabricator()
     cables()
     items()
     loot_tables()

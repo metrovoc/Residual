@@ -35,8 +35,8 @@ None: both inputs come from other machines.
 > `scores = q @ k.transpose(-2, -1)`\
 > `mixed = weights @ v`
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_context" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="matmul" />
+The <ItemLink id="fabricator" /> makes it from a photomask of **Matrix Multiply**: verify the spec on a
+<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
+[The Bench and the Fabricator](../bench.md).

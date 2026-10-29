@@ -105,6 +105,7 @@ import org.slf4j.Logger;
  *                            screen
  * take N                     shift-click the open container screen's slot number N
  * hover X Y                  move the mouse, in the same coordinates
+ * drag X1 Y1 X2 Y2           press the left button at one point, move to the other and release there
  * scroll AMOUNT              scroll the open screen where the mouse is
  * key NAME                   press a key on the open screen, by GLFW name (escape, enter, tab, ...)
  * type TEXT
@@ -276,6 +277,18 @@ public final class Rehearsal {
             case "take" -> mc.gameMode.handleContainerInput(mc.player.containerMenu.containerId, Integer.parseInt(arg), 0,
                     ContainerInput.QUICK_MOVE, mc.player);
             case "hover" -> point(mc, args);
+            case "drag" -> {
+                point(mc, args);
+                double x1 = mouseX, y1 = mouseY;
+                point(mc, new String[]{args[2], args[3]});
+                MouseButtonInfo left = new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, 0);
+                mc.screen.mouseClicked(new MouseButtonEvent(x1, y1, left), false);
+                for (int i = 1; i <= 4; i++) {
+                    double x = x1 + (mouseX - x1) * i / 4, y = y1 + (mouseY - y1) * i / 4;
+                    mc.screen.mouseDragged(new MouseButtonEvent(x, y, left), (mouseX - x1) / 4, (mouseY - y1) / 4);
+                }
+                mc.screen.mouseReleased(new MouseButtonEvent(mouseX, mouseY, left));
+            }
             case "scroll" -> mc.screen.mouseScrolled(mouseX, mouseY, 0, Double.parseDouble(arg));
             case "key" -> mc.screen.keyPressed(new KeyEvent(
                     GLFW.class.getField("GLFW_KEY_" + arg.toUpperCase(Locale.ROOT)).getInt(null), 0, 0));

@@ -42,8 +42,8 @@ A sequence [B×T×C] in, the same shape out.
 After training, its picture shows where its first head looks: one row per position, one column for every
 position it can see.
 
-## Recipe
+## Making it
 
-Its plans are on <ItemLink id="schematic_attention" />, found in [ruins](../ruins.md).
-
-<RecipeFor id="attention" />
+The <ItemLink id="fabricator" /> makes it from a photomask of **Attention**: verify the spec on a
+<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
+[The Bench and the Fabricator](../bench.md).

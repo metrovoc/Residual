@@ -76,7 +76,7 @@ public final class GraphScanner {
         GraphSpec spec = new GraphSpec();
         for (BlockPos p : nodes) {
             OperatorBlockEntity be = (OperatorBlockEntity) level.getBlockEntity(p);
-            spec.addUnwired(be.name(), be.op(), be.config().copy(), p.asLong());
+            spec.node(spec.addUnwired(be.name(), be.op(), be.config().copy(), p.asLong())).fused = be.fused();
         }
         for (int i = 0; i < nodes.size(); i++) {
             BlockPos p = nodes.get(i);

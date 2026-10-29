@@ -24,14 +24,20 @@ numbers, so machines with weights need them.
   <RecipeFor id="weight_crystal" />
 </Row>
 
-Then craft the Model Core, an Embedding Table, a stack of cables and a <ItemLink id="field_dataset" />: endless
-practice at farming.
+Then craft the Model Core, a stack of cables and a <ItemLink id="field_dataset" />: endless practice at farming.
 
 <Row>
   <RecipeFor id="model_core" />
-  <RecipeFor id="embedding" />
   <RecipeFor id="cable" />
   <RecipeFor id="field_dataset" />
+</Row>
+
+Machines are made in a <ItemLink id="fabricator" />. With no photomask in it, it makes the Embedding Table from a
+casing, a <ItemLink id="wafer" /> and a weight crystal.
+
+<Row>
+  <RecipeFor id="fabricator" />
+  <RecipeFor id="wafer" />
 </Row>
 
 ## Build it
@@ -101,8 +107,8 @@ body's work; every decision is your model's.
 
 ## Further
 
-Other datasets teach other jobs, and better models need machines whose plans were lost. Go looking: see
-[Ruins](ruins.md).
+Other datasets teach other jobs, and better models need machines built from designs: wire them yourself on a
+[Bench](bench.md), or go looking for the old ones in the [ruins](ruins.md).
 
 - Look at any machine to see its name, its output shape (or what is wrong with it) and what the face you are looking
   at does.

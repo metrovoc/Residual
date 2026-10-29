@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.registry;
 
 import com.mojang.serialization.Codec;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.bench.MaskData;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.model.Recovered;
 import java.util.List;
@@ -34,6 +35,13 @@ public final class ModComponents {
     /** Which wreck a Salvaged Model is. */
     public static final Supplier<DataComponentType<String>> WRECK = COMPONENTS.registerComponentType("wreck",
             b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+
+    /** The design a Photomask carries. */
+    public static final Supplier<DataComponentType<MaskData>> MASK = COMPONENTS.registerComponentType("mask",
+            b -> b.persistent(MaskData.CODEC).networkSynchronized(MaskData.STREAM_CODEC));
+    /** False on a machine fabricated from a salvaged design, which runs one primitive at a time. */
+    public static final Supplier<DataComponentType<Boolean>> FUSED = COMPONENTS.registerComponentType("fused",
+            b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
 
     private ModComponents() {
     }

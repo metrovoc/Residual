@@ -1,7 +1,9 @@
 package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
+import io.github.metrovoc.residual.block.FabricatorBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
 import io.github.metrovoc.residual.block.RelayBlockEntity;
@@ -28,6 +30,11 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(ReaderBlockEntity::new, Set.of(ModBlocks.READER.get())));
     public static final Supplier<BlockEntityType<RelayBlockEntity>> RELAY = BLOCK_ENTITIES.register("relay",
             () -> new BlockEntityType<>(RelayBlockEntity::new, Set.of(ModBlocks.RELAY.get())));
+
+    public static final Supplier<BlockEntityType<BenchBlockEntity>> BENCH = BLOCK_ENTITIES.register("bench",
+            () -> new BlockEntityType<>(BenchBlockEntity::new, Set.of(ModBlocks.BENCH.get())));
+    public static final Supplier<BlockEntityType<FabricatorBlockEntity>> FABRICATOR = BLOCK_ENTITIES.register("fabricator",
+            () -> new BlockEntityType<>(FabricatorBlockEntity::new, Set.of(ModBlocks.FABRICATOR.get())));
 
     private ModBlockEntities() {
     }
