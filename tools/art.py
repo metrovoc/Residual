@@ -998,6 +998,59 @@ def agent_skin():
 
 # ---------------------------------------------------------------- cables
 
+def stream_side(phase=0):
+    """A channel in a graphite body, chevrons pointing up the texture, the way the stream flows. The top and bottom
+    edges stay open, so a line of blocks reads as one conduit; each phase moves the chevrons up a pixel."""
+    c = Canvas()
+    for y in range(16):
+        for x in range(16):
+            c.px(x, y, G1 if speckle(x, y, 21) else G2)
+        c.px(0, y, G3)
+        c.px(15, y, G0)
+        c.px(1, y, TEAL_LINE[0])
+        c.px(14, y, TEAL_LINE[0])
+        c.px(3, y, G0)
+        c.px(12, y, G0)
+        c.rect(4, y, 11, y, TEAL[0])
+        c.rect(7, y, 8, y, TEAL[1])
+    for k in range(2):
+        top = k * 8 - phase
+        for i, (a, b) in enumerate([(7, 8), (6, 9), (5, 10), (4, 11)]):
+            color = TEAL[4] if i == 0 else TEAL[3] if i < 3 else TEAL[2]
+            c.px(a, (top + i) % 16, color)
+            c.px(b, (top + i) % 16, color)
+    return c
+
+
+def stream_end():
+    """The channel seen end on: a ring of light in the graphite."""
+    c = Canvas()
+    for y in range(16):
+        for x in range(16):
+            c.px(x, y, G1 if speckle(x, y, 22) else G2)
+    for i in range(16):
+        c.px(i, 0, G3)
+        c.px(0, i, G3)
+        c.px(i, 15, G0)
+        c.px(15, i, G0)
+    ring = [
+        "...oooooo...",
+        "..oTTTTTTo..",
+        ".oTtttttTTo.",
+        "oTtLLLLLLtTo",
+        "oTtLwwwwLtTo",
+        "oTtLwWWwLtTo",
+        "oTtLwWWwLtTo",
+        "oTtLwwwwLtTo",
+        "oTtLLLLLLtTo",
+        ".oTttttttTo.",
+        "..oTTTTTTo..",
+        "...oooooo...",
+    ]
+    c.stamp(2, 2, ring, {"o": G0, "T": TEAL[1], "t": TEAL[2], "L": TEAL[3], "w": TEAL[4], "W": TEAL[5]})
+    return c
+
+
 DYES = {
     "white": "e9ecef", "orange": "f08a24", "magenta": "c94fc0", "light_blue": "4cb6e0",
     "yellow": "f5cf3a", "lime": "86cc2b", "pink": "f08fae", "gray": "5d666c",
@@ -1541,6 +1594,9 @@ def build():
     SAVED["block/fabricator_front_on.png"] = fabricator_front(6).im
     fabricator_side().save("block/fabricator_side.png")
     fabricator_top().save("block/fabricator_top.png")
+    animated([stream_side(i) for i in range(8)], "block/stream_side.png", 2)
+    SAVED["block/stream_side.png"] = stream_side(0).im
+    stream_end().save("block/stream_end.png")
 
     plain = cable(K2, K0, NEUTRAL[1], TEAL[4])
     for i in range(16):

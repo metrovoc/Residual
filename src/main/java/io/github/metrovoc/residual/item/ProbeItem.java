@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.block.CableBlock;
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
+import io.github.metrovoc.residual.block.Port;
 import io.github.metrovoc.residual.world.GraphScanner;
 import java.util.List;
 import java.util.Locale;
@@ -51,8 +52,10 @@ public class ProbeItem extends Item {
     }
 
     static Component describe(Level level, List<GraphScanner.Touch> touches) {
-        List<GraphScanner.Touch> drivers = touches.stream().filter(t -> t.port().drives()).toList();
-        List<GraphScanner.Touch> readers = touches.stream().filter(t -> !t.port().drives()).toList();
+        List<GraphScanner.Touch> outputs = touches.stream().filter(t -> t.port().drives()).toList();
+        // with nothing else driving it, a residual stream feeds the network
+        List<GraphScanner.Touch> drivers = outputs.isEmpty() ? touches.stream().filter(t -> t.port() == Port.STREAM).toList() : outputs;
+        List<GraphScanner.Touch> readers = touches.stream().filter(t -> !drivers.contains(t)).toList();
         MutableComponent msg = Component.translatable("residual.probe.network").withStyle(ChatFormatting.GOLD);
         if (drivers.isEmpty()) {
             msg.append(Component.translatable("residual.probe.undriven").withStyle(ChatFormatting.RED));

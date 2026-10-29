@@ -56,8 +56,8 @@ The Model Core sends tokens out of its front and takes the finished scores in th
 </GameScene>
 
 Look at a machine to see which port the face under your crosshair is. A machine placed against another machine's
-output takes that output as its input; placed against an input, it feeds it; placed against a cable, it reads the
-cable. Anywhere else its output points away from you. Sneak-use a face to turn the output to that face; sneak-using
+output takes that output as its input; placed against an input, it feeds it; placed against a cable or a
+[residual stream](stream.md), it reads it. Anywhere else its output points away from you. Sneak-use a face to turn the output to that face; sneak-using
 the output face itself turns the machine around.
 
 ## Networks

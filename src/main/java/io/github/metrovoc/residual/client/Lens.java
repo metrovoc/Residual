@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.block.CableBlock;
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.Port;
+import io.github.metrovoc.residual.block.StreamBlock;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.world.GraphScanner;
@@ -61,14 +62,25 @@ public final class Lens {
         } else if (state.getBlock() instanceof CoreBlock) {
             lines.add(Component.translatable("block.residual.model_core").withColor(Ui.TEXT));
             lines.add(port(face));
+        } else if (state.getBlock() instanceof StreamBlock) {
+            lines.add(Component.translatable("block.residual.stream").withColor(Ui.TEXT));
+            if (StreamBlock.next(mc.level, pos, state) == null) {
+                lines.add(Component.translatable("residual.lens.stream_end").withColor(Ui.DIM));
+            }
+            lines.add(port(face));
         } else if (state.getBlock() instanceof CableBlock cable && mc.player.isHolding(ModItems.PROBE.get())) {
             Component color = cable.color == null ? Component.translatable("residual.lens.uncolored")
                     : Component.translatable("color.minecraft." + cable.color.getSerializedName());
             lines.add(Component.translatable("residual.lens.cable", color).withColor(Ui.TEXT));
             List<GraphScanner.Touch> net = network(mc, pos);
             long drivers = net.stream().filter(t -> t.port().drives()).count();
-            long readers = net.size() - drivers;
-            if (drivers == 0) {
+            long streams = net.stream().filter(t -> t.port() == Port.STREAM).count();
+            long readers = net.size() - drivers - (drivers == 0 ? streams : 0);
+            if (drivers == 0 && streams == 1) {
+                lines.add(Component.translatable("residual.lens.stream").withColor(Ui.TEAL));
+            } else if (drivers == 0 && streams > 1) {
+                lines.add(Component.translatable("residual.lens.contested", streams).withColor(Ui.RED));
+            } else if (drivers == 0) {
                 lines.add(Component.translatable("residual.lens.undriven").withColor(Ui.AMBER));
             } else if (drivers > 1) {
                 lines.add(Component.translatable("residual.lens.contested", drivers).withColor(Ui.RED));
@@ -86,7 +98,7 @@ public final class Lens {
 
     private static Component port(Port port) {
         int color = switch (port) {
-            case OUTPUT, TOKENS -> Ui.TEAL;
+            case OUTPUT, TOKENS, STREAM -> Ui.TEAL;
             case MAIN, SIDE, LOGITS -> Ui.AMBER;
             case NONE -> Ui.DIM;
         };

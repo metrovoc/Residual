@@ -162,6 +162,20 @@ def fabricator():
     item_definition("fabricator", rid("block/fabricator"))
 
 
+def stream():
+    """The channel seen end on at both ends; on the four sides, chevrons pointing the way it flows. The side texture
+    points up, so each side face turns it toward north, the model's flow; the blockstate turns the whole block."""
+    side = {"uv": [0, 0, 16, 16], "texture": "#side"}
+    faces = {"north": {"uv": [0, 0, 16, 16], "texture": "#end"}, "south": {"uv": [0, 0, 16, 16], "texture": "#end"},
+             "up": side, "down": side | {"rotation": 180}, "east": side | {"rotation": 90}, "west": side | {"rotation": 270}}
+    write(f"assets/{NS}/models/block/stream.json", {
+        "parent": "minecraft:block/block",
+        "textures": {"side": rid("block/stream_side"), "end": rid("block/stream_end"), "particle": rid("block/stream_side")},
+        "elements": [box([0, 0, 0], [16, 16, 16], {f: v | {"cullface": f} for f, v in faces.items()})]})
+    write(f"assets/{NS}/blockstates/stream.json", {"variants": facing_variants(rid("block/stream"))})
+    item_definition("stream", rid("block/stream"))
+
+
 def box(frm, to, faces):
     return {"from": frm, "to": to, "faces": faces}
 
@@ -240,7 +254,7 @@ def items():
 
 # ---------------------------------------------------------------- data
 
-MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator"]
+MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream"]
 
 
 def blocks():
@@ -296,6 +310,8 @@ def recipes():
                                                  "P": "minecraft:piston", "F": "minecraft:furnace"})
     shapeless("wafer", ["minecraft:sand", "minecraft:sand", "minecraft:redstone", "minecraft:glass_pane"], 2)
     shapeless("photomask", ["minecraft:glass", "minecraft:iron_nugget", "minecraft:iron_nugget"])
+    shaped("stream", ["KGK", "RPR", "KGK"], {"K": rid("tensor_casing"), "G": "minecraft:glass", "R": "minecraft:redstone",
+                                             "P": "minecraft:prismarine_crystals"}, 4)
 
     shaped("checkpoint", [" A ", "AWA", " A "], {"A": "minecraft:amethyst_shard", "W": rid("weight_crystal")})
     shaped("archive_drive", ["IRI", "IBI", "III"], {"I": "minecraft:iron_ingot", "R": "minecraft:redstone", "B": "minecraft:book"})
@@ -360,6 +376,7 @@ def advancements():
     advancement("deploy/relay", "deploy/server", "relay", placed("relay"))
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
     advancement("bench/made", "root", "bench", placed("bench"))
+    advancement("model/stream", "bench/made", "stream", placed("stream"))
     advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))
     for spec, after in SPECS.items():
         frame = "goal" if spec == "transformer" else "task"
@@ -384,6 +401,7 @@ if __name__ == "__main__":
     relay()
     bench()
     fabricator()
+    stream()
     cables()
     items()
     loot_tables()

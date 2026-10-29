@@ -32,6 +32,7 @@ public final class ModTabs {
                 for (DyeColor color : DyeColor.values()) {
                     out.accept(ModBlocks.COLORED_CABLES.get(color).get());
                 }
+                out.accept(ModBlocks.STREAM.get());
                 out.accept(ModBlocks.BENCH.get());
                 out.accept(ModBlocks.FABRICATOR.get());
                 out.accept(ModItems.WAFER.get());

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "G": "minecraft:glass",
+    "R": "minecraft:redstone",
+    "P": "minecraft:prismarine_crystals"
+  },
+  "pattern": [
+    "KGK",
+    "RPR",
+    "KGK"
+  ],
+  "result": {
+    "id": "residual:stream",
+    "count": 4
+  }
+}

@@ -37,5 +37,6 @@ storeroom, run errands, carry on a pattern, understand what you tell it, and rea
 ## Reference
 
 - [Machines and Cables](wiring.md): how values travel between blocks.
+- [The Residual Stream](stream.md): the running sum every transformer layer reads and adds to.
 - [Shapes](shapes.md): what [B×T×C] means, and how to fix a shape error.
 - [Machines](machines/index.md), one page each.
