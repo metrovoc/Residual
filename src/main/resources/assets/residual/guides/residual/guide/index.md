@@ -21,6 +21,7 @@ old world wrote, and see where a field is going.
 1. [Getting Started](getting-started.md): a first model, and a body for it.
 2. [Ruins](ruins.md): where the old world's things are.
 3. [The Archive](archive.md): shards, drives, and restoring what was lost.
+4. [Milestones](milestones.md): every advancement, lit once you have made it, and how to make the rest.
 
 ## Models
 

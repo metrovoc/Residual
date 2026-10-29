@@ -2,6 +2,8 @@
   "itemGroup.residual": "Residual",
   "residual.guide_name": "Field Notes",
   "residual.guide_tooltip": "Notes on every machine, model and ruin",
+  "residual.milestone.made": "Made",
+  "residual.milestone.not_yet": "Not yet",
 
   "block.residual.model_core": "Model Core",
   "block.residual.accelerator": "Training Accelerator",

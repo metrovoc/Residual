@@ -51,7 +51,19 @@ neoForge {
             var projectDir = layout.projectDirectory
             systemProperties.put 'residual.rehearsal', providers.gradleProperty('script').map { projectDir.file(it).asFile.absolutePath }.orElse('')
             systemProperties.put 'residual.rehearsal.monitor', providers.gradleProperty('monitor').orElse('')
+            // where the guide export unpacks FFmpeg, rather than ~/.javacpp
+            systemProperty 'org.bytedeco.javacpp.cachedir', file('run/rehearsal/javacpp').absolutePath
             programArguments.addAll '--width', '1600', '--height', '1000'
+        }
+        // ./gradlew runGuideExport [-Pmonitor=<display name>]: exports the field notes into build/guideExport and quits
+        guideExport {
+            client()
+            sourceSet = sourceSets.rehearsal
+            gameDirectory = file('run/rehearsal')
+            systemProperty 'guideme.exportOnStartupAndExit', 'residual:guide'
+            systemProperty 'guideme.exportDestination.residual.guide', file('build/guideExport').absolutePath
+            systemProperties.put 'residual.rehearsal.monitor', providers.gradleProperty('monitor').orElse('')
+            systemProperty 'org.bytedeco.javacpp.cachedir', file('run/rehearsal/javacpp').absolutePath
         }
         server {
             server()
@@ -80,6 +92,13 @@ dependencies {
     implementation "org.appliedenergistics:guideme:${guideme_version}"
     rehearsalImplementation sourceSets.main.output
     rehearsalRuntimeOnly "org.appliedenergistics:guideme:${guideme_version}"
+    // GuideME's guide export encodes animated icons with FFmpeg, here the build for this machine
+    var os = System.getProperty('os.name').toLowerCase(Locale.ROOT)
+    var javacppPlatform = (os.contains('mac') ? 'macosx' : os.contains('windows') ? 'windows' : 'linux') + '-' +
+            (System.getProperty('os.arch') in ['aarch64', 'arm64'] ? 'arm64' : 'x86_64')
+    rehearsalRuntimeOnly "org.bytedeco:ffmpeg:${ffmpeg_version}"
+    rehearsalRuntimeOnly "org.bytedeco:ffmpeg:${ffmpeg_version}:${javacppPlatform}"
+    rehearsalRuntimeOnly "org.bytedeco:javacpp:${ffmpeg_version.split('-')[1]}:${javacppPlatform}"
 
     testImplementation "org.junit.jupiter:junit-jupiter:${junit_version}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -123,4 +142,22 @@ idea {
     module {
         downloadSources = true
     }
+}
+
+// ./gradlew guideWebsite [-Pmonitor=<display name>]: the field notes as a website in build/guideWebsite, made from
+// their export by a newer GuideME, since 26.1's drops scene annotations
+configurations {
+    guideWebsite
+}
+dependencies {
+    guideWebsite("org.appliedenergistics:guideme:${guideme_website_version}") { transitive = false }
+}
+tasks.register('guideWebsite', JavaExec) {
+    dependsOn 'runGuideExport'
+    classpath = configurations.guideWebsite + sourceSets.rehearsal.runtimeClasspath.filter { !it.name.startsWith('guideme-') }
+    mainClass = 'guideme.web.WebSiteGenerator'
+    // its logs go here rather than into the project
+    workingDir = temporaryDir
+    args '--data', file('build/guideExport').absolutePath,
+            '--output', layout.buildDirectory.dir('guideWebsite').get().asFile.absolutePath, '--clean', '--title', mod_name
 }

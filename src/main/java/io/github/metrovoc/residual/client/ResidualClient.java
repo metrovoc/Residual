@@ -1,5 +1,9 @@
 package io.github.metrovoc.residual.client;
 
+import guideme.Guide;
+import guideme.GuideItemSettings;
+import guideme.compiler.TagCompiler;
+import guideme.siteexport.ExportPostProcessor;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.net.AgentSync;
@@ -10,6 +14,10 @@ import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModMenus;
+import java.util.List;
+import java.util.Optional;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -30,6 +38,14 @@ public final class ResidualClient {
         modBus.addListener(ResidualClient::models);
         NeoForge.EVENT_BUS.addListener(Waves::extract);
         NeoForge.EVENT_BUS.addListener(Waves::submit);
+        // the field notes
+        Guide.builder(Residual.GUIDE)
+                .itemSettings(new GuideItemSettings(Optional.of(Component.translatable("residual.guide_name")),
+                        List.of(Component.translatable("residual.guide_tooltip").withStyle(ChatFormatting.DARK_GRAY)),
+                        Optional.of(Residual.id("item/guide"))))
+                .extension(TagCompiler.EXTENSION_POINT, new Milestones.Tag())
+                .extension(ExportPostProcessor.EXTENSION_POINT, new Milestones.Web())
+                .build();
     }
 
     private static void screens(RegisterMenuScreensEvent event) {

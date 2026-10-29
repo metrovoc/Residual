@@ -52,18 +52,18 @@ Sneak-use a face to turn a block.
   <Block id="norm" x="6" p:facing="east" />
   <Block id="linear" x="7" p:facing="east" />
   <IsometricCamera yaw="340" pitch="40" />
-  <BlockAnnotation x="-1" color="#3CD6C6">
+  <BoxAnnotation min="-1 0 0" max="0 1 1" color="#3CD6C6">
     The embedding adds each token's vector into the first block, and the position table adds its own.
-  </BlockAnnotation>
-  <BlockAnnotation x="1" z="-2" color="#FFB547">
+  </BoxAnnotation>
+  <BoxAnnotation min="1 0 -2" max="2 1 -1" color="#FFB547">
     Attention reads the stream through a norm, and its cable adds the result back one block on.
-  </BlockAnnotation>
-  <BlockAnnotation x="3" z="2" color="#FFB547">
+  </BoxAnnotation>
+  <BoxAnnotation min="3 0 2" max="4 1 3" color="#FFB547">
     The feed-forward block does the same on the other side.
-  </BlockAnnotation>
-  <BlockAnnotation x="6" color="#3CD6C6">
+  </BoxAnnotation>
+  <BoxAnnotation min="6 0 0" max="7 1 1" color="#3CD6C6">
     At the end, a last norm reads the whole sum, and the unembedding turns it into scores for the Model Core.
-  </BlockAnnotation>
+  </BoxAnnotation>
 </GameScene>
 
 This is one transformer layer, laid out the way it is usually drawn: read, normalize, compute, add back. Stack more

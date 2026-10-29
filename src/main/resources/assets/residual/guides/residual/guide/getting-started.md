@@ -66,12 +66,12 @@ casing, a <ItemLink id="wafer" /> and a weight crystal.
   <Block id="light_blue_cable" y="1" p:up="true" p:down="true" />
   <Block id="light_blue_cable" y="2" p:south="true" p:down="true" />
   <IsometricCamera yaw="200" pitch="30" />
-  <BlockAnnotation color="#FFB547">
+  <BoxAnnotation min="0 0 0" max="1 1 1" color="#FFB547">
     The Model Core. Tokens leave through its front; scores come back through its top.
-  </BlockAnnotation>
-  <BlockAnnotation x="3" color="#3CD6C6">
+  </BoxAnnotation>
+  <BoxAnnotation min="3 0 0" max="4 1 1" color="#3CD6C6">
     The Embedding Table, Width set to V.
-  </BlockAnnotation>
+  </BoxAnnotation>
 </GameScene>
 
 The two cables never touch, so they form two separate networks: one carries tokens to the table, the other carries
