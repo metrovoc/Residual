@@ -1,21 +1,28 @@
 package io.github.metrovoc.residual.rehearsal;
 
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
+import io.github.metrovoc.residual.item.DriveItem;
+import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.learn.Blueprints;
 import io.github.metrovoc.residual.registry.ModBlocks;
+import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.world.CaseBuilder;
 import io.github.metrovoc.residual.world.CaseLayout;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -30,21 +37,42 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldOptions;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -61,18 +89,31 @@ import org.slf4j.Logger;
  *
  * <p>One step runs per client tick:
  * <pre>
- * world                      create a fresh creative flat world and wait until it has loaded
+ * world [SEED]               create a fresh creative world and wait until it has loaded: flat, or with SEED a
+ *                            normal world with structures
  * cmd COMMAND                run a command as the player
+ * chat TEXT                  say something in chat
  * wait TICKS
  * use X Y Z [FACE]           right-click a block with the main hand
+ * entity TYPE                right-click the nearest entity of TYPE (residual:apprentice) with the main hand,
+ *                            stepping up to it first if it is out of reach
+ * useitem                    right-click the air with the main hand
  * creative TAB               open the creative inventory on a tab, by id (residual:main)
  * press LABEL                click the open screen's first button whose label starts with LABEL
  * click X Y                  left-click the open screen; a container screen's coordinates start at its corner
+ * shift N|ITEM               shift-click hotbar slot N (0-8), or the first one holding ITEM, in the open container
+ *                            screen
+ * take N                     shift-click the open container screen's slot number N
  * hover X Y                  move the mouse, in the same coordinates
  * scroll AMOUNT              scroll the open screen where the mouse is
  * key NAME                   press a key on the open screen, by GLFW name (escape, enter, tab, ...)
  * type TEXT
- * slot N                     select hotbar slot N (0-8)
+ * slot N|ITEM                select hotbar slot N (0-8), or the first one holding ITEM
+ * drive N                    give the player an Archive Drive holding N shards' worth of the archive
+ * frame STRUCTURE DIST HEIGHT ANGLE  stand DIST blocks out from the nearest generated STRUCTURE, HEIGHT above its
+ *                            top and ANGLE degrees round from south, looking at its centre
+ * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
+ *                            T a tree)
  * fly on|off                 hover in place (creative), so the camera stays where cmd tp put it
  * hud on|off
  * gui SCALE                  set the GUI scale (0 = auto)
@@ -183,8 +224,9 @@ public final class Rehearsal {
         String arg = parts.length > 1 ? parts[1] : "";
         String[] args = arg.split("\\s+");
         switch (parts[0]) {
-            case "world" -> createWorld(mc);
+            case "world" -> createWorld(mc, arg);
             case "cmd" -> mc.player.connection.sendCommand(arg);
+            case "chat" -> mc.player.connection.sendChat(arg);
             case "wait" -> waiting = Integer.parseInt(arg);
             case "use" -> {
                 BlockPos pos = new BlockPos(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
@@ -192,6 +234,21 @@ public final class Rehearsal {
                 mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND,
                         new BlockHitResult(Vec3.atCenterOf(pos).relative(face, 0.5), face, pos, false));
             }
+            case "entity" -> {
+                EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(arg));
+                Entity target = mc.level.getEntities((Entity) null, mc.player.getBoundingBox().inflate(24), e -> e.getType() == type)
+                        .stream().min(Comparator.comparingDouble(mc.player::distanceToSqr)).orElseThrow();
+                if (mc.player.distanceTo(target) > 3) {
+                    // the server only lets a player use what is within reach: step up to it, then try again
+                    Vec3 to = target.position().add(mc.player.position().subtract(target.position()).horizontal().normalize().scale(2));
+                    mc.player.connection.sendCommand(String.format(Locale.ROOT, "tp @s %.2f %.2f %.2f", to.x, target.getY(), to.z));
+                    next--;
+                    waiting = 4;
+                    return;
+                }
+                mc.gameMode.interact(mc.player, target, new EntityHitResult(target), InteractionHand.MAIN_HAND);
+            }
+            case "useitem" -> mc.gameMode.useItem(mc.player, InteractionHand.MAIN_HAND);
             case "creative" -> {
                 Field selected = CreativeModeInventoryScreen.class.getDeclaredField("selectedTab");
                 selected.setAccessible(true);
@@ -209,12 +266,35 @@ public final class Rehearsal {
                 point(mc, args);
                 click(mc, mouseX, mouseY);
             }
+            case "shift" -> {
+                AbstractContainerMenu menu = mc.player.containerMenu;
+                Slot slot = menu.slots.stream()
+                        .filter(sl -> sl.container == mc.player.getInventory() && sl.getContainerSlot() == hotbar(mc, arg))
+                        .findFirst().orElseThrow();
+                mc.gameMode.handleContainerInput(menu.containerId, slot.index, 0, ContainerInput.QUICK_MOVE, mc.player);
+            }
+            case "take" -> mc.gameMode.handleContainerInput(mc.player.containerMenu.containerId, Integer.parseInt(arg), 0,
+                    ContainerInput.QUICK_MOVE, mc.player);
             case "hover" -> point(mc, args);
             case "scroll" -> mc.screen.mouseScrolled(mouseX, mouseY, 0, Double.parseDouble(arg));
             case "key" -> mc.screen.keyPressed(new KeyEvent(
                     GLFW.class.getField("GLFW_KEY_" + arg.toUpperCase(Locale.ROOT)).getInt(null), 0, 0));
             case "type" -> arg.codePoints().forEach(c -> mc.screen.charTyped(new CharacterEvent(c)));
-            case "slot" -> mc.player.getInventory().setSelectedSlot(Integer.parseInt(arg));
+            case "slot" -> mc.player.getInventory().setSelectedSlot(hotbar(mc, arg));
+            case "drive" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                server.execute(() -> {
+                    ServerPlayer player = server.getPlayerList().getPlayer(id);
+                    ItemStack drive = new ItemStack(ModItems.ARCHIVE_DRIVE.get());
+                    for (int i = 0; i < Integer.parseInt(arg); i++) {
+                        DriveItem.file(drive, ShardItem.roll(player.getRandom()));
+                    }
+                    player.getInventory().add(drive);
+                });
+            }
+            case "frame" -> frame(mc, args);
+            case "survey" -> survey(mc, args);
             case "fly" -> {
                 hover = arg.equals("on");
                 mc.player.getAbilities().flying = hover;
@@ -244,7 +324,7 @@ public final class Rehearsal {
         mc.screen.mouseReleased(click);
     }
 
-    private static void createWorld(Minecraft mc) throws IOException {
+    private static void createWorld(Minecraft mc, String seed) throws IOException {
         LevelStorageSource source = mc.getLevelSource();
         if (source.levelExists(WORLD)) {
             try (LevelStorageSource.LevelStorageAccess access = source.createAccess(WORLD)) {
@@ -253,8 +333,13 @@ public final class Rehearsal {
         }
         LevelSettings settings = new LevelSettings(WORLD, GameType.CREATIVE,
                 new LevelSettings.DifficultySettings(Difficulty.PEACEFUL, false, false), true, WorldDataConfiguration.DEFAULT);
-        mc.createWorldOpenFlows().createFreshLevel(WORLD, settings, new WorldOptions(0, false, false),
-                WorldPresets::createFlatWorldDimensions, mc.screen);
+        if (seed.isEmpty()) {
+            mc.createWorldOpenFlows().createFreshLevel(WORLD, settings, new WorldOptions(0, false, false),
+                    WorldPresets::createFlatWorldDimensions, mc.screen);
+        } else {
+            mc.createWorldOpenFlows().createFreshLevel(WORLD, settings, new WorldOptions(Long.parseLong(seed), true, false),
+                    WorldPresets::createNormalWorldDimensions, mc.screen);
+        }
         loading = true;
     }
 
@@ -292,6 +377,76 @@ public final class Rehearsal {
                 }
             }
         });
+    }
+
+    private static void frame(Minecraft mc, String[] args) {
+        MinecraftServer server = mc.getSingleplayerServer();
+        UUID id = mc.player.getUUID();
+        server.execute(() -> {
+            ServerPlayer player = server.getPlayerList().getPlayer(id);
+            ServerLevel level = player.level();
+            Holder<Structure> structure = level.registryAccess().lookupOrThrow(Registries.STRUCTURE)
+                    .getOrThrow(ResourceKey.create(Registries.STRUCTURE, Identifier.parse(args[0])));
+            Pair<BlockPos, Holder<Structure>> found = level.getChunkSource().getGenerator()
+                    .findNearestMapStructure(level, HolderSet.direct(structure), player.blockPosition(), 100, false);
+            if (found == null) {
+                throw new IllegalStateException("no " + args[0] + " nearby");
+            }
+            // the structure starts in the chunk it was found in or next to it
+            ChunkPos near = ChunkPos.containing(found.getFirst());
+            BoundingBox box = null;
+            for (int dx = -1; dx <= 1 && box == null; dx++) {
+                for (int dz = -1; dz <= 1 && box == null; dz++) {
+                    StructureStart start = level.getChunk(near.x() + dx, near.z() + dz, ChunkStatus.STRUCTURE_STARTS)
+                            .getStartForStructure(structure.value());
+                    box = start != null && start.isValid() ? start.getBoundingBox() : null;
+                }
+            }
+            Vec3 centre = Vec3.atCenterOf(box.getCenter());
+            double angle = Math.toRadians(Double.parseDouble(args[3]));
+            double dist = Double.parseDouble(args[1]);
+            Vec3 eye = new Vec3(centre.x + Math.sin(angle) * dist, box.maxY() + Double.parseDouble(args[2]),
+                    centre.z + Math.cos(angle) * dist);
+            Vec3 d = centre.subtract(eye);
+            float yaw = (float) Math.toDegrees(Math.atan2(-d.x, d.z));
+            float pitch = (float) Math.toDegrees(-Math.atan2(d.y, Math.sqrt(d.x * d.x + d.z * d.z)));
+            player.teleportTo(level, eye.x, eye.y - player.getEyeHeight(), eye.z, Set.of(), yaw, pitch, true);
+            LOG.info("[rehearsal] framed {} at {}", args[0], box);
+        });
+    }
+
+    private static void survey(Minecraft mc, String[] args) {
+        MinecraftServer server = mc.getSingleplayerServer();
+        UUID id = mc.player.getUUID();
+        int cx = Integer.parseInt(args[0]), cz = Integer.parseInt(args[1]), r = Integer.parseInt(args[2]);
+        server.execute(() -> {
+            ServerLevel level = server.getPlayerList().getPlayer(id).level();
+            StringBuilder out = new StringBuilder();
+            for (int z = cz - r; z <= cz + r; z++) {
+                out.append('\n');
+                for (int x = cx - r; x <= cx + r; x++) {
+                    BlockPos top = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, new BlockPos(x, 0, z)).below();
+                    BlockState state = level.getBlockState(top);
+                    out.append(!state.getFluidState().isEmpty() ? "   ~" : state.is(BlockTags.LOGS) ? "   T"
+                            : String.format(Locale.ROOT, " %3d", top.getY() + 1));
+                }
+            }
+            LOG.info("[rehearsal] ground around {} {}, rows from z {} and columns from x {}:{}", cx, cz, cz - r, cx - r, out);
+        });
+    }
+
+    /** A hotbar slot by number, or the first one holding the item with this id. */
+    private static int hotbar(Minecraft mc, String arg) {
+        if (arg.chars().allMatch(Character::isDigit)) {
+            return Integer.parseInt(arg);
+        }
+        Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(arg));
+        for (int i = 0; i < 9; i++) {
+            if (mc.player.getInventory().getItem(i).is(item)) {
+                return i;
+            }
+        }
+        throw new IllegalStateException("no " + arg + " in the hotbar");
     }
 
     /** Puts the mouse at the centre of GUI pixel (x, y), counted from a container screen's corner when one is open. */
