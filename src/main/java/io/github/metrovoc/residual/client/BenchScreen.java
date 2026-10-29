@@ -62,6 +62,9 @@ public class BenchScreen extends Screen {
     private Design design;
     /** The Bench's design as last seen, to notice someone else's edit. */
     private Design seen;
+    /** The design last sent to the Bench, until the Bench has it: what it holds before then is older. */
+    @Nullable
+    private Design sent;
     private List<Spec.Result> results = List.of();
     private Design.Run run;
     private int caseIndex;
@@ -136,6 +139,7 @@ public class BenchScreen extends Screen {
         BenchBlockEntity bench = bench();
         design = bench == null ? Design.blank(s) : bench.design(s);
         seen = design;
+        sent = null;
         undo.clear();
         selected = -1;
         panX = panY = 0;
@@ -169,6 +173,11 @@ public class BenchScreen extends Screen {
         design = next;
         seen = next;
         evaluate();
+        send(next);
+    }
+
+    private void send(Design next) {
+        sent = next;
         ClientPacketDistributor.sendToServer(new BenchEdit(pos, spec.id(), next));
     }
 
@@ -184,7 +193,10 @@ public class BenchScreen extends Screen {
             return;
         }
         Design there = bench.design(spec);
-        if (drag == null && !there.equals(seen) && !there.equals(design)) {
+        if (there.equals(sent)) {
+            sent = null;
+        }
+        if (drag == null && sent == null && !there.equals(seen) && !there.equals(design)) {
             design = there;
             seen = there;
             selected = Math.min(selected, design.nodes().size() - 1);
@@ -461,7 +473,7 @@ public class BenchScreen extends Screen {
             seen = back;
             selected = -1;
             evaluate();
-            ClientPacketDistributor.sendToServer(new BenchEdit(pos, spec.id(), back));
+            send(back);
             return true;
         }
         if ((event.key() == GLFW.GLFW_KEY_DELETE || event.key() == GLFW.GLFW_KEY_BACKSPACE) && selected >= 0 && editable()
