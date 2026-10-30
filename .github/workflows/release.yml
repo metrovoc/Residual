@@ -1,0 +1,106 @@
+name: Release
+run-name: Release ${{ inputs.tag || github.ref_name }}
+
+# A tag vX.Y.Z makes the GitHub release from the build and the CHANGELOG.md section for X.Y.Z, then publishes that
+# release's jar and notes on Modrinth and CurseForge, mirrors the repository onto the Modrinth page and announces it
+# on Discord. Running it by hand publishes an existing release again.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release to publish on Modrinth and CurseForge
+        required: true
+      announce:
+        description: Announce it on Discord
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  github:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          test "$version" = "$(sed -n 's/^mod_version=//p' gradle.properties)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew build
+      - uses: astral-sh/setup-uv@v6
+      - run: uv run python tools/pack.py
+      - name: Take the notes from the changelog
+        run: |
+          # the version's section, without the blank lines around it, its headings one level up
+          awk -v version="## ${{ steps.version.outputs.version }}" '
+            $0 == version {notes = 1; next}
+            /^## / {notes = 0}
+            notes && NF {for (; blank; blank--) print ""; print; started = 1; next}
+            notes && started {blank++}' CHANGELOG.md | sed 's/^###/##/' > notes.md
+          grep -q . notes.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Residual ${{ steps.version.outputs.version }}
+          body_path: notes.md
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}
+          make_latest: ${{ contains(steps.version.outputs.version, '-') && 'false' || 'true' }}
+          files: |
+            build/libs/*.jar
+            build/pack/*.mrpack
+
+  stores:
+    needs: github
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+      MODRINTH_ID: ${{ vars.MODRINTH_ID }}
+      CURSEFORGE_ID: ${{ vars.CURSEFORGE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: release
+        name: Fetch the release
+        run: |
+          gh release download "$TAG" --pattern '*.jar' --dir release
+          python3 tools/release.py notes > release/notes.md
+          version=${TAG#v}
+          case $version in *-alpha*) type=alpha ;; *-beta*) type=beta ;; *) type=release ;; esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "type=$type" >> "$GITHUB_OUTPUT"
+          echo "minecraft=$(sed -n 's/^minecraft_version=//p' gradle.properties)" >> "$GITHUB_OUTPUT"
+      - uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ vars.CURSEFORGE_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: release/*.jar
+          name: Residual ${{ steps.release.outputs.version }}
+          version: ${{ steps.release.outputs.version }}
+          version-type: ${{ steps.release.outputs.type }}
+          changelog-file: release/notes.md
+          loaders: neoforge
+          game-versions: ${{ steps.release.outputs.minecraft }}
+          java: 25
+          dependencies: guideme(required){modrinth:Ck4E7v7R}{curseforge:1173950}
+      - name: Mirror the repository onto the Modrinth page
+        run: python3 tools/release.py modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+      - name: Announce it on Discord
+        if: github.event_name == 'push' || inputs.announce
+        run: python3 tools/release.py discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
