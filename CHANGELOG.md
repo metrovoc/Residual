@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1-alpha
+
+Residual 0.3.1-alpha gives the mod one mark everywhere and keeps the field notes inside their world.
+
+- The Residual Junction is the mod's mark: drawn as a block for its logo in the mod list, and shown on the creative tab, the first advancement and the guide's front page.
+- The field notes speak from inside their world: they no longer mention the game or your computer, and cite no papers by author and year.
+- Making a Program Card no longer posts its advancement in chat, like the other small advancements.
+
 ## 0.3.0-alpha
 
 Residual 0.3.0-alpha has you build the machines themselves. Each module is designed on a Bench from the smallest operations there are, verified on cases worked out exactly and fabricated from a photomask, and a transformer is laid out the way it is drawn, along a residual stream. Agents run programs, models read with vocabularies they learn, and training shows itself as waves of light.
