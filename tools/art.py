@@ -4,10 +4,11 @@
     uv run --with pillow python tools/art.py preview.png   # and a preview sheet
 """
 import json
+import math
 import sys
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageChops, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "src/main/resources/assets/residual"
@@ -1721,19 +1722,70 @@ LETTERS = {
 }
 AROUND = [(dx, dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1, 2)]
 
+# blocks as the inventory draws them: turned 45 degrees and looked down on at 30
+PITCH, YAW = math.radians(30), math.radians(45)
+# each face: where its texture's corners (0, 0), (1, 0) and (0, 1) sit on the unit cube, and how brightly it is lit
+FACES = {
+    "top": (((-.5, .5, -.5), (.5, .5, -.5), (-.5, .5, .5)), 1.0),
+    "left": (((-.5, .5, -.5), (-.5, .5, .5), (-.5, -.5, -.5)), 0.8),
+    "right": (((-.5, .5, .5), (.5, .5, .5), (-.5, -.5, .5)), 0.6),
+}
+# the corners on the block's outline, clockwise
+HULL = [(-.5, .5, -.5), (.5, .5, -.5), (.5, .5, .5), (.5, -.5, .5), (-.5, -.5, .5), (-.5, -.5, -.5)]
 
-def logo():
-    """The Residual Junction's face beside the name, both outlined, the letters lit from above."""
+
+def project(x, y, z):
+    across = x * math.cos(YAW) + z * math.sin(YAW)
+    toward = z * math.cos(YAW) - x * math.sin(YAW)
+    return across, toward * math.sin(PITCH) - y * math.cos(PITCH)
+
+
+def block(faces, height, glow=(), ss=4):
+    """A block `height` pixels high with top, left and right faces, outlined like the name; its glow stays unshaded."""
+    hull = [project(*p) for p in HULL]
+    span = max(y for _, y in hull) - min(y for _, y in hull)
+    k = height * ss / (span + 1.8 / 16)
+    r = k * 0.9 / 16
+    x0, y0 = min(x for x, _ in hull) * k - r, min(y for _, y in hull) * k - r
+    im = Image.new("RGBA", (round(-2 * x0), height * ss), CLEAR)
+    outline = [(x * k - x0, y * k - y0) for x, y in hull]
+    draw = ImageDraw.Draw(im)
+    draw.polygon(outline, fill=NEUTRAL[0])
+    draw.line(outline + outline[:2], fill=NEUTRAL[0], width=round(2 * r), joint="curve")
+    for name, (corners, light) in FACES.items():
+        tex = faces[name].copy()
+        px = tex.load()
+        for y in range(tex.height):
+            for x in range(tex.width):
+                if px[x, y] not in glow:
+                    px[x, y] = tuple(round(v * light) for v in px[x, y][:3]) + (px[x, y][3],)
+        (ox, oy), (ux, uy), (vx, vy) = ((x * k - x0, y * k - y0) for x, y in (project(*p) for p in corners))
+        # texel (u, v) lands on o + u (a, c) + v (b, d); the transform wants the way back
+        a, b, c, d = ((ux - ox) / tex.width, (vx - ox) / tex.width, (uy - oy) / tex.width, (vy - oy) / tex.width)
+        det = a * d - b * c
+        back = (d / det, -b / det, (b * oy - d * ox) / det, -c / det, a / det, (c * ox - a * oy) / det)
+        face = tex.transform(im.size, Image.AFFINE, back, Image.NEAREST)
+        inside = Image.new("L", tex.size, 255).transform(im.size, Image.AFFINE, back, Image.NEAREST)
+        face.putalpha(ImageChops.multiply(face.getchannel("A"), inside))
+        im.alpha_composite(face)
+    return im.resize((round(im.width / ss), height), Image.LANCZOS)
+
+
+def junction(height):
+    """The mod's mark: the Residual Junction, its glyph lit."""
+    front, side = operator_faces("add")
+    return block({"top": side.im, "left": front.im, "right": side.im}, height, set(TEAL))
+
+
+def logo(scale=8):
+    """The Junction beside the name, the letters outlined and lit from above, drawn `scale` times over."""
     cells, x = set(), 0
     for ch in "RESIDUAL":
         rows = LETTERS[ch]
         cells |= {(x + dx, y) for y, row in enumerate(rows) for dx, c in enumerate(row) if c == "#"}
         x += len(rows[0]) + 2
-    c = Canvas(21 + x, 18)
-    face = operator_faces("add")[0]
-    c.rect(0, 0, 17, 17, NEUTRAL[0])
-    c.im.paste(face.im, (1, 1))
-    x0, y0 = 22, 2
+    c = Canvas(x, 18)
+    x0, y0 = 1, 2
     ramp = [K0] * 3 + [K1] * 4 + [K2] * 3 + [K3] * 2
     for (x, y) in cells:
         for dx, dy in AROUND:
@@ -1743,7 +1795,20 @@ def logo():
         if (x, y + 1) not in cells:
             c.px(x0 + x, y0 + y + 1, K4)
         c.px(x0 + x, y0 + y, ramp[y])
-    return c
+    name = c.im.resize((c.im.width * scale, c.im.height * scale), Image.NEAREST)
+    mark = junction(name.height)
+    im = Image.new("RGBA", (mark.width + 3 * scale + name.width, name.height), CLEAR)
+    im.alpha_composite(mark)
+    im.alpha_composite(name, (mark.width + 3 * scale, 0))
+    return im
+
+
+def icon(size):
+    """The Junction on a square, clear of a round crop."""
+    im = Image.new("RGBA", (size, size), CLEAR)
+    mark = junction(round(size * 0.89))
+    im.alpha_composite(mark, ((size - mark.width) // 2, (size - mark.height) // 2))
+    return im
 
 
 # ---------------------------------------------------------------- output
@@ -1834,8 +1899,11 @@ def build():
     guide().save("item/guide.png")
     agent_skin().save("entity/agent.png")
     # the mod list scales it down to 50 px high
-    mark = logo().im
-    mark.resize((mark.width * 8, mark.height * 8), Image.NEAREST).save(ROOT / "src/main/resources/residual_logo.png")
+    logo().save(ROOT / "src/main/resources/residual_logo.png")
+    # beside the website's title, 32 px high
+    junction(128).save(ROOT / "src/website/logo.png")
+    # the stores and the Discord server
+    icon(1024).save(ROOT / "docs/images/icon.png")
 
 
 def preview(path):
