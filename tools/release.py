@@ -79,13 +79,15 @@ def gallery(project, readme):
     for order, (path, alt) in enumerate(pictures(readme)):
         data = (ROOT / path).read_bytes()
         title, _, caption = alt.partition(": ")
-        meta = {"title": title, "description": caption[:1].upper() + caption[1:], "featured": str(order == 0).lower(),
-                "ordering": str(order)}
+        meta = {"title": title, "featured": str(order == 0).lower(), "ordering": str(order)}
+        if caption:
+            meta["description"] = caption[:1].upper() + caption[1:]
         wanted[hashlib.sha1(data).hexdigest()] = (path, data, meta)
     for item in project["gallery"]:
         held = wanted.pop(item["raw_url"].rsplit("/", 1)[1].split(".")[0], None)
-        shown = {"title": item["title"] or "", "description": item["description"] or "",
-                 "featured": str(item["featured"]).lower(), "ordering": str(item["ordering"])}
+        shown = {"title": item["title"], "featured": str(item["featured"]).lower(), "ordering": str(item["ordering"])}
+        if item["description"]:
+            shown["description"] = item["description"]
         if held is None:
             modrinth("DELETE", "/gallery?" + urllib.parse.urlencode({"url": item["url"]}))
         elif shown != held[2]:
