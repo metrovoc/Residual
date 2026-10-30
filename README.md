@@ -4,6 +4,8 @@
 
 **Rediscover the lost art of building intelligence from scratch.**
 
+[Website](https://metrovoc.github.io/Residual/) · [Download](https://github.com/metrovoc/Residual/releases)
+
 </div>
 
 ![A model training by a river: a wave of light runs along its cables and each machine's output floats above it, with an archive house and a farm behind](docs/images/hero.webp)
@@ -15,6 +17,16 @@ Residual is a Minecraft mod about building those models again, and every model i
 performs one real operation: a table lookup, a matrix multiplication, a softmax, a whole transformer layer. Design the
 machines from the smallest operations there are, cable them into a network, train it on text, test it on text it has
 never seen, and put it to work in the body of an agent. The arithmetic is what PyTorch does, down to the optimizer.
+
+> [!WARNING]
+> Residual is currently in alpha. Expect breaking changes and major bugs. Your
+> [feedback](https://github.com/metrovoc/Residual/issues) is much appreciated.
+
+## Why this project
+
+Real systems are a lot of fun, but they often come with overwhelming complexity. This project aims to abstract that
+complexity away at the right levels, to make a mod that is enjoyable and satisfying to play while staying faithful to
+the essence of real systems.
 
 ## The archive
 
@@ -141,7 +153,8 @@ Residual needs Minecraft 26.1.2, NeoForge 26.1.2.124 or newer, and [GuideME](htt
 26.1.16-beta or newer. Put the jar from [Releases](https://github.com/metrovoc/Residual/releases) in your `mods` folder
 next to GuideME.
 
-You get the field notes the first time you join a world. Hold **G** over any Residual item to open its page.
+You get the field notes the first time you join a world, and they are also
+[online](https://metrovoc.github.io/Residual/). Hold **G** over any Residual item to open its page.
 
 ### Modpack
 
