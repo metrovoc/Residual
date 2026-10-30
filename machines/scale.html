@@ -49,7 +49,7 @@
 </aside>
 <article>
     <div class="notice">
-        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
             <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
@@ -58,7 +58,7 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Scaler</h1></div><img class="block-image" srcset="../residual/machines/scale_blockimage1@2.Md0rC2EM36br.png, ../residual/machines/scale_blockimage1@4.ii0mi9XvWTZH.png 2x, ../residual/machines/scale_blockimage1@8.HdZnQerjheGT.png 4x" src="../residual/machines/scale_blockimage1@2.Md0rC2EM36br.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Multiplies everything by a constant.</p><p><img src="../residual/formulas/scale.eObl6LwTY0xr.png" alt="why divide by the square root of d"/></p><h2>Shapes</h2><p>Any shape in, the same shape out.</p><h2>Settings</h2><ul><li><strong>Factor</strong>: 1/√d by default, where d is the last size of the input. Also 0.5, 0.25, 0.125, 2 and 4.</li></ul><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>q = q / math.sqrt(d)</code></p></blockquote><h2>Notes</h2><p>In attention it does not matter much where the 1/√d goes: scaling the queries or scaling the scores gives the
+        <div class="inlinePageTitle"><h1>Scaler</h1></div><img class="block-image" srcset="../residual/machines/scale_blockimage1@2.Md0rC2EM36br.png, ../residual/machines/scale_blockimage1@4.ii0mi9XvWTZH.png 2x, ../residual/machines/scale_blockimage1@8.HdZnQerjheGT.png 4x" src="../residual/machines/scale_blockimage1@2.Md0rC2EM36br.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>Multiplies everything by a constant.</p><p><img src="../residual/formulas/scale.eObl6LwTY0xr.png" alt="why divide by the square root of d"/></p><h2>Shapes</h2><p>Any shape in, the same shape out.</p><h2>Settings</h2><ul><li><strong>Factor</strong>: 1/√d by default, where d is the last size of the input. Also 0.5, 0.25, 0.125, 2 and 4.</li></ul><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>q = q / math.sqrt(d)</code></p></blockquote><h2>Notes</h2><p>In attention it does not matter much where the 1/√d goes: scaling the queries or scaling the scores gives the
 same result.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it with no mask. See <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template>
     </div>
 </article>

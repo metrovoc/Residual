@@ -49,7 +49,7 @@
 </aside>
 <article>
     <div class="notice">
-        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
             <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
@@ -58,7 +58,7 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Matrix Multiplier</h1></div><img class="block-image" srcset="../residual/machines/matmul_blockimage1@2.6VuIemohwvd0.png, ../residual/machines/matmul_blockimage1@4.iHmpBGjHW9XS.png 2x, ../residual/machines/matmul_blockimage1@8.Q3ISPieglDpa.png 4x" src="../residual/machines/matmul_blockimage1@2.6VuIemohwvd0.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Multiplies two grids of numbers, the main input on the left and the side input on the right. In attention
+        <div class="inlinePageTitle"><h1>Matrix Multiplier</h1></div><img class="block-image" srcset="../residual/machines/matmul_blockimage1@2.6VuIemohwvd0.png, ../residual/machines/matmul_blockimage1@4.iHmpBGjHW9XS.png 2x, ../residual/machines/matmul_blockimage1@8.Q3ISPieglDpa.png 4x" src="../residual/machines/matmul_blockimage1@2.6VuIemohwvd0.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>Multiplies two grids of numbers, the main input on the left and the side input on the right. In attention
 it does two jobs: comparing every query with every key, with Transpose on, and mixing the values by the weights that
 come out of the softmax.</p><p><img src="../residual/formulas/matmul.OV7s48CPgdlb.png" alt="matrix multiplication"/></p><h2>Shapes</h2><p>[…×n×k] and […×k×m] in, […×n×m] out. With Transpose on, the side input is […×m×k]. The sizes in front must match, or the side input can be a single [k×m] grid shared by all.</p><h2>Settings</h2><ul><li><strong>Transpose</strong>: off by default. Flips the side input&#39;s last two sizes before multiplying.</li></ul><h2>Parameters</h2><p>None: both inputs come from other machines.</p><h2>In PyTorch</h2><blockquote><p><code>scores = q @ k.transpose(-2, -1)</code><br/><code>mixed = weights @ v</code></p></blockquote><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it from a photomask of <strong>Matrix Multiply</strong>: verify the spec on a
 <span class="minecraft-tooltip" data-template="tmpl-2"><a href="../bench.html">Bench</a></span>, or find a salvaged mask in the <a href="../ruins.html">ruins</a>, which makes it unfused. See

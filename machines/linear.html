@@ -49,7 +49,7 @@
 </aside>
 <article>
     <div class="notice">
-        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
             <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
@@ -58,7 +58,7 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Linear Layer</h1></div><img class="block-image" srcset="../residual/machines/linear_blockimage1@2.kob12PPANXEH.png, ../residual/machines/linear_blockimage1@4.q9mpDyRswtac.png 2x, ../residual/machines/linear_blockimage1@8.9I2Fosph7vBk.png 4x" src="../residual/machines/linear_blockimage1@2.kob12PPANXEH.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Multiplies every vector by a learned matrix and adds a learned bias. It works on the last size only: every
+        <div class="inlinePageTitle"><h1>Linear Layer</h1></div><img class="block-image" srcset="../residual/machines/linear_blockimage1@2.kob12PPANXEH.png, ../residual/machines/linear_blockimage1@4.q9mpDyRswtac.png 2x, ../residual/machines/linear_blockimage1@8.9I2Fosph7vBk.png 4x" src="../residual/machines/linear_blockimage1@2.kob12PPANXEH.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>Multiplies every vector by a learned matrix and adds a learned bias. It works on the last size only: every
 position of every sequence goes through the same weights, separately.</p><p><img src="../residual/formulas/linear.rd8Xk5CjiKGv.png" alt="a linear layer"/></p><h2>Shapes</h2><p>[…×C_in] in, […×C_out] out, where C_out is the Outputs setting.</p><h2>Settings</h2><ul><li><strong>Outputs</strong>: V, or 4 to 256. 32 by default. End a model with a Linear Layer whose Outputs is V: those are the scores the Core wants.</li><li><strong>Bias</strong>: on by default.</li></ul><h2>Parameters</h2><p>C_in × C_out, plus C_out for the bias. They start as PyTorch&#39;s do: uniform within ±1/√C_in, with the bias at zero.</p><h2>In PyTorch</h2><blockquote><p><code>self.hidden = nn.Linear(C_in, C_out)</code><br/><code>h = self.hidden(x)</code></p></blockquote><h2>Notes</h2><p>PyTorch stores the matrix the other way round, as [C_out × C_in].</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it from a photomask of <strong>Linear Layer</strong>: verify the spec on a
 <span class="minecraft-tooltip" data-template="tmpl-2"><a href="../bench.html">Bench</a></span>, or find a salvaged mask in the <a href="../ruins.html">ruins</a>, which makes it unfused. See
 <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template><template id="tmpl-2"><img class="item-icon" src="../!items/residual/bench.EIKvJE5CYQsA.png" alt="" aria-description="Bench"/></template>

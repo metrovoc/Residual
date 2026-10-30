@@ -49,7 +49,7 @@
 </aside>
 <article>
     <div class="notice">
-        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
             <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
@@ -58,7 +58,7 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Attention Head</h1></div><img class="block-image" srcset="../residual/machines/attention_blockimage1@2.SqZDQt3zXt3g.png, ../residual/machines/attention_blockimage1@4.kd59NXeb812w.png 2x, ../residual/machines/attention_blockimage1@8.6SQxnOi97CkC.png 4x" src="../residual/machines/attention_blockimage1@2.SqZDQt3zXt3g.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Multi-head causal self-attention in one machine: the attention you can build from Linear Layers, a Matrix Multiplier,
+        <div class="inlinePageTitle"><h1>Attention Head</h1></div><img class="block-image" srcset="../residual/machines/attention_blockimage1@2.SqZDQt3zXt3g.png, ../residual/machines/attention_blockimage1@4.kd59NXeb812w.png 2x, ../residual/machines/attention_blockimage1@8.6SQxnOi97CkC.png 4x" src="../residual/machines/attention_blockimage1@2.SqZDQt3zXt3g.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>Multi-head causal self-attention in one machine: the attention you can build from Linear Layers, a Matrix Multiplier,
 a Causal Mask and a Softmax, with queries, keys and values all computed from its one input, a causal mask built in,
 several heads and an output projection.</p><p><img src="../residual/formulas/attention.r9LzATd8hMw2.png" alt="attention"/></p><p><img src="../residual/formulas/heads.FecDHkT6KTtk.png" alt="multi-head attention"/></p><h2>Shapes</h2><p>A sequence [B×T×C] in, the same shape out.</p><h2>Settings</h2><ul><li><strong>Heads</strong>: 1, 2, 4 or 8. 4 by default. The width C must divide evenly by it. Each head works on C/H of the numbers and scales its scores by 1/√(C/H).</li></ul><h2>Parameters</h2><p>4 × C²: the matrices W_Q, W_K, W_V and W_O, without biases.</p><h2>In PyTorch</h2><blockquote><p><code>self.attn = CausalSelfAttention(C, heads=4)</code><br/><code>x = x + self.attn(self.norm1(x))</code></p></blockquote><h2>Notes</h2><p>After training, its picture shows where its first head looks: one row per position, one column for every
 position it can see.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it from a photomask of <strong>Attention</strong>: verify the spec on a

@@ -49,7 +49,7 @@
 </aside>
 <article>
     <div class="notice">
-        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
             <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
@@ -58,7 +58,7 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Head Splitter</h1></div><img class="block-image" srcset="../residual/machines/split_heads_blockimage1@2.aDuHChvN9DNC.png, ../residual/machines/split_heads_blockimage1@4.eOuwcjZD9RV7.png 2x, ../residual/machines/split_heads_blockimage1@8.d9QY0sVMAC44.png 4x" src="../residual/machines/split_heads_blockimage1@2.aDuHChvN9DNC.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Cuts each vector into H equal parts and gives the heads a dimension of their own, so the machines after it
+        <div class="inlinePageTitle"><h1>Head Splitter</h1></div><img class="block-image" srcset="../residual/machines/split_heads_blockimage1@2.aDuHChvN9DNC.png, ../residual/machines/split_heads_blockimage1@4.eOuwcjZD9RV7.png 2x, ../residual/machines/split_heads_blockimage1@8.d9QY0sVMAC44.png 4x" src="../residual/machines/split_heads_blockimage1@2.aDuHChvN9DNC.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>Cuts each vector into H equal parts and gives the heads a dimension of their own, so the machines after it
 work on every head at once.</p><p><img src="../residual/formulas/heads.FecDHkT6KTtk.png" alt="multi-head attention"/></p><h2>Shapes</h2><p>[B×T×C] in, [B×H×T×(C/H)] out.</p><h2>Settings</h2><ul><li><strong>Heads</strong>: 1, 2, 4 or 8. 4 by default.</li></ul><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>def split_heads(x, heads):</code><br/><code>    B, T, C = x.shape</code><br/><code>    return x.view(B, T, heads, C // heads).transpose(1, 2)</code></p></blockquote><h2>Notes</h2><p>With a Head Splitter and a <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../machines/merge_heads.html">Head Merger</a></span> you can build multi-head attention from parts: split
 the queries, keys and values the same way, and the Matrix Multipliers, Scaler, Causal Mask and Softmax all work on
 every head in parallel.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-2"><a href="../bench.html">Fabricator</a></span> makes it with no mask. See <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/merge_heads.SzcWF8uiNNUq.png" alt="" aria-description="Head Merger"/></template><template id="tmpl-2"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template>

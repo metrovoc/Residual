@@ -49,7 +49,7 @@
 </aside>
 <article>
     <div class="notice">
-        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
             <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
@@ -58,7 +58,7 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Delay Line</h1></div><img class="block-image" srcset="../residual/machines/shift_blockimage1@2.GbnhJ81UXni8.png, ../residual/machines/shift_blockimage1@4.klrtFdZErZuJ.png 2x, ../residual/machines/shift_blockimage1@8.VtMhPc5QOAmS.png 4x" src="../residual/machines/shift_blockimage1@2.GbnhJ81UXni8.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Shifts a sequence later in time: position <em>t</em> receives what position <em>t</em> − <em>k</em> had, and the first <em>k</em>
+        <div class="inlinePageTitle"><h1>Delay Line</h1></div><img class="block-image" srcset="../residual/machines/shift_blockimage1@2.GbnhJ81UXni8.png, ../residual/machines/shift_blockimage1@4.klrtFdZErZuJ.png 2x, ../residual/machines/shift_blockimage1@8.VtMhPc5QOAmS.png 4x" src="../residual/machines/shift_blockimage1@2.GbnhJ81UXni8.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>Shifts a sequence later in time: position <em>t</em> receives what position <em>t</em> − <em>k</em> had, and the first <em>k</em>
 positions receive zeros. It lets a position see a fixed number of steps back.</p><p><img src="../residual/formulas/shift.ACuUNS5RrWyI.png" alt="a delay"/></p><h2>Shapes</h2><p>A sequence […×T×C] in, the same shape out.</p><h2>Settings</h2><ul><li><strong>Steps</strong>: 1 to 4. 1 by default.</li></ul><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>def delay(x, steps):</code><br/><code>    return F.pad(x, (0, 0, steps, 0))[..., : x.shape[-2], :]</code><br/><code> </code><br/><code>prev = delay(e, 1)</code></p></blockquote><h2>Notes</h2><p>Attention can look back any distance, so transformers rarely need a fixed delay. Some architectures keep one
 anyway: RWKV mixes every token with the one before it, a learned blend called token shift.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it with no mask. See <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template>
     </div>

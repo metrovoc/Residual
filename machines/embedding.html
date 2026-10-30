@@ -49,7 +49,7 @@
 </aside>
 <article>
     <div class="notice">
-        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
             <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
@@ -58,7 +58,7 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Embedding Table</h1></div><img class="block-image" srcset="../residual/machines/embedding_blockimage1@2.NrzCbUZJqPoQ.png, ../residual/machines/embedding_blockimage1@4.fac9DPFXALVC.png 2x, ../residual/machines/embedding_blockimage1@8.2CTiX1DTV68r.png 4x" src="../residual/machines/embedding_blockimage1@2.NrzCbUZJqPoQ.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Looks up a learned row of numbers for each token: token <em>i</em> gets row <em>i</em> of a table with one row per
+        <div class="inlinePageTitle"><h1>Embedding Table</h1></div><img class="block-image" srcset="../residual/machines/embedding_blockimage1@2.NrzCbUZJqPoQ.png, ../residual/machines/embedding_blockimage1@4.fac9DPFXALVC.png 2x, ../residual/machines/embedding_blockimage1@8.2CTiX1DTV68r.png 4x" src="../residual/machines/embedding_blockimage1@2.NrzCbUZJqPoQ.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>Looks up a learned row of numbers for each token: token <em>i</em> gets row <em>i</em> of a table with one row per
 vocabulary entry. This is how text enters a model, so the table must be fed directly by the Model Core&#39;s front.</p><p><img src="../residual/formulas/embedding.m1ezQQU5CXO4.png" alt="an embedding lookup"/></p><h2>Shapes</h2><p>Tokens [B×T] in, [B×T×C] out, where C is the Width.</p><h2>Settings</h2><ul><li><strong>Width</strong>: V, or 4 to 256. 32 by default. At V, each row can serve directly as the scores for the next token: a bigram model.</li></ul><h2>Parameters</h2><p>V × C, drawn from a normal distribution with spread 1.</p><h2>In PyTorch</h2><blockquote><p><code>self.embed = nn.Embedding(V, C)</code><br/><code>e = self.embed(tokens)</code></p></blockquote><h2>Notes</h2><p>After training, the weights picture shows the table, a row per token. Tokens that behave alike end up with
 similar rows, which is how what the model learns about one carries over to others.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it with no mask. See <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template>
     </div>

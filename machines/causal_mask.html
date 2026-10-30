@@ -49,7 +49,7 @@
 </aside>
 <article>
     <div class="notice">
-        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
             <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
@@ -58,7 +58,7 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Causal Mask</h1></div><img class="block-image" srcset="../residual/machines/causal_mask_blockimage1@2.PGl6BY5Keizr.png, ../residual/machines/causal_mask_blockimage1@4.8dDcRiS3ShaW.png 2x, ../residual/machines/causal_mask_blockimage1@8.cYv6pNoRiYKC.png 4x" src="../residual/machines/causal_mask_blockimage1@2.PGl6BY5Keizr.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Sets every score above the diagonal of a T × T grid to −∞. After a Softmax those become weights of exactly
+        <div class="inlinePageTitle"><h1>Causal Mask</h1></div><img class="block-image" srcset="../residual/machines/causal_mask_blockimage1@2.PGl6BY5Keizr.png, ../residual/machines/causal_mask_blockimage1@4.8dDcRiS3ShaW.png 2x, ../residual/machines/causal_mask_blockimage1@8.cYv6pNoRiYKC.png 4x" src="../residual/machines/causal_mask_blockimage1@2.PGl6BY5Keizr.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>Sets every score above the diagonal of a T × T grid to −∞. After a Softmax those become weights of exactly
 zero, so position <em>t</em> gives no weight to anything after <em>t</em>.</p><p><img src="../residual/formulas/mask.6BQnv8zdyjdy.png" alt="the causal mask"/></p><h2>Shapes</h2><p>A grid of scores […×T×T] in, the same shape out.</p><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>def causal_mask(scores):</code><br/><code>    T = scores.shape[-1]</code><br/><code>    future = torch.triu(torch.ones(T, T, dtype=torch.bool), diagonal=1)</code><br/><code>    return scores.masked_fill(future, float(&quot;-inf&quot;))</code></p></blockquote><h2>Notes</h2><p>It belongs between the scores and the Softmax. Without it, a model trained to predict the next token can
 simply read it, and its loss falls to almost nothing while it learns nothing.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it with no mask. See <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template>
     </div>

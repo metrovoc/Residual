@@ -49,7 +49,7 @@
 </aside>
 <article>
     <div class="notice">
-        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
             <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
@@ -58,7 +58,7 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Concatenator</h1></div><img class="block-image" srcset="../residual/machines/concat_blockimage1@2.oeVgPXwE2Hc6.png, ../residual/machines/concat_blockimage1@4.Lrbzme9ogzsx.png 2x, ../residual/machines/concat_blockimage1@8.2LT4008vI37C.png 4x" src="../residual/machines/concat_blockimage1@2.oeVgPXwE2Hc6.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Joins two vectors end to end: the main input&#39;s numbers first, then the side input&#39;s.</p><p><img src="../residual/formulas/concat.txP56sC75zgv.png" alt="concatenation"/></p><h2>Shapes</h2><p>[…×a] and […×b] in, […×(a + b)] out. Every size but the last must match.</p><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>x = torch.cat([a, b], dim=-1)</code></p></blockquote><h2>Notes</h2><p>A Linear Layer after a Concatenator computes the same thing as two Linear Layers, one on each input, added
+        <div class="inlinePageTitle"><h1>Concatenator</h1></div><img class="block-image" srcset="../residual/machines/concat_blockimage1@2.oeVgPXwE2Hc6.png, ../residual/machines/concat_blockimage1@4.Lrbzme9ogzsx.png 2x, ../residual/machines/concat_blockimage1@8.2LT4008vI37C.png 4x" src="../residual/machines/concat_blockimage1@2.oeVgPXwE2Hc6.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>Joins two vectors end to end: the main input&#39;s numbers first, then the side input&#39;s.</p><p><img src="../residual/formulas/concat.txP56sC75zgv.png" alt="concatenation"/></p><h2>Shapes</h2><p>[…×a] and […×b] in, […×(a + b)] out. Every size but the last must match.</p><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>x = torch.cat([a, b], dim=-1)</code></p></blockquote><h2>Notes</h2><p>A Linear Layer after a Concatenator computes the same thing as two Linear Layers, one on each input, added
 together.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it with no mask. See <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template>
     </div>
 </article>
