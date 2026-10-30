@@ -120,10 +120,9 @@ def page():
 def announce():
     tag = os.environ["TAG"]
     release = github(f"/releases/tags/{tag}")
-    slug = call("GET", f"https://api.modrinth.com/v2/project/{os.environ['MODRINTH_ID']}")["slug"]
     links = " · ".join([
         f"[GitHub]({release['html_url']})",
-        f"[Modrinth](https://modrinth.com/mod/{slug}/version/{tag.removeprefix('v')})",
+        f"[Modrinth](https://modrinth.com/mod/{os.environ['MODRINTH_ID']}/version/{tag.removeprefix('v')})",
         f"[CurseForge](https://www.curseforge.com/projects/{os.environ['CURSEFORGE_ID']})",
     ])
     summary = release["body"].strip().split("\n\n")[0]
