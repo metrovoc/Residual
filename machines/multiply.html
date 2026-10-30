@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gate - Residual for Minecraft 26.1</title>
     <link rel="stylesheet" href="../assets/bundle-FU6KDTWS.css"/>
-    <link rel="canonical" href="https://metrovoc.github.io/Residual/machines/multiply.html"/><link rel="icon" href="../web-assets/files/logo.pyKIUfVbbU6M.png"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/machines/multiply.html"/><link rel="icon" href="../web-assets/files/logo.vsvqHKFfEFet.png"/>
     <style>
         .logo > img { height: 32px; }
         .notice {
@@ -28,7 +28,7 @@
 <main>
 <div class="topLogoBar">
     <a href="../" class="logo">
-        <img src="../web-assets/files/logo.pyKIUfVbbU6M.png" alt="" />
+        <img src="../web-assets/files/logo.vsvqHKFfEFet.png" alt="" />
         Residual
     </a>
     <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
@@ -54,11 +54,12 @@
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
             <a href="https://github.com/metrovoc/Residual">GitHub</a>
+            <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
         </nav>
     </div>
     <div id="page-content">
         <div class="inlinePageTitle"><h1>Gate</h1></div><img class="block-image" srcset="../residual/machines/multiply_blockimage1@2.EKsMXAjSufJG.png, ../residual/machines/multiply_blockimage1@4.NUlmQJEdElkB.png 2x, ../residual/machines/multiply_blockimage1@8.Yxpj3x8msVrl.png 4x" src="../residual/machines/multiply_blockimage1@2.EKsMXAjSufJG.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Multiplies its two inputs number by number, so one signal can scale, open or close another.</p><p><img src="../residual/formulas/multiply.MKF139xHvSXQ.png" alt="elementwise multiplication"/></p><h2>Shapes</h2><p>The same shapes as the Residual Junction takes.</p><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>y = F.silu(self.gate(x)) * self.up(x)</code></p></blockquote><h2>Notes</h2><p>Gates sit inside the feed-forward layers of most recent language models. SwiGLU multiplies SiLU(xW₁) by a
-second projection xW₃ before projecting back down (Shazeer, 2020). To build one: two Linear Layers reading the same
+second projection xW₃ before projecting back down. To build one: two Linear Layers reading the same
 input, an Activation set to SiLU after one of them, a Gate joining them, and a Linear Layer back to the original
 width. LSTMs, the recurrent networks that came before transformers, controlled their memory with gates like this.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it with no mask. See <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template>
     </div>

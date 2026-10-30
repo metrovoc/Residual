@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Training - Residual for Minecraft 26.1</title>
     <link rel="stylesheet" href="assets/bundle-FU6KDTWS.css"/>
-    <link rel="canonical" href="https://metrovoc.github.io/Residual/training.html"/><link rel="icon" href="web-assets/files/logo.pyKIUfVbbU6M.png"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/training.html"/><link rel="icon" href="web-assets/files/logo.vsvqHKFfEFet.png"/>
     <style>
         .logo > img { height: 32px; }
         .notice {
@@ -28,7 +28,7 @@
 <main>
 <div class="topLogoBar">
     <a href="./" class="logo">
-        <img src="web-assets/files/logo.pyKIUfVbbU6M.png" alt="" />
+        <img src="web-assets/files/logo.vsvqHKFfEFet.png" alt="" />
         Residual
     </a>
     <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
@@ -54,6 +54,7 @@
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
             <a href="https://github.com/metrovoc/Residual">GitHub</a>
+            <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
         </nav>
     </div>
     <div id="page-content">
@@ -66,10 +67,10 @@ the top-scoring token is the right one.</p><h2>Practice and test</h2><p>The <str
 is measured on examples practice never shows. When the two part ways, with training loss still falling while the test
 loss stalls or rises, the model is memorising its practice instead of learning what generalises. Models are judged on
 their tests alone.</p><h2>The settings</h2><p><strong>Learning rate (LR).</strong> How far each step moves the weights. Too small and nothing happens for a long time; too large
-and the loss jumps around or explodes. Residual trains with AdamW, the optimizer most language models use. It scales
+and the loss jumps around or explodes. The Core trains with AdamW, the optimizer most language models use. It scales
 each weight&#39;s step by the size of its recent gradients, so the learning rate sets the step size fairly directly:</p><p><img src="residual/formulas/adamw.Movja2lxb5j2.png" alt="AdamW"/></p><p>with the usual β₁ = 0.9, β₂ = 0.999 and weight decay λ = 0.01 on weight matrices. The first 20 steps warm up from
 zero to the full learning rate.</p><p><strong>Batch.</strong> How many sequences each step looks at. Bigger batches give a steadier gradient but cost more per step.</p><p><strong>Clip.</strong> Gradient clipping caps the size of the whole gradient before the step:</p><p><img src="residual/formulas/clip.pJrDKuwcjYzb.png" alt="clipping"/></p><p>It rescues the occasional huge gradient without changing ordinary steps. It does not rescue a learning rate that is
-too large on every step.</p><p><strong>Speed.</strong> Watch trains slowly enough to follow the curve; Max trains as fast as your computer allows.</p><h2>Reading the curve</h2><ul><li><strong>Flat at the start, then a sudden drop:</strong> the model found a mechanism. Attention models often do this.</li><li><strong>Falling, then flattening above the goal:</strong> the model has learned all it can see. Give it more to work with: more
+too large on every step.</p><p><strong>Speed.</strong> Watch trains slowly enough to follow the curve; Max trains as fast as the Core can.</p><h2>Reading the curve</h2><ul><li><strong>Flat at the start, then a sudden drop:</strong> the model found a mechanism. Attention models often do this.</li><li><strong>Falling, then flattening above the goal:</strong> the model has learned all it can see. Give it more to work with: more
 context, more width, more layers.</li><li><strong>Jagged and climbing:</strong> the steps are too big. Lower the learning rate.</li><li><strong>Both losses suspiciously low:</strong> something lets the model see the answer. The Core flags a model that reads
 ahead.</li></ul><h2>Watching it learn</h2><p>While a model trains, waves run through its blocks every two seconds. A teal pulse travels from the tokens to the
 loss, lighting each machine as the batch reaches it, as brightly as the values it puts out. Then an amber pulse runs

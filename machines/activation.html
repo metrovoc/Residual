@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activation - Residual for Minecraft 26.1</title>
     <link rel="stylesheet" href="../assets/bundle-FU6KDTWS.css"/>
-    <link rel="canonical" href="https://metrovoc.github.io/Residual/machines/activation.html"/><link rel="icon" href="../web-assets/files/logo.pyKIUfVbbU6M.png"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/machines/activation.html"/><link rel="icon" href="../web-assets/files/logo.vsvqHKFfEFet.png"/>
     <style>
         .logo > img { height: 32px; }
         .notice {
@@ -28,7 +28,7 @@
 <main>
 <div class="topLogoBar">
     <a href="../" class="logo">
-        <img src="../web-assets/files/logo.pyKIUfVbbU6M.png" alt="" />
+        <img src="../web-assets/files/logo.vsvqHKFfEFet.png" alt="" />
         Residual
     </a>
     <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
@@ -54,11 +54,12 @@
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
             <a href="https://github.com/metrovoc/Residual">GitHub</a>
+            <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
         </nav>
     </div>
     <div id="page-content">
         <div class="inlinePageTitle"><h1>Activation</h1></div><img class="block-image" srcset="../residual/machines/activation_blockimage1@2.eJHfPIUoGh2G.png, ../residual/machines/activation_blockimage1@4.1S6WIMgYs3br.png 2x, ../residual/machines/activation_blockimage1@8.Zvqgz6h4LMP6.png 4x" src="../residual/machines/activation_blockimage1@2.eJHfPIUoGh2G.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Bends every number through the same nonlinear function. Without one, two Linear Layers in a row multiply
-out into a single Linear Layer, however many you stack: the activation is what lets depth add anything.</p><p><img src="../residual/formulas/activations.nM8ZcTwfMp0q.png" alt="ReLU, GELU, SiLU, tanh and sigmoid"/></p><h2>Shapes</h2><p>Any shape in, the same shape out.</p><h2>Settings</h2><ul><li><strong>Function</strong>: ReLU by default.</li><li><strong>ReLU</strong> keeps positive numbers and zeroes the rest. Its slope is 0 or 1, so it never shrinks a gradient that passes.</li><li><strong>GELU</strong> is a smooth ReLU, used by GPT-2 and BERT.</li><li><strong>SiLU</strong> is z·σ(z), used inside the feed-forward layers of LLaMA and its relatives.</li><li><strong>tanh</strong> squashes into (−1, 1), as in Bengio et al.&#39;s 2003 model.</li><li><strong>sigmoid</strong> squashes into (0, 1). Its slope is at most a quarter, so every sigmoid layer shrinks the gradient that passes back through it.</li></ul><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>F.relu(x)</code><br/><code>F.gelu(x, approximate=&quot;tanh&quot;)</code><br/><code>F.silu(x)</code><br/><code>torch.tanh(x)</code><br/><code>torch.sigmoid(x)</code></p></blockquote><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it from a photomask of <strong>GELU</strong>: verify the spec on a
+out into a single Linear Layer, however many you stack: the activation is what lets depth add anything.</p><p><img src="../residual/formulas/activations.nM8ZcTwfMp0q.png" alt="ReLU, GELU, SiLU, tanh and sigmoid"/></p><h2>Shapes</h2><p>Any shape in, the same shape out.</p><h2>Settings</h2><ul><li><strong>Function</strong>: ReLU by default.</li><li><strong>ReLU</strong> keeps positive numbers and zeroes the rest. Its slope is 0 or 1, so it never shrinks a gradient that passes.</li><li><strong>GELU</strong> is a smooth ReLU, used by GPT-2 and BERT.</li><li><strong>SiLU</strong> is z·σ(z), used inside the feed-forward layers of LLaMA and its relatives.</li><li><strong>tanh</strong> squashes into (−1, 1), as in the first neural language models.</li><li><strong>sigmoid</strong> squashes into (0, 1). Its slope is at most a quarter, so every sigmoid layer shrinks the gradient that passes back through it.</li></ul><h2>Parameters</h2><p>None.</p><h2>In PyTorch</h2><blockquote><p><code>F.relu(x)</code><br/><code>F.gelu(x, approximate=&quot;tanh&quot;)</code><br/><code>F.silu(x)</code><br/><code>torch.tanh(x)</code><br/><code>torch.sigmoid(x)</code></p></blockquote><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it from a photomask of <strong>GELU</strong>: verify the spec on a
 <span class="minecraft-tooltip" data-template="tmpl-2"><a href="../bench.html">Bench</a></span>, or find a salvaged mask in the <a href="../ruins.html">ruins</a>, which makes it unfused. See
 <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template><template id="tmpl-2"><img class="item-icon" src="../!items/residual/bench.EIKvJE5CYQsA.png" alt="" aria-description="Bench"/></template>
     </div>

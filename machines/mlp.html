@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed-Forward Block - Residual for Minecraft 26.1</title>
     <link rel="stylesheet" href="../assets/bundle-FU6KDTWS.css"/>
-    <link rel="canonical" href="https://metrovoc.github.io/Residual/machines/mlp.html"/><link rel="icon" href="../web-assets/files/logo.pyKIUfVbbU6M.png"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/machines/mlp.html"/><link rel="icon" href="../web-assets/files/logo.vsvqHKFfEFet.png"/>
     <style>
         .logo > img { height: 32px; }
         .notice {
@@ -28,7 +28,7 @@
 <main>
 <div class="topLogoBar">
     <a href="../" class="logo">
-        <img src="../web-assets/files/logo.pyKIUfVbbU6M.png" alt="" />
+        <img src="../web-assets/files/logo.vsvqHKFfEFet.png" alt="" />
         Residual
     </a>
     <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
@@ -54,12 +54,13 @@
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
             <a href="https://github.com/metrovoc/Residual">GitHub</a>
+            <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
         </nav>
     </div>
     <div id="page-content">
         <div class="inlinePageTitle"><h1>Feed-Forward Block</h1></div><img class="block-image" srcset="../residual/machines/mlp_blockimage1@2.CUuEc8vXZ3Lx.png, ../residual/machines/mlp_blockimage1@4.V5kXPwBVCToR.png 2x, ../residual/machines/mlp_blockimage1@8.2RycsTdkG1Mj.png 4x" src="../residual/machines/mlp_blockimage1@2.CUuEc8vXZ3Lx.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>Two Linear Layers with an Activation between them: widen each vector, bend it, project it back. It works on
 every position separately. Attention moves information between positions; this block processes it in place.</p><p><img src="../residual/formulas/mlp.Y8wI8I6giprm.png" alt="the feed-forward block"/></p><h2>Shapes</h2><p>A sequence [B×T×C] in, the same shape out.</p><h2>Settings</h2><ul><li><strong>Expand</strong>: 1, 2 or 4. 4 by default. The hidden width is Expand × C.</li><li><strong>Function</strong>: ReLU, GELU or SiLU. GELU by default.</li></ul><h2>Parameters</h2><p>2 × E × C² + E × C + C, where E is Expand.</p><h2>In PyTorch</h2><blockquote><p><code>self.ffn = FeedForward(C, 4 * C, gelu_tanh)</code><br/><code>x = x + self.ffn(self.norm2(x))</code></p></blockquote><h2>Notes</h2><p>With Expand at 4, it holds two thirds of a transformer layer&#39;s weights. Interpretability research suggests
-these layers store much of what a model knows about the world (Geva et al., 2021; Meng et al., 2022).</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it from a photomask of <strong>Feed-Forward Block</strong>: verify the spec on a
+these layers store much of what a model knows about the world.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it from a photomask of <strong>Feed-Forward Block</strong>: verify the spec on a
 <span class="minecraft-tooltip" data-template="tmpl-2"><a href="../bench.html">Bench</a></span>, or find a salvaged mask in the <a href="../ruins.html">ruins</a>, which makes it unfused. See
 <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template><template id="tmpl-2"><img class="item-icon" src="../!items/residual/bench.EIKvJE5CYQsA.png" alt="" aria-description="Bench"/></template>
     </div>

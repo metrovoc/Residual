@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Machines and Cables - Residual for Minecraft 26.1</title>
     <link rel="stylesheet" href="assets/bundle-FU6KDTWS.css"/>
-    <link rel="canonical" href="https://metrovoc.github.io/Residual/wiring.html"/><link rel="icon" href="web-assets/files/logo.pyKIUfVbbU6M.png"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/wiring.html"/><link rel="icon" href="web-assets/files/logo.vsvqHKFfEFet.png"/>
     <style>
         .logo > img { height: 32px; }
         .notice {
@@ -28,7 +28,7 @@
 <main>
 <div class="topLogoBar">
     <a href="./" class="logo">
-        <img src="web-assets/files/logo.pyKIUfVbbU6M.png" alt="" />
+        <img src="web-assets/files/logo.vsvqHKFfEFet.png" alt="" />
         Residual
     </a>
     <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
@@ -54,10 +54,11 @@
         <nav>
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
             <a href="https://github.com/metrovoc/Residual">GitHub</a>
+            <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Machines and Cables</h1></div><p>A model is a graph of operations, and in Residual you build that graph out of blocks. Values flow out of one machine
+        <div class="inlinePageTitle"><h1>Machines and Cables</h1></div><p>A model is a graph of operations, and you build that graph out of blocks. Values flow out of one machine
 and into the next through cables, from the <span class="minecraft-tooltip" data-template="tmpl-1"><a href="core.html">Model Core</a></span>&#39;s tokens to the scores it takes back.</p><h2>Ports</h2><p>Every machine computes one output from its inputs, and each face of the block has a job:</p><ul><li><strong>Front:</strong> the output.</li><li><strong>Back:</strong> the main input.</li><li><strong>Every other face:</strong> the side input, on machines that take two inputs, such as the
 <span class="minecraft-tooltip" data-template="tmpl-2"><a href="machines/add.html">Residual Junction</a></span> or the <span class="minecraft-tooltip" data-template="tmpl-3"><a href="machines/matmul.html">Matrix Multiplier</a></span>. One-input machines leave their sides unused, and the
 <span class="minecraft-tooltip" data-template="tmpl-4"><a href="machines/position.html">Position Table</a></span> has no input at all.</li></ul><p>The Model Core sends tokens out of its front and takes the finished scores in through any other face.</p><img class="game-scene interactive" style="width: calc(65px * var(--gui-scale)); height: calc(76px * var(--gui-scale))" src="residual/wiring_scene1.Qy91IrffSuCx.png" data-scene-src="residual/wiring_scene1.SeAxjrnOWP7j.scene.gz" data-scene-width="65" data-scene-height="76" data-scene-zoom="5.0" data-scene-interactive="true" data-scene-in-world-annotations="[]" data-scene-overlay-annotations="[{&quot;type&quot;:&quot;overlay&quot;,&quot;position&quot;:[1.0,0.5,0.5],&quot;color&quot;:&quot;#3CD6C6&quot;,&quot;contentTemplateId&quot;:&quot;tmpl-5&quot;},{&quot;type&quot;:&quot;overlay&quot;,&quot;position&quot;:[0.0,0.5,0.5],&quot;color&quot;:&quot;#FFB547&quot;,&quot;contentTemplateId&quot;:&quot;tmpl-6&quot;},{&quot;type&quot;:&quot;overlay&quot;,&quot;position&quot;:[0.5,0.5,1.0],&quot;color&quot;:&quot;#FFFFFF&quot;,&quot;contentTemplateId&quot;:&quot;tmpl-7&quot;}]" data-scene-asset-prefix="./"/><p>Look at a machine to see which port the face under your crosshair is. A machine placed against another machine&#39;s
