@@ -28,6 +28,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -680,7 +681,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             y += 10;
         }
         int ny = 158;
-        Component note = r.note().isEmpty() ? Component.translatable("residual.sample.legend") : Component.literal(r.note());
+        Component note = r.note().getString().isEmpty() ? Component.translatable("residual.sample.legend") : r.note();
         for (FormattedCharSequence line : font.split(note, 308)) {
             if (ny > 182) {
                 break;
@@ -716,8 +717,11 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         }
         List<Row> rows = new ArrayList<>();
         for (CoreSync.Issue issue : s.issues()) {
-            String where = issue.pos() == null ? "" : " (" + issue.pos().toShortString() + ")";
-            for (FormattedCharSequence line : font.split(Component.literal("⚠ " + issue.message() + where), 298)) {
+            MutableComponent text = Component.literal("⚠ ").append(issue.message());
+            if (issue.pos() != null) {
+                text.append(" (" + issue.pos().toShortString() + ")");
+            }
+            for (FormattedCharSequence line : font.split(text, 298)) {
                 rows.add((gg, y) -> gg.text(font, line, 10, y, Ui.RED, false));
             }
         }
@@ -742,7 +746,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         double top = maxLog;
         for (CoreSync.Node n : s.nodes()) {
             Op op = Op.byId(n.op());
-            String name = n.name().isEmpty() ? (op == null ? n.op() : op.title) : n.name();
+            String name = n.name().isEmpty() ? (op == null ? n.op() : I18n.get("block.residual." + op.id)) : n.name();
             rows.add((gg, y) -> {
                 int color = n.active() ? Ui.TEXT : 0xFF56616B;
                 gg.text(font, Ui.fit(font, name, 114), 10, y, color, false);

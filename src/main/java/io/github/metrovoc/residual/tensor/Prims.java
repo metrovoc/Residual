@@ -40,8 +40,7 @@ public final class Prims {
             int da = i < n - a.length ? 1 : a[i - (n - a.length)];
             int db = i < n - b.length ? 1 : b[i - (n - b.length)];
             if (da != db && da != 1 && db != 1) {
-                throw new ShapeException("Shapes " + Tensor.shapeString(a) + " and " + Tensor.shapeString(b)
-                        + " don't line up: lined up from the right, sizes " + da + " and " + db + " differ and neither is 1.");
+                throw new ShapeException("residual.shape.prim.broadcast", Tensor.shapeString(a), Tensor.shapeString(b), da, db);
             }
             out[i] = Math.max(da, db);
         }
@@ -335,7 +334,7 @@ public final class Prims {
     /** {@code x.squeeze(-1)}: [.., n, 1] becomes [.., n]. */
     public static Tensor squeeze(Tape tape, Tensor x) {
         if (x.dim(-1) != 1 || x.rank() < 2) {
-            throw new ShapeException("Squeeze drops a last axis of size 1, but " + x.shapeString() + " ends in " + x.dim(-1) + ".");
+            throw new ShapeException("residual.shape.prim.squeeze", x.shapeString(), x.dim(-1));
         }
         return view(tape, x, Arrays.copyOf(x.shape, x.rank() - 1));
     }
@@ -352,7 +351,7 @@ public final class Prims {
     public static Tensor matmul(Tape tape, Tensor a, Tensor b) {
         Tensor left = a.rank() == 1 ? view(tape, a, new int[]{1, a.dim(0)}) : a;
         if (b.rank() < 2) {
-            throw new ShapeException("The right side of a matrix multiply must be a matrix, got " + b.shapeString() + ".");
+            throw new ShapeException("residual.shape.prim.matmul", b.shapeString());
         }
         return Ops.matmul(tape, left, b, false);
     }

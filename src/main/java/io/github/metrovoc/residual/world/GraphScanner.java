@@ -22,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -44,7 +45,7 @@ public final class GraphScanner {
      * @param problem   why the scan gave up early, or null
      */
     public record Scan(GraphSpec spec, List<BlockPos> nodes, Set<Long> footprint, Map<Long, Integer> carries,
-                       @Nullable String problem) {
+                       @Nullable Component problem) {
         public int indexOf(BlockPos pos) {
             return nodes.indexOf(pos);
         }
@@ -69,7 +70,7 @@ public final class GraphScanner {
     private final Map<BlockPos, Integer> arriving = new HashMap<>(), leaving = new HashMap<>();
     private final Set<Long> footprint = new HashSet<>();
     private final Deque<BlockPos> queue = new ArrayDeque<>();
-    private String problem;
+    private Component problem;
 
     private GraphScanner(Level level, BlockPos core) {
         this.level = level;
@@ -266,7 +267,7 @@ public final class GraphScanner {
                 if (ns.getBlock() instanceof CableBlock) {
                     if (cables.add(n)) {
                         if (cables.size() > MAX_CABLES) {
-                            problem = "This model uses more than " + MAX_CABLES + " cables.";
+                            problem = Component.translatable("residual.scan.cables", MAX_CABLES);
                             return;
                         }
                         todo.add(n);
@@ -286,7 +287,7 @@ public final class GraphScanner {
         if (state.getBlock() instanceof StreamBlock) {
             if (streams.add(pos)) {
                 if (streams.size() > MAX_STREAM) {
-                    problem = "This model's residual stream is longer than " + MAX_STREAM + " blocks.";
+                    problem = Component.translatable("residual.scan.stream", MAX_STREAM);
                     return;
                 }
                 queue.add(pos);
@@ -298,7 +299,7 @@ public final class GraphScanner {
             return;
         }
         if (nodes.size() >= MAX_MACHINES) {
-            problem = "This model has more than " + MAX_MACHINES + " machines.";
+            problem = Component.translatable("residual.scan.machines", MAX_MACHINES);
             return;
         }
         index.put(pos, nodes.size());
@@ -317,7 +318,7 @@ public final class GraphScanner {
             if (n != null && streams.contains(n)) {
                 next.put(p, n);
                 if (into.merge(n, 1, Integer::sum) > 1) {
-                    problem = "Two residual streams flow into the block at " + n.toShortString() + ". A stream can't merge.";
+                    problem = Component.translatable("residual.scan.stream_merge", n.toShortString());
                     return;
                 }
             }
@@ -355,7 +356,7 @@ public final class GraphScanner {
             }
         }
         if (laid < streams.size()) {
-            problem = "A residual stream runs in a circle. It must start somewhere: at the embedding.";
+            problem = Component.translatable("residual.scan.stream_loop");
         }
     }
 

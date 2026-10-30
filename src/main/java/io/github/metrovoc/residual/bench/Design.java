@@ -9,6 +9,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
@@ -117,14 +118,17 @@ public record Design(List<Node> nodes, int output) {
     // ---------------------------------------------------------------- running
 
     /** What each node computed, or why it couldn't. */
-    public record Run(Tensor[] values, String[] errors, @Nullable Tensor result) {
+    public record Run(Tensor[] values, Component[] errors, @Nullable Tensor result) {
     }
+
+    /** The error of a node that is part of a loop, or fed by one. */
+    public static final Component LOOP = Component.translatable("residual.bench.loop");
 
     /** Runs every node it can on one set of inputs; a node waiting on a broken or open input stays empty. */
     public Run run(@Nullable Tape tape, Tensor[] inputs) {
         int n = nodes.size();
         Tensor[] values = new Tensor[n];
-        String[] errors = new String[n];
+        Component[] errors = new Component[n];
         int[] state = new int[n];
         for (int i = 0; i < n; i++) {
             eval(i, tape, inputs, values, errors, state);
@@ -133,12 +137,12 @@ public record Design(List<Node> nodes, int output) {
         return new Run(values, errors, result);
     }
 
-    private void eval(int i, @Nullable Tape tape, Tensor[] inputs, Tensor[] values, String[] errors, int[] state) {
+    private void eval(int i, @Nullable Tape tape, Tensor[] inputs, Tensor[] values, Component[] errors, int[] state) {
         if (state[i] == 2) {
             return;
         }
         if (state[i] == 1) {
-            errors[i] = "loop";
+            errors[i] = LOOP;
             return;
         }
         state[i] = 1;
@@ -154,8 +158,8 @@ public record Design(List<Node> nodes, int output) {
             eval(src, tape, inputs, values, errors, state);
             if (values[src] == null) {
                 ready = false;
-                if (errors[src] != null && errors[src].equals("loop")) {
-                    errors[i] = "loop";
+                if (errors[src] == LOOP) {
+                    errors[i] = LOOP;
                 }
             }
             in[k] = values[src];
@@ -172,8 +176,10 @@ public record Design(List<Node> nodes, int output) {
             } else {
                 values[i] = node.module().kernel().apply(tape, in);
             }
-        } catch (ShapeException | IllegalArgumentException e) {
-            errors[i] = e.getMessage();
+        } catch (ShapeException e) {
+            errors[i] = e.message;
+        } catch (IllegalArgumentException e) {
+            errors[i] = Component.literal(e.getMessage());
         }
     }
 

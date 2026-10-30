@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import net.minecraft.network.chat.Component;
 
 /** Autoregressive generation, one token at a time. */
 public final class Sampler {
@@ -103,7 +104,7 @@ public final class Sampler {
      * @param labels the most likely tokens at the first generated (or answered) position
      * @param probs  their probabilities
      */
-    public record Demo(String prompt, String text, List<String> labels, List<Float> probs, String note) {
+    public record Demo(String prompt, String text, List<String> labels, List<Float> probs, Component note) {
     }
 
     public static Demo demo(CompiledGraph model, Benchmark benchmark, String prompt, float temperature, Random rng) {
@@ -122,11 +123,11 @@ public final class Sampler {
                 }
             }
             Program.Parsed p = Program.parse(out.substring(given.length()));
-            String note = (example == null ? "" : "Meant: " + example.meant() + ". ")
-                    + (!p.ok() || p.program().steps().isEmpty() ? "An agent would not know what to do."
-                    : p.program().size() > 1 && Job.of(p.program().toString()) == null ? "An agent would read it back and run it once you say yes."
-                    : p.program().endless() ? "An agent would make it its program."
-                    : "An agent would do it at once.");
+            Component note = (example == null ? Component.empty() : Component.translatable("residual.sample.meant", example.meant()))
+                    .append(Component.translatable(!p.ok() || p.program().steps().isEmpty() ? "residual.sample.orders.lost"
+                            : p.program().size() > 1 && Job.of(p.program().toString()) == null ? "residual.sample.orders.confirm"
+                            : p.program().endless() ? "residual.sample.orders.program"
+                            : "residual.sample.orders.now"));
             return new Demo(given, out.toString(), labels(vocab, steps.getFirst().topIds()), floats(steps.getFirst().topProbs()), note);
         }
         if (benchmark == Benchmark.SORTING) {
@@ -135,10 +136,10 @@ public final class Sampler {
             Step step = generate(model, vocab.spell(given), 1, 0f, rng).getFirst();
             char letter = vocab.piece(step.token()).charAt(0);
             Kinds.Kind kind = Kinds.Kind.of(letter);
-            String note = (example == null ? "" : "Really: " + example.kind().id + ". ")
-                    + (kind == null ? "An agent would not know where it goes."
-                    : kind == Kinds.Kind.OTHER || step.topProbs()[0] < Kinds.SURE ? "An agent would put it in a chest labelled other, or one with no label."
-                    : "An agent would put it in the chest labelled " + kind.id + ".");
+            Component note = (example == null ? Component.empty() : Component.translatable("residual.sample.really", example.kind().id))
+                    .append(kind == null ? Component.translatable("residual.sample.sorting.lost")
+                            : kind == Kinds.Kind.OTHER || step.topProbs()[0] < Kinds.SURE ? Component.translatable("residual.sample.sorting.other")
+                            : Component.translatable("residual.sample.sorting.chest", kind.id));
             return new Demo(given, given + letter, labels(vocab, step.topIds()), floats(step.topProbs()), note);
         }
         if (benchmark == Benchmark.FORECASTING) {
@@ -156,7 +157,7 @@ public final class Sampler {
         StringBuilder out = new StringBuilder(given);
         steps.forEach(s -> out.append(vocab.piece(s.token())));
         Step first = steps.getFirst();
-        return new Demo(given, out.toString(), labels(vocab, first.topIds()), floats(first.topProbs()), "");
+        return new Demo(given, out.toString(), labels(vocab, first.topIds()), floats(first.topProbs()), Component.empty());
     }
 
     /**
@@ -184,7 +185,7 @@ public final class Sampler {
                 break;
             }
         }
-        String note = "Really: " + life.substring(cut, Math.min(life.length(), cut + 60)) + ".";
+        Component note = Component.translatable("residual.sample.forecast", life.substring(cut, Math.min(life.length(), cut + 60)));
         Step first = steps.getFirst();
         return new Demo(given, out.toString(), labels(vocab, first.topIds()), floats(first.topProbs()), note);
     }
@@ -222,7 +223,7 @@ public final class Sampler {
         for (int i = 0; i < top.length; i++) {
             topP[i] = firstProbs[top[i]];
         }
-        String note = "Expected " + expected + ": " + right + " of " + total + " right.";
+        Component note = Component.translatable("residual.sample.expected", expected.toString(), Integer.toString(right), Integer.toString(total));
         return new Demo(given, given + said, labels(vocab, top), floats(topP), note);
     }
 

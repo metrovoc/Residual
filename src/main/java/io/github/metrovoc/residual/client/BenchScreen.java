@@ -694,7 +694,7 @@ public class BenchScreen extends Screen {
             color = MODULE_COLOR;
         }
         Tensor value = run.values()[i];
-        String error = run.errors()[i];
+        Component error = run.errors()[i];
         boolean broken = error != null || value != null && !finite(value);
         g.fill(x, y, x + w, y + h, 0xFF0B0F13);
         g.fill(x, y, x + w, y + 11, color);
@@ -756,7 +756,7 @@ public class BenchScreen extends Screen {
         Ui.screen(g, x, y, canvasW, INSPECT_H);
         Tensor value;
         Component head;
-        String error = null;
+        Component error = null;
         Spec.Case c = spec.cases().get(caseIndex);
         if (selected == SINK) {
             value = c.expected();
@@ -775,8 +775,7 @@ public class BenchScreen extends Screen {
         int textW = constant.visible ? canvasW - 72 : canvasW - 8;
         int ty = lines(g, head, x + 4, y + 3, textW, 2, Ui.TEXT) + 2;
         if (error != null) {
-            String why = error.equals("loop") ? I18n.get("residual.bench.loop") : error;
-            lines(g, Component.literal(why), x + 4, ty, canvasW - 8, (y + INSPECT_H - ty) / 9, Ui.RED);
+            lines(g, error, x + 4, ty, canvasW - 8, (y + INSPECT_H - ty) / 9, Ui.RED);
             return;
         }
         if (value == null) {
@@ -945,8 +944,7 @@ public class BenchScreen extends Screen {
         if (inCanvas(mx, my)) {
             int hit = nodeAt(mx, my);
             if (hit >= 0 && run.errors()[hit] != null) {
-                String e = run.errors()[hit];
-                g.setTooltipForNextFrame(font, font.split(Component.literal(e.equals("loop") ? I18n.get("residual.bench.loop") : e), 200), mx, my);
+                g.setTooltipForNextFrame(font, font.split(run.errors()[hit], 200), mx, my);
             }
             return;
         }

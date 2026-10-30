@@ -126,9 +126,9 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
 
         // what the last check found: beside the pictures, then across the window below them
         int y = 42 + op.fields().size() * 18;
-        if (!status.error().isEmpty()) {
-            if (flow(g, status.error(), y, 0xFFB03030) && Ui.inside(mx, my, 8, y, 232, 128 - y)) {
-                g.setTooltipForNextFrame(font.split(Component.literal(status.error()), 240), mouseX, mouseY);
+        if (status.error() != null) {
+            if (flow(g, status.error().getString(), y, 0xFFB03030) && Ui.inside(mx, my, 8, y, 232, 128 - y)) {
+                g.setTooltipForNextFrame(font.split(status.error(), 240), mouseX, mouseY);
             }
         } else if (!status.shape().isEmpty()) {
             g.text(font, Component.translatable("residual.machine.output", status.shape()), 8, y, 0xFF1F7A72, false);

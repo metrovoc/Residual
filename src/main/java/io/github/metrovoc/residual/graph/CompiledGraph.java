@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.IntFunction;
+import net.minecraft.network.chat.Component;
 
 /** A checked graph in execution order, owning its parameter tensors. */
 public final class CompiledGraph {
@@ -23,16 +24,13 @@ public final class CompiledGraph {
     /** Symbolic output shape of every node in {@link #order}; null for unused nodes. */
     public final Sym[] shapes;
     private final List<Map<String, Tensor>> params;
-    /** Human-readable notes, e.g. which parameters were freshly initialised. */
-    public final List<String> notes;
 
-    private CompiledGraph(GraphSpec spec, Env env, int[] order, Sym[] shapes, List<Map<String, Tensor>> params, List<String> notes) {
+    private CompiledGraph(GraphSpec spec, Env env, int[] order, Sym[] shapes, List<Map<String, Tensor>> params) {
         this.spec = spec;
         this.env = env;
         this.order = order;
         this.shapes = shapes;
         this.params = params;
-        this.notes = notes;
     }
 
     /**
@@ -43,15 +41,15 @@ public final class CompiledGraph {
         List<Issue> issues = new ArrayList<>();
         int n = spec.size();
         if (spec.output == GraphSpec.MISSING) {
-            issues.add(new Issue(-1, "Nothing is connected to the Model Core's input: every face but its front takes in the scores for every next token, " + vocabShape(env) + "."));
+            issues.add(new Issue(-1, Component.translatable("residual.graph.no_output", vocabShape(env))));
             throw new CompileException(issues);
         }
         if (spec.output == GraphSpec.CONFLICT) {
-            issues.add(new Issue(-1, "More than one machine feeds the Model Core's input network. A cable network carries exactly one value."));
+            issues.add(new Issue(-1, Component.translatable("residual.graph.output_conflict")));
             throw new CompileException(issues);
         }
         if (spec.output == GraphSpec.TOKENS) {
-            issues.add(new Issue(-1, "The Model Core's output is wired straight back into its input. Put a model in between!"));
+            issues.add(new Issue(-1, Component.translatable("residual.graph.short_circuit")));
             throw new CompileException(issues);
         }
 
@@ -73,11 +71,12 @@ public final class CompiledGraph {
             for (int i = 0; i < in.length; i++) {
                 int src = nd.inputs[i];
                 String port = i == 0 ? "back" : "side";
+                Component title = Component.translatable("block.residual." + nd.op.id);
                 if (src == GraphSpec.MISSING) {
-                    issues.add(new Issue(node, nd.op.title + ": nothing is connected to its " + port + " input."));
+                    issues.add(new Issue(node, Component.translatable("residual.graph.unconnected." + port, title)));
                     ok = false;
                 } else if (src == GraphSpec.CONFLICT) {
-                    issues.add(new Issue(node, nd.op.title + ": its " + port + " input's cable network has more than one source. Each network carries exactly one value: use separate cable colors."));
+                    issues.add(new Issue(node, Component.translatable("residual.graph.conflict." + port, title)));
                     ok = false;
                 } else if (src == GraphSpec.TOKENS) {
                     in[i] = Sym.tokens();
@@ -94,7 +93,7 @@ public final class CompiledGraph {
             try {
                 shapes[node] = nd.op.infer(in, nd.config, env);
             } catch (ShapeException e) {
-                issues.add(new Issue(node, e.getMessage()));
+                issues.add(new Issue(node, e.message));
                 broken[node] = true;
             }
         }
@@ -104,13 +103,12 @@ public final class CompiledGraph {
                 String hint = "";
                 if (out.rank() == 3 && out.dim(0) == Sym.B && out.dim(1) == Sym.T) {
                     hint = switch (spec.node(spec.output).op) {
-                        case LINEAR -> " Set the last Linear Layer's Outputs to V, one per token.";
-                        case EMBEDDING -> " Set the Embedding Table's Width to V, one per token.";
-                        default -> " End the model with a Linear Layer whose Outputs are V, one per token.";
+                        case LINEAR -> ".linear";
+                        case EMBEDDING -> ".embedding";
+                        default -> ".other";
                     };
                 }
-                issues.add(new Issue(spec.output, "The Model Core needs one score per vocabulary entry at every position: "
-                        + vocabShape(env) + ". It is getting " + out + "." + hint));
+                issues.add(new Issue(spec.output, Component.translatable("residual.graph.wrong_output" + hint, vocabShape(env), out.toString())));
             }
         }
         if (!issues.isEmpty()) {
@@ -118,7 +116,6 @@ public final class CompiledGraph {
         }
 
         List<Map<String, Tensor>> params = new ArrayList<>(n);
-        List<String> notes = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             params.add(Map.of());
         }
@@ -135,24 +132,18 @@ public final class CompiledGraph {
             Map<String, Tensor> old = existing == null ? null : existing.apply(node);
             Map<String, Tensor> fresh = new LinkedHashMap<>();
             Random rng = new Random(seed * 31 + node * 7919L + nd.op.ordinal());
-            boolean reset = false;
             for (ParamSpec ps : specs) {
                 Tensor prior = old == null ? null : old.get(ps.name());
                 Tensor init = ps.create(rng);
                 if (prior != null && Arrays.equals(prior.shape, ps.shape())) {
                     System.arraycopy(prior.data, 0, init.data, 0, init.data.length);
-                } else {
-                    reset |= old != null && !old.isEmpty();
                 }
                 fresh.put(ps.name(), init);
-            }
-            if (reset) {
-                notes.add(label(nd) + " was re-initialised because its shape changed.");
             }
             params.set(node, fresh);
         }
         int[] ord = order.stream().mapToInt(Integer::intValue).toArray();
-        return new CompiledGraph(spec, env, ord, shapes, params, notes);
+        return new CompiledGraph(spec, env, ord, shapes, params);
     }
 
     private static void visit(GraphSpec spec, int node, int[] state, List<Integer> order, List<Issue> issues, boolean[] cyclic) {
@@ -161,7 +152,7 @@ public final class CompiledGraph {
         }
         if (state[node] == 1) {
             if (!cyclic[0]) {
-                issues.add(new Issue(node, label(spec.node(node)) + " is part of a loop. Data must flow one way, from the Model Core's output back to its input."));
+                issues.add(new Issue(node, Component.translatable("residual.graph.loop", label(spec.node(node)))));
             }
             cyclic[0] = true;
             return;
@@ -178,8 +169,9 @@ public final class CompiledGraph {
         return "[B×T×" + env.vocab() + "]";
     }
 
-    public static String label(GraphSpec.Node nd) {
-        return nd.name == null || nd.name.isEmpty() ? nd.op.title : nd.op.title + " '" + nd.name + "'";
+    static Component label(GraphSpec.Node nd) {
+        Component title = Component.translatable("block.residual." + nd.op.id);
+        return nd.name == null || nd.name.isEmpty() ? title : Component.translatable("residual.graph.named", title, nd.name);
     }
 
     /** Runs the model on a token batch and returns logits [B, T, V]. */

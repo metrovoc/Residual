@@ -120,21 +120,20 @@ public final class Ops {
      */
     public static Tensor matmul(Tape tape, Tensor a, Tensor b, boolean transB) {
         if (a.rank() < 2 || b.rank() < 2) {
-            throw new ShapeException("Matrix multiply needs matrices, got " + a.shapeString() + " and " + b.shapeString());
+            throw new ShapeException("residual.shape.op.matmul", a.shapeString(), b.shapeString());
         }
         int m = a.dim(-2);
         int k = a.dim(-1);
         int bk = transB ? b.dim(-1) : b.dim(-2);
         int n = transB ? b.dim(-2) : b.dim(-1);
         if (bk != k) {
-            throw new ShapeException("Matrix multiply: inner sizes differ (" + k + " vs " + bk + ") for "
-                    + a.shapeString() + " @ " + b.shapeString() + (transB ? "ᵀ" : ""));
+            throw new ShapeException("residual.shape.op.matmul_inner", k, bk, a.shapeString(), b.shapeString() + (transB ? "ᵀ" : ""));
         }
         boolean shared = b.rank() == 2;
         int batch = a.size() / (m * k);
         if (!shared) {
             if (b.rank() != a.rank() || !Arrays.equals(a.shape, 0, a.rank() - 2, b.shape, 0, b.rank() - 2)) {
-                throw new ShapeException("Matrix multiply: batch sizes differ for " + a.shapeString() + " @ " + b.shapeString());
+                throw new ShapeException("residual.shape.op.matmul_batch", a.shapeString(), b.shapeString());
             }
         }
         int[] shape = a.shape.clone();
@@ -209,7 +208,7 @@ public final class Ops {
         Tensor big = a.rank() >= b.rank() ? a : b;
         Tensor small = big == a ? b : a;
         if (!isSuffix(small.shape, big.shape)) {
-            throw new ShapeException("Can't add " + a.shapeString() + " and " + b.shapeString() + ": shapes don't line up");
+            throw new ShapeException("residual.shape.op.add", a.shapeString(), b.shapeString());
         }
         Tensor out = new Tensor(big.shape.clone(), big.data.clone(), tracks(tape, a, b));
         int s = small.size();
@@ -246,7 +245,7 @@ public final class Ops {
         Tensor big = a.rank() >= b.rank() ? a : b;
         Tensor small = big == a ? b : a;
         if (!isSuffix(small.shape, big.shape)) {
-            throw new ShapeException("Can't multiply " + a.shapeString() + " and " + b.shapeString() + " elementwise");
+            throw new ShapeException("residual.shape.op.multiply", a.shapeString(), b.shapeString());
         }
         Tensor out = result(big.shape.clone(), tracks(tape, a, b));
         int s = small.size();
@@ -399,7 +398,7 @@ public final class Ops {
     /** {@code x.masked_fill(future, -inf)} over the last two dimensions [..., T, T]. */
     public static Tensor causalMask(Tape tape, Tensor x) {
         if (x.rank() < 2 || x.dim(-1) != x.dim(-2)) {
-            throw new ShapeException("Causal mask needs square score grids [.., T, T], got " + x.shapeString());
+            throw new ShapeException("residual.shape.op.causal_mask", x.shapeString());
         }
         int t = x.dim(-1);
         int grids = x.size() / (t * t);
@@ -439,7 +438,7 @@ public final class Ops {
     public static Tensor layerNorm(Tape tape, Tensor x, Tensor gamma, Tensor beta, float eps) {
         int d = x.dim(-1);
         if (gamma.size() != d || beta.size() != d) {
-            throw new ShapeException("Layer norm over " + d + " features has " + gamma.size() + " gains");
+            throw new ShapeException("residual.shape.op.layer_norm", d, gamma.size());
         }
         int rows = x.rows();
         Tensor out = result(x.shape.clone(), tracks(tape, x, gamma, beta));
@@ -508,7 +507,7 @@ public final class Ops {
     public static Tensor rmsNorm(Tape tape, Tensor x, Tensor gamma, float eps) {
         int d = x.dim(-1);
         if (gamma.size() != d) {
-            throw new ShapeException("RMS norm over " + d + " features has " + gamma.size() + " gains");
+            throw new ShapeException("residual.shape.op.rms_norm", d, gamma.size());
         }
         int rows = x.rows();
         Tensor out = result(x.shape.clone(), tracks(tape, x, gamma));
@@ -565,7 +564,7 @@ public final class Ops {
         int d = table.dim(1);
         for (int id : ids.ids) {
             if (id < 0 || id >= v) {
-                throw new ShapeException("Token id " + id + " is outside the embedding table (" + v + " rows)");
+                throw new ShapeException("residual.shape.op.embedding", id, v);
             }
         }
         Tensor out = result(new int[]{ids.batch, ids.time, d}, tracks(tape, table));
@@ -594,7 +593,7 @@ public final class Ops {
     /** {@code table[:T]}: the first T rows of a position table, shape [T, d]. */
     public static Tensor positions(Tape tape, Tensor table, int t) {
         if (t > table.dim(0)) {
-            throw new ShapeException("Position table has " + table.dim(0) + " rows but the context is " + t + " tokens long");
+            throw new ShapeException("residual.shape.op.position", table.dim(0), t);
         }
         int d = table.dim(1);
         Tensor out = new Tensor(new int[]{t, d}, Arrays.copyOf(table.data, t * d), tracks(tape, table));
@@ -622,7 +621,7 @@ public final class Ops {
         int v = logits.dim(-1);
         int rows = logits.rows();
         if (targets.length != rows) {
-            throw new ShapeException("Loss expects " + targets.length + " predictions, got " + rows);
+            throw new ShapeException("residual.shape.op.loss", targets.length, rows);
         }
         float[] probs = new float[logits.size()];
         double total = 0;
@@ -647,7 +646,7 @@ public final class Ops {
             if (w != 0f) {
                 int t = targets[r];
                 if (t < 0 || t >= v) {
-                    throw new ShapeException("Target token " + t + " is outside the " + v + " logits");
+                    throw new ShapeException("residual.shape.op.target", t, v);
                 }
                 total += w * (Math.log(sum) + max - logits.data[off + t]);
                 count += w;
@@ -682,13 +681,13 @@ public final class Ops {
     /** [B, T, H*dh] -> [B, H, T, dh], i.e. {@code x.view(B, T, H, dh).transpose(1, 2)}. */
     public static Tensor splitHeads(Tape tape, Tensor x, int heads) {
         if (x.rank() != 3) {
-            throw new ShapeException("Split heads expects [batch, time, features], got " + x.shapeString());
+            throw new ShapeException("residual.shape.op.split_heads", x.shapeString());
         }
         int b = x.dim(0);
         int t = x.dim(1);
         int d = x.dim(2);
         if (heads < 1 || d % heads != 0) {
-            throw new ShapeException(d + " features don't split evenly into " + heads + " heads");
+            throw new ShapeException("residual.shape.op.heads", d, heads);
         }
         int dh = d / heads;
         Tensor out = result(new int[]{b, heads, t, dh}, tracks(tape, x));
@@ -725,7 +724,7 @@ public final class Ops {
     /** [B, H, T, dh] -> [B, T, H*dh], i.e. {@code x.transpose(1, 2).reshape(B, T, H * dh)}. */
     public static Tensor mergeHeads(Tape tape, Tensor x) {
         if (x.rank() != 4) {
-            throw new ShapeException("Merge heads expects [batch, heads, time, features], got " + x.shapeString());
+            throw new ShapeException("residual.shape.op.merge_heads", x.shapeString());
         }
         int b = x.dim(0);
         int heads = x.dim(1);
@@ -766,7 +765,7 @@ public final class Ops {
     /** Delays a sequence by {@code n} steps along time (dim -2), filling the start with zeros. */
     public static Tensor shift(Tape tape, Tensor x, int n) {
         if (x.rank() < 2) {
-            throw new ShapeException("Shift expects a sequence [.., time, features], got " + x.shapeString());
+            throw new ShapeException("residual.shape.op.shift", x.shapeString());
         }
         int t = x.dim(-2);
         int d = x.dim(-1);
@@ -803,7 +802,7 @@ public final class Ops {
     /** {@code torch.cat([a, b], dim=-1)}. */
     public static Tensor concat(Tape tape, Tensor a, Tensor b) {
         if (a.rank() != b.rank() || !Arrays.equals(a.shape, 0, a.rank() - 1, b.shape, 0, b.rank() - 1)) {
-            throw new ShapeException("Can't join " + a.shapeString() + " and " + b.shapeString() + ": only the last size may differ");
+            throw new ShapeException("residual.shape.op.concat", a.shapeString(), b.shapeString());
         }
         int da = a.dim(-1);
         int db = b.dim(-1);

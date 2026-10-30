@@ -107,6 +107,11 @@ final class Milestones {
         }
     }
 
+    /** What the advancement asks, as the sentence its milestone opens with. */
+    private static String sentence(DisplayInfo display) {
+        return Component.translatable("residual.milestone.description", display.getDescription()).getString();
+    }
+
     static final class Tag extends BlockTagCompiler {
         @Override
         public Set<String> getTagNames() {
@@ -130,7 +135,7 @@ final class Milestones {
             title.appendText(display.getTitle().getString());
             paragraph.append(title);
             paragraph.appendBreak();
-            paragraph.appendText(display.getDescription().getString() + ". ");
+            paragraph.appendText(sentence(display));
             for (MdAstAnyContent child : el.children()) {
                 if (child instanceof MdAstParagraph text) {
                     compiler.compileFlowContext(text, paragraph);
@@ -199,7 +204,7 @@ final class Milestones {
                 title.getAsJsonArray("children").add(text(display.getTitle().getString()));
                 content.add(title);
                 content.add(JsonParser.parseString("{\"type\": \"break\"}"));
-                content.add(text(display.getDescription().getString() + ". "));
+                content.add(text(sentence(display)));
             }
             for (JsonElement child : milestone.getAsJsonArray("children")) {
                 if (child.getAsJsonObject().get("type").getAsString().equals("paragraph")) {

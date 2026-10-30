@@ -54,6 +54,7 @@ import java.util.Random;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -395,7 +396,7 @@ public class CoreBlockEntity extends BlockEntity {
         Checked checked = check();
         if (checked == null) {
             PacketDistributor.sendToPlayer(player, new SampleResult("", "", List.of(), List.of(),
-                    "The model doesn't check out yet: see the Inspect tab."));
+                    Component.translatable("residual.sample.unchecked")));
             return;
         }
         Benchmark benchmark = Benchmark.values()[Math.floorMod(value / 1000, Benchmark.values().length)];
@@ -410,7 +411,7 @@ public class CoreBlockEntity extends BlockEntity {
                 result = new SampleResult(d.prompt(), d.text(), d.labels(), d.probs(), d.note());
             } catch (RuntimeException e) {
                 Residual.LOG.error("Sampling failed", e);
-                result = new SampleResult("", "", List.of(), List.of(), "Sampling failed: " + e);
+                result = new SampleResult("", "", List.of(), List.of(), Component.translatable("residual.sample.failed", e.toString()));
             }
             SampleResult reply = result;
             Jobs.back(server, () -> {
@@ -581,10 +582,10 @@ public class CoreBlockEntity extends BlockEntity {
     private void publish(GraphScanner.Scan scan, @Nullable CompiledGraph model, @Nullable Sym[] shapes, Env env, List<CoreSync.Issue> found) {
         Jobs.watch(this, level, scan.footprint(), () -> stale = true);
         issues = List.copyOf(found);
-        Map<BlockPos, String> errors = new HashMap<>();
+        Map<BlockPos, Component> errors = new HashMap<>();
         for (CoreSync.Issue i : found) {
             if (i.pos() != null) {
-                errors.merge(i.pos(), i.message(), (a, b) -> a + " " + b);
+                errors.merge(i.pos(), i.message(), (a, b) -> a.copy().append(" ").append(b));
             }
         }
         List<CoreSync.Node> rows = new ArrayList<>();
@@ -608,9 +609,9 @@ public class CoreBlockEntity extends BlockEntity {
                 }
             }
             total += count;
-            String error = errors.getOrDefault(p, "");
-            if (error.isEmpty() && model != null && !active) {
-                error = "Its output never reaches the Model Core, so it has no effect on the model.";
+            Component error = errors.get(p);
+            if (error == null && model != null && !active) {
+                error = Component.translatable("residual.machine.unused");
             }
             be.setStatus(new OperatorBlockEntity.Status(shape != null ? shape.toString() : "", error, features, env.vocab(),
                     env.context(), count, be.status().gradNorm(), active));

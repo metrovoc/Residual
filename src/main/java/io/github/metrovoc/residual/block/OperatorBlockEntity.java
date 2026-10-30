@@ -16,6 +16,7 @@ import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -40,14 +41,16 @@ import org.jetbrains.annotations.Nullable;
 public class OperatorBlockEntity extends BlockEntity implements MenuProvider {
     public static final int NAME_LENGTH = 24;
 
-    /** What the last check of the model found out about this machine. */
-    public record Status(String shape, String error, int features, int vocab, int context, long parameters,
+    /** What the last check of the model found out about this machine; {@code error} is null when it checks out. */
+    public record Status(String shape, @Nullable Component error, int features, int vocab, int context, long parameters,
                          float gradNorm, boolean active) {
-        public static final Status NONE = new Status("", "", -1, 0, 0, 0, -1, false);
+        public static final Status NONE = new Status("", null, -1, 0, 0, 0, -1, false);
 
         void write(ValueOutput out) {
             out.putString("shape", shape);
-            out.putString("error", error);
+            if (error != null) {
+                out.store("error", ComponentSerialization.CODEC, error);
+            }
             out.putInt("features", features);
             out.putInt("vocab", vocab);
             out.putInt("context", context);
@@ -57,7 +60,7 @@ public class OperatorBlockEntity extends BlockEntity implements MenuProvider {
         }
 
         static Status read(ValueInput in) {
-            return new Status(in.getStringOr("shape", ""), in.getStringOr("error", ""), in.getIntOr("features", -1),
+            return new Status(in.getStringOr("shape", ""), in.read("error", ComponentSerialization.CODEC).orElse(null), in.getIntOr("features", -1),
                     in.getIntOr("vocab", 0), in.getIntOr("context", 0), in.getLongOr("parameters", 0),
                     in.getFloatOr("grad_norm", -1), in.getBooleanOr("active", false));
         }

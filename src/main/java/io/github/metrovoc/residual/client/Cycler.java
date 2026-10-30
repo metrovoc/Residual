@@ -28,7 +28,7 @@ public class Cycler extends AbstractButton {
     /** Shows a value without reporting a change (for updates coming from the server). */
     public void set(int i) {
         index = Math.floorMod(i, values.size());
-        setMessage(label.copy().append(": ").append(values.get(index)));
+        setMessage(Component.translatable("residual.cycler", label, values.get(index)));
     }
 
     public int index() {

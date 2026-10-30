@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +28,7 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
     public static final Type<CoreSync> TYPE = new Type<>(Residual.id("core_sync"));
 
     /** A problem with the model, at a machine (or at the Core when {@code pos} is null). */
-    public record Issue(@Nullable BlockPos pos, String message) {
+    public record Issue(@Nullable BlockPos pos, Component message) {
     }
 
     /** One machine of the model as the Inspect tab lists it. */
@@ -69,7 +71,7 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
             if (i.pos != null) {
                 buf.writeBlockPos(i.pos);
             }
-            buf.writeUtf(i.message);
+            ComponentSerialization.STREAM_CODEC.encode(buf, i.message);
         }
         buf.writeVarInt(s.nodes.size());
         for (Node n : s.nodes) {
@@ -120,7 +122,7 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
         List<Issue> issues = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
             BlockPos at = buf.readBoolean() ? buf.readBlockPos() : null;
-            issues.add(new Issue(at, buf.readUtf()));
+            issues.add(new Issue(at, ComponentSerialization.STREAM_CODEC.decode(buf)));
         }
         n = buf.readVarInt();
         List<Node> nodes = new ArrayList<>(n);

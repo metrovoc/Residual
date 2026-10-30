@@ -11,17 +11,18 @@ import io.github.metrovoc.residual.tensor.Unfused;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.network.chat.Component;
 
 /**
  * Every operator a machine can perform. Input 0 arrives on a machine's back face, input 1 on any side face;
  * the result leaves through the front.
  */
 public enum Op {
-    EMBEDDING("embedding", "Embedding Table", 1, ConfigField.width("dim", "32", true)) {
+    EMBEDDING("embedding", 1, ConfigField.width("dim", "32", true)) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
             if (!in[0].tokens) {
-                throw new ShapeException("The Embedding Table looks up token ids, so it must be fed directly by the Model Core. It got " + in[0] + " instead.");
+                throw new ShapeException("residual.shape.embedding", in[0]);
             }
             return Sym.of(Sym.B, Sym.T, c.width("dim", env.vocab()));
         }
@@ -37,7 +38,7 @@ public enum Op {
         }
     },
 
-    POSITION("position", "Position Table", 0, ConfigField.width("dim", "32", false)) {
+    POSITION("position", 0, ConfigField.width("dim", "32", false)) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
             return Sym.of(Sym.T, c.width("dim", env.vocab()));
@@ -54,10 +55,10 @@ public enum Op {
         }
     },
 
-    LINEAR("linear", "Linear Layer", 1, ConfigField.width("out", "32", true), ConfigField.toggle("bias", true)) {
+    LINEAR("linear", 1, ConfigField.width("out", "32", true), ConfigField.toggle("bias", true)) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            features(in[0], "A Linear Layer");
+            features(in[0], "linear");
             return in[0].withLast(c.width("out", env.vocab()));
         }
 
@@ -81,10 +82,10 @@ public enum Op {
         }
     },
 
-    ACTIVATION("activation", "Activation", 1, ConfigField.choice("fn", "relu", "relu", "gelu", "tanh", "sigmoid", "silu")) {
+    ACTIVATION("activation", 1, ConfigField.choice("fn", "relu", "relu", "gelu", "tanh", "sigmoid", "silu")) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            floats(in[0], "An Activation");
+            floats(in[0], "activation");
             return in[0];
         }
 
@@ -94,7 +95,7 @@ public enum Op {
         }
     },
 
-    ADD("add", "Residual Junction", 2) {
+    ADD("add", 2) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
             return broadcast(in[0], in[1], "add");
@@ -106,7 +107,7 @@ public enum Op {
         }
     },
 
-    MULTIPLY("multiply", "Gate", 2) {
+    MULTIPLY("multiply", 2) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
             return broadcast(in[0], in[1], "multiply");
@@ -118,10 +119,10 @@ public enum Op {
         }
     },
 
-    NORM("norm", "Normalizer", 1, ConfigField.choice("kind", "layer", "layer", "rms")) {
+    NORM("norm", 1, ConfigField.choice("kind", "layer", "layer", "rms")) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            features(in[0], "A Normalizer");
+            features(in[0], "norm");
             return in[0];
         }
 
@@ -142,29 +143,28 @@ public enum Op {
         }
     },
 
-    MATMUL("matmul", "Matrix Multiplier", 2, ConfigField.toggle("transpose", false)) {
+    MATMUL("matmul", 2, ConfigField.toggle("transpose", false)) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            Sym a = floats(in[0], "The Matrix Multiplier");
-            Sym b = floats(in[1], "The Matrix Multiplier");
+            Sym a = floats(in[0], "matmul");
+            Sym b = floats(in[1], "matmul");
             boolean tb = c.flag("transpose");
             if (a.rank() < 2 || b.rank() < 2) {
-                throw new ShapeException("The Matrix Multiplier needs grids on both inputs, got " + a + " and " + b + ".");
+                throw new ShapeException("residual.shape.matmul.grids", a, b);
             }
             int bk = tb ? b.dim(-1) : b.dim(-2);
             int n = tb ? b.dim(-2) : b.dim(-1);
             if (a.dim(-1) != bk) {
-                throw new ShapeException("Matrix Multiplier: the back input " + a + " has rows of " + Sym.dimName(a.dim(-1))
-                        + " but the side input " + b + (tb ? " (transposed)" : "") + " has columns of " + Sym.dimName(bk)
-                        + ". The inner sizes must match" + (tb ? "." : " - try the transpose switch."));
+                throw new ShapeException(tb ? "residual.shape.matmul.inner_transposed" : "residual.shape.matmul.inner",
+                        a, Sym.dimName(a.dim(-1)), b, Sym.dimName(bk));
             }
             if (b.rank() != 2) {
                 if (b.rank() != a.rank()) {
-                    throw new ShapeException("Matrix Multiplier: " + a + " and " + b + " have different numbers of batch dimensions.");
+                    throw new ShapeException("residual.shape.matmul.batch_rank", a, b);
                 }
                 for (int i = 0; i < a.rank() - 2; i++) {
                     if (a.dim(i) != b.dim(i)) {
-                        throw new ShapeException("Matrix Multiplier: batch sizes of " + a + " and " + b + " differ.");
+                        throw new ShapeException("residual.shape.matmul.batch", a, b);
                     }
                 }
             }
@@ -177,13 +177,13 @@ public enum Op {
         }
     },
 
-    SCALE("scale", "Scaler", 1, ConfigField.choice("factor", "inv_sqrt", "inv_sqrt", "0.5", "0.25", "0.125", "2", "4")) {
+    SCALE("scale", 1, ConfigField.choice("factor", "inv_sqrt", "inv_sqrt", "0.5", "0.25", "0.125", "2", "4")) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
             if ("inv_sqrt".equals(c.get("factor"))) {
-                features(in[0], "A Scaler set to 1/√d");
+                features(in[0], "scale_inv_sqrt");
             } else {
-                floats(in[0], "A Scaler");
+                floats(in[0], "scale");
             }
             return in[0];
         }
@@ -195,12 +195,12 @@ public enum Op {
         }
     },
 
-    CAUSAL_MASK("causal_mask", "Causal Mask", 1) {
+    CAUSAL_MASK("causal_mask", 1) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            Sym x = floats(in[0], "The Causal Mask");
+            Sym x = floats(in[0], "causal_mask");
             if (x.rank() < 2 || x.dim(-1) != Sym.T || x.dim(-2) != Sym.T) {
-                throw new ShapeException("The Causal Mask hides future positions in a grid of scores [.., T×T], one row per token. It got " + x + ".");
+                throw new ShapeException("residual.shape.causal_mask", x);
             }
             return x;
         }
@@ -211,10 +211,10 @@ public enum Op {
         }
     },
 
-    SOFTMAX("softmax", "Softmax", 1) {
+    SOFTMAX("softmax", 1) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            return floats(in[0], "Softmax");
+            return floats(in[0], "softmax");
         }
 
         @Override
@@ -227,13 +227,13 @@ public enum Op {
         }
     },
 
-    SPLIT_HEADS("split_heads", "Head Splitter", 1, ConfigField.choice("heads", "4", "1", "2", "4", "8")) {
+    SPLIT_HEADS("split_heads", 1, ConfigField.choice("heads", "4", "1", "2", "4", "8")) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            Sym x = sequence(in[0], "The Head Splitter");
+            Sym x = sequence(in[0], "split_heads");
             int heads = c.integer("heads");
             if (x.dim(-1) % heads != 0) {
-                throw new ShapeException("The Head Splitter can't divide " + x.dim(-1) + " features into " + heads + " equal heads.");
+                throw new ShapeException("residual.shape.split_heads", x.dim(-1), heads);
             }
             return Sym.of(Sym.B, heads, Sym.T, x.dim(-1) / heads);
         }
@@ -244,12 +244,12 @@ public enum Op {
         }
     },
 
-    MERGE_HEADS("merge_heads", "Head Merger", 1) {
+    MERGE_HEADS("merge_heads", 1) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            Sym x = floats(in[0], "The Head Merger");
+            Sym x = floats(in[0], "merge_heads");
             if (x.rank() != 4 || x.dim(0) != Sym.B || x.dim(2) != Sym.T || x.dim(1) < 1 || x.dim(3) < 1) {
-                throw new ShapeException("The Head Merger joins heads [B×H×T×d] back into [B×T×(H·d)]. It got " + x + ".");
+                throw new ShapeException("residual.shape.merge_heads", x);
             }
             return Sym.of(Sym.B, Sym.T, x.dim(1) * x.dim(3));
         }
@@ -260,12 +260,12 @@ public enum Op {
         }
     },
 
-    SHIFT("shift", "Delay Line", 1, ConfigField.choice("steps", "1", "1", "2", "3", "4")) {
+    SHIFT("shift", 1, ConfigField.choice("steps", "1", "1", "2", "3", "4")) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            Sym x = floats(in[0], "The Delay Line");
+            Sym x = floats(in[0], "shift");
             if (x.rank() < 2 || x.dim(-2) != Sym.T) {
-                throw new ShapeException("The Delay Line shifts a sequence along time [.., T×d]. It got " + x + ".");
+                throw new ShapeException("residual.shape.shift", x);
             }
             return x;
         }
@@ -276,17 +276,17 @@ public enum Op {
         }
     },
 
-    CONCAT("concat", "Concatenator", 2) {
+    CONCAT("concat", 2) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            Sym a = features(in[0], "The Concatenator");
-            Sym b = features(in[1], "The Concatenator");
+            Sym a = features(in[0], "concat");
+            Sym b = features(in[1], "concat");
             if (a.rank() != b.rank()) {
-                throw new ShapeException("The Concatenator can only join values of the same rank: " + a + " and " + b + ".");
+                throw new ShapeException("residual.shape.concat.rank", a, b);
             }
             for (int i = 0; i < a.rank() - 1; i++) {
                 if (a.dim(i) != b.dim(i)) {
-                    throw new ShapeException("The Concatenator joins along features; everything else must match: " + a + " and " + b + ".");
+                    throw new ShapeException("residual.shape.concat", a, b);
                 }
             }
             return a.withLast(a.dim(-1) + b.dim(-1));
@@ -298,12 +298,12 @@ public enum Op {
         }
     },
 
-    ATTENTION("attention", "Attention Head", 1, ConfigField.choice("heads", "4", "1", "2", "4", "8")) {
+    ATTENTION("attention", 1, ConfigField.choice("heads", "4", "1", "2", "4", "8")) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            Sym x = sequence(in[0], "An Attention Head");
+            Sym x = sequence(in[0], "attention");
             if (x.dim(-1) % c.integer("heads") != 0) {
-                throw new ShapeException("An Attention Head can't split " + x.dim(-1) + " features into " + c.integer("heads") + " heads.");
+                throw new ShapeException("residual.shape.heads", Component.translatable("residual.who.attention"), x.dim(-1), c.integer("heads"));
             }
             return x;
         }
@@ -320,10 +320,10 @@ public enum Op {
         }
     },
 
-    MLP("mlp", "Feed-Forward Block", 1, ConfigField.choice("expand", "4", "1", "2", "4"), ConfigField.choice("fn", "gelu", "relu", "gelu", "silu")) {
+    MLP("mlp", 1, ConfigField.choice("expand", "4", "1", "2", "4"), ConfigField.choice("fn", "gelu", "relu", "gelu", "silu")) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            sequence(in[0], "A Feed-Forward Block");
+            sequence(in[0], "mlp");
             return in[0];
         }
 
@@ -338,13 +338,13 @@ public enum Op {
         }
     },
 
-    TRANSFORMER("transformer", "Transformer Block", 1, ConfigField.choice("heads", "4", "1", "2", "4", "8"),
+    TRANSFORMER("transformer", 1, ConfigField.choice("heads", "4", "1", "2", "4", "8"),
             ConfigField.choice("expand", "4", "1", "2", "4"), ConfigField.choice("fn", "gelu", "relu", "gelu", "silu")) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
-            Sym x = sequence(in[0], "A Transformer Block");
+            Sym x = sequence(in[0], "transformer");
             if (x.dim(-1) % c.integer("heads") != 0) {
-                throw new ShapeException("A Transformer Block can't split " + x.dim(-1) + " features into " + c.integer("heads") + " heads.");
+                throw new ShapeException("residual.shape.heads", Component.translatable("residual.who.transformer"), x.dim(-1), c.integer("heads"));
             }
             return x;
         }
@@ -375,13 +375,11 @@ public enum Op {
     public static final float EPS = 1e-5f;
 
     public final String id;
-    public final String title;
     public final int arity;
     private final List<ConfigField> fields;
 
-    Op(String id, String title, int arity, ConfigField... fields) {
+    Op(String id, int arity, ConfigField... fields) {
         this.id = id;
-        this.title = title;
         this.arity = arity;
         this.fields = List.of(fields);
     }
@@ -435,9 +433,10 @@ public enum Op {
 
     // ------------------------------------------------------------------ checks
 
+    /** {@code who} names the machine in messages: {@code residual.who.<who>}, with its article in English. */
     static Sym floats(Sym x, String who) {
         if (x.tokens) {
-            throw new ShapeException(who + " can't work on raw token ids. Turn them into vectors with an Embedding Table first.");
+            throw new ShapeException("residual.shape.tokens", Component.translatable("residual.who." + who));
         }
         return x;
     }
@@ -445,8 +444,8 @@ public enum Op {
     static Sym features(Sym x, String who) {
         floats(x, who);
         if (x.rank() < 1 || x.dim(-1) < 0) {
-            throw new ShapeException(who + " needs a fixed number of features, but the last size of " + x + " is "
-                    + Sym.dimName(x.dim(-1)) + (x.dim(-1) == Sym.T ? " (the sequence length)." : "."));
+            throw new ShapeException(x.dim(-1) == Sym.T ? "residual.shape.features_t" : "residual.shape.features",
+                    Component.translatable("residual.who." + who), x, Sym.dimName(x.dim(-1)));
         }
         return x;
     }
@@ -454,20 +453,20 @@ public enum Op {
     static Sym sequence(Sym x, String who) {
         features(x, who);
         if (x.rank() != 3 || x.dim(0) != Sym.B || x.dim(1) != Sym.T) {
-            throw new ShapeException(who + " works on a sequence of vectors [B×T×d]. It got " + x + ".");
+            throw new ShapeException("residual.shape.sequence", Component.translatable("residual.who." + who), x);
         }
         return x;
     }
 
     static Sym broadcast(Sym a, Sym b, String verb) {
-        floats(a, "This junction");
-        floats(b, "This junction");
+        floats(a, "junction");
+        floats(b, "junction");
         Sym big = a.rank() >= b.rank() ? a : b;
         Sym small = big == a ? b : a;
         int off = big.rank() - small.rank();
         for (int i = 0; i < small.rank(); i++) {
             if (small.dim(i) != big.dim(off + i)) {
-                throw new ShapeException("Can't " + verb + " " + a + " and " + b + ": their sizes don't line up.");
+                throw new ShapeException("residual.shape.broadcast." + verb, a, b);
             }
         }
         return big;

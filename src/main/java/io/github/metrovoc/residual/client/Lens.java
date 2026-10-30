@@ -64,8 +64,8 @@ public final class Lens {
             lines.add(be.name().isEmpty() ? title.copy().withColor(Ui.TEXT)
                     : Component.literal(be.name()).withColor(Ui.TEXT).append(Component.literal(" · ").withColor(Ui.DIM)).append(title.copy().withColor(Ui.DIM)));
             OperatorBlockEntity.Status status = be.status();
-            if (!status.error().isEmpty()) {
-                lines.add(Component.literal(status.error()).withColor(Ui.RED));
+            if (status.error() != null) {
+                lines.add(status.error().copy().withColor(Ui.RED));
             } else if (!status.shape().isEmpty()) {
                 lines.add(Component.literal("→ " + status.shape()).withColor(Ui.TEAL));
             }
