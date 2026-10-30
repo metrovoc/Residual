@@ -8,6 +8,10 @@
 
 </div>
 
+> [!WARNING]
+> Residual is an experimental project and currently in alpha. Expect breaking changes and major bugs. Your
+> [feedback](https://github.com/metrovoc/Residual/issues) is much appreciated.
+
 ![A model training by a river: a wave of light runs along its cables and each machine's output floats above it, with an archive house and a farm behind](docs/images/hero.webp)
 
 Someone lived in this world before you. They built machines that thought, and they wrote everything down. Then they
@@ -17,10 +21,6 @@ Residual is a Minecraft mod about building those models again, and every model i
 performs one real operation: a table lookup, a matrix multiplication, a softmax, a whole transformer layer. Design the
 machines from the smallest operations there are, cable them into a network, train it on text, test it on text it has
 never seen, and put it to work in the body of an agent. The arithmetic is what PyTorch does, down to the optimizer.
-
-> [!WARNING]
-> Residual is currently in alpha. Expect breaking changes and major bugs. Your
-> [feedback](https://github.com/metrovoc/Residual/issues) is much appreciated.
 
 ## Why this project
 
