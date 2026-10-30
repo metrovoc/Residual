@@ -21,9 +21,10 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["reacting", "forecasting", "recall", "reversal", "induction", "orders", "reading"]
+BENCHMARKS = ["reacting", "forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading"]
 DATASETS = {"field_dataset": "minecraft:wheat_seeds", "growth_dataset": "minecraft:bone_meal", "storage_dataset": "minecraft:chest",
-            "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "orders_dataset": "minecraft:writable_book"}
+            "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
+            "orders_dataset": "minecraft:writable_book"}
 SCHEMATICS = ["schematic_relays"]
 # see bench/Specs.java, in the order the Bench lists them, each with the spec whose module it builds on first
 SPECS = {"mean": None, "softmax": None, "matmul": None, "linear": "matmul", "gelu": None, "layer_norm": "mean",
@@ -278,6 +279,13 @@ def items():
         "type": "minecraft:condition", "property": "minecraft:has_component", "component": rid("vocab"),
         "on_true": {"type": "minecraft:model", "model": rid("item/tokenizer_written")},
         "on_false": {"type": "minecraft:model", "model": rid("item/tokenizer")}}})
+    # a program card shows writing once a program is written on it
+    for name in ("program_card", "program_card_written"):
+        write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
+    write(f"assets/{NS}/items/program_card.json", {"model": {
+        "type": "minecraft:condition", "property": "minecraft:has_component", "component": rid("program"),
+        "on_true": {"type": "minecraft:model", "model": rid("item/program_card_written")},
+        "on_false": {"type": "minecraft:model", "model": rid("item/program_card")}}})
     # the guide book is GuideME's item; its guide definition points at this model
     write(f"assets/{NS}/models/item/guide.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid("item/guide")}})
     item_definition("guide", rid("item/guide"))
@@ -356,6 +364,7 @@ def recipes():
                                                  "W": rid("weight_crystal"), "C": "minecraft:composter"})
     shapeless("field_log", ["minecraft:paper", "minecraft:paper", "minecraft:wheat", "#minecraft:planks"])
     shaped("agent", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
+    shapeless("program_card", ["minecraft:paper", "minecraft:redstone"], 2)
     shaped("survey_rod", ["  A", " S ", "S  "], {"A": "minecraft:amethyst_shard", "S": "minecraft:stick"})
     shaped("reader", ["GBG", "KWK", "KKK"], {"G": "minecraft:glass_pane", "B": "minecraft:book", "K": rid("tensor_casing"),
                                              "W": rid("weight_crystal")})
@@ -410,6 +419,7 @@ def advancements():
         advancement(f"benchmark/{a}", parent, "checkpoint", awarded(), frame="goal")
     advancement("model/complete", "benchmark/reading", "checkpoint", awarded(), frame="challenge")
     advancement("agent/made", "root", "agent", has("agent"))
+    advancement("agent/program", "agent/made", "program_card", awarded())
     advancement("agent/order", "agent/made", "minecraft:writable_book", awarded(), frame="goal")
     advancement("deploy/server", "agent/made", "model_server", placed("model_server"))
     advancement("deploy/relay", "deploy/server", "relay", placed("relay"))
