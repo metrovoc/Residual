@@ -12,8 +12,8 @@ item_ids:
 <ItemImage id="salvaged_model" scale="2" float="left" />
 
 Every buried vault holds a <ItemLink id="salvaged_model" />: the record of a model the old world built and could not
-make work. It keeps the model's machines, what it practised on and how it was trained. Each failed the way real models
-fail.
+make work. It keeps the model's machines, what it practised on and how it was trained. Each failed the way models often
+do.
 
 <br clear="all" />
 

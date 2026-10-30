@@ -27,7 +27,7 @@ Any shape in, the same shape out.
 - **ReLU** keeps positive numbers and zeroes the rest. Its slope is 0 or 1, so it never shrinks a gradient that passes.
 - **GELU** is a smooth ReLU, used by GPT-2 and BERT.
 - **SiLU** is z·σ(z), used inside the feed-forward layers of LLaMA and its relatives.
-- **tanh** squashes into (−1, 1), as in Bengio et al.'s 2003 model.
+- **tanh** squashes into (−1, 1), as in the first neural language models.
 - **sigmoid** squashes into (0, 1). Its slope is at most a quarter, so every sigmoid layer shrinks the gradient that passes back through it.
 
 ## Parameters

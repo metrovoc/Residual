@@ -11,10 +11,10 @@ Someone lived here before you. They built machines that thought, and they wrote 
 Pieces of what they left still turn up in the ruins: broken tablets of their writing, the designs of their machines,
 and models that no longer work.
 
-These are field notes on building models again. A model here is a real language model: machines that each do one real
-operation, cabled into a network, trained on text, and tested on text it has never seen. A good one can farm, keep a
-storeroom, run errands, carry on a pattern, tell what a thing is by its name, understand what you tell it, read what the
-old world wrote, and see where a field is going.
+These are field notes on building models again: language models made of machines that each do one operation, cabled into
+a network, trained on text, and tested on text they have never seen. A good one can farm, keep a storeroom, run errands,
+carry on a pattern, tell what a thing is by its name, understand what you tell it, read what the old world wrote, and
+see where a field is going.
 
 ## Start here
 

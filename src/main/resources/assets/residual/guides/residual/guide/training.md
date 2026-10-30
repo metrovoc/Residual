@@ -40,7 +40,7 @@ their tests alone.
 ## The settings
 
 **Learning rate (LR).** How far each step moves the weights. Too small and nothing happens for a long time; too large
-and the loss jumps around or explodes. Residual trains with AdamW, the optimizer most language models use. It scales
+and the loss jumps around or explodes. The Core trains with AdamW, the optimizer most language models use. It scales
 each weight's step by the size of its recent gradients, so the learning rate sets the step size fairly directly:
 
 ![AdamW](/formulas/adamw.png)
@@ -57,7 +57,7 @@ zero to the full learning rate.
 It rescues the occasional huge gradient without changing ordinary steps. It does not rescue a learning rate that is
 too large on every step.
 
-**Speed.** Watch trains slowly enough to follow the curve; Max trains as fast as your computer allows.
+**Speed.** Watch trains slowly enough to follow the curve; Max trains as fast as the Core can.
 
 ## Reading the curve
 

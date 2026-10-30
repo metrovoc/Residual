@@ -26,7 +26,7 @@ item_ids:
 
 # Machines and Cables
 
-A model is a graph of operations, and in Residual you build that graph out of blocks. Values flow out of one machine
+A model is a graph of operations, and you build that graph out of blocks. Values flow out of one machine
 and into the next through cables, from the <ItemLink id="model_core" />'s tokens to the scores it takes back.
 
 ## Ports

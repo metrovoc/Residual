@@ -31,7 +31,7 @@ None.
 ## Notes
 
 Gates sit inside the feed-forward layers of most recent language models. SwiGLU multiplies SiLU(xW₁) by a
-second projection xW₃ before projecting back down (Shazeer, 2020). To build one: two Linear Layers reading the same
+second projection xW₃ before projecting back down. To build one: two Linear Layers reading the same
 input, an Activation set to SiLU after one of them, a Gate joining them, and a Linear Layer back to the original
 width. LSTMs, the recurrent networks that came before transformers, controlled their memory with gates like this.
 

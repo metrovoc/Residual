@@ -32,7 +32,7 @@ and writes, and the checkpoint slot, with what the checkpoint in it holds.
 
 The learning curve, the current numbers and the training settings. See [Training](training.md) for what each one
 means. **Params** counts the model's weights; **Grad norm** is the size of the last gradient; **Threads** is how many
-of your computer's threads the Core trains with.
+threads the Core trains with.
 
 ## Tests
 

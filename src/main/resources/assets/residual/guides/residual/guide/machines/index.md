@@ -7,7 +7,7 @@ navigation:
 
 # Machines
 
-Each machine performs one operation of a real model, with the same arithmetic as PyTorch. A machine takes its main
+Each machine performs one operation of a model, with the same arithmetic as PyTorch. A machine takes its main
 input on its back and, if it has one, its side input on any other face, and sends its result out of its front: see
 [Machines and Cables](../wiring.md). Right-click a machine to change its settings and see what it computes.
 

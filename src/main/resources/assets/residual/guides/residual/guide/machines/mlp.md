@@ -38,7 +38,7 @@ A sequence [B×T×C] in, the same shape out.
 ## Notes
 
 With Expand at 4, it holds two thirds of a transformer layer's weights. Interpretability research suggests
-these layers store much of what a model knows about the world (Geva et al., 2021; Meng et al., 2022).
+these layers store much of what a model knows about the world.
 
 ## Making it
 
