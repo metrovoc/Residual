@@ -6,7 +6,7 @@
   },
   "display": {
     "icon": {
-      "id": "residual:model_core"
+      "id": "residual:add"
     },
     "title": {
       "translate": "advancements.residual.root.title"

@@ -1774,7 +1774,7 @@ def block(faces, height, glow=(), ss=4):
 def junction(height):
     """The mod's mark: the Residual Junction, its glyph lit."""
     front, side = operator_faces("add")
-    return block({"top": side.im, "left": front.im, "right": side.im}, height, set(TEAL))
+    return block({"top": side.im, "left": side.im, "right": front.im}, height, set(TEAL))
 
 
 def logo(scale=8):

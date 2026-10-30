@@ -1,7 +1,7 @@
 ---
 navigation:
   title: Residual
-  icon: model_core
+  icon: add
   position: 0
 ---
 

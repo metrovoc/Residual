@@ -394,7 +394,7 @@ def placed(block):
 def advancements():
     write(f"data/{NS}/advancement/root.json", {
         "criteria": {"joined": {"trigger": "minecraft:tick"}},
-        "display": {"icon": {"id": rid("model_core")}, "title": {"translate": "advancements.residual.root.title"},
+        "display": {"icon": {"id": rid("add")}, "title": {"translate": "advancements.residual.root.title"},
                     "description": {"translate": "advancements.residual.root.description"},
                     "background": "minecraft:block/tuff_bricks", "show_toast": False, "announce_to_chat": False},
         "requirements": [["joined"]]})

@@ -21,7 +21,7 @@ public final class ModTabs {
 
     public static final Supplier<CreativeModeTab> MAIN = TABS.register("main", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.residual"))
-            .icon(() -> new ItemStack(ModBlocks.CORE.get()))
+            .icon(() -> new ItemStack(ModItems.MACHINES.get(Op.ADD).get()))
             .displayItems((params, out) -> {
                 out.accept(ModBlocks.CORE.get());
                 out.accept(ModBlocks.ACCELERATOR.get());
