@@ -107,6 +107,8 @@ dependencies {
 test {
     useJUnitPlatform()
     maxHeapSize = '2G'
+    // the tests run in the game's folder; TranslationsTest reads the sources
+    systemProperty 'residual.resources', file('src/main/resources').absolutePath
     testLogging {
         events 'failed'
         exceptionFormat 'full'

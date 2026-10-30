@@ -131,6 +131,7 @@ import org.slf4j.Logger;
  * sneak on|off               hold the sneak key, to place blocks against machines and turn them (flying, it sinks)
  * hud on|off
  * gui SCALE                  set the GUI scale (0 = auto)
+ * lang CODE                  switch the game's language (zh_cn) and reload; every script starts in en_us
  * blueprint NAME X Y Z FACING  place a Model Core and build a reference model in front of it, as a player would
  *                            (bigram, context, recall, reverse, induction, gpt, gpt32)
  * shot NAME                  save screenshots/NAME.png in the game directory
@@ -283,6 +284,19 @@ public final class Rehearsal {
         mc.options.tutorialStep = TutorialSteps.NONE;
         mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0);
         mc.options.save();
+        language(mc, "en_us");
+    }
+
+    private static void language(Minecraft mc, String code) {
+        if (code.equals(mc.options.languageCode)) {
+            return;
+        }
+        mc.options.languageCode = code;
+        mc.getLanguageManager().setSelected(code);
+        mc.options.save();
+        mc.reloadResourcePacks();
+        // the reload's overlay holds the script from the next tick on
+        waiting = 1;
     }
 
     /**
@@ -425,6 +439,7 @@ public final class Rehearsal {
                 mc.options.guiScale().set(Integer.parseInt(arg));
                 mc.resizeGui();
             }
+            case "lang" -> language(mc, arg);
             case "blueprint" -> blueprint(mc, args);
             case "shot" -> Screenshot.grab(mc.gameDirectory, arg + ".png", mc.getMainRenderTarget(), 1,
                     message -> LOG.info("[rehearsal] {}", message.getString()));
