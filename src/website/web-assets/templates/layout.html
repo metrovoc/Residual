@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{PAGE_TITLE_TEXT}}</title>
+    {{GUIDEME_STYLESHEETS}}
+    {{EXTRA_HEAD}}
+    <style>
+        .logo > img { height: 32px; }
+        .notice {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: .25rem 1rem;
+            margin-bottom: 1rem;
+            padding: .5rem .75rem;
+            font-size: 16px;
+            background-color: #00000040;
+            border-left: calc(1px * var(--gui-scale)) solid #ffb547;
+        }
+        .notice strong { color: #ffb547; }
+        .notice nav { display: flex; gap: 1rem; margin-left: auto; }
+    </style>
+</head>
+<body data-path-to-root="{{RELATIVE_PATH_TO_ROOT}}">
+
+<main>
+<div class="topLogoBar">
+    <a href="{{HOME_URL}}" class="logo">
+        <img src="{{LOGO_URL}}" alt="" />
+        {{GUIDE_TITLE}}
+    </a>
+    <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
+    <a
+            role="button"
+            class="navbar-burger"
+            aria-label="menu"
+    >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    </a>
+</div>
+<div class="page-title"><h1>{{PAGE_TITLE}}</h1></div>
+<aside>
+    <span class="search-slot"></span>
+    {{GUIDE_NAVBAR}}
+</aside>
+<article>
+    <div class="notice">
+        <span><strong>Alpha.</strong> Expect breaking changes and major bugs. Your
+            <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
+        <nav>
+            <a href="https://github.com/metrovoc/Residual/releases">Download</a>
+            <a href="https://github.com/metrovoc/Residual">GitHub</a>
+        </nav>
+    </div>
+    <div id="page-content">
+        {{PAGE_CONTENT}}
+    </div>
+</article>
+{{FOOTER}}
+</main>
+{{GUIDEME_SCRIPTS}}
+</body>
+</html>

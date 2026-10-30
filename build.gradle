@@ -158,6 +158,9 @@ tasks.register('guideWebsite', JavaExec) {
     mainClass = 'guideme.web.WebSiteGenerator'
     // its logs go here rather than into the project
     workingDir = temporaryDir
+    // src/website holds the page template, which adds the alpha notice to every page, and the logo
     args '--data', file('build/guideExport').absolutePath,
-            '--output', layout.buildDirectory.dir('guideWebsite').get().asFile.absolutePath, '--clean', '--title', mod_name
+            '--output', layout.buildDirectory.dir('guideWebsite').get().asFile.absolutePath, '--clean', '--title', mod_name,
+            '--web-assets', file('src/website/web-assets').absolutePath, '--logo', file('src/website/logo.png').absolutePath,
+            '--site-url', 'https://metrovoc.github.io', '--base-path', '/Residual/'
 }
