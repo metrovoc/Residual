@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://metrovoc.github.io/Residual/sitemap.xml
