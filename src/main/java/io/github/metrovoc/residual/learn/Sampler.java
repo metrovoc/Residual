@@ -161,21 +161,22 @@ public final class Sampler {
     }
 
     /**
-     * Runs one crop ahead: the end of a made-up field's record and the first stretch of its next crop's line are given,
-     * the model draws the rest a look at a time from its own probabilities, and the note shows how the crop really
-     * went on.
+     * Runs one block ahead: the end of a made-up record and the first stretch of its next line, a crop's or a
+     * machine's, are given, the model draws the rest a look at a time from its own probabilities, and the note shows
+     * how the block really went on.
      */
     private static Demo forecast(CompiledGraph model, Random rng) {
         Vocab vocab = model.env.tokenizer();
         double chance = Growth.chance(rng);
         StringBuilder field = new StringBuilder();
         while (field.length() < Vocab.CONTEXT) {
-            field.append(Growth.life(rng, chance)).append('\n');
+            field.append(rng.nextBoolean() ? Growth.life(rng, chance) : Growth.work(rng, Growth.cook(rng))).append('\n');
         }
-        String life = Growth.life(rng, chance);
+        String life = rng.nextBoolean() ? Growth.life(rng, chance) : Growth.work(rng, Growth.cook(rng));
         int cut = Math.min(life.length() - 1, 20 + rng.nextInt(30));
         String given = (field + life.substring(0, cut)).substring(field.length() + cut - Vocab.CONTEXT);
-        List<Step> steps = generate(model, vocab.encode(given), Math.min(60, life.length() - cut), 1f, rng);
+        // a look is one token whatever the tokenizer, as the Forecaster reads it
+        List<Step> steps = generate(model, vocab.spell(given), Math.min(60, life.length() - cut), 1f, rng);
         StringBuilder out = new StringBuilder(given);
         for (Step s : steps) {
             String piece = vocab.piece(s.token());

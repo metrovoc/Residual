@@ -44,7 +44,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private static final int[] TEMPERATURE_VALUES = {0, 50, 80, 100, 150};
     private static Tab lastTab = Tab.DATA;
     private static int lastTemperature = 2;
-    private static Benchmark lastBenchmark = Benchmark.REACTING;
+    private static Benchmark lastBenchmark = Benchmark.FORECASTING;
 
     private Tab tab = lastTab;
     private int scroll;

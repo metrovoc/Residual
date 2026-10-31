@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.learn.Forecast;
+import io.github.metrovoc.residual.learn.Forecast.Kind;
 import io.github.metrovoc.residual.learn.Growth;
 import io.github.metrovoc.residual.menu.ForecasterMenu;
 import io.github.metrovoc.residual.model.ModelInfo;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -42,7 +44,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -50,27 +56,37 @@ import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Watches the crops around it and writes down what they do: every {@link Growth#OBSERVE} ticks it looks at each one,
- * and a crop's line grows by a look until it has been seen ripe a few times. Only growth the game's own random ticks
- * made counts; a crop harvested, trampled or fed bone meal starts a new line. With a model whose growth matches what
- * it watched, it runs the field ahead: after each look it draws every crop's next few looks from the model and makes
- * them so.
+ * Watches the blocks around it that make progress and writes down what they do, a line per block. It looks at each
+ * crop every {@link Growth#OBSERVE} ticks, and only growth the game's own random ticks made counts; a crop harvested,
+ * trampled or fed bone meal starts a new line. It looks at each furnace, smoker, blast furnace and brewing stand eight
+ * times an item. With a model whose forecasts match what a kind of block did, it runs those blocks ahead: crops grow
+ * to the ages the model draws, and machines work through the progress the model draws.
  */
 public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     public static final int LOG = 0, MODEL = 1, SLOTS = 2;
     public static final int RADIUS = 4, SIDE = 2 * RADIUS + 1;
-    /** Its first look comes a second after it loads, then one every {@link Growth#OBSERVE} ticks. */
+    /** Its first look at crops comes a second after it loads, then one every {@link Growth#OBSERVE} ticks. */
     private static final int FIRST_LOOK = 20;
+    /** How often it looks for machines come and gone, and writes down what it watched. */
+    private static final int SURVEY = 20;
+    /** A brewing stand's brew, in ticks. */
+    private static final int BREW = 400;
+    /** Container data per kind of block: how many it watches, progress seen, the model's fit, and its phase. */
+    public static final int COUNT = 0, GROWN = 1, RATIO = 2, AHEAD = 3, PHASE = 4, PER_KIND = 5;
     /** What its screen shows, as container data: four map cells or sixteen flashes to a value. */
-    public static final int STATE = 0, PROBLEM = 1, CROPS = 2, GROWN = 3, RATIO = 4, AHEAD = 5, SEEN = 6,
-            EXPECTS = SEEN + Growth.RIPE, MAP = EXPECTS + Growth.RIPE, FLASH = MAP + (SIDE * SIDE + 3) / 4,
-            DATA = FLASH + (SIDE * SIDE + 15) / 16;
+    public static final int STATE = 0, PROBLEM = 1, KINDS = 2, SEEN = KINDS + PER_KIND * 2, EXPECTS = SEEN + Growth.RIPE + Growth.EIGHTHS,
+            MAP = EXPECTS + Growth.RIPE + Growth.EIGHTHS, FLASH = MAP + (SIDE * SIDE + 3) / 4, DATA = FLASH + (SIDE * SIDE + 15) / 16;
+    /** Map cells: nothing, a crop's age plus one, an idle machine, a working one. */
+    public static final int IDLE_MACHINE = Growth.RIPE + 2, WORKING_MACHINE = IDLE_MACHINE + 1;
     /** Why there is no model to run, in the order {@link #PROBLEM} counts them. */
     public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.unbound",
             "residual.model.out_of_range", "residual.model.no_server", "residual.model.server_empty", "residual.model.too_big",
             "residual.model.failed");
 
-    public enum State { NO_CROPS, WATCHING, NO_MODEL, PEEKS, CHECKING, REFUSED, AHEAD }
+    public enum State { NOTHING, WATCHING, NO_MODEL, PEEKS, READY }
+
+    /** Where a model stands with one kind of block. */
+    public enum Phase { NONE, WATCHING, CHECKING, REFUSED, AHEAD }
 
     /** Forecasters in loaded chunks, told about every crop that grows by itself. */
     private static final Set<ForecasterBlockEntity> LOADED = new HashSet<>();
@@ -97,6 +113,37 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
+    /** A machine's line waiting for a forecast, as it stood after its {@code looks}th look. */
+    private record Due(String line, int looks) {
+    }
+
+    /** One machine's line so far, its own clock, and the ticks a model's forecast has earned it. */
+    private static final class Machine {
+        final StringBuilder line = new StringBuilder();
+        final int every;
+        int next;
+        /** Looks taken so far, so a forecast that comes back after a newer look is not written into the line. */
+        int looks;
+        /** Its line holds looks a model drew, so it is never written down. */
+        boolean drawn;
+        int budget;
+        int pace;
+
+        Machine(int every, int next) {
+            this.every = every;
+            this.next = next;
+        }
+
+        char last() {
+            return line.isEmpty() ? Growth.IDLE : line.charAt(line.length() - 1);
+        }
+
+        boolean ended() {
+            int n = line.length();
+            return n >= 2 && line.charAt(n - 1) == Growth.IDLE && line.charAt(n - 2) == Growth.IDLE;
+        }
+    }
+
     private final SimpleContainer items = new SimpleContainer(SLOTS) {
         @Override
         public void setChanged() {
@@ -105,6 +152,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         }
     };
     private final Map<Long, Watch> watches = new HashMap<>();
+    private final Map<Long, Machine> machines = new HashMap<>();
     /** Natural growth since the last look, by packed position. */
     private final Long2IntOpenHashMap grown = new Long2IntOpenHashMap();
     /** Every line it wrote down, oldest first, at most {@link FieldLogItem#CAPACITY} characters. */
@@ -114,20 +162,26 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
      * the crops that happened to grow fastest, since those finish first.
      */
     private String watched = "";
-    private int watchedGrowth;
-    private float[] seen = Forecast.seen("");
-    private State state = State.NO_CROPS;
+    private final int[] watchedGrowth = new int[Kind.values().length];
+    private final float[][] seen = {Forecast.seen("", Kind.CROPS), Forecast.seen("", Kind.MACHINES)};
+    private final Phase[] phases = {Phase.NONE, Phase.NONE};
+    private State state = State.NOTHING;
     private int problem;
     @Nullable
     private Forecast.Check check;
     @Nullable
     private ModelInfo checkedModel;
-    private int checkedGrowth = -1;
+    private final int[] checkedGrowth = {-1, -1};
     private boolean busy;
     private int askedAt;
     /** Which request it waits to hear about; an answer to an older one is ignored. */
     private int request;
     private int ticks;
+    /** Crops due to be run ahead, and machines waiting for a forecast. */
+    private boolean cropsDue;
+    private final Map<Long, Due> due = new LinkedHashMap<>();
+    @Nullable
+    private ModelLink link;
     private final BitSet flashed = new BitSet(SIDE * SIDE);
     private final int[] map = new int[SIDE * SIDE];
     private final Random rng = new Random();
@@ -149,18 +203,32 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
                 }
                 return packed;
             }
-            if (i >= SEEN && i < MAP) {
-                float[] rates = i < EXPECTS ? seen : check == null ? null : check.expects();
-                float r = rates == null ? Float.NaN : rates[(i - SEEN) % Growth.RIPE];
-                return Float.isNaN(r) ? -1 : Math.min(Short.MAX_VALUE, Math.round(r * 10_000));
+            if (i >= SEEN) {
+                boolean expects = i >= EXPECTS;
+                int at = i - (expects ? EXPECTS : SEEN);
+                Kind kind = at < Growth.RIPE ? Kind.CROPS : Kind.MACHINES;
+                int place = kind == Kind.CROPS ? at : at - Growth.RIPE;
+                float[] rates = !expects ? seen[kind.ordinal()] : check == null ? null : check.of(kind).expects();
+                float r = rates == null ? Float.NaN : rates[place];
+                return Float.isNaN(r) ? -1 : Math.clamp(Math.round(r * 10_000), Short.MIN_VALUE + 1, Short.MAX_VALUE);
+            }
+            if (i >= KINDS) {
+                Kind kind = Kind.values()[(i - KINDS) / PER_KIND];
+                int k = kind.ordinal();
+                return switch ((i - KINDS) % PER_KIND) {
+                    case COUNT -> kind == Kind.CROPS ? watches.size() : machines.size();
+                    case GROWN -> Math.clamp(watchedGrowth[k], 0, Short.MAX_VALUE);
+                    case RATIO -> {
+                        double r = check == null ? Double.NaN : check.of(kind).ratio();
+                        yield Double.isNaN(r) ? -1 : (int) Math.min(Short.MAX_VALUE, Math.round(r * 1000));
+                    }
+                    case AHEAD -> phases[k] == Phase.AHEAD && check != null ? check.of(kind).ahead() : 0;
+                    default -> phases[k].ordinal();
+                };
             }
             return switch (i) {
                 case STATE -> state.ordinal();
                 case PROBLEM -> problem;
-                case CROPS -> watches.size();
-                case GROWN -> Math.min(Short.MAX_VALUE, watchedGrowth);
-                case RATIO -> check == null || Double.isNaN(check.ratio()) ? -1 : (int) Math.min(Short.MAX_VALUE, Math.round(check.ratio() * 1000));
-                case AHEAD -> state == State.AHEAD && check != null ? check.ahead() : 0;
                 default -> 0;
             };
         }
@@ -225,50 +293,103 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             busy = false;
             request++;
         }
-        if (ticks % Growth.OBSERVE != FIRST_LOOK) {
-            return;
+        boolean crops = ticks % Growth.OBSERVE == FIRST_LOOK;
+        if (crops) {
+            lookAtCrops(level);
         }
-        look(level);
-        if (watches.isEmpty()) {
-            show(State.NO_CROPS);
-            return;
+        if (ticks % SURVEY == 0) {
+            survey(level);
         }
-        ModelLink link = ModelLink.of(level, worldPosition, items.getItem(MODEL));
-        if (link instanceof ModelLink.Missing m) {
-            problem = Math.max(0, PROBLEMS.indexOf(m.problem()));
-            check = null;
-            show(items.getItem(MODEL).isEmpty() ? State.WATCHING : State.NO_MODEL);
-            return;
+        lookAtMachines(level);
+        run(level);
+        if (crops || ticks % SURVEY == 0) {
+            if (crops || ticks % (SURVEY * 5) == 0) {
+                watched(capped(record + open()));
+            }
+            decide(level);
         }
-        ModelInfo info = link.info();
-        if (!info.causal()) {
-            show(State.PEEKS);
-            return;
-        }
-        if (watchedGrowth < Forecast.MIN_GROWTH) {
-            show(State.WATCHING);
-            return;
-        }
-        if (busy) {
-            return;
-        }
-        // a field still being watched keeps changing: check a model again only once it has grown a good deal more
-        boolean stale = !info.equals(checkedModel) || state != State.AHEAD && watchedGrowth >= checkedGrowth + Forecast.MIN_GROWTH / 4;
-        if (stale) {
-            String text = watched;
-            int growth = watchedGrowth;
-            submit(level, link, model -> Forecast.check(model, text), result -> checked(info, growth, result));
-            show(State.CHECKING);
-        } else if (state == State.AHEAD && check != null) {
-            ahead(level, link, check.ahead() - 1);
+        if (!busy && link != null && !(link instanceof ModelLink.Missing)) {
+            work(level, link);
         }
     }
 
+    /** Settles what it can do with the model it holds, and with each kind of block. */
+    private void decide(ServerLevel level) {
+        boolean anything = !watches.isEmpty() || !machines.isEmpty();
+        link = anything ? ModelLink.of(level, worldPosition, items.getItem(MODEL)) : null;
+        ModelInfo info = link == null ? null : link.info();
+        boolean usable = info != null && info.causal();
+        if (!usable) {
+            check = null;
+            due.clear();
+        }
+        for (Kind kind : Kind.values()) {
+            int k = kind.ordinal();
+            if (kind == Kind.CROPS ? watches.isEmpty() : machines.isEmpty()) {
+                phases[k] = Phase.NONE;
+            } else if (!usable || phases[k] == Phase.NONE) {
+                phases[k] = Phase.WATCHING;
+            }
+            // otherwise it keeps what the last check said until the model changes, or that a check is under way
+        }
+        if (!anything) {
+            show(State.NOTHING);
+        } else if (link instanceof ModelLink.Missing m) {
+            problem = Math.max(0, PROBLEMS.indexOf(m.problem()));
+            show(items.getItem(MODEL).isEmpty() ? State.WATCHING : State.NO_MODEL);
+        } else {
+            show(usable ? State.READY : State.PEEKS);
+        }
+    }
+
+    /** Hands the model its next job: a check that is due, crops to run ahead, then machines waiting for a forecast. */
+    private void work(ServerLevel level, ModelLink link) {
+        ModelInfo info = link.info();
+        if (state != State.READY || info == null) {
+            return;
+        }
+        if (stale(info)) {
+            String text = watched;
+            int[] growth = watchedGrowth.clone();
+            for (Kind kind : Kind.values()) {
+                if (growth[kind.ordinal()] >= Forecast.MIN_GROWTH) {
+                    phases[kind.ordinal()] = Phase.CHECKING;
+                }
+            }
+            submit(level, link, model -> Forecast.check(model, text), result -> checked(info, growth, result));
+        } else if (cropsDue) {
+            cropsDue = false;
+            if (phases[Kind.CROPS.ordinal()] == Phase.AHEAD && check != null) {
+                aheadCrops(level, link, check.crops().ahead() - 1);
+            }
+        } else if (!due.isEmpty()) {
+            aheadMachines(level, link);
+        }
+    }
+
+    /**
+     * A model is checked again when it changes, and a kind of block it was not trusted with is checked again each time
+     * those blocks have moved a good deal more: they keep changing while they are watched.
+     */
+    private boolean stale(ModelInfo info) {
+        boolean ready = false;
+        for (Kind kind : Kind.values()) {
+            int k = kind.ordinal();
+            if (watchedGrowth[k] < Forecast.MIN_GROWTH) {
+                continue;
+            }
+            ready = true;
+            if (phases[k] != Phase.AHEAD && watchedGrowth[k] >= checkedGrowth[k] + Forecast.MIN_GROWTH / 4) {
+                return true;
+            }
+        }
+        return ready && !info.equals(checkedModel);
+    }
+
     /** Looks at every crop around it once. */
-    private void look(ServerLevel level) {
-        Set<Long> seen = new HashSet<>();
+    private void lookAtCrops(ServerLevel level) {
+        Set<Long> seenHere = new HashSet<>();
         flashed.clear();
-        Arrays.fill(map, 0);
         for (int dy = 1; dy >= -1; dy--) {
             for (int dz = -RADIUS; dz <= RADIUS; dz++) {
                 for (int dx = -RADIUS; dx <= RADIUS; dx++) {
@@ -279,11 +400,8 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
                         continue;
                     }
                     long key = p.asLong();
-                    seen.add(key);
-                    int age = crop.getAge(s), cell = (dz + RADIUS) * SIDE + dx + RADIUS;
-                    if (map[cell] == 0) {
-                        map[cell] = age + 1;
-                    }
+                    seenHere.add(key);
+                    int age = crop.getAge(s);
                     Watch w = watches.get(key);
                     if (w == null || w.age + grown.get(key) != age) {
                         if (w != null) {
@@ -300,26 +418,156 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
         watches.entrySet().removeIf(e -> {
-            if (!seen.contains(e.getKey())) {
+            if (!seenHere.contains(e.getKey())) {
                 close(e.getValue());
                 return true;
             }
             return false;
         });
         grown.clear();
+        cropsDue = true;
+        setChanged();
+    }
+
+    /** Finds the machines around it, and draws them and the crops on its map. */
+    private void survey(ServerLevel level) {
+        Arrays.fill(map, 0);
+        Set<Long> here = new HashSet<>();
+        for (int dy = 1; dy >= -1; dy--) {
+            for (int dz = -RADIUS; dz <= RADIUS; dz++) {
+                for (int dx = -RADIUS; dx <= RADIUS; dx++) {
+                    BlockPos p = worldPosition.offset(dx, dy, dz);
+                    int cell = (dz + RADIUS) * SIDE + dx + RADIUS;
+                    BlockState s = level.getBlockState(p);
+                    if (s.getBlock() instanceof CropBlock crop && crop.getMaxAge() == Growth.RIPE) {
+                        if (map[cell] == 0) {
+                            map[cell] = crop.getAge(s) + 1;
+                        }
+                        continue;
+                    }
+                    if (!level.isLoaded(p) || !(level.getBlockEntity(p) instanceof BlockEntity be) || cook(be) < 0) {
+                        continue;
+                    }
+                    long key = p.asLong();
+                    here.add(key);
+                    flashed.clear(cell);
+                    Machine m = machines.computeIfAbsent(key, k -> new Machine(Growth.every(cook(be)), ticks + 1));
+                    map[cell] = Math.max(map[cell], m.last() != Growth.IDLE || timer(be) > 0 ? WORKING_MACHINE : IDLE_MACHINE);
+                }
+            }
+        }
+        machines.keySet().removeIf(key -> {
+            if (!here.contains(key)) {
+                close(machines.get(key));
+                due.remove(key);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /** Looks at every machine whose look is due: its progress through the item it is making. */
+    private void lookAtMachines(ServerLevel level) {
+        machines.forEach((key, m) -> {
+            if (ticks < m.next) {
+                return;
+            }
+            m.next = ticks + m.every;
+            if (!(level.getBlockEntity(BlockPos.of(key)) instanceof BlockEntity be) || cook(be) < 0) {
+                return;
+            }
+            m.line.append(Growth.progress(timer(be), cook(be)));
+            m.looks++;
+            if (m.ended()) {
+                close(m);
+                m.line.setLength(0);
+                m.drawn = false;
+                m.line.append(Growth.IDLE);
+            }
+            if (phases[Kind.MACHINES.ordinal()] == Phase.AHEAD && check != null) {
+                due.put(key, new Due(m.line.toString(), m.looks));
+            }
+        });
+    }
+
+    /** Spends the ticks each machine's forecast earned it, a few a tick, so it runs that much faster. */
+    private void run(ServerLevel level) {
+        machines.forEach((key, m) -> {
+            if (m.budget <= 0) {
+                return;
+            }
+            BlockPos p = BlockPos.of(key);
+            BlockEntity be = level.getBlockEntity(p);
+            int spend = Math.min(m.budget, m.pace);
+            m.budget -= spend;
+            if (be == null || cook(be) < 0) {
+                m.budget = 0;
+                return;
+            }
+            for (int i = 0; i < spend; i++) {
+                tickOnce(level, p, be);
+            }
+            if (ticks % 4 == 0) {
+                level.sendParticles(ParticleTypes.ELECTRIC_SPARK, p.getX() + 0.5, p.getY() + 1.05, p.getZ() + 0.5, 1, 0.3, 0.05, 0.3, 0);
+            }
+            flashed.set((p.getZ() - worldPosition.getZ() + RADIUS) * SIDE + p.getX() - worldPosition.getX() + RADIUS);
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void tickOnce(ServerLevel level, BlockPos p, BlockEntity be) {
+        BlockState s = level.getBlockState(p);
+        BlockEntityTicker<BlockEntity> ticker = (BlockEntityTicker<BlockEntity>) s.getTicker(level, be.getType());
+        if (ticker != null) {
+            ticker.tick(level, p, s, be);
+        }
+    }
+
+    /** Ticks an item takes in a machine it can watch, or -1 for a block that is not one. */
+    private static int cook(BlockEntity be) {
+        if (be instanceof AbstractFurnaceBlockEntity furnace) {
+            int total = furnace.dataAccess.get(AbstractFurnaceBlockEntity.DATA_COOKING_TOTAL_TIME);
+            return total > 0 ? total : be.getType() == BlockEntityType.FURNACE ? 200 : 100;
+        }
+        return be instanceof BrewingStandBlockEntity ? BREW : -1;
+    }
+
+    /** How many ticks a machine is into the item it is making. */
+    private static int timer(BlockEntity be) {
+        if (be instanceof AbstractFurnaceBlockEntity furnace) {
+            return furnace.dataAccess.get(AbstractFurnaceBlockEntity.DATA_COOKING_PROGRESS);
+        }
+        if (be instanceof BrewingStandBlockEntity stand) {
+            int left = stand.dataAccess.get(BrewingStandBlockEntity.DATA_BREW_TIME);
+            return left > 0 ? BREW - left : 0;
+        }
+        return 0;
+    }
+
+    /** The lines it is still writing, crops' then machines', that hold only what the blocks did by themselves. */
+    private String open() {
         StringBuilder open = new StringBuilder();
         watches.values().forEach(w -> {
             if (!w.closed && kept(w)) {
                 open.append(w.line).append('\n');
             }
         });
-        watched(capped(record + open));
-        setChanged();
+        machines.values().forEach(m -> {
+            if (kept(m)) {
+                open.append(m.line).append('\n');
+            }
+        });
+        return open.toString();
     }
 
     /** A line is kept if it holds only what the crop did by itself, and saw it grow. */
     private static boolean kept(Watch w) {
         return !w.drawn && w.line.length() >= 2 && w.line.charAt(0) != '0' + Growth.RIPE;
+    }
+
+    /** A machine's line is kept if it ran at its own pace and worked at all. */
+    private static boolean kept(Machine m) {
+        return !m.drawn && m.line.chars().anyMatch(c -> c != Growth.IDLE);
     }
 
     /** Writes a crop's line down for good. */
@@ -330,6 +578,12 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         w.closed = true;
         if (kept(w)) {
             record = capped(record + w.line + "\n");
+        }
+    }
+
+    private void close(Machine m) {
+        if (kept(m)) {
+            record = capped(record + m.line + "\n");
         }
     }
 
@@ -344,32 +598,45 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
 
     private void watched(String text) {
         watched = text;
-        watchedGrowth = growth(text);
-        seen = Forecast.seen(text);
+        for (Kind kind : Kind.values()) {
+            watchedGrowth[kind.ordinal()] = Forecast.grown(text, kind);
+            seen[kind.ordinal()] = Forecast.seen(text, kind);
+        }
         ItemStack log = items.getItem(LOG);
         if (log.getItem() instanceof FieldLogItem && !text.equals(FieldLogItem.log(log))) {
             log.set(ModComponents.FIELD_LOG.get(), text);
         }
     }
 
-    private void checked(ModelInfo info, int growth, @Nullable Forecast.Check result) {
+    private void checked(ModelInfo info, int[] growth, @Nullable Forecast.Check result) {
         if (result == null) {
             problem = PROBLEMS.indexOf("residual.model.failed");
+            check = null;
             show(State.NO_MODEL);
             return;
         }
-        boolean was = state == State.AHEAD;
+        boolean was = phases[0] == Phase.AHEAD || phases[1] == Phase.AHEAD;
         check = result;
         checkedModel = info;
-        checkedGrowth = growth;
-        show(result.ahead() > 0 ? State.AHEAD : State.REFUSED);
-        if (!was && state == State.AHEAD && level instanceof ServerLevel server) {
+        for (Kind kind : Kind.values()) {
+            int k = kind.ordinal();
+            checkedGrowth[k] = growth[k];
+            if (growth[k] >= Forecast.MIN_GROWTH) {
+                phases[k] = result.of(kind).ahead() > 0 ? Phase.AHEAD : Phase.REFUSED;
+            }
+        }
+        boolean now = phases[0] == Phase.AHEAD || phases[1] == Phase.AHEAD;
+        if (!now) {
+            due.clear();
+        }
+        lit(now);
+        if (!was && now && level instanceof ServerLevel server) {
             server.playSound(null, worldPosition, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 0.6f, 1.6f);
         }
     }
 
     /** Draws the next {@code steps} looks of every growing crop from the model, and makes them so. */
-    private void ahead(ServerLevel level, ModelLink link, int steps) {
+    private void aheadCrops(ServerLevel level, ModelLink link, int steps) {
         List<Long> keys = new ArrayList<>();
         List<String> lines = new ArrayList<>();
         watches.forEach((key, w) -> {
@@ -385,12 +652,12 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         String field = watched;
         submit(level, link, model -> Forecast.ahead(model, field, lines, steps, new Random(seed)), drawn -> {
             if (drawn != null) {
-                made(level, keys, drawn);
+                grow(level, keys, drawn);
             }
         });
     }
 
-    private void made(ServerLevel level, List<Long> keys, String[] drawn) {
+    private void grow(ServerLevel level, List<Long> keys, String[] drawn) {
         int grew = 0;
         for (int i = 0; i < keys.size(); i++) {
             Watch w = watches.get(keys.get(i));
@@ -415,10 +682,67 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
         if (grew > 0) {
-            for (ServerPlayer player : level.players()) {
-                if (player.distanceToSqr(worldPosition.getCenter()) < 32 * 32) {
-                    Awards.grant(player, "forecast/ahead");
+            ahead(level);
+        }
+    }
+
+    /**
+     * Draws the next looks of every machine waiting for a forecast, and lets each run on through the progress drawn:
+     * a forecaster at ×4 draws three looks for every one the world takes.
+     */
+    private void aheadMachines(ServerLevel level, ModelLink link) {
+        if (check == null) {
+            due.clear();
+            return;
+        }
+        int steps = check.machines().ahead() - 1;
+        List<Long> keys = new ArrayList<>(due.keySet());
+        List<Due> sent = new ArrayList<>(due.values());
+        due.clear();
+        if (steps <= 0) {
+            return;
+        }
+        List<String> lines = sent.stream().map(Due::line).toList();
+        long seed = rng.nextLong();
+        String field = watched;
+        submit(level, link, model -> Forecast.ahead(model, field, lines, steps, new Random(seed)), drawn -> {
+            if (drawn == null) {
+                return;
+            }
+            boolean any = false;
+            for (int i = 0; i < keys.size(); i++) {
+                Machine m = machines.get(keys.get(i));
+                String line = sent.get(i).line();
+                if (m == null || line.isEmpty()) {
+                    continue;
                 }
+                if (!m.drawn) {
+                    // what it did by itself so far is written down; from here on its line holds the model's looks
+                    close(m);
+                    m.line.setLength(0);
+                    m.line.append(line.charAt(line.length() - 1));
+                    m.drawn = true;
+                }
+                if (m.looks == sent.get(i).looks()) {
+                    // the model reads on from its own looks, so its context keeps the pace it was trained on
+                    m.line.append(drawn[i]);
+                }
+                int eighths = Forecast.made(line.charAt(line.length() - 1), drawn[i]);
+                m.budget += eighths * m.every;
+                m.pace = steps;
+                any |= eighths > 0;
+            }
+            if (any) {
+                ahead(level);
+            }
+        });
+    }
+
+    /** Players nearby have seen a Forecaster run blocks ahead. */
+    private void ahead(ServerLevel level) {
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(worldPosition.getCenter()) < 32 * 32) {
+                Awards.grant(player, "forecast/ahead");
             }
         }
     }
@@ -445,6 +769,13 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         busy = false;
         check = null;
         checkedModel = null;
+        due.clear();
+        for (Kind kind : Kind.values()) {
+            if (phases[kind.ordinal()] != Phase.NONE) {
+                phases[kind.ordinal()] = Phase.WATCHING;
+            }
+        }
+        lit(false);
         ItemStack log = items.getItem(LOG);
         if (log.getItem() instanceof FieldLogItem && !watched.equals(FieldLogItem.log(log))) {
             log.set(ModComponents.FIELD_LOG.get(), watched);
@@ -454,7 +785,10 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
 
     private void show(State s) {
         state = s;
-        boolean on = s == State.AHEAD;
+        lit(s == State.READY && (phases[0] == Phase.AHEAD || phases[1] == Phase.AHEAD));
+    }
+
+    private void lit(boolean on) {
         BlockState here = getBlockState();
         if (level != null && here.getValue(ForecasterBlock.WORKING) != on) {
             level.setBlock(worldPosition, here.setValue(ForecasterBlock.WORKING, on), Block.UPDATE_CLIENTS);
@@ -492,16 +826,9 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         in.child("items").ifPresent(c -> ContainerHelper.loadAllItems(c, items.getItems()));
         record = in.getStringOr("record", "");
         watched = record;
-        watchedGrowth = growth(record);
-        seen = Forecast.seen(record);
-    }
-
-    /** How many ages the crops in a record grew in all: a line's last age less its first. */
-    private static int growth(String record) {
-        int sum = 0;
-        for (String line : record.split("\n")) {
-            sum += line.isEmpty() ? 0 : line.charAt(line.length() - 1) - line.charAt(0);
+        for (Kind kind : Kind.values()) {
+            watchedGrowth[kind.ordinal()] = Forecast.grown(record, kind);
+            seen[kind.ordinal()] = Forecast.seen(record, kind);
         }
-        return sum;
     }
 }

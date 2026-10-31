@@ -11,12 +11,6 @@ import java.util.Random;
  * formats, so practice, test and work are one thing.
  */
 public final class Dataset extends Task {
-    /** A plot's state is how far its crop has grown, {@code 0} to {@link #RIPE}, or {@link #BARE} for empty farmland. */
-    public static final char RIPE = '7';
-    public static final char BARE = '.';
-    public static final char HARVEST = 'h';
-    public static final char WAIT = 'w';
-    public static final char PLANT = 'p';
     /** Kinds of goods in a storage question, and the chests they can be in. */
     public static final String GOODS = "abcdefghijklmnop";
     public static final String CHESTS = "0123456789";
@@ -42,11 +36,6 @@ public final class Dataset extends Task {
         return DATASETS.computeIfAbsent(benchmark, Dataset::new);
     }
 
-    /** What a perfect farmer does with a plot in state {@code plot}. */
-    public static char decide(char plot) {
-        return plot == RIPE ? HARVEST : plot == BARE ? PLANT : WAIT;
-    }
-
     @Override
     public Batch batch(Random rng, int count, boolean test) {
         int t = context;
@@ -57,7 +46,6 @@ public final class Dataset extends Task {
             int[] seq = new int[t + 1];
             boolean[] answer = new boolean[t + 1];
             switch (benchmark) {
-                case REACTING -> field(rng, seq, answer);
                 case FORECASTING -> growth(rng, seq, answer);
                 case RECALL -> storage(rng, seq, answer);
                 case REVERSAL -> errand(rng, seq, answer);
@@ -76,30 +64,18 @@ public final class Dataset extends Task {
         return new Batch(new Tokens(in, count, t), tg, w);
     }
 
-    /** {@code 3w7h.p5w…}: each plot's state, then what to do with it. */
-    private void field(Random rng, int[] seq, boolean[] answer) {
-        for (int i = 0; i < seq.length; i += 2) {
-            float r = rng.nextFloat();
-            char plot = r < 0.3f ? RIPE : r < 0.8f ? (char) ('0' + rng.nextInt(7)) : BARE;
-            seq[i] = vocab.id(plot);
-            if (i + 1 < seq.length) {
-                seq[i + 1] = vocab.id(decide(plot));
-                answer[i + 1] = true;
-            }
-        }
-    }
-
     /**
-     * {@code 0000111…77⏎00…}: the crops of one field, each one's age at every look, a line per crop, starting anywhere.
-     * Fields come from the benchmark's mix, so how fast the crops before grew tells how fast the next one will. Scored
-     * on every look that follows another of the same crop.
+     * {@code 0000111…77⏎abcdefghab…aa⏎}: what a Forecaster beside a field and its machines writes, a line per block,
+     * starting anywhere. Half the lines are the field's crops, each one's age at every look; the field comes from the
+     * benchmark's mix, so how fast the crops before grew tells how fast the next one will. The other half are machines,
+     * each one's progress through its items. Scored on every look that follows another of the same block.
      */
     private void growth(Random rng, int[] seq, boolean[] answer) {
         double chance = Growth.chance(rng);
         StringBuilder text = new StringBuilder();
         int start = rng.nextInt(200);
         while (text.length() < start + seq.length) {
-            text.append(Growth.life(rng, chance)).append('\n');
+            text.append(rng.nextBoolean() ? Growth.life(rng, chance) : Growth.work(rng, Growth.cook(rng))).append('\n');
         }
         for (int i = 0; i < seq.length; i++) {
             char c = text.charAt(start + i);

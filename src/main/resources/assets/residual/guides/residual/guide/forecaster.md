@@ -2,20 +2,21 @@
 navigation:
   title: The Forecaster
   icon: forecaster
-  position: 85
+  position: 15
 item_ids:
   - forecaster
   - field_log
-  - growth_dataset
+  - forecast_dataset
 ---
 
 # The Forecaster
 
 <BlockImage id="forecaster" scale="3" float="left" />
 
-The <ItemLink id="forecaster" /> watches the crops around it and writes down what they do. Give it a model that has
-learned how crops grow, and if the model's forecasts match the field, it runs the field ahead: it draws each crop's
-next looks from the model and makes them so.
+The <ItemLink id="forecaster" /> watches the blocks around it that make progress and writes down what they do:
+furnaces, smokers, blast furnaces, brewing stands and crops. Give it a model that has learned what such blocks do next,
+and if the model's forecasts match what happened, it runs them ahead: it draws their next looks from the model and
+makes them so.
 
 <br clear="all" />
 
@@ -23,52 +24,77 @@ next looks from the model and makes them so.
 
 ## Watching
 
-Every twenty seconds the Forecaster looks at every crop within four blocks of it, on its own level and one above or
-below: wheat, carrots, potatoes, and any crop that grows through the same seven ages. Each crop gets a line: its age at
-every look, from 0 when planted to 7 when ripe, ending once it has been seen ripe twice.
+It watches everything within four blocks of it, on its own level or one above or below, and writes a line for each
+block.
+
+**Machines.** It looks at each furnace, smoker, blast furnace and brewing stand eight times an item, and writes down
+how far through its item it is: `a` when it has just begun, up to `h` at seven eighths. A furnace at work writes
+
+`abcdefghabcdefghabcdefgh`
+
+and a line ends once its machine has been seen idle twice: `aa`. A smoker cooks twice as fast as a furnace and is
+looked at twice as often, so its line reads the same, give or take a letter. A furnace that runs out of fuel halfway
+through an item cools back down, two ticks for every tick, and its line steps back: `abcdefdbaa`.
+
+**Crops.** Every twenty seconds it looks at every crop: wheat, carrots, potatoes, and any crop that grows through the
+same seven ages. A crop's line is its age at every look, from 0 when planted to 7 when ripe, ending once it has been
+seen ripe twice.
 
 `00000011111111122222223333333334444445555555666666677`
 
-Only growth a crop made by itself counts. A crop that is harvested, trampled or fed bone meal starts a new line, so
-its lines only ever hold what the field really does. Put a <ItemLink id="field_log" /> in the **Log** slot to keep a
-copy.
+Only what a block did by itself counts. A crop that is harvested, trampled or fed bone meal starts a new line, so its
+lines only ever hold what the field really does. Put a <ItemLink id="field_log" /> in the **Log** slot to keep a copy.
 
 <RecipeFor id="field_log" />
 
-## A model of a field
+## A model of the blocks
 
 A model that has learned what happens next is a model of its world, and the Forecaster asks for nothing more. Train
-one on Forecasting at a [Model Core](core.md): the <ItemLink id="growth_dataset" /> holds the lines of many fields.
+one on Forecasting at a [Model Core](core.md): the <ItemLink id="forecast_dataset" /> holds the lines of many fields and
+machines.
 
-<RecipeFor id="growth_dataset" />
+<RecipeFor id="forecast_dataset" />
 
-How fast a crop grows depends on its field: wet farmland or dry, in tidy rows or crowded. A model that learned from
-many fields expects the growth of an average one. That is close enough on some fields and far off on others.
+A machine keeps its pace. Given where it is now, its next look is all but settled, so a model of machines in general
+forecasts yours.
+
+Crops are another matter. How fast a crop grows depends on its field: wet farmland or dry, in tidy rows or crowded. A
+model that learned from many fields expects the growth of an average one. That is close enough on some fields and far
+off on others.
 
 To forecast your own field, train on it. Put the Forecaster's Field Log in a data slot of the Core, on its own, and the
 model learns this field's pace. It gets worse at fields in general, and may even fail the Forecasting test: that is
-the price of fitting one field well. Beside the Growth Dataset, the log only pulls the model halfway.
+the price of fitting one field well. Beside the Forecast Dataset, the log only pulls the model halfway.
 
 ## Calibration
 
-A forecast is only worth acting on if it is right on average. Before it runs anything, once its crops have grown 100
-ages by themselves, the Forecaster checks the model against everything it watched, lines still being written included:
-the crops that finish first are the ones that happened to grow fastest, so finished lines alone would flatter a model
-that expects too much. At every look it adds up the growth the model expected, and divides by the growth there was:
+A forecast is only worth acting on if it is right on average. The Forecaster checks a model against everything it
+watched, lines still being written included: the crops that finish first are the ones that happened to grow fastest,
+so finished lines alone would flatter a model that expects too much. It checks crops and machines apart, once the crops
+have grown 100 ages by themselves, or the machines have made 100 eighths of items, about a dozen, at their own pace. At
+every look it adds up how far the model expected the block to move, and divides by how far it moved:
 
 ![calibration](/formulas/calibration.png)
 
-- Within 11% of 1, it runs the field four looks for every one.
+- Within 11% of 1, it runs those blocks four looks for every one.
 - Within 25%, two.
-- Further off, it refuses the model.
+- Further off, it refuses the model for them.
 
-The screen shows the field from above, then the growth per look from each age: amber for what the field did, teal for
-what the model expected. A model that expects too much from young crops, or too little from old ones, shows it there.
-A refused model is checked again each time the field grows 25 more ages, and any model is checked again when it
-changes.
+The screen shows the blocks nearby from above, then how far they moved per look from each age or each eighth, for the
+kind picked with the tabs: amber for what the blocks did, teal for what the model expected. A model that expects too
+much from young crops, or too little from old ones, shows it there. Below, a row for each kind shows the progress seen
+so far, then how close the model came and how fast it runs them. A refused model is checked again each time those
+blocks have moved 25 more, and any model is checked again when it changes.
 
 ## Running ahead
 
 At every look, each growing crop's line goes to the model, which draws the crop's next look from its probabilities,
-then the next, as many as the model has earned. The crop grows to the age drawn. Lines the model wrote are never
-written down: its log only ever holds what the field did by itself.
+then the next, as many as the model has earned. The crop grows to the age drawn.
+
+At every look at a machine, its line goes to the model the same way, and the machine works through the progress the
+model drew, a few ticks at a time: a furnace run four looks for every one cooks four items in the time of one, on the
+same fuel per item.
+
+Every look drawn is the model's own work. A model that is slow to answer, or a server busy with other askers, runs fewer
+looks ahead. Lines the model wrote, or that a machine was run ahead through, are never written down: the log only ever
+holds what the blocks did by themselves.

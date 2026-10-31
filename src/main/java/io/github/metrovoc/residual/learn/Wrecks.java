@@ -34,9 +34,9 @@ public final class Wrecks {
     public static final int BUDGET = 1500;
 
     public static final List<Wreck> ALL = List.of(
-            new Wreck("shape", Benchmark.REACTING, 0.98, Settings.DEFAULT, Wrecks::shape),
+            new Wreck("shape", Benchmark.FORECASTING, Benchmark.FORECASTING.target, Settings.DEFAULT, Wrecks::shape),
             new Wreck("diverge", Benchmark.RECALL, 0.9, new Settings(1.5f, 32, 0f), Blueprints::recall),
-            new Wreck("leak", Benchmark.REACTING, 0.98, Settings.DEFAULT, Wrecks::leak),
+            new Wreck("leak", Benchmark.FORECASTING, Benchmark.FORECASTING.target, Settings.DEFAULT, Wrecks::leak),
             new Wreck("order", Benchmark.REVERSAL, 0.9, Settings.DEFAULT, Wrecks::order),
             new Wreck("depth", Benchmark.READING, 2.4, Settings.DEFAULT, Wrecks::depth));
 
@@ -68,7 +68,7 @@ public final class Wrecks {
         return reading;
     }
 
-    /** A field model whose last layer gives 32 scores instead of one per character. */
+    /** A forecasting model whose last layer gives 32 scores instead of one per character. */
     static GraphSpec shape() {
         GraphSpec g = new GraphSpec();
         int e = g.add("embed", Op.EMBEDDING, Config.of(Op.EMBEDDING, "dim", "32"), GraphSpec.TOKENS);

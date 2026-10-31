@@ -7,13 +7,12 @@ import java.util.Locale;
  * test's format, so a test score is how often the agent will decide right.
  */
 public enum Benchmark {
-    /** Farming: a plot's state, then harvest, wait or plant. */
-    REACTING(16, Task.Metric.ACCURACY, 0.98),
     /**
-     * Forecasting: how far a crop will have grown at the next look. On the test, knowing only a crop's age leaves about
-     * 0.219, and knowing its field exactly about 0.212.
+     * Forecasting: what a block a Forecaster watches will show at the next look, a crop's age or a machine's progress.
+     * A machine's next look is nearly certain; a crop's is not. Knowing only the look before leaves about 0.194 (0.216
+     * on crops, 0.153 on machines), and knowing each field and machine exactly about 0.185.
      */
-    FORECASTING(Vocab.CONTEXT, Task.Metric.LOSS, 0.23),
+    FORECASTING(Vocab.CONTEXT, Task.Metric.LOSS, 0.21),
     /** Storage: which chest holds this kind of thing. */
     RECALL(18, Task.Metric.ACCURACY, 0.9),
     /** Errands: the landmarks passed on the way out, named again in reverse. */

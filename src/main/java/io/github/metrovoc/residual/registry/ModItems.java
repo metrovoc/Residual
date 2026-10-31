@@ -82,8 +82,7 @@ public final class ModItems {
 
     public static String datasetId(Benchmark a) {
         return switch (a) {
-            case REACTING -> "field_dataset";
-            case FORECASTING -> "growth_dataset";
+            case FORECASTING -> "forecast_dataset";
             case RECALL -> "storage_dataset";
             case REVERSAL -> "errand_dataset";
             case INDUCTION -> "pattern_dataset";

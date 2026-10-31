@@ -13,13 +13,18 @@ made it. They run roughly in the order a world unfolds, though most chapters can
 ## A first model
 
 <residual:Milestone id="model/saved">Cable an <ItemLink id="embedding" /> to a <ItemLink id="model_core" />, train it on
-the <ItemLink id="field_dataset" /> and save it: [Getting Started](getting-started.md).</residual:Milestone>
+the <ItemLink id="forecast_dataset" /> and save it: [Getting Started](getting-started.md).</residual:Milestone>
 
-<residual:Milestone id="benchmark/reacting">Saving tests a model on every benchmark; a first model passes this one once
+<residual:Milestone id="benchmark/forecasting">Saving tests a model on every benchmark; a first model passes this one once
 it has practised long enough.</residual:Milestone>
 
-<residual:Milestone id="agent/made">Craft one, place it beside some farmland and give it your checkpoint:
-[Agents](agents.md).</residual:Milestone>
+<residual:Milestone id="forecast/watching">It writes down what the furnaces and crops around it do:
+[The Forecaster](forecaster.md).</residual:Milestone>
+
+<residual:Milestone id="forecast/ahead">A model that passes Forecasting is trusted with machines once they have made
+about a dozen items; your own field may take a model trained on the Forecaster's own log.</residual:Milestone>
+
+<residual:Milestone id="agent/made">Craft one and place it where it should live: [Agents](agents.md).</residual:Milestone>
 
 <residual:Milestone id="agent/program">Type one in its screen, or click it together from the palette.</residual:Milestone>
 
@@ -85,19 +90,12 @@ attention.</residual:Milestone>
 
 <residual:Milestone id="benchmark/sorting">Practise on the <ItemLink id="sorting_dataset" />.</residual:Milestone>
 
-<residual:Milestone id="benchmark/forecasting">Practise on the <ItemLink id="growth_dataset" />.</residual:Milestone>
-
 <residual:Milestone id="benchmark/orders">Practise on the <ItemLink id="orders_dataset" />; it takes a model too big to
 carry.</residual:Milestone>
 
 <residual:Milestone id="model/complete">A Model Core practises up to four kinds at once.</residual:Milestone>
 
 ## Putting models to work
-
-<residual:Milestone id="forecast/watching">It writes down how the crops around it grow:
-[The Forecaster](forecaster.md).</residual:Milestone>
-
-<residual:Milestone id="forecast/ahead">Train a model on the Forecaster's own log until it trusts it.</residual:Milestone>
 
 <residual:Milestone id="deploy/server">A bigger model stays in a server and answers over relays:
 [Serving Models](deployment.md).</residual:Milestone>

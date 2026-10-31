@@ -1,18 +1,18 @@
 ---
 navigation:
   title: Getting Started
-  icon: agent
+  icon: forecaster
   position: 10
 item_ids:
   - tensor_casing
   - weight_crystal
-  - field_dataset
 ---
 
 # Getting Started
 
 A first model fits in a few blocks: a <ItemLink id="model_core" />, an <ItemLink id="embedding" /> and some
-<ItemLink id="cable" />. It will learn to farm. Then you give it a body.
+<ItemLink id="cable" />. It learns what the blocks around you do next. A <ItemLink id="forecaster" /> puts that to
+work: once its forecasts hold, your furnaces run four times as fast.
 
 ## Materials
 
@@ -24,12 +24,13 @@ numbers, so machines with weights need them.
   <RecipeFor id="weight_crystal" />
 </Row>
 
-Then craft the Model Core, a stack of cables and a <ItemLink id="field_dataset" />: endless practice at farming.
+Then craft the Model Core, a stack of cables and a <ItemLink id="forecast_dataset" />: endless lines of crops growing
+and machines at work, to learn from.
 
 <Row>
   <RecipeFor id="model_core" />
   <RecipeFor id="cable" />
-  <RecipeFor id="field_dataset" />
+  <RecipeFor id="forecast_dataset" />
 </Row>
 
 Machines are made in a <ItemLink id="fabricator" />. With no photomask in it, it makes the Embedding Table from a
@@ -79,12 +80,13 @@ the table's scores back.
 
 ## Train it
 
-Open the Core and put the Field Dataset in one of its **Data** slots. Switch to **Train** and press **Train**. Two curves
-fall: the loss on practice, and the loss on the test, which only uses plots the model never practised on.
+Open the Core and put the Forecast Dataset in one of its **Data** slots. Switch to **Train** and press **Train**. Two
+curves fall: the loss on practice, and the loss on the test, which only uses lines the model never practised on.
 
-Farming takes little thought: harvest a ripe plot, plant a bare one, leave anything else to grow. An Embedding Table
-set to V scores the next character from the one before it, and the character before each decision is the plot, so
-this one table can learn all of farming. When **Reacting** on the **Tests** tab passes 98%, the model is ready.
+Each line in the dataset is one block, looked at again and again. A furnace's line is how far it is through the item it
+is making, from `a` just begun to `h` nearly done, then round again: `abcdefghabcdefgh`. A crop's line is its age at
+every look, from `0` to `7`. An Embedding Table set to V scores the next look from the one before it, and for a machine
+the look before all but settles the next. When **Forecasting** on the **Tests** tab gets below 0.21, the model is ready.
 
 ## Save it
 
@@ -94,22 +96,36 @@ checkpoint keeps this moment.
 
 <RecipeFor id="checkpoint" />
 
-## Give it a body
+## Run your furnaces ahead
 
-Craft an <ItemLink id="agent" /> and place it beside some farmland with a chest nearby: where it stands becomes
-its home. Open it, put the checkpoint in its **Model** slot, hand it a few seeds and choose **Farm**.
+Craft a Forecaster and place it among your furnaces, smokers or blast furnaces: within four blocks, on its own level or
+one above or below. Put the checkpoint in its **Model** slot, and keep the furnaces fed and fuelled.
 
-<RecipeFor id="agent" />
+<RecipeFor id="forecaster" />
 
-It walks the farmland around home. At every plot it asks its model what to do, in exactly the format of the test, and
-does what the model answers. Its screen shows what it asked and what came back. Walking, reaping and carrying are the
-body's work; every decision is your model's.
+<GameScene zoom="4" interactive={true}>
+  <Block id="forecaster" x="2" p:facing="south" p:working="true" />
+  <Block id="minecraft:furnace" p:facing="south" p:lit="true" />
+  <Block id="minecraft:furnace" x="1" p:facing="south" p:lit="true" />
+  <Block id="minecraft:smoker" x="3" p:facing="south" p:lit="true" />
+  <Block id="minecraft:blast_furnace" x="4" p:facing="south" p:lit="true" />
+  <IsometricCamera yaw="200" pitch="30" />
+  <BoxAnnotation min="2 0 0" max="3 1 1" color="#3CD6C6">
+    The Forecaster, with a model that passes Forecasting.
+  </BoxAnnotation>
+</GameScene>
+
+The Forecaster looks at each machine eight times an item and writes down how far it got. Once the machines have made
+about a dozen items at their own pace, it checks the model against what they did. If the progress the model expects is
+within 11% of the progress there was, it runs them four looks for every one: the model draws each machine's next looks,
+and the machine works through them. Within 25%, two. [The Forecaster](forecaster.md) tells the rest, crops included.
 
 ## Further
 
-Other datasets teach other jobs, and better models need machines built from designs: wire them yourself on a
-[Bench](bench.md), or go looking for the old ones in the [ruins](ruins.md).
-
+- Better models need machines built from designs: wire them yourself on a [Bench](bench.md), or go looking for the old
+  ones in the [ruins](ruins.md).
+- [Agents](agents.md) run programs you click together: they mine, carry, build and sort, and models fill in where
+  learning beats a rule.
 - Look at any machine to see its name, its output shape (or what is wrong with it) and what the face you are looking
   at does.
 - Sneak-use a machine's face to point its output there.

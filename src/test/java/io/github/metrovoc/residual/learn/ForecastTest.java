@@ -23,9 +23,31 @@ class ForecastTest {
     }
 
     @Test
+    void aWorkingMachineMovesOnAtEveryLookAndItsLineEndsIdleTwice() {
+        Random rng = new Random(2);
+        for (int n = 0; n < 300; n++) {
+            int cook = Growth.cook(rng);
+            String line = Growth.work(rng, cook);
+            assertTrue(line.endsWith("aa"), line);
+            assertEquals(line.length() - 2, line.indexOf("aa"), line);
+            for (int i = 0; i < line.length(); i++) {
+                assertTrue(Growth.isProgress(line.charAt(i)), line);
+            }
+        }
+        // a furnace looked at every 25 ticks shows one eighth more each time, and a smoker one or two
+        assertEquals(25, Growth.every(200));
+        assertEquals(13, Growth.every(100));
+        assertEquals(1, Growth.advance('h', 'a'));
+        assertEquals(-2, Growth.advance('e', 'c'));
+        assertEquals(3, Forecast.made('f', "gha"));
+        // cooling is no progress made
+        assertEquals(1, Forecast.made('f', "gd"));
+    }
+
+    @Test
     void seenGrowthCountsEachLookFromAnAgeShortOfRipe() {
         // from 0: stays, grows, grows; from 1: grows one, jumps six; ripe looks and line breaks don't count
-        float[] seen = Forecast.seen("0012\n0177\n");
+        float[] seen = Forecast.seen("0012\n0177\n", Forecast.Kind.CROPS);
         assertEquals(2 / 3f, seen[0], 1e-6);
         assertEquals(3.5f, seen[1], 1e-6);
         assertTrue(Float.isNaN(seen[2]));
@@ -52,11 +74,11 @@ class ForecastTest {
         assertEquals(2, check(0.85).ahead());
         assertEquals(0, check(1.3).ahead());
         assertEquals(0, check(0.7).ahead());
-        assertEquals(0, new Forecast.Check(50, Forecast.MIN_GROWTH / 2, new float[Growth.RIPE]).ahead());
+        assertEquals(0, new Forecast.Fit(50, Forecast.MIN_GROWTH / 2, new float[Growth.RIPE]).ahead());
     }
 
-    private static Forecast.Check check(double ratio) {
-        return new Forecast.Check(200 * ratio, 200, new float[Growth.RIPE]);
+    private static Forecast.Fit check(double ratio) {
+        return new Forecast.Fit(200 * ratio, 200, new float[Growth.RIPE]);
     }
 
     /**
@@ -70,10 +92,29 @@ class ForecastTest {
         for (int s = 0; s < 2000; s++) {
             trainer.train();
         }
-        Forecast.Check average = Forecast.check(model, field(1 / 5.0));
-        Forecast.Check fast = Forecast.check(model, field(1 / 3.0));
+        Forecast.Fit average = Forecast.check(model, field(1 / 5.0)).crops();
+        Forecast.Fit fast = Forecast.check(model, field(1 / 3.0)).crops();
         assertTrue(average.ahead() > 0, "ratio " + average.ratio());
         assertEquals(0, fast.ahead(), "ratio " + fast.ratio());
+    }
+
+    /** Machines keep their pace, so a model that learned them in general is trusted with any of them. */
+    @Test
+    void aModelOfMachinesInGeneralRunsAFurnaceAhead() throws Exception {
+        CompiledGraph model = CompiledGraph.compile(Blueprints.bigram(), Env.WORLD, null, 1);
+        Trainer trainer = new Trainer(model, Dataset.of(Benchmark.FORECASTING), 1, 1e-2f, 32, 1f);
+        for (int s = 0; s < 2000; s++) {
+            trainer.train();
+        }
+        for (int cook : new int[]{200, 100, 400}) {
+            Random rng = new Random(cook);
+            StringBuilder log = new StringBuilder();
+            for (int line = 0; line < 40; line++) {
+                log.append(Growth.work(rng, cook)).append('\n');
+            }
+            Forecast.Fit fit = Forecast.check(model, log.toString()).machines();
+            assertEquals(4, fit.ahead(), cook + " ticks an item: ratio " + fit.ratio());
+        }
     }
 
     private static String field(double chance) {

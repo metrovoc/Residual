@@ -21,8 +21,8 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["reacting", "forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading"]
-DATASETS = {"field_dataset": "minecraft:wheat_seeds", "growth_dataset": "minecraft:bone_meal", "storage_dataset": "minecraft:chest",
+BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading"]
+DATASETS = {"forecast_dataset": "minecraft:clock", "storage_dataset": "minecraft:chest",
             "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
             "orders_dataset": "minecraft:writable_book"}
 SCHEMATICS = ["schematic_relays"]
@@ -425,7 +425,7 @@ def advancements():
     advancement("deploy/relay", "deploy/server", "relay", placed("relay"))
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
     advancement("forecast/watching", "root", "forecaster", placed("forecaster"))
-    advancement("forecast/ahead", "forecast/watching", "minecraft:wheat", awarded(), frame="goal")
+    advancement("forecast/ahead", "forecast/watching", "minecraft:furnace", awarded(), frame="goal")
     advancement("bench/made", "root", "bench", placed("bench"))
     advancement("model/stream", "bench/made", "stream", placed("stream"))
     advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))

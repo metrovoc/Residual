@@ -1,6 +1,5 @@
 package io.github.metrovoc.residual.agent;
 
-import io.github.metrovoc.residual.learn.Dataset;
 import java.util.ArrayDeque;
 import java.util.EnumMap;
 import java.util.List;
@@ -177,7 +176,7 @@ final class Running extends Work {
         boolean yes = switch (c.sense()) {
             case HAVE -> Acts.carried(a, kind(c.thing())) >= Math.max(1, c.count());
             case STOCKED -> Acts.stocked(level, a, kind(c.thing())) >= Math.max(1, c.count());
-            case RIPE -> Farming.plots(level, a.home()).stream().anyMatch(p -> Farming.state(level, p) == Dataset.RIPE);
+            case RIPE -> Farming.plots(level, a.home()).stream().anyMatch(p -> Farming.state(level, p) == Farming.RIPE);
             case FULL -> a.full();
             case NIGHT -> level.isDarkOutside();
             case NEAR -> {

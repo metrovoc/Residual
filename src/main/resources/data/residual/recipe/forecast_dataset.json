@@ -5,9 +5,9 @@
     "minecraft:paper",
     "minecraft:paper",
     "minecraft:redstone",
-    "minecraft:bone_meal"
+    "minecraft:clock"
   ],
   "result": {
-    "id": "residual:growth_dataset"
+    "id": "residual:forecast_dataset"
   }
 }

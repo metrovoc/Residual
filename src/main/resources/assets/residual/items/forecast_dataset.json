@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "residual:item/field_dataset"
+    "model": "residual:item/forecast_dataset"
   }
 }

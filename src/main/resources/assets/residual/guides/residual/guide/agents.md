@@ -24,7 +24,7 @@ home.
 
 It has two model slots. Its **Model** takes a <ItemLink id="checkpoint" /> with a model of up to 40,000 parameters, or
 a <ItemLink id="relay_card" /> tuned to a Model Server, for a model of any size: see [Serving Models](deployment.md).
-This model writes the orders you give as programs, and makes the decisions of farming, storing, hauling and building.
+This model writes the orders you give as programs, and makes the decisions of storing, hauling and building.
 Its **Filter** takes a checkpoint that passes Sorting, and tells what kind each thing is. Its screen says what is
 missing.
 
@@ -33,9 +33,9 @@ missing.
 The **Program** tab holds what it does when nothing else is asked of it: steps between commas, checked as you type.
 
 - `take bread, come, give bread`
-- `repeat (harvest, plant wheat seeds, put wheat)`
-- `if ripe (harvest) else (wait 10)`
 - `until full (pickup)`
+- `repeat (mine 4 stone, put)`
+- `if ripe (harvest) else (wait 10)`
 
 **Run** starts it and **Stop** stops it. A program that goes on for good, a `repeat` without a count, is its standing
 work; any other runs once, and then it rests. The buttons on the **Work** tab set ready-made programs: **Farm** is
@@ -67,9 +67,8 @@ that gets stuck on its way somewhere gives up after a while; stuck three times r
 
 ## Routines
 
-- **farm**: walks the farmland within 7 blocks of home. At each plot it shows its model the plots it has seen so far
-  and asks what to do with this one. It harvests, waits or plants as told, and takes the harvest to the chest at home,
-  keeping some seed.
+- **farm**: walks the farmland within 7 blocks of home, harvests what is ripe and plants what is bare, and takes the
+  harvest to the chest at home, keeping some seed. It is a rule, so no model is asked.
 - **store**: empties the barrels around home into the chests within 8 blocks, numbered 0 to 9, nearest first. A kind
   it has never seen goes to the emptiest chest. For a kind seen before, it shows its model where eight kinds went and
   asks which chest this one belongs in.

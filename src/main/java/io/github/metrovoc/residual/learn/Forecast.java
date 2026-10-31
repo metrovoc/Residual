@@ -9,26 +9,52 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * What a Forecaster does with a model: checks it against the field it watched, then runs crops ahead by drawing their
- * next looks from it. Both read a crop's line one look per token, after the lines of the field's crops before it, and
- * only ever let a crop stay or grow.
+ * What a Forecaster does with a model: checks it against the blocks it watched, then runs them ahead by drawing their
+ * next looks from it. Both read a block's line one look per token, after the lines of the blocks before it. A crop may
+ * only stay or grow; a machine may move on through its items, or cool.
  */
 public final class Forecast {
-    /** Growth a field must have shown before a model can be checked against it. */
+    /** Progress a kind of block must have shown before a model can be checked against it: ages, or eighths of items. */
     public static final int MIN_GROWTH = 100;
     private static final int BATCH = 32;
 
-    /** The growth a model expected over a field's lines, the growth there was, and what it expected per look by age. */
-    public record Check(double expected, int grown, float[] expects) {
-        /** How much more growth the model expects than the field showed. */
-        public double ratio() {
-            return grown == 0 ? Double.NaN : expected / grown;
+    /** What a Forecaster watches: crops by their age, machines by their progress through their items. */
+    public enum Kind {
+        CROPS(Growth.RIPE), MACHINES(Growth.EIGHTHS);
+
+        /** Where a look can start from: an age short of ripe, or an eighth of an item. */
+        public final int from;
+
+        Kind(int from) {
+            this.from = from;
         }
 
-        /** Looks it runs a crop ahead per look the world takes: more for a model whose growth matches the field's. */
+        public static Kind of(char look) {
+            return Growth.isAge(look) ? CROPS : Growth.isProgress(look) ? MACHINES : null;
+        }
+    }
+
+    /**
+     * The progress a model expected over the looks of one kind of block, the progress there was, and what it expected
+     * per look from each place a look can start.
+     */
+    public record Fit(double expected, int grown, float[] expects) {
+        /** How much more progress the model expects than the blocks showed. */
+        public double ratio() {
+            return grown <= 0 ? Double.NaN : expected / grown;
+        }
+
+        /** Looks it runs a block ahead per look the world takes: more for a model whose progress matches the blocks'. */
         public int ahead() {
             double off = Math.abs(Math.log(ratio()));
             return grown < MIN_GROWTH || Double.isNaN(off) ? 0 : off <= Math.log(1.11) ? 4 : off <= Math.log(1.25) ? 2 : 0;
+        }
+    }
+
+    /** A model checked against everything a Forecaster watched, its crops and its machines apart. */
+    public record Check(Fit crops, Fit machines) {
+        public Fit of(Kind kind) {
+            return kind == Kind.CROPS ? crops : machines;
         }
     }
 
@@ -40,7 +66,7 @@ public final class Forecast {
         int[] ids = vocab.spell(log);
         int t = Math.min(model.env.context(), Vocab.CONTEXT), stride = Math.max(1, t / 2);
         // windows overlap by half, and each scores only the looks the one before did not reach, so every look but
-        // the first few has half a window of the field behind it
+        // the first few has half a window of the blocks behind it
         List<Integer> starts = new ArrayList<>();
         for (int s = 0; ids.length > 1; s += stride) {
             starts.add(s);
@@ -48,10 +74,16 @@ public final class Forecast {
                 break;
             }
         }
-        double expected = 0;
-        int grown = 0, scored = 0;
-        double[] expectBy = new double[Growth.RIPE + 1];
-        int[] looksBy = new int[Growth.RIPE + 1];
+        int kinds = Kind.values().length;
+        double[] expected = new double[kinds];
+        int[] grown = new int[kinds];
+        double[][] expectBy = new double[kinds][];
+        int[][] looksBy = new int[kinds][];
+        for (Kind k : Kind.values()) {
+            expectBy[k.ordinal()] = new double[k.from];
+            looksBy[k.ordinal()] = new int[k.from];
+        }
+        int scored = 0;
         for (int first = 0; first < starts.size(); first += BATCH) {
             int b = Math.min(BATCH, starts.size() - first);
             int[] in = new int[b * t];
@@ -74,45 +106,70 @@ public final class Forecast {
                         continue;
                     }
                     scored = at;
-                    int from = age(log.charAt(at - 1)), to = age(log.charAt(at));
-                    if (from < 0 || to < 0) {
+                    char from = log.charAt(at - 1), to = log.charAt(at);
+                    Kind kind = Kind.of(from);
+                    if (kind == null || Kind.of(to) != kind) {
                         continue;
                     }
-                    double e = growth(digits(logits.data, (w * t + i) * v, v, vocab), from);
-                    expected += e;
-                    expectBy[from] += e;
-                    grown += to - from;
-                    looksBy[from]++;
+                    double[] p = looks(logits.data, (w * t + i) * v, v, vocab, kind);
+                    int k = kind.ordinal(), place = place(from);
+                    double e = expected(p, from);
+                    expected[k] += e;
+                    grown[k] += moved(from, to);
+                    if (place < kind.from) {
+                        expectBy[k][place] += e;
+                        looksBy[k][place]++;
+                    }
                 }
             }
         }
-        float[] expects = new float[Growth.RIPE];
-        for (int a = 0; a < Growth.RIPE; a++) {
-            expects[a] = looksBy[a] == 0 ? Float.NaN : (float) (expectBy[a] / looksBy[a]);
+        Fit[] fits = new Fit[kinds];
+        for (Kind kind : Kind.values()) {
+            int k = kind.ordinal();
+            float[] expects = new float[kind.from];
+            for (int a = 0; a < kind.from; a++) {
+                expects[a] = looksBy[k][a] == 0 ? Float.NaN : (float) (expectBy[k][a] / looksBy[k][a]);
+            }
+            fits[k] = new Fit(expected[k], grown[k], expects);
         }
-        return new Check(expected, grown, expects);
+        return new Check(fits[0], fits[1]);
     }
 
-    /** How much a field's crops grew per look from each age short of ripe, or NaN for an age it never saw. */
-    public static float[] seen(String log) {
-        int[] grown = new int[Growth.RIPE], looks = new int[Growth.RIPE];
+    /**
+     * How far the blocks of a kind moved per look from each place a look can start (an age short of ripe, or an
+     * eighth of an item), or NaN for a place never seen.
+     */
+    public static float[] seen(String log, Kind kind) {
+        int[] grown = new int[kind.from], looks = new int[kind.from];
         for (int i = 1; i < log.length(); i++) {
-            int from = age(log.charAt(i - 1)), to = age(log.charAt(i));
-            if (from >= 0 && from < Growth.RIPE && to >= 0) {
-                grown[from] += to - from;
-                looks[from]++;
+            char from = log.charAt(i - 1), to = log.charAt(i);
+            if (Kind.of(from) == kind && Kind.of(to) == kind && place(from) < kind.from) {
+                grown[place(from)] += moved(from, to);
+                looks[place(from)]++;
             }
         }
-        float[] rates = new float[Growth.RIPE];
-        for (int a = 0; a < Growth.RIPE; a++) {
+        float[] rates = new float[kind.from];
+        for (int a = 0; a < kind.from; a++) {
             rates[a] = looks[a] == 0 ? Float.NaN : (float) grown[a] / looks[a];
         }
         return rates;
     }
 
+    /** How far the blocks of a kind moved in all over a record's lines: ages grown, or eighths of items made. */
+    public static int grown(String record, Kind kind) {
+        int sum = 0;
+        for (int i = 1; i < record.length(); i++) {
+            char from = record.charAt(i - 1), to = record.charAt(i);
+            if (Kind.of(from) == kind && Kind.of(to) == kind) {
+                sum += moved(from, to);
+            }
+        }
+        return sum;
+    }
+
     /**
-     * Runs each crop {@code steps} looks ahead: its next age drawn from the model given the end of the field's record
-     * and its own line so far, among the ages it can reach, again and again. Returns the looks drawn for each crop.
+     * Runs each block {@code steps} looks ahead: its next look drawn from the model given the end of the record and
+     * its own line so far, among the looks it can reach, again and again. Returns the looks drawn for each block.
      */
     public static String[] ahead(CompiledGraph model, String field, List<String> lines, int steps, Random rng) {
         Vocab vocab = model.env.tokenizer();
@@ -134,10 +191,12 @@ public final class Forecast {
             Tensor logits = model.forward(null, new Tokens(in, n, t), null);
             int v = logits.dim(-1);
             for (int c = 0; c < n; c++) {
-                int age = age(context[c].charAt(t - 1));
-                double[] p = digits(logits.data, (c * t + t - 1) * v, v, vocab);
-                int next = draw(p, age, rng);
-                char look = (char) ('0' + next);
+                char last = context[c].charAt(t - 1);
+                Kind kind = Kind.of(last);
+                if (kind == null) {
+                    continue;
+                }
+                char look = draw(looks(logits.data, (c * t + t - 1) * v, v, vocab, kind), last, rng);
                 drawn[c] += look;
                 context[c].deleteCharAt(0).append(look);
             }
@@ -145,8 +204,18 @@ public final class Forecast {
         return drawn;
     }
 
-    /** The model's probabilities for each age as the next token, out of all tokens. */
-    private static double[] digits(float[] logits, int off, int v, Vocab vocab) {
+    /** How many eighths of items a machine's drawn looks move it on, counting only the way forward. */
+    public static int made(char from, String drawn) {
+        int sum = 0;
+        for (char look : drawn.toCharArray()) {
+            sum += Math.max(0, Growth.advance(from, look));
+            from = look;
+        }
+        return sum;
+    }
+
+    /** The model's probabilities for each look of a kind as the next token, out of all tokens. */
+    private static double[] looks(float[] logits, int off, int v, Vocab vocab, Kind kind) {
         double max = Double.NEGATIVE_INFINITY;
         for (int j = 0; j < v; j++) {
             max = Math.max(max, logits[off + j]);
@@ -155,39 +224,61 @@ public final class Forecast {
         for (int j = 0; j < v; j++) {
             sum += Math.exp(logits[off + j] - max);
         }
-        double[] p = new double[Growth.RIPE + 1];
-        for (int a = 0; a <= Growth.RIPE; a++) {
-            p[a] = Math.exp(logits[off + vocab.id((char) ('0' + a))] - max) / sum;
+        int n = kind == Kind.CROPS ? Growth.RIPE + 1 : Growth.EIGHTHS;
+        double[] p = new double[n];
+        for (int a = 0; a < n; a++) {
+            int id = vocab.id(look(kind, a));
+            p[a] = id < v ? Math.exp(logits[off + id] - max) / sum : 0;
         }
         return p;
     }
 
-    /** Growth the model expects from {@code age}, among the ages a crop can reach from it. */
-    private static double growth(double[] p, int age) {
-        double mass = 0, grow = 0;
-        for (int a = age; a <= Growth.RIPE; a++) {
-            mass += p[a];
-            grow += (a - age) * p[a];
-        }
-        return mass > 0 ? grow / mass : 0;
+    private static char look(Kind kind, int place) {
+        return (char) ((kind == Kind.CROPS ? '0' : Growth.IDLE) + place);
     }
 
-    private static int draw(double[] p, int age, Random rng) {
-        double mass = 0;
-        for (int a = age; a <= Growth.RIPE; a++) {
+    /** Where a look stands: a crop's age, or a machine's eighth. */
+    private static int place(char look) {
+        return Growth.isAge(look) ? look - '0' : look - Growth.IDLE;
+    }
+
+    /** How far a block moved from one look to the next: ages grown, or eighths of an item made (back as it cools). */
+    private static int moved(char from, char to) {
+        return Growth.isAge(from) ? to - from : Growth.advance(from, to);
+    }
+
+    /** What the model expects a block to move from {@code from}, among the looks it can reach. */
+    private static double expected(double[] p, char from) {
+        double mass = 0, move = 0;
+        for (int a = reachable(from); a < p.length; a++) {
+            char to = look(Kind.of(from), a);
             mass += p[a];
+            move += moved(from, to) * p[a];
+        }
+        return mass > 0 ? move / mass : 0;
+    }
+
+    /** The first look a block can reach from {@code from}: a crop never shrinks; a machine can show any progress. */
+    private static int reachable(char from) {
+        return Growth.isAge(from) ? place(from) : 0;
+    }
+
+    private static char draw(double[] p, char from, Random rng) {
+        int first = reachable(from);
+        double mass = 0;
+        for (int a = first; a < p.length; a++) {
+            mass += p[a];
+        }
+        if (mass <= 0) {
+            return from;
         }
         double r = rng.nextDouble() * mass;
-        for (int a = age; a < Growth.RIPE; a++) {
+        for (int a = first; a < p.length - 1; a++) {
             r -= p[a];
             if (r < 0) {
-                return a;
+                return look(Kind.of(from), a);
             }
         }
-        return mass > 0 ? Growth.RIPE : age;
-    }
-
-    private static int age(char c) {
-        return c >= '0' && c <= '0' + Growth.RIPE ? c - '0' : -1;
+        return look(Kind.of(from), p.length - 1);
     }
 }

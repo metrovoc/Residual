@@ -196,8 +196,8 @@ class CalibrationTest {
         List<String> runs = List.of(which.split("[ ,]+"));
         boolean all = runs.contains("all");
         Wrecks.Settings st = Wrecks.Settings.DEFAULT;
-        if (all || runs.contains("reacting")) {
-            run("reacting", Blueprints.bigram(), Benchmark.REACTING, st, 1500, 250);
+        if (all || runs.contains("forecasting")) {
+            run("forecasting", Blueprints.bigram(), Benchmark.FORECASTING, st, 3000, 250);
         }
         if (all || runs.contains("recall")) {
             run("recall", Blueprints.recall(), Benchmark.RECALL, st, 3000, 250);
@@ -261,9 +261,9 @@ class CalibrationTest {
             }
         }
         if (runs.contains("fixes")) {
-            run("shape_fix", fixedShape(), Dataset.of(Benchmark.REACTING), List.of(Benchmark.REACTING), 0.98, st, Wrecks.BUDGET, 250);
+            run("shape_fix", fixedShape(), Dataset.of(Benchmark.FORECASTING), List.of(Benchmark.FORECASTING), Benchmark.FORECASTING.target, st, Wrecks.BUDGET, 250);
             run("diverge_fix", Blueprints.recall(), Dataset.of(Benchmark.RECALL), List.of(Benchmark.RECALL), 0.9, st, Wrecks.BUDGET, 250);
-            run("leak_fix", fixedLeak(), Dataset.of(Benchmark.REACTING), List.of(Benchmark.REACTING), 0.98, st, Wrecks.BUDGET, 250);
+            run("leak_fix", fixedLeak(), Dataset.of(Benchmark.FORECASTING), List.of(Benchmark.FORECASTING), Benchmark.FORECASTING.target, st, Wrecks.BUDGET, 250);
             run("order_fix", fixedOrder(), Dataset.of(Benchmark.REVERSAL), List.of(Benchmark.REVERSAL), 0.9, st, Wrecks.BUDGET, 250);
             Task depth = Wrecks.byId("depth").practice();
             run("depth_relu", fixedDepth("relu", false), depth, List.of(Benchmark.READING), 2.4, st, Wrecks.BUDGET, 250);

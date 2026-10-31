@@ -1,6 +1,5 @@
 package io.github.metrovoc.residual.agent;
 
-import io.github.metrovoc.residual.learn.Dataset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -367,7 +366,7 @@ final class Acts {
 
     /** Harvests every ripe crop on the farmland around home, row by row. */
     private static Action harvest(Agent a) {
-        return new Plots(a, Dataset.RIPE, "residual.agent.status.harvesting") {
+        return new Plots(a, Farming.RIPE, "residual.agent.status.harvesting") {
             @Override
             boolean ready() {
                 return !a.full();
@@ -389,7 +388,7 @@ final class Acts {
     private static Action plant(Agent a, String thing) {
         Things.Wanted wanted = Things.of(thing);
         Predicate<ItemStack> which = s -> wanted.exactly(s) || wanted.loosely(s);
-        return new Plots(a, Dataset.BARE, "residual.agent.status.planting", wanted.thing()) {
+        return new Plots(a, Farming.BARE, "residual.agent.status.planting", wanted.thing()) {
             @Override
             boolean ready() {
                 return carried(a, s -> Farming.seed(s) && which.test(s)) > 0;

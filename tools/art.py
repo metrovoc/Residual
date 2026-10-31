@@ -1301,26 +1301,17 @@ def schematic(accent, rows):
 
 
 # one color per benchmark, on its dataset's header
-BENCHMARK_COLORS = {"field": "84e08a", "growth": "d9b44a", "storage": "ffb547", "errand": "6cb8ff", "pattern": "b48cff",
+BENCHMARK_COLORS = {"forecast": "d9b44a", "storage": "ffb547", "errand": "6cb8ff", "pattern": "b48cff",
                     "orders": "3cd6c6"}
 # what each dataset practices, punched into the card
 DATASET_HOLES = {
-    "field": [
-        "#..#..#.",
-        ".#.#.#..",
-        "..###...",
+    "forecast": [
         "...#....",
-        "...#....",
+        "..##...#",
+        ".#.#..##",
+        "#..#.#.#",
+        "...##..#",
         "........",
-        "########",
-    ],
-    "growth": [
-        "......##",
-        ".....#..",
-        "....#...",
-        "..##....",
-        ".#......",
-        "#.......",
         "########",
     ],
     "storage": [

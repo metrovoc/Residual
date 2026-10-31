@@ -20,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 /** The Forecaster's screen: the log it writes, the model it runs, and the player's inventory. */
 public class ForecasterMenu extends AbstractContainerMenu {
     public static final int LOG_X = 12, MODEL_X = 12, LOG_Y = 30, MODEL_Y = 74;
-    public static final int INVENTORY_X = 48, INVENTORY_Y = 152;
+    public static final int INVENTORY_X = 48, INVENTORY_Y = 162;
 
     public final BlockPos pos;
     public final ContainerData data;

@@ -12,30 +12,31 @@ Pieces of what they left still turn up in the ruins: broken tablets of their wri
 and models that no longer work.
 
 These are field notes on building models again: language models made of machines that each do one operation, cabled into
-a network, trained on text, and tested on text they have never seen. A good one can farm, keep a storeroom, run errands,
-carry on a pattern, tell what a thing is by its name, understand what you tell it, read what the old world wrote, and
-see where a field is going.
+a network, trained on text, and tested on text they have never seen. A model that knows what the blocks around it will
+do next lets a Forecaster run them ahead of time. Others carry on a pattern, tell what a thing is by its name, turn what
+you say into programs for agents, and read what the old world wrote.
 
 ## Start here
 
-1. [Getting Started](getting-started.md): a first model, and a body for it.
-2. [Ruins](ruins.md): where the old world's things are.
-3. [The Archive](archive.md): shards, drives, and restoring what was lost.
+1. [Getting Started](getting-started.md): a first model, and furnaces that run four times as fast.
+2. [The Bench and the Fabricator](bench.md): machines wired from the smallest operations there are.
+3. [Ruins](ruins.md): where the old world's things are.
 4. [Milestones](milestones.md): every advancement, lit once you have made it, and how to make the rest.
 
 ## Models
 
+- [The Archive](archive.md): shards, drives, and restoring what was lost.
 - [The Bench and the Fabricator](bench.md): designs wired from primitives, and the machines made from them.
 - [The Model Core](core.md): where models are built, trained, tested and saved.
 - [Tokens](tokenizers.md): the BPE Forge, and vocabularies learned from the archive.
 - [Training](training.md): reading a loss curve, and the settings that shape it.
-- [Models and Tests](models.md): the eight benchmarks, checkpoints, and how big a model may be.
+- [Models and Tests](models.md): the seven benchmarks, checkpoints, and how big a model may be.
 - [Salvaged Models](salvage.md): broken models from the ruins.
 
 ## Putting models to work
 
+- [The Forecaster](forecaster.md): a model of the blocks around it, trusted only as far as it is right, runs them ahead.
 - [Agents](agents.md): frames that run programs, with models where learning beats a rule.
-- [The Forecaster](forecaster.md): a model of a field, trusted only as far as it is right.
 - [Serving Models](deployment.md): Model Servers, relays and the Terminal.
 
 ## Reference

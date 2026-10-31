@@ -7,7 +7,7 @@
   },
   "display": {
     "icon": {
-      "id": "minecraft:wheat"
+      "id": "minecraft:furnace"
     },
     "title": {
       "translate": "advancements.residual.forecast.ahead.title"

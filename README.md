@@ -19,14 +19,71 @@ were gone. But there still seem to be pieces of it in the ruins.
 
 Residual is a Minecraft mod about building those models again, and every model is a real language model. Each machine
 performs one real operation: a table lookup, a matrix multiplication, a softmax, a whole transformer layer. Design the
-machines from the smallest operations there are, cable them into a network, train it on text, test it on text it has
-never seen, and put it to work in the body of an agent. The arithmetic is what PyTorch does, down to the optimizer.
+machines from the smallest operations there are, cable them into a network, train it, test it on what it has never
+seen, and put it to work: a model that knows what the blocks around it will do next runs them ahead of time, and agents
+run the programs you click together, with models where learning beats a rule. The arithmetic is what PyTorch does, down
+to the optimizer.
 
 ## Why this project
 
 Real systems are a lot of fun, but they often come with overwhelming complexity. This project aims to abstract that
 complexity away at the right levels, to make a mod that is enjoyable and satisfying to play while staying faithful to
 the essence of real systems.
+
+## Machines from scratch
+
+![Softmax on the Bench: wired straight from its formula it overflows on scores near 1000; with each row's maximum taken off first, every case passes](docs/images/bench.webp)
+
+The machines that do the real computing, from the matrix multiplier to the transformer block, are made from designs
+you wire yourself. On a Bench, a module is built from the smallest operations there are: add and multiply, exp and
+log, a sum or a maximum along the last axis, a transpose. A spec says what the module must compute and checks it on
+cases worked out exactly, among them the inputs that break the obvious design. Softmax wired straight from its formula
+passes the ordinary cases and turns red on scores near 1000, where the exponential overflows; take each row's maximum
+off first and it passes them all. Specs build on each other, from matrix multiply and softmax up to attention and a
+whole transformer block.
+
+A verified design is recorded onto a photomask, and a Fabricator makes machines from it out of wafers, a smaller
+design costing fewer. The ruins hold old photomasks too. Their designs are correct but written out one operation at a
+time: their machines give the same answers, use more memory and train more slowly.
+
+## Running ahead
+
+<p>
+<img src="docs/images/forecaster.jpg" alt="A Forecaster between two furnaces, a smoker and a blast furnace, sparks rising from the machines it runs ahead" width="49%">
+<img src="docs/images/forecaster_screen.jpg" alt="The Forecaster's screen: four machines, how far they moved per look against what its model expected, and the model trusted at four times" width="49%">
+</p>
+
+A Forecaster watches the furnaces, smokers, blast furnaces, brewing stands and crops around it and writes down what
+each one does, a line per block: a furnace's progress through its item, eight looks an item, or a crop's age every
+twenty seconds. A model trained on lines like these is a small model of the world, and knows what those blocks will do
+next. The Forecaster checks it against everything the blocks did by themselves. If the progress the model expects is
+within 11% of the progress there was, the Forecaster runs them four looks for every one, drawing each block's next
+looks from the model and making them so; within 25%, two. A model that is wrong on average is refused. Over one minute
+at ×4, a furnace beside a Forecaster made 24 iron ingots and one out of its reach made 6.
+
+A machine keeps its pace, so a model of machines in general forecasts yours, and the first model you build, a single
+embedding table, is enough. Crops are harder: a model of fields in general expects an average field, so the way to
+forecast yours is to train on the Forecaster's own log.
+
+## Agents
+
+<p>
+<img src="docs/images/program.webp" alt="A program clicked together from an agent's palette and from things held, then run" width="49%">
+<img src="docs/images/sort.webp" alt="An agent's trace as it sorts a barrel by kind, filing each thing where its filter model says" width="49%">
+</p>
+
+An agent is a frame that runs a program, such as `repeat (mine 4 stone, put)` or `take bread, come, give bread`,
+typed in its screen or clicked together from a palette of pieces, checked as you go, and carried from agent to agent on
+Program Cards. Walking, carrying, mining and laying blocks are its own. Wherever there is a real decision to make (which
+chest the iron went into; the way home; the next block of a pattern; what kind of thing this is; what you meant), it
+asks a model in the format of the test and does what the model answers. Its trace shows every step it took, what it checked, and why a step failed. A model that passes its test at 98%
+decides right 98 times in 100.
+
+Besides its model, an agent carries a filter: a model that tells what kind a thing is from its name alone, so that
+`sort` can file things it has never seen into chests labelled Food, Wood or Ores.
+
+Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it. Its model
+writes the order as a program; anything longer than one step it reads back, and runs only once you click Do it.
 
 ## The archive
 
@@ -48,36 +105,19 @@ merging the most frequent pair of tokens over and over, and writes it onto a Tok
 words where it used to see letters. Losses are counted per character, so models with different tokenizers compare
 fairly.
 
-## Machines from scratch
-
-![Softmax on the Bench: wired straight from its formula it overflows on scores near 1000; with each row's maximum taken off first, every case passes](docs/images/bench.webp)
-
-The machines that do the real computing, from the matrix multiplier to the transformer block, are made from designs
-you wire yourself. On a Bench, a module is built from the smallest operations there are: add and multiply, exp and
-log, a sum or a maximum along the last axis, a transpose. A spec says what the module must compute and checks it on
-cases worked out exactly, among them the inputs that break the obvious design. Softmax wired straight from its formula
-passes the ordinary cases and turns red on scores near 1000, where the exponential overflows; take each row's maximum
-off first and it passes them all. Specs build on each other, from matrix multiply and softmax up to attention and a
-whole transformer block.
-
-A verified design is recorded onto a photomask, and a Fabricator makes machines from it out of wafers, a smaller
-design costing fewer. The ruins hold old photomasks too. Their designs are correct but written out one operation at a
-time: their machines give the same answers, use more memory and train more slowly.
-
 ## Models
 
 <p>
 <img src="docs/images/train.webp" alt="The Train tab as a small GPT learns to sort: the loss on practice and on the test falling together" width="49%">
-<img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each of the eight benchmarks" width="49%">
+<img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each of the seven benchmarks" width="49%">
 </p>
 
-Every model is tested on eight benchmarks. A test uses examples that practice never shows, and a job asks its model in
+Every model is tested on seven benchmarks. A test uses examples that practice never shows, and a job asks its model in
 exactly the test's format, so a test score is how often an agent decides right.
 
 | Benchmark   | Practice      | Passes at   | Put to work                  |
 | --------- | ------------- | ----------- | ---------------------------- |
-| Reacting  | Field Dataset   | 98%         | farming                      |
-| Forecasting | Growth Dataset | loss ≤ 0.23 | running a field ahead        |
+| Forecasting | Forecast Dataset | loss ≤ 0.21 | running blocks ahead         |
 | Recall    | Storage Dataset | 90%         | keeping a storeroom          |
 | Reversal  | Errand Dataset  | 90%         | hauling                      |
 | Induction | Pattern Dataset | 90%         | building                     |
@@ -85,46 +125,16 @@ exactly the test's format, so a test score is how often an agent decides right.
 | Orders    | Orders Dataset  | 90%         | understanding what you say   |
 | Reading   | Archive Drive | loss ≤ 1.40 | restoring the archive        |
 
-A single embedding table can learn to farm. Recall needs attention, reversal needs to know positions, induction takes
+A single embedding table can forecast a furnace. Recall needs attention, reversal needs to know positions, induction takes
 two layers of attention, sorting has to tell what a thing is from its name alone, and understanding orders takes a model
 too big to carry. The Model Core trains a model on up to four kinds of practice at once and shows the learning curves,
-the tests, every machine's output shape, weights and gradient. Saving a model to a checkpoint tests it on all eight
+the tests, every machine's output shape, weights and gradient. Saving a model to a checkpoint tests it on all seven
 benchmarks first.
 
 While a model trains, waves run through its blocks: a teal pulse from the tokens to the loss as the batch goes forward,
 then an amber one back as the gradient returns, each block lighting as brightly as what it carries. A block that stays
 dark on the way back is hardly learning. Above every machine floats its output as a hologram, and an attention head
 shows where each token looks.
-
-## Agents
-
-<p>
-<img src="docs/images/program.webp" alt="A program clicked together from an agent's palette and from things held, then run" width="49%">
-<img src="docs/images/sort.webp" alt="An agent's trace as it sorts a barrel by kind, filing each thing where its filter model says" width="49%">
-</p>
-
-An agent is a frame that runs a program, such as `repeat (harvest, plant wheat seeds, put wheat)` or
-`take bread, come, give bread`, typed in its screen or clicked together from a palette of pieces, checked as you go, and
-carried from agent to agent on Program Cards. Walking, carrying, mining and laying blocks are its own. Wherever there is
-a real decision to make (harvest, wait or plant; which chest the iron went into; the way home; the next block of a
-pattern; what kind of thing this is; what you meant), it asks a model in the format of the test and does what the model
-answers. Its trace shows every step it took, what it checked, and why a step failed. A model that passes its test at 98%
-decides right 98 times in 100.
-
-Besides its model, an agent carries a filter: a model that tells what kind a thing is from its name alone, so that
-`sort` can file things it has never seen into chests labelled Food, Wood or Ores.
-
-Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it. Its model
-writes the order as a program; anything longer than one step it reads back, and runs only once you click Do it.
-
-## Forecasting
-
-A Forecaster watches the crops around it and writes down how they grow: one line per crop, its age at every look. A
-model trained on lines like these is a small model of the world, and knows what a field will do next. The Forecaster
-checks it against everything the field did by itself. If the growth the model expects is within 11% of the growth
-there was, the Forecaster runs the field four looks ahead for every one it takes, drawing each crop's next looks from
-the model; within 25%, two. A model that is wrong on average is refused. A model of fields in general expects an
-average field, so the way to forecast yours is to train on the Forecaster's own log.
 
 ## Serving models
 

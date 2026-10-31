@@ -11,11 +11,15 @@ navigation:
 
 ## 第一个模型
 
-<residual:Milestone id="model/saved">用线缆把一个<ItemLink id="embedding" />接到<ItemLink id="model_core" />，用<ItemLink id="field_dataset" />训练并保存：[入门](getting-started.md)。</residual:Milestone>
+<residual:Milestone id="model/saved">用线缆把一个<ItemLink id="embedding" />接到<ItemLink id="model_core" />，用<ItemLink id="forecast_dataset" />训练并保存：[入门](getting-started.md)。</residual:Milestone>
 
-<residual:Milestone id="benchmark/reacting">保存时会用每一项基准测试模型；第一个模型练得够久，就能通过这一项。</residual:Milestone>
+<residual:Milestone id="benchmark/forecasting">保存时会用每一项基准测试模型；第一个模型练得够久，就能通过这一项。</residual:Milestone>
 
-<residual:Milestone id="agent/made">合成一个，放在耕地旁，交给它你的检查点：[智能体](agents.md)。</residual:Milestone>
+<residual:Milestone id="forecast/watching">它记录周围熔炉和作物的变化：[预报机](forecaster.md)。</residual:Milestone>
+
+<residual:Milestone id="forecast/ahead">通过预报的模型，等机器做完十来件后就能管机器；你自己的田，可能要用预报机自己的日志训练出的模型。</residual:Milestone>
+
+<residual:Milestone id="agent/made">合成一个，放在它该住的地方：[智能体](agents.md)。</residual:Milestone>
 
 <residual:Milestone id="agent/program">在它的界面里输入一段，或用指令板点选拼出来。</residual:Milestone>
 
@@ -73,17 +77,11 @@ navigation:
 
 <residual:Milestone id="benchmark/sorting">用<ItemLink id="sorting_dataset" />练习。</residual:Milestone>
 
-<residual:Milestone id="benchmark/forecasting">用<ItemLink id="growth_dataset" />练习。</residual:Milestone>
-
 <residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习；需要一个大到无法随身携带的模型。</residual:Milestone>
 
 <residual:Milestone id="model/complete">一个模型核心最多可同时练习四种数据。</residual:Milestone>
 
 ## 让模型干活
-
-<residual:Milestone id="forecast/watching">它记录周围作物的生长：[预报机](forecaster.md)。</residual:Milestone>
-
-<residual:Milestone id="forecast/ahead">用预报机自己的日志训练模型，直到预报机信任它。</residual:Milestone>
 
 <residual:Milestone id="deploy/server">更大的模型留在服务器里，通过中继器作答：[模型服务](deployment.md)。</residual:Milestone>
 
