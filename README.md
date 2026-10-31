@@ -158,7 +158,7 @@ You get the field notes the first time you join a world, and they are also
 
 ### Modpack
 
-`Residual-0.3.1-alpha.mrpack`, also on the Releases page, sets up Residual with Applied Energistics 2, JEI, Jade, Sodium,
+`Residual-0.4.0-alpha.mrpack`, also on the Releases page, sets up Residual with Applied Energistics 2, JEI, Jade, Sodium,
 ModernFix and FerriteCore. Import it in Prism Launcher or the Modrinth App.
 
 ## Building
@@ -166,7 +166,7 @@ ModernFix and FerriteCore. Import it in Prism Launcher or the Modrinth App.
 Building needs Java 25.
 
 ```sh
-./gradlew build       # build/libs/residual-26.1.2-0.3.1-alpha.jar
+./gradlew build       # build/libs/residual-26.1.2-0.4.0-alpha.jar
 ./gradlew runClient
 ```
 

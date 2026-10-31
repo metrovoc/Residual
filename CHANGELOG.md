@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0-alpha
+
+Residual 0.4.0-alpha speaks Simplified Chinese.
+
+- Every screen, tooltip, advancement and message, and all of the field notes, are translated into Simplified Chinese, and shown when the game's language is 简体中文. GuideME's own labels are translated too.
+- What the models read and write stays English: the archive, orders, programs, sorting labels and agent names. The models learn a fixed English alphabet.
+- Shape, wiring and sampling messages from the server now arrive in each player's own language.
+
 ## 0.3.1-alpha
 
 Residual 0.3.1-alpha gives the mod one mark everywhere and keeps the field notes inside their world.
