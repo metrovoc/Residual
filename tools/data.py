@@ -285,6 +285,15 @@ def storage():
     write(f"assets/{NS}/blockstates/port.json", {"variants": variants})
     item_definition("port", rid("block/port_import"))
 
+    side = rid("block/assembler_side")
+    variants = {}
+    for working, suffix in (("false", ""), ("true", "_on")):
+        cube(f"assembler{suffix}", rid(f"block/assembler_front{suffix}"), side, side, rid("block/drive_rack_top"), side)
+        for key, value in facing_variants(rid(f"block/assembler{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},working={working}"] = value
+    write(f"assets/{NS}/blockstates/assembler.json", {"variants": variants})
+    item_definition("assembler", rid("block/assembler"))
+
     # a 6 px link, built like the signal cables
     joint = {f: {"uv": [5, 5, 11, 11], "texture": "#link"} for f in ("north", "south", "east", "west", "up", "down")}
     write(f"assets/{NS}/models/block/storage_link_joint.json", {
@@ -347,7 +356,7 @@ def items():
 # ---------------------------------------------------------------- data
 
 MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream",
-                  "bpe_forge", "forecaster", "drive_rack", "storage_terminal", "port", "storage_link"]
+                  "bpe_forge", "forecaster", "drive_rack", "storage_terminal", "port", "storage_link", "assembler"]
 
 
 def blocks():
@@ -433,6 +442,8 @@ def recipes():
     shaped("storage_link", ["CCC", "RGR", "CCC"], {"C": "minecraft:copper_ingot", "R": "minecraft:redstone", "G": "minecraft:glass"}, 16)
     shaped("storage_terminal", ["KGK", "GWG", "KRK"], {"K": rid("tensor_casing"), "G": "minecraft:glass_pane", "W": rid("wafer"),
                                                        "R": "minecraft:redstone"})
+    shaped("assembler", ["KTK", "WCW", "KRK"], {"K": rid("tensor_casing"), "T": "minecraft:crafting_table", "W": rid("wafer"),
+                                                "C": rid("weight_crystal"), "R": "minecraft:redstone"})
     shaped("port", ["KHK", "RWR", "KPK"], {"K": rid("tensor_casing"), "H": "minecraft:hopper", "R": "minecraft:redstone",
                                            "W": rid("wafer"), "P": "minecraft:piston"})
 
@@ -490,6 +501,7 @@ def advancements():
     advancement("storage/drive", "root", "storage_drive", has("storage_drive"))
     advancement("storage/terminal", "storage/drive", "storage_terminal", placed("storage_terminal"))
     advancement("storage/port", "storage/terminal", "port", placed("port"), frame="goal")
+    advancement("storage/assembler", "storage/terminal", "assembler", awarded(), frame="goal")
     advancement("bench/made", "root", "bench", placed("bench"))
     advancement("model/stream", "bench/made", "stream", placed("stream"))
     advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))

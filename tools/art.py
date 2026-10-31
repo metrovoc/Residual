@@ -1842,6 +1842,39 @@ def storage_link():
     return c
 
 
+def assembler_front(working):
+    """A crafting grid on a screen: its nine cells dim while it waits, lit as it assembles."""
+    c = plate(AMBER_LINE, salt=39)
+    window(c)
+    tones = [AMBER[3], TEAL[3], AMBER[4], TEAL[4], AMBER[3], TEAL[3], AMBER[4], TEAL[4], AMBER[3]]
+    for i in range(9):
+        x, y = 4 + i % 3 * 3, 4 + i // 3 * 3
+        c.rect(x, y, x + 1, y + 1, tones[i] if working else DIM[2])
+    return c
+
+
+def assembler_side():
+    """A crafting grid of 2 px studs."""
+    c = plate(NEUTRAL, salt=40)
+    engraved_glyph(c, ASSEMBLER_SIDE)
+    return c
+
+
+ASSEMBLER_SIDE = [
+    "##..##..##",
+    "##..##..##",
+    "..........",
+    "..........",
+    "##..##..##",
+    "##..##..##",
+    "..........",
+    "..........",
+    "##..##..##",
+    "##..##..##",
+]
+
+
+
 STORAGE_DRIVE = [
     "................",
     "................",
@@ -2062,14 +2095,17 @@ def build():
     port_side().save("block/port_side.png")
     port_front().save("block/port_front.png")
     storage_link().save("block/storage_link.png")
-    for rows in [TERMINAL_SIDE, *PORT_GLYPHS.values()]:
+    for rows in [TERMINAL_SIDE, ASSEMBLER_SIDE, *PORT_GLYPHS.values()]:
         assert mirrored(rows) and len(rows[0]) % 2 == 0 and len(rows) % 2 == 0, rows
     # a glyph symmetric along an axis has to be even along it, or it sits half a pixel off the tile's centre
-    for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, *PORT_GLYPHS.values()]:
+    for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, *PORT_GLYPHS.values()]:
         assert not (mirrored(rows) and len(rows[0]) % 2), rows
         assert not (rows == rows[::-1] and len(rows) % 2), rows
     assert [x + 1 for x in RACK_BAY_X] == [15 - x for x in reversed(RACK_BAY_X)]
     storage_drive().save("item/storage_drive.png")
+    assembler_front(False).save("block/assembler_front.png")
+    assembler_front(True).save("block/assembler_front_on.png")
+    assembler_side().save("block/assembler_side.png")
     forecaster_front().save("block/forecaster_front.png")
     animated([forecaster_front(i) for i in range(32)], "block/forecaster_front_on.png", 3)
     SAVED["block/forecaster_front_on.png"] = forecaster_front(5).im

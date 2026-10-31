@@ -31,6 +31,8 @@ navigation:
 
 <residual:Milestone id="storage/port">把它的正面贴在箱子或机器上，背面连到网络。</residual:Milestone>
 
+<residual:Milestone id="storage/assembler">在装配机的网格里摆出配方，告诉它要保持多少。</residual:Milestone>
+
 ## 旧世界
 
 <residual:Milestone id="ruins/found">档案屋、中继塔和地下库彼此相隔很远：[遗迹](ruins.md)。</residual:Milestone>

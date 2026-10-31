@@ -10,6 +10,7 @@ import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
 import io.github.metrovoc.residual.block.RelayBlockEntity;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
+import io.github.metrovoc.residual.storage.AssemblerBlockEntity;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.RackBlockEntity;
 import io.github.metrovoc.residual.storage.TerminalBlockEntity;
@@ -51,6 +52,9 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(TerminalBlockEntity::new, Set.of(ModBlocks.STORAGE_TERMINAL.get())));
     public static final Supplier<BlockEntityType<PortBlockEntity>> PORT = BLOCK_ENTITIES.register("port",
             () -> new BlockEntityType<>(PortBlockEntity::new, Set.of(ModBlocks.PORT.get())));
+
+    public static final Supplier<BlockEntityType<AssemblerBlockEntity>> ASSEMBLER = BLOCK_ENTITIES.register("assembler",
+            () -> new BlockEntityType<>(AssemblerBlockEntity::new, Set.of(ModBlocks.ASSEMBLER.get())));
 
     private ModBlockEntities() {
     }

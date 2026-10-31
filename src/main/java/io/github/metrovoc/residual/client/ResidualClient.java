@@ -61,6 +61,7 @@ public final class ResidualClient {
         event.register(ModMenus.RACK.get(), RackScreen::new);
         event.register(ModMenus.TERMINAL.get(), StorageTerminalScreen::new);
         event.register(ModMenus.PORT.get(), PortScreen::new);
+        event.register(ModMenus.ASSEMBLER.get(), AssemblerScreen::new);
     }
 
     private static void payloads(RegisterClientPayloadHandlersEvent event) {

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "T": "minecraft:crafting_table",
+    "W": "residual:wafer",
+    "C": "residual:weight_crystal",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    "KTK",
+    "WCW",
+    "KRK"
+  ],
+  "result": {
+    "id": "residual:assembler"
+  }
+}

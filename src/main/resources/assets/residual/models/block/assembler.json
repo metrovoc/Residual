@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/assembler_side",
+    "north": "residual:block/assembler_front",
+    "south": "residual:block/assembler_side",
+    "east": "residual:block/assembler_side",
+    "west": "residual:block/assembler_side",
+    "up": "residual:block/drive_rack_top",
+    "down": "residual:block/assembler_side"
+  }
+}

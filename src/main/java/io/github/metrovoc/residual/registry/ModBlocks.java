@@ -14,6 +14,7 @@ import io.github.metrovoc.residual.block.RelayBlock;
 import io.github.metrovoc.residual.block.ServerBlock;
 import io.github.metrovoc.residual.block.StreamBlock;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.storage.AssemblerBlock;
 import io.github.metrovoc.residual.storage.LinkBlock;
 import io.github.metrovoc.residual.storage.PortBlock;
 import io.github.metrovoc.residual.storage.RackBlock;
@@ -64,6 +65,8 @@ public final class ModBlocks {
             p -> machine(p).lightLevel(s -> s.getValue(TerminalBlock.LIT) ? 9 : 2));
     public static final DeferredBlock<PortBlock> PORT = BLOCKS.registerBlock("port", PortBlock::new,
             p -> machine(p).lightLevel(s -> s.getValue(PortBlock.ACTIVE) ? 7 : 2));
+    public static final DeferredBlock<AssemblerBlock> ASSEMBLER = BLOCKS.registerBlock("assembler", AssemblerBlock::new,
+            p -> machine(p).lightLevel(s -> s.getValue(AssemblerBlock.WORKING) ? 9 : 2));
 
     static {
         for (Op op : Op.values()) {

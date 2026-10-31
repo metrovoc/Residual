@@ -37,6 +37,9 @@ about a dozen items; your own field may take a model trained on the Forecaster's
 <residual:Milestone id="storage/port">Hold its front against a chest or a machine, and link its back to the
 network.</residual:Milestone>
 
+<residual:Milestone id="storage/assembler">Draw a recipe in an Assembler's grid and tell it how many to
+keep.</residual:Milestone>
+
 ## The old world
 
 <residual:Milestone id="ruins/found">Archive houses, relay masts and buried vaults stand far apart:

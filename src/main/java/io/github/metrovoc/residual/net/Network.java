@@ -15,6 +15,8 @@ import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.registry.ModItems;
+import io.github.metrovoc.residual.storage.AssemblerBlockEntity;
+import io.github.metrovoc.residual.storage.AssemblerMenu;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.PortMenu;
 import io.github.metrovoc.residual.storage.PortMode;
@@ -44,6 +46,7 @@ public final class Network {
         r.playToServer(BenchRecord.TYPE, BenchRecord.STREAM_CODEC, Network::onBenchRecord);
         r.playToServer(StorageClick.TYPE, StorageClick.STREAM_CODEC, Network::onStorageClick);
         r.playToServer(PortEdit.TYPE, PortEdit.STREAM_CODEC, Network::onPortEdit);
+        r.playToServer(AssemblerEdit.TYPE, AssemblerEdit.STREAM_CODEC, Network::onAssemblerEdit);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
@@ -158,6 +161,14 @@ public final class Network {
         if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
                 && menu.containerId == click.menu() && menu.stillValid(player)) {
             menu.click(click);
+        }
+    }
+
+    private static void onAssemblerEdit(AssemblerEdit e, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof AssemblerMenu menu
+                && menu.pos.equals(e.pos()) && menu.stillValid(player)
+                && player.level().getBlockEntity(e.pos()) instanceof AssemblerBlockEntity assembler) {
+            assembler.setKeep(e.keep());
         }
     }
 

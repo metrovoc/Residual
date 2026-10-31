@@ -32,6 +32,7 @@
     "residual:drive_rack",
     "residual:storage_terminal",
     "residual:port",
-    "residual:storage_link"
+    "residual:storage_link",
+    "residual:assembler"
   ]
 }

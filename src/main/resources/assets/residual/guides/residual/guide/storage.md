@@ -9,6 +9,7 @@ item_ids:
   - storage_link
   - storage_terminal
   - port
+  - assembler
 ---
 
 # Storage
@@ -107,3 +108,17 @@ faces to turn its front there. Its back shows what it does, and lights while it 
 
 To set the filter, click one of its slots with a stack, or shift-click the stack in your inventory; click a slot
 empty-handed to clear it. The screen says how many items the Port moved in the last second.
+
+## Assemblers
+
+An <ItemLink id="assembler" /> on the network crafts one recipe from what the network keeps, and puts the result
+back. Draw the recipe in its grid the way you would on a crafting table: click a cell with a stack to put that kind
+there, or empty-handed to clear it. The grid holds pictures, not items. What the recipe makes shows beside it, and the
+Assembler waits while its screen is open, so a recipe half drawn never crafts.
+
+Tell it how many of the result to keep. Whenever the network holds fewer, it crafts, up to four crafts a tick, as long
+as the network has the ingredients; whatever a recipe leaves behind, such as an empty bucket, goes back into the
+network. One Assembler can keep another stocked: one that keeps sticks lets one that makes torches go on as long as
+there is coal.
+
+<RecipeFor id="assembler" />

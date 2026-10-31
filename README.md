@@ -97,7 +97,9 @@ to Storage Terminals and Ports. There are no channels and nothing to power. A te
 keeps and finds anything by name, mod, tag, tooltip or id, with `-` to leave things out, `|` for alternatives,
 parentheses and amounts: `@minecraft ingot -iron` finds every ingot but iron. A Port holds its front against a chest or
 a machine and imports, exports, keeps a set stock, or opens the inventory to the network as a window, 64 items a tick:
-with its chest refilled every tick, one moved 1,280 items a second.
+with its chest refilled every tick, one moved 1,280 items a second. An Assembler crafts a recipe drawn in its grid from
+what the network keeps, up to 80 crafts a second, whenever the network holds fewer of the result than it is told to
+keep, so one that keeps sticks lets another make torches for as long as there is coal.
 
 ## The archive
 
