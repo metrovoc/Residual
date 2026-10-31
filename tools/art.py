@@ -1995,14 +1995,14 @@ GUIDE = [
     "..ooooooooooo...",
     ".oKCCCCCCCCCCo..",
     ".oKCCCCCCCCCCPo.",
-    ".oKCccccccccCPo.",
-    ".oKCcCCeeCCcCPo.",
-    ".oKCcCCeeCCcCPo.",
-    ".oKCceeeeeecCPo.",
-    ".oKCceeeeeecCPo.",
-    ".oKCcCCeeCCcCPo.",
-    ".oKCcCCeeCCcCPo.",
-    ".oKCccccccccCPo.",
+    ".oKCCCCCCCCCCPo.",
+    ".oKCCCCCCCCCCPo.",
+    ".oKCCCCCCCCCCPo.",
+    ".oKCCCCCCCCCCPo.",
+    ".oKCCCCCCCCCCPo.",
+    ".oKCCCCCCCCCCPo.",
+    ".oKCCCCCCCCCCPo.",
+    ".oKCCCCCCCCCCPo.",
     ".oKCCCCCCCCCCPo.",
     ".oKkkkkkkkkkkPo.",
     "..ooooooooooooo.",
@@ -2011,10 +2011,12 @@ GUIDE = [
 
 
 def guide():
-    """The field notes: a teal-bound book, the Junction's cross on its cover."""
+    """The field notes: a teal-bound book with the Junction's sign on its cover."""
     c = Canvas()
-    c.stamp(0, 0, GUIDE, {"o": TEAL[0], "K": TEAL[1], "C": TEAL[2], "c": TEAL[3], "e": TEAL[5], "k": TEAL[1],
-                          "P": K0})
+    c.stamp(0, 0, GUIDE, {"o": TEAL[0], "K": TEAL[1], "C": TEAL[2], "k": TEAL[1], "P": K0})
+    tone = {"#": TEAL[4], "-": TEAL[1], "+": TEAL[5]}
+    for (x, y), ch in glyph_cells(GLYPHS["add"]).items():
+        c.px(4 + x, 4 + y, tone[ch])
     return c
 
 
