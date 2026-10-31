@@ -251,6 +251,7 @@ GLYPHS = {
         ".++..++.",
         "#.++++.#",
         "#..++..#",
+        "#..++..#",
         "#.++++.#",
         ".++..++.",
         "..####..",
@@ -304,6 +305,7 @@ GLYPHS = {
         "....#...",
         "...#....",
         "########",
+        "########",
         "...#....",
         "....#...",
         ".....+++",
@@ -312,6 +314,7 @@ GLYPHS = {
         "+++.....",
         "...#....",
         "....#...",
+        "########",
         "########",
         "....#...",
         "...#....",
@@ -346,6 +349,7 @@ GLYPHS = {
         "........",
         "##.++.##",
         "........",
+        "........",
         "##.++.##",
         "........",
         "...++...",
@@ -354,6 +358,7 @@ GLYPHS = {
         "#####.+",
         "#+++#.+",
         "#####.+",
+        "..#...+",
         "..#...+",
         "#####.+",
         "#+++#.+",
@@ -519,6 +524,7 @@ def accelerator_hot():
 SERVER_CRYSTAL = [
     "..TA..",
     ".TtaA.",
+    "TttaaA",
     "TttaaA",
     ".TtaA.",
     "..TA..",
@@ -1671,118 +1677,125 @@ def terminal():
 
 # ---------------------------------------------------------------- storage
 
-VENTS = [
-    "##########",
-    "..........",
-    "##########",
-    "..........",
-    "##########",
-]
+def mirrored(rows):
+    """Whether a glyph reads the same mirrored left to right, as the storage glyphs below must."""
+    return all(row == row[::-1] for row in rows)
+
+
+# a Drive Rack's eight bays: two banks of two pairs, each bay a 2 px slot lit along its top (RackRenderer draws the
+# lights at the same places)
+RACK_BAY_X = (2, 5, 9, 12)
+RACK_BAY_Y = (3, 9)
 
 
 def rack_front():
-    """Eight bays in two rows of four, each a dark slot; the rack lights a strip beside each bay by how full its drive is
-    (RackRenderer draws the strips at x 4, 7, 10 and 13, rows 3 to 6 and 9 to 12)."""
+    """Eight dark bays, mirror-symmetric about the tile's centre; the rack lights the top of each bay by how full its
+    drive is."""
     c = plate(NEUTRAL, salt=31)
-    for row in range(2):
-        y0 = 3 + row * 6
-        for col in range(4):
-            x0 = 2 + col * 3
+    for y0 in RACK_BAY_Y:
+        for x0 in RACK_BAY_X:
             c.rect(x0, y0, x0 + 1, y0 + 3, W1)
             c.px(x0, y0, W0)
             c.px(x0 + 1, y0, W0)
             c.px(x0, y0 + 3, W2)
             c.px(x0 + 1, y0 + 3, W3)
-            c.px(x0 + 2, y0 + 1, K3)
-            c.px(x0 + 2, y0 + 2, K3)
     return c
 
 
 def rack_side():
+    """Four vents, mirror-symmetric both ways."""
     c = plate(NEUTRAL, salt=32)
-    engraved_glyph(c, VENTS)
+    for y in (4, 6, 9, 11):
+        for x in range(3, 13):
+            c.px(x, y, K4)
+            c.px(x, y + 1, K0)
     return c
 
 
 def rack_top():
     c = plate(NEUTRAL, salt=33)
-    for x in (4, 7, 10):
+    for x in (4, 6, 9, 11):
         for y in range(4, 12):
             c.px(x, y, K3 if (x + y) % 2 else K2)
     return c
 
 
-# what a Storage Terminal's screen shows: stored kinds as little squares, by color
-TERMINAL_CELLS = [(3, 3, AMBER[3]), (6, 3, TEAL[3]), (9, 3, STONE[3]), (3, 6, CROP[6]), (6, 6, AMBER[4]),
-                  (9, 6, TEAL[4]), (3, 9, STONE[4]), (6, 9, AMETHYST[3])]
+# what a Storage Terminal's screen shows: stored kinds as little squares, by color, on a 3×3 grid of 2 px cells
+TERMINAL_CELLS = [(4, 4, AMBER[3]), (7, 4, TEAL[3]), (10, 4, STONE[3]), (4, 7, CROP[6]), (7, 7, AMBER[4]),
+                  (10, 7, TEAL[4]), (4, 10, STONE[4]), (7, 10, AMETHYST[3])]
 
 
 def storage_terminal_front(lit):
-    """A screen of stored kinds, two by two pixels each, dark until its network has somewhere to keep things."""
+    """A screen of stored kinds, two by two pixels each, dark until its network has somewhere to keep things; lit, the
+    last cell is a cursor."""
     c = plate(TEAL_LINE, salt=34)
     window(c)
     for x, y, color in TERMINAL_CELLS:
-        c.rect(x + 1, y + 1, x + 2, y + 2, color if lit else DIM[2])
-    if lit:
-        c.rect(11, 10, 12, 11, TEAL[5])
+        c.rect(x, y, x + 1, y + 1, color if lit else DIM[2])
+    c.rect(10, 10, 11, 11, TEAL[5] if lit else DIM[2])
     return c
+
+
+TERMINAL_SIDE = [
+    "##..##",
+    "##..##",
+    "......",
+    "......",
+    "##..##",
+    "##..##",
+]
 
 
 def storage_terminal_side():
     c = plate(NEUTRAL, salt=35)
-    engraved_glyph(c, [
-        "##.##",
-        "##.##",
-        ".....",
-        "##.##",
-        "##.##",
-    ])
+    engraved_glyph(c, TERMINAL_SIDE)
     return c
 
 
 PORT_GLYPHS = {
     # an arrow into the network
     "import": [
-        "....#....",
-        "....#....",
-        "....#....",
-        "..#.#.#..",
-        "...###...",
-        "....#....",
-        ".........",
-        "#########",
+        "...##...",
+        "...##...",
+        "...##...",
+        ".######.",
+        "..####..",
+        "...##...",
+        "........",
+        "########",
     ],
     # an arrow out of it
     "export": [
-        "#########",
-        ".........",
-        "....#....",
-        "...###...",
-        "..#.#.#..",
-        "....#....",
-        "....#....",
-        "....#....",
+        "########",
+        "........",
+        "...##...",
+        "..####..",
+        ".######.",
+        "...##...",
+        "...##...",
+        "...##...",
     ],
     # a level kept at a mark
     "stock": [
-        "#.......#",
-        "#.......#",
-        "#-------#",
-        "#+++++++#",
-        "#+++++++#",
-        "#+++++++#",
-        "#+++++++#",
-        "#########",
+        "#......#",
+        "#......#",
+        "#------#",
+        "#++++++#",
+        "#++++++#",
+        "#++++++#",
+        "#++++++#",
+        "########",
     ],
     # a pane: what is behind it is open to the network
     "window": [
-        "#########",
-        "#...#...#",
-        "#...#...#",
-        "#########",
-        "#...#...#",
-        "#...#...#",
-        "#########",
+        "########",
+        "#..##..#",
+        "#..##..#",
+        "########",
+        "########",
+        "#..##..#",
+        "#..##..#",
+        "########",
     ],
 }
 
@@ -2049,6 +2062,13 @@ def build():
     port_side().save("block/port_side.png")
     port_front().save("block/port_front.png")
     storage_link().save("block/storage_link.png")
+    for rows in [TERMINAL_SIDE, *PORT_GLYPHS.values()]:
+        assert mirrored(rows) and len(rows[0]) % 2 == 0 and len(rows) % 2 == 0, rows
+    # a glyph symmetric along an axis has to be even along it, or it sits half a pixel off the tile's centre
+    for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, *PORT_GLYPHS.values()]:
+        assert not (mirrored(rows) and len(rows[0]) % 2), rows
+        assert not (rows == rows[::-1] and len(rows) % 2), rows
+    assert [x + 1 for x in RACK_BAY_X] == [15 - x for x in reversed(RACK_BAY_X)]
     storage_drive().save("item/storage_drive.png")
     forecaster_front().save("block/forecaster_front.png")
     animated([forecaster_front(i) for i in range(32)], "block/forecaster_front_on.png", 3)

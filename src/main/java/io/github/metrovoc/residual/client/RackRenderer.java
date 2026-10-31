@@ -19,6 +19,7 @@ import org.joml.Vector3f;
 public class RackRenderer implements BlockEntityRenderer<RackBlockEntity, RackRenderer.State> {
     private static final int FULL_BRIGHT = 0xF000F0;
     private static final int[] COLORS = {0, 0xFF27413F, 0xFF3CD6C6, 0xFFFFB547, 0xFFFF6B6B};
+    private static final int[] BAY_X = {2, 5, 9, 12}, BAY_Y = {3, 9};
 
     public static class State extends BlockEntityRenderState {
         Direction facing = Direction.NORTH;
@@ -44,9 +45,10 @@ public class RackRenderer implements BlockEntityRenderer<RackBlockEntity, RackRe
             for (int i = 0; i < RackBlockEntity.BAYS; i++) {
                 int color = COLORS[Math.clamp(state.lights[i], 0, COLORS.length - 1)];
                 if (color != 0) {
-                    // the bays sit in two rows of four on the front texture; each light is a strip at a bay's right edge
-                    float u0 = (2 + (i % 4) * 3 + 2) / 16f, v0 = (3 + (i / 4) * 6) / 16f;
-                    quad(pose, buffer, state.facing, u0, v0, u0 + 1 / 16f, v0 + 4 / 16f, color);
+                    // the bays sit in two banks of two pairs on the front texture (tools/art.py, RACK_BAY_X and
+                    // RACK_BAY_Y); each light runs along a bay's top
+                    float u0 = BAY_X[i % 4] / 16f, v0 = BAY_Y[i / 4] / 16f;
+                    quad(pose, buffer, state.facing, u0, v0, u0 + 2 / 16f, v0 + 1 / 16f, color);
                 }
             }
         });
