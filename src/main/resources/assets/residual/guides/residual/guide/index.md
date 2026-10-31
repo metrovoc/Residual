@@ -3,8 +3,6 @@ navigation:
   title: Residual
   icon: add
   position: 0
-item_ids:
-  - guide
 ---
 
 # Residual
