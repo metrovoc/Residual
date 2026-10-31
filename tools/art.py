@@ -2050,8 +2050,10 @@ def project(x, y, z):
     return across, toward * math.sin(PITCH) - y * math.cos(PITCH)
 
 
-def block(faces, height, glow=(), ss=4):
-    """A block `height` pixels high with top, left and right faces, outlined like the name; its glow stays unshaded."""
+def block(faces, height, glow=None, ss=4):
+    """A block `height` pixels high with top, left and right faces, outlined like the name. `glow` maps a face to the
+    pixels of it that stay unshaded, by place: picked by color, a lit part would break wherever a surface mixes two
+    tones."""
     hull = [project(*p) for p in HULL]
     span = max(y for _, y in hull) - min(y for _, y in hull)
     k = height * ss / (span + 1.8 / 16)
@@ -2065,9 +2067,10 @@ def block(faces, height, glow=(), ss=4):
     for name, (corners, light) in FACES.items():
         tex = faces[name].copy()
         px = tex.load()
+        lit = (glow or {}).get(name, ())
         for y in range(tex.height):
             for x in range(tex.width):
-                if px[x, y] not in glow:
+                if (x, y) not in lit:
                     px[x, y] = tuple(round(v * light) for v in px[x, y][:3]) + (px[x, y][3],)
         (ox, oy), (ux, uy), (vx, vy) = ((x * k - x0, y * k - y0) for x, y in (project(*p) for p in corners))
         # texel (u, v) lands on o + u (a, c) + v (b, d); the transform wants the way back
@@ -2084,7 +2087,9 @@ def block(faces, height, glow=(), ss=4):
 def junction(height):
     """The mod's mark: the Residual Junction, its glyph lit."""
     front, side = operator_faces("add")
-    return block({"top": side.im, "left": side.im, "right": front.im}, height, set(TEAL))
+    x0, y0 = centered(GLYPHS["add"])
+    glyph = {(x0 + x, y0 + y) for x, y in glyph_cells(GLYPHS["add"])}
+    return block({"top": side.im, "left": side.im, "right": front.im}, height, {"right": glyph})
 
 
 def logo(scale=8):
