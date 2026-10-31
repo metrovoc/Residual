@@ -150,8 +150,9 @@ and the server more answers a second; kept cool by water, ice or snow, they work
 ## Real models
 
 Residual trains with its own reverse-mode autograd engine, written in Java to match PyTorch operation for operation,
-and with the same optimizer: AdamW with gradient clipping and a short warmup. Every operation's gradient is checked
-against numerical differentiation.
+and with the same optimizer: AdamW with gradient clipping and a short warmup. Every operation's output and gradients,
+and the optimizer's steps, are tested against reference values computed once with PyTorch (`TorchParityTest`), and
+every gradient against numerical differentiation (`OpsGradientTest`). Nothing of PyTorch ships with the mod.
 
 A two-layer GPT with four attention heads and a 64-wide residual stream has 113,742 parameters. Trained on every record
 a shard can carry, it reaches a loss of 1.37 on records it never saw, and the Reader restores 86% of the lost blocks it
