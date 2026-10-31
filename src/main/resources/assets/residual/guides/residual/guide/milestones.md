@@ -24,6 +24,10 @@ it has practised long enough.</residual:Milestone>
 <residual:Milestone id="forecast/ahead">A model that passes Forecasting is trusted with machines once they have made
 about a dozen items; your own field may take a model trained on the Forecaster's own log.</residual:Milestone>
 
+<residual:Milestone id="forecast/hourglass">The Fabricator makes it from an attention photomask, and it keeps time
+while carried. Sneak-use a Forecaster that runs blocks ahead to bind it, then use it on one of those blocks:
+[The Forecaster](forecaster.md).</residual:Milestone>
+
 <residual:Milestone id="agent/made">Craft one and place it where it should live: [Agents](agents.md).</residual:Milestone>
 
 <residual:Milestone id="agent/program">Type one in its screen, or click it together from the palette.</residual:Milestone>

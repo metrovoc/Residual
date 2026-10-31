@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import guideme.Guides;
 import io.github.metrovoc.residual.agent.Agents;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
+import io.github.metrovoc.residual.block.Bursts;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.net.Network;
 import io.github.metrovoc.residual.registry.ModAttachments;
@@ -52,6 +53,7 @@ public final class Residual {
         NeoForge.EVENT_BUS.addListener(Agents::onChat);
         NeoForge.EVENT_BUS.addListener(Agents::commands);
         NeoForge.EVENT_BUS.addListener(ForecasterBlockEntity::grew);
+        NeoForge.EVENT_BUS.addListener(Bursts::tick);
     }
 
     public static Identifier id(String path) {

@@ -19,6 +19,8 @@ navigation:
 
 <residual:Milestone id="forecast/ahead">通过预报的模型，等机器做完十来件后就能管机器；你自己的田，可能要用预报机自己的日志训练出的模型。</residual:Milestone>
 
+<residual:Milestone id="forecast/hourglass">制造机用注意力光掩模制造它，带在身上就会存下时间。潜行使用一台让方块超前运行的预报机来绑定它，再对这样的方块使用：[预报机](forecaster.md)。</residual:Milestone>
+
 <residual:Milestone id="agent/made">合成一个，放在它该住的地方：[智能体](agents.md)。</residual:Milestone>
 
 <residual:Milestone id="agent/program">在它的界面里输入一段，或用指令板点选拼出来。</residual:Milestone>

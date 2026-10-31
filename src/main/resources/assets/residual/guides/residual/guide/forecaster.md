@@ -7,6 +7,7 @@ item_ids:
   - forecaster
   - field_log
   - forecast_dataset
+  - hourglass
 ---
 
 # The Forecaster
@@ -98,3 +99,18 @@ same fuel per item.
 Every look drawn is the model's own work. A model that is slow to answer, or a server busy with other askers, runs fewer
 looks ahead. Lines the model wrote, or that a machine was run ahead through, are never written down: the log only ever
 holds what the blocks did by themselves.
+
+## The Hourglass
+
+The <ItemLink id="hourglass" /> keeps time while you carry it, a second for every second, up to an hour. The
+[Fabricator](bench.md) makes it from an attention photomask, out of a <ItemLink id="tensor_casing" />, four wafers and
+two weight crystals.
+
+Sneak-use a Forecaster to bind it. Then use it on a machine or a crop of a kind that Forecaster runs ahead, anywhere in
+the Forecaster's dimension while the Forecaster is loaded: the block runs twice as fast for thirty seconds. Use it on
+the block again before that ends and the pace doubles, for thirty seconds from then, up to sixteen times as fast. Each
+step costs twice the kept time of the one before: thirty seconds of it for twice as fast, four minutes for sixteen
+times.
+
+It works only on what its Forecaster's model is trusted with: while the model doesn't pass its check on machines, the
+Hourglass refuses machines too. A Forecaster never writes down the line of a block an Hourglass ran.

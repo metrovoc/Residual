@@ -90,7 +90,10 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         super(ModBlockEntities.FABRICATOR.get(), pos, state);
     }
 
-    /** What it can make: the machines a mask's spec unlocks, or with no mask the machines that need no design. */
+    /**
+     * What it can make: the machines a mask's spec unlocks, or with no mask the machines that need no design. A matrix
+     * multiply mask also makes the Accelerator, and an attention mask the Hourglass.
+     */
     public static List<Item> choices(ItemStack mask) {
         List<Item> out = new ArrayList<>();
         if (mask.isEmpty()) {
@@ -110,6 +113,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
             if (spec == Specs.MATMUL) {
                 out.add(ModBlocks.ACCELERATOR.asItem());
             }
+            if (spec == Specs.ATTENTION) {
+                out.add(ModItems.HOURGLASS.get());
+            }
         }
         return out;
     }
@@ -117,6 +123,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
     public static Cost cost(Item item, ItemStack mask) {
         if (item == ModBlocks.ACCELERATOR.asItem()) {
             return new Cost(2, 6, 0, 100);
+        }
+        if (item == ModItems.HOURGLASS.get()) {
+            return new Cost(1, 4, 2, 100);
         }
         MaskData m = MaskItem.mask(mask);
         int wafers = Math.max(1, ((m == null ? 0 : m.area()) + 3) / 4);

@@ -58,6 +58,13 @@ public final class ModComponents {
     public static final Supplier<DataComponentType<StorageDriveItem.Label>> STORAGE_DRIVE = COMPONENTS.registerComponentType("storage_drive",
             b -> b.persistent(StorageDriveItem.Label.CODEC).networkSynchronized(StorageDriveItem.Label.STREAM_CODEC));
 
+    /** Time an Hourglass has kept, in ticks. */
+    public static final Supplier<DataComponentType<Integer>> KEPT_TIME = COMPONENTS.registerComponentType("kept_time",
+            b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+    /** The Forecaster an Hourglass is bound to. */
+    public static final Supplier<DataComponentType<GlobalPos>> FORECASTER = COMPONENTS.registerComponentType("forecaster",
+            b -> b.persistent(GlobalPos.CODEC).networkSynchronized(GlobalPos.STREAM_CODEC));
+
     private ModComponents() {
     }
 }

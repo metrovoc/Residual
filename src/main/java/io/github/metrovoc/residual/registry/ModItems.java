@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
+import io.github.metrovoc.residual.item.HourglassItem;
 import io.github.metrovoc.residual.item.LinkItem;
 import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
@@ -51,6 +52,7 @@ public final class ModItems {
     public static final DeferredItem<DriveItem> ARCHIVE_DRIVE = ITEMS.registerItem("archive_drive", DriveItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<TokenizerItem> TOKENIZER = ITEMS.registerItem("tokenizer", TokenizerItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<FieldLogItem> FIELD_LOG = ITEMS.registerItem("field_log", FieldLogItem::new, p -> p.stacksTo(1));
+    public static final DeferredItem<HourglassItem> HOURGLASS = ITEMS.registerItem("hourglass", HourglassItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<ShardItem> SHARD = ITEMS.registerItem("archive_shard", ShardItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<AgentItem> AGENT = ITEMS.registerItem("agent", AgentItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<SurveyRodItem> SURVEY_ROD = ITEMS.registerItem("survey_rod", SurveyRodItem::new, p -> p.stacksTo(1));

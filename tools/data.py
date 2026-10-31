@@ -402,7 +402,7 @@ def storage():
 
 def items():
     flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
-             "agent", "relay_card", "terminal", "field_log", "storage_drive"] + list(DATASETS) + SCHEMATICS)
+             "agent", "relay_card", "terminal", "field_log", "storage_drive", "hourglass"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -580,6 +580,7 @@ def advancements():
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
     advancement("forecast/watching", "root", "forecaster", placed("forecaster"))
     advancement("forecast/ahead", "forecast/watching", "minecraft:furnace", awarded(), frame="goal")
+    advancement("forecast/hourglass", "forecast/ahead", "hourglass", awarded(), frame="goal")
     advancement("storage/drive", "root", "storage_drive", has("storage_drive"))
     advancement("storage/terminal", "storage/drive", "storage_terminal", placed("storage_terminal"))
     advancement("storage/port", "storage/terminal", "port", placed("port"), frame="goal")

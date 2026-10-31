@@ -1528,6 +1528,35 @@ def field_log():
     return c
 
 
+HOURGLASS_ITEM = [
+    "................",
+    "................",
+    "..CCCCCCCCCCCC..",
+    "..cccccccccccc..",
+    "...P.GGGGGG.P...",
+    "...P.GTTTTG.P...",
+    "...P..GTTG..P...",
+    "...P...tt...P...",
+    "...P..GttG..P...",
+    "...P.GGttGG.P...",
+    "...P.GTTTTG.P...",
+    "...P.TTTTTT.P...",
+    "..CCCCCCCCCCCC..",
+    "..cccccccccccc..",
+    "................",
+    "................",
+]
+
+
+def hourglass():
+    """Brass ends and posts, two bulbs of glass, and sand of light running down between them."""
+    c = Canvas()
+    c.stamp(0, 0, HOURGLASS_ITEM, {"C": BRASS[4], "c": BRASS[2], "P": BRASS[3], "G": mix(STEEL[0], TEAL[5], .25),
+                              "T": TEAL[4], "t": TEAL[5]})
+    outline(c, BRASS[0])
+    return c
+
+
 CHECKPOINT = [
     "................",
     "......kKKk......",
@@ -2230,6 +2259,7 @@ def build():
     program_card(False).save("item/program_card.png")
     program_card(True).save("item/program_card_written.png")
     field_log().save("item/field_log.png")
+    hourglass().save("item/hourglass.png")
     archive_shard().save("item/archive_shard.png")
     salvaged_model().save("item/salvaged_model.png")
     for kind in BENCHMARK_COLORS:

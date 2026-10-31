@@ -96,7 +96,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         final StringBuilder line = new StringBuilder();
         int age;
         int ripeLooks;
-        /** Its line holds looks a model drew, so it is never written down. */
+        /** Its line holds looks a model drew or an Hourglass hurried, so it is never written down. */
         boolean drawn;
         boolean closed;
 
@@ -124,7 +124,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         int next;
         /** Looks taken so far, so a forecast that comes back after a newer look is not written into the line. */
         int looks;
-        /** Its line holds looks a model drew, so it is never written down. */
+        /** Its line holds looks a model drew or an Hourglass hurried, so it is never written down. */
         boolean drawn;
         int budget;
         int pace;
@@ -257,6 +257,22 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             for (ForecasterBlockEntity f : LOADED) {
                 if (f.level == level && f.covers(event.getPos())) {
                     f.grown.addTo(event.getPos().asLong(), 1);
+                }
+            }
+        }
+    }
+
+    /** An Hourglass ran the block at {@code p} this tick: the lines watching it no longer hold what it did by itself. */
+    public static void hurried(ServerLevel level, BlockPos p) {
+        for (ForecasterBlockEntity f : LOADED) {
+            if (f.level == level && f.covers(p)) {
+                Watch w = f.watches.get(p.asLong());
+                if (w != null) {
+                    w.drawn = true;
+                }
+                Machine m = f.machines.get(p.asLong());
+                if (m != null) {
+                    m.drawn = true;
                 }
             }
         }
@@ -514,8 +530,23 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         });
     }
 
+    /** Whether its model is trusted to run blocks of this kind ahead: it passed its last check on them. */
+    public boolean trusts(Kind kind) {
+        return phases[kind.ordinal()] == Phase.AHEAD;
+    }
+
+    /** The kind of block a Forecaster could run ahead at {@code p}: a machine it watches, a crop of seven ages, or null. */
+    @Nullable
+    public static Kind kindOf(ServerLevel level, BlockPos p) {
+        BlockEntity be = level.getBlockEntity(p);
+        if (be != null && cook(be) >= 0) {
+            return Kind.MACHINES;
+        }
+        return level.getBlockState(p).getBlock() instanceof CropBlock crop && crop.getMaxAge() == Growth.RIPE ? Kind.CROPS : null;
+    }
+
     @SuppressWarnings("unchecked")
-    private static void tickOnce(ServerLevel level, BlockPos p, BlockEntity be) {
+    public static void tickOnce(ServerLevel level, BlockPos p, BlockEntity be) {
         BlockState s = level.getBlockState(p);
         BlockEntityTicker<BlockEntity> ticker = (BlockEntityTicker<BlockEntity>) s.getTicker(level, be.getType());
         if (ticker != null) {

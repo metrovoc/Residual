@@ -101,14 +101,17 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
         y += 11;
         MaskData m = MaskItem.mask(menu.mask());
         Component note;
-        if (!(item instanceof MachineItem)) {
+        if (item == ModItems.HOURGLASS.get()) {
+            note = Component.translatable("residual.fabricator.hourglass");
+        } else if (!(item instanceof MachineItem)) {
             note = Component.translatable("residual.fabricator.accelerator");
         } else if (m != null) {
             note = Component.translatable(m.salvaged() ? "residual.fabricator.unfused" : "residual.fabricator.fused", m.area());
         } else {
             note = Component.translatable("residual.fabricator.plain");
         }
-        g.text(font, Ui.fit(font, note.getString(), imageWidth - CHOICES_X - 8), CHOICES_X, y, m != null && m.salvaged() ? 0xFF9A5B00 : Ui.LABEL_DIM, false);
+        boolean unfused = item instanceof MachineItem && m != null && m.salvaged();
+        g.text(font, Ui.fit(font, note.getString(), imageWidth - CHOICES_X - 8), CHOICES_X, y, unfused ? 0xFF9A5B00 : Ui.LABEL_DIM, false);
         g.text(font, Component.translatable("residual.fabricator.time", String.format(Locale.ROOT, "%.1f", cost.ticks() / 20f)),
                 BAR_X, FabricatorMenu.OUTPUT_Y - 4, Ui.LABEL_DIM, false);
     }
