@@ -26,7 +26,7 @@ to the optimizer.
 
 ## Why this project
 
-Real systems are a lot of fun, but they often come with overwhelming complexity. This project aims to abstract that
+Real systems are a lot of fun, but they often come with overwhelming complexity, some more accidental. This project aims to abstract that
 complexity away at the right levels, to make a mod that is enjoyable and satisfying to play while staying faithful to
 the essence of real systems.
 
