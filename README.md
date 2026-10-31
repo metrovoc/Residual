@@ -108,6 +108,12 @@ Assemblers can make, and it plans the whole tree off the server thread before an
 how many crafts make the rest, what is missing. A job can start with something missing and wait for it, any number of
 jobs run at once, and what a job makes along the way is its own until it is done.
 
+## Power
+
+A Combustion Generator burns furnace fuel for 80 FE a tick, and Power Cables carry it to Energy Cells, which hold a
+million FE, and to the machines that run on it. The Smelter, fabricated from a transformer design, smelts on power and
+makes two ingots from every ore. Every power block speaks Forge Energy to other mods' cables and machines.
+
 ## The archive
 
 <p>
