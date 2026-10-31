@@ -77,6 +77,19 @@ class ForecastTest {
         assertEquals(0, new Forecast.Fit(50, Forecast.MIN_GROWTH / 2, new float[Growth.RIPE]).ahead());
     }
 
+    @Test
+    void forecasterTwoRunsACloserModelFaster() {
+        assertEquals(16, check(1.02).ahead(Forecast.MOST_II));
+        assertEquals(16, check(0.98).ahead(Forecast.MOST_II));
+        assertEquals(8, check(1.04).ahead(Forecast.MOST_II));
+        assertEquals(8, check(0.96).ahead(Forecast.MOST_II));
+        assertEquals(4, check(1.1).ahead(Forecast.MOST_II));
+        assertEquals(2, check(1.2).ahead(Forecast.MOST_II));
+        assertEquals(0, check(1.3).ahead(Forecast.MOST_II));
+        // the Forecaster stops at four however close the model comes
+        assertEquals(4, check(1.02).ahead());
+    }
+
     private static Forecast.Fit check(double ratio) {
         return new Forecast.Fit(200 * ratio, 200, new float[Growth.RIPE]);
     }

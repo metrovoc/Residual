@@ -6,6 +6,7 @@ import io.github.metrovoc.residual.learn.Forecast;
 import io.github.metrovoc.residual.learn.Forecast.Kind;
 import io.github.metrovoc.residual.learn.Growth;
 import io.github.metrovoc.residual.menu.ForecasterMenu;
+import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModItems;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,9 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
             0xFFD9B44A};
     private static final int MACHINE = 0xFF6F7880, FIRE = 0xFFFF8A3D;
     /** The gauge runs from half the progress the blocks showed to twice it. */
-    private static final double SPAN = Math.log(2);
+    private static final double SPAN = Math.log(2), SPAN_II = Math.log(1.43);
+    /** The bands of {@link Forecast#BANDS}: sixteen, eight and four looks per look in greens, two in amber. */
+    private static final int[] BAND_COLORS = {0xFF3F9A62, 0xFF357A4A, 0xFF2E5E33, 0xFF6B5320};
     private static final double CLOSE = Math.log(1.11), NEAR = Math.log(1.25);
 
     /** Something under the mouse that explains itself. */
@@ -323,22 +326,25 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
     }
 
     /**
-     * How much progress the model expects against how much there was, on a log scale from half to twice: green where
-     * it runs the blocks four looks per look, amber where it runs two, red where it is refused.
+     * How much progress the model expects against how much there was, on a log scale: red where it is refused, amber
+     * where it runs the blocks two looks per look, greens where it runs them four, and on Forecaster II, closer in, eight
+     * and sixteen. Forecaster II's scale is drawn closer, from 70% to 143%, so its narrow bands show.
      */
     private void gauge(GuiGraphicsExtractor g, Kind kind, int x, int y, double off, int ahead) {
         String shown = ahead > 0 ? "×" + ahead : Component.translatable("residual.forecaster.refused_short").getString();
-        int x0 = x + 4, x1 = ROW_X + ROW_W - 8 - Math.max(font.width("×4"), font.width(shown));
+        int x0 = x + 4, x1 = ROW_X + ROW_W - 8 - Math.max(font.width("×16"), font.width(shown));
         int w = x1 - x0 - 4;
-        int nearL = at(x0, w, -NEAR), closeL = at(x0, w, -CLOSE), closeR = at(x0, w, CLOSE), nearR = at(x0, w, NEAR);
-        g.fill(x0, y + 4, nearL, y + 8, 0xFF5E2A2A);
-        g.fill(nearL, y + 4, closeL, y + 8, 0xFF6B5320);
-        g.fill(closeL, y + 4, closeR, y + 8, 0xFF2E5E33);
-        g.fill(closeR, y + 4, nearR, y + 8, 0xFF6B5320);
-        g.fill(nearR, y + 4, x0 + w, y + 8, 0xFF5E2A2A);
-        int one = at(x0, w, 0);
+        double span = second() ? SPAN_II : SPAN;
+        int bands = second() ? Forecast.BANDS.length : 2;
+        // from the outside in: refused, then each band a factor faster
+        g.fill(x0, y + 4, x0 + w, y + 8, 0xFF5E2A2A);
+        for (int i = Forecast.BANDS.length - 1; i >= Forecast.BANDS.length - bands; i--) {
+            double edge = Math.log(Forecast.BANDS[i]);
+            g.fill(at(x0, w, -edge, span), y + 4, at(x0, w, edge, span), y + 8, BAND_COLORS[i]);
+        }
+        int one = at(x0, w, 0, span);
         g.fill(one, y + 2, one + 1, y + 10, Ui.DIM);
-        int mark = at(x0, w, Math.max(-SPAN, Math.min(SPAN, off)));
+        int mark = at(x0, w, Math.max(-span, Math.min(span, off)), span);
         g.fill(mark - 1, y + 1, mark + 1, y + 11, Ui.TEXT);
         double a = Math.abs(off);
         int color = a <= CLOSE ? Ui.GREEN : a <= NEAR ? Ui.AMBER : Ui.RED;
@@ -349,8 +355,13 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
                 Component.translatable("residual.forecaster.fit_hint").withColor(Ui.DIM))));
     }
 
-    private static int at(int x0, int w, double off) {
-        return x0 + (int) Math.round((off + SPAN) / (2 * SPAN) * w);
+    private static int at(int x0, int w, double off, double span) {
+        return x0 + (int) Math.round((off + span) / (2 * span) * w);
+    }
+
+    /** Whether this is Forecaster II, which runs blocks up to sixteen times as fast. */
+    private boolean second() {
+        return minecraft != null && minecraft.level != null && minecraft.level.getBlockState(menu.pos).is(ModBlocks.FORECASTER_II.get());
     }
 
     private static void outline(GuiGraphicsExtractor g, int x, int y, int w, int h, int color) {

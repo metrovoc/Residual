@@ -52,6 +52,7 @@ public final class ModTabs {
                 out.accept(ModItems.SHARD.get());
                 out.accept(ModBlocks.READER.get());
                 out.accept(ModBlocks.FORECASTER.get());
+                out.accept(ModBlocks.FORECASTER_II.get());
                 out.accept(ModItems.FIELD_LOG.get());
                 out.accept(ModItems.HOURGLASS.get());
                 ModItems.DATASETS.values().forEach(dataset -> out.accept(dataset.get()));

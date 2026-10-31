@@ -29,6 +29,7 @@
     "residual:stream",
     "residual:bpe_forge",
     "residual:forecaster",
+    "residual:forecaster_ii",
     "residual:drive_rack",
     "residual:storage_terminal",
     "residual:port",

@@ -16,6 +16,11 @@ import java.util.Random;
 public final class Forecast {
     /** Progress a kind of block must have shown before a model can be checked against it: ages, or eighths of items. */
     public static final int MIN_GROWTH = 100;
+    /** How close a model's expected progress must come to the blocks', as a ratio either way, to run them this fast. */
+    public static final double[] BANDS = {1.025, 1.05, 1.11, 1.25};
+    public static final int[] FACTORS = {16, 8, 4, 2};
+    /** The fastest the Forecaster runs blocks, and Forecaster II. */
+    public static final int MOST = 4, MOST_II = 16;
     private static final int BATCH = 32;
 
     /** What a Forecaster watches: crops by their age, machines by their progress through their items. */
@@ -44,10 +49,26 @@ public final class Forecast {
             return grown <= 0 ? Double.NaN : expected / grown;
         }
 
-        /** Looks it runs a block ahead per look the world takes: more for a model whose progress matches the blocks'. */
+        /** Looks the Forecaster runs a block ahead per look the world takes. */
         public int ahead() {
+            return ahead(MOST);
+        }
+
+        /**
+         * Looks it runs a block ahead per look the world takes, up to {@code most}: more for a model whose progress
+         * matches the blocks' more closely.
+         */
+        public int ahead(int most) {
             double off = Math.abs(Math.log(ratio()));
-            return grown < MIN_GROWTH || Double.isNaN(off) ? 0 : off <= Math.log(1.11) ? 4 : off <= Math.log(1.25) ? 2 : 0;
+            if (grown < MIN_GROWTH || Double.isNaN(off)) {
+                return 0;
+            }
+            for (int i = 0; i < BANDS.length; i++) {
+                if (off <= Math.log(BANDS[i]) && FACTORS[i] <= most) {
+                    return FACTORS[i];
+                }
+            }
+            return 0;
         }
     }
 

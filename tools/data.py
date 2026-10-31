@@ -192,16 +192,16 @@ def forge():
     item_definition("bpe_forge", rid("block/bpe_forge"))
 
 
-def forecaster():
-    side, top = rid("block/forecaster_side"), rid("block/forecaster_top")
+def forecaster(name="forecaster"):
+    side, top = rid(f"block/{name}_side"), rid(f"block/{name}_top")
     for suffix in ("", "_on"):
-        cube(f"forecaster{suffix}", rid(f"block/forecaster_front{suffix}"), side, side, top, rid("block/machine_back"))
+        cube(f"{name}{suffix}", rid(f"block/{name}_front{suffix}"), side, side, top, rid("block/machine_back"))
     variants = {}
     for working, suffix in (("false", ""), ("true", "_on")):
-        for key, value in facing_variants(rid(f"block/forecaster{suffix}"), facings=HORIZONTAL).items():
+        for key, value in facing_variants(rid(f"block/{name}{suffix}"), facings=HORIZONTAL).items():
             variants[f"{key},working={working}"] = value
-    write(f"assets/{NS}/blockstates/forecaster.json", {"variants": variants})
-    item_definition("forecaster", rid("block/forecaster"))
+    write(f"assets/{NS}/blockstates/{name}.json", {"variants": variants})
+    item_definition(name, rid(f"block/{name}"))
 
 
 def stream():
@@ -438,7 +438,7 @@ def items():
 # ---------------------------------------------------------------- data
 
 MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream",
-                  "bpe_forge", "forecaster", "drive_rack", "storage_terminal", "port", "storage_link", "assembler"]
+                  "bpe_forge", "forecaster", "forecaster_ii", "drive_rack", "storage_terminal", "port", "storage_link", "assembler"]
 
 
 def blocks():
@@ -583,6 +583,7 @@ def advancements():
     advancement("forecast/watching", "root", "forecaster", placed("forecaster"))
     advancement("forecast/ahead", "forecast/watching", "minecraft:furnace", awarded(), frame="goal")
     advancement("forecast/hourglass", "forecast/ahead", "hourglass", awarded(), frame="goal")
+    advancement("forecast/deep", "forecast/ahead", "forecaster_ii", awarded(), frame="goal")
     advancement("storage/drive", "root", "storage_drive", has("storage_drive"))
     advancement("storage/terminal", "storage/drive", "storage_terminal", placed("storage_terminal"))
     advancement("storage/port", "storage/terminal", "port", placed("port"), frame="goal")
@@ -616,6 +617,7 @@ if __name__ == "__main__":
     fabricator()
     forge()
     forecaster()
+    forecaster("forecaster_ii")
     storage()
     stream()
     cables()

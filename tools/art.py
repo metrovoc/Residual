@@ -918,32 +918,35 @@ HOURGLASS = [
 ]
 
 
-def forecaster_front(step=None):
+def forecaster_front(step=None, ramp=None, every=4):
     """A field from above: nine crops by age, still while it only watches. Running ahead, they grow a look at a time
-    and each one lights as the model grows it."""
+    and each one lights as the model grows it. Forecaster II's bezel is in the transformer's violet, and its field grows
+    a look every other frame instead of every fourth."""
     c = plate(salt=21)
     window(c, salt=21)
+    if ramp:
+        edge(c, 3, 3, 12, 12, ramp[2], mix(ramp[2], ramp[1], .45), 26)
     for i, (start, phase) in enumerate(FIELD):
         x, y = 4 + i % 3 * 3, 4 + i // 3 * 3
         if step is None:
             color = mix(CROP[start], W1, 0.3)
         else:
-            grew = (step + phase) % 4 == 0
-            color = GREEN[5] if grew else CROP[(start + (step + phase) // 4) % 8]
+            grew = (step + phase) % every == 0
+            color = GREEN[5] if grew else CROP[(start + (step + phase) // every) % 8]
         c.rect(x, y, x + 1, y + 1, color)
     return c
 
 
-def forecaster_side():
+def forecaster_side(ramp=GREEN):
     c = plate(salt=22)
-    engraved_glyph(c, SPROUT, GREEN)
+    engraved_glyph(c, SPROUT, ramp)
     return c
 
 
-def forecaster_top():
+def forecaster_top(ramp=GREEN):
     """An hourglass: it sees where the field is going."""
     c = plate(salt=23)
-    engraved_glyph(c, HOURGLASS, GREEN)
+    engraved_glyph(c, HOURGLASS, ramp)
     return c
 
 
@@ -2227,7 +2230,8 @@ def build():
     # every face mirrors left to right but those that picture something one-sided or show data, the cartridge the
     # rack mirrors per column, and the relay's sheet of parts
     one_sided = {f"block/{op}_{face}.png" for op in ONE_SIDED for face in ("front", "side", "back")}
-    data = {"block/forecaster_front", "block/forecaster_front_on", "block/reader_front", "block/reader_front_on",
+    data = {"block/forecaster_front", "block/forecaster_front_on", "block/forecaster_ii_front", "block/forecaster_ii_front_on",
+            "block/reader_front", "block/reader_front_on",
             "block/bpe_forge_front_on", "block/storage_terminal_front_on", "block/model_core_side_on",
             "block/model_server_front_on", "block/drive_cartridge", "block/relay"}
     for rel, im in SAVED.items():
@@ -2241,6 +2245,11 @@ def build():
     lit("block/forecaster_front_on.png", [forecaster_front(i) for i in range(32)], [forecaster_front()], 3)
     forecaster_side().save("block/forecaster_side.png")
     forecaster_top().save("block/forecaster_top.png")
+    forecaster_front(ramp=AMETHYST).save("block/forecaster_ii_front.png")
+    lit("block/forecaster_ii_front_on.png", [forecaster_front(i, AMETHYST, 2) for i in range(16)],
+        [forecaster_front(ramp=AMETHYST)], 3)
+    forecaster_side(AMETHYST).save("block/forecaster_ii_side.png")
+    forecaster_top(AMETHYST).save("block/forecaster_ii_top.png")
     animated([stream_side(i) for i in range(8)], "block/stream_side.png", 2)
     SAVED["block/stream_side.png"] = stream_side(0).im
     stream_end().save("block/stream_end.png")

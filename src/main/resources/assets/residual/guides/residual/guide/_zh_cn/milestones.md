@@ -19,6 +19,8 @@ navigation:
 
 <residual:Milestone id="forecast/ahead">通过预报的模型，等机器做完十来件后就能管机器；你自己的田，可能要用预报机自己的日志训练出的模型。</residual:Milestone>
 
+<residual:Milestone id="forecast/deep">制造机用 Transformer 光掩模制造预报机 II；与方块差距在 5% 以内的模型让它们以八倍速度运行：[预报机](forecaster.md)。</residual:Milestone>
+
 <residual:Milestone id="forecast/hourglass">制造机用注意力光掩模制造它，带在身上就会存下时间。潜行使用一台让方块超前运行的预报机来绑定它，再对这样的方块使用：[预报机](forecaster.md)。</residual:Milestone>
 
 <residual:Milestone id="agent/made">合成一个，放在它该住的地方：[智能体](agents.md)。</residual:Milestone>

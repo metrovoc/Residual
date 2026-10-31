@@ -11,6 +11,7 @@ import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.model.Models;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
+import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModComponents;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.StemBlock;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -71,6 +73,8 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     private static final int SURVEY = 20;
     /** A brewing stand's brew, in ticks. */
     private static final int BREW = 400;
+    /** A Fabricator making nothing is looked at as if it made something of middling size. */
+    private static final int FABRICATING = 100;
     /** Container data per kind of block: how many it watches, progress seen, the model's fit, and its phase. */
     public static final int COUNT = 0, GROWN = 1, RATIO = 2, AHEAD = 3, PHASE = 4, PER_KIND = 5;
     /** What its screen shows, as container data: four map cells or sixteen flashes to a value. */
@@ -120,7 +124,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     /** One machine's line so far, its own clock, and the ticks a model's forecast has earned it. */
     private static final class Machine {
         final StringBuilder line = new StringBuilder();
-        final int every;
+        int every;
         int next;
         /** Looks taken so far, so a forecast that comes back after a newer look is not written into the line. */
         int looks;
@@ -222,7 +226,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
                         double r = check == null ? Double.NaN : check.of(kind).ratio();
                         yield Double.isNaN(r) ? -1 : (int) Math.min(Short.MAX_VALUE, Math.round(r * 1000));
                     }
-                    case AHEAD -> phases[k] == Phase.AHEAD && check != null ? check.of(kind).ahead() : 0;
+                    case AHEAD -> phases[k] == Phase.AHEAD && check != null ? check.of(kind).ahead(most()) : 0;
                     default -> phases[k].ordinal();
                 };
             }
@@ -376,7 +380,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         } else if (cropsDue) {
             cropsDue = false;
             if (phases[Kind.CROPS.ordinal()] == Phase.AHEAD && check != null) {
-                aheadCrops(level, link, check.crops().ahead() - 1);
+                aheadCrops(level, link, check.crops().ahead(most()) - 1);
             }
         } else if (!due.isEmpty()) {
             aheadMachines(level, link);
@@ -411,13 +415,13 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
                 for (int dx = -RADIUS; dx <= RADIUS; dx++) {
                     BlockPos p = worldPosition.offset(dx, dy, dz);
                     BlockState s = level.getBlockState(p);
-                    // only crops that grow the way practice does, through seven ages
-                    if (!(s.getBlock() instanceof CropBlock crop) || crop.getMaxAge() != Growth.RIPE) {
+                    // only plants that grow the way practice does, through seven ages
+                    int age = age(s);
+                    if (age < 0) {
                         continue;
                     }
                     long key = p.asLong();
                     seenHere.add(key);
-                    int age = crop.getAge(s);
                     Watch w = watches.get(key);
                     if (w == null || w.age + grown.get(key) != age) {
                         if (w != null) {
@@ -455,9 +459,9 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
                     BlockPos p = worldPosition.offset(dx, dy, dz);
                     int cell = (dz + RADIUS) * SIDE + dx + RADIUS;
                     BlockState s = level.getBlockState(p);
-                    if (s.getBlock() instanceof CropBlock crop && crop.getMaxAge() == Growth.RIPE) {
+                    if (age(s) >= 0) {
                         if (map[cell] == 0) {
-                            map[cell] = crop.getAge(s) + 1;
+                            map[cell] = age(s) + 1;
                         }
                         continue;
                     }
@@ -488,10 +492,19 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             if (ticks < m.next) {
                 return;
             }
-            m.next = ticks + m.every;
             if (!(level.getBlockEntity(BlockPos.of(key)) instanceof BlockEntity be) || cook(be) < 0) {
+                m.next = ticks + m.every;
                 return;
             }
+            int every = Growth.every(cook(be));
+            if (every != m.every) {
+                // a Fabricator set to make something else: its looks keep to eighths of the new item
+                close(m);
+                m.line.setLength(0);
+                m.drawn = false;
+                m.every = every;
+            }
+            m.next = ticks + m.every;
             m.line.append(Growth.progress(timer(be), cook(be)));
             m.looks++;
             if (m.ended()) {
@@ -530,6 +543,11 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         });
     }
 
+    /** The fastest it runs blocks ahead: Forecaster II four times as fast as the Forecaster. */
+    public int most() {
+        return getBlockState().is(ModBlocks.FORECASTER_II.get()) ? Forecast.MOST_II : Forecast.MOST;
+    }
+
     /** Whether its model is trusted to run blocks of this kind ahead: it passed its last check on them. */
     public boolean trusts(Kind kind) {
         return phases[kind.ordinal()] == Phase.AHEAD;
@@ -542,7 +560,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         if (be != null && cook(be) >= 0) {
             return Kind.MACHINES;
         }
-        return level.getBlockState(p).getBlock() instanceof CropBlock crop && crop.getMaxAge() == Growth.RIPE ? Kind.CROPS : null;
+        return age(level.getBlockState(p)) >= 0 ? Kind.CROPS : null;
     }
 
     @SuppressWarnings("unchecked")
@@ -560,7 +578,23 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             int total = furnace.dataAccess.get(AbstractFurnaceBlockEntity.DATA_COOKING_TOTAL_TIME);
             return total > 0 ? total : be.getType() == BlockEntityType.FURNACE ? 200 : 100;
         }
+        if (be instanceof FabricatorBlockEntity fabricator) {
+            return fabricator.total() > 0 ? fabricator.total() : FABRICATING;
+        }
         return be instanceof BrewingStandBlockEntity ? BREW : -1;
+    }
+
+    /** The age of a plant that grows through seven ages on random ticks, a crop or a stem; -1 for anything else. */
+    static int age(BlockState s) {
+        if (s.getBlock() instanceof CropBlock crop) {
+            return crop.getMaxAge() == Growth.RIPE ? crop.getAge(s) : -1;
+        }
+        return s.getBlock() instanceof StemBlock ? s.getValue(StemBlock.AGE) : -1;
+    }
+
+    /** {@code s} grown to {@code age}. */
+    private static BlockState aged(BlockState s, int age) {
+        return s.getBlock() instanceof CropBlock crop ? crop.getStateForAge(age) : s.setValue(StemBlock.AGE, age);
     }
 
     /** How many ticks a machine is into the item it is making. */
@@ -572,7 +606,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             int left = stand.dataAccess.get(BrewingStandBlockEntity.DATA_BREW_TIME);
             return left > 0 ? BREW - left : 0;
         }
-        return 0;
+        return be instanceof FabricatorBlockEntity fabricator ? fabricator.progress() : 0;
     }
 
     /** The lines it is still writing, crops' then machines', that hold only what the blocks did by themselves. */
@@ -653,7 +687,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             int k = kind.ordinal();
             checkedGrowth[k] = growth[k];
             if (growth[k] >= Forecast.MIN_GROWTH) {
-                phases[k] = result.of(kind).ahead() > 0 ? Phase.AHEAD : Phase.REFUSED;
+                phases[k] = result.of(kind).ahead(most()) > 0 ? Phase.AHEAD : Phase.REFUSED;
             }
         }
         boolean now = phases[0] == Phase.AHEAD || phases[1] == Phase.AHEAD;
@@ -694,7 +728,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             Watch w = watches.get(keys.get(i));
             BlockPos p = BlockPos.of(keys.get(i));
             BlockState s = level.getBlockState(p);
-            if (w == null || w.closed || !(s.getBlock() instanceof CropBlock crop) || crop.getAge(s) != w.age) {
+            if (w == null || w.closed || age(s) != w.age) {
                 continue;
             }
             int was = w.age;
@@ -703,7 +737,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             }
             w.drawn = true;
             if (w.age > was) {
-                level.setBlock(p, crop.getStateForAge(w.age), Block.UPDATE_CLIENTS);
+                level.setBlock(p, aged(s, w.age), Block.UPDATE_CLIENTS);
                 level.sendParticles(ParticleTypes.HAPPY_VILLAGER, p.getX() + 0.5, p.getY() + 0.4, p.getZ() + 0.5, 3, 0.25, 0.2, 0.25, 0);
                 flashed.set((p.getZ() - worldPosition.getZ() + RADIUS) * SIDE + p.getX() - worldPosition.getX() + RADIUS);
                 grew++;
@@ -713,7 +747,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
         if (grew > 0) {
-            ahead(level);
+            ahead(level, check == null ? 0 : check.crops().ahead(most()));
         }
     }
 
@@ -726,7 +760,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             due.clear();
             return;
         }
-        int steps = check.machines().ahead() - 1;
+        int steps = check.machines().ahead(most()) - 1;
         List<Long> keys = new ArrayList<>(due.keySet());
         List<Due> sent = new ArrayList<>(due.values());
         due.clear();
@@ -764,16 +798,19 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
                 any |= eighths > 0;
             }
             if (any) {
-                ahead(level);
+                ahead(level, steps + 1);
             }
         });
     }
 
     /** Players nearby have seen a Forecaster run blocks ahead. */
-    private void ahead(ServerLevel level) {
+    private void ahead(ServerLevel level, int factor) {
         for (ServerPlayer player : level.players()) {
             if (player.distanceToSqr(worldPosition.getCenter()) < 32 * 32) {
                 Awards.grant(player, "forecast/ahead");
+                if (factor >= 8) {
+                    Awards.grant(player, "forecast/deep");
+                }
             }
         }
     }
@@ -828,7 +865,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("block.residual.forecaster");
+        return getBlockState().getBlock().getName();
     }
 
     @Override

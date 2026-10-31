@@ -92,7 +92,7 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * What it can make: the machines a mask's spec unlocks, or with no mask the machines that need no design. A matrix
-     * multiply mask also makes the Accelerator, and an attention mask the Hourglass.
+     * multiply mask also makes the Accelerator, an attention mask the Hourglass and a transformer mask Forecaster II.
      */
     public static List<Item> choices(ItemStack mask) {
         List<Item> out = new ArrayList<>();
@@ -116,8 +116,20 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
             if (spec == Specs.ATTENTION) {
                 out.add(ModItems.HOURGLASS.get());
             }
+            if (spec == Specs.TRANSFORMER) {
+                out.add(ModBlocks.FORECASTER_II.asItem());
+            }
         }
         return out;
+    }
+
+    /** Ticks into what it is making, and what that takes in all: 0 while it makes nothing. */
+    public int progress() {
+        return progress;
+    }
+
+    public int total() {
+        return makingCost == null ? 0 : makingCost.ticks();
     }
 
     public static Cost cost(Item item, ItemStack mask) {
@@ -126,6 +138,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         }
         if (item == ModItems.HOURGLASS.get()) {
             return new Cost(1, 4, 2, 100);
+        }
+        if (item == ModBlocks.FORECASTER_II.asItem()) {
+            return new Cost(4, 8, 4, 200);
         }
         MaskData m = MaskItem.mask(mask);
         int wafers = Math.max(1, ((m == null ? 0 : m.area()) + 3) / 4);

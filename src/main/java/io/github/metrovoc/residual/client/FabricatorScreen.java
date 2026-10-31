@@ -103,6 +103,8 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
         Component note;
         if (item == ModItems.HOURGLASS.get()) {
             note = Component.translatable("residual.fabricator.hourglass");
+        } else if (item == ModBlocks.FORECASTER_II.asItem()) {
+            note = Component.translatable("residual.fabricator.forecaster_ii");
         } else if (!(item instanceof MachineItem)) {
             note = Component.translatable("residual.fabricator.accelerator");
         } else if (m != null) {

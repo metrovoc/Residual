@@ -53,6 +53,9 @@ public final class ModBlocks {
             p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(ForgeBlock.WORKING) ? 11 : 4));
     public static final DeferredBlock<ForecasterBlock> FORECASTER = BLOCKS.registerBlock("forecaster", ForecasterBlock::new,
             p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(ForecasterBlock.WORKING) ? 10 : 3));
+    /** The Lab tier's Forecaster: the same watching, up to sixteen times as fast. */
+    public static final DeferredBlock<ForecasterBlock> FORECASTER_II = BLOCKS.registerBlock("forecaster_ii", ForecasterBlock::new,
+            p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(ForecasterBlock.WORKING) ? 12 : 3));
     public static final DeferredBlock<StreamBlock> STREAM = BLOCKS.registerBlock("stream", StreamBlock::new,
             p -> p.mapColor(MapColor.COLOR_CYAN).strength(1f, 6f).sound(SoundType.AMETHYST).lightLevel(s -> 7));
     public static final DeferredBlock<RelayBlock> RELAY = BLOCKS.registerBlock("relay", RelayBlock::new,
