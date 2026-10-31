@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "residual:block/energy_cell_0"
+  }
+}

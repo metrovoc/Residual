@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "charge=0": {
+      "model": "residual:block/energy_cell_0"
+    },
+    "charge=1": {
+      "model": "residual:block/energy_cell_1"
+    },
+    "charge=2": {
+      "model": "residual:block/energy_cell_2"
+    },
+    "charge=3": {
+      "model": "residual:block/energy_cell_3"
+    },
+    "charge=4": {
+      "model": "residual:block/energy_cell_4"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/energy_cell_0",
+    "north": "residual:block/energy_cell_0",
+    "south": "residual:block/energy_cell_0",
+    "east": "residual:block/energy_cell_0",
+    "west": "residual:block/energy_cell_0",
+    "up": "residual:block/energy_cell_top",
+    "down": "residual:block/energy_cell_top"
+  }
+}

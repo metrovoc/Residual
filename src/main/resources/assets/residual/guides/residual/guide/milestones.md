@@ -132,6 +132,13 @@ agent whose model passes Induction: [The Architect](architect.md).</residual:Mil
 
 <residual:Milestone id="agent/move">The same marks, with `move` instead of `copy`.</residual:Milestone>
 
+## Power
+
+<residual:Milestone id="power/generator">It burns what a furnace burns: [Power](power.md).</residual:Milestone>
+
+<residual:Milestone id="power/smelter">The Fabricator makes a Smelter from a transformer photomask; give it power and
+raw ore.</residual:Milestone>
+
 ## Salvage
 
 <residual:Milestone id="wreck/found">Each one failed in its own way: [Salvaged Models](salvage.md).</residual:Milestone>

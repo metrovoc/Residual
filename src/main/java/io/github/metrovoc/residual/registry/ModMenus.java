@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.menu.AgentMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.FabricatorMenu;
+import io.github.metrovoc.residual.energy.PowerMenu;
 import io.github.metrovoc.residual.menu.ForecasterMenu;
 import io.github.metrovoc.residual.menu.ForgeMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
@@ -43,6 +44,7 @@ public final class ModMenus {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new TerminalMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<PortMenu>> PORT = MENUS.register("port",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new PortMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<PowerMenu>> POWER = MENUS.register("power", () -> IMenuTypeExtension.create(PowerMenu::new));
 
     public static final Supplier<MenuType<AssemblerMenu>> ASSEMBLER = MENUS.register("assembler",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new AssemblerMenu(id, inv, buf.readBlockPos())));

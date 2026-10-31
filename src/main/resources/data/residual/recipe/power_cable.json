@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    "CCC",
+    "RRR",
+    "CCC"
+  ],
+  "result": {
+    "id": "residual:power_cable",
+    "count": 12
+  }
+}

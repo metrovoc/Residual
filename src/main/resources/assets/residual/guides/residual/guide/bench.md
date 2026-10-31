@@ -64,7 +64,8 @@ photomask is never used up.
 Without a mask, the Fabricator makes the machines that need no design: the embedding and position tables, the
 residual junction, the gate, the scaler, the causal mask, the head splitter and merger, the delay line and the
 concatenator. A matrix multiply photomask also makes the <ItemLink id="accelerator" />, an attention photomask the
-<ItemLink id="hourglass" />, and a transformer photomask <ItemLink id="forecaster_ii" />.
+<ItemLink id="hourglass" />, and a transformer photomask <ItemLink id="forecaster_ii" /> and the
+<ItemLink id="smelter" />.
 
 ## Fused and unfused
 

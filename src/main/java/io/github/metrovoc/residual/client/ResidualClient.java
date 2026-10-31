@@ -64,6 +64,7 @@ public final class ResidualClient {
         event.register(ModMenus.AGENT.get(), AgentScreen::new);
         event.register(ModMenus.READER.get(), ReaderScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
+        event.register(ModMenus.POWER.get(), PowerScreen::new);
         event.register(ModMenus.FORGE.get(), ForgeScreen::new);
         event.register(ModMenus.FORECASTER.get(), ForecasterScreen::new);
         event.register(ModMenus.RACK.get(), RackScreen::new);

@@ -1,0 +1,104 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "residual:block/energy_cell_2",
+    "north": "residual:block/energy_cell_2",
+    "south": "residual:block/energy_cell_2",
+    "east": "residual:block/energy_cell_2",
+    "west": "residual:block/energy_cell_2",
+    "up": "residual:block/energy_cell_top",
+    "down": "residual:block/energy_cell_top",
+    "north_lights": "residual:block/energy_cell_2_lights",
+    "south_lights": "residual:block/energy_cell_2_lights",
+    "east_lights": "residual:block/energy_cell_2_lights",
+    "west_lights": "residual:block/energy_cell_2_lights"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#north",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#south",
+          "cullface": "south"
+        },
+        "east": {
+          "texture": "#east",
+          "cullface": "east"
+        },
+        "west": {
+          "texture": "#west",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#up",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#down",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#north_lights",
+          "cullface": "north",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          }
+        },
+        "south": {
+          "texture": "#south_lights",
+          "cullface": "south",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          }
+        },
+        "east": {
+          "texture": "#east_lights",
+          "cullface": "east",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          }
+        },
+        "west": {
+          "texture": "#west_lights",
+          "cullface": "west",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          }
+        }
+      },
+      "shade": false
+    }
+  ]
+}

@@ -109,6 +109,12 @@ navigation:
 
 <residual:Milestone id="agent/move">同样的标记，用 `move` 代替 `copy`。</residual:Milestone>
 
+## 电力
+
+<residual:Milestone id="power/generator">它烧熔炉能烧的东西：[电力](power.md)。</residual:Milestone>
+
+<residual:Milestone id="power/smelter">制造机用 Transformer 光掩模制造冶炼炉；给它电力和粗矿。</residual:Milestone>
+
 ## 打捞
 
 <residual:Milestone id="wreck/found">每一个都以自己的方式失败了：[打捞模型](salvage.md)。</residual:Milestone>

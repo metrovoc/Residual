@@ -5,6 +5,9 @@ import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.FabricatorBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
+import io.github.metrovoc.residual.energy.CellBlockEntity;
+import io.github.metrovoc.residual.energy.GeneratorBlockEntity;
+import io.github.metrovoc.residual.energy.SmelterBlockEntity;
 import io.github.metrovoc.residual.block.ForgeBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
@@ -55,6 +58,12 @@ public final class ModBlockEntities {
 
     public static final Supplier<BlockEntityType<AssemblerBlockEntity>> ASSEMBLER = BLOCK_ENTITIES.register("assembler",
             () -> new BlockEntityType<>(AssemblerBlockEntity::new, Set.of(ModBlocks.ASSEMBLER.get())));
+    public static final Supplier<BlockEntityType<GeneratorBlockEntity>> GENERATOR = BLOCK_ENTITIES.register("combustion_generator",
+            () -> new BlockEntityType<>(GeneratorBlockEntity::new, Set.of(ModBlocks.COMBUSTION_GENERATOR.get())));
+    public static final Supplier<BlockEntityType<CellBlockEntity>> CELL = BLOCK_ENTITIES.register("energy_cell",
+            () -> new BlockEntityType<>(CellBlockEntity::new, Set.of(ModBlocks.ENERGY_CELL.get())));
+    public static final Supplier<BlockEntityType<SmelterBlockEntity>> SMELTER = BLOCK_ENTITIES.register("smelter",
+            () -> new BlockEntityType<>(SmelterBlockEntity::new, Set.of(ModBlocks.SMELTER.get())));
 
     private ModBlockEntities() {
     }

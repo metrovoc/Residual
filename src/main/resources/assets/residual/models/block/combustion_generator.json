@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/combustion_generator_side",
+    "north": "residual:block/combustion_generator_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/combustion_generator_side",
+    "west": "residual:block/combustion_generator_side",
+    "up": "residual:block/combustion_generator_top",
+    "down": "residual:block/machine_back"
+  }
+}

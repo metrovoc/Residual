@@ -1978,6 +1978,107 @@ def assembler_side():
     return c
 
 
+# ---------------------------------------------------------------- power, in the coral of heat and making
+
+FLAME = [
+    "...##...",
+    "...##...",
+    "..#++#..",
+    "..#++#..",
+    ".#.++.#.",
+    ".#++++#.",
+    "#.++++.#",
+    ".######.",
+]
+INGOTS = [
+    "..####..",
+    ".######.",
+    "........",
+    "..####..",
+    ".######.",
+]
+
+
+def generator_front(working):
+    """A firebox behind a grate: cold slate bars, or bars across a coral fire."""
+    c = plate(salt=51)
+    window(c, ramp=CORAL if working else None, salt=51)
+    for y in (5, 8, 11):
+        c.rect(4, y, 11, y, STEEL[5])
+    if working:
+        for y, tone in ((6, CORAL[5]), (7, CORAL[4]), (9, CORAL[4]), (10, CORAL[3])):
+            c.rect(4, y, 11, y, tone)
+    return c
+
+
+def generator_side():
+    c = plate(salt=52)
+    engraved_glyph(c, FLAME, CORAL)
+    return c
+
+
+def machine_top(salt):
+    """Vents across the top."""
+    c = plate(salt=salt)
+    for x in (4, 6, 9, 11):
+        c.rect(x, 4, x, 11, SLATE[1])
+        c.rect(x, 5, x, 10, SLATE[2])
+    return c
+
+
+def smelter_front(working):
+    """A crucible seen through its window: empty and dark, or full and molten."""
+    c = plate(salt=53)
+    window(c, ramp=CORAL if working else None, salt=53)
+    # the crucible: walls and a floor in steel
+    c.rect(5, 6, 5, 11, STEEL[5])
+    c.rect(10, 6, 10, 11, STEEL[5])
+    c.rect(5, 11, 10, 11, STEEL[5])
+    if working:
+        c.rect(6, 8, 9, 10, CORAL[4])
+        c.rect(6, 8, 9, 8, CORAL[5])
+    return c
+
+
+def smelter_side():
+    c = plate(salt=54)
+    engraved_glyph(c, INGOTS, CORAL)
+    return c
+
+
+def energy_cell(charge):
+    """A gauge of four bars up the face, lit in coral from the bottom as the cell charges."""
+    c = plate(salt=55)
+    window(c, 5, 2, 10, 13, salt=55)
+    for k in range(4):
+        y = 11 - 3 * k
+        tone = (CORAL[4], CORAL[5]) if k < charge else (SLATE[2], SLATE[3])
+        c.rect(6, y - 1, 9, y, tone[0])
+        c.rect(7, y - 1, 8, y - 1, tone[1])
+    return c
+
+
+def energy_cell_top():
+    """Two terminals."""
+    c = plate(salt=56)
+    for x in (4, 10):
+        edge(c, x, 6, x + 1, 9, SLATE[3], SLATE[2], 57)
+        c.rect(x, 7, x + 1, 8, CORAL[3])
+    return c
+
+
+def power_cable():
+    """A 4 px band, slate with a coral core, sampled by the cable model's arms and joint."""
+    c = Canvas()
+    for i in range(16):
+        for k, color in ((6, SLATE[2]), (7, CORAL[3]), (8, CORAL[3]), (9, SLATE[2])):
+            c.px(i, k, color)
+            c.px(k, i, color)
+    c.rect(6, 6, 9, 9, SLATE[3])
+    c.rect(7, 7, 8, 8, CORAL[4])
+    return c
+
+
 ASSEMBLER_SIDE = [
     "##..##..##",
     "##..##..##",
@@ -2241,6 +2342,19 @@ def build():
     assembler_front(False).save("block/assembler_front.png")
     lit("block/assembler_front_on.png", [assembler_front(True)], [assembler_front(False)])
     assembler_side().save("block/assembler_side.png")
+    generator_front(False).save("block/combustion_generator_front.png")
+    lit("block/combustion_generator_front_on.png", [generator_front(True)], [generator_front(False)])
+    generator_side().save("block/combustion_generator_side.png")
+    machine_top(58).save("block/combustion_generator_top.png")
+    smelter_front(False).save("block/smelter_front.png")
+    lit("block/smelter_front_on.png", [smelter_front(True)], [smelter_front(False)])
+    smelter_side().save("block/smelter_side.png")
+    machine_top(59).save("block/smelter_top.png")
+    energy_cell(0).save("block/energy_cell_0.png")
+    for charge in range(1, 5):
+        lit(f"block/energy_cell_{charge}.png", [energy_cell(charge)], [energy_cell(0)])
+    energy_cell_top().save("block/energy_cell_top.png")
+    power_cable().save("block/power_cable.png")
     forecaster_front().save("block/forecaster_front.png")
     lit("block/forecaster_front_on.png", [forecaster_front(i) for i in range(32)], [forecaster_front()], 3)
     forecaster_side().save("block/forecaster_side.png")

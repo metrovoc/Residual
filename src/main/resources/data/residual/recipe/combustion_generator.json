@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "C": "minecraft:copper_block",
+    "I": "minecraft:iron_ingot",
+    "F": "minecraft:blast_furnace",
+    "R": "minecraft:redstone_block"
+  },
+  "pattern": [
+    "KCK",
+    "IFI",
+    "KRK"
+  ],
+  "result": {
+    "id": "residual:combustion_generator"
+  }
+}

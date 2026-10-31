@@ -7,6 +7,11 @@ import io.github.metrovoc.residual.block.CableBlock;
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.block.FabricatorBlock;
 import io.github.metrovoc.residual.block.ForecasterBlock;
+import io.github.metrovoc.residual.energy.CellBlock;
+import io.github.metrovoc.residual.energy.GeneratorBlock;
+import io.github.metrovoc.residual.energy.PowerCableBlock;
+import io.github.metrovoc.residual.energy.PowerDeviceBlock;
+import io.github.metrovoc.residual.energy.SmelterBlock;
 import io.github.metrovoc.residual.block.ForgeBlock;
 import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.block.ReaderBlock;
@@ -68,6 +73,14 @@ public final class ModBlocks {
             p -> machine(p).lightLevel(s -> s.getValue(TerminalBlock.LIT) ? 9 : 2));
     public static final DeferredBlock<PortBlock> PORT = BLOCKS.registerBlock("port", PortBlock::new,
             p -> machine(p).lightLevel(s -> s.getValue(PortBlock.ACTIVE) ? 7 : 2));
+    public static final DeferredBlock<PowerCableBlock> POWER_CABLE = BLOCKS.registerBlock("power_cable", PowerCableBlock::new,
+            p -> p.mapColor(MapColor.COLOR_ORANGE).strength(0.5f).sound(SoundType.COPPER).noOcclusion().forceSolidOn());
+    public static final DeferredBlock<GeneratorBlock> COMBUSTION_GENERATOR = BLOCKS.registerBlock("combustion_generator",
+            GeneratorBlock::new, p -> machine(p).lightLevel(s -> s.getValue(PowerDeviceBlock.WORKING) ? 12 : 0));
+    public static final DeferredBlock<CellBlock> ENERGY_CELL = BLOCKS.registerBlock("energy_cell", CellBlock::new,
+            p -> machine(p).lightLevel(s -> 2 * s.getValue(CellBlock.CHARGE)));
+    public static final DeferredBlock<SmelterBlock> SMELTER = BLOCKS.registerBlock("smelter", SmelterBlock::new,
+            p -> machine(p).lightLevel(s -> s.getValue(PowerDeviceBlock.WORKING) ? 13 : 0));
     public static final DeferredBlock<AssemblerBlock> ASSEMBLER = BLOCKS.registerBlock("assembler", AssemblerBlock::new,
             p -> machine(p).lightLevel(s -> s.getValue(AssemblerBlock.WORKING) ? 9 : 2));
 

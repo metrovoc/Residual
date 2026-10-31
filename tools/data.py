@@ -435,10 +435,53 @@ def items():
     item_definition("guide", rid("item/guide"))
 
 
+def power():
+    """The power blocks: a cable built like the storage link but thinner and copper-cored, two machines that face the
+    player and light while they work, and a cell whose faces fill in quarters."""
+    for name in ("combustion_generator", "smelter"):
+        side, top = rid(f"block/{name}_side"), rid(f"block/{name}_top")
+        variants = {}
+        for working, suffix in (("false", ""), ("true", "_on")):
+            cube(f"{name}{suffix}", rid(f"block/{name}_front{suffix}"), rid("block/machine_back"), side, top, rid("block/machine_back"))
+            for key, value in facing_variants(rid(f"block/{name}{suffix}"), facings=HORIZONTAL).items():
+                variants[f"{key},working={working}"] = value
+        write(f"assets/{NS}/blockstates/{name}.json", {"variants": variants})
+        item_definition(name, rid(f"block/{name}"))
+    variants = {}
+    for charge in range(5):
+        face, top = rid(f"block/energy_cell_{charge}"), rid("block/energy_cell_top")
+        cube(f"energy_cell_{charge}", face, face, face, top, top)
+        variants[f"charge={charge}"] = {"model": rid(f"block/energy_cell_{charge}")}
+    write(f"assets/{NS}/blockstates/energy_cell.json", {"variants": variants})
+    item_definition("energy_cell", rid("block/energy_cell_0"))
+
+    # a 4 px cable
+    joint = {f: {"uv": [6, 6, 10, 10], "texture": "#cable"} for f in ("north", "south", "east", "west", "up", "down")}
+    textures = {"particle": rid("block/power_cable"), "cable": rid("block/power_cable")}
+    write(f"assets/{NS}/models/block/power_cable_joint.json", {
+        "parent": "minecraft:block/block", "textures": textures, "elements": [box([6, 6, 6], [10, 10, 10], joint)]})
+    arm = {"north": {"uv": [6, 6, 10, 10], "texture": "#cable", "cullface": "north"},
+           "east": {"uv": [10, 6, 16, 10], "texture": "#cable"}, "west": {"uv": [0, 6, 6, 10], "texture": "#cable"},
+           "up": {"uv": [6, 0, 10, 6], "texture": "#cable"}, "down": {"uv": [6, 10, 10, 16], "texture": "#cable"}}
+    write(f"assets/{NS}/models/block/power_cable_arm.json", {
+        "parent": "minecraft:block/block", "textures": textures, "elements": [box([6, 6, 0], [10, 10, 6], arm)]})
+    straight = {"north": {"uv": [0, 6, 16, 10], "texture": "#cable"}, "south": {"uv": [0, 6, 16, 10], "texture": "#cable"},
+                "up": {"uv": [0, 6, 16, 10], "texture": "#cable"}, "down": {"uv": [0, 6, 16, 10], "texture": "#cable"},
+                "east": {"uv": [6, 6, 10, 10], "texture": "#cable"}, "west": {"uv": [6, 6, 10, 10], "texture": "#cable"}}
+    write(f"assets/{NS}/models/item/power_cable.json", {
+        "parent": "minecraft:block/block", "textures": textures, "elements": [box([0, 6, 6], [16, 10, 10], straight)]})
+    parts = [{"apply": {"model": rid("block/power_cable_joint")}}]
+    for face, rot in FACING.items():
+        parts.append({"when": {face: "true"}, "apply": {"model": rid("block/power_cable_arm"), **rot}})
+    write(f"assets/{NS}/blockstates/power_cable.json", {"multipart": parts})
+    item_definition("power_cable", rid("item/power_cable"))
+
+
 # ---------------------------------------------------------------- data
 
 MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream",
-                  "bpe_forge", "forecaster", "forecaster_ii", "drive_rack", "storage_terminal", "port", "storage_link", "assembler"]
+                  "bpe_forge", "forecaster", "forecaster_ii", "combustion_generator", "energy_cell", "smelter", "power_cable",
+                  "drive_rack", "storage_terminal", "port", "storage_link", "assembler"]
 
 
 def blocks():
@@ -506,6 +549,12 @@ def recipes():
         shapeless(dataset, ["minecraft:paper", "minecraft:paper", "minecraft:redstone", part])
     shaped("forecaster", ["GLG", "KWK", "KCK"], {"G": "minecraft:glass_pane", "L": "minecraft:clock", "K": rid("tensor_casing"),
                                                  "W": rid("weight_crystal"), "C": "minecraft:composter"})
+    shaped("combustion_generator", ["KCK", "IFI", "KRK"], {"K": rid("tensor_casing"), "C": "minecraft:copper_block",
+                                                         "I": "minecraft:iron_ingot", "F": "minecraft:blast_furnace",
+                                                         "R": "minecraft:redstone_block"})
+    shaped("power_cable", ["CCC", "RRR", "CCC"], {"C": "minecraft:copper_ingot", "R": "minecraft:redstone"}, 12)
+    shaped("energy_cell", ["KRK", "RCR", "KRK"], {"K": rid("tensor_casing"), "R": "minecraft:redstone_block",
+                                                "C": "minecraft:copper_block"})
     shapeless("field_log", ["minecraft:paper", "minecraft:paper", "minecraft:wheat", "#minecraft:planks"])
     shaped("agent", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
     shapeless("program_card", ["minecraft:paper", "minecraft:redstone"], 2)
@@ -584,6 +633,8 @@ def advancements():
     advancement("forecast/ahead", "forecast/watching", "minecraft:furnace", awarded(), frame="goal")
     advancement("forecast/hourglass", "forecast/ahead", "hourglass", awarded(), frame="goal")
     advancement("forecast/deep", "forecast/ahead", "forecaster_ii", awarded(), frame="goal")
+    advancement("power/generator", "root", "combustion_generator", placed("combustion_generator"))
+    advancement("power/smelter", "power/generator", "smelter", awarded(), frame="goal")
     advancement("storage/drive", "root", "storage_drive", has("storage_drive"))
     advancement("storage/terminal", "storage/drive", "storage_terminal", placed("storage_terminal"))
     advancement("storage/port", "storage/terminal", "port", placed("port"), frame="goal")
@@ -618,6 +669,7 @@ if __name__ == "__main__":
     forge()
     forecaster()
     forecaster("forecaster_ii")
+    power()
     storage()
     stream()
     cables()

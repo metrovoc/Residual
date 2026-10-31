@@ -24,7 +24,10 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import org.slf4j.Logger;
@@ -46,6 +49,7 @@ public final class Residual {
         ModAttachments.ATTACHMENTS.register(modBus);
         ModTabs.TABS.register(modBus);
         modBus.addListener(Network::register);
+        modBus.addListener(Residual::capabilities);
         container.registerConfig(ModConfig.Type.SERVER, ResidualConfig.SPEC);
 
         NeoForge.EVENT_BUS.addListener(Residual::onServerStopping);
@@ -77,5 +81,14 @@ public final class Residual {
                 player.drop(guide, false);
             }
         }
+    }
+
+    /** Power blocks speak Forge Energy, and their slots take and give items, to other mods' cables, pipes and hoppers. */
+    private static void capabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.GENERATOR.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.CELL.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.SMELTER.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.GENERATOR.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SMELTER.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
     }
 }

@@ -1,0 +1,40 @@
+{
+  "parent": "residual:root",
+  "criteria": {
+    "placed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": "residual:combustion_generator"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:combustion_generator"
+    },
+    "title": {
+      "translate": "advancements.residual.power.generator.title"
+    },
+    "description": {
+      "translate": "advancements.residual.power.generator.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "placed"
+    ]
+  ]
+}
