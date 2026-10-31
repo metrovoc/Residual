@@ -99,7 +99,10 @@ parentheses and amounts: `@minecraft ingot -iron` finds every ingot but iron. A 
 a machine and imports, exports, keeps a set stock, or opens the inventory to the network as a window, 64 items a tick:
 with its chest refilled every tick, one moved 1,280 items a second. An Assembler crafts a recipe drawn in its grid from
 what the network keeps, up to 80 crafts a second, whenever the network holds fewer of the result than it is told to
-keep, so one that keeps sticks lets another make torches for as long as there is coal.
+keep, so one that keeps sticks lets another make torches for as long as there is coal. Ask a terminal for something the
+Assemblers can make, and it plans the whole tree off the server thread before anything starts: what comes from storage,
+how many crafts make the rest, what is missing. A job can start with something missing and wait for it, any number of
+jobs run at once, and what a job makes along the way is its own until it is done.
 
 ## The archive
 

@@ -100,6 +100,8 @@ import org.slf4j.Logger;
  * <pre>
  * world [SEED]               create a fresh creative world and wait until it has loaded: flat, or with SEED a
  *                            normal world with structures
+ * reopen                     save and leave the world, then open it again and wait until it has loaded, to see
+ *                            what a save keeps
  * cmd COMMAND                run a command as the player
  * chat TEXT                  say something in chat
  * wait TICKS
@@ -159,6 +161,8 @@ public final class Rehearsal {
     private static int waiting;
     private static boolean moved;
     private static boolean loading;
+    /** Left the world to open it again: waiting for it to be closed. */
+    private static boolean reopening;
     private static boolean quitting;
     /** Keeps the player flying: creative flight ends whenever the player touches the ground. */
     private static boolean hover;
@@ -199,6 +203,16 @@ public final class Rehearsal {
             if (mc.level == null) {
                 mc.stop();
             }
+            return;
+        }
+        if (reopening) {
+            if (mc.level != null) {
+                return;
+            }
+            reopening = false;
+            mc.createWorldOpenFlows().openWorld(WORLD, () -> {
+            });
+            loading = true;
             return;
         }
         if (loading) {
@@ -340,6 +354,10 @@ public final class Rehearsal {
         String[] args = arg.split("\\s+");
         switch (parts[0]) {
             case "world" -> createWorld(mc, arg);
+            case "reopen" -> {
+                reopening = true;
+                mc.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE);
+            }
             case "cmd" -> mc.player.connection.sendCommand(arg);
             case "chat" -> mc.player.connection.sendChat(arg);
             case "wait" -> waiting = Integer.parseInt(arg);

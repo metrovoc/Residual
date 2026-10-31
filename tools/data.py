@@ -584,6 +584,7 @@ def advancements():
     advancement("storage/terminal", "storage/drive", "storage_terminal", placed("storage_terminal"))
     advancement("storage/port", "storage/terminal", "port", placed("port"), frame="goal")
     advancement("storage/assembler", "storage/terminal", "assembler", awarded(), frame="goal")
+    advancement("storage/request", "storage/assembler", "storage_terminal", awarded(), frame="goal")
     advancement("bench/made", "root", "bench", placed("bench"))
     advancement("model/stream", "bench/made", "stream", placed("stream"))
     advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))

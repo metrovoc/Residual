@@ -10,6 +10,8 @@ import io.github.metrovoc.residual.net.AgentSync;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.FlowSync;
 import io.github.metrovoc.residual.net.SampleResult;
+import io.github.metrovoc.residual.net.CraftJobsSync;
+import io.github.metrovoc.residual.net.CraftPlanSync;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.WaveSync;
@@ -85,6 +87,17 @@ public final class ResidualClient {
                 menu.items = sync.items();
                 menu.stored = sync.stored();
                 menu.capacity = sync.capacity();
+                menu.craftable = java.util.Set.copyOf(sync.craftable());
+            }
+        });
+        event.register(CraftPlanSync.TYPE, (plan, ctx) -> {
+            if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == plan.menu()) {
+                menu.plan = plan;
+            }
+        });
+        event.register(CraftJobsSync.TYPE, (jobs, ctx) -> {
+            if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == jobs.menu()) {
+                menu.jobs = jobs.jobs();
             }
         });
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {

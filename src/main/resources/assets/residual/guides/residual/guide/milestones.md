@@ -40,6 +40,9 @@ network.</residual:Milestone>
 <residual:Milestone id="storage/assembler">Draw a recipe in an Assembler's grid and tell it how many to
 keep.</residual:Milestone>
 
+<residual:Milestone id="storage/request">Click something the network can make in a Storage Terminal, ask for an amount
+and start it: [Storage](storage.md).</residual:Milestone>
+
 ## The old world
 
 <residual:Milestone id="ruins/found">Archive houses, relay masts and buried vaults stand far apart:

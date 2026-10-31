@@ -1,5 +1,9 @@
 package io.github.metrovoc.residual.storage;
 
+import io.github.metrovoc.residual.net.CraftAsk;
+import io.github.metrovoc.residual.net.CraftCancel;
+import io.github.metrovoc.residual.net.CraftJobsSync;
+import io.github.metrovoc.residual.net.CraftPlanSync;
 import io.github.metrovoc.residual.net.StorageClick;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.registry.ModMenus;
@@ -7,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,10 +38,16 @@ public class TerminalMenu extends AbstractContainerMenu {
     @Nullable
     private Object2LongLinkedOpenHashMap<ItemResource> sent;
     private long[] sentUsage = new long[2];
+    private Set<ItemResource> sentCraftable = Set.of();
+    private List<CraftJobsSync.Job> sentJobs = List.of();
     private int ticks;
-    /** On the client: what the network keeps, as last sent. */
+    /** On the client: what the network keeps, as last sent; what it can make; the last plan; its running jobs. */
     public List<StorageSync.Entry> items = List.of();
     public long stored, capacity;
+    public Set<ItemResource> craftable = Set.of();
+    @Nullable
+    public CraftPlanSync plan;
+    public List<CraftJobsSync.Job> jobs = List.of();
 
     public TerminalMenu(int id, Inventory inventory, BlockPos pos) {
         super(ModMenus.TERMINAL.get(), id);
@@ -63,18 +74,45 @@ public class TerminalMenu extends AbstractContainerMenu {
             return;
         }
         StorageNetwork net = network();
+        ServerLevel level = (ServerLevel) player.level();
+        List<CraftJobsSync.Job> jobs = CraftingData.of(level.getServer()).on(level, net).stream().map(CraftJobsSync.Job::of).toList();
+        if (!CraftJobsSync.same(jobs, sentJobs)) {
+            sentJobs = jobs;
+            PacketDistributor.sendToPlayer(server, new CraftJobsSync(containerId, jobs));
+        }
         Object2LongLinkedOpenHashMap<ItemResource> now = net.contents();
         long[] usage = net.usage();
-        if (now.equals(sent) && usage[0] == sentUsage[0] && usage[1] == sentUsage[1]) {
+        Set<ItemResource> craftable = CraftJobs.craftable(net);
+        if (now.equals(sent) && usage[0] == sentUsage[0] && usage[1] == sentUsage[1] && craftable.equals(sentCraftable)) {
             return;
         }
         sent = now;
         sentUsage = usage;
+        sentCraftable = craftable;
         List<StorageSync.Entry> items = new ArrayList<>(now.size());
         for (Object2LongMap.Entry<ItemResource> e : now.object2LongEntrySet()) {
             items.add(new StorageSync.Entry(e.getKey(), e.getLongValue()));
         }
-        PacketDistributor.sendToPlayer(server, new StorageSync(containerId, items, usage[0], usage[1]));
+        PacketDistributor.sendToPlayer(server, new StorageSync(containerId, items, usage[0], usage[1], List.copyOf(craftable)));
+    }
+
+    /** Plans what the player asked for off the server thread, starts it if they said so, and sends the plan back. */
+    public void ask(CraftAsk ask) {
+        ServerLevel level = (ServerLevel) player.level();
+        CraftJobs.plan(level, network(), ask.item(), ask.amount(), planned -> {
+            if (!(player instanceof ServerPlayer server) || server.containerMenu != this) {
+                return;
+            }
+            boolean start = ask.start() && planned.plan().root.recipe != null;
+            if (start) {
+                CraftJobs.start(level, server, pos, planned);
+            }
+            PacketDistributor.sendToPlayer(server, CraftPlanSync.of(containerId, planned.plan(), start));
+        });
+    }
+
+    public void cancel(CraftCancel cancel) {
+        CraftJobs.cancel((ServerLevel) player.level(), network(), cancel.job());
     }
 
     /** Takes a kind out or puts the cursor's stack in, as the player clicked the grid. */

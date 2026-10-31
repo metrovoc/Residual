@@ -5,7 +5,9 @@ import io.github.metrovoc.residual.registry.ModBlockEntities;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -31,6 +33,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * An Assembler at work. Its recipe is a 3×3 grid of kinds, drawn with ghost items and read by the game's own crafting
@@ -64,6 +67,8 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
     private int madeThisSecond, madeLastSecond;
     private int waiting = NO_RECIPE;
     private Optional<RecipeHolder<CraftingRecipe>> recipe = Optional.empty();
+    @Nullable
+    private CraftPlan.Recipe<ItemResource> planned;
     private boolean looked;
     /** Players with its screen open. */
     int viewers;
@@ -111,7 +116,29 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
         looked = true;
         CraftingInput input = input();
         recipe = input.isEmpty() ? Optional.empty() : level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
-        result.setItem(0, recipe.map(r -> r.value().assemble(input)).orElse(ItemStack.EMPTY));
+        ItemStack out = recipe.map(r -> r.value().assemble(input)).orElse(ItemStack.EMPTY);
+        result.setItem(0, out);
+        planned = null;
+        if (recipe.isPresent() && !out.isEmpty()) {
+            Map<ItemResource, Integer> inputs = new LinkedHashMap<>(), leftovers = new LinkedHashMap<>();
+            for (int i = 0; i < GRID; i++) {
+                if (!grid.getItem(i).isEmpty()) {
+                    inputs.merge(ItemResource.of(grid.getItem(i)), 1, Integer::sum);
+                }
+            }
+            for (ItemStack left : recipe.get().value().getRemainingItems(input)) {
+                if (!left.isEmpty()) {
+                    leftovers.merge(ItemResource.of(left), left.getCount(), Integer::sum);
+                }
+            }
+            planned = new CraftPlan.Recipe<>(ItemResource.of(out), out.getCount(), inputs, leftovers);
+        }
+    }
+
+    /** What it makes and from what, as a network's planner sees it; null without a recipe. */
+    @Nullable
+    public CraftPlan.Recipe<ItemResource> planned() {
+        return planned;
     }
 
     private void recipeChanged() {
@@ -143,6 +170,8 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
         ItemStack out = result.getItem(0);
         if (recipe.isEmpty() || out.isEmpty()) {
             waiting = NO_RECIPE;
+            // jobs it owes crafts to learn that it no longer makes their part
+            CraftJobs.work(level, this, null, CRAFTS);
             return;
         }
         if (viewers > 0) {
@@ -150,46 +179,77 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
         StorageNetwork net = StorageNetwork.at(level, worldPosition);
+        // crafts players asked for come first; what is left of the tick's crafts keeps the network's stock
+        int budget = CraftJobs.work(level, this, net, CRAFTS);
         ItemResource made = ItemResource.of(out);
         long have = net.count(made);
         held = (int) Math.min(Integer.MAX_VALUE, have);
-        if (have >= keep) {
+        if (budget < CRAFTS) {
+            waiting = CRAFTING;
+        } else if (have >= keep) {
             waiting = ENOUGH;
             return;
         }
-        // what one craft takes, kind by kind
-        Object2IntLinkedOpenHashMap<ItemResource> needs = new Object2IntLinkedOpenHashMap<>();
-        for (int i = 0; i < GRID; i++) {
-            ItemStack s = grid.getItem(i);
-            if (!s.isEmpty()) {
-                needs.addTo(ItemResource.of(s), 1);
-            }
-        }
-        long crafts = Math.min(CRAFTS, (keep - have + out.getCount() - 1) / out.getCount());
-        for (Object2IntMap.Entry<ItemResource> need : needs.object2IntEntrySet()) {
-            crafts = Math.min(crafts, net.extract(need.getKey(), need.getIntValue() * crafts, true) / need.getIntValue());
-        }
-        if (crafts <= 0) {
-            waiting = MISSING;
+        if (budget == 0 || have >= keep) {
             return;
         }
-        waiting = CRAFTING;
-        CraftingInput input = input();
-        NonNullList<ItemStack> leftovers = recipe.get().value().getRemainingItems(input);
-        for (Object2IntMap.Entry<ItemResource> need : needs.object2IntEntrySet()) {
-            net.extract(need.getKey(), need.getIntValue() * crafts, false);
+        long crafts = craft(level, net, Math.min(budget, (keep - have + out.getCount() - 1) / out.getCount()), null);
+        if (crafts > 0) {
+            waiting = CRAFTING;
+        } else if (budget == CRAFTS) {
+            waiting = MISSING;
         }
-        put(level, net, made, out.getCount() * crafts);
-        BlockPos to = net.lastStore;
-        for (ItemStack left : leftovers) {
-            if (!left.isEmpty()) {
-                put(level, net, ItemResource.of(left), left.getCount() * crafts);
+    }
+
+    /**
+     * Makes up to {@code n} crafts, as many as the ingredients allow, and returns how many. Each ingredient comes from
+     * the job's own stock first, then from the network; what the crafts make goes to the job, or without one to the
+     * network; what they leave, such as empty buckets, goes to the network.
+     */
+    long craft(ServerLevel level, StorageNetwork net, long n, @Nullable CraftJob job) {
+        CraftPlan.Recipe<ItemResource> r = planned;
+        if (r == null || n <= 0) {
+            return 0;
+        }
+        long asked = n;
+        for (Map.Entry<ItemResource, Integer> need : r.inputs().entrySet()) {
+            long have = (job == null ? 0 : job.held.getLong(need.getKey())) + net.extract(need.getKey(), need.getValue() * asked, true);
+            long enough = have / need.getValue();
+            if (enough < n) {
+                n = enough;
+                if (job != null) {
+                    // what it lacks for every craft it still owes the job, not only this tick's
+                    long owed = job.tasks.get(worldPosition).left;
+                    job.waitingFor = need.getKey();
+                    job.waitingCount = need.getValue() * owed - job.held.getLong(need.getKey()) - net.count(need.getKey());
+                }
             }
         }
-        madeThisSecond += (int) crafts;
-        if (level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
-            Flows.send(level, worldPosition, to, true, (int) crafts * out.getCount());
+        if (n <= 0) {
+            return 0;
         }
+        if (job != null && n == asked) {
+            job.waitingFor = null;
+        }
+        for (Map.Entry<ItemResource, Integer> need : r.inputs().entrySet()) {
+            long want = need.getValue() * n;
+            long fromJob = job == null ? 0 : job.take(need.getKey(), want);
+            net.extract(need.getKey(), want - fromJob, false);
+        }
+        if (job != null) {
+            job.hold(r.output(), r.made() * n);
+        } else {
+            put(level, net, r.output(), r.made() * n);
+        }
+        BlockPos to = net.lastStore;
+        for (Map.Entry<ItemResource, Integer> left : r.leftovers().entrySet()) {
+            put(level, net, left.getKey(), left.getValue() * n);
+        }
+        madeThisSecond += (int) n;
+        if (level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
+            Flows.send(level, worldPosition, to, true, (int) n * r.made());
+        }
+        return n;
     }
 
     /** Puts what it made into the network, dropping what has no room as a last resort. */

@@ -47,6 +47,8 @@ public final class Network {
         r.playToServer(StorageClick.TYPE, StorageClick.STREAM_CODEC, Network::onStorageClick);
         r.playToServer(PortEdit.TYPE, PortEdit.STREAM_CODEC, Network::onPortEdit);
         r.playToServer(AssemblerEdit.TYPE, AssemblerEdit.STREAM_CODEC, Network::onAssemblerEdit);
+        r.playToServer(CraftAsk.TYPE, CraftAsk.STREAM_CODEC, Network::onCraftAsk);
+        r.playToServer(CraftCancel.TYPE, CraftCancel.STREAM_CODEC, Network::onCraftCancel);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
@@ -54,6 +56,8 @@ public final class Network {
         r.playToClient(WaveSync.TYPE, WaveSync.STREAM_CODEC);
         r.playToClient(StorageSync.TYPE, StorageSync.STREAM_CODEC);
         r.playToClient(FlowSync.TYPE, FlowSync.STREAM_CODEC);
+        r.playToClient(CraftPlanSync.TYPE, CraftPlanSync.STREAM_CODEC);
+        r.playToClient(CraftJobsSync.TYPE, CraftJobsSync.STREAM_CODEC);
     }
 
     /** Only the player looking at a Core's screen may operate it. */
@@ -162,6 +166,21 @@ public final class Network {
         if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
                 && menu.containerId == click.menu() && menu.stillValid(player)) {
             menu.click(click);
+        }
+    }
+
+    /** Only the player looking at a Storage Terminal's screen may ask its network to make something. */
+    private static void onCraftAsk(CraftAsk ask, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
+                && menu.containerId == ask.menu() && menu.stillValid(player)) {
+            menu.ask(ask);
+        }
+    }
+
+    private static void onCraftCancel(CraftCancel cancel, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
+                && menu.containerId == cancel.menu() && menu.stillValid(player)) {
+            menu.cancel(cancel);
         }
     }
 

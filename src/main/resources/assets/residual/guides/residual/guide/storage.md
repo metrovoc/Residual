@@ -122,3 +122,18 @@ network. One Assembler can keep another stocked: one that keeps sticks lets one 
 there is coal.
 
 <RecipeFor id="assembler" />
+
+## Asking for things
+
+What the network's Assemblers can make shows in the terminal too: with **Craft** in place of a count when there is none
+of it, and with a teal corner when there is. Click it, or middle-click or Ctrl-click one there is some of, to ask for an
+amount. The terminal plans it as you type: a tree of everything it takes, each step with how many come from storage,
+how many crafts make the rest (×) and how many are missing (−).
+
+Start it, and the network's Assemblers work through the plan, any number of jobs at once; Assemblers drawing the same
+recipe share its crafts. What a job makes along the way it keeps to itself until it is done, so nothing else takes it
+first. A job may start with something missing: it waits, and goes on as soon as what it lacks reaches the network.
+When it is done, everything it made goes into the network, and you hear so wherever you are.
+
+**Jobs**, beside the search box, lists the jobs running on the network, how far each has got and what it waits for; ×
+stops one, and what it has made so far goes back into the network.
