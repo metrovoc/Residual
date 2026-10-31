@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -105,6 +106,13 @@ public class RackBlockEntity extends BlockEntity implements MenuProvider {
         if (!Arrays.equals(now, lights)) {
             lights = now;
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+        BlockState state = getBlockState();
+        for (int i = 0; i < BAYS; i++) {
+            state = state.setValue(RackBlock.BAYS.get(i), now[i] != NONE);
+        }
+        if (state != getBlockState()) {
+            level.setBlock(worldPosition, state, Block.UPDATE_CLIENTS);
         }
     }
 

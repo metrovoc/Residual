@@ -61,11 +61,26 @@ def facing_variants(model, extra="", facings=FACING):
     return {f"facing={f}{extra}": {"model": model, **rot} for f, rot in facings.items()}
 
 
+def glowing(texture):
+    """Whether tools/art.py split this face's lit pixels into a _lights texture."""
+    return (RES / "assets" / NS / "textures" / (texture.split(":")[1] + "_lights.png")).exists()
+
+
 def cube(name, north, south, side, up=None, down=None):
+    """A full block. A face with lights gets them on a second, full-bright layer filling the holes art.py left in it,
+    the way AE2 and Mekanism light theirs."""
+    faces = {"north": north, "south": south, "east": side, "west": side, "up": up or side, "down": down or side}
+    lit = [f for f, t in faces.items() if glowing(t)]
+    if not lit:
+        write(f"assets/{NS}/models/block/{name}.json", {"parent": "minecraft:block/cube", "textures": {"particle": side} | faces})
+        return
+    bright = {"block_light": 15, "sky_light": 15}
     write(f"assets/{NS}/models/block/{name}.json", {
-        "parent": "minecraft:block/cube",
-        "textures": {"particle": side, "north": north, "south": south, "east": side, "west": side,
-                     "up": up or side, "down": down or side}})
+        "parent": "minecraft:block/block", "render_type": "minecraft:cutout",
+        "textures": {"particle": side} | faces | {f"{f}_lights": faces[f] + "_lights" for f in lit},
+        "elements": [box([0, 0, 0], [16, 16, 16], {f: {"texture": f"#{f}", "cullface": f} for f in faces}),
+                     box([0, 0, 0], [16, 16, 16], {f: {"texture": f"#{f}_lights", "cullface": f, "neoforge_data": bright}
+                                                   for f in lit}) | {"shade": False}]})
 
 
 # ---------------------------------------------------------------- blocks
@@ -99,7 +114,7 @@ def simple(name):
 
 def accelerator():
     for name in ("accelerator", "accelerator_hot"):
-        write(f"assets/{NS}/models/block/{name}.json", {"parent": "minecraft:block/cube_all", "textures": {"all": rid(f"block/{name}")}})
+        cube(name, *[rid(f"block/{name}")] * 3)
     write(f"assets/{NS}/blockstates/accelerator.json", {"variants": {
         "hot=false": {"model": rid("block/accelerator")}, "hot=true": {"model": rid("block/accelerator_hot")}}})
     item_definition("accelerator", rid("block/accelerator"))
@@ -258,12 +273,78 @@ def cables():
         item_definition(name, rid(f"item/{name}"))
 
 
+# a Drive Rack's bays in face coordinates (u, v), as tools/art.py draws them: two columns of four, 6x2 px, 2 px apart
+RACK_BAY_U = (1, 9)
+RACK_BAY_V = (1, 5, 9, 13)
+
+
+def north_uv(x0, y0, x1, y1):
+    """The face-coordinate rectangle a north face of these model bounds shows."""
+    return [16 - x1, 16 - y1, 16 - x0, 16 - y0]
+
+
+def rack():
+    """A 3D Drive Rack, built the way AE2 builds its drive: full top and bottom panels and two side panels make the
+    shell, its front edge a 1 px rim; behind the rim, a divider and shelves set 1 px back part eight bays that run 6 px
+    deep to a back panel. A cartridge model per bay shows when a drive is in it."""
+    t = {"front": rid("block/drive_rack_front"), "inside": rid("block/drive_rack_inside"),
+         "panel": rid("block/drive_rack_back_panel"), "side": rid("block/drive_rack_side"), "top": rid("block/drive_rack_top"),
+         "particle": rid("block/drive_rack_front")}
+    holes_x = [(16 - u - 6, 16 - u) for u in RACK_BAY_U]
+    holes_y = [(16 - v - 2, 16 - v) for v in RACK_BAY_V]
+    parts = []
+
+    def element(frm, to, faces):
+        parts.append(box(frm, to, faces))
+
+    def face(texture, uv, cull=None):
+        return {"texture": texture, "uv": list(uv)} | ({"cullface": cull} if cull else {})
+
+    inside = face("#inside", [0, 0, 16, 16])
+    # the shell: top and bottom panels the full width, side panels between them
+    element([0, 15, 0], [16, 16, 16], {"up": face("#top", [0, 0, 16, 16], "up"), "down": inside,
+                                       "north": face("#front", north_uv(0, 15, 16, 16), "north"),
+                                       **{f: face("#side", [0, 0, 16, 1], f) for f in ("east", "west", "south")}})
+    element([0, 0, 0], [16, 1, 16], {"down": face("#top", [0, 0, 16, 16], "down"), "up": inside,
+                                     "north": face("#front", north_uv(0, 0, 16, 1), "north"),
+                                     **{f: face("#side", [0, 15, 16, 16], f) for f in ("east", "west", "south")}})
+    for x0, outer, inner in ((0, "west", "east"), (15, "east", "west")):
+        element([x0, 1, 0], [x0 + 1, 15, 16], {outer: face("#side", [0, 1, 16, 15], outer), inner: inside,
+                                               "north": face("#front", north_uv(x0, 1, x0 + 1, 15), "north"),
+                                               "south": face("#side", [15 - x0, 1, 16 - x0, 15], "south")})
+    # the divider between the columns and the shelves between the rows, 1 px behind the rim
+    element([7, 1, 1], [9, 15, 7], {"north": face("#front", north_uv(7, 1, 9, 15)), "east": inside, "west": inside})
+    for (y0, y1), (y2, _) in zip(holes_y[1:], holes_y[:-1]):
+        element([1, y1, 1], [15, y2, 7], {"north": face("#front", north_uv(1, y1, 15, y2)), "up": inside, "down": inside})
+    # the back panel the bays end at, and the back of the block
+    element([1, 1, 7], [15, 15, 16], {"north": face("#panel", north_uv(1, 1, 15, 15)),
+                                      "south": face("#side", [1, 1, 15, 15], "south")})
+    write(f"assets/{NS}/models/block/drive_rack.json", {"parent": "minecraft:block/block", "textures": t, "elements": parts})
+
+    # a drive in a bay: a cartridge 2 px behind the face
+    multipart = [{"when": {"facing": f}, "apply": {"model": rid("block/drive_rack"), **rot}} for f, rot in HORIZONTAL.items()]
+    for i in range(8):
+        col, row = i % 2, i // 2
+        x0, x1 = holes_x[col]
+        y0, y1 = holes_y[row]
+        # the lens at the drive's outer end: bays on the left show the face mirrored
+        face = [6, 0, 0, 2] if col == 0 else [0, 0, 6, 2]
+        cart = {"north": {"uv": face, "texture": "#cartridge"}, "up": {"uv": [0, 2, 6, 7], "texture": "#cartridge"},
+                "down": {"uv": [0, 7, 6, 12], "texture": "#cartridge"}, "east": {"uv": [6, 2, 11, 4], "texture": "#cartridge"},
+                "west": {"uv": [6, 4, 11, 6], "texture": "#cartridge"}}
+        write(f"assets/{NS}/models/block/drive_rack_bay{i}.json", {
+            "parent": "minecraft:block/block", "ambientocclusion": False,
+            "textures": {"cartridge": rid("block/drive_cartridge"), "particle": rid("block/drive_cartridge")},
+            "elements": [box([x0, y0, 2], [x1, y1, 7], cart)]})
+        for f, rot in HORIZONTAL.items():
+            multipart.append({"when": {"facing": f, f"bay{i}": "true"}, "apply": {"model": rid(f"block/drive_rack_bay{i}"), **rot}})
+    write(f"assets/{NS}/blockstates/drive_rack.json", {"multipart": multipart})
+    item_definition("drive_rack", rid("block/drive_rack"))
+
+
 def storage():
     """Drive Rack, Storage Terminal, Port and Storage Link."""
-    side, top = rid("block/drive_rack_side"), rid("block/drive_rack_top")
-    cube("drive_rack", rid("block/drive_rack_front"), side, side, top, top)
-    write(f"assets/{NS}/blockstates/drive_rack.json", {"variants": facing_variants(rid("block/drive_rack"), facings=HORIZONTAL)})
-    item_definition("drive_rack", rid("block/drive_rack"))
+    rack()
 
     side = rid("block/storage_terminal_side")
     variants = {}

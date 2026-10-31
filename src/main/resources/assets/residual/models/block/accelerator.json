@@ -1,6 +1,12 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube",
   "textures": {
-    "all": "residual:block/accelerator"
+    "particle": "residual:block/accelerator",
+    "north": "residual:block/accelerator",
+    "south": "residual:block/accelerator",
+    "east": "residual:block/accelerator",
+    "west": "residual:block/accelerator",
+    "up": "residual:block/accelerator",
+    "down": "residual:block/accelerator"
   }
 }

@@ -14,18 +14,31 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import java.util.List;
+import java.util.stream.IntStream;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
-/** A Drive Rack: eight bays for Storage Drives, each lit by how full its drive is. It joins a network on every face. */
+/**
+ * A Drive Rack: eight bays for Storage Drives, each drive a cartridge in its bay, lit by how full it is. It joins a
+ * network on every face.
+ */
 public class RackBlock extends DeviceBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    /** Whether each bay holds a drive, so the model shows its cartridge. */
+    public static final List<BooleanProperty> BAYS = IntStream.range(0, RackBlockEntity.BAYS)
+            .mapToObj(i -> BooleanProperty.create("bay" + i)).toList();
     public static final MapCodec<RackBlock> CODEC = simpleCodec(RackBlock::new);
 
     public RackBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
+        BlockState state = stateDefinition.any().setValue(FACING, Direction.NORTH);
+        for (BooleanProperty bay : BAYS) {
+            state = state.setValue(bay, false);
+        }
+        registerDefaultState(state);
     }
 
     @Override
@@ -36,6 +49,7 @@ public class RackBlock extends DeviceBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
+        BAYS.forEach(builder::add);
     }
 
     @Override
