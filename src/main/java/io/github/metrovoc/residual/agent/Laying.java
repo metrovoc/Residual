@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.agent;
 
 import io.github.metrovoc.residual.learn.Benchmark;
+import io.github.metrovoc.residual.net.GhostSync;
 import io.github.metrovoc.residual.storage.StorageNetwork;
 import io.github.metrovoc.residual.storage.TerminalBlockEntity;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,10 +32,14 @@ abstract class Laying extends Work {
     static final int PER_TICK = 4;
     /** How near a slice's foot it stands to lay it. */
     static final double REACH = 4.5;
+    /** Ticks between two showings of the places it will still lay blocks in. */
+    static final int GHOST_EVERY = 40;
     /** Below this it stops rather than act on its model's answer, as sorting sets aside what it is unsure of. */
     static final float SURE = 0.6f;
     /** Every place laid this round, so neighbours are told once the whole build stands. */
     final List<BlockPos> placed = new ArrayList<>();
+    /** When it last showed players where it will lay blocks. */
+    private int ghostAt = -GHOST_EVERY;
     @Nullable
     private BlockPos fetchingFrom;
     @Nullable
@@ -106,6 +112,26 @@ abstract class Laying extends Work {
         a.swing(InteractionHand.MAIN_HAND);
         a.pause(2);
         return false;
+    }
+
+    /** Shows players near it where it will still lay blocks, every two seconds, and nothing once the build stands. */
+    void ghost(List<BlockPos> places) {
+        if (!places.isEmpty() && a.tickCount - ghostAt < GHOST_EVERY) {
+            return;
+        }
+        ghostAt = a.tickCount;
+        PacketDistributor.sendToPlayersTrackingEntity(a, new GhostSync(a.getId(), places.stream().mapToLong(BlockPos::asLong).toArray()));
+    }
+
+    /** The places of {@code wanted} still to lay. */
+    static List<BlockPos> left(ServerLevel level, Map<BlockPos, BlockState> wanted) {
+        List<BlockPos> out = new ArrayList<>();
+        wanted.forEach((p, s) -> {
+            if (!s.isAir() && level.getBlockState(p).canBeReplaced()) {
+                out.add(p);
+            }
+        });
+        return out;
     }
 
     /** Tells the neighbours of every place laid this round, now that the whole build stands. */

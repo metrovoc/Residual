@@ -50,6 +50,7 @@ final class Building extends Laying {
             }
             if (next == run.length()) {
                 settle(level);
+                ghost(List.of());
                 a.status("residual.agent.status.row_done");
                 a.pause(200);
                 finish();
@@ -66,6 +67,7 @@ final class Building extends Laying {
         for (int i = 0; i < places.size(); i++) {
             wanted.put(places.get(i), content.get(i));
         }
+        ghost(left(level, wanted));
         // the slices to come are its model's to name, so it fetches a stack of each kind on the way
         Map<Item, Integer> ahead = new LinkedHashMap<>();
         needs(level, wanted).keySet().forEach(item -> ahead.put(item, item.getDefaultMaxStackSize()));

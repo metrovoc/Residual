@@ -158,6 +158,9 @@ final class Copying extends Laying {
             }
             slices.add(wanted);
         }
+        List<BlockPos> left = new ArrayList<>();
+        slices.forEach(slice -> left.addAll(left(level, slice)));
+        ghost(left);
         for (int n = 0; n < slices.size(); n++) {
             if (needs(level, slices.get(n)).isEmpty()) {
                 continue;
@@ -173,6 +176,7 @@ final class Copying extends Laying {
             }
         }
         settle(level);
+        ghost(List.of());
         award("agent/copy");
         finish("residual.agent.status.copy_done");
     }
@@ -258,6 +262,7 @@ final class Copying extends Laying {
         }
         a.status("residual.agent.status.moving", build.length() - (int) held.stream().mapToInt(t -> t.getIntOr("k", 0)).distinct().count() + 1,
                 build.length());
+        ghost(held.stream().map(t -> copy.at(t.getIntOr("k", 0), t.getIntOr("i", 0), t.getIntOr("j", 0))).toList());
         switch (a.walk(copy.at(k, copy.width() / 2, 0), REACH)) {
             case ON_THE_WAY -> {
                 return;
@@ -299,6 +304,7 @@ final class Copying extends Laying {
                 }
             }
             settle(level);
+            ghost(List.of());
             award("agent/move");
             finish("residual.agent.status.move_done");
         }
