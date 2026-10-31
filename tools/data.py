@@ -274,12 +274,13 @@ def storage():
     write(f"assets/{NS}/blockstates/storage_terminal.json", {"variants": variants})
     item_definition("storage_terminal", rid("block/storage_terminal"))
 
-    # a Port's front holds against its inventory; the face players see, its back, shows its mode
-    side, front = rid("block/port_side"), rid("block/port_front")
+    # a Port's front holds against its inventory and its back usually against a link, so its four sides, the faces
+    # players see, show its mode
+    back, front = rid("block/port_back"), rid("block/port_front")
     variants = {}
     for mode in PORT_MODES:
         for active, suffix in (("false", ""), ("true", "_on")):
-            cube(f"port_{mode}{suffix}", front, rid(f"block/port_back_{mode}{suffix}"), side)
+            cube(f"port_{mode}{suffix}", front, back, rid(f"block/port_{mode}{suffix}"))
             for key, value in facing_variants(rid(f"block/port_{mode}{suffix}")).items():
                 variants[f"{key},mode={mode},active={active}"] = value
     write(f"assets/{NS}/blockstates/port.json", {"variants": variants})

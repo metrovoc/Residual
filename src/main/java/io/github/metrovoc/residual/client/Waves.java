@@ -131,7 +131,7 @@ public final class Waves {
     }
 
     /** All six faces, wound both ways so the glow reads as a volume from any side. */
-    private static void box(PoseStack.Pose pose, VertexConsumer buffer, AABB b, int argb) {
+    static void box(PoseStack.Pose pose, VertexConsumer buffer, AABB b, int argb) {
         float x0 = (float) b.minX, y0 = (float) b.minY, z0 = (float) b.minZ;
         float x1 = (float) b.maxX, y1 = (float) b.maxY, z1 = (float) b.maxZ;
         float[][] faces = {

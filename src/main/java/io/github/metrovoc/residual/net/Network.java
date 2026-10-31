@@ -53,6 +53,7 @@ public final class Network {
         r.playToClient(SampleResult.TYPE, SampleResult.STREAM_CODEC);
         r.playToClient(WaveSync.TYPE, WaveSync.STREAM_CODEC);
         r.playToClient(StorageSync.TYPE, StorageSync.STREAM_CODEC);
+        r.playToClient(FlowSync.TYPE, FlowSync.STREAM_CODEC);
     }
 
     /** Only the player looking at a Core's screen may operate it. */

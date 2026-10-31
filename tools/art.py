@@ -1800,9 +1800,8 @@ PORT_GLYPHS = {
 }
 
 
-def port_back(mode, active):
-    """What a Port does, drawn on the face that looks away from its inventory: dim while it waits, lit while it moves
-    things."""
+def port_mode(mode, active):
+    """What a Port does, drawn on its sides: dim while it waits, lit while it moves things."""
     c = plate(AMBER_LINE if mode in ("export", "stock") else TEAL_LINE, salt=36)
     window(c)
     if active:
@@ -1812,7 +1811,8 @@ def port_back(mode, active):
     return c
 
 
-def port_side():
+def port_back():
+    """The face it joins its network through, as a rule."""
     c = plate(NEUTRAL, salt=37)
     socket(c, SOCKET_SIDE, TEAL)
     return c
@@ -2090,9 +2090,9 @@ def build():
     storage_terminal_front(True).save("block/storage_terminal_front_on.png")
     storage_terminal_side().save("block/storage_terminal_side.png")
     for mode in PORT_GLYPHS:
-        port_back(mode, False).save(f"block/port_back_{mode}.png")
-        port_back(mode, True).save(f"block/port_back_{mode}_on.png")
-    port_side().save("block/port_side.png")
+        port_mode(mode, False).save(f"block/port_{mode}.png")
+        port_mode(mode, True).save(f"block/port_{mode}_on.png")
+    port_back().save("block/port_back.png")
     port_front().save("block/port_front.png")
     storage_link().save("block/storage_link.png")
     for rows in [TERMINAL_SIDE, ASSEMBLER_SIDE, *PORT_GLYPHS.values()]:

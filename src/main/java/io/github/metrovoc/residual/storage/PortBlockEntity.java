@@ -50,6 +50,11 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
     private int amount = 64;
     private int priority;
     private int movedThisSecond;
+    /** Items moved since it last showed a flow, and whether the last of them went into the network. */
+    private int movedSinceFlow;
+    private boolean flowIn;
+    @Nullable
+    private BlockPos flowTo;
     private int movedLastSecond;
     @Nullable
     private BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> target;
@@ -143,15 +148,26 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
                     long have = count(inv, kind);
                     if (have < amount) {
                         budget -= exportTo(inv, net, kind, (int) Math.min(budget, amount - have));
+                        flowIn = false;
                     } else if (have > amount) {
                         budget -= importFrom(inv, net, (int) Math.min(budget, have - amount), kind);
+                        flowIn = true;
                     }
                 }
             }
             default -> {
             }
         }
-        movedThisSecond += RATE - budget;
+        int moved = RATE - budget;
+        movedThisSecond += moved;
+        movedSinceFlow += moved;
+        if (moved > 0) {
+            flowTo = net.lastStore;
+        }
+        if (movedSinceFlow > 0 && level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
+            Flows.send(level, worldPosition, flowTo, mode == PortMode.IMPORT || mode == PortMode.STOCK && flowIn, movedSinceFlow);
+            movedSinceFlow = 0;
+        }
     }
 
     /** Whether its filter lets {@code kind} through: anything when the filter is empty. */
@@ -259,6 +275,11 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
             @Override
             public int priority() {
                 return priority;
+            }
+
+            @Override
+            public BlockPos pos() {
+                return worldPosition;
             }
 
             @Override

@@ -180,12 +180,16 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
             net.extract(need.getKey(), need.getIntValue() * crafts, false);
         }
         put(level, net, made, out.getCount() * crafts);
+        BlockPos to = net.lastStore;
         for (ItemStack left : leftovers) {
             if (!left.isEmpty()) {
                 put(level, net, ItemResource.of(left), left.getCount() * crafts);
             }
         }
         madeThisSecond += (int) crafts;
+        if (level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
+            Flows.send(level, worldPosition, to, true, (int) crafts * out.getCount());
+        }
     }
 
     /** Puts what it made into the network, dropping what has no room as a last resort. */

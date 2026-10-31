@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.net.AgentSync;
 import io.github.metrovoc.residual.net.CoreSync;
+import io.github.metrovoc.residual.net.FlowSync;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
@@ -40,6 +41,8 @@ public final class ResidualClient {
         modBus.addListener(ResidualClient::models);
         NeoForge.EVENT_BUS.addListener(Waves::extract);
         NeoForge.EVENT_BUS.addListener(Waves::submit);
+        NeoForge.EVENT_BUS.addListener(FlowView::extract);
+        NeoForge.EVENT_BUS.addListener(FlowView::submit);
         // the field notes
         Guide.builder(Residual.GUIDE)
                 .itemSettings(new GuideItemSettings(Optional.of(Component.translatable("residual.guide_name")),
@@ -76,6 +79,7 @@ public final class ResidualClient {
         });
         event.register(AgentSync.TYPE, (sync, ctx) -> AgentView.sync = sync);
         event.register(WaveSync.TYPE, (wave, ctx) -> Waves.receive(wave));
+        event.register(FlowSync.TYPE, (flow, ctx) -> FlowView.receive(flow));
         event.register(StorageSync.TYPE, (sync, ctx) -> {
             if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == sync.menu()) {
                 menu.items = sync.items();

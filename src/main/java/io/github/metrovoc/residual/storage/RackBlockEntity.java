@@ -65,7 +65,7 @@ public class RackBlockEntity extends BlockEntity implements MenuProvider {
         for (int i = 0; i < BAYS; i++) {
             ItemStack s = drives.getItem(i);
             if (s.getItem() instanceof StorageDriveItem d) {
-                out.add(Store.of(data.drive(StorageDriveItem.id(s), d.capacity)));
+                out.add(Store.of(data.drive(StorageDriveItem.id(s), d.capacity), worldPosition));
             }
         }
     }

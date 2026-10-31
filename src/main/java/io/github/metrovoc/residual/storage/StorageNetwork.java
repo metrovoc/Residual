@@ -15,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Storage blocks joined by links, and everything they keep together. There are no channels and no limit on devices;
@@ -31,6 +32,9 @@ public final class StorageNetwork {
     public final Set<BlockPos> nodes;
     private final List<BlockPos> racks = new ArrayList<>();
     private final List<BlockPos> ports = new ArrayList<>();
+    /** Where the last items stored or taken went or came from, for the flows players see along the links. */
+    @Nullable
+    public BlockPos lastStore;
 
     private StorageNetwork(ServerLevel level, Set<BlockPos> nodes) {
         this.level = level;
@@ -125,7 +129,11 @@ public final class StorageNetwork {
                 if (pass == 0 && s.count(item) == 0) {
                     continue;
                 }
-                left -= s.insert(item, left, simulate);
+                long put = s.insert(item, left, simulate);
+                if (put > 0 && !simulate) {
+                    lastStore = s.pos();
+                }
+                left -= put;
                 if (left == 0) {
                     break;
                 }
@@ -142,7 +150,11 @@ public final class StorageNetwork {
         List<Store> stores = stores();
         long left = amount;
         for (int i = stores.size() - 1; i >= 0 && left > 0; i--) {
-            left -= stores.get(i).extract(item, left, simulate);
+            long took = stores.get(i).extract(item, left, simulate);
+            if (took > 0 && !simulate) {
+                lastStore = stores.get(i).pos();
+            }
+            left -= took;
         }
         return amount - left;
     }

@@ -93,7 +93,7 @@ The search box finds things by name, every word at once. Other facts take a sign
 
 A Port holds its front against an inventory (a chest, a barrel, a furnace or any other machine) and moves items between
 it and the network, 64 items a tick: 1,280 a second. Placed against a block, it faces that block; sneak-use one of its
-faces to turn its front there. Its back shows what it does, and lights while it moves things.
+faces to turn its front there. Its sides show what it does, and light while it moves things.
 
 <RecipeFor id="port" />
 

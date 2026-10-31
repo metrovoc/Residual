@@ -1,12 +1,12 @@
 {
   "parent": "minecraft:block/cube",
   "textures": {
-    "particle": "residual:block/port_side",
+    "particle": "residual:block/port_export",
     "north": "residual:block/port_front",
-    "south": "residual:block/port_back_export",
-    "east": "residual:block/port_side",
-    "west": "residual:block/port_side",
-    "up": "residual:block/port_side",
-    "down": "residual:block/port_side"
+    "south": "residual:block/port_back",
+    "east": "residual:block/port_export",
+    "west": "residual:block/port_export",
+    "up": "residual:block/port_export",
+    "down": "residual:block/port_export"
   }
 }
