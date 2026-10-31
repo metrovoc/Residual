@@ -67,7 +67,7 @@ final class Acts {
                 a.tell(Component.literal(act.thing()));
                 return Outcome.DONE;
             };
-            case FETCH, FARM, STORE, SORT, HAUL, BUILD -> throw new IllegalArgumentException(act.verb().word);
+            case FETCH, FARM, STORE, SORT, HAUL, BUILD, COPY, MOVE -> throw new IllegalArgumentException(act.verb().word);
         };
     }
 

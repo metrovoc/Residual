@@ -75,12 +75,16 @@ forecast yours is to train on the Forecaster's own log.
 An agent is a frame that runs a program, such as `repeat (mine 4 stone, put)` or `take bread, come, give bread`,
 typed in its screen or clicked together from a palette of pieces, checked as you go, and carried from agent to agent on
 Program Cards. Walking, carrying, mining and laying blocks are its own. Wherever there is a real decision to make (which
-chest the iron went into; the way home; the next block of a pattern; what kind of thing this is; what you meant), it
+chest the iron went into; the way home; the next slice of a build; what kind of thing this is; what you meant), it
 asks a model in the format of the test and does what the model answers. Its trace shows every step it took, what it checked, and why a step failed. A model that passes its test at 98%
 decides right 98 times in 100.
 
 Besides its model, an agent carries a filter: a model that tells what kind a thing is from its name alone, so that
 `sort` can file things it has never seen into chests labelled Food, Wood or Ores.
+
+With a model that passes Induction, an agent copies a build, moves it with everything inside, or carries on its
+pattern. It reads the build as slices, a letter for each, and its model names the slice that comes next; a copy is laid
+from the chests at home or a storage network.
 
 Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it. Its model
 writes the order as a program; anything longer than one step it reads back, and runs only once you click Do it.
@@ -139,7 +143,7 @@ exactly the test's format, so a test score is how often an agent decides right.
 | Forecasting | Forecast Dataset | loss ≤ 0.21 | running blocks ahead         |
 | Recall    | Storage Dataset | 90%         | keeping a storeroom          |
 | Reversal  | Errand Dataset  | 90%         | hauling                      |
-| Induction | Pattern Dataset | 90%         | building                     |
+| Induction | Pattern Dataset | 90%         | copying and building         |
 | Sorting   | Sorting Dataset | 90%         | sorting things by kind       |
 | Orders    | Orders Dataset  | 90%         | understanding what you say   |
 | Reading   | Archive Drive | loss ≤ 1.40 | restoring the archive        |

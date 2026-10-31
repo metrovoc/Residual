@@ -1,0 +1,28 @@
+{
+  "parent": "residual:agent/program",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:survey_rod"
+    },
+    "title": {
+      "translate": "advancements.residual.agent.copy.title"
+    },
+    "description": {
+      "translate": "advancements.residual.agent.copy.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

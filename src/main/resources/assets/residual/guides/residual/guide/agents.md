@@ -24,7 +24,8 @@ home.
 
 It has two model slots. Its **Model** takes a <ItemLink id="checkpoint" /> with a model of up to 40,000 parameters, or
 a <ItemLink id="relay_card" /> tuned to a Model Server, for a model of any size: see [Serving Models](deployment.md).
-This model writes the orders you give as programs, and makes the decisions of storing, hauling and building.
+This model writes the orders you give as programs, and makes the decisions of storing, hauling, building and
+copying.
 Its **Filter** takes a checkpoint that passes Sorting, and tells what kind each thing is. Its screen says what is
 missing.
 
@@ -53,7 +54,7 @@ The steps:
 - `pickup` what lies around it, `harvest`, `plant wheat seeds`, `till` the grass near water, `mine 4 stone` (with a
   pickaxe it carries, for blocks that need one), `place oak planks 2` on top of the second mark
 - `wait 10` seconds, `say hello`
-- `farm`, `store`, `sort`, `haul` or `build`: one round of a routine
+- `farm`, `store`, `sort`, `haul`, `build`, `copy` or `move`: one round of a routine
 
 Blocks: `repeat (…)`, `repeat 3 (…)`, `if … (…) else (…)`, `until … (…)` and `wait until …`. Checks: `have 3 bread`,
 `stocked bread` in the stores around home, `ripe`, `full`, `night`, `near` (you are within 8 blocks), `powered 2` (the
@@ -78,17 +79,16 @@ that gets stuck on its way somewhere gives up after a while; stuck three times r
   60% sure of, goes in a chest labelled Other, or else in one with no label.
 - **haul**: walks out along the six waymarks it was handed, loads up from the chest or barrel at the last one, and
   comes home. On the way back its model names the waymarks in reverse, and it walks wherever its model says.
-- **build**: carries on a straight row on top of the blocks between two marks, laying blocks from the chests at home.
-  It shows its model the row so far, a letter for each kind of block, and lays whatever its model says comes next. Lay
-  the first round of the pattern yourself, starting above the first mark.
+- **build**, **copy** and **move**: carry on a pattern along a run, copy a build, or move it, contents and all, as
+  its model reads it: see [The Architect](architect.md).
 
 ## The Survey Rod
 
 <RecipeFor id="survey_rod" />
 
 Use a <ItemLink id="survey_rod" /> on blocks to mark them, up to eight, in order; use a marked block again to unmark
-it, and sneak-use in the air to clear them all. Use the rod on an agent to hand it the marks: waymarks for hauling, the
-blocks under the two ends of a row for building, or places for `go` and `place`.
+it, and sneak-use in the air to clear them all. Use the rod on an agent to hand it the marks: waymarks for hauling, a
+build's corners and where its copy goes, the ends of a run to build along, or places for `go` and `place`.
 
 ## Program Cards
 

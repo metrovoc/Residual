@@ -575,6 +575,8 @@ def advancements():
     advancement("agent/made", "root", "agent", has("agent"))
     advancement("agent/program", "agent/made", "program_card", awarded())
     advancement("agent/order", "agent/made", "minecraft:writable_book", awarded(), frame="goal")
+    advancement("agent/copy", "agent/program", "survey_rod", awarded(), frame="goal")
+    advancement("agent/move", "agent/copy", "minecraft:chest", awarded(), frame="goal")
     advancement("deploy/server", "agent/made", "model_server", placed("model_server"))
     advancement("deploy/relay", "deploy/server", "relay", placed("relay"))
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))

@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -89,6 +90,8 @@ public class Agent extends PathfinderMob {
     };
     private BlockPos home = BlockPos.ZERO;
     private List<BlockPos> marks = List.of();
+    /** A build it took up to move, a block each with its contents, until it is laid down again. */
+    private List<CompoundTag> held = List.of();
     /** The program it runs when nothing else is asked of it, as written. */
     private String program = "";
     /** Whether that program was stopped, or is over. */
@@ -261,6 +264,14 @@ public class Agent extends PathfinderMob {
 
     public List<BlockPos> marks() {
         return marks;
+    }
+
+    List<CompoundTag> held() {
+        return held;
+    }
+
+    void hold(List<CompoundTag> blocks) {
+        held = List.copyOf(blocks);
     }
 
     public void setMarks(List<BlockPos> marks) {
@@ -682,7 +693,12 @@ public class Agent extends PathfinderMob {
         }
         if (player.isSecondaryUseActive() && held.isEmpty()) {
             if (!level().isClientSide()) {
-                pickUp(player);
+                if (this.held.isEmpty()) {
+                    pickUp(player);
+                } else {
+                    // a build it carries has nowhere to go but where it was taken
+                    player.sendOverlayMessage(Component.translatable("residual.agent.holding_build"));
+                }
             }
             return InteractionResult.SUCCESS;
         }
@@ -745,6 +761,9 @@ public class Agent extends PathfinderMob {
         ContainerHelper.saveAllItems(out.child("carried"), items.getItems());
         out.store("home", BlockPos.CODEC, home);
         out.store("marks", BlockPos.CODEC.listOf(), marks);
+        if (!held.isEmpty()) {
+            out.store("held_build", CompoundTag.CODEC.listOf(), held);
+        }
         out.putString("program", program);
         out.putBoolean("stopped", stopped);
         if (boss != null) {
@@ -762,6 +781,7 @@ public class Agent extends PathfinderMob {
         entityData.set(MODELED, !items.getItem(MODEL).isEmpty());
         home = in.read("home", BlockPos.CODEC).orElse(blockPosition());
         marks = in.read("marks", BlockPos.CODEC.listOf()).orElse(List.of());
+        held = in.read("held_build", CompoundTag.CODEC.listOf()).orElse(List.of());
         decisions = in.getIntOr("decisions", 0);
         // before orders and sorting, every decision was checked
         checked = in.getIntOr("checked", decisions);

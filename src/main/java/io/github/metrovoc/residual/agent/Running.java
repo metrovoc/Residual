@@ -104,12 +104,14 @@ final class Running extends Work {
             // fetching is taking, coming and giving, and the trace shows each
             case FETCH -> frames.push(new Frame(List.of(new Program.Act(Program.Verb.TAKE, act.count(), act.thing(), 0),
                     new Program.Act(Program.Verb.COME), new Program.Act(Program.Verb.GIVE, act.count(), act.thing(), 0)), null, a.tickCount));
-            case FARM, STORE, SORT, HAUL, BUILD -> {
+            case FARM, STORE, SORT, HAUL, BUILD, COPY, MOVE -> {
                 Work w = routines.computeIfAbsent(act.verb(), v -> switch (v) {
                     case FARM -> new Farming(a);
                     case STORE -> new Storing(a);
                     case SORT -> new Sorting(a);
                     case HAUL -> new Hauling(a);
+                    case COPY -> new Copying(a, false);
+                    case MOVE -> new Copying(a, true);
                     default -> new Building(a);
                 });
                 w.outcome = null;

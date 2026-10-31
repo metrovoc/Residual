@@ -124,6 +124,11 @@ carry.</residual:Milestone>
 <residual:Milestone id="agent/order">Start a chat message with its name, such as *Pip, bring me some bread*. Its model
 has to have practised orders.</residual:Milestone>
 
+<residual:Milestone id="agent/copy">Mark a build's corners and the block its copy stands on, and hand the marks to an
+agent whose model passes Induction: [The Architect](architect.md).</residual:Milestone>
+
+<residual:Milestone id="agent/move">The same marks, with `move` instead of `copy`.</residual:Milestone>
+
 ## Salvage
 
 <residual:Milestone id="wreck/found">Each one failed in its own way: [Salvaged Models](salvage.md).</residual:Milestone>

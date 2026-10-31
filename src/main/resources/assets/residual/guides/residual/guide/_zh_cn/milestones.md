@@ -103,6 +103,10 @@ navigation:
 
 <residual:Milestone id="agent/order">以它的名字开头发一条聊天消息，例如 *Pip, bring me some bread*。它的模型必须练过指令。</residual:Milestone>
 
+<residual:Milestone id="agent/copy">标出建筑的对角和副本要立在上面的方块，把标记交给模型通过了归纳测试的智能体：[建筑师](architect.md)。</residual:Milestone>
+
+<residual:Milestone id="agent/move">同样的标记，用 `move` 代替 `copy`。</residual:Milestone>
+
 ## 打捞
 
 <residual:Milestone id="wreck/found">每一个都以自己的方式失败了：[打捞模型](salvage.md)。</residual:Milestone>

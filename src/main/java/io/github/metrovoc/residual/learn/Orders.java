@@ -56,6 +56,14 @@ public final class Orders {
             "continue the pattern", "continue the wall", "build the rest", "build the rest of the row",
             "go on with the wall", "lay the next blocks", "follow the pattern", "keep the pattern going", "build on",
             "extend the wall", "add to the wall", "back to building"));
+    private static final Step COPY = new Step(Arg.NONE, false, ways("copy",
+            "copy", "copy the build", "copy it", "copy the house", "make a copy", "build a copy", "make another one",
+            "build another one", "copy what i marked", "duplicate the build", "copy the marked build", "copy the tower",
+            "build it again over there", "make one more like it", "copy the hut"));
+    private static final Step MOVE = new Step(Arg.NONE, false, ways("move",
+            "move the build", "move it over", "move the house", "move what i marked", "carry the build over",
+            "shift the build", "move it over there", "move the hut", "move the tower", "pick the build up and move it",
+            "relocate the build", "move everything over", "move the marked build"));
     private static final Step HAUL = new Step(Arg.NONE, true, ways("repeat (haul)",
             "haul", "go haul", "haul the goods", "run the errand", "do the errand", "do the run", "make the run",
             "make the trip", "go on your errand", "bring the goods back", "bring back the load", "fetch the load",
@@ -123,7 +131,7 @@ public final class Orders {
             "say %1$s", "say %1$s out loud", "tell everyone %1$s", "shout %1$s", "announce %1$s", "call out %1$s"));
 
     /** Every single step, the commonest first in the draw: fetching. */
-    private static final List<Step> SINGLE = List.of(FETCH, FETCH_SOME, FARM, STORE, SORT, BUILD, HAUL, STAY, FOLLOW, COME,
+    private static final List<Step> SINGLE = List.of(FETCH, FETCH_SOME, FARM, STORE, SORT, BUILD, COPY, MOVE, HAUL, STAY, FOLLOW, COME,
             HOME, HARVEST, TILL, PICKUP, PUT, PUT_THING, PLANT, MINE, WAIT, GO, SAY);
     /** Steps that end, which may be put one after another. */
     private static final List<Step> FINITE = List.of(FETCH, FETCH_SOME, COME, HOME, HARVEST, TILL, PICKUP, PUT,
