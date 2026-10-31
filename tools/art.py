@@ -238,11 +238,13 @@ def main_input(c, ramp=None):
 
 
 def side_input(c, ramp):
-    """A side input: a slot across the plate, a strip of contacts inside it."""
-    edge(c, 4, 6, 11, 9, SLATE[3], SLATE[2], 43)
-    c.rect(5, 7, 10, 8, SLATE[1])
-    c.rect(6, 7, 9, 7, ramp[4])
-    c.rect(6, 8, 9, 8, ramp[3])
+    """A side input: a square port, a ring and a pin inside it in the machine's hue; square, so it reads the same
+    whichever way a face turns."""
+    edge(c, 5, 5, 10, 10, SLATE[3], SLATE[2], 43)
+    fill(c, 6, 6, 9, 9, SLATE[1])
+    edge(c, 6, 6, 9, 9, ramp[2])
+    c.rect(7, 7, 8, 7, ramp[4])
+    c.rect(7, 8, 8, 8, ramp[3])
 
 
 # ---------------------------------------------------------------- operator glyphs, 8 x 8 or less, even both ways
