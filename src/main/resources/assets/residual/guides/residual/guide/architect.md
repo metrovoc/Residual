@@ -143,7 +143,8 @@ copy begins. If its model is less than 60% sure, or names a slice twice, it stop
 
 Then it lays each slice in its place, fetching the blocks from the chests and barrels around home, or from a storage
 network through a <ItemLink id="storage_terminal" /> there. Chests and machines in the copy start out empty. What can be
-built over, such as grass or water, isn't copied, and anything already standing where the copy goes stays.
+built over, such as grass or water, isn't copied, and anything already standing where the copy goes stays. Until a
+block is laid, its place shows as a faint teal ghost to anyone nearby, for a copy, a move or a repeat alike.
 
 ## Moving
 
