@@ -23,6 +23,14 @@ navigation:
 
 <residual:Milestone id="agent/program">在它的界面里输入一段，或用指令板点选拼出来。</residual:Milestone>
 
+## 存储
+
+<residual:Milestone id="storage/drive">它能存任意多种东西：[存储](storage.md)。</residual:Milestone>
+
+<residual:Milestone id="storage/terminal">用存储链路把它连到驱动器机架上。</residual:Milestone>
+
+<residual:Milestone id="storage/port">把它的正面贴在箱子或机器上，背面连到网络。</residual:Milestone>
+
 ## 旧世界
 
 <residual:Milestone id="ruins/found">档案屋、中继塔和地下库彼此相隔很远：[遗迹](ruins.md)。</residual:Milestone>

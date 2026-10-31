@@ -28,6 +28,15 @@ about a dozen items; your own field may take a model trained on the Forecaster's
 
 <residual:Milestone id="agent/program">Type one in its screen, or click it together from the palette.</residual:Milestone>
 
+## Storage
+
+<residual:Milestone id="storage/drive">It keeps any number of kinds: [Storage](storage.md).</residual:Milestone>
+
+<residual:Milestone id="storage/terminal">Link it to a Drive Rack with Storage Links.</residual:Milestone>
+
+<residual:Milestone id="storage/port">Hold its front against a chest or a machine, and link its back to the
+network.</residual:Milestone>
+
 ## The old world
 
 <residual:Milestone id="ruins/found">Archive houses, relay masts and buried vaults stand far apart:

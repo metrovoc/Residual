@@ -8,6 +8,9 @@ import io.github.metrovoc.residual.menu.ForecasterMenu;
 import io.github.metrovoc.residual.menu.ForgeMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.ReaderMenu;
+import io.github.metrovoc.residual.storage.PortMenu;
+import io.github.metrovoc.residual.storage.RackMenu;
+import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
@@ -32,6 +35,13 @@ public final class ModMenus {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ForgeMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<ForecasterMenu>> FORECASTER = MENUS.register("forecaster",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ForecasterMenu(id, inv, buf.readBlockPos())));
+
+    public static final Supplier<MenuType<RackMenu>> RACK = MENUS.register("drive_rack",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new RackMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<TerminalMenu>> TERMINAL = MENUS.register("storage_terminal",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new TerminalMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<PortMenu>> PORT = MENUS.register("port",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new PortMenu(id, inv, buf.readBlockPos())));
 
     private ModMenus() {
     }

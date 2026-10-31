@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "H": "minecraft:hopper",
+    "R": "minecraft:redstone",
+    "W": "residual:wafer",
+    "P": "minecraft:piston"
+  },
+  "pattern": [
+    "KHK",
+    "RWR",
+    "KPK"
+  ],
+  "result": {
+    "id": "residual:port"
+  }
+}

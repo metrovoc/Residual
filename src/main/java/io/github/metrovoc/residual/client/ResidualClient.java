@@ -9,11 +9,13 @@ import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.net.AgentSync;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.SampleResult;
+import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModMenus;
+import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
@@ -56,6 +58,9 @@ public final class ResidualClient {
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
         event.register(ModMenus.FORGE.get(), ForgeScreen::new);
         event.register(ModMenus.FORECASTER.get(), ForecasterScreen::new);
+        event.register(ModMenus.RACK.get(), RackScreen::new);
+        event.register(ModMenus.TERMINAL.get(), StorageTerminalScreen::new);
+        event.register(ModMenus.PORT.get(), PortScreen::new);
     }
 
     private static void payloads(RegisterClientPayloadHandlersEvent event) {
@@ -70,6 +75,13 @@ public final class ResidualClient {
         });
         event.register(AgentSync.TYPE, (sync, ctx) -> AgentView.sync = sync);
         event.register(WaveSync.TYPE, (wave, ctx) -> Waves.receive(wave));
+        event.register(StorageSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == sync.menu()) {
+                menu.items = sync.items();
+                menu.stored = sync.stored();
+                menu.capacity = sync.capacity();
+            }
+        });
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {
             AgentView.answer = answer;
             AgentView.asking = false;
@@ -78,6 +90,7 @@ public final class ResidualClient {
 
     private static void renderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.OPERATOR.get(), context -> new MachineRenderer());
+        event.registerBlockEntityRenderer(ModBlockEntities.RACK.get(), context -> new RackRenderer());
         event.registerEntityRenderer(ModEntities.AGENT.get(), AgentRenderer::new);
     }
 

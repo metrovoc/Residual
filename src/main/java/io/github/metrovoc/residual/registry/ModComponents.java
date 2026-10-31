@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.registry;
 import com.mojang.serialization.Codec;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.bench.MaskData;
+import io.github.metrovoc.residual.item.StorageDriveItem;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.model.Recovered;
@@ -52,6 +53,10 @@ public final class ModComponents {
     /** False on a machine fabricated from a salvaged design, which runs one primitive at a time. */
     public static final Supplier<DataComponentType<Boolean>> FUSED = COMPONENTS.registerComponentType("fused",
             b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
+
+    /** Which contents a Storage Drive holds, and how full it was when its rack last looked. */
+    public static final Supplier<DataComponentType<StorageDriveItem.Label>> STORAGE_DRIVE = COMPONENTS.registerComponentType("storage_drive",
+            b -> b.persistent(StorageDriveItem.Label.CODEC).networkSynchronized(StorageDriveItem.Label.STREAM_CODEC));
 
     private ModComponents() {
     }

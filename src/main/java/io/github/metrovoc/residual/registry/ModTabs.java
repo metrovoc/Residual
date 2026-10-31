@@ -65,6 +65,11 @@ public final class ModTabs {
                 out.accept(ModBlocks.RELAY.get());
                 out.accept(ModItems.RELAY_CARD.get());
                 out.accept(ModItems.TERMINAL.get());
+                out.accept(ModBlocks.DRIVE_RACK.get());
+                out.accept(ModItems.STORAGE_DRIVE.get());
+                out.accept(ModBlocks.STORAGE_LINK.get());
+                out.accept(ModBlocks.STORAGE_TERMINAL.get());
+                out.accept(ModBlocks.PORT.get());
             })
             .build());
 

@@ -1,0 +1,77 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "residual:block/storage_link",
+    "link": "residual:block/storage_link"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        5,
+        5
+      ],
+      "to": [
+        16,
+        11,
+        11
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            5,
+            16,
+            11
+          ],
+          "texture": "#link"
+        },
+        "south": {
+          "uv": [
+            0,
+            5,
+            16,
+            11
+          ],
+          "texture": "#link"
+        },
+        "up": {
+          "uv": [
+            0,
+            5,
+            16,
+            11
+          ],
+          "texture": "#link"
+        },
+        "down": {
+          "uv": [
+            0,
+            5,
+            16,
+            11
+          ],
+          "texture": "#link"
+        },
+        "east": {
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "texture": "#link"
+        },
+        "west": {
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "texture": "#link"
+        }
+      }
+    }
+  ]
+}

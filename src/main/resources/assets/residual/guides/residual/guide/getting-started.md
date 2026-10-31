@@ -124,6 +124,8 @@ and the machine works through them. Within 25%, two. [The Forecaster](forecaster
 
 - Better models need machines built from designs: wire them yourself on a [Bench](bench.md), or go looking for the old
   ones in the [ruins](ruins.md).
+- [Storage](storage.md) keeps what your furnaces make: a Port under each one carries it onto drives, and a Storage
+  Terminal finds it again.
 - [Agents](agents.md) run programs you click together: they mine, carry, build and sort, and models fill in where
   learning beats a rule.
 - Look at any machine to see its name, its output shape (or what is wrong with it) and what the face you are looking

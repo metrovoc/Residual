@@ -10,6 +10,9 @@ import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
 import io.github.metrovoc.residual.block.RelayBlockEntity;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
+import io.github.metrovoc.residual.storage.PortBlockEntity;
+import io.github.metrovoc.residual.storage.RackBlockEntity;
+import io.github.metrovoc.residual.storage.TerminalBlockEntity;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -41,6 +44,13 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(ForgeBlockEntity::new, Set.of(ModBlocks.FORGE.get())));
     public static final Supplier<BlockEntityType<ForecasterBlockEntity>> FORECASTER = BLOCK_ENTITIES.register("forecaster",
             () -> new BlockEntityType<>(ForecasterBlockEntity::new, Set.of(ModBlocks.FORECASTER.get())));
+
+    public static final Supplier<BlockEntityType<RackBlockEntity>> RACK = BLOCK_ENTITIES.register("drive_rack",
+            () -> new BlockEntityType<>(RackBlockEntity::new, Set.of(ModBlocks.DRIVE_RACK.get())));
+    public static final Supplier<BlockEntityType<TerminalBlockEntity>> TERMINAL = BLOCK_ENTITIES.register("storage_terminal",
+            () -> new BlockEntityType<>(TerminalBlockEntity::new, Set.of(ModBlocks.STORAGE_TERMINAL.get())));
+    public static final Supplier<BlockEntityType<PortBlockEntity>> PORT = BLOCK_ENTITIES.register("port",
+            () -> new BlockEntityType<>(PortBlockEntity::new, Set.of(ModBlocks.PORT.get())));
 
     private ModBlockEntities() {
     }

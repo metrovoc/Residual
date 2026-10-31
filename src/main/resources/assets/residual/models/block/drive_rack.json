@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/drive_rack_side",
+    "north": "residual:block/drive_rack_front",
+    "south": "residual:block/drive_rack_side",
+    "east": "residual:block/drive_rack_side",
+    "west": "residual:block/drive_rack_side",
+    "up": "residual:block/drive_rack_top",
+    "down": "residual:block/drive_rack_top"
+  }
+}

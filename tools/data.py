@@ -26,6 +26,8 @@ DATASETS = {"forecast_dataset": "minecraft:clock", "storage_dataset": "minecraft
             "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
             "orders_dataset": "minecraft:writable_book"}
 SCHEMATICS = ["schematic_relays"]
+# see storage/PortMode.java
+PORT_MODES = ["import", "export", "stock", "window"]
 # see bench/Specs.java, in the order the Bench lists them, each with the spec whose module it builds on first
 SPECS = {"mean": None, "softmax": None, "matmul": None, "linear": "matmul", "gelu": None, "layer_norm": "mean",
          "attention": "softmax", "mlp": "linear", "transformer": "attention"}
@@ -256,9 +258,60 @@ def cables():
         item_definition(name, rid(f"item/{name}"))
 
 
+def storage():
+    """Drive Rack, Storage Terminal, Port and Storage Link."""
+    side, top = rid("block/drive_rack_side"), rid("block/drive_rack_top")
+    cube("drive_rack", rid("block/drive_rack_front"), side, side, top, top)
+    write(f"assets/{NS}/blockstates/drive_rack.json", {"variants": facing_variants(rid("block/drive_rack"), facings=HORIZONTAL)})
+    item_definition("drive_rack", rid("block/drive_rack"))
+
+    side = rid("block/storage_terminal_side")
+    variants = {}
+    for lit, suffix in (("false", ""), ("true", "_on")):
+        cube(f"storage_terminal{suffix}", rid(f"block/storage_terminal_front{suffix}"), side, side, side, side)
+        for key, value in facing_variants(rid(f"block/storage_terminal{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},lit={lit}"] = value
+    write(f"assets/{NS}/blockstates/storage_terminal.json", {"variants": variants})
+    item_definition("storage_terminal", rid("block/storage_terminal"))
+
+    # a Port's front holds against its inventory; the face players see, its back, shows its mode
+    side, front = rid("block/port_side"), rid("block/port_front")
+    variants = {}
+    for mode in PORT_MODES:
+        for active, suffix in (("false", ""), ("true", "_on")):
+            cube(f"port_{mode}{suffix}", front, rid(f"block/port_back_{mode}{suffix}"), side)
+            for key, value in facing_variants(rid(f"block/port_{mode}{suffix}")).items():
+                variants[f"{key},mode={mode},active={active}"] = value
+    write(f"assets/{NS}/blockstates/port.json", {"variants": variants})
+    item_definition("port", rid("block/port_import"))
+
+    # a 6 px link, built like the signal cables
+    joint = {f: {"uv": [5, 5, 11, 11], "texture": "#link"} for f in ("north", "south", "east", "west", "up", "down")}
+    write(f"assets/{NS}/models/block/storage_link_joint.json", {
+        "parent": "minecraft:block/block", "textures": {"particle": rid("block/storage_link"), "link": rid("block/storage_link")},
+        "elements": [box([5, 5, 5], [11, 11, 11], joint)]})
+    arm = {"north": {"uv": [5, 5, 11, 11], "texture": "#link", "cullface": "north"},
+           "east": {"uv": [11, 5, 16, 11], "texture": "#link"}, "west": {"uv": [0, 5, 5, 11], "texture": "#link"},
+           "up": {"uv": [5, 0, 11, 5], "texture": "#link"}, "down": {"uv": [5, 11, 11, 16], "texture": "#link"}}
+    write(f"assets/{NS}/models/block/storage_link_arm.json", {
+        "parent": "minecraft:block/block", "textures": {"particle": rid("block/storage_link"), "link": rid("block/storage_link")},
+        "elements": [box([5, 5, 0], [11, 11, 5], arm)]})
+    straight = {"north": {"uv": [0, 5, 16, 11], "texture": "#link"}, "south": {"uv": [0, 5, 16, 11], "texture": "#link"},
+                "up": {"uv": [0, 5, 16, 11], "texture": "#link"}, "down": {"uv": [0, 5, 16, 11], "texture": "#link"},
+                "east": {"uv": [5, 5, 11, 11], "texture": "#link"}, "west": {"uv": [5, 5, 11, 11], "texture": "#link"}}
+    write(f"assets/{NS}/models/item/storage_link.json", {
+        "parent": "minecraft:block/block", "textures": {"particle": rid("block/storage_link"), "link": rid("block/storage_link")},
+        "elements": [box([0, 5, 5], [16, 11, 11], straight)]})
+    parts = [{"apply": {"model": rid("block/storage_link_joint")}}]
+    for face, rot in FACING.items():
+        parts.append({"when": {face: "true"}, "apply": {"model": rid("block/storage_link_arm"), **rot}})
+    write(f"assets/{NS}/blockstates/storage_link.json", {"multipart": parts})
+    item_definition("storage_link", rid("item/storage_link"))
+
+
 def items():
     flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
-             "agent", "relay_card", "terminal", "field_log"] + list(DATASETS) + SCHEMATICS)
+             "agent", "relay_card", "terminal", "field_log", "storage_drive"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -294,7 +347,7 @@ def items():
 # ---------------------------------------------------------------- data
 
 MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream",
-                  "bpe_forge", "forecaster"]
+                  "bpe_forge", "forecaster", "drive_rack", "storage_terminal", "port", "storage_link"]
 
 
 def blocks():
@@ -374,6 +427,14 @@ def recipes():
                         rid("schematic_relays")], 2)
     shapeless("relay_card", ["minecraft:paper", "minecraft:copper_ingot", "minecraft:redstone", rid("schematic_relays")], 2)
     shapeless("terminal", [rid("relay_card"), "minecraft:glass_pane", "minecraft:copper_ingot", "minecraft:redstone"])
+    # storage, from what the crafting table and the Fabricator already make
+    shaped("storage_drive", ["IWI", "WRW", "IWI"], {"I": "minecraft:iron_ingot", "W": rid("wafer"), "R": "minecraft:redstone"})
+    shaped("drive_rack", ["KCK", "C C", "KCK"], {"K": rid("tensor_casing"), "C": "minecraft:copper_ingot"})
+    shaped("storage_link", ["CCC", "RGR", "CCC"], {"C": "minecraft:copper_ingot", "R": "minecraft:redstone", "G": "minecraft:glass"}, 16)
+    shaped("storage_terminal", ["KGK", "GWG", "KRK"], {"K": rid("tensor_casing"), "G": "minecraft:glass_pane", "W": rid("wafer"),
+                                                       "R": "minecraft:redstone"})
+    shaped("port", ["KHK", "RWR", "KPK"], {"K": rid("tensor_casing"), "H": "minecraft:hopper", "R": "minecraft:redstone",
+                                           "W": rid("wafer"), "P": "minecraft:piston"})
 
 
 def advancement(path, parent, icon, criteria, frame="task", hidden=False, toast=True, components=None):
@@ -426,6 +487,9 @@ def advancements():
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
     advancement("forecast/watching", "root", "forecaster", placed("forecaster"))
     advancement("forecast/ahead", "forecast/watching", "minecraft:furnace", awarded(), frame="goal")
+    advancement("storage/drive", "root", "storage_drive", has("storage_drive"))
+    advancement("storage/terminal", "storage/drive", "storage_terminal", placed("storage_terminal"))
+    advancement("storage/port", "storage/terminal", "port", placed("port"), frame="goal")
     advancement("bench/made", "root", "bench", placed("bench"))
     advancement("model/stream", "bench/made", "stream", placed("stream"))
     advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))
@@ -454,6 +518,7 @@ if __name__ == "__main__":
     fabricator()
     forge()
     forecaster()
+    storage()
     stream()
     cables()
     items()

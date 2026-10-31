@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "G": "minecraft:glass_pane",
+    "W": "residual:wafer",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    "KGK",
+    "GWG",
+    "KRK"
+  ],
+  "result": {
+    "id": "residual:storage_terminal"
+  }
+}

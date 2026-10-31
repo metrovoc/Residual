@@ -1669,6 +1669,195 @@ def terminal():
     return c
 
 
+# ---------------------------------------------------------------- storage
+
+VENTS = [
+    "##########",
+    "..........",
+    "##########",
+    "..........",
+    "##########",
+]
+
+
+def rack_front():
+    """Eight bays in two rows of four, each a dark slot; the rack lights a strip beside each bay by how full its drive is
+    (RackRenderer draws the strips at x 4, 7, 10 and 13, rows 3 to 6 and 9 to 12)."""
+    c = plate(NEUTRAL, salt=31)
+    for row in range(2):
+        y0 = 3 + row * 6
+        for col in range(4):
+            x0 = 2 + col * 3
+            c.rect(x0, y0, x0 + 1, y0 + 3, W1)
+            c.px(x0, y0, W0)
+            c.px(x0 + 1, y0, W0)
+            c.px(x0, y0 + 3, W2)
+            c.px(x0 + 1, y0 + 3, W3)
+            c.px(x0 + 2, y0 + 1, K3)
+            c.px(x0 + 2, y0 + 2, K3)
+    return c
+
+
+def rack_side():
+    c = plate(NEUTRAL, salt=32)
+    engraved_glyph(c, VENTS)
+    return c
+
+
+def rack_top():
+    c = plate(NEUTRAL, salt=33)
+    for x in (4, 7, 10):
+        for y in range(4, 12):
+            c.px(x, y, K3 if (x + y) % 2 else K2)
+    return c
+
+
+# what a Storage Terminal's screen shows: stored kinds as little squares, by color
+TERMINAL_CELLS = [(3, 3, AMBER[3]), (6, 3, TEAL[3]), (9, 3, STONE[3]), (3, 6, CROP[6]), (6, 6, AMBER[4]),
+                  (9, 6, TEAL[4]), (3, 9, STONE[4]), (6, 9, AMETHYST[3])]
+
+
+def storage_terminal_front(lit):
+    """A screen of stored kinds, two by two pixels each, dark until its network has somewhere to keep things."""
+    c = plate(TEAL_LINE, salt=34)
+    window(c)
+    for x, y, color in TERMINAL_CELLS:
+        c.rect(x + 1, y + 1, x + 2, y + 2, color if lit else DIM[2])
+    if lit:
+        c.rect(11, 10, 12, 11, TEAL[5])
+    return c
+
+
+def storage_terminal_side():
+    c = plate(NEUTRAL, salt=35)
+    engraved_glyph(c, [
+        "##.##",
+        "##.##",
+        ".....",
+        "##.##",
+        "##.##",
+    ])
+    return c
+
+
+PORT_GLYPHS = {
+    # an arrow into the network
+    "import": [
+        "....#....",
+        "....#....",
+        "....#....",
+        "..#.#.#..",
+        "...###...",
+        "....#....",
+        ".........",
+        "#########",
+    ],
+    # an arrow out of it
+    "export": [
+        "#########",
+        ".........",
+        "....#....",
+        "...###...",
+        "..#.#.#..",
+        "....#....",
+        "....#....",
+        "....#....",
+    ],
+    # a level kept at a mark
+    "stock": [
+        "#.......#",
+        "#.......#",
+        "#-------#",
+        "#+++++++#",
+        "#+++++++#",
+        "#+++++++#",
+        "#+++++++#",
+        "#########",
+    ],
+    # a pane: what is behind it is open to the network
+    "window": [
+        "#########",
+        "#...#...#",
+        "#...#...#",
+        "#########",
+        "#...#...#",
+        "#...#...#",
+        "#########",
+    ],
+}
+
+
+def port_back(mode, active):
+    """What a Port does, drawn on the face that looks away from its inventory: dim while it waits, lit while it moves
+    things."""
+    c = plate(AMBER_LINE if mode in ("export", "stock") else TEAL_LINE, salt=36)
+    window(c)
+    if active:
+        glow_glyph(c, PORT_GLYPHS[mode], AMBER if mode in ("export", "stock") else TEAL)
+    else:
+        dim_glyph(c, PORT_GLYPHS[mode])
+    return c
+
+
+def port_side():
+    c = plate(NEUTRAL, salt=37)
+    socket(c, SOCKET_SIDE, TEAL)
+    return c
+
+
+def port_front():
+    """The face it holds against its inventory."""
+    c = plate(NEUTRAL, salt=38)
+    socket(c, SOCKET_MAIN, TEAL)
+    return c
+
+
+def storage_link():
+    """A 6 px band, slate with a copper core; the link model samples its arms from the bands and its joint from the
+    middle."""
+    c = Canvas()
+    slate = [rgb(h) for h in ["2b323c", "3a434f", "4c5664", "5d6878"]]
+    copper = [rgb(h) for h in ["7a3f1f", "b0632f", "d98a4a", "f2b27a"]]
+    for i in range(16):
+        for k, color in ((5, slate[0]), (6, slate[3]), (7, copper[1]), (8, copper[2]), (9, slate[2]), (10, slate[0])):
+            c.px(i, k, color)
+            c.px(k, i, color)
+    c.rect(5, 5, 10, 10, slate[1])
+    c.rect(6, 6, 9, 9, slate[2])
+    c.rect(7, 7, 8, 8, copper[2])
+    c.px(7, 7, copper[3])
+    return c
+
+
+STORAGE_DRIVE = [
+    "................",
+    "................",
+    "...kKKKKKKKKk...",
+    "...GGGGGGGGGG...",
+    "...GWWWWWWWWG...",
+    "...GWaWbWcWWG...",
+    "...GWWWWWWWWG...",
+    "...GWdWaWWWWG...",
+    "...GWWWWWWWWG...",
+    "...GWbWWWWWWG...",
+    "...GWWWWWWWWG...",
+    "...GGGGGGGGtG...",
+    "...gGGGGGGGGg...",
+    "....y.y.y.y.....",
+    "................",
+    "................",
+]
+
+
+def storage_drive():
+    """A cartridge like the archive's, but its window shows the kinds it keeps, a dot each."""
+    c = Canvas()
+    c.stamp(0, 0, STORAGE_DRIVE, {"k": K3, "K": K1, "G": G2, "g": G1, "W": W1, "a": AMBER[3], "b": TEAL[3],
+                                  "c": STONE[3], "d": AMETHYST[3], "t": TEAL[4], "y": AMBER[3]})
+    outline(c, INK)
+    return c
+
+
 GUIDE = [
     "..oooooooooooo..",
     ".oCCCCCCCCCCCCo.",
@@ -1848,6 +2037,19 @@ def build():
     SAVED["block/bpe_forge_front_on.png"] = forge_front(5).im
     forge_side().save("block/bpe_forge_side.png")
     forge_top().save("block/bpe_forge_top.png")
+    rack_front().save("block/drive_rack_front.png")
+    rack_side().save("block/drive_rack_side.png")
+    rack_top().save("block/drive_rack_top.png")
+    storage_terminal_front(False).save("block/storage_terminal_front.png")
+    storage_terminal_front(True).save("block/storage_terminal_front_on.png")
+    storage_terminal_side().save("block/storage_terminal_side.png")
+    for mode in PORT_GLYPHS:
+        port_back(mode, False).save(f"block/port_back_{mode}.png")
+        port_back(mode, True).save(f"block/port_back_{mode}_on.png")
+    port_side().save("block/port_side.png")
+    port_front().save("block/port_front.png")
+    storage_link().save("block/storage_link.png")
+    storage_drive().save("item/storage_drive.png")
     forecaster_front().save("block/forecaster_front.png")
     animated([forecaster_front(i) for i in range(32)], "block/forecaster_front_on.png", 3)
     SAVED["block/forecaster_front_on.png"] = forecaster_front(5).im

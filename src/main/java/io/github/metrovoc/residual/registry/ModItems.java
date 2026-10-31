@@ -15,6 +15,7 @@ import io.github.metrovoc.residual.item.ProbeItem;
 import io.github.metrovoc.residual.item.ProgramCardItem;
 import io.github.metrovoc.residual.item.SchematicItem;
 import io.github.metrovoc.residual.item.ShardItem;
+import io.github.metrovoc.residual.item.StorageDriveItem;
 import io.github.metrovoc.residual.item.SurveyRodItem;
 import io.github.metrovoc.residual.item.TerminalItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
@@ -56,6 +57,9 @@ public final class ModItems {
     public static final DeferredItem<ProgramCardItem> PROGRAM_CARD = ITEMS.registerItem("program_card", ProgramCardItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<LinkItem> RELAY_CARD = ITEMS.registerItem("relay_card", LinkItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<TerminalItem> TERMINAL = ITEMS.registerItem("terminal", TerminalItem::new, p -> p.stacksTo(1));
+    /** The first Storage Drive: a quarter of a million items, of any number of kinds. */
+    public static final DeferredItem<StorageDriveItem> STORAGE_DRIVE = ITEMS.registerItem("storage_drive",
+            p -> new StorageDriveItem(262_144, p), p -> p.stacksTo(1));
     public static final DeferredItem<WreckItem> WRECK = ITEMS.registerItem("salvaged_model", WreckItem::new,
             p -> p.stacksTo(1).rarity(Rarity.UNCOMMON));
 

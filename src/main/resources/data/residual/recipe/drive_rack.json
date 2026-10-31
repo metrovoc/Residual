@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "C": "minecraft:copper_ingot"
+  },
+  "pattern": [
+    "KCK",
+    "C C",
+    "KCK"
+  ],
+  "result": {
+    "id": "residual:drive_rack"
+  }
+}

@@ -15,6 +15,10 @@ import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.registry.ModItems;
+import io.github.metrovoc.residual.storage.PortBlockEntity;
+import io.github.metrovoc.residual.storage.PortMenu;
+import io.github.metrovoc.residual.storage.PortMode;
+import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,11 +42,14 @@ public final class Network {
         r.playToServer(TerminalAsk.TYPE, TerminalAsk.STREAM_CODEC, Network::onTerminalAsk);
         r.playToServer(BenchEdit.TYPE, BenchEdit.STREAM_CODEC, Network::onBenchEdit);
         r.playToServer(BenchRecord.TYPE, BenchRecord.STREAM_CODEC, Network::onBenchRecord);
+        r.playToServer(StorageClick.TYPE, StorageClick.STREAM_CODEC, Network::onStorageClick);
+        r.playToServer(PortEdit.TYPE, PortEdit.STREAM_CODEC, Network::onPortEdit);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
         r.playToClient(SampleResult.TYPE, SampleResult.STREAM_CODEC);
         r.playToClient(WaveSync.TYPE, WaveSync.STREAM_CODEC);
+        r.playToClient(StorageSync.TYPE, StorageSync.STREAM_CODEC);
     }
 
     /** Only the player looking at a Core's screen may operate it. */
@@ -142,6 +149,29 @@ public final class Network {
                     : new TerminalAnswer(a.prompt(), text, "", List.of())));
             case ModelLink.Missing m -> PacketDistributor.sendToPlayer(player, new TerminalAnswer(a.prompt(), "", m.problem(), m.args()));
             case ModelLink.Onboard o -> {
+            }
+        }
+    }
+
+    /** Only the player looking at a Storage Terminal's screen may take from or put into its network. */
+    private static void onStorageClick(StorageClick click, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
+                && menu.containerId == click.menu() && menu.stillValid(player)) {
+            menu.click(click);
+        }
+    }
+
+    private static void onPortEdit(PortEdit e, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player) || !(player.containerMenu instanceof PortMenu menu)
+                || !menu.pos.equals(e.pos()) || !menu.stillValid(player)
+                || !(player.level().getBlockEntity(e.pos()) instanceof PortBlockEntity port)) {
+            return;
+        }
+        switch (e.field()) {
+            case PortEdit.MODE -> port.setMode(PortMode.values()[Math.floorMod(e.value(), PortMode.values().length)]);
+            case PortEdit.AMOUNT -> port.setAmount(e.value());
+            case PortEdit.PRIORITY -> port.setPriority(e.value());
+            default -> {
             }
         }
     }

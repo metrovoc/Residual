@@ -85,6 +85,20 @@ Besides its model, an agent carries a filter: a model that tells what kind a thi
 Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it. Its model
 writes the order as a program; anything longer than one step it reads back, and runs only once you click Do it.
 
+## Storage
+
+<p>
+<img src="docs/images/storage.jpg" alt="A Storage Terminal showing fourteen kinds kept on two drives, with how many of each" width="49%">
+<img src="docs/images/port.jpg" alt="A Port's screen: its four modes, its filter, and 1,280 items moved in the last second" width="49%">
+</p>
+
+Storage Drives in a Drive Rack keep any number of kinds of item, 262,144 items to a drive, and Storage Links join them
+to Storage Terminals and Ports. There are no channels and nothing to power. A terminal shows everything the network
+keeps and finds anything by name, mod, tag, tooltip or id, with `-` to leave things out, `|` for alternatives,
+parentheses and amounts: `@minecraft ingot -iron` finds every ingot but iron. A Port holds its front against a chest or
+a machine and imports, exports, keeps a set stock, or opens the inventory to the network as a window, 64 items a tick:
+with its chest refilled every tick, one moved 1,280 items a second.
+
 ## The archive
 
 <p>

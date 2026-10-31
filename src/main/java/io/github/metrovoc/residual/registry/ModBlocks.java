@@ -14,6 +14,10 @@ import io.github.metrovoc.residual.block.RelayBlock;
 import io.github.metrovoc.residual.block.ServerBlock;
 import io.github.metrovoc.residual.block.StreamBlock;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.storage.LinkBlock;
+import io.github.metrovoc.residual.storage.PortBlock;
+import io.github.metrovoc.residual.storage.RackBlock;
+import io.github.metrovoc.residual.storage.TerminalBlock;
 import java.util.EnumMap;
 import java.util.Map;
 import net.minecraft.world.item.DyeColor;
@@ -52,6 +56,14 @@ public final class ModBlocks {
             p -> p.mapColor(MapColor.COLOR_CYAN).strength(1f, 6f).sound(SoundType.AMETHYST).lightLevel(s -> 7));
     public static final DeferredBlock<RelayBlock> RELAY = BLOCKS.registerBlock("relay", RelayBlock::new,
             p -> machine(p).strength(1.5f, 6f).noOcclusion().lightLevel(s -> 9));
+    public static final DeferredBlock<LinkBlock> STORAGE_LINK = BLOCKS.registerBlock("storage_link", LinkBlock::new,
+            p -> p.mapColor(MapColor.COLOR_GRAY).strength(0.5f).sound(SoundType.COPPER).noOcclusion().forceSolidOn());
+    public static final DeferredBlock<RackBlock> DRIVE_RACK = BLOCKS.registerBlock("drive_rack", RackBlock::new,
+            p -> machine(p).strength(2.5f, 6f));
+    public static final DeferredBlock<TerminalBlock> STORAGE_TERMINAL = BLOCKS.registerBlock("storage_terminal", TerminalBlock::new,
+            p -> machine(p).lightLevel(s -> s.getValue(TerminalBlock.LIT) ? 9 : 2));
+    public static final DeferredBlock<PortBlock> PORT = BLOCKS.registerBlock("port", PortBlock::new,
+            p -> machine(p).lightLevel(s -> s.getValue(PortBlock.ACTIVE) ? 7 : 2));
 
     static {
         for (Op op : Op.values()) {

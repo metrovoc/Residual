@@ -1,0 +1,188 @@
+{
+  "variants": {
+    "facing=north,mode=import,active=false": {
+      "model": "residual:block/port_import"
+    },
+    "facing=south,mode=import,active=false": {
+      "model": "residual:block/port_import",
+      "y": 180
+    },
+    "facing=east,mode=import,active=false": {
+      "model": "residual:block/port_import",
+      "y": 90
+    },
+    "facing=west,mode=import,active=false": {
+      "model": "residual:block/port_import",
+      "y": 270
+    },
+    "facing=up,mode=import,active=false": {
+      "model": "residual:block/port_import",
+      "x": 270
+    },
+    "facing=down,mode=import,active=false": {
+      "model": "residual:block/port_import",
+      "x": 90
+    },
+    "facing=north,mode=import,active=true": {
+      "model": "residual:block/port_import_on"
+    },
+    "facing=south,mode=import,active=true": {
+      "model": "residual:block/port_import_on",
+      "y": 180
+    },
+    "facing=east,mode=import,active=true": {
+      "model": "residual:block/port_import_on",
+      "y": 90
+    },
+    "facing=west,mode=import,active=true": {
+      "model": "residual:block/port_import_on",
+      "y": 270
+    },
+    "facing=up,mode=import,active=true": {
+      "model": "residual:block/port_import_on",
+      "x": 270
+    },
+    "facing=down,mode=import,active=true": {
+      "model": "residual:block/port_import_on",
+      "x": 90
+    },
+    "facing=north,mode=export,active=false": {
+      "model": "residual:block/port_export"
+    },
+    "facing=south,mode=export,active=false": {
+      "model": "residual:block/port_export",
+      "y": 180
+    },
+    "facing=east,mode=export,active=false": {
+      "model": "residual:block/port_export",
+      "y": 90
+    },
+    "facing=west,mode=export,active=false": {
+      "model": "residual:block/port_export",
+      "y": 270
+    },
+    "facing=up,mode=export,active=false": {
+      "model": "residual:block/port_export",
+      "x": 270
+    },
+    "facing=down,mode=export,active=false": {
+      "model": "residual:block/port_export",
+      "x": 90
+    },
+    "facing=north,mode=export,active=true": {
+      "model": "residual:block/port_export_on"
+    },
+    "facing=south,mode=export,active=true": {
+      "model": "residual:block/port_export_on",
+      "y": 180
+    },
+    "facing=east,mode=export,active=true": {
+      "model": "residual:block/port_export_on",
+      "y": 90
+    },
+    "facing=west,mode=export,active=true": {
+      "model": "residual:block/port_export_on",
+      "y": 270
+    },
+    "facing=up,mode=export,active=true": {
+      "model": "residual:block/port_export_on",
+      "x": 270
+    },
+    "facing=down,mode=export,active=true": {
+      "model": "residual:block/port_export_on",
+      "x": 90
+    },
+    "facing=north,mode=stock,active=false": {
+      "model": "residual:block/port_stock"
+    },
+    "facing=south,mode=stock,active=false": {
+      "model": "residual:block/port_stock",
+      "y": 180
+    },
+    "facing=east,mode=stock,active=false": {
+      "model": "residual:block/port_stock",
+      "y": 90
+    },
+    "facing=west,mode=stock,active=false": {
+      "model": "residual:block/port_stock",
+      "y": 270
+    },
+    "facing=up,mode=stock,active=false": {
+      "model": "residual:block/port_stock",
+      "x": 270
+    },
+    "facing=down,mode=stock,active=false": {
+      "model": "residual:block/port_stock",
+      "x": 90
+    },
+    "facing=north,mode=stock,active=true": {
+      "model": "residual:block/port_stock_on"
+    },
+    "facing=south,mode=stock,active=true": {
+      "model": "residual:block/port_stock_on",
+      "y": 180
+    },
+    "facing=east,mode=stock,active=true": {
+      "model": "residual:block/port_stock_on",
+      "y": 90
+    },
+    "facing=west,mode=stock,active=true": {
+      "model": "residual:block/port_stock_on",
+      "y": 270
+    },
+    "facing=up,mode=stock,active=true": {
+      "model": "residual:block/port_stock_on",
+      "x": 270
+    },
+    "facing=down,mode=stock,active=true": {
+      "model": "residual:block/port_stock_on",
+      "x": 90
+    },
+    "facing=north,mode=window,active=false": {
+      "model": "residual:block/port_window"
+    },
+    "facing=south,mode=window,active=false": {
+      "model": "residual:block/port_window",
+      "y": 180
+    },
+    "facing=east,mode=window,active=false": {
+      "model": "residual:block/port_window",
+      "y": 90
+    },
+    "facing=west,mode=window,active=false": {
+      "model": "residual:block/port_window",
+      "y": 270
+    },
+    "facing=up,mode=window,active=false": {
+      "model": "residual:block/port_window",
+      "x": 270
+    },
+    "facing=down,mode=window,active=false": {
+      "model": "residual:block/port_window",
+      "x": 90
+    },
+    "facing=north,mode=window,active=true": {
+      "model": "residual:block/port_window_on"
+    },
+    "facing=south,mode=window,active=true": {
+      "model": "residual:block/port_window_on",
+      "y": 180
+    },
+    "facing=east,mode=window,active=true": {
+      "model": "residual:block/port_window_on",
+      "y": 90
+    },
+    "facing=west,mode=window,active=true": {
+      "model": "residual:block/port_window_on",
+      "y": 270
+    },
+    "facing=up,mode=window,active=true": {
+      "model": "residual:block/port_window_on",
+      "x": 270
+    },
+    "facing=down,mode=window,active=true": {
+      "model": "residual:block/port_window_on",
+      "x": 90
+    }
+  }
+}

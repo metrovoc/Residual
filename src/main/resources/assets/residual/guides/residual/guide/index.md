@@ -39,6 +39,11 @@ you say into programs for agents, and read what the old world wrote.
 - [Agents](agents.md): frames that run programs, with models where learning beats a rule.
 - [Serving Models](deployment.md): Model Servers, relays and the Terminal.
 
+## The base
+
+- [Storage](storage.md): drives that keep any number of kinds, a terminal that finds anything, and Ports that move
+  items between the network and every chest and machine, 1,280 a second.
+
 ## Reference
 
 - [Machines and Cables](wiring.md): how values travel between blocks.
