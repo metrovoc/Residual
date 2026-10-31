@@ -54,10 +54,14 @@ public final class Trainer {
         optimizer.zeroGrad();
         tape.backward(loss);
         lastGradNorm = optimizer.clip(clip);
-        float warm = Math.min(1f, (step + 1f) / WARMUP);
-        optimizer.step(learningRate * warm);
+        optimizer.step(rate(learningRate, step));
         step++;
         return (float) (loss.item() * b.perChar());
+    }
+
+    /** The rate of step {@code step}, counted from 0: it rises linearly to {@code learningRate} over {@link #WARMUP} steps. */
+    public static float rate(float learningRate, int step) {
+        return learningRate * Math.min(1f, (step + 1f) / WARMUP);
     }
 
     /** Validation loss per character and answer accuracy over a fixed set of batches, plus the causality check. */
