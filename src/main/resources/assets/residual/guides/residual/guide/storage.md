@@ -132,7 +132,9 @@ The search box finds things by name, every word at once. Other facts take a sign
 | `(log \| planks) -oak` | groups |
 | `>64`, `<10`, `=1`, `>=1k` | how many are kept (k for thousands, m for millions) |
 
-`@minecraft ingot -iron` finds every ingot but iron, and `>1k` everything there are more than a thousand of.
+`@minecraft ingot -iron` finds every ingot but iron, and `>1k` everything there are more than a thousand of. Names and
+tooltips written in Chinese answer to their pinyin as well, in whole syllables, in the first letters of them, or in just the
+first letter of each: 铁矿石 is `tiekuangshi`, `tkshi` or `tks`.
 
 ## Wireless Terminals
 

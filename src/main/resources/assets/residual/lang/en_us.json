@@ -216,7 +216,7 @@
   "key.residual.open_terminal": "Open Wireless Terminal or Portable Drive",
   "residual.storage.search": "Search",
   "residual.storage.search_hint": "Search…",
-  "residual.storage.search_help": "Words a thing's name holds. @ for a mod, # a tag, $ the tooltip, * the id; - leaves things out, | gives alternatives, ( ) groups; >64, <10 or =1 asks how many. @minecraft ingot -iron finds every ingot but iron.",
+  "residual.storage.search_help": "Words a thing's name holds, or a Chinese name's pinyin. @ for a mod, # a tag, $ the tooltip, * the id; - leaves things out, | gives alternatives, ( ) groups; >64, <10 or =1 asks how many. @minecraft ingot -iron finds every ingot but iron.",
   "residual.storage.sort_help": "Sort by name, by how many, or by mod. Shift-click to reverse.",
   "residual.storage.sort.name": "Az",
   "residual.storage.sort.count": "#",

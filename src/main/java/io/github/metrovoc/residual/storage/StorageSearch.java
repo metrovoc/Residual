@@ -7,10 +7,10 @@ import java.util.Locale;
 import java.util.function.Predicate;
 
 /**
- * A Storage Terminal's search. Words a thing's name must contain, all of them; {@code @} for its mod, {@code #} for a
- * tag, {@code $} for its tooltip and {@code *} for its id; {@code -} before a term or a group to leave those out;
- * {@code |} between alternatives; parentheses to group; and {@code >}, {@code <}, {@code =}, {@code >=} or {@code <=}
- * with a number (and k or m for thousands or millions) for how many there are. {@code @minecraft ingot -iron | >1k}
+ * A Storage Terminal's search. Words a thing's name must contain, all of them, a Chinese name by its pinyin too; {@code @}
+ * for its mod, {@code #} for a tag, {@code $} for its tooltip and {@code *} for its id; {@code -} before a term or a group to
+ * leave those out; {@code |} between alternatives; parentheses to group; and {@code >}, {@code <}, {@code =}, {@code >=} or
+ * {@code <=} with a number (and k or m for thousands or millions) for how many there are. {@code @minecraft ingot -iron | >1k}
  * finds Minecraft's ingots other than iron, and anything there is more than a thousand of.
  */
 public final class StorageSearch {
@@ -111,10 +111,10 @@ public final class StorageSearch {
         return switch (t.charAt(0)) {
             case '@' -> f -> f.mod().toLowerCase(Locale.ROOT).contains(rest) || f.modName().toLowerCase(Locale.ROOT).contains(rest);
             case '#' -> f -> f.tags().stream().anyMatch(tag -> tag.toLowerCase(Locale.ROOT).contains(rest));
-            case '$' -> f -> f.tooltip().toLowerCase(Locale.ROOT).contains(rest);
+            case '$' -> f -> Pinyin.holds(f.tooltip(), rest);
             case '*' -> f -> f.id().toLowerCase(Locale.ROOT).contains(rest);
             case '>', '<', '=' -> amount(t);
-            default -> f -> f.name().toLowerCase(Locale.ROOT).contains(t.toLowerCase(Locale.ROOT));
+            default -> f -> Pinyin.holds(f.name(), t);
         };
     }
 

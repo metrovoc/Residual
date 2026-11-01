@@ -216,7 +216,7 @@
   "key.residual.open_terminal": "打开无线终端或便携驱动器",
   "residual.storage.search": "搜索",
   "residual.storage.search_hint": "搜索……",
-  "residual.storage.search_help": "东西名称里含有的词。@ 表示模组，# 表示标签，$ 表示提示文字，* 表示 ID；- 排除，| 表示“或”，( ) 分组；>64、<10 或 =1 按数量找。@minecraft ingot -iron 会找出除铁以外的所有锭。",
+  "residual.storage.search_help": "东西名称里含有的词，或中文名称的拼音。@ 表示模组，# 表示标签，$ 表示提示文字，* 表示 ID；- 排除，| 表示“或”，( ) 分组；>64、<10 或 =1 按数量找。@minecraft ingot -iron 会找出除铁以外的所有锭。",
   "residual.storage.sort_help": "按名称、数量或模组排序。按住 Shift 点击可反向。",
   "residual.storage.sort.name": "名",
   "residual.storage.sort.count": "#",
