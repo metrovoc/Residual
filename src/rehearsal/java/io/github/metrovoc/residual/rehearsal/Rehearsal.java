@@ -6,6 +6,9 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.client.AgentScreen;
+import io.github.metrovoc.residual.client.CoreScreen;
+import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -138,6 +141,7 @@ import org.slf4j.Logger;
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
  *                            T a tree)
  * close                      close the screen if one is open, as a script's last step may leave one or not
+ * fresh                      forget what screens remember, as the world step does, for a script that joins a server
  * fly on|off                 hover in place (creative), so the camera stays where cmd tp put it
  * sneak on|off               hold the sneak key, to place blocks against machines and turn them (flying, it sinks)
  * hud on|off
@@ -177,6 +181,8 @@ public final class Rehearsal {
     /** The seed of the world a script's first step asked for, while the one before it closes. */
     private static String nextWorld;
     private static boolean quitting;
+    /** Whether it played on a server, and whether the script itself stopped that server. */
+    private static boolean online, stopping;
     /** Steps run, and the ones that threw: any of those makes the whole run end with a failing exit code. */
     private static int played;
     private static final List<String> failed = new ArrayList<>();
@@ -223,6 +229,13 @@ public final class Rehearsal {
             }
             return;
         }
+        // a server it was thrown off leaves nothing to play on: the rest of the script would only fail
+        if (online && !stopping && !loading && next > 0 && mc.level == null) {
+            failed.add("lost the server");
+            LOG.error("[rehearsal] lost the server at step {} of {}: {}", next, steps.size(), steps.get(next - 1));
+            quitting = true;
+            return;
+        }
         if (nextWorld != null) {
             if (mc.level != null) {
                 return;
@@ -230,6 +243,7 @@ public final class Rehearsal {
             String seed = nextWorld;
             nextWorld = null;
             // what the script before left set
+            forgetScreens();
             hover = false;
             mc.options.hideGui = false;
             mc.options.setCameraType(CameraType.FIRST_PERSON);
@@ -295,6 +309,32 @@ public final class Rehearsal {
                 LOG.error("[rehearsal] step failed: {}", step, e);
             }
             return;
+        }
+    }
+
+    /**
+     * What screens remember while the game runs, a terminal's search, a Core's tab, as a player who just started the game
+     * would find it: one client plays many scripts, and the next one's clicks count on that.
+     */
+    private static void forgetScreens() {
+        remember(StorageTerminalScreen.class, "lastSearch", "");
+        remember(StorageTerminalScreen.class, "descending", false);
+        remember(StorageTerminalScreen.class, "sort", "NAME");
+        remember(CoreScreen.class, "lastTab", "DATA");
+        remember(CoreScreen.class, "lastTemperature", 2);
+        remember(CoreScreen.class, "lastBenchmark", "FORECASTING");
+        remember(AgentScreen.class, "lastTab", "WORK");
+        remember(AgentScreen.class, "palette", false);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void remember(Class<?> screen, String field, Object value) {
+        try {
+            Field f = screen.getDeclaredField(field);
+            f.setAccessible(true);
+            f.set(null, f.getType().isEnum() ? Enum.valueOf((Class<Enum>) f.getType(), (String) value) : value);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -436,6 +476,7 @@ public final class Rehearsal {
                 }
             }
             case "connect" -> {
+                online = true;
                 ConnectScreen.startConnecting(new TitleScreen(), mc, ServerAddress.parseString(arg), new ServerData(WORLD, arg, ServerData.Type.OTHER),
                         false, null);
                 loading = true;
@@ -444,7 +485,10 @@ public final class Rehearsal {
                 reopening = true;
                 mc.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE);
             }
-            case "cmd" -> mc.player.connection.sendCommand(arg);
+            case "cmd" -> {
+                stopping |= arg.equals("stop");
+                mc.player.connection.sendCommand(arg);
+            }
             case "chat" -> mc.player.connection.sendChat(arg);
             case "wait" -> waiting = Integer.parseInt(arg);
             case "use" -> {
@@ -519,6 +563,7 @@ public final class Rehearsal {
                 glide(to[0], to[1], args.length > 4 ? Integer.parseInt(args[4]) : 4);
             }
             case "scroll" -> mc.screen.mouseScrolled(mouseX, mouseY, 0, Double.parseDouble(arg));
+            case "fresh" -> forgetScreens();
             case "close" -> {
                 if (mc.screen != null) {
                     mc.screen.onClose();
