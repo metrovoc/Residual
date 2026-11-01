@@ -49,6 +49,13 @@ The farms of the ridges: a windmill with its tally board by the door, the barn a
 three fields, wheat, beetroot, and potatoes and carrots, each with its ditch, its hedge and its scarecrow or hives. On
 plains, meadows, savannas and windswept hills, at most one in each region 56 chunks across.
 
+## Watermills
+
+The mills of the orchard country, of birch and glass on the bank of a pond, the wheel out over the water on its axle,
+a race of stone beside it with the sluice nobody may open, the notices on the gate, a bench on the far side, old apple
+trees and hives among the flowers. Only by water deep enough, the wheel toward it: at most one in each region 56 chunks
+across.
+
 ## Stilt houses
 
 A healer's house of mud brick on a deck on stilts over a marsh, its remedies on the bench, with a boardwalk to the

@@ -1,0 +1,9 @@
+{
+  "type": "residual:shore",
+  "biomes": "#residual:has_ruin/watermill",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none",
+  "start_pool": "residual:ruins/watermill",
+  "offset": -4
+}

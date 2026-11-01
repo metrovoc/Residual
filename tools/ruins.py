@@ -1307,6 +1307,107 @@ def halfway_inn():
     t.set(4, 3, 3, "cobweb")
     return t
 
+def watermill():
+    """Jory's mill at Ambrook, of birch and glass, on its pond: a stone footing on the bank, walls of birch boards and
+    glass between birch posts, a dark roof; the wheel on its axle in the water, a race of stone beside it with the sluice
+    nobody may open; inside, the millstone and the sacks. On the bank the notice on the gate, the bench on the far side
+    that seats two, old apple trees, one with its grey branch, and hives among the flowers. Its north end stands on the
+    bank and its south end over the pond."""
+    import math
+    t = Template(19, 13, 20)
+    bank = 4  # the floor of the mill and the bank's top; the pond's surface is a block below it
+    # the bank: earth under grass to the water's edge
+    t.fill(0, 0, 0, 18, bank - 1, 9, "dirt")
+    for x in range(19):
+        for z in range(10):
+            t.set(x, bank - 1, z, "grass_block", {"snowy": "false"})
+    # the mill: stone footing, birch and glass between birch posts, a dark gable roof
+    x0, x1, z0, z1 = 4, 12, 3, 9
+    t.fill(x0, bank - 1, z0, x1, bank - 1, z1, "cobblestone")
+    t.fill(x0 + 1, bank - 1, z0 + 1, x1 - 1, bank - 1, z1 - 1, "spruce_planks")
+    t.fill(x0 + 1, bank, z0 + 1, x1 - 1, bank + 3, z1 - 1, "air")
+    t.walls(x0, bank, z0, x1, bank, z1, "stone_bricks")
+    t.walls(x0, bank + 1, z0, x1, bank + 3, z1, "birch_planks")
+    for x in range(x0, x1 + 1, 2):
+        for z in (z0, z1):
+            t.fill(x, bank, z, x, bank + 3, z, "birch_log")
+            if x < x1:
+                t.fill(x + 1, bank + 1, z, x + 1, bank + 2, z, "glass_pane")
+    for z in range(z0, z1 + 1, 2):
+        for x in (x0, x1):
+            t.fill(x, bank, z, x, bank + 3, z, "birch_log")
+            if z < z1:
+                t.fill(x, bank + 1, z + 1, x, bank + 2, z + 1, "glass_pane")
+    t.fill(x0 + 1, bank + 4, z0 + 1, x1 - 1, bank + 4, z1 - 1, "spruce_planks")
+    gable(t, bank + 4, x0 - 1, x1 + 1, z0 - 1, z1 + 1, "dark_oak_stairs", "z", end="birch_planks")
+    t.door(8, bank, z0, "birch_door", "north")
+    # inside: the millstone on its shaft, sacks, the miller's chest, a lamp
+    t.set(8, bank, 6, "grindstone", {"face": "floor", "facing": "north"})
+    t.barrel(5, bank, 4, "up", "residual:chests/watermill")
+    t.barrel(6, bank, 4, "up")
+    t.set(5, bank + 1, 4, "barrel", {"facing": "up", "open": "false"})
+    t.set(11, bank, 4, "white_wool")
+    t.set(11, bank, 5, "white_wool")
+    t.chest(11, bank, 8, "west", "residual:chests/watermill_jory")
+    t.lantern(8, bank + 3, 6, hanging=True)
+    # the wheel turning over the pond on its axle out of the south wall, paddles round its rim
+    cx, cy, zw = 8, bank + 1, 12
+    for z in range(z1, zw):
+        t.log(cx, cy, z, "stripped_spruce_log", "z")
+    for k in range(32):
+        a = 2 * math.pi * k / 32
+        x, y = round(cx + 4 * math.cos(a)), round(cy + 4 * math.sin(a))
+        if 0 <= y:
+            t.set(x, y, zw, "spruce_planks")
+    for k in range(8):
+        a = 2 * math.pi * k / 8
+        for r in (1, 2, 3):
+            x, y = round(cx + r * math.cos(a)), round(cy + r * math.sin(a))
+            if 0 <= y:
+                t.set(x, y, zw, "spruce_fence")
+    t.log(cx, cy, zw, "spruce_log", "z")
+    # the race of stone beside the wheel, and the sluice at its head nobody may open
+    for z in range(10, 19):
+        t.set(13, bank - 1, z, "stone_bricks")
+        t.set(15, bank - 1, z, "stone_bricks")
+    t.set(14, bank - 1, 10, "water", {"level": "0"})
+    t.set(14, bank, 10, "spruce_fence_gate", {"facing": "south", "in_wall": "false", "open": "false", "powered": "false"})
+    t.set(14, bank + 1, 10, "spruce_trapdoor", {"facing": "south", "half": "bottom", "open": "false", "powered": "false",
+                                                "waterlogged": "false"})
+    # the gate and its notice, the path to the door
+    for x in (6, 10):
+        t.set(x, bank, 0, "oak_fence")
+    t.set(8, bank, 0, "oak_fence_gate", {"facing": "south", "in_wall": "false", "open": "false", "powered": "false"})
+    t.set(7, bank, 0, "oak_fence")
+    t.set(9, bank, 0, "oak_fence")
+    t.set(9, bank + 1, 0, "oak_planks")
+    t.sign(9, bank + 1, 1, "south", ["The wheel turns", "dawn to dusk.", "Do not open", "the sluice."])
+    t.set(7, bank + 1, 0, "oak_planks")
+    t.sign(7, bank + 1, 1, "south", ["Swim at the far", "end, by the", "reeds. A new", "bench seats two."])
+    for z in (1, 2):
+        t.set(8, bank - 1, z, "dirt_path")
+    # the bench on the far side, the old apple trees, one with its grey branch, and hives among the flowers
+    t.stairs(16, bank, 8, "spruce_stairs", "north")
+    t.stairs(17, bank, 8, "spruce_stairs", "north")
+    for tx, tz in ((2, 2), (15, 3)):
+        t.fill(tx, bank, tz, tx, bank + 2, tz, "oak_log")
+        for dx in (-1, 0, 1):
+            for dz in (-1, 0, 1):
+                for dy in (3, 4):
+                    if (dx, dz) != (0, 0) or dy == 4:
+                        t.set(tx + dx, bank + dy, tz + dz, "oak_leaves", {"distance": "1", "persistent": "true",
+                                                                         "waterlogged": "false"})
+        t.set(tx, bank + 3, tz, "oak_log")
+    t.log(16, bank + 2, 3, "stripped_birch_log", "x")
+    for x, z, block in ((1, 6, "beehive"), (2, 8, "beehive"), (16, 6, "poppy"), (1, 4, "cornflower"), (3, 7, "dandelion"),
+                        (17, 5, "cornflower")):
+        if block == "beehive":
+            t.set(x, bank, z, block, {"facing": "east", "honey_level": "4"})
+        else:
+            t.set(x, bank, z, block)
+    t.set(10, bank + 3, 5, "cobweb")
+    return t
+
 def weathered(*rules, integrity=0.82):
     """A ruin's processors: each (block, its weathered form, the share that weathered) as a rule, then the decay that
     takes out some of the blocks tagged ruin_rot."""
@@ -1334,6 +1435,7 @@ VAULTS = ["vault", "sealed"]
 ROADS = ["waymark", "Long Road", "north road", "inn"]
 TUTORS = ["tutor", "drill"]
 INNS = ["Halfway Inn", "Brown Hen", "innkeeper", "the inn"]
+MILL_POND = ["Ambrook", "mill pond", "Jory", "mill wheel"]
 FALLEN = ["mast", "relay line"]
 SEALED = ["sealed", "the stacks", "sealing"]
 
@@ -1375,6 +1477,10 @@ RUINS = {
                               processors=weathered(integrity=0.95)),
     "sealed_stacks": Ruin(sealed_stacks, 64, 20, 77015239, step="underground_structures", start=-16, terrain="none",
                           words=SEALED, processors=weathered(integrity=0.97)),
+    "watermill": Ruin(watermill, 56, 18, 52990431, start=-4, terrain="none", shore=True, words=MILL_POND,
+                      processors=weathered(*STONE_AGE, integrity=0.94),
+                      biomes=[f"minecraft:{b}" for b in ("river", "forest", "flower_forest", "birch_forest", "plains",
+                                                          "meadow", "cherry_grove")]),
     "inn": Ruin(halfway_inn, 64, 20, 30091277, words=INNS, processors=weathered(*STONE_AGE, integrity=0.92)),
     "relay_tower": Ruin(relay_tower, 48, 16, 30817231, processors=weathered(*STONE_AGE, integrity=0.9), words=RELAYS),
     "windmill": Ruin(windmill_farm, 56, 18, 48215537, processors=weathered(*STONE_AGE, integrity=0.9), words=MILLS,
@@ -1505,6 +1611,12 @@ LOOT = {
         item("archive_shard", 8, (1, 2), about=INNS + ROADS), item("minecraft:paper", 3, (1, 3)), item("minecraft:map", 2),
         item("minecraft:white_wool", 3, (1, 3)), item("minecraft:candle", 2), item("minecraft:emerald", 3, (1, 3)),
         item("wayfinder", 1)])],
+    "chests/watermill": [pool((2, 4), [
+        item("minecraft:wheat", 6, (3, 8)), item("minecraft:bread", 5, (1, 4)), item("minecraft:apple", 6, (2, 6)),
+        item("minecraft:honey_bottle", 3, (1, 3)), item("minecraft:honeycomb", 3, (1, 4)), item("archive_shard", 2, about=MILL_POND)])],
+    "chests/watermill_jory": [pool((2, 4), [
+        item("archive_shard", 10, (1, 3), about=MILL_POND), item("minecraft:paper", 3, (1, 3)),
+        item("minecraft:emerald", 3, (1, 4)), item("minecraft:apple", 4, (1, 3)), item("minecraft:shears", 1)])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
         item("archive_shard", 9), mask("matmul", 1), item("weight_crystal", 2)]}],
 }
