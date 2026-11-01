@@ -28,8 +28,14 @@ class CalibrationTest {
 
     static void run(String label, GraphSpec spec, Task practice, List<Benchmark> tested, double target, Wrecks.Settings st,
                     int steps, int every) throws Exception {
-        CompiledGraph g = CompiledGraph.compile(spec, new Env(practice.vocab, Vocab.CONTEXT), null, 1);
-        Trainer tr = new Trainer(g, practice, 1, st.learningRate(), st.batchSize(), st.clip());
+        run(label, spec, practice, tested, target, st, steps, every, 1);
+    }
+
+    /** As {@link #run}, from the weights and batches {@code seed} draws, as a rebuild in the game draws its own. */
+    static void run(String label, GraphSpec spec, Task practice, List<Benchmark> tested, double target, Wrecks.Settings st,
+                    int steps, int every, long seed) throws Exception {
+        CompiledGraph g = CompiledGraph.compile(spec, new Env(practice.vocab, Vocab.CONTEXT), null, seed);
+        Trainer tr = new Trainer(g, practice, seed, st.learningRate(), st.batchSize(), st.clip());
         ForkJoinPool pool = new ForkJoinPool(4);
         long t0 = System.nanoTime();
         Parallel.with(pool, () -> {
@@ -402,14 +408,24 @@ class CalibrationTest {
                 }
             }
         }
+        if (runs.contains("depth_seeds")) {
+            // the tall model as found has to miss its goal from any weights, and the plainest repair reach it
+            Wrecks.Wreck depth = Wrecks.byId("depth");
+            for (long seed = 2; seed <= 6; seed++) {
+                run("depth_seed" + seed, depth.machine().get(), depth.practice(), List.of(Benchmark.READING), depth.target(),
+                        depth.settings(), Wrecks.BUDGET, Wrecks.BUDGET, seed);
+                run("relu_seed" + seed, fixedDepth("relu", false), depth.practice(), List.of(Benchmark.READING), depth.target(),
+                        depth.settings(), Wrecks.BUDGET, Wrecks.BUDGET, seed);
+            }
+        }
         if (runs.contains("fixes")) {
             run("shape_fix", fixedShape(), Dataset.of(Benchmark.FORECASTING), List.of(Benchmark.FORECASTING), Benchmark.FORECASTING.target, st, Wrecks.BUDGET, 250);
             run("diverge_fix", Blueprints.recall(), Dataset.of(Benchmark.RECALL), List.of(Benchmark.RECALL), 0.9, st, Wrecks.BUDGET, 250);
             run("leak_fix", fixedLeak(), Dataset.of(Benchmark.FORECASTING), List.of(Benchmark.FORECASTING), Benchmark.FORECASTING.target, st, Wrecks.BUDGET, 250);
             run("order_fix", fixedOrder(), Dataset.of(Benchmark.REVERSAL), List.of(Benchmark.REVERSAL), 0.9, st, Wrecks.BUDGET, 250);
-            Task depth = Wrecks.byId("depth").practice();
-            run("depth_relu", fixedDepth("relu", false), depth, List.of(Benchmark.READING), 2.4, st, Wrecks.BUDGET, 250);
-            run("depth_res", fixedDepth("sigmoid", true), depth, List.of(Benchmark.READING), 2.4, st, Wrecks.BUDGET, 250);
+            Wrecks.Wreck depth = Wrecks.byId("depth");
+            run("depth_relu", fixedDepth("relu", false), depth.practice(), List.of(Benchmark.READING), depth.target(), st, Wrecks.BUDGET, 250);
+            run("depth_res", fixedDepth("sigmoid", true), depth.practice(), List.of(Benchmark.READING), depth.target(), st, Wrecks.BUDGET, 250);
         }
     }
 }

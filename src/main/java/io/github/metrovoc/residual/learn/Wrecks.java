@@ -38,7 +38,7 @@ public final class Wrecks {
             new Wreck("diverge", Benchmark.RECALL, 0.9, new Settings(1.5f, 32, 0f), Blueprints::recall),
             new Wreck("leak", Benchmark.FORECASTING, Benchmark.FORECASTING.target, Settings.DEFAULT, Wrecks::leak),
             new Wreck("order", Benchmark.REVERSAL, 0.9, Settings.DEFAULT, Wrecks::order),
-            new Wreck("depth", Benchmark.READING, 2.4, Settings.DEFAULT, Wrecks::depth));
+            new Wreck("depth", Benchmark.READING, 2.15, Settings.DEFAULT, Wrecks::depth));
 
     private static TextTask reading;
 
