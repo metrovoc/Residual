@@ -12,17 +12,17 @@
 > Residual is an experimental project and currently in alpha. Expect breaking changes and major bugs. Your
 > [feedback](https://github.com/metrovoc/Residual/issues) is much appreciated.
 
-![A model training by a river: a wave of light runs along its cables and each machine's output floats above it, with an archive house and a farm behind](docs/images/hero.webp)
+![A model training by a river at noon: a wave of light runs along its cables and each machine's output floats above it, while far behind it agents build small houses near a relay tower](docs/images/hero.webp)
 
 Someone lived in this world before you. They are no longer here, but traces of them still remain in the ruins. Most
 mysteriously, they seemed to have built machines that thought.
 
-Residual is a Minecraft mod about building those models again, and every model is a real language model. Each machine
-performs one real operation: a table lookup, a matrix multiplication, a softmax, a whole transformer layer. Design the
-machines from the smallest operations there are, cable them into a network, train it, test it on what it has never
-seen, and put it to work: a model that knows what the blocks around it will do next runs them ahead of time, and agents
-run the programs you click together, with models where learning beats a rule. The arithmetic is what PyTorch does, down
-to the optimizer.
+Residual is a Minecraft mod about building those machines again, and every model you make with them is a real language
+model. Each machine performs one real operation: a table lookup, a matrix multiplication, a softmax, a whole transformer
+layer. Design the machines from the smallest operations there are, cable them into a network, train it, test it on what
+it has never seen, and put it to work. A model that knows what the blocks around it will do next runs them ahead of time,
+and agents run the programs you click together, with models where learning beats a rule. The arithmetic is what PyTorch
+does, down to the optimizer.
 
 ## Why this project
 
@@ -42,96 +42,102 @@ passes the ordinary cases and turns red on scores near 1000, where the exponenti
 off first and it passes them all. Specs build on each other, from matrix multiply and softmax up to attention and a
 whole transformer block.
 
-A verified design is recorded onto a photomask, and a Fabricator makes machines from it out of wafers, a smaller
-design costing fewer. The ruins hold old photomasks too. Their designs are correct but written out one operation at a
-time: their machines give the same answers, use more memory and train more slowly.
+A verified design is recorded onto a photomask, and a Fabricator makes machines from it. The ruins hold old photomasks
+too, for anyone who would rather not wire everything themselves. Their designs are correct but written out one
+operation at a time, so their machines give the same answers, use more memory and train more slowly.
+
+## Models
+
+<p>
+<img src="docs/images/train.webp" alt="The Train tab as a small GPT learns to sort: the loss on practice and on the test falling together" width="49%">
+<img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each benchmark" width="49%">
+</p>
+
+Cable the machines together, and a Model Core trains them as one model, on up to four kinds of practice at once. It
+shows the learning curves as they fall, every machine's output shape, its weights and its gradient.
+
+While a model trains, waves run through its blocks: a teal pulse from the tokens to the loss as the batch goes forward,
+then an amber one back as the gradient returns, each block lighting as brightly as what it carries. A block that stays
+dark on the way back is hardly learning. Above every machine floats its output as a hologram, and an attention head
+shows where each token looks.
+
+Every model is tested on what practice never shows it, and a job asks its model in exactly the test's format, so a test
+score is how often the model will get that job right. A single embedding table can forecast a furnace. Copying a build
+takes two layers of attention, and understanding what you say takes a model too big to carry.
 
 ## Running ahead
 
 <p>
-<img src="docs/images/forecaster.jpg" alt="A Forecaster between two furnaces, a smoker and a blast furnace, sparks rising from the machines it runs ahead" width="49%">
-<img src="docs/images/forecaster_screen.jpg" alt="The Forecaster's screen: four machines, how far they moved per look against what its model expected, and the model trusted at four times" width="49%">
+<img src="docs/images/forecaster.webp" alt="A Forecaster among furnaces, a smoker and a blast furnace, running them ahead while a furnace out of its reach keeps its own pace" width="49%">
+<img src="docs/images/forecaster_screen.jpg" alt="The Forecaster's screen: four machines, how far they moved against what its model expected, and the model trusted at four times" width="49%">
 </p>
 
-A Forecaster watches the furnaces, smokers, blast furnaces, brewing stands and crops around it and writes down what
-each one does, a line per block: a furnace's progress through its item, eight looks an item, or a crop's age every
-twenty seconds. A model trained on lines like these is a small model of the world, and knows what those blocks will do
-next. The Forecaster checks it against everything the blocks did by themselves. If the progress the model expects is
-within 11% of the progress there was, the Forecaster runs them four looks for every one, drawing each block's next
-looks from the model and making them so; within 25%, two. A model that is wrong on average is refused. Over one minute
-at ×4, a furnace beside a Forecaster made 24 iron ingots and one out of its reach made 6.
+A Forecaster watches the furnaces, smokers, brewing stands and crops around it and writes down what each one does. A
+model trained on lines like these is a small model of the world, and knows what those blocks will do next. The
+Forecaster checks it against everything the blocks did by themselves, and if its forecasts hold, the Forecaster runs
+them ahead, drawing each block's next moments from the model and making them so. A model that is wrong on average is
+refused. Over one minute at four times the speed, a furnace beside a Forecaster made 24 iron ingots, and one out of its
+reach made 6.
 
 A machine keeps its pace, so a model of machines in general forecasts yours, and the first model you build, a single
-embedding table, is enough. Crops are harder: a model of fields in general expects an average field, so the way to
-forecast yours is to train on the Forecaster's own log.
+embedding table, is enough. Crops are harder: the way to forecast your own field is to train on what the Forecaster saw
+it do. Better models go further. Forecaster II runs blocks up to sixteen times as fast, and an Hourglass spends the time
+it keeps on bursts for one block, wherever it is.
 
 ## Agents
 
 <p>
-<img src="docs/images/program.webp" alt="A program clicked together from an agent's palette and from things held, then run" width="49%">
+<img src="docs/images/program.webp" alt="A program clicked together from an agent's palette of pieces, then run" width="49%">
 <img src="docs/images/sort.webp" alt="An agent's trace as it sorts a barrel by kind, filing each thing where its filter model says" width="49%">
 </p>
 
-An agent is a frame that runs a program, such as `repeat (mine 4 stone, put)` or `take bread, come, give bread`,
-typed in its screen or clicked together from a palette of pieces, checked as you go, and carried from agent to agent on
-Program Cards. Walking, carrying, mining and laying blocks are its own. Wherever there is a real decision to make (which
-chest the iron went into; the way home; the next slice of a build; what kind of thing this is; what you meant), it
-asks a model in the format of the test and does what the model answers. Its trace shows every step it took, what it checked, and why a step failed. A model that passes its test at 98%
-decides right 98 times in 100.
-
-Besides its model, an agent carries a filter: a model that tells what kind a thing is from its name alone, so that
-`sort` can file things it has never seen into chests labelled Food, Wood or Ores.
-
-With a model that passes Induction, an agent copies a build, moves it with everything inside, or carries on its
-pattern. It reads the build as slices, a letter for each, and its model names the slice that comes next; a copy is laid
-from the chests at home or a storage network.
-
-A Surveyor reads the ground around it a row of sixteen blocks at a time, 16 blocks each way and 48 below, and asks its
-model where the first of each ore in a row lies, and of each cache, a chest or barrel the old world filled that nobody
-has opened; every answer the block bears out is kept. Hold a Survey Rod near it to see what it found through the
-ground. An agent told `mine 8 iron` digs its way to the iron it found, and one told `mine caches` to the caches. Agents
-mining near each other each take a different block: three cleared six iron spread through the stone in 58 seconds,
-where one took 100.
+An agent is a frame that runs a program, such as `repeat (mine 4 stone, put)` or `take bread, come, give bread`, typed in
+its screen or clicked together from a palette of pieces, and carried from agent to agent on Program Cards. Walking,
+carrying, mining and laying blocks are its own. Wherever there is a real decision to make (which chest the iron went
+into; what kind of thing this is; what you meant), it asks a model and does what the model answers. Its trace shows every
+step it took, what it checked, and why a step failed. A model that passes its test at 98% decides right 98 times in 100.
 
 Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it. Its model
 writes the order as a program; anything longer than one step it reads back, and runs only once you click Do it.
 
+With a model that can carry on a pattern, an agent copies a build, moves it with everything inside, or keeps building
+it. A Surveyor reads the ground around it with a model, and holding a Survey Rod near it shows you through the ground the
+ores it found, and the chests and barrels the old world filled that nobody has opened. Tell an agent `mine 8 iron` and it
+digs its way to them. Agents mining near each other each take a different block, so they work as a crew.
+
 ## Storage
 
 <p>
-<img src="docs/images/storage.jpg" alt="A Storage Terminal showing fourteen kinds kept on two drives, with how many of each" width="49%">
-<img src="docs/images/port.jpg" alt="A Port's screen: its four modes, its filter, and 1,280 items moved in the last second" width="49%">
+<img src="docs/images/storage.jpg" alt="A Storage Terminal showing what the network keeps, with how many of each" width="49%">
+<img src="docs/images/port.jpg" alt="A Port's screen: its four modes, its filter, and the items moved in the last second" width="49%">
 </p>
 
-Storage Drives in a Drive Rack keep any number of kinds of item, 262,144 items to a drive, and Storage Links join them
-to Storage Terminals and Ports. There are no channels and nothing to power. A terminal shows everything the network
-keeps and finds anything by name, mod, tag, tooltip or id, with `-` to leave things out, `|` for alternatives,
-parentheses and amounts: `@minecraft ingot -iron` finds every ingot but iron. A Port holds its front against a chest or
-a machine and imports, exports, keeps a set stock, or opens the inventory to the network as a window, 64 items a tick:
-with its chest refilled every tick, one moved 1,280 items a second. An Assembler crafts a recipe drawn in its grid from
-what the network keeps, up to 80 crafts a second, whenever the network holds fewer of the result than it is told to
-keep, so one that keeps sticks lets another make torches for as long as there is coal. Ask a terminal for something the
-Assemblers can make, and it plans the whole tree off the server thread before anything starts: what comes from storage,
-how many crafts make the rest, what is missing. A job can start with something missing and wait for it, any number of
-jobs run at once, and what a job makes along the way is its own until it is done.
+Residual keeps its own storage, with no channels and nothing to power. Storage Drives in a Drive Rack keep any number of
+kinds of item, and Storage Links join them to Storage Terminals and Ports. A terminal shows everything the network keeps
+and finds anything by name, mod, tag, tooltip or id: `@minecraft ingot -iron` finds every ingot but iron. A Port holds
+its front against a chest or a machine and imports, exports, keeps a set stock, or opens the inventory to the network,
+moving 1,280 items a second.
+
+An Assembler crafts a recipe drawn in its grid from what the network keeps. Ask a terminal for something the Assemblers
+can make, and it plans the whole tree before anything starts: what comes from storage, how many crafts make the rest,
+what is missing. A job can start with something missing and wait for it, and any number of jobs run at once.
 
 ## Power
 
-A Combustion Generator burns furnace fuel for 80 FE a tick, and Power Cables carry it to Energy Cells, which hold a
-million FE, and to the machines that run on it. The Smelter, fabricated from a transformer design, smelts on power and
-makes two ingots from every ore, or three from a melt its controller holds in its band. A controller is a model
-practised by playing melts and learning from its own choices. Every power block speaks Forge Energy to other mods'
-cables and machines.
+A Combustion Generator burns furnace fuel, and Power Cables carry the power to Energy Cells and to the machines that run
+on it. It is all Forge Energy, so it works with other mods' cables and machines. The Smelter makes two ingots from every
+ore, and three when a model you trained keeps the melt at the right heat, something it learned by playing melts of its
+own and learning from its choices.
 
-A flight frame, worn on the back and charged from an Energy Cell, flies its wearer as freely as creative play, for 80
-FE a tick, while its pilot holds it: a model that learned to fly the frame on its own flights, reading its speed from
-the heights before and meeting the wind before it pushes.
+A flight frame, worn on the back and charged from an Energy Cell, flies you as freely as creative play while its pilot
+holds it steady: a model that learned to fly the frame on its own flights, reading its speed from the heights before and
+meeting the wind before it pushes.
 
 ## The archive
 
 <p>
 <img src="docs/images/ruin.jpg" alt="An archive house of calcite and tuff, one corner fallen in" width="49%">
-<img src="docs/images/reader.jpg" alt="The Reader restoring a record's lost text, block by block" width="49%">
+<img src="docs/images/reader.webp" alt="The Reader restoring a record's lost text, block by block" width="49%">
 </p>
 
 The old world left its places behind: relay towers along the old roads, windmill farms on the ridges, stilt houses on
@@ -146,43 +152,8 @@ practises on it learns to read the way the old world wrote. A Reader restores lo
 lost block comes back only if your model can predict it. Each restored block is more text to learn from.
 
 Models start out reading one character at a time. A BPE Forge learns a vocabulary from the text you have recovered,
-merging the most frequent pair of tokens over and over, and writes it onto a Tokenizer. A model that reads with it sees
-words where it used to see letters. Losses are counted per character, so models with different tokenizers compare
-fairly.
-
-## Models
-
-<p>
-<img src="docs/images/train.webp" alt="The Train tab as a small GPT learns to sort: the loss on practice and on the test falling together" width="49%">
-<img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each benchmark" width="49%">
-</p>
-
-Every model is tested on ten benchmarks. A test uses examples that practice never shows, and a job asks its model in
-exactly the test's format, so a test score is how often an agent decides right.
-
-| Benchmark   | Practice      | Passes at   | Put to work                  |
-| --------- | ------------- | ----------- | ---------------------------- |
-| Forecasting | Forecast Dataset | loss ≤ 0.21 | running blocks ahead         |
-| Recall    | Storage Dataset | 90%         | keeping a storeroom          |
-| Reversal  | Errand Dataset  | 90%         | hauling                      |
-| Induction | Pattern Dataset | 90%         | copying and building         |
-| Sorting   | Sorting Dataset | 90%         | sorting things by kind       |
-| Orders    | Orders Dataset  | 90%         | understanding what you say   |
-| Reading   | Archive Drive | loss ≤ 1.40 | restoring the archive        |
-| Control   | Process Dataset | 90%       | holding a Smelter's melt     |
-| Survey    | Survey Dataset  | 90%       | finding ores in the ground   |
-| Pilot     | Flight Dataset  | 90%       | flying a flight frame        |
-
-A single embedding table can forecast a furnace. Recall needs attention, reversal needs to know positions, induction takes
-two layers of attention, sorting has to tell what a thing is from its name alone, and understanding orders takes a model
-too big to carry. The Model Core trains a model on up to four kinds of practice at once and shows the learning curves,
-the tests, every machine's output shape, weights and gradient. Saving a model to a checkpoint tests it on all eight
-benchmarks first.
-
-While a model trains, waves run through its blocks: a teal pulse from the tokens to the loss as the batch goes forward,
-then an amber one back as the gradient returns, each block lighting as brightly as what it carries. A block that stays
-dark on the way back is hardly learning. Above every machine floats its output as a hologram, and an attention head
-shows where each token looks.
+merging the most frequent pair of tokens over and over, and a model that reads with it sees words where it used to see
+letters.
 
 ## Serving models
 
@@ -190,10 +161,9 @@ shows where each token looks.
 <img src="docs/images/terminal.jpg" alt="A Terminal: writing with a model served from a Model Server" width="60%">
 </p>
 
-An agent carries a model of up to 40,000 parameters. A bigger model stays in a Model Server and answers over relays.
-A Relay Card in an agent's model slot asks the server instead, anywhere the relays reach. A Terminal lets you write
-with the served model and carries your orders as far as the relays go. Training Accelerators give the Core more threads
-and the server more answers a second; kept cool by water, ice or snow, they work twice as hard.
+An agent carries a small model. A bigger one stays in a Model Server and answers over relays, anywhere they reach. A
+Terminal lets you write with the served model and carries your orders as far as the relays go. Training Accelerators give
+the Core more threads and the server more answers a second, and kept cool by water, ice or snow, they work twice as hard.
 
 ## Real models
 
