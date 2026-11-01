@@ -160,6 +160,7 @@
   "residual.ruin.tutor_house": "Tutor House",
   "residual.ruin.fallen_relay_mast": "Fallen Relay Mast",
   "residual.ruin.sealed_stacks": "Sealed Stacks",
+  "residual.ruin.inn": "Inn",
   "residual.drive.empty": "Empty. Use it to file the shards you carry.",
   "residual.drive.nothing": "No shards to file",
   "residual.drive.filed": "Filed %s shards, %s of them new",

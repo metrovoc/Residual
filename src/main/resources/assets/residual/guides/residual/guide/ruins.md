@@ -36,6 +36,13 @@ cooling water. In grassland, forest, taiga, snow and hills, at most one in each 
 Stone pillars by stretches of the old road, a torch on top and little stones left at the foot; one in four stands
 under a little roof with notes left on it. The commonest ruin: at most one in each region 24 chunks across.
 
+## Inns
+
+The inns of the Long Road, a day apart: stone below and an oak frame above, the upper floor jutting over the road.
+Inside, the hearth still burns; the riddle board hangs by the fire, the waymark book lies behind the counter next to a
+pie, and the beds wait upstairs; the stable stands across the yard and the inn's sign by the road. At most one in each
+region 64 chunks across.
+
 ## Windmill farms
 
 The farms of the ridges: a windmill with its tally board by the door, the barn and the pig pen, a well in the yard, and

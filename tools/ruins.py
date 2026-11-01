@@ -190,6 +190,14 @@ class Template:
                   "front_text": {"messages": lines, "color": "black", "has_glowing_text": 0},
                   "back_text": {"messages": ["", "", "", ""], "color": "black", "has_glowing_text": 0}})
 
+    def post_sign(self, x, y, z, rotation, lines, wood="oak"):
+        """A sign standing on its own post, turned rotation sixteenths of a turn from south, with up to four lines."""
+        lines = (list(lines) + ["", "", "", ""])[:4]
+        self.set(x, y, z, f"{wood}_sign", {"rotation": str(rotation), "waterlogged": "false"},
+                 {"id": "minecraft:sign", "is_waxed": 1,
+                  "front_text": {"messages": lines, "color": "black", "has_glowing_text": 0},
+                  "back_text": {"messages": lines, "color": "black", "has_glowing_text": 0}})
+
     def chest(self, x, y, z, facing, loot):
         self.set(x, y, z, "chest", {"facing": facing, "type": "single", "waterlogged": "false"},
                  {"id": "minecraft:chest", "LootTable": loot})
@@ -901,12 +909,12 @@ def slipway():
                 t.slab(x, y, z, "spruce_slab", "top")
     return t
 
-def old_road(t, x0, x1, z0, z1, rng):
-    """A stretch of the Long Road as Dace laid it on the open road: packed earth between cobblestone edges, worn and
-    broken, grass coming through in places."""
+def old_road(t, x0, x1, z0, z1, rng, along="z"):
+    """A stretch of the Long Road as Dace laid it on the open road, running along z or x: packed earth between
+    cobblestone edges, worn and broken, grass coming through in places."""
     for z in range(z0, z1 + 1):
         for x in range(x0, x1 + 1):
-            edge = x in (x0, x1)
+            edge = x in (x0, x1) if along == "z" else z in (z0, z1)
             r = rng.random()
             if edge:
                 if r < 0.75:
@@ -1174,6 +1182,131 @@ def sealed_stacks():
     t.set(2, 5, 13, "cobweb")
     return t
 
+WAYMARK_BOOK = [
+    "The waymark book, kept for the keepers of the Long Road behind the counter of the Halfway Inn.",
+    "Dunn's stretch: from the bridge to this door. Figures 0 to 9, each cut once. Stones on top of every one.",
+    "Spring: the 4 by the old mill track leans. Set it up again, and a new torch. Hobb paid for the torch in soup.",
+    "Leaffall: all well. The 7 has a fox carved under its figure now. Nobody will say who did it.",
+]
+
+
+def halfway_inn():
+    """The Halfway Inn on the Long Road, a day from anywhere: stone below and an oak frame above, its upper floor
+    jutting over the road side, a steep roof and a chimney; the common room with its long tables and the hearth that
+    has not gone out, the riddle board by the fire, the counter with the waymark book and a pie, the kitchen and its soup;
+    rooms upstairs; the stable across the yard; its sign on a post by the road, and a waymark."""
+    import random
+    rng = random.Random(30091277)
+    t = Template(25, 15, 23)
+    x0, x1, z0, z1 = 2, 16, 2, 11
+    # the ground floor: a stone base, an oak frame, plaster between
+    t.fill(x0, 0, z0, x1, 0, z1, "cobblestone")
+    t.fill(x0 + 1, 0, z0 + 1, x1 - 1, 0, z1 - 1, "spruce_planks")
+    t.fill(x0 + 1, 1, z0 + 1, x1 - 1, 4, z1 - 1, "air")
+    t.walls(x0, 1, z0, x1, 1, z1, "stone_bricks")
+    t.walls(x0, 2, z0, x1, 4, z1, "calcite")
+    for x in range(x0, x1 + 1, 4):
+        for z in (z0, z1):
+            t.fill(x, 1, z, x, 4, z, "stripped_oak_log")
+    for z in (z0, 6, z1):
+        t.fill(x0, 1, z, x0, 4, z, "stripped_oak_log")
+        t.fill(x1, 1, z, x1, 4, z, "stripped_oak_log")
+    for x in range(x0, x1 + 1):
+        for z in (z0, z1):
+            t.log(x, 5, z, "stripped_oak_log", "x")
+    for z in range(z0, z1 + 1):
+        t.log(x0, 5, z, "stripped_oak_log", "z")
+        t.log(x1, 5, z, "stripped_oak_log", "z")
+    t.fill(x0 + 1, 5, z0 + 1, x1 - 1, 5, z1 - 1, "spruce_planks")
+    for x in range(x0 + 1, x1):
+        if (x - x0) % 4 and x not in (8, 9):
+            t.set(x, 2, z1, "glass_pane")
+            t.set(x, 3, z1, "glass_pane")
+    t.door(8, 1, z1, "oak_door", "south", hinge="left")
+    t.door(9, 1, z1, "oak_door", "south", hinge="right")
+    # the upper floor juts a block out over the road side, on corbels; plaster between oak posts
+    t.fill(x0, 6, z0, x1, 8, z1 + 1, "air")
+    t.walls(x0, 6, z0, x1, 8, z1 + 1, "calcite")
+    for x in range(x0, x1 + 1, 4):
+        for z in (z0, z1 + 1):
+            t.fill(x, 6, z, x, 8, z, "stripped_oak_log")
+    for x in range(x0, x1 + 1):
+        t.stairs(x, 5, z1 + 1, "oak_stairs", "north", half="top")
+        if (x - x0) % 4 and x % 2:
+            t.set(x, 7, z1 + 1, "glass_pane")
+            t.set(x, 7, z0, "glass_pane")
+    t.fill(x0 + 1, 6, z0 + 1, x1 - 1, 8, z1, "air")
+    t.fill(x0 + 1, 9, z0 + 1, x1 - 1, 9, z1, "spruce_planks")
+    gable(t, 9, x0 - 1, x1 + 1, z0 - 1, z1 + 2, "dark_oak_stairs", "x", end="calcite")
+    # the hearth that has not gone out, its chimney, the riddle board by the fire
+    t.fill(x0 + 1, 1, 5, x0 + 1, 4, 8, "bricks")
+    t.set(x0 + 1, 1, 6, "campfire", {"facing": "east", "lit": "true", "signal_fire": "false", "waterlogged": "false"})
+    t.set(x0 + 1, 1, 7, "campfire", {"facing": "east", "lit": "true", "signal_fire": "false", "waterlogged": "false"})
+    t.fill(x0 + 1, 2, 6, x0 + 1, 2, 7, "air")
+    t.fill(x0, 1, 6, x0, 13, 7, "bricks")
+    t.sign(x0 + 1, 3, 4, "east", ["I come to every", "supper at the", "inn and I never", "pay. What am I?"])
+    t.sign(x0 + 1, 3, 9, "east", ["What gets", "shorter every", "time you walk", "on it?"])
+    # the common room: two long tables with their seats
+    for z in (5, 8):
+        for x in range(6, 11):
+            t.slab(x, 1, z, "spruce_slab", "top")
+            t.stairs(x, 1, z - 1 if z == 5 else z + 1, "spruce_stairs", "south" if z == 5 else "north")
+    for x in (5, 8, 11):
+        t.lantern(x, 4, 6, hanging=True)
+    # the counter, the waymark book behind it next to the pie; cider barrels; the kitchen and its soup
+    for z in range(z0 + 1, 8):
+        t.set(12, 1, z, "spruce_planks")
+    t.set(12, 2, 4, "cake", {"bites": "2"})
+    t.set(13, 1, 4, "lectern", {"facing": "west", "has_book": "true", "powered": "false"},
+          {"id": "minecraft:lectern", "Page": 0, "Book": {"id": "minecraft:written_book", "count": 1, "components": {
+              "minecraft:written_book_content": {"title": {"raw": "Waymark book"}, "author": "Dunn", "resolved": 1,
+                                                 "pages": [{"raw": p} for p in WAYMARK_BOOK]}}}})
+    for z in (3, 5):
+        t.barrel(15, 1, z, "west", "residual:chests/inn_cellar")
+        t.barrel(15, 2, z, "west")
+    t.set(15, 1, 7, "smoker", {"facing": "west", "lit": "false"})
+    t.set(15, 1, 8, "water_cauldron", {"level": "3"})
+    t.set(14, 1, 9, "barrel", {"facing": "up", "open": "false"})
+    # the stairs up, and the rooms: beds, chests, a lantern each
+    for k in range(4):
+        t.stairs(15 - k, 2 + k, 10, "spruce_stairs", "west")
+    for x in (12, 13, 14, 15):
+        t.set(x, 5, 10, "air")
+    for x in (7, 11):
+        t.fill(x, 6, z0 + 1, x, 8, 6, "spruce_planks")
+    for bx in (4, 8):
+        t.bed(bx, 6, z0 + 1, "red", "south")
+        t.bed(bx + 1, 6, z0 + 1, "red", "south")
+    t.bed(12, 6, z0 + 1, "blue", "south")
+    t.chest(5, 6, 6, "north", "residual:chests/inn_rooms")
+    t.chest(13, 6, 6, "north", "residual:chests/inn_rooms")
+    for x in (5, 9, 13):
+        t.lantern(x, 8, 5, hanging=True)
+    # the stable across the yard: posts, a sloping roof, hay, a trough
+    for x in (18, 21, 23):
+        for z in (3, 10):
+            t.fill(x, 1, z, x, 3, z, "oak_log")
+    for x in range(18, 24):
+        for z in range(3, 11):
+            t.slab(x, 4, z, "spruce_slab")
+    t.fill(23, 1, 4, 23, 2, 9, "spruce_planks")
+    t.fill(19, 1, 4, 22, 1, 4, "hay_block", {"axis": "x"})
+    t.set(21, 1, 8, "water_cauldron", {"level": "2"})
+    for z in range(5, 10):
+        t.set(20, 1, z, "oak_fence")
+    # the road past the door, the inn's sign on its post, and a waymark
+    old_road(t, 0, 24, 16, 20, rng, along="x")
+    for z in (12, 13, 14, 15):
+        for x in (8, 9):
+            t.set(x, 0, z, "dirt_path")
+    t.set(6, 0, 14, "cobblestone")
+    t.set(6, 1, 14, "oak_fence")
+    t.post_sign(6, 2, 14, 0, ["The Halfway", "Inn", "Beds, soup,", "hay"])
+    waymark(t, 21, 14, face="south")
+    t.set(10, 7, 4, "cobweb")
+    t.set(4, 3, 3, "cobweb")
+    return t
+
 def weathered(*rules, integrity=0.82):
     """A ruin's processors: each (block, its weathered form, the share that weathered) as a rule, then the decay that
     takes out some of the blocks tagged ruin_rot."""
@@ -1200,6 +1333,7 @@ MASTS = ["mast", "relay house"]
 VAULTS = ["vault", "sealed"]
 ROADS = ["waymark", "Long Road", "north road", "inn"]
 TUTORS = ["tutor", "drill"]
+INNS = ["Halfway Inn", "Brown Hen", "innkeeper", "the inn"]
 FALLEN = ["mast", "relay line"]
 SEALED = ["sealed", "the stacks", "sealing"]
 
@@ -1241,6 +1375,7 @@ RUINS = {
                               processors=weathered(integrity=0.95)),
     "sealed_stacks": Ruin(sealed_stacks, 64, 20, 77015239, step="underground_structures", start=-16, terrain="none",
                           words=SEALED, processors=weathered(integrity=0.97)),
+    "inn": Ruin(halfway_inn, 64, 20, 30091277, words=INNS, processors=weathered(*STONE_AGE, integrity=0.92)),
     "relay_tower": Ruin(relay_tower, 48, 16, 30817231, processors=weathered(*STONE_AGE, integrity=0.9), words=RELAYS),
     "windmill": Ruin(windmill_farm, 56, 18, 48215537, processors=weathered(*STONE_AGE, integrity=0.9), words=MILLS,
                      biomes=[f"minecraft:{b}" for b in ("plains", "sunflower_plains", "meadow", "windswept_hills",
@@ -1362,6 +1497,14 @@ LOOT = {
         pool((1, 2), [item("archive_drive", 1, drive=(14, ["archive", "clerk", "Vell", "record"]))]),
         pool((1, 3), [item("archive_shard", 8, (1, 3)), item("minecraft:paper", 4, (2, 6)),
                       item("minecraft:honeycomb", 3, (1, 3)), item("minecraft:book", 2)])],
+    "chests/inn_cellar": [pool((2, 4), [
+        item("minecraft:bread", 5, (2, 5)), item("minecraft:carrot", 5, (2, 6)), item("minecraft:baked_potato", 3, (1, 4)),
+        item("minecraft:apple", 4, (1, 4)), item("minecraft:honey_bottle", 2), item("minecraft:emerald", 3, (1, 4)),
+        item("archive_shard", 3, about=INNS)])],
+    "chests/inn_rooms": [pool((2, 4), [
+        item("archive_shard", 8, (1, 2), about=INNS + ROADS), item("minecraft:paper", 3, (1, 3)), item("minecraft:map", 2),
+        item("minecraft:white_wool", 3, (1, 3)), item("minecraft:candle", 2), item("minecraft:emerald", 3, (1, 3)),
+        item("wayfinder", 1)])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
         item("archive_shard", 9), mask("matmul", 1), item("weight_crystal", 2)]}],
 }

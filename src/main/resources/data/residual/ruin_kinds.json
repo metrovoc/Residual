@@ -52,6 +52,15 @@
     ]
   },
   {
+    "name": "inn",
+    "words": [
+      "Halfway Inn",
+      "Brown Hen",
+      "innkeeper",
+      "the inn"
+    ]
+  },
+  {
     "name": "relay_tower",
     "words": [
       "relay",
