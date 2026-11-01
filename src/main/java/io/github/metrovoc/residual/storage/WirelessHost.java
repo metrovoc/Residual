@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
+import net.minecraft.world.Container;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -31,13 +33,21 @@ public final class WirelessHost implements TerminalHost {
     private final ServerPlayer player;
     private final ServerLevel level;
     private final GlobalPos link;
+    /** Which terminal this is, among others tuned to the same network. */
+    private final UUID id;
     private final Set<ChunkPos> held = new HashSet<>();
+    private final HeldModel model;
     private int ticks;
 
-    private WirelessHost(ServerPlayer player, ServerLevel level, GlobalPos link) {
+    private WirelessHost(ServerPlayer player, ServerLevel level, GlobalPos link, ItemStack holding) {
         this.player = player;
         this.level = level;
         this.link = link;
+        if (!holding.has(ModComponents.TERMINAL_ID.get())) {
+            holding.set(ModComponents.TERMINAL_ID.get(), UUID.randomUUID());
+        }
+        this.id = holding.get(ModComponents.TERMINAL_ID.get());
+        this.model = new HeldModel(holding, this::terminal);
     }
 
     /** Opens the terminal in the player's inventory, if its network is in reach. */
@@ -52,7 +62,7 @@ public final class WirelessHost implements TerminalHost {
             player.sendOverlayMessage(Component.translatable("residual.wireless.out_of_reach"));
             return;
         }
-        WirelessHost host = new WirelessHost(player, level, link);
+        WirelessHost host = new WirelessHost(player, level, link, terminal);
         // the Access Point's own chunk first, loaded now: the rest of its network comes as its chunks load
         host.hold(List.of(ChunkPos.containing(link.pos())));
         level.getChunk(link.pos());
@@ -60,7 +70,7 @@ public final class WirelessHost implements TerminalHost {
             player.sendOverlayMessage(Component.translatable("residual.wireless.gone"));
             return;
         }
-        if (!host.inReach(true)) {
+        if (!host.inReach()) {
             player.sendOverlayMessage(Component.translatable("residual.wireless.out_of_reach"));
             return;
         }
@@ -85,7 +95,7 @@ public final class WirelessHost implements TerminalHost {
     }
 
     /** Whether the player is in range of an Access Point on the network, or its relays cover them. */
-    private boolean inReach(boolean loadedPointOnly) {
+    private boolean inReach() {
         if (inRange()) {
             return true;
         }
@@ -127,15 +137,20 @@ public final class WirelessHost implements TerminalHost {
         if (held.addAll(chunks)) {
             StorageNetwork.changed(level);
         }
-        // reaching further than an Access Point's plain range is paid for by the Link Driver, at the rate it drives
+        // reaching further than an Access Point's plain range is paid for by the Link Driver, by the second, at the rate it drives
         StorageNetwork net = network();
         boolean within = false;
         for (AccessPointBlockEntity point : net.accessPoints()) {
             within |= point.inRange(player.blockPosition(), false);
         }
         if (!within) {
-            net.payForReach();
+            net.payForReach(20);
         }
+    }
+
+    @Override
+    public Container searchModel() {
+        return model;
     }
 
     @Override
@@ -156,12 +171,17 @@ public final class WirelessHost implements TerminalHost {
     @Nullable
     private ItemStack terminal() {
         for (ItemStack stack : player.getInventory()) {
-            if (stack.getItem() instanceof WirelessTerminalItem && link.equals(stack.get(ModComponents.LINK.get()))) {
+            if (mine(stack)) {
                 return stack;
             }
         }
         ItemStack carried = player.containerMenu.getCarried();
-        return carried.getItem() instanceof WirelessTerminalItem && link.equals(carried.get(ModComponents.LINK.get())) ? carried : null;
+        return mine(carried) ? carried : null;
+    }
+
+    private boolean mine(ItemStack stack) {
+        return stack.getItem() instanceof WirelessTerminalItem && id.equals(stack.get(ModComponents.TERMINAL_ID.get()))
+                && link.equals(stack.get(ModComponents.LINK.get()));
     }
 
     @Override
@@ -169,7 +189,7 @@ public final class WirelessHost implements TerminalHost {
         if (who != player || player.level() != level || terminal() == null) {
             return false;
         }
-        boolean in = level.getBlockEntity(link.pos()) instanceof AccessPointBlockEntity && inReach(false);
+        boolean in = level.getBlockEntity(link.pos()) instanceof AccessPointBlockEntity && inReach();
         if (!in) {
             player.sendOverlayMessage(Component.translatable("residual.wireless.out_of_reach"));
         }

@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.storage;
 
 import io.github.metrovoc.residual.registry.ModMenus;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -84,6 +85,13 @@ public class AssemblerMenu extends AbstractContainerMenu {
             return;
         }
         super.clicked(index, button, input, player);
+    }
+
+    /** Draws a recipe from the recipe viewer: a picture of what goes in each cell. */
+    public void draw(List<ItemStack> inputs) {
+        for (int i = 0; i < AssemblerBlockEntity.GRID; i++) {
+            grid.setItem(i, i < inputs.size() && !inputs.get(i).isEmpty() ? inputs.get(i).copyWithCount(1) : ItemStack.EMPTY);
+        }
     }
 
     @Override

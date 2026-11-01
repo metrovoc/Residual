@@ -7,8 +7,10 @@ import io.github.metrovoc.residual.net.CraftPlanSync;
 import io.github.metrovoc.residual.net.CraftWatch;
 import io.github.metrovoc.residual.net.StorageClick;
 import io.github.metrovoc.residual.net.StorageFill;
+import io.github.metrovoc.residual.net.StorageMean;
 import io.github.metrovoc.residual.net.StoragePin;
 import io.github.metrovoc.residual.net.StorageSync;
+import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.storage.CraftJobs;
 import io.github.metrovoc.residual.storage.Drive;
 import io.github.metrovoc.residual.storage.StorageSearch;
@@ -19,6 +21,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -31,6 +34,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -44,6 +48,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -51,11 +56,13 @@ import org.lwjgl.glfw.GLFW;
  * half, shift-clicking moves a stack to the inventory; clicking with a stack puts it in, right-clicking one of it.
  * What the network's Assemblers and Processors can make shows too: asking for an amount of it shows the plan, and starting
  * it runs a job, which the jobs view follows, down to the plan drawn as a tree. Alt-clicking a kind pins it to the top of
- * the grid; what running jobs make comes after the pins by itself, with how far it has come.
+ * the grid; what running jobs make comes after the pins by itself, with how far it has come. A search that starts with ? asks
+ * the model beside the window what it means; a crafting grid in a panel below it draws on the network.
  */
 public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu> {
     private static final int GRID_X = 8, GRID_Y = 20, COLS = 9, ROWS = 6, CELL = 18;
     private static final int BAR_X = GRID_X + COLS * CELL + 4, BAR_W = 12, BAR_H = ROWS * CELL;
+    private static final int WINDOW_W = BAR_X + BAR_W + 8;
     private static final int USAGE_Y = GRID_Y + ROWS * CELL + 3;
     /** The top bar: the search box, the Jobs button and the sort button. */
     private static final int SEARCH_W = 118, JOBS_X = GRID_X + SEARCH_W + 2, JOBS_W = 34;
@@ -64,8 +71,10 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     private static final int PLAN_Y = 62, PLAN_ROW = 11, PLAN_ROWS = 5;
     private static final int JOB_Y = 36, JOB_ROW = 18, JOB_ROWS = 5;
     private static final int TREE_Y = 38, TREE_ROW = 11, TREE_ROWS = 8, TREE_INDENT = 8, TREE_DEEPEST = 7;
-    /** Ticks an amount must stay unchanged before it is planned. */
+    /** Ticks an amount must stay unchanged before it is planned, or a query before the model is asked. */
     private static final int SETTLE = 6;
+    /** What starts a search by meaning. */
+    private static final String MEANING = "?";
 
     private enum Sort { NAME, COUNT, MOD }
 
@@ -82,6 +91,14 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     private List<Kept> shown = List.of();
     private List<StorageSync.Entry> seen;
     private List<StorageSync.Fluid> seenFluids;
+    private Map<ItemResource, Float> seenMeanings;
+    /** The query the model was last asked about, and how long the box has stood still. */
+    private String meantLast = "";
+    private String typed = "";
+    private int typedFor;
+    /** What the recipe viewer's search box was last seen to hold. */
+    @Nullable
+    private String viewerSaid;
     private Set<ItemResource> seenCraftable;
     private List<ItemResource> seenPins;
     private List<CraftJobsSync.Job> seenJobs;
@@ -100,7 +117,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     private UUID following;
 
     public StorageTerminalScreen(TerminalMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, BAR_X + BAR_W + 8, TerminalMenu.INVENTORY_Y + 82);
+        super(menu, inventory, title, TerminalMenu.SIDE_X + TerminalMenu.CRAFT_W, TerminalMenu.INVENTORY_Y + 82);
         inventoryLabelY = TerminalMenu.INVENTORY_Y - 10;
         inventoryLabelX = TerminalMenu.INVENTORY_X;
     }
@@ -117,7 +134,9 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         search.setResponder(s -> {
             lastSearch = s;
             scroll = 0;
+            tellViewer(s);
         });
+        hearViewerFirst();
         sortButton = addRenderableWidget(Button.builder(sortLabel(), b -> {
             Sort[] all = Sort.values();
             if (Minecraft.getInstance().hasShiftDown()) {
@@ -150,6 +169,72 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
                 .bounds(leftPos + GRID_X + 142, topPos + GRID_Y + 19, PANEL_W - 142, 12)
                 .tooltip(Tooltip.create(Component.translatable("residual.craft.start_help"))).build());
         show(view);
+    }
+
+    /** Opening with an empty box takes up what the recipe viewer's holds; else the viewer takes up this one. */
+    private void hearViewerFirst() {
+        String heard = RecipeViewer.search();
+        if (heard != null) {
+            if (lastSearch.isEmpty() && !heard.isEmpty()) {
+                search.setValue(heard);
+            } else {
+                tellViewer(lastSearch);
+            }
+            viewerSaid = RecipeViewer.search();
+        }
+    }
+
+    private void tellViewer(String text) {
+        if (!text.startsWith(MEANING)) {
+            RecipeViewer.search(text);
+            viewerSaid = RecipeViewer.search();
+        }
+    }
+
+    /** What the player typed in the recipe viewer's box comes here too. */
+    private void hearViewer() {
+        String heard = RecipeViewer.search();
+        if (heard != null && !heard.equals(viewerSaid)) {
+            viewerSaid = heard;
+            search.setValue(heard);
+        }
+    }
+
+    /** A search by meaning goes to the model once its words stand still, and a search that is not one stops it. */
+    private void askForMeaning() {
+        String query = search.getValue();
+        if (!query.equals(typed)) {
+            typed = query;
+            typedFor = 0;
+        }
+        String wanted = query.startsWith(MEANING) ? query.substring(MEANING.length()).strip() : "";
+        if (!wanted.equals(meantLast) && ++typedFor >= SETTLE) {
+            meantLast = wanted;
+            ClientPacketDistributor.sendToServer(new StorageMean(menu.containerId, wanted));
+        }
+    }
+
+    /** What the player sees for a kind under the mouse, for the recipe viewer: an item, a fluid, or null. */
+    @Nullable
+    public Object under(double mouseX, double mouseY) {
+        Kept e = view == View.GRID ? at(mouseX, mouseY) : null;
+        return e == null ? null : e.isFluid() ? e.fluid().toStack((int) Drive.BUCKET) : e.item().toStack();
+    }
+
+    /** How many kinds the grid shows now, the search taken into account. */
+    public int kindsShown() {
+        return shown().size();
+    }
+
+    /** The grid's cell under the mouse, in screen coordinates. */
+    public Rect2i cellUnder(double mouseX, double mouseY) {
+        int col = ((int) mouseX - leftPos - GRID_X) / CELL, row = ((int) mouseY - topPos - GRID_Y) / CELL;
+        return new Rect2i(leftPos + GRID_X + col * CELL, topPos + GRID_Y + row * CELL, CELL, CELL);
+    }
+
+    /** Asks for {@code item}, as clicking it would: for the recipe viewer, what a recipe lacks and the network can make. */
+    public void askFor(ItemResource item) {
+        ask(item);
     }
 
     /** A step back: from a job's plan to the jobs, from anything else to the grid. */
@@ -236,6 +321,8 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     @Override
     protected void containerTick() {
         super.containerTick();
+        hearViewer();
+        askForMeaning();
         if (view == View.JOB && followed() == null) {
             show(View.JOBS);
         }
@@ -264,17 +351,19 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
      */
     private List<Kept> shown() {
         String query = search == null ? "" : search.getValue();
-        if (menu.items != seen || menu.fluids != seenFluids || menu.craftable != seenCraftable || menu.pins != seenPins || menu.jobs != seenJobs
+        if (menu.items != seen || menu.fluids != seenFluids || menu.meanings != seenMeanings || menu.craftable != seenCraftable || menu.pins != seenPins || menu.jobs != seenJobs
                 || !query.equals(seenQuery) || sort != seenSort || descending != seenDescending) {
             seen = menu.items;
             seenFluids = menu.fluids;
+            seenMeanings = menu.meanings;
             seenCraftable = menu.craftable;
             seenPins = menu.pins;
             seenJobs = menu.jobs;
             seenQuery = query;
             seenSort = sort;
             seenDescending = descending;
-            Predicate<StorageSearch.Facts> wanted = StorageSearch.parse(query);
+            boolean byMeaning = query.startsWith(MEANING);
+            Predicate<StorageSearch.Facts> wanted = byMeaning ? StorageSearch.anyWord(query.substring(MEANING.length())) : StorageSearch.parse(query);
             List<Kept> all = new ArrayList<>();
             Set<ItemResource> held = new HashSet<>();
             for (StorageSync.Entry e : menu.items) {
@@ -303,7 +392,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             }
             List<Kept> out = new ArrayList<>();
             for (Kept e : all) {
-                if (wanted.test(new Facts(e))) {
+                if (wanted.test(new Facts(e)) || byMeaning && meant(e) > 0) {
                     out.add(e);
                 }
             }
@@ -314,6 +403,9 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
                 case MOD -> Comparator.comparing(Kept::mod).thenComparing(byName);
             };
             out.sort(descending ? order.reversed() : order);
+            if (byMeaning) {
+                out.sort(Comparator.comparing(e -> -meant(e)));
+            }
             List<Kept> pinned = new ArrayList<>(), rest = new ArrayList<>();
             for (ItemResource t : top) {
                 out.stream().filter(e -> e.item().equals(t)).findFirst().ifPresent(pinned::add);
@@ -327,6 +419,13 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             shown = pinned;
         }
         return shown;
+    }
+
+    /** How far a kind fits the search by meaning now in the box, going by the model; nothing while the model answers another. */
+    private float meant(Kept e) {
+        String query = search == null ? "" : search.getValue();
+        return query.startsWith(MEANING) && query.substring(MEANING.length()).strip().equals(menu.meant)
+                ? menu.meanings.getOrDefault(e.item(), 0f) : 0;
     }
 
     /** A kind on the grid: an item and how many there are, or a fluid and how many millibuckets. */
@@ -437,9 +536,15 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
-        Ui.window(g, leftPos, topPos, imageWidth, imageHeight);
+        // the search slot's panel and the crafting grid's, tucked under the window's edge
+        Ui.window(g, leftPos + TerminalMenu.SIDE_X, topPos + TerminalMenu.SIDE_Y, TerminalMenu.SIDE_W, TerminalMenu.SIDE_H);
+        Ui.window(g, leftPos + TerminalMenu.SIDE_X, topPos + TerminalMenu.CRAFT_Y, TerminalMenu.CRAFT_W, TerminalMenu.CRAFT_H);
+        Ui.window(g, leftPos, topPos, WINDOW_W, imageHeight);
         for (Slot slot : menu.slots) {
             Ui.slot(g, leftPos + slot.x, topPos + slot.y);
+        }
+        if (!menu.getSlot(TerminalMenu.MODEL).hasItem()) {
+            Ui.ghost(g, new ItemStack(ModItems.CHECKPOINT.get()), leftPos + TerminalMenu.MODEL_X, topPos + TerminalMenu.MODEL_Y);
         }
         scroll = Math.clamp(scroll, 0, maxScroll());
         if (view == View.GRID) {
@@ -517,7 +622,17 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         }
         Component usage = menu.capacity == 0 ? Component.translatable("residual.storage.no_drives")
                 : Component.translatable("residual.storage.usage", abbreviate(menu.stored), abbreviate(menu.capacity), Ui.count(menu.items.size() + menu.fluids.size()));
-        g.text(font, usage, GRID_X, USAGE_Y + 1, Ui.LABEL_DIM, false);
+        g.text(font, search.getValue().startsWith(MEANING) ? meaningStatus() : usage, GRID_X, USAGE_Y + 1, Ui.LABEL_DIM, false);
+    }
+
+    /** How far a search by meaning has come, or why it goes by the words alone. */
+    private Component meaningStatus() {
+        if (!menu.meaningProblem.isEmpty()) {
+            return Component.translatable("residual.search.words_only");
+        }
+        return menu.meaningAsked < menu.meaningTotal
+                ? Component.translatable("residual.search.asking", Ui.count(menu.meaningAsked), Ui.count(menu.meaningTotal))
+                : Component.translatable("residual.search.found", Ui.count(menu.meanings.size()), Ui.count(menu.meaningTotal));
     }
 
     /** The plan: what is asked for, then its tree, each row indented under the step that needs it. */
@@ -732,8 +847,16 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
                 g.setTooltipForNextFrame(font, menu.tree.get(scroll + row).kind().getHoverName(), mouseX, mouseY);
             }
         }
+        Slot model = menu.getSlot(TerminalMenu.MODEL);
+        if (!model.hasItem() && menu.getCarried().isEmpty() && Ui.inside(mouseX - leftPos, mouseY - topPos, model.x, model.y, 16, 16)) {
+            g.setTooltipForNextFrame(font.split(Component.translatable("residual.search.slot_hint"), 200), mouseX, mouseY);
+        }
         if (view != View.GRID) {
             return;
+        }
+        if (!menu.meaningProblem.isEmpty() && search.getValue().startsWith(MEANING)
+                && Ui.inside(mouseX - leftPos, mouseY - topPos, GRID_X, USAGE_Y, COLS * CELL, 10)) {
+            g.setTooltipForNextFrame(font.split(Component.translatable(menu.meaningProblem), 200), mouseX, mouseY);
         }
         Kept e = at(mouseX, mouseY);
         if (e != null && e.isFluid()) {
@@ -741,6 +864,9 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         } else if (e != null && menu.getCarried().isEmpty()) {
             List<Component> lines = new ArrayList<>(getTooltipFromContainerItem(e.item().toStack()));
             lines.add(Component.translatable("residual.storage.stored", Ui.count(e.count())).withColor(Ui.TEAL));
+            if (meant(e) > 0) {
+                lines.add(Component.translatable("residual.search.sure", Math.round(100 * meant(e))).withColor(Ui.TEAL));
+            }
             if (menu.craftable.contains(e.item())) {
                 lines.add(Component.translatable(e.count() == 0 ? "residual.craft.click_help" : "residual.craft.craft_help").withColor(Ui.TEAL));
             }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,18 +19,20 @@ public final class PortableHost implements TerminalHost {
     private final ServerPlayer player;
     private final UUID id;
     private final Drive drive;
+    private final HeldModel model;
 
-    private PortableHost(ServerPlayer player, UUID id, Drive drive) {
+    private PortableHost(ServerPlayer player, UUID id, Drive drive, ItemStack holding) {
         this.player = player;
         this.id = id;
         this.drive = drive;
+        this.model = new HeldModel(holding, this::stack);
     }
 
     public static void open(ServerPlayer player, ItemStack stack) {
         PortableDriveItem item = (PortableDriveItem) stack.getItem();
         UUID id = StorageDriveItem.id(stack);
         Drive drive = StorageData.of(player.level().getServer()).drive(id, item.capacity);
-        PortableHost host = new PortableHost(player, id, drive);
+        PortableHost host = new PortableHost(player, id, drive, stack);
         player.openMenu(new SimpleMenuProvider((menu, inventory, p) -> new TerminalMenu(menu, inventory, player.blockPosition(), host), stack.getHoverName()),
                 buf -> buf.writeBlockPos(player.blockPosition()));
     }
@@ -63,6 +66,11 @@ public final class PortableHost implements TerminalHost {
         if (stack != null) {
             StorageDriveItem.note(stack, drive);
         }
+    }
+
+    @Override
+    public Container searchModel() {
+        return model;
     }
 
     @Override

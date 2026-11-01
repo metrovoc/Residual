@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Random;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -61,6 +63,10 @@ public final class Network {
         r.playToServer(CraftWatch.TYPE, CraftWatch.STREAM_CODEC, Network::onCraftWatch);
         r.playToServer(StoragePin.TYPE, StoragePin.STREAM_CODEC, Network::onStoragePin);
         r.playToServer(StorageFill.TYPE, StorageFill.STREAM_CODEC, Network::onStorageFill);
+        r.playToServer(StorageMean.TYPE, StorageMean.STREAM_CODEC, Network::onStorageMean);
+        r.playToServer(StorageTransfer.TYPE, StorageTransfer.STREAM_CODEC, Network::onStorageTransfer);
+        r.playToServer(PatternTransfer.TYPE, PatternTransfer.STREAM_CODEC, Network::onPatternTransfer);
+        r.playToServer(GhostSlot.TYPE, GhostSlot.STREAM_CODEC, Network::onGhostSlot);
         r.playToServer(FindRuin.TYPE, FindRuin.STREAM_CODEC, Network::onFindRuin);
         r.playToServer(DockEdit.TYPE, DockEdit.STREAM_CODEC, Network::onDockEdit);
         r.playToServer(OpenTerminal.TYPE, OpenTerminal.STREAM_CODEC, Network::onOpenTerminal);
@@ -70,6 +76,7 @@ public final class Network {
         r.playToClient(SampleResult.TYPE, SampleResult.STREAM_CODEC);
         r.playToClient(WaveSync.TYPE, WaveSync.STREAM_CODEC);
         r.playToClient(StorageSync.TYPE, StorageSync.STREAM_CODEC);
+        r.playToClient(StorageMeaningSync.TYPE, StorageMeaningSync.STREAM_CODEC);
         r.playToClient(FlowSync.TYPE, FlowSync.STREAM_CODEC);
         r.playToClient(GhostSync.TYPE, GhostSync.STREAM_CODEC);
         r.playToClient(SurveySync.TYPE, SurveySync.STREAM_CODEC);
@@ -254,6 +261,48 @@ public final class Network {
         if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
                 && menu.containerId == fill.menu() && menu.stillValid(player)) {
             menu.fill(fill.fluid());
+        }
+    }
+
+    private static void onStorageMean(StorageMean mean, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
+                && menu.containerId == mean.menu() && menu.stillValid(player)) {
+            menu.mean(mean.query());
+        }
+    }
+
+    private static void onStorageTransfer(StorageTransfer transfer, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
+                && menu.containerId == transfer.menu() && menu.stillValid(player)) {
+            menu.transfer(transfer.cells(), transfer.stacks());
+        }
+    }
+
+    /** Draws a recipe from the recipe viewer on the Assembler or Processor whose screen is open. */
+    private static void onPatternTransfer(PatternTransfer transfer, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player) || player.containerMenu.containerId != transfer.menu()) {
+            return;
+        }
+        if (player.containerMenu instanceof AssemblerMenu menu && menu.stillValid(player)) {
+            menu.draw(transfer.inputs());
+        } else if (player.containerMenu instanceof ProcessorMenu menu && menu.stillValid(player)) {
+            menu.draw(transfer.inputs(), transfer.outputs());
+        }
+    }
+
+    /** A thing dragged from the recipe viewer onto a slot of pictures counts as a click with it there; only those slots take one. */
+    private static void onGhostSlot(GhostSlot ghost, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player) || player.containerMenu.containerId != ghost.menu() || !player.containerMenu.stillValid(player)) {
+            return;
+        }
+        AbstractContainerMenu menu = player.containerMenu;
+        int pictures = menu instanceof PortMenu ? PortBlockEntity.FILTERS : menu instanceof AssemblerMenu ? AssemblerBlockEntity.GRID
+                : menu instanceof ProcessorMenu ? ProcessorMenu.CELLS : 0;
+        if (ghost.slot() >= 0 && ghost.slot() < pictures) {
+            ItemStack carried = menu.getCarried();
+            menu.setCarried(ghost.stack());
+            menu.clicked(ghost.slot(), 0, ContainerInput.PICKUP, player);
+            menu.setCarried(carried);
         }
     }
 

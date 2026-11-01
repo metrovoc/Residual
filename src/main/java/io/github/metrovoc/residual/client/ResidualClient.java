@@ -17,6 +17,7 @@ import io.github.metrovoc.residual.net.CraftPlanSync;
 import io.github.metrovoc.residual.net.CraftTreeSync;
 import io.github.metrovoc.residual.net.OpenTerminal;
 import io.github.metrovoc.residual.net.ShimmerSync;
+import io.github.metrovoc.residual.net.StorageMeaningSync;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.WatchSync;
@@ -130,6 +131,11 @@ public final class ResidualClient {
         event.register(ShimmerSync.TYPE, (shimmer, ctx) -> ShimmerView.receive(shimmer));
         event.register(SurveySync.TYPE, (survey, ctx) -> SurveyView.receive(survey));
         event.register(StorageSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == sync.menu()) {
+                menu.apply(sync);
+            }
+        });
+        event.register(StorageMeaningSync.TYPE, (sync, ctx) -> {
             if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == sync.menu()) {
                 menu.apply(sync);
             }

@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.storage;
 
 import io.github.metrovoc.residual.registry.ModMenus;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -71,6 +72,14 @@ public class ProcessorMenu extends AbstractContainerMenu {
             addSlot(new Slot(inventory, col, INVENTORY_X + col * 18, INVENTORY_Y + 58));
         }
         addDataSlots(data);
+    }
+
+    /** Draws a recipe from the recipe viewer over the pattern: what goes in and what comes out, in the order given. */
+    public void draw(List<ItemStack> inputs, List<ItemStack> outputs) {
+        if (processor == null) {
+            return;
+        }
+        processor.draw(inputs, outputs);
     }
 
     /** The Processor's numbers, with the pages this menu shows after them. */

@@ -12,6 +12,9 @@ import io.github.metrovoc.residual.client.AgentScreen;
 import io.github.metrovoc.residual.client.CoreScreen;
 import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.WayfinderItem;
+import io.github.metrovoc.residual.net.GhostSlot;
+import io.github.metrovoc.residual.net.PatternTransfer;
+import io.github.metrovoc.residual.net.StorageTransfer;
 import io.github.metrovoc.residual.storage.CraftingData;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
 import io.github.metrovoc.residual.storage.DockMenu;
@@ -99,6 +102,7 @@ import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ToastAddEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -163,6 +167,16 @@ import org.slf4j.Logger;
  * expect spent X Y Z N       fail the step unless the Forecaster III at the place has spent at least N FE of a full store
  * stock X Y Z ITEM N         put N of ITEM into the storage network at the place, all at once
  * kinds X Y Z N              put one each of N made-up kinds into the storage network at the place, all at once
+ * transfer CELLS [stacks]    lay a recipe in the open Storage Terminal's crafting grid, as the recipe viewer does: nine cells
+ *                            by commas, - for an empty one, | between the kinds that would do
+ * pattern IN [OUT]           draw a recipe on the open Assembler or Processor, as the recipe viewer does: ITEM or ITEM*N by commas
+ * ghost N ITEM               name ITEM in slot N of the open screen, as dragging from the recipe viewer does
+ * expect slot N ITEM C       fail the step unless slot N of the open screen holds at least C of ITEM
+ * expect has ITEM N          fail the step unless the player's inventory holds at least N of ITEM
+ * expect holds ITEM N        fail the step unless the player's inventory holds exactly N of ITEM
+ * expect grid N              fail the step unless the open Storage Terminal's grid shows exactly N kinds
+ * expect meant ITEM N        fail the step unless the open Storage Terminal's model said yes to ITEM (1) or has not (0)
+ * expect words N             fail the step unless the open Storage Terminal goes by the words alone (1) or has its model's answers (0)
  * expect carried ITEM N      fail the step unless the cursor holds at least N of ITEM
  * expect fluid X Y Z FLUID N  fail the step unless the storage network at the place keeps at least N millibuckets of FLUID
  * expect tank X Y Z FLUID N  fail the step unless the block at the place holds at least N millibuckets of FLUID
@@ -626,6 +640,16 @@ public final class Rehearsal {
             case "count" -> count(mc, args);
             case "expect" -> expect(mc, args);
             case "stock" -> stock(mc, args);
+            case "transfer" -> {
+                List<List<ItemResource>> cells = new ArrayList<>();
+                for (String cell : args[0].split(",")) {
+                    cells.add(cell.equals("-") ? List.of() : Stream.of(cell.split("\\|")).map(Rehearsal::kind).toList());
+                }
+                ClientPacketDistributor.sendToServer(new StorageTransfer(mc.player.containerMenu.containerId, cells, args.length > 1));
+            }
+            case "pattern" -> ClientPacketDistributor.sendToServer(new PatternTransfer(mc.player.containerMenu.containerId,
+                    stacks(args[0]), args.length > 1 ? stacks(args[1]) : List.of()));
+            case "ghost" -> ClientPacketDistributor.sendToServer(new GhostSlot(mc.player.containerMenu.containerId, Integer.parseInt(args[0]), kind(args[1]).toStack(1)));
             case "kinds" -> kinds(mc, args);
             case "seek" -> seek(mc, args);
             case "survey" -> survey(mc, args);
@@ -765,6 +789,20 @@ public final class Rehearsal {
             case "tree" -> found = ((TerminalMenu) mc.player.containerMenu).tree.size();
             case "open" -> found = mc.player.containerMenu instanceof TerminalMenu ? 1 : 0;
             case "docked" -> found = ((DockMenu) mc.player.containerMenu).moved();
+            case "grid" -> found = ((StorageTerminalScreen) mc.screen).kindsShown();
+            case "meant" -> found = ((TerminalMenu) mc.player.containerMenu).meanings.containsKey(kind(args[1])) ? 1 : 0;
+            case "words" -> found = ((TerminalMenu) mc.player.containerMenu).meaningProblem.isEmpty() ? 0 : 1;
+            case "slot" -> {
+                ItemStack in = mc.player.containerMenu.getSlot(Integer.parseInt(args[1])).getItem();
+                found = in.is(kind(args[2]).getItem()) ? in.getCount() : 0;
+            }
+            case "has", "holds" -> {
+                long n = 0;
+                for (ItemStack stack : mc.player.getInventory()) {
+                    n += stack.is(kind(args[1]).getItem()) ? stack.getCount() : 0;
+                }
+                found = n;
+            }
             case "carried" -> found = mc.player.containerMenu.getCarried().is(BuiltInRegistries.ITEM.getValue(Identifier.parse(args[1])))
                     ? mc.player.containerMenu.getCarried().getCount() : 0;
             case "shown" -> found = ((TerminalMenu) mc.player.containerMenu).items.size() + ((TerminalMenu) mc.player.containerMenu).fluids.size();
@@ -835,11 +873,26 @@ public final class Rehearsal {
                 }).get(10, TimeUnit.SECONDS);
             }
         }
-        boolean exact = args[0].equals("jobs") || args[0].equals("pins") || args[0].equals("open");
+        boolean exact = args[0].equals("jobs") || args[0].equals("pins") || args[0].equals("open") || args[0].equals("grid")
+                || args[0].equals("meant") || args[0].equals("words") || args[0].equals("holds");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }
         LOG.info("[rehearsal] expected {}, found {}", what, found);
+    }
+
+    private static ItemResource kind(String id) {
+        return ItemResource.of(BuiltInRegistries.ITEM.getValue(Identifier.parse(id)));
+    }
+
+    /** {@code minecraft:coal,minecraft:raw_iron*8}: stacks by commas, - for an empty cell. */
+    private static List<ItemStack> stacks(String list) {
+        List<ItemStack> out = new ArrayList<>();
+        for (String one : list.split(",")) {
+            String[] parts = one.split("\\*");
+            out.add(one.equals("-") ? ItemStack.EMPTY : kind(parts[0]).toStack(parts.length > 1 ? Integer.parseInt(parts[1]) : 1));
+        }
+        return out;
     }
 
     private static void stock(Minecraft mc, String[] args) throws Exception {

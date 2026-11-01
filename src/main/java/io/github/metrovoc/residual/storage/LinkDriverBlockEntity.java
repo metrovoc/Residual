@@ -33,7 +33,7 @@ public class LinkDriverBlockEntity extends PowerBlockEntity {
         super.tick(level);
         StorageNetwork net = StorageNetwork.at(level, worldPosition);
         long now = level.getGameTime();
-        if (net.wantsDriving(now) && spend()) {
+        if (net.wantsDriving(now) && spend(1)) {
             net.driveUntil(now + 1);
             lit = 20;
         }
@@ -45,14 +45,11 @@ public class LinkDriverBlockEntity extends PowerBlockEntity {
         }
     }
 
-    /** Pays for a tick of driving, if it can. */
-    boolean spend() {
+    /** Pays for so many ticks of driving, as far as it can; whether it had enough. */
+    boolean spend(int ticks) {
         int stored = energy().getAmountAsInt();
-        if (stored < COST) {
-            return false;
-        }
-        energy().set(stored - COST);
-        return true;
+        energy().set(Math.max(0, stored - COST * ticks));
+        return stored >= COST * ticks;
     }
 
     @Override

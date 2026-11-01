@@ -25,7 +25,8 @@ import org.jetbrains.annotations.Nullable;
  * nothing needs power to keep or show what it holds. A network is found again whenever one of its blocks comes or
  * goes. Links limit one thing, how much flows: what Ports and Docks move goes by the shortest way to the nearest place
  * things are kept, and a link that has carried its {@link #LINK_RATE} this tick makes the rest wait for the next, or
- * carries {@link #DRIVEN_RATE} while a Link Driver has power.
+ * carries {@link #DRIVEN_RATE} while a Link Driver has power. A link that was busy shares itself out evenly among those using
+ * it, so that no Port is the one always left waiting.
  */
 public final class StorageNetwork {
     /** The networks found so far in each level, by every block in them; forgotten whenever a storage block changes. */
@@ -56,6 +57,10 @@ public final class StorageNetwork {
     private boolean[] link;
     private int[] load;
     private long[] loadedAt;
+    /** How many used each link this tick and the last, and whether it was busy last tick. */
+    private int[] users;
+    private int[] usersLast;
+    private boolean[] busy;
     /** Until when a Link Driver has paid for faster links, and when a link last wanted to carry more than its plain rate. */
     private long drivenUntil = -1, wanted = -1;
     /** A single drive taken for a network, as a portable drive's own screen works on one; null on a network of blocks. */
@@ -218,10 +223,10 @@ public final class StorageNetwork {
         return false;
     }
 
-    /** A tick of reaching further than an Access Point's plain range, paid by the first Link Driver with power. */
-    void payForReach() {
+    /** So many ticks of reaching further than an Access Point's plain range, paid by the first Link Driver with power. */
+    void payForReach(int ticks) {
         for (LinkDriverBlockEntity d : drivers()) {
-            if (d.spend()) {
+            if (d.spend(ticks)) {
                 return;
             }
         }
@@ -255,6 +260,9 @@ public final class StorageNetwork {
         link = new boolean[n];
         load = new int[n];
         loadedAt = new long[n];
+        users = new int[n];
+        usersLast = new int[n];
+        busy = new boolean[n];
         int[] queue = new int[n];
         int head = 0, tail = 0;
         for (int i = 0; i < n; i++) {
@@ -298,16 +306,38 @@ public final class StorageNetwork {
             return most;
         }
         long now = level.getGameTime();
-        int rate = linkRate(), room = most;
-        for (at = toward[at]; at >= 0; at = toward[at]) {
+        int rate = linkRate(), room = most, way = toward[at];
+        for (at = way; at >= 0; at = toward[at]) {
             if (link[at]) {
-                room = Math.min(room, rate - (loadedAt[at] == now ? load[at] : 0));
+                nextTick(at, now, rate);
+                room = Math.min(room, rate - load[at]);
+                if (busy[at]) {
+                    room = Math.min(room, rate / Math.max(1, usersLast[at]));
+                }
             }
         }
         if (room < most) {
             wanted = now;
         }
+        if (room <= 0) {
+            // left waiting: it counts among those sharing the link next tick
+            for (at = way; at >= 0; at = toward[at]) {
+                users[at] += link[at] ? 1 : 0;
+            }
+        }
         return Math.max(room, 0);
+    }
+
+    /** The first use of a link in a tick sets last tick's numbers aside. */
+    private void nextTick(int at, long now, int rate) {
+        if (loadedAt[at] != now) {
+            boolean lastTick = loadedAt[at] == now - 1;
+            busy[at] = lastTick && load[at] >= rate - rate / 16;
+            usersLast[at] = lastTick ? users[at] : 0;
+            loadedAt[at] = now;
+            load[at] = 0;
+            users[at] = 0;
+        }
     }
 
     /** {@code from} moved {@code items}: they count against every link on its way this tick. */
@@ -325,11 +355,9 @@ public final class StorageNetwork {
         long now = level.getGameTime();
         for (at = toward[at]; at >= 0; at = toward[at]) {
             if (link[at]) {
-                if (loadedAt[at] != now) {
-                    loadedAt[at] = now;
-                    load[at] = 0;
-                }
+                nextTick(at, now, linkRate());
                 load[at] += items;
+                users[at]++;
                 if (load[at] > LINK_RATE) {
                     wanted = now;
                 }

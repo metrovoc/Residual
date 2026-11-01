@@ -43,6 +43,9 @@ Use a <ItemLink id="relay_card" /> on a Model Server to tune it. In an agent's o
 asks the server instead of carrying a model: any size of model, wherever the server's network reaches. Every agent
 tuned to one server shares its answers per second.
 
+In an <ItemLink id="access_point" />, a card that reaches the server lets the storage network's Wireless Terminals go
+anywhere the server's relays cover ([Storage](storage.md)).
+
 ## The Terminal
 
 <residual:Clip name="terminal" alt="Writing with a served model on a Terminal" />

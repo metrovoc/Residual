@@ -118,6 +118,20 @@ public final class StorageSearch {
         };
     }
 
+    /**
+     * What a search by meaning finds with no model to ask, and besides what the model says: anything whose name holds one of
+     * the query's words, those of one or two Latin letters left out.
+     */
+    public static Predicate<Facts> anyWord(String query) {
+        List<String> words = new ArrayList<>();
+        for (String word : query.strip().split("\\s+")) {
+            if (word.length() > 2 || word.chars().anyMatch(c -> c > 127)) {
+                words.add(word);
+            }
+        }
+        return words.isEmpty() ? f -> true : f -> words.stream().anyMatch(word -> Pinyin.holds(f.name(), word));
+    }
+
     /** {@code >64}, {@code <=2k}, {@code =1}: how many there are. A comparison with no number is no test. */
     private static Predicate<Facts> amount(String t) {
         int op = t.length() > 1 && t.charAt(1) == '=' ? 2 : 1;

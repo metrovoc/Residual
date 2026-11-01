@@ -39,7 +39,7 @@ public final class FlowView {
     /** Blocks a pulse travels a second. */
     private static final double SPEED = 12;
     private static final int TEAL = 0x3CD6C6, AMBER = 0xFFB547, RED = 0xFF6B6B;
-    private static final int MOST = 256, LONGEST = 1024;
+    private static final int MOST = 256, LONGEST = 4096;
     private static final double RANGE = 64;
     /** How close things have to be to be drawn, how many a frame, and how far apart in a stream. */
     private static final double SEEN_RIDING = 32;

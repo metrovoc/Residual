@@ -27,6 +27,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
@@ -105,6 +106,23 @@ public class ProcessorBlockEntity extends BlockEntity implements MenuProvider {
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, ProcessorBlockEntity be) {
         be.tick((ServerLevel) level, state);
+    }
+
+    /** Draws a pattern from the recipe viewer, in place of what was there. */
+    void draw(List<ItemStack> in, List<ItemStack> out) {
+        draw(inputs, in);
+        draw(outputs, out);
+    }
+
+    private static void draw(SimpleContainer grid, List<ItemStack> stacks) {
+        grid.clearContent();
+        int cell = 0;
+        for (ItemStack stack : stacks) {
+            if (!stack.isEmpty() && cell < CELLS) {
+                grid.setItem(cell++, stack.copy());
+            }
+        }
+        grid.setChanged();
     }
 
     /** Kinds and amounts in a grid's order, a kind drawn twice counted together. */
@@ -220,6 +238,9 @@ public class ProcessorBlockEntity extends BlockEntity implements MenuProvider {
             keepSent++;
             setChanged();
         }
+        if (budget < RATE && level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
+            Flows.send(level, worldPosition, net.lastStore, false, RATE - budget, net.lastItem, FluidResource.EMPTY, false);
+        }
     }
 
     /**
@@ -324,6 +345,9 @@ public class ProcessorBlockEntity extends BlockEntity implements MenuProvider {
             long stored = net.insert(kind, rest, false);
             if (stored < rest) {
                 Block.popResource(level, worldPosition.above(), kind.toStack((int) Math.min(rest - stored, kind.getMaxStackSize())));
+            }
+            if (level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
+                Flows.send(level, worldPosition, net.lastStore, true, (int) rest, kind, FluidResource.EMPTY, false);
             }
             if (first) {
                 keepBack += rest;

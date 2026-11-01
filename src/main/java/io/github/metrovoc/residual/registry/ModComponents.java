@@ -8,9 +8,11 @@ import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.model.Recovered;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -65,6 +67,9 @@ public final class ModComponents {
     public static final Supplier<DataComponentType<StorageDriveItem.Label>> STORAGE_DRIVE = COMPONENTS.registerComponentType("storage_drive",
             b -> b.persistent(StorageDriveItem.Label.CODEC).networkSynchronized(StorageDriveItem.Label.STREAM_CODEC));
 
+    /** Which Wireless Terminal this one is, among others tuned to the same network. */
+    public static final Supplier<DataComponentType<UUID>> TERMINAL_ID = COMPONENTS.registerComponentType("terminal_id",
+            b -> b.persistent(UUIDUtil.CODEC).networkSynchronized(UUIDUtil.STREAM_CODEC));
     /** What a Wireless Terminal or Portable Drive keeps pinned to the top of its screen's grid. */
     public static final Supplier<DataComponentType<List<ItemResource>>> PINS = COMPONENTS.registerComponentType("pins",
             b -> b.persistent(ItemResource.CODEC.listOf()).networkSynchronized(ItemResource.STREAM_CODEC.apply(ByteBufCodecs.list())));

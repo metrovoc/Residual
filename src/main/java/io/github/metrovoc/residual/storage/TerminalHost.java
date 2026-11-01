@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.storage;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -19,6 +20,9 @@ public interface TerminalHost {
 
     /** Pins a kind, or lets go of it if it is pinned. */
     void pin(ItemResource kind);
+
+    /** Its search slot: a model that finds what a query means. */
+    Container searchModel();
 
     /** Whether {@code player} can still use it. */
     boolean reaches(Player player);

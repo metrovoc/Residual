@@ -92,10 +92,10 @@ are not the signal cables models are wired with: the two never connect.
 
 What a link limits is how much goes along it. You can watch it go: the things themselves ride on the link, over a pulse
 of light, teal going into the network and amber coming out; a fluid's pulse is its own color. A link carries 1,024 items
-a tick, 20,480 a second, or eight times that many millibuckets. What a Port or a Dock moves takes the shortest way to the
-nearest rack, and everything sharing a stretch of link shares its 1,024. Nothing stops when a link is full; the rest just
-waits for the next tick, the pulses along that way turn red, and the Port's screen says so. A second line beside the first
-carries as much again, and a rack near the Ports that use it most saves the links altogether.
+a tick, 20,480 a second, or 128 buckets a tick. What a Port or a Dock moves takes the shortest way to the nearest rack, and
+everything sharing a stretch of link shares its 1,024 evenly. Nothing stops when a link is full; the rest just waits for the
+next tick, the pulses along that way turn red, and the Port's screen says so. A second line beside the first carries as much
+again, and a rack near the Ports that use it most saves the links altogether.
 
 A <ItemLink id="link_driver" /> joins a storage network on any face and a power network through <ItemLink id="power_cable" />s.
 While it has power, every link of its network carries 4,096 items a tick. It burns 40 FE for each tick a link would
@@ -136,6 +136,24 @@ The search box finds things by name, every word at once. Other facts take a sign
 tooltips written in Chinese answer to their pinyin as well, in whole syllables, in the first letters of them, or in just the
 first letter of each: 铁矿石 is `tiekuangshi`, `tkshi` or `tks`.
 
+Beside the window is a slot for a model: a <ItemLink id="checkpoint" />, or a <ItemLink id="relay_card" /> tuned to a Model
+Server, whose model passes Retrieval ([Models and Tests](models.md)). Start a search with `?` and write what you want, the way
+you would say it: `?something to light a cave`. The model reads what you wrote and says how likely it is to be about each of
+its twenty uses, and reads the name of each thing the network keeps the same way, once for each thing, keeping where it put it.
+A thing fits as far as the two agree, and what fits comes first, the best first, though its name has no word of what you wrote;
+a thing's tooltip says how far it fits. What agrees less than 36 parts in a hundred, about as far as two readings each six
+parts in ten sure of the same use, it leaves out. With no model, or one that has not passed, `?` goes by your words alone:
+anything whose name holds one of them. The model reads only English, as models do.
+
+Under that slot is a crafting grid. Things go in as at any crafting table, and each craft's ingredients come again from the
+network as long as it has them, so shift-clicking the result crafts until there is no more room or nothing left to craft
+with. What is in the grid goes back to the network when the screen closes.
+
+With JEI beside the screen, its search box and the terminal's hold the same words. Its + on a crafting recipe lays the recipe in
+the grid from the network and your inventory, marking what neither has, and with Ctrl asks the network for what it can make.
+Its + on an Assembler's or a Processor's screen draws the recipe there, and things dragged from its list onto a filter or a
+pattern's cells name them.
+
 ## Wireless Terminals
 
 A <ItemLink id="wireless_terminal" /> is a Storage Terminal's screen in the hand. Use it on an
@@ -150,7 +168,7 @@ goes by the nearest. A network far off stays loaded for as long as the screen is
 
 Beyond that lie the relays. Put a <ItemLink id="relay_card" /> in an Access Point's slot, tuned to a Model Server whose relays
 cover the Access Point, and its terminals reach the network anywhere those relays cover, however far from home
-([Deploying a Model](deployment.md)).
+([Serving Models](deployment.md)).
 
 ## Portable Drives
 

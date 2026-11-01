@@ -6,7 +6,11 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -21,6 +25,13 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 /** A Storage Terminal's place in its network. */
 public class TerminalBlockEntity extends BlockEntity implements MenuProvider, TerminalHost {
     private final List<ItemResource> pins = new ArrayList<>();
+    private final SimpleContainer searchModel = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            TerminalBlockEntity.this.setChanged();
+        }
+    };
 
     public TerminalBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TERMINAL.get(), pos, state);
@@ -38,6 +49,11 @@ public class TerminalBlockEntity extends BlockEntity implements MenuProvider, Te
     @Override
     public StorageNetwork network() {
         return StorageNetwork.at((ServerLevel) level, worldPosition);
+    }
+
+    @Override
+    public Container searchModel() {
+        return searchModel;
     }
 
     @Override
@@ -62,6 +78,7 @@ public class TerminalBlockEntity extends BlockEntity implements MenuProvider, Te
     protected void saveAdditional(ValueOutput out) {
         super.saveAdditional(out);
         out.store("pins", ItemResource.CODEC.listOf(), pins);
+        ContainerHelper.saveAllItems(out.child("search_model"), searchModel.getItems());
     }
 
     @Override
@@ -69,6 +86,15 @@ public class TerminalBlockEntity extends BlockEntity implements MenuProvider, Te
         super.loadAdditional(in);
         pins.clear();
         in.read("pins", ItemResource.CODEC.listOf()).ifPresent(pins::addAll);
+        in.child("search_model").ifPresent(c -> ContainerHelper.loadAllItems(c, searchModel.getItems()));
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level != null) {
+            Containers.dropContents(level, pos, searchModel);
+        }
     }
 
     @Override

@@ -68,4 +68,14 @@ class StorageSearchTest {
         assertEquals("Iron Ingot", find("iron)"));
         assertEquals("Iron Ingot,Gold Ingot,Copper Ingot,Bread,Weight Crystal", find("-"));
     }
+
+    @Test
+    void aSearchByMeaningFallsBackOnItsWords() {
+        Predicate<StorageSearch.Facts> words = StorageSearch.anyWord("some bread or an iron");
+        assertEquals(List.of("Iron Ingot", "Bread"), ALL.stream().filter(words).map(Thing::name).toList());
+        assertEquals(ALL.size(), ALL.stream().filter(StorageSearch.anyWord("a b")).count(), "nothing to go by leaves everything");
+        Thing torch = new Thing("火把", "minecraft", "Minecraft", List.of(), "", "minecraft:torch", 1);
+        assertEquals(true, StorageSearch.anyWord("火把").test(torch), "a Chinese word of two characters counts");
+        assertEquals(false, StorageSearch.anyWord("面包").test(torch));
+    }
 }
