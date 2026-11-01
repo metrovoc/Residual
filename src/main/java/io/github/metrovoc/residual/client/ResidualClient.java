@@ -10,6 +10,7 @@ import io.github.metrovoc.residual.net.AgentSync;
 import io.github.metrovoc.residual.net.ProgramSync;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.FlowSync;
+import io.github.metrovoc.residual.net.StepSync;
 import io.github.metrovoc.residual.net.GhostSync;
 import io.github.metrovoc.residual.net.SurveySync;
 import io.github.metrovoc.residual.net.SampleResult;
@@ -69,6 +70,8 @@ public final class ResidualClient {
         NeoForge.EVENT_BUS.addListener(Waves::submit);
         NeoForge.EVENT_BUS.addListener(FlowView::extract);
         NeoForge.EVENT_BUS.addListener(FlowView::submit);
+        NeoForge.EVENT_BUS.addListener(FloatingSteps::extract);
+        NeoForge.EVENT_BUS.addListener(FloatingSteps::submit);
         NeoForge.EVENT_BUS.addListener(GhostView::extract);
         NeoForge.EVENT_BUS.addListener(GhostView::submit);
         NeoForge.EVENT_BUS.addListener(ShimmerView::extract);
@@ -148,6 +151,7 @@ public final class ResidualClient {
         event.register(ProgramSync.TYPE, (sync, ctx) -> AgentView.program = sync);
         event.register(WaveSync.TYPE, (wave, ctx) -> Waves.receive(wave));
         event.register(FlowSync.TYPE, (flow, ctx) -> FlowView.receive(flow));
+        event.register(StepSync.TYPE, (step, ctx) -> FloatingSteps.receive(step));
         event.register(GhostSync.TYPE, (ghost, ctx) -> GhostView.receive(ghost));
         event.register(ShimmerSync.TYPE, (shimmer, ctx) -> ShimmerView.receive(shimmer));
         event.register(SurveySync.TYPE, (survey, ctx) -> SurveyView.receive(survey));

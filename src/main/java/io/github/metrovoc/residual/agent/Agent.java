@@ -148,6 +148,7 @@ public class Agent extends PathfinderMob implements Body {
     /** What its status says while its program is stopped or over. */
     private String idle = "residual.agent.status.resting";
     private Running work = new Running(this, Program.of(), debug);
+    private final Afloat afloat = new Afloat();
     /** An order it is carrying out; it goes back to its program after. */
     @Nullable
     private Running errand;
@@ -625,6 +626,9 @@ public class Agent extends PathfinderMob implements Body {
     protected void customServerAiStep(ServerLevel level) {
         super.customServerAiStep(level);
         fly(level);
+        if ((tickCount + getId()) % Afloat.EVERY == 0) {
+            afloat.update(level, position(), getId(), blockPosition(), errand != null ? errand.onNow() : stopped ? Afloat.Step.NONE : work.onNow(), 0);
+        }
         if (signal > 0 && !blockPosition().equals(signalAt)) {
             SignalBlock.follow(level, this, signal);
         }

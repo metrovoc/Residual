@@ -16,6 +16,7 @@ import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.client.AgentScreen;
 import io.github.metrovoc.residual.client.CoreScreen;
 import io.github.metrovoc.residual.client.Parts;
+import io.github.metrovoc.residual.client.FloatingSteps;
 import io.github.metrovoc.residual.client.RelayView;
 import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.ExosuitItem;
@@ -222,6 +223,9 @@ import org.slf4j.Logger;
  * expect agentvar NAME N     fail the step unless the nearest agent's program has that variable at N or more
  * expect screen NAME 1       fail the step unless the open screen's class is named NAME
  * expect earned PATH 1       fail the step unless the player has made the advancement
+ * expect afloat WORD N       fail the step unless at least N floating steps hold a word; any for all of them
+ * expect afloatabove N 0     fail the step unless at most N steps float
+ * expect afloatheard N 0     fail the step unless at most N steps have been heard of since last asked (asking starts it over)
  * expect held X Y Z SLOT 1, expect breaks X Y Z SLOT N, expect watches X Y Z SLOT N   the debugger of a program on a Port's card
  * trace X Y Z SLOT           log what the program on a Port's card has been doing
  * trace agent                log what the nearest agent has been doing
@@ -958,6 +962,9 @@ public final class Rehearsal {
                 }
             }
             case "screen" -> found = mc.screen != null && mc.screen.getClass().getSimpleName().equals(args[1]) ? 1 : 0;
+            case "afloat" -> found = FloatingSteps.shown().stream().filter(s -> args[1].equals("any") || s.contains(args[1])).count();
+            case "afloatabove" -> found = Math.max(0, FloatingSteps.shown().size() - Integer.parseInt(args[1]));
+            case "afloatheard" -> found = Math.max(0, FloatingSteps.heard() - Integer.parseInt(args[1]));
             case "earned" -> {
                 MinecraftServer server = mc.getSingleplayerServer();
                 UUID id = mc.player.getUUID();
@@ -1165,7 +1172,7 @@ public final class Rehearsal {
                 || wanted == 0 && (args[0].equals("program") || args[0].equals("proposed"))
                 || args[0].equals("netopen") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("out")
                 || args[0].equals("state") || args[0].equals("ticking")
-                || args[0].equals("running") || args[0].equals("working");
+                || args[0].equals("running") || args[0].equals("working") || args[0].equals("afloatabove") || args[0].equals("afloatheard");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }

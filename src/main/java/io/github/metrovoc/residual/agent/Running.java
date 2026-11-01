@@ -83,6 +83,9 @@ final class Running implements ProgramView {
         @Nullable
         Program.Step doingStep;
         String doingText = "";
+        /** The step it last began, which is what it is on between one that took no time and the next. */
+        @Nullable
+        Program.Step last;
         @Nullable
         Map<String, Value> locals;
         int calls;
@@ -134,6 +137,20 @@ final class Running implements ProgramView {
         Strand main = new Strand(0);
         main.frames.push(new Frame(program.steps(), null, a.clock()));
         strands.push(main);
+    }
+
+    /** The step it is on, as its program writes it, or nothing once it has done all it can do. */
+    Afloat.Step onNow() {
+        Strand s = strands.peek();
+        if (s == null) {
+            return handlers.isEmpty() ? Afloat.Step.NONE : new Afloat.Step(Program.text(handlers.getFirst().on), Afloat.WAITING);
+        }
+        Program.Step step = s.doingStep != null ? s.doingStep : held != null ? held : s.last;
+        if (step == null) {
+            return Afloat.Step.NONE;
+        }
+        boolean waits = step instanceof Program.WaitUntil || step instanceof Program.Act act && act.verb() == Program.Verb.WAIT;
+        return new Afloat.Step(Program.text(step), debug.paused ? Afloat.HELD : waits ? Afloat.WAITING : Afloat.ACTING);
     }
 
     /** Whether it has run every step there is, with nothing it still listens for. */
@@ -209,6 +226,7 @@ final class Running implements ProgramView {
                     }
                     return;
                 }
+                s.last = step;
                 Integer number = numbers.get(step);
                 if (number != null && (debug.breaks.contains(number) || step instanceof Program.Pause) && !debug.stepping) {
                     debug.paused = true;

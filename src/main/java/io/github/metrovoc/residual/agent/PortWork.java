@@ -81,6 +81,7 @@ public final class PortWork {
     private final Hand[] running = new Hand[CARDS];
     private int signal;
     private long workedAt = -1000;
+    private final Afloat afloat = new Afloat();
 
     /** The energy a Port holds, as much as its energy upgrades have room for. */
     private static final class Battery extends SimpleEnergyHandler {
@@ -139,6 +140,9 @@ public final class PortWork {
             }
             hand.tick(level);
         }
+        if (level.getGameTime() % Afloat.EVERY == Math.floorMod(port.getBlockPos().asLong(), Afloat.EVERY)) {
+            showStep(level);
+        }
         if (level.getGameTime() % SYNC_EVERY == 0) {
             sync(level);
             if (any && ownership.owner() != null) {
@@ -146,6 +150,22 @@ public final class PortWork {
             }
         }
         return any;
+    }
+
+    /** What floats over it: the first of its programs that is working on something, and how many more there are. */
+    private void showStep(ServerLevel level) {
+        Afloat.Step best = Afloat.Step.NONE;
+        int shown = 0;
+        for (Hand hand : running) {
+            Afloat.Step step = hand == null || hand.stopped ? Afloat.Step.NONE : hand.work.onNow();
+            if (!step.text().isEmpty()) {
+                shown++;
+                if (best.text().isEmpty() || step.kind() < best.kind()) {
+                    best = step;
+                }
+            }
+        }
+        afloat.update(level, Vec3.atCenterOf(port.getBlockPos()), -1, port.getBlockPos(), best, Math.max(0, shown - 1));
     }
 
     /** What its owner, if they are here, has earned by what it runs. */

@@ -192,6 +192,13 @@ A <ItemLink id="relay_card" /> tuned to a Model Server goes among the upgrades, 
 cover, for 100 FE an operation; `teleport` jumps there for 10,000 FE. A body with an Energy upgrade takes energy in with
 `charge from front to hands`, from a cell or anything else that holds it, or `refuel` burns what it holds: 64,000 FE from a piece of coal.
 
+## Watching it work
+
+The step a body is on floats over it, in the words of its program, when you are within 16 blocks and looking its way. Teal is a step
+under way, grey a wait, amber a program held in the debugger. A Port running several programs shows the first that is working, and how many more
+it has. Only the few nearest the middle of your view float, never one over another, so in a row of Ports you read the ones you look at, and
+the lit sides of the rest say they are working too. F1 hides them.
+
 ## The debugger
 
 Beside a program's **Trace** sits its debugger: every step on a line, with the one under way lit. **Pause** holds it at its next step,
