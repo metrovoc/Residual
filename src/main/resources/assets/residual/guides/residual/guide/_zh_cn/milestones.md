@@ -115,10 +115,6 @@ navigation:
 
 <residual:Milestone id="survey/found">制造机用注意力光掩模做出勘测仪；给它一个通过勘测测试的模型：[勘测仪](surveyor.md)。</residual:Milestone>
 
-## 飞行
-
-<residual:Milestone id="flight/glider">制造机用 Transformer 光掩模做出滑翔翼：[飞行](flight.md)。</residual:Milestone>
-
 ## 电力
 
 <residual:Milestone id="power/generator">它烧熔炉能烧的东西：[电力](power.md)。</residual:Milestone>

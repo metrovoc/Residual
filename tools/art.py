@@ -978,50 +978,6 @@ def surveyor_side():
     return c
 
 
-# the Glider, folded: two wings of violet membrane on light frames, meeting at the harness
-GLIDER = [
-    "................",
-    "..oo........oo..",
-    ".o##o......o##o.",
-    ".o#++o....o++#o.",
-    "..o#++o..o++#o..",
-    "..o#+++oo+++#o..",
-    "...o#++##++#o...",
-    "...o#+-##-+#o...",
-    "....o#-##-#o....",
-    "....o#-##-#o....",
-    ".....o####o.....",
-    "......oooo......",
-    "................",
-]
-
-
-def glider_item():
-    c = Canvas()
-    c.stamp(0, 1, GLIDER, {"o": INK, "#": STEEL[6], "+": AMETHYST[3], "-": AMETHYST[2]})
-    return c
-
-
-def glider_wings():
-    """A wing as the elytra's model maps it: a box 10 wide, 20 long and 2 thick, its faces from (22, 0). Light frames
-    and ribs over violet membrane, lighter at the root, and mid steel along its edges and sides."""
-    c = Canvas(64, 32)
-    c.rect(24, 0, 43, 1, STEEL[4])
-    c.rect(22, 2, 23, 21, STEEL[4])
-    c.rect(34, 2, 35, 21, STEEL[4])
-    for x0, dark in ((24, True), (36, False)):
-        for y in range(2, 22):
-            for x in range(x0, x0 + 10):
-                u, v = x - x0, y - 2
-                membrane = AMETHYST[2] if v > 12 else AMETHYST[3]
-                if dark:
-                    membrane = mix(membrane, SLATE[1], .35)
-                edge = u in (0, 9) or v in (0, 19)
-                rib = (u + v) % 5 == 0
-                c.px(x, y, STEEL[6] if edge else STEEL[5] if rib else membrane)
-    return c
-
-
 def forecaster_side(ramp=GREEN):
     c = plate(salt=22)
     engraved_glyph(c, SPROUT, ramp)
@@ -2652,7 +2608,6 @@ def build():
     for rows in [TERMINAL_SIDE, ASSEMBLER_SIDE, *PORT_GLYPHS.values()]:
         assert mirrored(rows) and len(rows[0]) % 2 == 0 and len(rows) % 2 == 0, rows
     # a glyph symmetric along an axis has to be even along it, or it sits half a pixel off the tile's centre
-    assert mirrored(GLIDER), GLIDER
     for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, SURVEY_PROBE, *PORT_GLYPHS.values()]:
         assert not (mirrored(rows) and len(rows[0]) % 2), rows
         assert not (rows == rows[::-1] and len(rows) % 2), rows
@@ -2678,8 +2633,6 @@ def build():
     lit("block/combustion_generator_front_on.png", [generator_front(True)], [generator_front(False)])
     generator_side().save("block/combustion_generator_side.png")
     machine_top(58).save("block/combustion_generator_top.png")
-    glider_item().save("item/glider.png")
-    glider_wings().save("entity/equipment/wings/glider.png")
     surveyor_front().save("block/surveyor_front.png")
     lit("block/surveyor_front_on.png", [surveyor_front(i) for i in range(8)], [surveyor_front()], 3)
     surveyor_side().save("block/surveyor_side.png")

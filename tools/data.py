@@ -400,14 +400,9 @@ def storage():
     item_definition("storage_link", rid("item/storage_link"))
 
 
-def glider():
-    """The Glider's wings, drawn as an elytra's are (tools/art.py)."""
-    write(f"assets/{NS}/equipment/glider.json", {"layers": {"wings": [{"texture": rid("glider")}]}})
-
-
 def items():
     flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
-             "agent", "relay_card", "terminal", "field_log", "storage_drive", "hourglass", "glider"] + list(DATASETS) + SCHEMATICS)
+             "agent", "relay_card", "terminal", "field_log", "storage_drive", "hourglass"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -639,7 +634,6 @@ def advancements():
     advancement("forecast/hourglass", "forecast/ahead", "hourglass", awarded(), frame="goal")
     advancement("forecast/deep", "forecast/ahead", "forecaster_ii", awarded(), frame="goal")
     advancement("survey/found", "benchmark/survey", "surveyor", awarded(), frame="goal")
-    advancement("flight/glider", "root", "glider", has("glider"))
     advancement("power/generator", "root", "combustion_generator", placed("combustion_generator"))
     advancement("power/smelter", "power/generator", "smelter", awarded(), frame="goal")
     advancement("storage/drive", "root", "storage_drive", has("storage_drive"))
@@ -677,7 +671,6 @@ if __name__ == "__main__":
     forecaster()
     forecaster("forecaster_ii")
     forecaster("surveyor")
-    glider()
     power()
     storage()
     stream()

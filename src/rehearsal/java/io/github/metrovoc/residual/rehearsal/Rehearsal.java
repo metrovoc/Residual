@@ -45,7 +45,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -111,7 +110,6 @@ import org.slf4j.Logger;
  * entity TYPE                right-click the nearest entity of TYPE (residual:agent) with the main hand,
  *                            stepping up to it first if it is out of reach
  * useitem                    right-click the air with the main hand
- * glide                      open the wings worn on the back, as jumping in the air does
  * creative TAB               open the creative inventory on a tab, by id (residual:main)
  * press LABEL                click the open screen's first button whose label starts with LABEL
  * click X Y                  left-click the open screen; a container screen's coordinates start at its corner
@@ -456,12 +454,6 @@ public final class Rehearsal {
                 mc.player.onUpdateAbilities();
             }
             case "sneak" -> mc.options.keyShift.setDown(arg.equals("on"));
-            case "glide" -> {
-                // what jumping in the air with wings on does
-                if (mc.player.tryToStartFallFlying()) {
-                    mc.player.connection.send(new ServerboundPlayerCommandPacket(mc.player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
-                }
-            }
             case "hud" -> mc.options.hideGui = arg.equals("off");
             case "view" -> mc.options.setCameraType(switch (arg) {
                 case "back" -> CameraType.THIRD_PERSON_BACK;
