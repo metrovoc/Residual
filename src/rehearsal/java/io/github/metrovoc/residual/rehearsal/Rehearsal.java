@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -77,6 +78,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ToastAddEvent;
@@ -135,6 +137,7 @@ import org.slf4j.Logger;
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
  *                            T a tree)
+ * close                      close the screen if one is open, as a script's last step may leave one or not
  * fly on|off                 hover in place (creative), so the camera stays where cmd tp put it
  * sneak on|off               hold the sneak key, to place blocks against machines and turn them (flying, it sinks)
  * hud on|off
@@ -174,6 +177,9 @@ public final class Rehearsal {
     /** The seed of the world a script's first step asked for, while the one before it closes. */
     private static String nextWorld;
     private static boolean quitting;
+    /** Steps run, and the ones that threw: any of those makes the whole run end with a failing exit code. */
+    private static int played;
+    private static final List<String> failed = new ArrayList<>();
     /** Keeps the player flying: creative flight ends whenever the player touches the ground. */
     private static boolean hover;
     private static double mouseX;
@@ -212,6 +218,7 @@ public final class Rehearsal {
         }
         if (quitting) {
             if (mc.level == null) {
+                finish();
                 mc.stop();
             }
             return;
@@ -249,7 +256,8 @@ public final class Rehearsal {
             }
             loading = false;
         }
-        if (hover && !mc.player.getAbilities().flying) {
+        // a server that stopped leaves the client without a player for the script's last steps
+        if (hover && mc.player != null && !mc.player.getAbilities().flying) {
             mc.player.getAbilities().flying = true;
             mc.player.onUpdateAbilities();
         }
@@ -279,13 +287,30 @@ public final class Rehearsal {
                 continue;
             }
             LOG.info("[rehearsal] {}", step);
+            played++;
             try {
                 run(mc, step);
             } catch (Exception e) {
+                failed.add(step);
                 LOG.error("[rehearsal] step failed: {}", step, e);
             }
             return;
         }
+    }
+
+    /** Says how the run went, and has the process exit with a failing code if any step failed. */
+    private static void finish() {
+        LOG.info("[rehearsal] finished: {} steps, {} failed", played, failed.size());
+        if (!failed.isEmpty()) {
+            LOG.error("[rehearsal] failed steps: {}", failed);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> Runtime.getRuntime().halt(1)));
+        }
+    }
+
+    /** What the server says to the player, so a command that failed shows in the log. */
+    @SubscribeEvent
+    static void chat(ClientChatReceivedEvent.System event) {
+        LOG.info("[rehearsal] said: {}", event.getMessage().getString());
     }
 
     /** Draws a cursor on screens while a clip records, since the system's own is not in the frame. */
@@ -494,6 +519,11 @@ public final class Rehearsal {
                 glide(to[0], to[1], args.length > 4 ? Integer.parseInt(args[4]) : 4);
             }
             case "scroll" -> mc.screen.mouseScrolled(mouseX, mouseY, 0, Double.parseDouble(arg));
+            case "close" -> {
+                if (mc.screen != null) {
+                    mc.screen.onClose();
+                }
+            }
             case "key" -> mc.screen.keyPressed(new KeyEvent(
                     GLFW.class.getField("GLFW_KEY_" + arg.toUpperCase(Locale.ROOT)).getInt(null), 0, 0));
             case "type" -> arg.codePoints().forEach(c -> mc.screen.charTyped(new CharacterEvent(c)));

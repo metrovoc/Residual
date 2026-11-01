@@ -75,6 +75,14 @@ neoForge {
             programArgument '--nogui'
             systemProperty 'residual.models', file('run/models').absolutePath
         }
+        // ./gradlew runJarServer: a jar on a dedicated server, nothing from the source tree: run/jarserver/mods holds what it loads
+        jarServer {
+            server()
+            gameDirectory = file('run/jarserver')
+            loadedMods = []
+            programArgument '--nogui'
+            systemProperty 'residual.models', file('run/models').absolutePath
+        }
         // ./gradlew runStress: a large base on a dedicated server, its tick times in the log; see Stress
         stress {
             server()
