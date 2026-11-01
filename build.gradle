@@ -179,11 +179,10 @@ tasks.register('guideWebsite', JavaExec) {
             '--output', layout.buildDirectory.dir('guideWebsite').get().asFile.absolutePath, '--clean', '--title', mod_name,
             '--web-assets', file('src/website/web-assets').absolutePath, '--logo', file('src/website/logo.png').absolutePath,
             '--site-url', 'https://metrovoc.github.io', '--base-path', '/Residual/'
-    // the field notes' clips, which the page template's script plays
-    doLast {
-        copy {
-            from file('src/main/resources/assets/residual/guides/residual/guide/clips')
-            into layout.buildDirectory.dir('guideWebsite/clips')
-        }
-    }
+    finalizedBy 'guideWebsiteClips'
+}
+// the field notes' clips, which the page template's script plays
+tasks.register('guideWebsiteClips', Copy) {
+    from file('src/main/resources/assets/residual/guides/residual/guide/clips')
+    into layout.buildDirectory.dir('guideWebsite/clips')
 }
