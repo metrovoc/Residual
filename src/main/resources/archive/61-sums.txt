@@ -1,0 +1,1295 @@
+Sums for the lantern boats
+Set by Corin, shipwright, for the lantern festival on the quay. Each child makes a small boat of wood and paper, and a lantern for its mast. The boats are put in the sea on the last night of Apple, and the one that goes furthest wins a loaf. Autumn.
+
+1. Each boat needs two lanterns, one at the bow and one at the stern. There are fourteen boats. How many lanterns are needed?
+Working: fourteen twos. Two and two is four. Ten twos is twenty, and four twos is eight. Twenty and eight is twenty-eight.
+Answer: twenty-eight lanterns.
+
+2. The lanterns cost half an emerald each. How much do they cost in all?
+Working: twenty-eight halves. Two halves make one whole, so twenty-eight halves make fourteen wholes.
+Answer: fourteen emeralds.
+
+3. Ilse's boat is the first to go. It goes out past the mole in four breaths of wind. Teg's boat goes out in six. Whose boat went out faster, and by how many breaths?
+Working: four is less than six, so Ilse's went faster. Six take away four is two.
+Answer: Ilse's boat went out faster, by two breaths.
+
+4. The tide is coming in. A boat moves a little toward the shore with every wave. If a boat moves three arms with each wave, and there are five waves before the bell, how far does it move?
+Working: three arms, five times. Three and three is six. Six and three is nine. Nine and three is twelve. Twelve and three is fifteen.
+Answer: fifteen arms toward the shore. Then the boat stops at the steps and waits for its owner.
+
+5. There are fourteen boats and twenty-eight lanterns. Each child keeps one lantern when the boats go out. How many lanterns are lost at sea?
+Working: twenty-eight lanterns, fourteen taken home. Twenty-eight take away fourteen is fourteen.
+Answer: fourteen lanterns are at sea. Corin says that is the right number for a festival. It means the sea gets a little light.
+%%
+Sums: the school play
+Gil's slate, summer. The school play is next week, and Teacher Brae wants it counted.
+
+1. The hall has 8 benches. Six children can sit on each bench. How many children can sit?
+Working: 8 times 6 is 48.
+Answer: 48.
+
+2. The school has 31 children. Every child brings 2 grown-ups. How many grown-ups come? How many people in all?
+Working: 31 times 2 is 62. Add the 31 children, and that is 93.
+Answer: 62 grown-ups. 93 people.
+
+3. How many people have no seat?
+Working: take 48 from 93. That leaves 45.
+Answer: 45 will stand. Teacher Brae says the grown-ups can stand. They have strong legs.
+
+4. Each lamp in the play burns 2 bottles of oil. The hall needs 6 lamps. How many bottles?
+Working: 6 times 2 is 12.
+Answer: 12 bottles.
+
+5. I am the Moon. My hat takes 3 balls of yarn. Mother has 10. How many hats could she knit?
+Working: 3, 6, 9. Three hats, and one ball over.
+Answer: 3 hats. I asked for a star hat as well. Mother says I am the Moon, and the Moon does not need two.
+%%
+Sums for the net mender's bench
+Set by Una, net mender, at the market at Copperhold, for the children who sit on her bench in the autumn while their mothers buy flour. Cover the answers with a finger until you have worked the sum.
+
+1. A net has forty knots along one side. Each knot takes three breaths to tie. How many breaths for one side?
+Working: forty threes. Three, six, nine, and so on. Ten threes are thirty. Ten more threes are sixty. Four tens of threes is one hundred and twenty.
+Answer: one hundred and twenty breaths.
+
+2. Una mends four nets in a morning. Each net has three rents. Each rent takes one knot. How many knots in all?
+Working: four nets, three rents each. Four threes are twelve.
+Answer: twelve knots.
+
+3. A bundle of cord has twenty arms of line. Una cuts it into pieces of four arms. How many pieces?
+Working: twenty fours, or four fives. Four fives are twenty. So five pieces.
+Answer: five pieces.
+
+4. Una has five pieces of cord, and needs eight for the big net. How many more does she need?
+Working: eight take away five is three.
+Answer: three more pieces.
+
+5. The copper sheet is cut into squares for the net weights. Each square is one arm wide. The sheet is six arms by four arms. How many squares?
+Working: six fours, or four sixes. Four sixes are twenty-four.
+Answer: twenty-four squares.
+
+6. Each weight is worth one half an emerald. How much for all twenty-four?
+Working: twenty-four halves. Two halves make a whole. So twenty-four halves make twelve.
+Answer: twelve emeralds.
+%%
+Sums: the road to Three Wells
+Set by Pell, for the road children at the Long Road inns. Pell wrote the answers too, so that nobody else can say they are wrong.
+
+Pell walks from Vell to Three Wells each market day. The road is forty waymarks long. A waymark is a stone pillar with a torch on top and an arrow to the next inn.
+
+First. A torch stands on a post every twelve blocks. How many torches on the road if the road is four hundred and eighty blocks long?
+
+Working: four hundred and eighty, in steps of twelve. That is forty steps, so forty torches. Count the first one as well.
+
+Answer: forty torches.
+
+Second. The Brown Hen is nine waymarks from Vell. The Halfway Inn is twenty. How many waymarks from the Halfway Inn to Three Wells?
+
+Working: forty waymarks in all, take away twenty from Vell to the Halfway Inn. Twenty waymarks more.
+
+Answer: twenty waymarks from the Halfway Inn to Three Wells.
+
+Third. Pell carries eight sacks of wool. Each sack weighs as much as three loaves. The cart carries twelve loaves for the Brown Hen. Does the cart carry more loaves or more sacks, in weight?
+
+Working: eight sacks are twenty-four loaves in weight. The cart carries twelve loaves. Twenty-four is more than twelve, so the wool is heavier.
+
+Answer: the wool. Pell should not have told Hanne that he can carry anything.
+
+Keep your slates tidy, and remember which road you counted.
+%%
+Sums: Sock and the socks
+Gil's slate, summer. Teacher Brae set these three, because every child here knows Mira's fox.
+
+1. Mira has 10 socks. A fox takes 3. How many socks are left?
+Working: take 3 from 10. That leaves 7.
+Answer: 7 socks.
+
+2. How many pairs can she make from the 7?
+Working: 2, and 2, and 2 make 6. One sock is left over.
+Answer: 3 pairs, and one sock for the fox to take next.
+
+3. The fox brings back 2 socks. They are green. Mira's socks are grey. Are they hers?
+Answer: No. They are the fox's. Mira says to keep them.
+%%
+Sum: the eggs and the fox
+Summer, from the market at Vell. A farmer near the town came to Oren with a problem of hens, and Oren made a sum of it for the school yard.
+A farmer had 24 hens. Each hen lays 1 egg a day, for 5 days of the week, and rests for the other 2.
+A fox came for three nights in a row. Each night it took 1 hen. On the fourth day the farmer built a stout door with a bar. The fox came back that night and found it shut.
+How many hens did the farmer have after the fox?
+How many eggs did the farm lay in a week before the fox? How many in a week after?
+The farmer packs eggs in baskets of 10 and sells each basket for 2 emeralds. How many full baskets does the farm now send to market in a week? How many emeralds is that? How many eggs are left over?
+Working.
+24 hens, take away 3, is 21 hens.
+Before the fox: 24 hens times 5 days is 120 eggs a week.
+After the fox: 21 hens times 5 days is 105 eggs a week.
+The farm lost 15 eggs a week. That is a basket and a half.
+105 eggs in baskets of 10: ten full baskets make 100 eggs. There are 5 eggs over.
+Ten baskets at 2 emeralds each is 20 emeralds.
+Answer. 21 hens. 120 eggs before, 105 after. 10 baskets, 20 emeralds, 5 eggs over.
+The 5 eggs are for the farmer's own breakfast. That is only fair. A farmer who has lost 3 hens has earned a breakfast.
+Oren adds a rule for sums that have animals in them. Never let the clerk forget the animals. A hen is not a number. A hen is a hen. But we can count hens.
+%%
+Spring at the fish market
+By Rowan, a grandmother of Saltreach, for anyone who wants to know how a morning goes.
+
+The market wakes before the sun. The fishermen come up from the boats with their crates, and the gulls come with them, and the cats come after the gulls. I am at my stall by the harbor wall with the price board and the tally and a pot of tea.
+
+Spring is the busy time. The boats go out early and come back full. The crabs come up in the traps, and the children run to find them. In Blossom the reeds come green and the net makers sit by the window light and mend. You can hear the hammers from the slip all day.
+
+The stalls go up in a row: fish, then crabs, then rope and reeds, then bread from the bakery, then the pot woman with her honey. The pot woman's name is Maren and she talks more than I do, which is saying something. Her honey comes up from Ambrook on the Long Road, in jars wrapped in cloth. She says the bees had a good year. She says this every year. The honey is good every year, so I do not argue.
+
+There is a bench by the harbor wall where the old ones sit. We watch the boats. We count them. We argue about the count. Bera says there are eleven boats in the harbor and I say twelve, and we count them together and find we were both wrong and there are ten. It passes the morning.
+
+The apprentice at the shipyard comes down the quay most days. It carries planks and rope and barrels. It does not talk. It stops when you stand in its way and it waits until you move. The children like it. They walk beside it and ask it sums. It does not answer the sums. It only carries planks. The children do not mind.
+
+Last Sowing I set the apprentice a test of my own, for a joke. I said, bring me a fish. It went to the slip and came back with a plank. The boy said I should not give it orders. I said I only wanted to see. Then I said it plainly, and it brought a fish, and I gave it back. The boy said never send an untested mind to the fields. I said I have no fields, only a fish table, and we laughed.
+
+The market closes at dusk. The board comes down. The cats get the scraps and the gulls get what the cats leave. I walk home along the harbor wall with my box of emeralds under my arm. The lights come on along the quay, one by one. The relay tower on the hill blinks once and goes still. I count my emeralds at the door, every night, the way my mother did. Then I lock the box and put the kettle on.
+
+If you are new to Saltreach, come and find me. I am the one with the tea and the price board. I will tell you what a fish costs and I will not cheat you. My granddaughter Nell will do the sums faster than either of us.
+%%
+The long puzzle: the net and the tide
+Set by Corin, shipwright, for the older children at the Saltreach school who have finished the sums in the book. It is a long puzzle, with three parts and no shortcut. Write the working on the slate, and check each part before you start the next. Autumn.
+
+A fisher named Marit has a net on the harbor wall. The net is forty arms long. She mends it on a bench that is six arms long, so she must move the net along the bench each time she has mended one part. She mends six arms in one bell, and then she stops to rest for a quarter of a bell. Then she mends again.
+
+Part one. How long does it take Marit to mend the whole net, if she never stops?
+Working: forty arms, at six arms a bell. Six, twelve, eighteen, twenty-four, thirty, thirty-six, forty. That is six full bells, and two thirds of another. Two thirds of a bell is most of the next one.
+Answer: about six and a half bells, without rests.
+
+Part two. Marit rests a quarter of a bell after each six bells of mending. How long does the net take with the rests?
+Working: six bells of mending come to thirty-six arms. That is less than the whole net, so she rests once. Then she mends the last four arms, which is two thirds of a bell, as before. Add the one quarter bell of rest. Six and two thirds, plus a quarter, is about seven bells.
+Answer: about seven bells.
+
+Part three. The tide comes in at the fifth bell. Marit must have the net on its hook before the water covers the wall. The wall is covered when she has been mending for five bells. Will she finish before the tide?
+Working: five bells of mending is thirty arms, with one short rest on the way. Thirty arms is not the whole net. Ten arms are left. She must move the net along the bench, and the tide covers the wall while she is moving it.
+Answer: no, she will not finish before the tide. She will have to hang the last ten arms in the morning. Marit says that is the right answer, and she has done it that way every autumn since she was a girl.
+
+Corin says the good sum is the one that tells you the truth about the tide. The bad sum says you will finish, and the sea comes in regardless.
+%%
+Notice: a new road north of the Brown
+By order of the road wardens, posted at the inn door.
+
+From the first of Swarm, a new cut of road runs north from the Brown Hen to the charcoal grounds. It is packed earth with a cobblestone edge, as the long road is. A torch stands on a post every twelve blocks. The wardens ask that carts keep to the middle and that nobody take the edge stones for a wall.
+
+Toby the charcoal burner says the new cut saves him half a morning. He says it also runs close to his kilns, and he asks that nobody put a torch near a kiln. A kiln does not want a torch. A kiln wants to be left alone.
+
+The bridge over the little stream is oak, because the stone could not be got there before the rains. It will be stone next year, the wardens say. They said that last year about another bridge.
+
+Waymarks stand at the fork. Leave a little stone on top if you pass, as folk do.
+
+Rumors at the inn, written down by Toby because the innkeeper asked. The northern lights were seen again over Northpoint. One traveler says they are fires on the hills. Another says falling stars. A third says they are nothing new and his grandmother saw them. Nobody agrees, and the soup was good, so we let it go.
+%%
+Sums: the lamp year
+Gil's slate, summer. Mira lets us climb the tower on the last day of school and see the great lamp. Teacher Brae says if we are to climb, we must count first.
+
+1. In Longday, Swarm and Melon, the tower lamp is lit 2 hours each night. There are 90 nights. How many lamp hours?
+Working: 2 times 90 is 180.
+Answer: 180 hours.
+
+2. In Frost, Longnight and Deepsnow, the lamp is lit 18 hours each night. 90 nights. How many hours?
+Working: 10 times 90 is 900. 8 times 90 is 720. 900 and 720 make 1620.
+Answer: 1620 hours.
+
+3. How many times more in winter than in summer?
+Working: 180 times 9 is 1620.
+Answer: 9 times as much. Mira says it is 9 times as much oil and 90 times as much tea.
+
+4. A bottle of lamp oil burns 6 hours. How many bottles for the winter?
+Working: 6 times 270 is 1620.
+Answer: 270 bottles.
+
+5. A cart brings 90 bottles. How many carts?
+Working: 90, 180, 270. Three carts.
+Answer: 3 carts, if the road is open. If the road is closed, Mira says, count the woodpile.
+
+A puzzle for the way down. The tower has 90 rungs. I climbed 40 and stopped for a rest. Then I climbed 25 more. How many rungs were left?
+Working: 40 and 25 make 65. Take 65 from 90. That leaves 25.
+Answer: 25. Mira says that is the best part, because you can see the whole north.
+
+Teacher Brae asked who wants to be a keeper. Eleven hands went up. Mine was first.
+%%
+Lesson: the honey jars
+Taught at the inn at Three Wells by Dace, mayor, on the day the honey came in. The children had sticky fingers and bright eyes, and the sums were the price of their snacks.
+
+A jar of honey costs three emeralds in summer. In autumn it costs two. Each autumn jar holds the same as a summer jar. Remember that. A wise child asks why.
+
+First question. Bel bought four jars in autumn. How many emeralds did Bel pay?
+
+Working: four jars at two emeralds each. Two, four, six, eight.
+
+Answer: eight emeralds.
+
+Second question. In summer Bel would have paid how much for the same four jars?
+
+Working: four jars at three emeralds each. Three, six, nine, twelve.
+
+Answer: twelve emeralds. Bel saved four emeralds by waiting. Bel is very pleased with this.
+
+Third question. The school has nine children, and each child needs one jar for the winter. How many emeralds does the school pay in autumn?
+
+Working: nine jars at two emeralds each. Nine times two is eighteen.
+
+Answer: eighteen emeralds. The mayor pays them. The mayor would like the children to know that he is not happy about this.
+
+Fourth question. Dace has eleven emeralds. How many jars can he buy in autumn, and how many emeralds are left?
+
+Working: eleven, in groups of two. Five groups, with one emerald left over.
+
+Answer: five jars, and one emerald left. Dace will buy the sixth jar when the next cart comes.
+%%
+Ship puzzles, at the slip
+Set by Corin, shipwright, for the apprentices at the slip, who are learning to measure. They have been told that a sum must be checked twice, and that a plank cut wrong is a plank wasted. Autumn.
+
+A boat needs twelve ribs. Each rib is made from three planks, each plank the same length. The planks come from the wood store in bundles of eight.
+
+1. How many planks in one rib?
+Working: three planks for each rib.
+Answer: three.
+
+2. How many planks for twelve ribs?
+Working: three, twelve times. Three and three is six. Six and three is nine. Keep going. Twelve threes is thirty-six.
+Answer: thirty-six planks.
+
+3. How many bundles must be cut from the store?
+Working: thirty-six, split into eights. Eight, sixteen, twenty-four, thirty-two, forty. That is one bundle too many for thirty-six, so count the bundles in whole numbers.
+Answer: five bundles, which is forty planks. Four planks are spare for the bottom.
+
+4. A plank is cut to the length of the rib. The rib is one arm long. The arm is a little more than a stride. How many arms of plank can come from one bundle?
+Working: the bundle is eight planks, and each plank is one arm.
+Answer: eight arms.
+
+5. The slip is ten arms long. Boats slide down it to the sea. The stone ramp takes four arms of the slip, and the wood store takes two. How many arms are left for the boats?
+Working: ten take away four is six. Six take away two is four.
+Answer: four arms.
+
+Corin says: if the answer is not the same when you check it the second time, do not argue with the sum. Start again, and cut more slowly.
+%%
+Sums for the slip, the big ship
+Sums for the slip, by Corin, shipwright at Saltreach. For the children who count the planks. Show all your working.
+
+1. An old boat has 40 planks along each side. The big ship is three times as long. How many planks along each side of the big ship?
+Working: 40 times 3 is 120.
+Answer: 120 planks.
+
+2. The slip has room for one hull at a time. A hull takes 60 days to build. How many hulls in 300 days?
+Working: 300 divided by 60 is 5.
+Answer: 5 hulls.
+
+3. Each plank costs 1 emerald. A big hull needs 1,200 planks. How many emeralds is that?
+Working: 1,200 times 1 is 1,200.
+Answer: 1,200 emeralds.
+
+4. The big ship has room for 400 people. The quay has 730 people who have written their names on the board. How many are left on the quay?
+Working: 730 minus 400 is 330.
+Answer: 330 people.
+
+5. A coil of rope has 40 lengths. The big ship needs 800 lengths. How many coils must be bought?
+Working: 800 divided by 40 is 20.
+Answer: 20 coils.
+
+6. A sailor says he saw lights over the north, out past the last marker pole. He says they were not stars, and they did not blink. He counted seven. Another sailor says he counted three. How many lights were there?
+Working: seven and three is ten, if they were different lights. If they were the same lights, the answer is seven.
+Answer: ten, or seven. Nobody on the quay agrees, and the two sailors are not speaking.
+
+Corin's note: count the planks. Count the emeralds. The sea does not care what you count, and neither does the slip. But the people on the board care. Write their numbers small and clear, and do not rub them out.
+%%
+Sum: a year of honey and jars
+Winter, in the glass works on the farm outside Three Wells. Opal keeps three hives on the hill, and she makes the jars they fill. This is her yearly sum, set at the end of the winter when the tally is known. The older children are asked to do it without a slate.
+Last summer the first hive gave 14 jars of honey. The second gave 9. The third hive swarmed in Swarm, and what was left of it gave only 5.
+Opal gave 2 jars to the school, as she does every year. She sold the rest at 4 emeralds a jar at the Three Wells market. Each jar costs her 1 emerald to make in the glass works.
+How many jars of honey in all? How many were sold? How many emeralds did she take at the market? What did the jars cost? What did Opal earn?
+Working.
+Add the jars from the three hives: 14 and 9 is 23, and 5 more is 28 jars.
+Two went to the school: 28 take away 2 is 26 jars sold.
+26 jars at 4 emeralds: 26 times 4 is 104 emeralds. To work it out, 20 times 4 is 80, and 6 times 4 is 24, and 80 and 24 is 104.
+She made 28 jars at 1 emerald each: 28 emeralds.
+She earned 104 take away 28, which is 76 emeralds.
+Answer. 28 jars made, 26 sold, 104 emeralds taken, 28 spent, 76 earned.
+A note. The bees that swarmed did not return, but they settled in the oak by the barn. Opal did not fetch them. She says that a swarm that wants to leave will be a poor worker anyway. She says the honey from the oak is the best, but she cannot reach it.
+Check your work twice. The second time, count backwards from the answer. If you are the same, you have it right.
+%%
+Puzzle: the old map
+Gil found a map in the loft of the school, folded in a jar. It shows the road behind the school, and a cross. Teacher Brae says it is a joke by an old teacher. I say there is honey.
+
+The map says:
+Start at waymark 3, the one with the torch.
+Walk 20 paces north.
+Walk 15 paces east.
+Walk 10 paces south.
+Walk 15 paces west.
+Dig.
+
+Question: where do you dig?
+
+Working: go north 20, then south 10. That is 10 paces north of the start. Go east 15, then west 15. That cancels out, and you are on the same line as the waymark.
+Answer: dig 10 paces north of waymark 3.
+
+We dug. We found a jar. In the jar was a spoon and a note that said: Well done. There was no honey. Teacher Brae says some jokes are a hundred years old. We put the note back. We wrote under it: Well done also.
+%%
+Puzzle: the waymarks on the Long Road
+Tova, cook at the inn of twelve beds. A clerk from Three Wells left this puzzle with me, and I have kept it.
+
+The Long Road has a waymark every so many blocks: a stone pillar three blocks high, a torch on top, a figure and an arrow to the nearest inn. Little stones are left on top by travelers.
+
+A clerk walks from Three Wells toward the Brown Hen. The waymarks come every twelve blocks. She passes the first one and counts as she goes. At the tenth waymark she stops for a rest. How far has she walked from the first waymark?
+
+The first waymark is where she starts counting, so it does not count as a step. The second is twelve blocks on. The third is twenty-four. The tenth is nine steps of twelve.
+
+Nine times twelve is one hundred and eight blocks.
+
+Now the second part. A cart goes the same way but stops at every waymark to let the horse drink. The horse drinks for the same time at each. If the clerk and the cart leave Three Wells together, and the clerk walks one and a half times as fast, who reaches the Brown Hen first?
+
+The clerk, if the horse drinks long enough. The cart has to stop nine times. The clerk does not stop at all. So the clerk first, unless the horse is very quick, and the horse is never very quick.
+
+The clerk left a little stone on the tenth waymark for me. I keep it on the shelf by the flour.
+%%
+Sums for Vell: the debt paid in emeralds
+Set by Hanne, visiting tutor, and written out for the clerks by Oren, who made the copy neat. Oren asked to say that the emeralds in this sum are real, and that they came back to the archive in the end.
+
+The baker of Vell lent the archive ten emeralds in the spring. The archive paid back two emeralds each month. Count the months.
+
+First. How many emeralds were paid in the first three months?
+
+Working: two emeralds, three times. Two, four, six.
+
+Answer: six emeralds.
+
+Second. The baker was owed ten. How many emeralds are still owed after three months?
+
+Working: ten, take away six. Four is left.
+
+Answer: four emeralds still owed.
+
+Third. The archive had a good harvest in autumn, from the fields at Kettle Ridge. It sold wheat for twenty emeralds, and bought new lamp glass for six. How many emeralds were left over?
+
+Working: twenty, take away six. Fourteen emeralds left.
+
+Answer: fourteen emeralds. The baker is owed four, and so the archive pays the four at once.
+
+Fourth. After the four are paid, how many emeralds are left in the archive's box?
+
+Working: fourteen, take away four. Ten.
+
+Answer: ten emeralds. Oren has put them in the box with the seal. He says he did not like being owed.
+
+The baker sends a pie every month now, with no mention of the emeralds. The clerks have agreed to eat it in silence.
+%%
+Sums for the apple sack and the bell
+Set by Una, net mender, at Copperhold, for the younger children, who are sent to the market with a sack of apples and a bell to ring when they have sold it. The apples come up from Ambrook on the autumn cart, and the children sell them one at a time, or by the handful, or by the sack, whichever is quickest.
+
+1. The sack has forty apples. A child sells each apple for one half of an emerald. How much does the child take in?
+Working: forty halves. Two halves are a whole. Forty halves are twenty wholes.
+Answer: twenty emeralds, if every apple sells.
+
+2. The child sells eleven apples before the first bell, and then sells nine more before the second. How many apples are sold?
+Working: eleven and nine. Eleven and nine is twenty.
+Answer: twenty apples sold. Twenty are left in the sack.
+
+3. The apples are bruised. One in five is spoiled, and cannot be sold. Out of the forty, how many are spoiled?
+Working: one fifth of forty. Forty divided by five is eight.
+Answer: eight apples are spoiled, and thirty-two are good.
+
+4. The child decides to give one good apple to each of the four children who help carry the sack. How many good apples are left to sell?
+Working: thirty-two good apples. Four are given away. Thirty-two take away four is twenty-eight.
+Answer: twenty-eight apples to sell, from the good ones.
+
+5. The bell is rung once for each apple sold, so the other children know the sack is going down. The child sold twenty apples at the two bells. How many times was the bell rung?
+Working: twenty apples, one ring each.
+Answer: twenty rings. After that she stops ringing, because the rest of the apples are for her uncle.
+
+6. The child is asked how much the whole sack came to, in good apples. She says twenty-eight half emeralds, and that is fourteen emeralds, and her uncle says that is a fair price for a sack of apples that had a bruise in one of five.
+Working: twenty-eight halves. Two halves are a whole. Twenty-eight halves are fourteen wholes.
+Answer: fourteen emeralds, for the good apples.
+
+Una says the child who rings the bell for every apple is the child who will be the best at the market, because she will always know how many she has sold. She says the child who forgets to ring will always be cheated, and then will be cross about it, which is also a lesson.
+%%
+Sums for the quay children
+Set by Corin, shipwright, for the children who wait on the quay while the boats come in. Autumn. Answers at the bottom, but cover them with your hand first.
+
+1. Nine boats go out at dawn. Four come back by noon. How many are still out?
+Working: nine take away four is five.
+Answer: five boats are still out.
+
+2. A net holds fourteen fish. Three nets hold how many?
+Working: fourteen, then fourteen again, then fourteen more. Fourteen and fourteen is twenty-eight. Twenty-eight and fourteen is forty-two.
+Answer: forty-two fish.
+
+3. A cod is worth eight for one emerald. How many cod for three emeralds?
+Working: eight, three times. Eight and eight is sixteen. Sixteen and eight is twenty-four.
+Answer: twenty-four cod.
+
+4. The fishers share the catch. Forty fish are split between six boats. Each boat gets the same. How many fish for each boat, and how many are left over?
+Working: six sixes are thirty-six. Forty take away thirty-six is four.
+Answer: six fish each, and four left over, which go to the cats.
+
+5. The quay has five benches. Each bench sits four children. A sixth child is sitting on the edge of the well. How many children are on the quay?
+Working: five fours are twenty. Twenty and one is twenty-one.
+Answer: twenty-one. The sixth is not on a bench, but he is on the quay, so he counts.
+%%
+Notice: the price board, spring
+By Rowan, for the fish market at Saltreach.
+
+The price board at the market, copied fair so the far stalls can read it:
+
+Fish, fresh: 2 emeralds each.
+Fish, salted: 3 emeralds a bundle.
+Crabs: 1 emerald each. The children find these.
+Reeds for mending: 1 emerald a bundle.
+Rope: 2 emeralds a length.
+
+A word on the board, in my own hand, for the folk who come late: the prices are the same at every stall. If a seller asks more, tell me. I sit by the nets and I hear everything.
+
+A girl bought three crabs and gave me five emeralds. She could not do the change. I gave her back two and taught her the sum. She did the next one herself.
+
+The net maker's boy has a new apprentice. It carries the rope bundles from the slip to the stalls. It does not get tired. It does not ask for bread. It once brought me a whole bundle of reeds when I asked for rope. The boy said the order was unclear. Fair enough. I asked again, plainly, and the second time it was right. Bring me rope, I said. And it did.
+
+The board goes up at dawn and comes down at dusk. In the rain it stays under the awning.
+%%
+Puzzles for clerks: the shelves
+Set by Oren for the clerks' supper in the autumn of 202. Please do the working on the slate and not on the records. I have asked before.
+1. The full shelves. A shelf in the fourth hall holds 24 boxes. Each box holds 15 records. The hall has 12 shelves. If they are all full, how many records stand in the hall?
+Working: 24 times 15 is 360. That is one shelf. 360 times 12 is 4320. Answer: 4320 records.
+2. The missing box. Boxes are numbered 1 to 40 and stand in a row. A clerk finds only 39. She adds up the numbers on the boxes she finds and gets 803. Which box is missing?
+Working: add 1 to 40 first. Pair them: 1 and 40 make 41. 2 and 39 make 41. There are 20 such pairs. 20 times 41 is 820. The boxes should add to 820, and they add to 803. 820 less 803 is 17. Answer: box 17 is missing. The clerk went and looked. It was on the stairs.
+3. Two copyists. Ulla copies 6 pages in an hour. Cob copies 4 pages in an hour. A book has 60 pages. How long will they take, working side by side?
+Working: together they copy 6 and 4, which is 10 pages in an hour. 60 pages at 10 an hour is 6 hours. Answer: 6 hours, which is from the first bell to a little past noon. They will want lunch. They will eat it in the front hall, not in the stacks.
+4. The odd one. Four boxes hold 3, 5, 7 and 9 records. Which two boxes together hold the same as the other two?
+Working: 3 and 9 make 12. 5 and 7 make 12. Answer: the first and the last hold as many as the middle two.
+For those who finish early: count the records in the box on my desk. Do not open it. It is a puzzle about trust.
+%%
+Sums: a debt paid in emeralds
+Sums from the carter's book, about the debt owed by the Ambrook smith to the carter who brought his iron from Copperhold. The debt is paid in emeralds over a season, and the sums show how it was paid. Show your working.
+Sum 1. The debt is 40 emeralds. The first payment is 12. How much is owed now? Working: 40 take away 12 is 28. Answer: 28.
+Sum 2. The second payment is 9. How much is owed now? Working: 28 take away 9 is 19. Answer: 19.
+Sum 3. The smith says the new hinge is worth 4 emeralds, and asks that it be taken off the debt. How much is owed now? Working: 19 take away 4 is 15. Answer: 15. The carter says the hinge is worth more, but he is not going to argue about it in the market.
+Sum 4. The third payment is 10. How much is owed now? Working: 15 take away 10 is 5. Answer: 5.
+Sum 5. The smith's son is to carry the last 5 emeralds up the road. He is paid 1 emerald for the carrying. How many emeralds does the carter receive in the end? Working: 5 take away 1 is 4. Answer: 4. The carter says that is a good sum to end on, because it means the road is cheaper than the debt.
+Sum 6. Count the payments: 12, 9, 4, 10 and 5. How many emeralds were paid in all? Working: 12 and 9 is 21. 21 and 4 is 25. 25 and 10 is 35. 35 and 5 is 40. Answer: 40. Miss Nell says the carter must write this sum twice, so it is true.
+Sum 7. A debt paid in full is a debt that is over. Write one sentence about what happens to the debt next. Carter's answer: the debt is over, and the smith and the carter drink a cup of cider at the Brown Hen to say so, and they do not owe each other anything. Miss Nell says a sentence like that is not a sum, but it is a fine ending.
+%%
+Sums: the cow in the sick pen
+Milk sums for the north pen, by Tibb, clerk of the milk at Saltreach. Show your working. Four cows give milk there. Each gives 5 pails a day when she is well.
+
+1. How many pails do four healthy cows give in one day?
+Working: 4 times 5 is 20.
+Answer: 20 pails.
+
+2. The fourth cow is sick, and she gives only 2 pails a day now. How many pails do the four cows give?
+Working: the first three give 15 pails. Fifteen and 2 is 17.
+Answer: 17 pails.
+
+3. Milk sells for 1 emerald a pail. How many emeralds are lost each day because of the sick cow?
+Working: a healthy cow gives 5 pails, and the sick one gives 2. Five minus two is 3.
+Answer: 3 emeralds.
+
+4. The sick cow has honey and warm water every morning. One jar of honey lasts 6 mornings. How many jars for 30 mornings?
+Working: 30 divided by 6 is 5.
+Answer: 5 jars.
+
+5. Greer says the cow will mend, or she will not. Nobody can say which, or when.
+Working: none. This sum has no answer yet. Write that down.
+
+Some on the quay say the cows sicken when the wind comes off the water. Some say it is the grass by the north pen. Some say nothing, and only count the pails. Ama dug the well that the cows drink from, and she brought a cup of it to the pen to prove the water is clean. I say the sum is simple. The cow is not.
+%%
+Sums for the little class
+Chalked at the Archive stall at the Vell market, autumn of 204, for children who wait while their parents argue about beetroot. Oren. Check the working. I did.
+1. Bread is 6 loaves for 1 emerald. How many loaves for 5 emeralds?
+Working: 6 loaves for each emerald. 6 times 5 is 30. Answer: 30 loaves.
+2. Eggs are 12 for 1. A cook needs 30 eggs. How many emeralds?
+Working: two dozen is 24 eggs, which costs 2. Six more are needed, and the next dozen costs 1. That is 3 emeralds, and 6 eggs left over for the cook's lunch. Answer: 3 emeralds.
+3. A stall has 4 baskets with 9 apples in each. A child eats 3. How many are left?
+Working: 4 times 9 is 36. Take 3 away. Answer: 33 apples. The child should have had a bun, but that is not a sum.
+Check each sum twice. Then once more, backward.
+%%
+Puzzle: the fox, the hen and the wheat
+Gil's slate, summer. Teacher Brae says this puzzle is older than the Archive. I do not believe her.
+
+You stand at a stream with a fox, a hen and a sack of wheat. The boat holds you and one other thing. If you leave the fox with the hen, the fox eats the hen. If you leave the hen with the wheat, the hen eats the wheat. How do you get all three across?
+
+Working:
+1. Take the hen across. The fox and the wheat can stay alone together. A fox does not eat wheat.
+2. Go back alone.
+3. Take the fox across.
+4. Bring the hen back with you. The fox cannot be left with her.
+5. Leave the hen. Take the wheat across. Now the fox and the wheat are together. That is fine.
+6. Go back alone.
+7. Take the hen across.
+Answer: seven crossings.
+
+Teacher Brae says it cannot be done in fewer. I tried five. The hen ate the wheat.
+%%
+Sums for the clerks: the shelf count
+Taught by Hanne, a visiting tutor from Three Wells, in the copying room at Vell. Written out by the clerk who sat at the end table.
+
+Lesson one: counting shelves.
+
+The archive has six halls. Each hall has eight rows of shelves. Each row has ten shelves. Each shelf holds twelve records in a stack.
+
+First question. How many shelves are in one hall?
+
+Working: eight rows, ten shelves each. Eight times ten is eighty shelves.
+
+Answer: eighty shelves in one hall.
+
+Second question. How many shelves in all six halls?
+
+Working: eighty, six times. Eighty, then one hundred and sixty, then two hundred and forty, then three hundred and twenty, then four hundred, then four hundred and eighty.
+
+Answer: four hundred and eighty shelves.
+
+Third question. How many records fit on all the shelves, if each shelf is full?
+
+Working: four hundred and eighty shelves, twelve records on each. Twelve times four hundred and eighty is five thousand, seven hundred and sixty.
+
+Answer: five thousand, seven hundred and sixty records.
+
+Fourth question. This week the clerks filed one hundred and twelve records. How many of the shelves are they filling, if each shelf takes twelve?
+
+Working: one hundred and twelve, in groups of twelve. Nine groups, and four left over.
+
+Answer: nine full shelves, and a shelf with four records on it. Mark the fifth shelf.
+
+A clerk who counts the shelves knows where the room is. A clerk who does not will be lost in the deep halls by the spring. I was. I am still a little lost. Count again tomorrow.
+%%
+Sum: the fox and the hens
+For the young clerks at the Vell market, summer. Set by Oren.
+Tilly has 17 hens. A fox takes 2 hens in the night. Tilly lights a torch by the gate. The fox takes none the next night.
+How many hens has Tilly now?
+Working: 17 take away 2 is 15.
+Answer: 15 hens. And one torch, lit.
+%%
+Notice: lost red hen at Three Wells
+Posted on the board by the east well, and copied to the inn door.
+
+Lost: one red hen, last seen on the Sowing market day, near the stalls by the three wells.
+
+She is red-brown, with a white spot on her back like a splash of milk. She answers to nothing, but she comes if you shake a bag of wheat. She is friendly and will let you pick her up. She is also stubborn and will not be carried far.
+
+If you find her, bring her to Tova at the inn of twelve beds, or to the hen house behind the bakery. There is a reward: a bowl of soup and my thanks.
+
+A note from Sorrel at the school: the children have drawn pictures of her and put them up by the door. The pictures are not much good. She has four legs in most of them. But the children are trying.
+
+Second note, three days on: she was under the bridge by the east well the whole time, sitting on a nest of six eggs. She had not been lost at all. She had been busy. The reward still stands, for anyone who wants soup.
+
+Third note: the eggs hatched. We now have six chicks and one very proud hen. Please stop bringing us hens you find. We have enough.
+%%
+Sums: the apple crates
+By Pell, merchant on the Long Road, at Vell this autumn.
+
+Ambrook sent twelve crates of apples up the hill cart. Each crate holds twenty apples. How many apples came?
+
+Working: twelve crates, twenty in each. Twelve times twenty is two hundred and forty.
+
+Answer: two hundred and forty apples.
+
+Now the hard part. The Vell kitchen takes one apple in five for the pies. How many apples go to the pies?
+
+Working: one in five of two hundred and forty. Divide the apples into groups of five. There are forty-eight groups. One apple from each group goes to the pies.
+
+Answer: forty-eight apples for the pies.
+
+Last sum. The rest are sold at the Vell market for one emerald for every six apples. How many emeralds do we get?
+
+Working: two hundred and forty, take away forty-eight. That leaves one hundred and ninety-two apples to sell. Groups of six: thirty-two groups.
+
+Answer: thirty-two emeralds.
+
+Good. Put the answer on the slate, and the working under it, so the tutor can check your hand. A sum without its working is only a guess.
+%%
+Letter: Corin to Rowan
+Corin the shipwright, to Rowan at the fish market, spring.
+
+Rowan,
+
+About the fifteen. You said I could pay the interest in work, and I did, and the month is up, so this is the end of the debt and I want it written down. The boy's apprentice carried your crates for a month. It did not drop one. That is a good month's work and I will not have it said I paid you short.
+
+The boy says the apprentice learned two things at your stall: carry a crate, and bring one crab. He says it will keep both. He says small minds hold what they are shown, if you show them often enough and plainly enough. I do not know about that. I know it carried the planks at the slip the next day and did not try to carry the crabs, and that is good enough for me.
+
+The big ships are going up on the slip. Three times as long as any boat I ever built. I have not been told where they are going. I have been told to build them and I am building them. The order came down the Long Road from Three Wells and it is signed by people I do not know. I do not like it and I do not say so. I say it to you.
+
+The weather is good for the slip. The wood is dry and the pitch is set. I will send the boy down with the last of the emeralds on the first of Swarm, and he will bring back a fish for my supper. Tell him the sum. He is learning to count.
+
+Your friend, Corin
+
+A note from Rowan, added below: Corin's last emerald came on the first of Swarm, and the boy brought the fish. I gave him two crabs for himself. He asked me to teach him the change. I did. He got it on the third try.
+%%
+Puzzles: the waymarks and the road
+Puzzles from the carter's book, for the children at the Ambrook school. Each has its working and its answer. Miss Nell says to be careful with the last one.
+Puzzle 1. The waymarks on the Long Road go 0, 1, 2, 3, 4 and then 5. How many gaps are there from the first to the last? Working: count the gaps between them. There are five. Answer: 5.
+Puzzle 4. A row of stones on the wall goes oak, stone, oak, stone, oak. What is the next stone? Working: the row repeats oak and stone. After the last oak comes stone. Answer: stone.
+Puzzle 5. A traveler walks out past the marks 6, 1, 8, 3, 0, 5. What are the marks in the order to walk home? Working: home is the reverse order. Reverse them: 5, 0, 3, 8, 1, 6. Answer: 5, 0, 3, 8, 1, 6. Miss Nell says the traveler will still get lost if she does not say them aloud.
+Puzzle 6. There are 10 inns on the Long Road, and each one has 12 beds. Each night 40 travelers come. How many beds are still empty on the first night? Working: 10 inns at 12 beds is 120 beds. 120 take away 40 is 80. Answer: 80. The inns are very glad of the travelers, and they say so in the morning.
+%%
+Sums: the market day at Ambrook
+Sums for the children of the Ambrook school, from the carter's book. Show your working. The answer is in the margin.
+Sum 1. Apples sell for 1 emerald a sack. A cart holds 12 sacks. How many emeralds does a full cart bring? Working: 12 sacks at 1 each. Answer: 12.
+Sum 2. Honey is 2 emeralds a jar. Ama sells 5 jars at the morning stall and 7 at noon. How many emeralds has she taken by noon? Working: 5 and 7 is 12 jars. Twelve at 2 is 24. Answer: 24.
+Sum 5. A child has 9 emeralds. She spends 2 on a ribbon and 3 on a sweet bread. How many emeralds does she have left? Working: 9 take away 2 is 7. Seven take away 3 is 4. Answer: 4.
+Sum 6. A cart with 14 sacks leaves Ambrook at dawn. It stops at the Brown Hen and loses 3 sacks through a hole in the cloth. How many sacks reach Three Wells? Working: 14 take away 3 is 11. Answer: 11. The carter says the hole was made by a fox, and the fox was paid.
+%%
+Oren's book of small sums
+Kept in the third room of the Archive, where the tea is, and put out for the clerks in the autumn of 207. Every sum has its working. A sum without its working is only a guess with good manners.
+1. The ink. The Archive has 240 bottles of ink. Twenty-four clerks write, and each uses a bottle in 10 days. How long will the ink last?
+Working: in 10 days the clerks use 24 bottles, one each. 240 divided by 24 is 10. So the ink lasts 10 lots of 10 days. 10 times 10 is 100. Answer: 100 days. That is a little over three months. I will order more at the first frost.
+2. The chairs. The Archive has 48 chairs. 39 do not wobble. A folded page goes under one leg of each wobbly chair. How many pages?
+Working: 48 less 39 is 9. Answer: 9 pages. They must be pages of nothing important. The clerks have asked for old shopping lists.
+3. The honey cakes. Three clerks share 17 honey cakes. Ulla takes twice as many as Cob. Oren takes 5. How many do Ulla and Cob take?
+Working: 17 less Oren's 5 leaves 12. Ulla takes twice Cob's, so the 12 are three equal parts: Cob has one, and Ulla has two. A part is 4. Answer: Cob 4, Ulla 8. Oren says he would have taken more, but the rules say nothing is eaten near the paper.
+4. Ages. Cob is 20. Ulla is 50. In how many years will Ulla be twice as old as Cob?
+Working: Ulla is 30 years older, and she will always be. She is twice as old when Cob is 30 and she is 60. Cob is 30 in 10 years. Answer: in 10 years. Cob says he does not want to be 30. Ulla says it is not so bad.
+5. The copying room. There are 8 long tables, with 3 clerks at each. Each clerk copies 5 pages in a day. How many pages in 10 days?
+Working: 8 tables of 3 clerks is 24 clerks. 24 times 5 is 120 pages in a day. 120 times 10 is 1200. Answer: 1200 pages. If every clerk comes in.
+6. The steps. A clerk goes down to the deep halls by 3 flights of 12 steps. Then she comes back up for her forgotten lantern. How many steps has she walked?
+Working: 3 times 12 is 36 steps down. The same 36 up. 36 and 36 make 72. Answer: 72 steps. The lantern was in her pocket.
+7. The check. How do you know a sum is right? Work it twice. Then work it backward. If 12 times 12 is 144, then 144 divided by 12 must give 12. It does. If the backward answer disagrees, one of you is wrong, and it is usually me.
+A last note. A sum is a way of being sure. Being sure is a kind of kindness, to whoever reads next. I would like everyone who reads this to be sure of something, and be glad of it.
+%%
+A puzzle for the relay keeper's boy
+Toby, at the Brown Hen, for Lantern's boy who came down from the north with the mail.
+
+The boy came in with a bag of letters and a puzzle his mother set him. She is a relay keeper and she likes sums. Here it is, and here is the working, because he could not get it and I could, and I am not ashamed to say it took me an hour.
+
+A relay tower has a lamp at the top. A keeper climbs the rungs inside, ninety of them at Northpoint. Each rung is one step. At every tenth rung there is a stair lamp. How many stair lamps?
+
+Nine. The tenth, the twentieth, up to the ninetieth. But the ninetieth is the top, and the top has the signal lamp, not a stair lamp. So the keeper's mother says eight, and the boy says nine, and they wrote to each other about it for a month.
+
+The boy says his mother is right and he is wrong and he does not mind. He says the top lamp is a different lamp and a different job.
+
+Then he told a rumor from the north. He said the lights in the sky came again and the keepers watched them from the lamp room and nobody could say what they were. One keeper said they were not ours. The boy did not know what that meant. He ate his soup and went to bed early, because he had a long walk back.
+
+I set the sum in my book. Eight lamps, if the top does not count. I think the top counts, but I am a charcoal burner and I keep my mouth shut about lamps.
+%%
+Clerk sums: the apple cart
+By Oren, clerk of the Archive at Vell, for the young clerks in the copying room.
+
+The copying room is the brightest room in the hill, and in summer the light wells bring down more sun than we need. We put the sums on the long tables and let the young clerks work them while the ink dries.
+
+This one came from a farm outside Vell that sends us apples every Apple month. The farmer's cart goes to the fair.
+
+The cart holds eight crates. Each crate holds six apples in a layer, and four layers to a crate.
+
+How many apples in one crate? Six in a layer, four layers, is twenty-four apples.
+
+How many apples in the cart? Eight crates of twenty-four is one hundred and ninety-two apples. Work it as eight times twenty is one hundred and sixty, and eight times four is thirty-two, and the two together make one hundred and ninety-two. I checked it the long way and the short way, as we are taught.
+
+The farmer keeps back one crate for the Archive, as a gift. The cart goes on to the fair with the rest.
+
+How many apples go to the fair? One hundred and ninety-two take away twenty-four is one hundred and sixty-eight.
+
+At the fair the farmer sells them in bags of four, at one emerald a bag.
+
+How many bags? One hundred and sixty-eight apples, four to a bag, is forty-two bags. So forty-two emeralds, if every bag sells. Some bags do not sell. That is the fair's business, not ours.
+
+A last one, which caught me. The farmer has three hens and each hen lays one egg a day. How many eggs in a week of seven days?
+Three hens, seven days, is twenty-one eggs. I wrote twenty-four the first time, because I counted the days wrong. Nessa says always write your working, so that when you are wrong you can see where. She is right, and it is no comfort, but it is right.
+%%
+Sum: the swarm that went to the oak
+A sum for a winter evening, set by Opal, who keeps a glass works and a few bees, on the farm outside Three Wells.
+Last summer a swarm of 6000 bees left the hive and hung in a lump from the old oak. Opal sat under the tree with a basket. After an hour, a third of the swarm went back to the hive on its own. The rest stayed in the oak.
+How many bees went home? How many stayed in the oak?
+Working. A third of 6000 is 6000 divided by 3, which is 2000. So 2000 went home. 6000 take away 2000 leaves 4000.
+Answer. 2000 went home. 4000 stayed in the oak, and Opal carried them back in the basket, one hand at a time.
+%%
+Market sums: the honey jars
+By Pell, merchant on the Long Road, at the fair outside Vell.
+
+I keep a stall at the summer fair by the Vell road, on the flat field past the last orchard. Ama brings honey from Ambrook. I bring the jars and the sums.
+
+Here is the sum I put on my board, for the children and for any clerk who wants to try it.
+
+Ama brings three crates. Each crate holds four rows of jars. Each row holds five jars.
+
+How many jars in all?
+Three crates, four rows each, is twelve rows. Twelve rows of five jars is sixty jars.
+Or: four rows of five is twenty in a crate. Three crates of twenty is sixty. Both ways give sixty. I checked twice, because the second way is quicker and quicker is not always right.
+
+A jar sells for two emeralds. How much for all sixty?
+Sixty jars at two emeralds is one hundred and twenty emeralds.
+That is a good day. It is not my good day. Half the jars are Ama's, and her bees did the work.
+
+The prize at my stall: whoever works the sum right on the board and tells me the two answers gets a small jar of honey, and a ribbon. The ribbon is red. Last year a girl from the school won it and gave the honey to her grandmother. This year I have two ribbons, in case.
+
+One more, for the clerks who like a trick. A jar and its lid weigh the same as a jar with no lid and a stone of one weight. The lid weighs a little. How can that be?
+Answer: it cannot, unless the two jars are not the same jar. I wrote it to catch people who read too fast. It caught three.
+%%
+Sums for the fence at the market gate
+Set by Una, net mender, at Copperhold, after the quarrel over the fence. Two farmers from the south road disagreed about where the fence ran, and the whole market came out to measure it. Una was asked to work the sums on the bench, so that everyone would agree with the answer, and nobody would have to say they were wrong.
+
+The fence runs from the corner post to the gate. The corner post is at one end of the market yard. The gate is at the other end. The yard is twenty-four arms long, and the fence is put in every four arms.
+
+1. How many posts are needed for the fence, not counting the corner post?
+Working: twenty-four arms, with a post every four. Four, eight, twelve, sixteen, twenty, twenty-four. That is six posts. But the last one is the gate, so take one away.
+Answer: five posts, and the gate.
+
+2. Farmer Hanne says her half of the fence is nine arms. Farmer Dagan says his is fifteen. Do they add up to the whole yard?
+Working: nine and fifteen is twenty-four.
+Answer: yes, they add up. The fence is exactly where it was.
+
+3. Hanne says the posts on her half were set by her father, and there are three. Dagan says his posts were set by his father, and there are four. How many posts in all?
+Working: three and four is seven. But the gate is shared, and it is counted once in the yard.
+Answer: six posts, which is one fewer than the two farmers counted, because they had each counted the gate.
+
+4. A rail for the fence is one arm long, and each gap between posts takes two rails. How many rails for the whole fence?
+Working: the fence has five gaps, between the corner, the posts, and the gate. Five gaps at two rails each is ten rails.
+Answer: ten rails.
+
+5. The farmers have agreed that each will pay for half the rails. Each rail costs one-quarter of an emerald. How much does each farmer pay?
+Working: ten rails at a quarter is two and a half emeralds. Half of that is one and a quarter.
+Answer: each pays one and one quarter emeralds.
+
+Una says that the fence was never in dispute. The dispute was about the gate, and the gate is still where it has always been. The farmers said that was the most annoying answer they had ever heard, and paid, and shook hands.
+%%
+Sum: the fox and the winter hens
+Winter, on the farm outside Three Wells. A fox came to the hen house every fourth night through the cold. The farmer, Opal's neighbor, wrote the sum himself, for his children, and Opal copied it neatly for the school.
+The farm had 20 hens at the start of Longnight. The winter has 60 nights. A fox comes to the hen house on the 4th night, then the 8th, then the 12th, and so on, every fourth night. Each time it takes one hen.
+After the 6th visit the farmer built a strong door with a bar, and the fox came no more.
+How many nights was it before the door? How many hens are left? In winter each hen lays 1 egg every 3 days. How many eggs do the remaining hens lay in the last 36 nights of the winter?
+And what if the farmer had never built the door? How many visits would the fox have made in all? How many hens would be left at the end of the winter?
+Working.
+The 6th visit is on the 6th fourth night: 6 times 4 is 24. So the door went up after night 24.
+The fox took 6 hens: 20 take away 6 is 14 hens left.
+The last 36 nights: 36 divided by 3 is 12 eggs for each hen. 14 hens times 12 is 168 eggs.
+Without the door: the fox comes on night 4, 8, 12 and so on to night 60. 60 divided by 4 is 15 visits. 20 hens take away 15 leaves 5 hens.
+Answer. The door went up after night 24. 14 hens are left. They lay 168 eggs. Without the door, there would be 15 visits and only 5 hens.
+The farmer says the door cost him two days of work and an oak plank. He says that was cheap. The fox, he says, has never once been kind about it.
+%%
+Note: the new apprentice at the farm
+By Tam, Kettle Ridge, written at his uncle's farm outside Vell.
+
+I came down from the ridge for the summer to help at my uncle's farm past Vell, and I brought Pip. Pip is my apprentice, all copper and iron, and this was its first summer in a field that was not ours.
+
+The farm has a long field of carrots and a bottom field of potatoes, and a ditch of water down the middle of the carrot field. My uncle had no apprentice. He has one now, for the summer, and he calls Pip "the help".
+
+Pip learns by drills. So I drilled it on the carrot rows. I put a basket at the end of a row and said, in the manual way:
+
+> bring me some carrots
+= fetch carrots
+
+Pip went down the row and came back with a basket of carrots. Then it did the row again, and again, and I let it, because a drill is the same thing again and again. By the third row it had the basket full and the weeds pulled and not one carrot from the wrong row.
+
+My uncle watched it all morning. At midday he said, "Does it know the count?"
+
+I said, "It knows the row. The count is mine."
+
+So we made a sum of it. The carrot field has nine rows. Each row gives two baskets. Pip filled the baskets.
+
+How many baskets? Nine rows of two is eighteen baskets.
+
+Then my uncle's cart takes six baskets at a time to the market at Three Wells.
+
+How many cart loads? Eighteen baskets, six to a load, is three loads, with no baskets left over. Pip stood by the cart while we counted. It did not say anything. Apprentices do not talk. But it put its hand on the last basket, and my uncle laughed and said that was as good as a nod.
+
+The fair is next month. My uncle says if Pip brings in the whole carrot field by itself, he will enter it for the prize for best help in a field. I told him the prize is for folk. He said the rule does not say so, and he is going to read the rule very closely.
+%%
+Market day at the Brown Hen
+Toby, charcoal burner, with help from the innkeeper's girl.
+
+Market day. The yard behind the inn fills with stalls before the sun is over the hedge. It is not Three Wells, but it is close, and the road brings folk from Ambrook and the ridge.
+
+Prices, as I heard them:
+Apples, a basket, three emeralds.
+Honey, a jar, two.
+Charcoal, a sack, one. That is mine, and it is fair.
+Wool, a fleece, four. The wool man says it should be five. It is four.
+
+The innkeeper's girl set a sum for the children on her slate. A sack of charcoal and two jars of honey cost seven emeralds. Two sacks and one jar cost eight. What is a sack, and what is a jar?
+
+The baker's boy got it. A sack is three and a jar is one. For see: three and two make five, no. Let me do it proper. One sack and two jars is seven. Two sacks and one jar is eight. Take the first from the second: one sack less one jar is one. So a sack is a jar and one more. Put that in the first: a jar and one, and two jars, is seven. Three jars and one is seven. A jar is two. A sack is three.
+
+He got a bun for it. He shared the bun with the fox, who was back, and awake this time.
+
+Toward evening a traveler said the relays were quiet up north. Another said they were quiet everywhere and always had been, and he was only saying so to be gloomy. The innkeeper's girl rubbed out her slate and set a new sum for tomorrow.
+%%
+Sums: the whole autumn of the road
+Sums from the carter's book, for the last week of the autumn lessons. They are all about the road, and all about the people who use it. Show your working. Miss Nell has asked us to write the answer in a full sentence as well as a number.
+Sum 1. A carter sets out from Three Wells with 16 sacks of wheat for Saltreach. He sells 6 at Vell and 5 at the Halfway Inn. How many sacks reach the sea? Working: 16 take away 6 is 10. Ten take away 5 is 5. Answer: 5 sacks reach the sea, and the carter says the sea was pleased.
+Sum 2. A cart costs 4 emeralds to mend on the new road. The toll for the same cart is 2 emeralds each trip. How many trips pay for the mend? Working: 4 divided by 2 is 2. Answer: 2 trips. After that, the cart is paid for and the road is free.
+Sum 3. The family from Lowmarsh has two carts and five children, and each child carries one bundle. How many bundles go down the road if every cart holds 10? Working: 2 carts at 10 is 20 bundles. The children carry 5 more. Add them, and 25 bundles go. Answer: 25 bundles.
+Sum 4. The lamp oil for the north relay costs 3 emeralds a jar, and the keeper uses 4 jars a month. How many emeralds does the relay spend in three months? Working: 4 jars a month at 3 is 12 emeralds. Three months is 36. Answer: 36 emeralds.
+Sum 5. A school has 22 children, and each child has one slate. A slate costs 2 emeralds. How many emeralds did the school spend on slates? Working: 22 at 2 is 44. Answer: 44 emeralds. Miss Nell says the slates were a gift from Vell, so the school spent nothing, but the sum is still correct.
+Sum 7. A waymark is set every 12 blocks. The road from Ambrook to Three Wells is 48 blocks. How many waymarks are on the road, counting the ends? Working: 48 blocks, a mark every 12, is 4 gaps. Four gaps has 5 marks, counting the two ends. Answer: 5 marks.
+Sum 8. A family goes to Saltreach with two carts, one full of furniture and one full of wool. The furniture cart weighs 3 times as much as the wool. If the wool weighs 4 sacks, how many sacks does the furniture weigh? Working: 3 times 4 is 12. Answer: 12 sacks. Miss Nell says the family will be glad to have the sum finished before the carts go.
+Sum 10. A carter with a load of honey stops at the Halfway Inn for 2 nights. The inn charges 1 emerald a bed, and the carter eats 2 bowls of soup for 1 emerald. How many emeralds does he spend? Working: 2 beds at 1 is 2. Soup is 1 emerald. Answer: 3 emeralds. The carter says the second bowl was free, as always, and so it is 2 emeralds, and Miss Nell says that is not in the book.
+%%
+The long winter at the hamlet
+Tova, cook at the inn of twelve beds. Written in spring, looking back.
+
+We had a long winter this year. Longnight came early and stayed past Deepsnow. The snow was up to the middle of the door for a week, and then it was up to the top of it, and then we stopped measuring.
+
+The inn of twelve beds had fourteen people in it. Some had come off the Long Road and could not go on. Pell the merchant was one, with his cart stuck in the drift by the third waymark. He slept by the fire and paid me in stories, which he says are worth more than emeralds. They are not. But they are worth something.
+
+We ate a great deal of soup. Carrots keep well in the cold store and so do potatoes. The beetroot went soft and we ate it anyway. When the wheat ran low I mixed it with ground acorns, which is not a thing I would serve a guest in Blossom, but nobody complained in Longnight.
+
+Here is the sum I did by lamplight, over and over, because it kept me calm. Fourteen people, three meals a day, for twenty days of deep snow. That is eight hundred and forty bowls. I had counted four hundred bowls' worth of stores in the cold room. So I sent the two boys out to the Ambrook road for apples, and they came back with apples and honey, and we were all right.
+
+The long winter is a hard thing, but it is a good teacher. You learn what keeps and what does not. You learn who will go out in the snow for apples. You learn that Pell's stories, on the fourth telling, get shorter.
+
+Now it is Thaw. The road is opening. We are down to nine beds and one cat, and the cat is glad of the quiet.
+%%
+The reckoning at the quay
+Told by Rowan, who keeps the accounts of the fish market.
+
+There is a story at the market that everyone tells wrong, so I will write it right.
+
+Old Corin the shipwright owed me fifteen emeralds. This was the spring of the year, when the slip was full and he was too busy to eat, let alone pay. I did not press him. His boats bring my fish.
+
+Then came a bad morning. A boat came in late with a torn net and half a catch. I had nothing to sell. Corin came down the quay with his hands in his pockets.
+
+"I have your fifteen," he said. "Count it."
+
+He set the emeralds on the fish table, one by one. Ten, eleven, twelve, thirteen, fourteen. Then he stopped.
+
+"That is fourteen," I said.
+
+"I know," he said. "I have one more at the house. Wait here."
+
+He went up the hill. He came back with the last emerald and a boy behind him carrying a crate. In the crate was a small apprentice, all copper and iron, that he had been given at the shipyard.
+
+"I cannot pay you the interest," he said. "But the boy needs work and the boy's apprentice needs teaching. Let it carry your crates for a month. That is the interest."
+
+I said that was fair.
+
+So for a month the apprentice carried my crates from the slip to the stalls. It was good at it. It did not drop one. On the last day I asked it to fetch me a crab for my supper. It walked to the slip and came back with a whole crate of crabs. Twenty at least. I laughed until I had to sit down.
+
+"A crab," I said, holding up one finger. "One crab."
+
+It went back and brought one crab. It had understood the second time. The boy said small minds need plain orders. I said I would remember.
+
+I gave it a fish for its trouble. It did not eat the fish. It carried it back to the boy. That was the right thing to do, I think.
+
+Corin's fifteen emeralds are in the box under my bed, all fifteen, and I keep the box locked. The apprentice is back at the slip now, carrying planks. When I pass, it stops and waits, as if it remembers the crabs. I like to think it does.
+%%
+Problems for the quay clerks, Leaffall
+Problems for the quay clerks, Leaffall. Work each one alone. Then compare with the clerk beside you. Do not talk while you work.
+
+1. Ninety-one families have written their names on the board. The big ship has places for forty families. How many families are left on the board?
+Working: 91 minus 40 is 51.
+Answer: 51 families.
+
+2. Each family may take 3 sacks of goods down to the slip. How many sacks for 40 families?
+Working: 40 times 3 is 120.
+Answer: 120 sacks.
+
+3. Each cart holds 12 sacks. How many carts for 120 sacks?
+Working: 120 divided by 12 is 10.
+Answer: 10 carts.
+
+4. Each small boat takes 8 people out to the ship. How many boats for 40 people?
+Working: 40 divided by 8 is 5.
+Answer: 5 boats.
+
+5. The clerk crosses out one name for each family that goes. After the second boat, 80 names are crossed out. There were 91 names. How many are still standing on the board?
+Working: 91 minus 80 is 11.
+Answer: 11 names.
+
+Notes for the clerks: the board is long, and the writing on it is small. Keep the numbers true. The carts come down the north road each morning, and the carters do not say much. A woman asked me last tide where the boats go. I wrote her number on the board, and I did not give her the answer, because I do not have one. Write the numbers. Cross them out only when the boat has gone. Then go home, and eat, and sleep if you can.
+%%
+Letter: Nell to her grandmother
+Nell, aged eleven, to Rowan at Saltreach.
+
+Dear Gran,
+
+Thank you for the sums. I did them all and got them right except the last one, and then I got that right too.
+
+Here is a sum for you. We have a row of nine boats at the pier. The first is red, and every third one after it is red too. How many red boats? I worked it out with stones. The answer is three. The first, the fourth and the seventh. Did you get it? I think you will.
+
+The apprentice carried the nets for us all morning. Then Mother said, bring me the mending, and it brought the whole net. It did not know which part. Mother laughed and showed it the small bundle. It brought that. It learns fast, she says.
+
+You owe me four emeralds for the crabs I found. You said you would pay me when the boats came in. The boats are in. I am not cross. I am only saying.
+
+The frogs are back in the reeds by the slip. The little ones count them. There are more every day.
+
+Your Nell
+%%
+Sum: the wood pile and the long cold
+Winter, a puzzle set by Opal after a night when the stove went out. She wrote it on the slate at the kitchen door, and the children of the farm were not allowed to eat until they had solved it.
+The kitchen stove burns 3 logs a day in winter. The wood pile by the barn holds 90 logs. The cold months are Longnight and Deepsnow, which are 30 days each, 60 days in all.
+How many days will the pile last? How many logs are needed for the whole cold? How many logs are short? Logs are sold in bundles of 6 at 1 emerald a bundle. How many emeralds will it cost to make up what is short?
+Working.
+90 logs, 3 logs a day: 90 divided by 3 is 30 days. The pile lasts one month.
+60 days at 3 logs: 60 times 3 is 180 logs.
+180 take away 90 is 90 logs short.
+90 logs in bundles of 6: 90 divided by 6 is 15 bundles.
+15 bundles at 1 emerald each: 15 emeralds.
+Answer. The pile lasts 30 days. 180 logs are needed. 90 are short. It costs 15 emeralds.
+Opal adds that the children solved it in the time it takes to boil a pot of soup. Then they carried the wood to the barn themselves. This is one of the best sums in her book, because after it, there was wood.
+%%
+Puzzle: the egg count at Three Wells
+Tova, cook at the inn of twelve beds, sets this one out for the school children.
+
+A farmer at the hamlet near Three Wells brings eggs to market in baskets of twelve. On the first day she brings five baskets and sells three. On the second day she brings seven baskets and sells five. On the third day she brings four baskets and sells none, because it rained and nobody came.
+
+How many eggs has she left at the end of the three days?
+
+Work it out in baskets first, then in eggs.
+
+Day one: five baskets in, three sold, so two baskets left.
+Day two: seven baskets in, five sold, so two baskets left.
+Day three: four baskets in, none sold, so four baskets left.
+
+Now add the baskets: two and two and four is eight baskets.
+Eight baskets of twelve is ninety-six eggs.
+
+The answer is eight baskets, or ninety-six eggs.
+
+Sorrel at the school says the trick is to keep the baskets whole until the end. If you turn every basket into eggs at the start you will count a great many eggs and lose your place. Keep the big pieces big, she says, and break them small only at the last.
+
+I tried it the other way and got eighty-four, twice. So Sorrel is right.
+%%
+Sums for the quay, Apple
+Sums for the children at the quay school, by Ama, who digs the wells at Saltreach. Show your working. The fish do not wait while you count, so count quickly and check slowly.
+
+1. A net holds 30 fish. The boat brings in 4 nets. How many fish is that?
+Working: 30 times 4 is 120.
+Answer: 120 fish.
+
+2. A string of salt fish has 6 fish. The stall sells 9 strings in the morning and 5 in the afternoon. How many strings in all?
+Working: 9 and 5 is 14.
+Answer: 14 strings.
+
+3. A barrel holds 12 salt fish. The quay wants 50 fish for the cold months. How many barrels are needed?
+Working: 4 barrels hold 48. Two fish are left, so one more barrel is needed.
+Answer: 5 barrels.
+
+4. The shed has 7 oars. The boats need 12. How many more oars must be made?
+Working: twelve minus seven is five.
+Answer: 5 oars.
+
+5. Ama digs one well in 4 days. How many wells can she dig in Apple, which has 30 days?
+Working: 30 divided by 4 is 7, with 2 days left over.
+Answer: 7 wells, and 2 days spare.
+
+Ama's note: count twice. The tide keeps its own hours, and the carts keep theirs.
+%%
+Fair notice: the summer prizes
+By Dace, mayor of Three Wells, posted on the notice board and read out at the Vell fair.
+
+The summer fair is held on the flat field past the last orchard, on the Vell road. Stalls open at first light. The bell rings at midday for the contests.
+
+The prizes this year:
+
+Best honey, judged by Ama of Ambrook. A ribbon and a jar of the winner's own honey.
+Best loaf, judged by the baker of Three Wells. A ribbon and a stone of flour.
+Best help in a field. A ribbon and a small copper bell. The rule does not say a helper must be a person. Read the rule closely. Bring your helper and let the judges see the work.
+Best school sum, worked on the board by any child under ten. A ribbon and a bag of apples. The sum is set by Pell, who runs the honey stall, and he is not to give the answer to his own cousins.
+
+Some rules for the day:
+
+Keep the torches lit round the field after dark, and keep the children from the ditch.
+Pay your stall fee at the gate. One emerald for a small stall, two for a cart.
+No running by the horses.
+If you find a lost thing, bring it to the bell.
+
+The judges' sum, for those who want to try it before the day: a farmer brings four crates of apples, six apples to a crate, and gives two apples to each of three children. How many apples are left?
+Six to a crate, four crates, is twenty-four apples. Three children, two apples each, is six apples given away. Twenty-four take away six is eighteen apples left.
+Bring your working to the board. A right answer with no working wins nothing, and a wrong answer with good working gets an apple anyway.
+
+Signed, Dace, mayor.
+%%
+School sums: the bean rows
+By Bel of Three Wells, for the school at the east well.
+
+My teacher set us sums about a farm. I made this one up myself. It is about a farm outside Vell, where my uncle works in summer.
+
+A farmer plants beans in rows. Each row has the same count of beans. There are six rows and eight beans in each row.
+
+How many beans in all?
+Six rows of eight is forty-eight. I counted them on my fingers twice to be sure.
+
+Now the puzzle. A hen gets into the rows. She eats one bean from every row but two.
+
+How many beans did the hen eat?
+There are six rows. She left two rows alone. So she ate from four rows. One bean from each is four beans.
+
+How many beans are left?
+Forty-eight take away four is forty-four.
+
+The farmer put a net over the rows after that. The hen was not sorry. She found the pig pen instead.
+
+My teacher says a good sum has one answer and no tricks. This one has a hen, so it is better.
+%%
+Honey cake for eight: a sum gone wrong
+Recipe sums for the quay supper, by Ama. The old recipe was written for eight people. We needed twelve.
+
+For eight people:
+6 eggs
+2 cups of honey
+4 cups of flour
+1 cup of milk
+A pinch of salt
+Bake until the middle no longer wobbles.
+
+For twelve people, the sum is:
+Eggs: 6 eggs feed 8, so 3 eggs feed 4. Three times 3 is 9 eggs.
+Honey: 2 cups feed 8, so 3 cups feed 12.
+Flour: 4 cups feed 8, so 6 cups feed 12.
+Milk: 1 cup feeds 8, so 1 and a half cups feed 12.
+
+What went wrong: I used 12 eggs, because I thought more is always better. The sum said 9. Then I poured in 4 cups of honey, because I thought a sweet cake is a happy cake. The sum said 3. The cake did not rise. It sank in the middle, slowly, like a tired fox going into its hole.
+
+The quay ate it anyway, every crumb. Tibb asked for the recipe. I gave him the right sum, and he says he will try it in the cold months with fewer eggs. The sum was right. The cook was not.
+%%
+Recipe: spring soup for a wet day
+Tova, cook at the inn of twelve beds, near Three Wells.
+
+Spring comes late to us. The Long Road is mud until Sowing, and the carts come in slow. So we make this soup and it warms the whole inn.
+
+You need:
+Six carrots, cut in rounds.
+Four potatoes, cut in cubes.
+One beetroot, grated, for the color.
+A handful of wheat, ground and mixed with water to thicken.
+Salt. A little honey if the beetroot is sharp.
+
+Put the carrots and potatoes in the pot with water and let them go soft. That is most of an hour. Add the beetroot last or the soup turns too red and the children make jokes about it. Stir in the wheat paste and let it sit a while. Taste it. Add salt, then honey.
+
+We serve it with bread from the bakery, and the brown bread is better than the white for this.
+
+Pell the merchant came through in Leaffall and said he had never had it. I told him it is a spring soup. He said he did not care what season it was, and had two bowls.
+
+The school children come for a bowl on wet days. Sorrel pays me in chalk drawings. I have a good many chalk drawings now.
+%%
+Sum: the copying room and the sick
+A puzzle for the clerks at the Archive at Vell, in summer. Oren sets it, and has checked it twice, because the last one he set had a mistake.
+There are 8 clerks in the copying room. Each copies 6 pages a day. They work for 5 days.
+On the third day, two clerks fall ill with a summer cold and do not come in for the last three days. The other six keep working.
+A book in the Archive is 80 pages long.
+How many pages are copied in all? How many books is that? How many pages are left over?
+Working.
+For the first 2 days, there are 8 clerks. Each copies 6 pages a day. So the room copies 8 times 6, which is 48 pages a day. For 2 days that is 48 times 2, which is 96 pages.
+For the last 3 days, there are 6 clerks. They copy 6 times 6, which is 36 pages a day. For 3 days that is 36 times 3, which is 108 pages.
+In all: 96 and 108, which is 204 pages.
+A book is 80 pages. Two books are 160 pages. Three books would be 240. We have 204. So we have two books, and 204 take away 160 leaves 44 pages over.
+Answer. 204 pages, 2 whole books, 44 pages left over.
+The 44 pages go into the next book. Oren has written their numbers on a slip so no page is lost.
+A clerk must also note the sick clerks. They are in bed. They are drinking honey and water. Wren sent the honey.
+Question to think about. If the two clerks had not fallen ill, how many pages would have been copied? Work it out on your slate. The answer is not on this page, because a clerk should find things out.
+%%
+Sums for the market stall
+Tova, cook at the inn of twelve beds, works these out on the back of the flour sack every market day.
+
+The market at Three Wells runs on the day after Sowing market opens. Stalls round the three wells. I sell soup, bread, and honey cakes.
+
+The honey cakes cost two emeralds each. A child comes with five emeralds. How many cakes can she buy, and what is left?
+
+Two cakes cost four emeralds. She has five. So two cakes, and one emerald left. She buys one more cake from the next stall and eats it before she gets home.
+
+Now the harder one. Three friends come together. They have eleven emeralds between them. They want to share the cakes equally, and they want to spend all their emeralds. How many cakes and how many each?
+
+Eleven emeralds at two each is five cakes, with one emerald left over. Five cakes shared by three friends is one each and two left on the plate. The one emerald goes to the friend who carried the bag.
+
+Pell says this is why he does not sell honey cakes. He sells rope, he says, and rope divides neatly.
+
+The baker's boy says the real puzzle is why I make five cakes when I know three friends are coming. I told him I make twelve. The rest go to the school.
+%%
+Sums: the new inns on the Long Road
+Sums from the carter's book, about the road and the inns that have grown up beside it in the last few years. The road is long, and the inns are good, and the figures are all hopeful. Show your working.
+Sum 1. There were 4 inns on the Long Road at the first spring of the Archive. Now there are 10. How many inns have been built? Working: 10 take away 4 is 6. Answer: 6.
+Sum 2. Each new inn has 12 beds. How many new beds is that? Working: 6 inns at 12 beds is 72. Answer: 72.
+Sum 3. A relay tower stands a day's walk from each inn. The count of relay towers is 34 now. There were 12 in the first winter. How many towers have been raised since? Working: 34 take away 12 is 22. Answer: 22.
+Sum 4. A waymark is set every 12 blocks along the road. The road from Three Wells to Vell is 60 blocks long. How many waymarks are there along it? Working: 60 blocks, one mark every 12, is 5 gaps. Answer: 5 gaps, with a mark at each end, which makes 6 marks in all. Miss Nell says both answers are right, and she will mark whichever one is written more neatly.
+Sum 5. A bridge stands on every stream. The carter's book has 17 bridges on the Long Road, and 3 of them are new this year. How many were there before this year? Working: 17 take away 3 is 14. Answer: 14.
+Sum 6. The carts that cross the new road each day number 40. The carts that crossed the old road last year numbered 25 each day. How many more carts cross now? Working: 40 take away 25 is 15. Answer: 15.
+Sum 7. The Brown Hen takes 1 emerald a bed. It has 12 beds, and 9 of them are full each night. How many emeralds does it take in a week? Working: 9 beds at 1 is 9 each night. Seven nights is 63. Answer: 63. The innkeeper says he will buy a new stove with it, and the stove will be the best on the road.
+Sum 8. A carter brings 20 sacks of grain to the new inn at Ambrook. The inn needs 3 sacks for the week. How many are left over for the hens? Working: 20 take away 3 is 17. Answer: 17. The hens are said to be very pleased with the arithmetic.
+%%
+Sums for the child who went
+Set by Una, net mender, at the Copperhold market, for the children who sit on the bench while the adults argue about prices. This one was written after the day a child went off alone to the far end of the market road, and was found sitting on the bridge with her feet in the water, counting the fish. Una says she was counting the right way.
+
+1. The bridge has seven planks across the stream. The planks are spaced one arm apart. How far is it from the first plank to the last?
+Working: seven planks means six spaces between them. Six arms.
+Answer: six arms.
+
+2. A child sits on each plank in turn, and counts the fish under it. The first plank has four fish. The second has four too. Every plank has four. How many fish in all?
+Working: seven fours. Seven and seven is fourteen, and fourteen and fourteen is twenty-eight. Seven fours are twenty-eight.
+Answer: twenty-eight fish.
+
+3. The child was told to be home at the third bell. She left the market at the first bell. She walked at the speed of a sheep, which is slow, and sat on the bridge for a long time. How many bells did she sit there, if the walk took one bell and the bridge took the rest?
+Working: the market is one bell's walk from the bridge. So one bell for the walk. The third bell is two bells after the first. So one bell on the bridge.
+Answer: one bell on the bridge, with the fish.
+
+4. When she came home, her mother asked how many fish she had counted. She said twenty-eight. Her mother said that was a very good count. Then her mother asked how many planks there were. She said six. Her mother said that was wrong. What was the right answer?
+Working: seven planks, not six. The child had counted the spaces, not the planks.
+Answer: seven planks. Una says the child counted correctly, but for a different question, which is the most common mistake in a market.
+
+5. The child's mother says that next time she will walk with her to the bridge. The child says she would rather count the fish. How many fish must the mother count, to be sure the child has done it right?
+Working: twenty-eight fish, seven planks, four each. The mother will count four under each plank, all seven, and then count again.
+Answer: twenty-eight, twice. A sum is only right when it is checked.
+%%
+Sums for the copper cart and the market
+Set by Una, net mender, at the Copperhold market. The copper cart comes in at the bell, and the stalls sell what the cart brings, and the children are asked to say what everything is worth before the cart is unloaded.
+
+The cart holds twelve bins of copper. Each bin holds seven scales of ore.
+
+1. How many scales are on the cart?
+Working: twelve sevens. Ten sevens are seventy, and two sevens are fourteen. Seventy and fourteen is eighty-four.
+Answer: eighty-four scales.
+
+2. A stall buys six scales at a time. How many visits to fill the cart?
+Working: eighty-four divided by six. Six fourteens are eighty-four.
+Answer: fourteen visits, with no scale left over.
+
+3. Each scale is sold for two emeralds to the first stall, and for one and a half to the second. How much does the first stall pay for six scales? How much does the second pay?
+Working: six twos are twelve. Six halves of a one and a half are nine.
+Answer: the first stall pays twelve emeralds, and the second pays nine.
+
+4. The carter has a fee of one emerald for each bin he carries. How much does he earn for the whole cart?
+Working: twelve bins, one emerald each.
+Answer: twelve emeralds.
+
+5. The carter wants to know whether the sum is fair. He has twelve emeralds. The first stall has paid twelve for six scales, and the second has paid nine. The market has not yet been paid for the rest. How much is left to be paid, if the cart has fourteen visits, and each visit is worth the same as the first?
+Working: fourteen visits, and each visit is twelve or nine. Let us say each visit is the average of twelve and nine, which is ten and a half. Fourteen tens and a half. Fourteen tens are a hundred and forty. Fourteen halves are seven. A hundred and forty-seven.
+Answer: about one hundred and forty-seven emeralds for the whole cart, and the carter takes twelve of them.
+
+Una says the carter always asks this question, and that he is always told the answer is too high. She says he is right to ask. The answer is only a guess, until the market has finished paying.
+%%
+The song contest, counting the votes
+Written by Corin, shipwright, the autumn the Saltreach song contest was held on the harbor wall, with the tutors from Vell as judges. The votes were counted on the back of the fish board and then copied fair. This is the count, and the sums that went with it.
+
+There were eleven songs. Each song had one judge's card for each of the three halls. Each card held ten marks. The best song got the most marks in total.
+
+1. How many cards were there in all?
+Working: eleven songs, three cards each. Eleven threes are thirty-three.
+Answer: thirty-three cards.
+
+2. How many marks in all, if every card gave every mark?
+Working: thirty-three cards, ten marks each. Thirty-three tens are three hundred and thirty.
+Answer: three hundred and thirty marks.
+
+3. The Gull's Dawn song had cards of seven, eight and nine. What did it score?
+Working: seven and eight is fifteen. Fifteen and nine is twenty-four.
+Answer: twenty-four marks.
+
+4. The Net Mender's Wife had cards of nine, nine and ten. What did it score?
+Working: nine and nine is eighteen. Eighteen and ten is twenty-eight.
+Answer: twenty-eight marks, the best so far.
+
+5. The Ship on the Slip had cards of ten, nine and ten. What did it score?
+Working: ten and nine is nineteen. Nineteen and ten is twenty-nine.
+Answer: twenty-nine marks. It was one behind the Net Mender's Wife.
+
+6. Who won?
+Working: the Net Mender's Wife had twenty-eight, the Ship on the Slip had twenty-nine. Twenty-nine is more than twenty-eight.
+Answer: The Ship on the Slip won by one mark.
+
+The Net Mender's Wife came to the wall to shake the judge's hand, and said the sum was wrong, and asked for a recount. The judges recounted the cards and it was still twenty-eight to twenty-nine. She said that was very annoying, and then she sang the song again, very loudly, from the top.
+%%
+Sums for a mended roof
+Chalked on the board at the Archive stall at the Vell market, autumn of 203. The roof of the clerks' house leaked all through the rain, and the roofers are coming. Oren has done the sums so that nobody is surprised. I would like to be surprised only by good things.
+The roof has two sides. Each side has 8 rows of reed bundles. Each row has 15 bundles.
+1. How many bundles are on the whole roof?
+Working: 8 rows of 15 is 120. That is one side. Two sides make 240. Answer: 240 bundles.
+2. The reed seller from Lowmarsh sells 5 bundles for 1 emerald. What does the roof cost in reeds?
+Working: 240 bundles, 5 for each emerald. 240 divided by 5 is 48. Answer: 48 emeralds.
+3. Some bundles blow away or crack. Oren buys 20 more. How many in all, and what do they cost?
+Working: 240 and 20 make 260. 260 divided by 5 is 52. Answer: 260 bundles, 52 emeralds.
+4. Two roofers will work. Odo lays 5 rows in a day. Bryn lays 3 rows in a day. The roof has 16 rows, 8 on each side. How long will it take them, working together?
+Working: 5 and 3 make 8 rows in a day. 16 rows at 8 a day is 2 days. Answer: 2 days.
+5. Each roofer is paid 3 emeralds a day. What do the roofers cost, and what is the whole roof?
+Working: 2 roofers, 2 days, 3 emeralds each a day. 2 times 2 is 4 roofer-days. 4 times 3 is 12. The reeds were 52. 52 and 12 make 64. Answer: roofers 12 emeralds, the whole roof 64 emeralds.
+6. The rain. A leak drips into a bucket on Oren's desk. The bucket holds 20 cups. It fills in 4 hours. How many cups fall in an hour?
+Working: 20 divided by 4 is 5. Answer: 5 cups an hour. The leak has dripped through 44 hours of rain. I have emptied the bucket eleven times. The papers on my desk are in a box.
+The roof was mended in 2 days, as the sums said. It has not leaked since. Odo asked me what the sums were for. I said I like to be sure. He said, "So do I. That is why I never leave a hole."
+%%
+The Brown Hen, a wet night
+Toby, charcoal burner, writes this by the fire.
+
+Rain all day. The road is mud to the ankles. Nobody came in but a wool cart and a woman with a fox in a basket, and the fox was asleep.
+
+The innkeeper's girl has a puzzle for travelers now. She writes it on a slate by the door and rubs it out when someone gets it. Tonight it was this: a hen and a half lays an egg and a half in a day and a half. How many eggs do three hens lay in three days?
+
+The wool man said six. The woman with the fox said four. The girl would not say. She only smiled and wiped the slate when the fire burned low.
+
+I worked it slow. A hen and a half, in a day and a half, is one egg and a half. So one hen in a day and a half lays one egg. So one hen in three days lays two. Three hens in three days lay six.
+
+The wool man was right and he was pleased. The woman with the fox said the hen and a half was a foolish hen and went up to bed.
+
+The rain stopped near midnight. The fox woke up and ate nothing and went back to sleep.
+%%
+Sum: the Heron comes home late
+Summer, from the market at Vell. A sum for clerks who keep the tally of boats, set by Oren from a letter sent up from Saltreach.
+The fishing boat Heron went out at the first bell. It was due home at dusk, twelve hours later. It came home three hours late.
+For nine of its hours at sea it fished, and it caught 40 fish in each of those hours. The crew sold all the fish at the quay for 1 emerald for each 3 fish. There are 6 in the crew, and they share the emeralds equally.
+Questions. How long was the Heron away? How many fish did it catch? How many emeralds did it earn? How many does each of the crew get?
+Working.
+The boat was due home after 12 hours and came home 3 hours late, so it was away 12 and 3 more, which is 15 hours.
+It fished 9 hours at 40 fish each hour: 9 times 40 is 360 fish.
+Three fish for 1 emerald: 360 divided by 3 is 120 emeralds.
+Six in the crew share 120 emeralds: 120 divided by 6 is 20 emeralds each.
+Answers. 15 hours away. 360 fish. 120 emeralds. 20 emeralds each.
+A note from Oren. A clerk must check every working twice. 20 times 6 is 120. Good. 120 times 3 is 360. Good. It is a small sum, but a clerk in a hurry will lose a fish.
+The crew were very glad to be home. The cook says the late hours were the best of the trip, because they saw a whale. Nobody believes the cook.
+%%
+The charcoal burner's sum
+Toby writes this slowly, because his hands are black.
+
+I am a charcoal burner. I live in the woods north of the inn and I burn wood slow under turf and I sell the black to the smiths. It is a quiet trade. You sit and watch a kiln for two days and you think about sums.
+
+Here is one I set myself. A kiln takes a stack of wood four blocks long and three wide and two high. Each block of wood is one measure. How many measures go in?
+
+Four and three and two. Four times three is twelve. Twelve times two is twenty four. Twenty four measures.
+
+The smith at Three Wells wants a sack of charcoal every ten days. A sack is four baskets. A basket is six lumps. How many lumps in a season of thirty days?
+
+Three sacks in thirty days. Three times four is twelve baskets. Twelve times six is seventy two lumps. I told the smith. He said, that is a lot of watching a kiln. I said, it is.
+
+My boy asks why I do sums in the woods. I say, because the wood does not talk and the numbers do, a little.
+
+A man passed today and said the stone down at the Deep Works grows warm and the miners will not go below a level. He said it like a joke. Then he said it again, not like a joke. I do not know. I only know wood, and wood is cold in the spring and that is how I like it.
+%%
+Sums with an old map
+From the Archive stall at the Vell market, autumn of 206. A clerk found a torn map in the sixth hall, drawn long ago, of the roads between the towns. It is brown at the edges and has a smudge where someone put down a cup. The scale on the corner says: one thumb is half a day's walk. Oren has copied the distances, and the puzzles are below.
+On the map: Vell to Three Wells, 3 thumbs. Three Wells to Ambrook, 4 thumbs. Vell to Copperhold, 4 thumbs. Copperhold to Lowmarsh, 4 thumbs. Lowmarsh to Saltreach, 2 thumbs. Saltreach to Ambrook, 4 thumbs.
+1. How many days is it from Vell to Saltreach, by Copperhold and Lowmarsh?
+Working: 4 and 4 and 2 make 10 thumbs. Each thumb is half a day. Half of 10 is 5. Answer: 5 days.
+2. How long is it from Vell to Three Wells, in days?
+Working: 3 thumbs, and half of 3 is one and a half. Answer: a day and a half. A walker sleeps at the Halfway Inn, and has the carrot soup.
+3. The map is torn between Copperhold and Saltreach. The torn part holds Lowmarsh. The old writing says Copperhold to Saltreach is 6 thumbs. How far is it from Lowmarsh to Saltreach?
+Working: Copperhold to Lowmarsh is 4 thumbs. The whole is 6. 6 less 4 is 2. Answer: 2 thumbs, which is one day. The clerk who tore it did it neatly. I will forgive her when she tells me her name.
+4. Pell goes from Saltreach to Ambrook, and then from Ambrook to Vell, by Three Wells. How many thumbs, and how many days?
+Working: Saltreach to Ambrook, 4 thumbs. The map does not give Ambrook to Vell. But it has Ambrook to Three Wells as 4, and Three Wells to Vell as 3. So Ambrook to Vell is 4 and 3, which is 7. The whole is 4 and 7, which is 11 thumbs. Half of 11 is five and a half. Answer: 11 thumbs, five days and a half. Pell takes six, because of the honey.
+5. The smudge. The smudge covers one town. It sits halfway between Vell and Copperhold. How many thumbs from Vell?
+Working: Vell to Copperhold is 4 thumbs. Half of 4 is 2. Answer: 2 thumbs from Vell. There is no town there. It is a smudge. I have written this in the margin, so that nobody builds an inn on it.
+%%
+Sum: panes, breakage and emeralds
+Winter, on the farm outside Three Wells. Set by Opal for the glass works' young hands, who like to know where their wages go.
+The works makes 12 panes of glass each day. It works for 5 days. One pane in every 6 is cracked in the cooling and is broken up for the furnace. The rest are sold at 3 emeralds a pane.
+How many panes are made in all? How many are cracked? How many are sold? How many emeralds does the works earn?
+Working.
+12 panes a day for 5 days: 12 times 5 is 60 panes.
+One in 6 is cracked: 60 divided by 6 is 10 panes.
+The rest are sold: 60 take away 10 is 50 panes.
+50 panes at 3 emeralds each: 50 times 3 is 150 emeralds.
+Answer. 60 made, 10 cracked, 50 sold, 150 emeralds.
+A thought for the young hands. If you cooled the glass more slowly, fewer would crack. Opal found this out in the winter of her first year. She also found out that a slow cooling takes more coal. That is a sum for another night.
+%%
+Puzzle: the egg basket
+Set down by Toby, charcoal burner, at the Brown Hen one wet evening in spring.
+
+A basket holds eggs. Two people share them. The first takes half the eggs and one more. The second takes half of what is left and one more. Then the basket is empty. How many eggs were in it?
+
+Work it backward. The second took half of what was left, and one more, and then nothing was left. So before the second took any, there were two eggs. Half of two is one, and one more makes two. Gone.
+
+Now the first. Before the first took any, there were some eggs. The first took half, and one more, and two were left. So half the eggs is three. The basket had six.
+
+Six eggs. The first takes three and one more: four. Two left. The second takes one and one more: two. None left.
+
+My boy worked it in his head before the soup came. He is quicker than his father. I checked it with stones on the table, twice, and got six both times.
+%%
+Puzzle: the farmer
+A very old puzzle, which the Vell market has told for as long as there has been a market. Oren has set it down in a clear hand, with the working.
+A farmer must cross a river with a fox, a hen and a sack of wheat. The boat is small. It holds the farmer and one thing at a time. The farmer must row each time.
+If the fox is left alone with the hen, the fox eats the hen. If the hen is left alone with the wheat, the hen eats the wheat. The fox does not care for wheat. The farmer must get all three across.
+How?
+Many people try to carry the fox first, or the wheat first, and find that something is eaten. Think about what is left behind each time. Try it on your slate with three coins and a stone.
+Working. Each trip over the water is one crossing.
+Crossing 1. The farmer takes the hen across. The fox and the wheat are left on the first bank. They are safe together, because the fox does not eat wheat.
+Crossing 2. The farmer goes back alone.
+Crossing 3. The farmer takes the fox across. Now the fox is on the far bank with the hen. That would be bad.
+Crossing 4. So the farmer brings the hen back with him.
+Crossing 5. The farmer leaves the hen on the first bank and takes the wheat across. The fox and the wheat are together on the far bank. That is safe.
+Crossing 6. The farmer goes back alone.
+Crossing 7. The farmer takes the hen across. All three are on the far bank, and nothing has been eaten.
+Answer. Seven crossings: hen over, back alone, fox over, hen back, wheat over, back alone, hen over.
+A note from Oren. The trick of the puzzle is that a thing may be brought back. People forget that. A thing that has been carried over may be carried again.
+Children in the school yard play it with three stones and a stick. A clever girl once solved it in nine tries. Oren was very proud of her. She went off to be a boat builder.

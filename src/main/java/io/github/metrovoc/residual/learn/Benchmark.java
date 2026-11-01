@@ -30,8 +30,8 @@ public enum Benchmark {
      */
     ORDERS(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
     /**
-     * Reading: the next letter of archive text it has never seen. Getting below 1.40 takes nearly the whole archive,
-     * and a tokenizer or a large model.
+     * Reading: the next letter of archive text it has never seen. A two-layer GPT 64 wide gets below 1.40 from about 300
+     * found records (1.39 after 4,000 steps, where 100 stay above 1.50); one 32 wide stays near 1.59 even on 1,000.
      */
     READING(Vocab.CONTEXT, Task.Metric.LOSS, 1.4),
     /**

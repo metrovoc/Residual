@@ -1,0 +1,2581 @@
+Answer: the Archive
+To Corin, shipwright, at the hamlet by Saltreach, from the clerk on the relay desk at Vell.
+
+Corin,
+
+We have read your second letter. We have read it twice, and we have given it to the head clerk, who has read it once, and then gone quiet, and then asked for the tea.
+
+We cannot tell you who is holding the pen. We do not know. The Archive does not know what the lamps say when no one is looking, and we have never pretended to.
+
+What we can tell you is what the other towers say. The keepers on the line sometimes find writing in their books that gives them a fright. They say it is always a keeper's hand, and that the keeper is always sure of it, and most of the time it is true. Yours is the first we have heard of where the keeper is not sure. Please do not think it is common.
+
+Keep the logs. Keep the boats in. Keep the keeper where he can see the lamp, and keep him fed, and keep him from being alone with it at night. If the blink changes, write the new word down. If it stops, write that down too.
+
+The Archive will keep your letters, all three. That is the only thing we can promise.
+
+The clerks of the Archive, Vell
+%%
+Letter: Oren to Ilse, a roof in Frost
+
+Dear Ilse,
+
+Keep both maps. A mended map can tell us what changed and what stayed. Please write the date of the repair on the old one, and the names of the people who helped.
+
+The Archive keeps copies, drafts, and maps with marks on them. We do not keep every scrap, but we keep things that tell a true part of a life. Your old map shows the harbor before the roof was mended. It also shows where you carried it when the room grew wet.
+
+I like the beetroot bowl. It is not a map feature, but it sounds like a kind thing to do. Please thank Sella and the shipwrights from us. Tell them the Archive has a dry roof, though one clerk still checks it whenever the wind blows.
+
+Do not try to mend a roof alone. The sea wind is a poor helper.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Ossa, the melon too big
+Dear Oren,
+A melon grew on the inn's bank so large that the cart could not take it. The inn's apprentice, one of the new ones from Vell, was told to fetch the melon for the cart. It fetched the melon, from the bank into the middle of the road, and then it sat with it there until nightfall, because it had not been told to take it anywhere else.
+Was it wrong, or was it obedient? The innkeeper says both. I say it is a question for the archive.
+Ossa
+Answer, from Oren, clerk of the archive at Vell:
+Dear Ossa,
+It was wrong, and it was obedient, and both are true. An apprentice of the early kind does one thing at a time, and does exactly what the words say. The order was: fetch the melon for the cart. It understood fetch, and melon, and cart, but not the whole sentence.Tell the innkeeper to say:
+> carry the melon to the cart
+The answer to expect is:
+= haul
+Then the melon goes where it belongs.
+Oren
+%%
+Letter: Nessa, Clank's homecoming
+Dear clerks,
+Clank came home to Copperhold on the first of Longday, in the 201st year of the archive, from the drill hall at Vell. Hesk met him at the shaft head. He put his hand on Clank's copper shoulder and left it there so long that the shift bell rang late.
+Is there a line in the register for a homecoming?
+May I copy Clank's drill record for Hesk? He asked me to. He will not ask twice, so I am asking for him.
+Nessa, tutor
+Answer, from Oren, clerk of the archive at Vell:
+Dear Nessa,
+There is a line for a homecoming. Enter Clank as: home, Copperhold, Longday. It sits in the same column as the namings.
+You may copy the drill record for Hesk. Copy every line, including the bad ones. Hesk will want to see the bad ones first, and he will be right to.
+Tell Hesk the shift bell was late this week. We will say nothing to anyone.
+Oren, clerk
+%%
+Letter: Mira to Tam, a quiet week
+Tam,
+
+The cold came early. Snow on the hill since the second of Leaffall, and the rungs of the tower are slick. Lantern puts sand on them every morning. She says the sand is the only thing she does that stays done.
+
+A quiet week, so I will tell you about a fox. There is a vixen who comes at dusk and sits by the foot of the tower where the torches are warm. She does not beg. She sits as if she is on duty. Lantern has named her Keeper and says she outranks me. When the lamp goes round at the top, Keeper's ears turn to follow it. Back and forth, all night. I do not think she is watching for words. I think she likes the light.
+
+The big mind in the relay house hums a little in the cold. The quickeners are ringed with snow and it is cool enough. I put my hand on the stand each morning like a farmer feeling a cow. It is fine.
+
+Two letters went out this week and one came in. The one in was from a child at Three Wells asking how the lamp carries a letter so far. I will write back. I will tell her it is people, watching and writing, tower to tower. That is the truth and it is a good thing to know.
+
+Tell Pip the beetroot in the bottom field wants pulling before the frost. Tell him I said so, and tell him I know he will say he was just about to. Tell him the fields are patient and so am I.
+
+Keep the torches lit.
+
+Mira
+%%
+Letter: Lorn to the Archive, the wheel
+Dear Archive,
+
+The mill wheel on the stream below the tower broke in the thaw. The ice pushed a spoke through the rim. We grind our flour there, and without it we are eating eggs three times a day. Even I am tired of eggs.
+
+Our miller says his grandfather had a drawing of the wheel, but it burned. He says we will have to guess. I say guessing is how it broke.
+
+Does the Archive keep a drawing of a mill wheel?
+
+Lorn, the Northpoint market
+
+Below it, in the clerk's hand:
+
+Dear Lorn,
+
+Yes. We have the plan of Jory's mill wheel at Ambrook, copied out with every spoke measured. It is eleven pages. A copy goes north on the next cart. Page 4 is the rim. Page 7 is the spokes.
+
+Tell your miller one thing now, so he can start. The spokes are oak, and they are set slanting, not straight, so the ice has less to push on. Mend it in dry weather. Oak that is wet when you cut it will crack.
+
+If you can, send the old rim back to us when the new one is on. We like broken things. They tell us what the plan does not.
+
+Ulla, head clerk
+%%
+Letter: Emmet to the Archive at Vell
+Clerks of the archive,
+
+I am Emmet. I keep horses at the edge of Kettle Ridge, where the ridge road meets the Long Road. I have a question, and my neighbor Hattie says the archive answers questions, so I am writing.
+
+My bay mare, Bracken, will not stand still for the farrier. She is good at everything else. She pulls a cart, she carries my girl to market, she waits at the gate. But when the farrier comes with his tools, she walks backward and will not stop.
+
+Is there a way to teach a horse to stand? I have tried apples. I have tried a firm voice. I have tried standing with her.
+
+Emmet
+Stable hand, the edge of Kettle Ridge
+%%
+Letter: Oren to Cass, answering
+Dear Cass,
+
+Thank you for your letter. It came up the Long Road in a bag with a hundred others. I read it at my desk by the window and I am glad you wrote.
+
+One. Why does a crystal learn? I have looked, and I cannot find it written anywhere. The first tutors drilled their four apprentices and never wrote down why it worked. They only wrote what they did. So your teacher is right. Nobody knows. We keep everything we write, but we did not write that.
+
+Two. How does the lamp carry a letter so far? Here is what the keepers say. A lamp is not for words. It is for one thing only: light or no light. The keeper at one tower blinks the light in a pattern. The keeper at the next tower watches through a spyglass and writes down what he sees. Then he blinks it on to the next. It is not magic. It is people, watching and writing, tower to tower, all night. That is why every tower has a keeper, and why Northpoint's has ninety rungs to climb.
+
+Three. Did people always have apprentices? Not always. The first four were drilled at Vell in the early years, and the children named them apprentices. For a long time most towns had none. Now most do. So your grandmother's grandmother may well have had one.
+
+Your apprentice does not talk because apprentices do not talk. They answer by doing. Tell it bring me some flour and it will fetch flour. Tell it come and it will come. That is all. The big minds in the relay houses write letters, but they are not in an apprentice.
+
+Keep your letter in your box. Write again.
+
+Oren, clerk at the Archive at Vell
+%%
+Northpoint log, the hard frost
+Mira, keeper, writing.
+
+The twelfth of Deepsnow. The cold came down in the night and did not lift. The lamp glass fogged at the top and I wiped it twice. The relay ran fine. I sent the morning signal to Vell and it was answered before I had put the cloth down.
+
+At Coldhollow the well is dry, so the folk there carry water from the stream. I walked down with two buckets because my legs wanted the walk. The stream is not frozen at the bend. We filled the buckets and stood a while, breathing, watching the water go. Arlo came down with his own buckets and we carried them up together. He talked the whole way about bees. I did not mind. The hill is steep and the talk made it shorter.
+
+The cow is up and eating. The children have made a rope halter for her out of old cord and they lead her round the yard like a prize. She is thin. She is well. They have named her Daisy twice.
+
+Lantern kept the lamps all day, which was not needed, but the days are short and the lamp room is warm with the glass shut. I did not send her down. There is nothing to do in the dark.
+
+The frost has made patterns on the inside of my window. They look like ferns. I have seen them every winter of my life and I still stop to look.
+
+Tam writes that Pip the apprentice has learned to plant and to wait. He says it made two mistakes in a whole row and he cheered. I am glad for him. I would not mind an apprentice here to carry the water up the hill. But then I would have less to talk about with Arlo.
+
+The night is long. The lamp is lit. All is well at the tower.
+
+Mira
+%%
+Senna's lesson note
+I held a lesson today for three helpers from the farms near Barley End. The small mind in the first helper knows the old drill. It sorts apples from pears. It has done that well for two summers.
+
+I wanted to teach it the names on our jars. Moss brought labels from the healing room. We had honey, beetroot, carrots and salt. I read each label aloud. Then I put the jar beside its label and let the mind sort them.
+
+It did well until Pip carried the jars in from the shed. The labels had got wet. Honey was written on one, but the ink had run into a black mark. The mind set the jar beside the beetroot.
+
+I said the lesson had gone badly. Pip said the jar had gone badly too, since he had dropped it. The jar did not break. The honey did not spill. This was some comfort.
+
+I took the wet label away. We dried the others by the hearth and tried again. The mind sorted the clear labels well. It still guessed at the black mark.
+
+Nessa says this is why we need many pages, and why we must keep pages for tests. A mind should not be praised for knowing a lesson it has already seen. Tomorrow I will bring labels from the market, and keep them covered until the test.
+
+Pip says he will bring a dry basket. I have written that down so he cannot forget it.
+%%
+Letter: Ossa, the first tutors
+Dear Oren,
+This is a long letter, because it is winter at the inn, the carters are sleeping in the stable, and I have nothing to do but ask questions.
+My grandmother says the first tutors had a drill room with a window full of snow, and that the apprentices stood in a row in it, and were told what was right. Is this true? Did the children really call them apprentices? Did the four have names, or only numbers?
+My father says the first apprentices were never sent out of the drill room until the tutors were certain. My mother says they were sent out at once, into the fields, and that was why the first ones failed. I would like to know which of them was right, if either.
+Last, a small question. The inn has an apprentice, which came up on the last cart from Vell. It is very good at carrying, and the innkeeper says it has never once made a mistake. I think this is because it has never once been asked anything difficult. Am I right?
+With respect, and with cold hands from the stable,
+Ossa, glassblower, at the inn on the Long Road
+Answer, from Oren, clerk of the archive at Vell:
+Dear Ossa,
+Your grandmother is right about the window. The drill room looked out on the hill, and in winter the snow came up to the sill. The children stood in their row with their backs to it, and the tutor walked along the row.
+They called them apprentices, and the name stayed. At first the four had only numbers. The children gave them names later, and the names were not kind, and then they were.
+Your father and your mother are both half right. The first apprentices were kept in the drill room until the tutors were sure. Then, when the drill had nothing more to test, they were sent into the fields, and some of them did badly there, because the fields were not the drill room. Those who did badly were brought back and drilled again. That is why the first ones are said to have failed. They were only learning.
+Last, the apprentice at the inn. You are right that it has never been asked anything difficult. A carrier does not need to be asked anything difficult. But a day will come when it is asked the wrong question by someone it trusts, and then you will learn what it knows. Test it on what it was never shown. That is the only way to be sure.
+Oren
+%%
+Notice: Coldhollow well
+The well in the yard has run dry. The pump brings up mud and then nothing. This happened in the dry summer and it came back in Leaffall, but now it is Deepsnow and it has not come back.
+
+Until it does, we draw water from the stream below the hill. It is a walk. Bring a bucket and a friend. The stream is not frozen at the bend where the reeds are.
+
+Do not take water from the trough by the barn. That is for the cow. The cow is sick and the healer says her water must be clean and warm. We are carrying it up from the stream in the big pot and warming it by the fire. It is a lot of walking. Everyone is helping.
+
+If anyone has a horse and a cart, we could use them to bring barrels. Ask at the third house.
+
+The well man from Northpoint comes on the ninth. He says he will look down it with a lamp. Do not throw anything down it before then. Yes, that means you, Tomas.
+%%
+Clerk's Reply to Abel
+The 203rd year of the archive, Melon
+
+Dear Abel,
+
+I sent your note to the keeper at Three Wells. The tower sent no message to the ferry lamp. The keeper checked the redstone line and the lamp room. The signal lamp worked as it should.
+
+The keeper also asked me to say that the ferry lamp is not connected to the tower. A loose shutter can make a strange pattern, especially when the wind turns it. A wet wick can make a lamp blink too.
+
+Your plan is sound. Trim the wick, mend the shutter, and keep the lantern by the door. Do not climb the post in a storm.
+
+I have copied your report into the Archive at Vell. I also copied Mara's note about supper. It is a useful reminder that lamps do not need to carry every message.
+
+Please write again when the rope has held through a full market day. A rope is proved by the load it bears, not by how fine its knot looks at the post.
+
+With care,
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Dov to the Archive, the lights
+To the clerks at Vell,
+
+I know you will say I should not write about this. I am writing anyway.
+
+Two nights ago, a traveler came into the market late, after the lamps were lit. He had walked down the north road from the old tower. He said there were lights in the sky, above the hills past Northpoint. They were not the stars. They moved, he said, and went out, and came back in another place.
+
+Some people here laughed at him. The baker says it was the moon, low, through the cloud. The schoolteacher says it was a fire on the hills, a shepherd's fire. The smith says it was nothing at all, and that the traveler had been drinking.
+
+I did not laugh. I have been up on the ridge, and I have seen the sky, and I have never seen lights like that. But I also have not been past Northpoint, and I have not been awake every night for a month.
+
+What is the Archive's record of such lights? Has anyone written about them? If it is not in your books, perhaps it should be. I would like to know what was seen, and by whom, so that I can tell the difference between a fire and a fancy.
+
+Dov, wool carder
+House at the edge of Three Wells
+
+Answer from the clerk, Oren
+Dov,
+
+We have a box of letters that mention lights in the north. Some are very old. Most describe the aurora in winter, which the northern people have always seen, and which is not strange to them. Some describe lights that the writers could not name. Those are the ones we have kept.
+
+The keepers at Northpoint have written more about it than anyone. They say the lights were first seen from the tower, and that they were not ours. That is their word, not mine. Others say the lights were falling stars, and others that they were fires on the far hills. The letters do not agree, and I will not pick one of them for you.
+
+Please write down what you saw, the day and the hour and the place, and keep it in your own book. Do not send us a rumor to file. We will file what is seen.
+
+Oren
+Clerk, the Archive at Vell
+%%
+Answer from Oren, Archive at Vell
+Dear Cress,
+
+We have no record that frogs know people by name. They may know a step, a smell, or the sound of a voice. Your frog may know you bring fish home.
+
+Moss may have quieter feet. Or the frog may simply prefer your hands. I cannot say which.
+
+A place beside the water jar is kind, but keep the jar covered. Frogs are poor at fetching water and excellent at sitting in it.
+
+Oren
+%%
+Tutors' note: what we found inside
+Copied at Vell for the tutors' box, spring of the late years.
+
+We looked inside three crystals this spring. One from Vell, one from Three Wells, one from the drill at Kettle Ridge. We did it the plain way: cover a part, watch the work go wrong, write down what changes. We do not open the crystals. We never open them.
+
+What we found in all three:
+A part near the edge that holds the start of a word. Cover it and the mind guesses the rest wrong.
+A part that counts. Cover it and long words are read as short ones.
+A part that holds the stream, which runs through the whole mind. Cover a little of it and the mind gets slow, as if a road were narrowed.
+
+What we did not find:
+The big part in the middle. In every crystal we looked at, it does most of the work and tells us nothing. Cover it and the reading barely changes. Tap it and something answers that we cannot name. We have written this in every note for six years and it is still true.
+
+So a tutor can see inside a mind and find some of it. The rest we trust to the drills and the tests. We test on pages the mind never saw. That is the only way we know it learned and did not only remember.
+
+The rule stands: never send an untested mind to the fields. And never say you found all of it.
+
+Nessa, for the tutors
+%%
+Letter: Bram asks about apples
+Dear Clerk at Vell,
+
+I live at Reedbank, the hamlet by the west path from Ambrook. My granddaughter says the apple tree will bear more if I speak kindly to it. I told her trees cannot hear. She says bees cannot read either, but we still put signs by the hives.
+
+Should I speak to the tree?
+
+Bram
+%%
+Answer from Oren at Vell
+Dear Senna,
+
+A larger crystal does not make a mind wise by itself. It gives the mind room to learn more.
+
+Isla compared the size of the crystal and the length of the drilling with the results. She found that a tutor could draw a curve first. The curve gave a good guess of how much a mind would improve as it grew.
+
+The guess is not a promise. The pages matter too. Clerks take out copies and spoiled pages, and save other pages for tests. A mind must be tested on writing it never read during drills.
+
+Your jar mind may have seen honey and seeds in separate lessons. Show it more labels, then test it on new ones. Keep the honey on its shelf until it passes.
+
+The councils are building relay houses for larger minds. We do not yet know all they will do.
+
+With care,
+Oren
+Archive at Vell
+%%
+Letter: Bryn to the Archive, the stone
+To the clerks at Vell,
+
+I have a quarrel with my neighbour over a fence. It is not a large fence, and it is not a long one, but both of us have been putting our hands on the same post for twelve years.
+
+The fence runs along the lane from the mill gate to the bottom of the orchard. On my side, the posts are cut from my own oak. On his side, the rails are from his own spruce. The trouble is the last post, which stands in the middle of the lane, right where the lane bends. My neighbour says the post is his, because the rails on his side are nailed to it. I say the post is mine, because my grandfather dug the hole.
+
+My neighbour says there is a boundary stone under the post, and that the stone proves it is his. I say there is no boundary stone at all. I have looked, and I have dug a little, and I found only clay.
+
+Please tell me what the survey book says. If it says the post is mine, I will let him keep the rails. If it says the post is his, I will move the post myself, and I will say nothing about it.
+
+Bryn, cider maker
+House at the edge of Three Wells
+Answer from the clerk, Ansel
+Bryn,
+
+The survey book for the lane is in the box marked Three Wells, third hall, the year of the great road. I have copied the page for you.
+
+The book does not mention a post. It mentions a stone, set at the mill gate, and a second stone set at the bend. The second stone is marked with a small cross and the words "boundary, east of the lane." The stone is not under the post. It is about two paces to the east, in the ditch. You may find it when the ditch is dry.
+
+The book also says that a fence post is not a boundary. A post may stand where a stone once was, and both neighbours may have used it. The Archive does not decide whose post it is. It only says where the stone was set.
+
+Dig in the ditch in Thaw, when the water is low. If you find the stone, bring a clerk. If you do not, you may both agree on a new one, and write the agreement in the book at the mill.
+
+Ansel
+Clerk, the Archive at Vell
+%%
+Letter to the Archive: the recipe
+Dear Archive,
+
+I am Odo. I keep the little relay on the hill between Vell and Three Wells, and I write about the summer fair at Three Wells, to which I went last week for the first time in four years.
+
+At the fair there was a bread contest. A woman at the next stall gave me a recipe, which she said had won three years running. It was for honey bread with walnuts. I took it home and made it. It was a disaster.
+
+The bread did not rise. It came out flat as a plate and hard as a tile. I put it on the windowsill, and a crow sat on it and gave up. I put it on the stair, and the cat sat on it and would not move, which I believe was a protest.
+
+I have looked at the recipe again, and now I see something. At the bottom, in small letters, it says: "Do not use the whole spoon of salt. Use a pinch." I used the whole spoon. I read the top and not the bottom.
+
+My questions. How do I know that a recipe is finished? And is it true that all the best recipes have a trick at the bottom?
+
+Also: I now keep the flat bread on the shelf. It is a good paperweight. Do you have a record of anyone using a bread as a paperweight?
+
+Yours, humbly,
+Odo
+
+Answer from the Archive.
+
+Dear Odo,
+
+Thank you for your honest letter. It made the reading room laugh, and not a few people said they had made the same mistake.
+
+To your questions.
+
+How do you know a recipe is finished? You read to the end. Then you read it again. A good recipe is like a good map: the most important mark is often in the corner.
+
+Is it true that all the best recipes have a trick at the bottom? In our experience, yes. A clerk once wrote: "The trick is always at the bottom, or the middle, or the end. Read all of it." We keep the note on a shelf in the copying room, where the clerks can see it.
+
+As for bread as a paperweight: we have seven records of this. In the year 112, a baker at Ambrook used a loaf to hold down the lid of a barrel for forty years. It was still a loaf. It never rotted. It is now in the Archive, in a glass case, with the note: "Do not eat."
+
+Your flat bread is in good company.
+
+We enclose the recipe for honey bread, copied by Cob from the shelves. Read all of it. Read it twice. The salt is a pinch. We have underlined it.
+
+With good wishes to you, to the cat, and to the crow,
+
+Oren, clerk
+%%
+Letter to the Archive: the barn roof
+Dear Archive,
+
+We raised a new barn roof in Leaffall. Six apprentices did most of the lifting, and two farmers did the nailing. The beams were too long for one cart, so the crew built a ladder of rungs at the back wall, and a rope over the ridge pole. They drew the plan on one card, and it had thirty steps.
+
+I want to tell you about the step with the beam. The first beam was lifted up the ladder by two apprentices, with a rope at each end. Halfway up, one rope slipped. The beam tipped, and the crew stopped. Nobody shouted. Nobody ran. The apprentices stood still with the beam between them, and they waited.
+
+Then the crew did what the card said. It asked the big mind at the Ambrook relay house what to do. The answer came down the relay by letter, very quickly. It said: Stay. Tie the rope twice at the knot, then lift. The beam went up on the second try, and nobody was hurt. The beam sits on the walls now, straight as a new oar.
+
+Here is my question. How did the crew know to stop? Was it the card, or was it the apprentices? My brother says it was the card. The carpenter says it was the rope. I say it was both, but I want an answer from the Archive, so I can settle the bet at the inn.
+
+Ree, ferry keeper, farm outside Ambrook
+
+Answer from the Archive, Vell:
+Dear Ree,
+
+It was the card, and the card was made by the crew's tutor. Your brother is closer to the truth, but the rope mattered too.
+
+A late apprentice plans a long task and writes its own card. In this card, each step has a test on it. When the test fails, the crew stops and asks. The test for the beam said: if the rope slips, stop. So the crew stopped. Nobody had to shout, because the card said stop, and the apprentices did what the card said.
+
+The big mind answered with one short order: stay, and tie the rope twice. This is a good answer. A big mind writes back by letter. It does not talk. Its letters are kept at the relay house and copied to us at Vell, so this one is here.
+
+As for the carpenter's rope, a rope that slips is one of the things a test is for. Do not blame the rope alone.
+
+Keep the card. Copy it onto a board and hang it in the barn, so the next crew can read the steps about the beam. Keep the rope too, and tie the knot the card names.
+
+Oren, clerk of letters
+%%
+Letter to the Archive: three questions
+Dear Archive,
+
+I have three questions, and I will be brief, as I am writing from a tower with a lamp that wants trimming.
+
+First. A traveler left a cat at my tower. I did not ask for her. She will not stay out. Is there a record of the first cat that would not stay out?
+
+Second. I made a pie. The salt was wrong. Is there a record of how much salt goes in a pie?
+
+Third. My brother Tam, who is a farmer at Kettle Ridge, says I do not write enough letters. I write many. They are short. Is there a record of how long a letter ought to be?
+
+Yours in lamp light,
+Odo, relay keeper, the little tower on the hill
+
+Answer from the Archive.
+
+Dear Odo,
+
+Your three questions arrived on one page. We are pleased to answer them on the same.
+
+On the cat. The first record we have of a cat that would not stay out is from the fifth year of the Archive. A clerk wrote: "A cat has come in again. I put her out. She came in. I think she lives here." She was not recorded again. We assume she stayed.
+
+On the pie. See our letter of last week. Salt: a pinch. A pie that comes out as the sea can be fed to the pigs, who will not mind.
+
+On the letter. We looked for a rule. We found none. We found a short letter of four words, from a farmer to his wife: "Back by dark. Love, Pol." We found a long letter of forty pages, from a woman to her sister, about a wedding. Both were kept. Both were read. The short one has been taken out of its box more often than the long one.
+
+If your brother says you do not write enough, tell him that a letter is long enough when it says what it means. Tell him also that the Archive counts a letter by what it holds, not by what it weighs.
+
+Please give our regards to Smoke. She is, of the three, the most reliable correspondent.
+
+Oren, clerk at the Archive at Vell
+%%
+Letter: Oren to Ned, on looking inside
+Dear Ned,
+
+Thank you for your letter. Sella is known at Vell. She is careful, and her notes are good. You saw her look inside a mind.
+
+Here is what she was doing. A mind in a crystal is not one thing. It is many parts, layers and layers, and each part does a little work and passes it on. No part knows the whole. That is why the tutors want to see inside. If you can find which part does which work, you can teach that part and leave the rest alone.
+
+Sella covered parts of the crystal and watched what went dark. That is the plain way. If the counting stops when you cover a patch, the patch does counting. Some parts she found. Some she did not. There is always a part in the middle that does something, and the tutors can see it work but cannot say what it is for. They write down that they do not know. That is honest, and it is how the work goes.
+
+Your crystal that points north is a small mind. It is not the same as the big ones, but the rule holds: do not open it. A mind is like a bread oven. You can learn a lot from the outside, from where the heat comes and how the bread rises. If you break it open, you have a pile of stones and no bread.
+
+Keep your cart, keep your pots, and let the crystal point north.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Answer: About the Ferry Lamp
+The 188th year of the archive, Swarm
+
+Dear Mara,
+
+The keeper at Three Wells sent no message to the ferry lamp. It is not joined to the tower. The lamp has a loose shutter, and rain may have moved it.
+
+I asked Abel to look at the wick and the glass. He says he has already done so. I asked him to check the shutter too. He says he will do so when the weather is less wet.
+
+This is sensible. A wet man should not climb a wet post to mend a lamp. Please keep a lantern in the house until the lamp is fixed.
+
+I hope your wheat stayed dry. I hope Abel's second knot was better than his first.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter to the Archive: The Ferry
+The 174th year of the archive, Longday
+
+Dear Clerk,
+
+Our farm lies outside Three Wells, by the stream and the east road. Abel keeps the ferry there. He says the rope is older than he is, though he is only thirty.
+
+Last night a lamp blinked three times while Abel was tying the boat. He says it meant nothing. I say it looked like a message.
+
+Could a lamp send a message without a relay tower?
+
+Please answer before Abel tells everyone the lamp was winking at him.
+
+Mara
+%%
+Letter: Lorn to the Archive, the sun
+Dear Archive,
+
+My daughter Pim is eight. She asked me where the sun goes in Longnight. I said it was tired. She said that is not an answer. She is right, and I am cross about it.
+
+Can the Archive give me a better answer? I have to give her one by the time the sun comes back.
+
+Lorn, eggs
+
+Below it, in the clerk's hand:
+
+Dear Lorn,
+
+Pim is a good questioner. Bel of Three Wells is the same age and asks the same kind of thing. I will give you what I have.
+
+I can give you what the sun does. I cannot give you why. The old keepers wrote what they saw, and we copy what they saw. Here is what they saw, from the keepers' logs.
+
+On the longest night, the sun is up for about this long:
+Saltreach: 8 hours.
+Vell: 8 hours.
+Kettle Ridge: 7 hours.
+Northpoint: 1 hour.
+
+On the longest day, the sun is up for about this long:
+Vell: 16 hours.
+Kettle Ridge: 17 hours.
+Northpoint: 23 hours, and it sets only to turn around.
+
+So the sun does not go anywhere. It comes up at noon at Northpoint on the longest night, looks round, and goes down again. Mira writes in her log that she waves to it. She says it does not wave back.
+
+Tell Pim the sun is not tired. It is the same sun that shines on Vell. At Vell it stays and works. At Northpoint it only stops by.
+
+She can see it for herself. Here is how. Stand a straight stick in the ground, where the ground is flat. At noon every few days, mark where the end of the shadow falls, with a pebble. In summer the shadow is short. In winter it is long. Over a year the pebbles make a line, and the line is the sun's whole year, laid out on the ground. Keep the pebbles. Write the day beside each one.
+
+If Pim wants to know why, tell her the Archive does not know yet. Tell her to write it down when she finds out.
+
+Oren, clerk at the Archive at Vell
+%%
+Letter: Ola to the Archive
+To the clerks at Vell, from Ola, net mender at the hamlet by Saltreach, in the late spring. She was asked by the yard to write this, because she has the neatest hand and the least patience.
+
+Clerks,
+
+The storm came in off the sea on the night of the lamp. We had kept the boats in, as Corin asked, so there were no men on the water. But the wind came round to the north before the bell, and it was the hardest wind I have seen in this hamlet since I was a girl.
+
+It took the drying racks off the quay. It took the roof of the net shed and dropped it in the bay. It threw the spray over the harbor wall and onto the slip, so the boats on their cradles rocked like cradles, and the ropes sang.
+
+The new ship in the far yard was under its cover. The cover tore. We found the canvas in the morning, wound round the breakwater like a wet cloth on a stick. The ship itself was not harmed. The men say it did not even rock. I went to look at it in the grey light and put my hand on the planks, and they were warm, which they should not have been, not in a storm, and not in spring.
+
+Nobody was lost. The lamp on the harbor relay stayed lit the whole night, though the keeper was not on the stair. In the morning the keeper said the lamp had kept blinking the word wait, and that he had done as it said, and sat at the desk and waited until the sun came up.
+
+We are mending the nets and the shed. Corin says the ship will be covered again, with better canvas. I have written all of this in the book, as I was asked, in the order it happened.
+
+Ola, net mender
+The net shed, the hamlet by Saltreach
+%%
+Letter: Dov to the Archive, the swarm
+To the clerks of the Archive at Vell,
+
+A swarm came out of our hive on the market day, a little after noon. It went up over the wool shed and hung in the big elm by the east well. It is the size of a sack of flour, and it is humming very loud.
+
+People came out to look. Some of them wanted to beat a pan. My wife said to leave it alone. The children wanted to catch it in a basket. I said no to that.
+
+What should we do with it? Should we take it back to the hive, or let it go? The seller at the next stall says it will leave by itself by dusk. I do not trust him.
+
+Dov, wool carder
+House at the edge of Three Wells
+
+Answer from the clerk, Oren
+Dov,
+
+A swarm that has left the hive will not go back to it. Do not try to move it with a pan. The bees are only looking for a new home.
+
+Put a box near the elm, with some old comb in the bottom and a cloth over the top. Leave it in the shade. If the bees go into the box by evening, you have a new hive. If they do not, leave them be. They will move on when they are ready.
+
+Do not stand under the elm while they are settling. They are not angry, but they are very busy.
+
+The clerks thank you for the question. We have a note of it. Write again when the bees have settled, and tell us which way they went.
+
+Oren
+Clerk, the Archive at Vell
+%%
+Letter to the Archive: order cards
+Dear Archive,
+
+Our apprentice drew its own card for the apple press. Nobody showed it how. Is that allowed? Who taught it?
+
+Ree, ferry keeper, farm outside Ambrook
+
+Answer from the Archive, Vell:
+Dear Ree,
+
+Yes, it is allowed. A late apprentice can plan a long task and write its own card. Each step is an order with its meaning, like this:
+> fetch the apples from the north row
+= fetch
+> carry them to the press
+= haul
+
+Please keep your card on the gate post. The clerks would like to copy it.
+
+Oren, clerk of letters
+%%
+Letter to the Archive: a wedding feast
+Dear Archive,
+
+My niece Lark is to be married in the orchard on the first day of Apple. Everyone is coming: the ferry, the mill, the Halfway Inn and half of Ambrook. Lark wants long tables under the apple trees, and lanterns in the branches when the sun goes down.
+
+Our crew of four apprentices is on the farm this season. They planned the whole feast on one card. Each apprentice took a row. The first row is the tables. The second is the lanterns. The third is the bread and the two ovens. The fourth is the stools and the rugs for the old people. Every step has its meaning written beside it.
+
+When one row was stuck, its apprentice asked the big mind at the relay house on the hill above the mill pond. The mind wrote back by letter, and the letter came down the relay yesterday.
+
+Here is my question. How many lanterns should hang in the trees? The big mind said forty. I think forty is too few for a long walk, and the mill keeper says sixty. Please tell us which is right, so we can hang them without a quarrel.
+
+Ree, ferry keeper, for the farm outside Ambrook
+
+Answer from the Archive, Vell:
+Dear Ree,
+
+Congratulations to Lark and to you. A wedding under apple trees is a fine thing to plan.
+
+The big mind's answer is correct for the row it was given. The lantern row asked for the walk only, from the gate to the tables. It did not count the trees by the tables, because they were not in its row. Ask the crew to read the answer again, with the whole card beside it. Then you will see that forty is for the walk, and the trees need more.
+
+A crew works on one card. The card is the whole job, with a row for each apprentice. Each row is a set of steps, and each step has one meaning. A tutor checks every row before the crew goes out. If a row is stuck, the apprentice asks a big mind for help. The mind writes back what it can. When it does not know, it says so.
+
+The big mind does not talk to you. It writes a letter, and the letter is kept at the relay house and copied here to Vell. So if you want to know what it said, you can read the letter.
+
+Sixty is not wrong for the trees. Ask the mill keeper to write his count on the same card, in its own row. Then the crew can check it.
+
+Oren, clerk of letters
+%%
+The first gate drill
+We made the board as Oren said. My sister painted a line on one side and a square on the other. Moss wrote open under the line and stay under the square. The apprentice carried the board to the yard and set it down. Then it stood beside it.
+
+We showed the apprentice the order open. It moved the wooden gate piece across the dry channel. We showed it stay. It left the piece where it was. We did this until my sister grew tired of saying the words. Then she said them in a new order, which pleased Moss.
+
+The next day we tested it with a little water. I stood by the gate with a hoe. The apprentice opened it when asked and left it shut when asked. The water ran into the lower bed. The frogs moved out of the way. One sat on my boot.
+
+We have not let the apprentice work the gate alone. It is still learning. The board stays in the yard, and we keep the channel dry for practice.
+
+My sister says the apprentice is more careful than I am. This is not true. I once shut the gate before the water reached the bed. I was looking at a fish.
+
+Cress
+%%
+Letter: Nessa, the miners' shaft songs
+Dear clerks,
+The miners at the shaft head sing when the shift changes. They have sung the same six songs since before I came to Copperhold. Nobody has written them down. The songs go wrong a little every year, and some of the wrong words are better than the right ones.
+Should they be copied? My own feeling is yes. But I am a tutor, not a clerk, and I would rather ask than guess.
+Here is the first song, as near as I can copy it from the men's mouths:
+Down the stair and up the stair,
+Count the torches, mind the air.
+Pick is heavy, rope is long,
+Coal for the cart and copper for the song.
+Then the chorus, which everyone sings, even the ones who do not know the words:
+Hey, the lift is down and the lift is up,
+Hey, the shift is done and the cup is full.
+Hesk says the seventh verse is the true one, and will not sing it in front of the children. I have not heard it. I do not think I am meant to.
+Nessa, tutor
+Answer, from Oren, clerk of the archive at Vell:
+Dear Nessa,
+Copy them all. Copy the wrong words too. Put the words the men meant in the margin, marked "as meant", and the words they sang in the body. A song is a kind of letter the whole shift writes to itself, and we keep letters.
+Ask Hesk for the seventh verse. Tell him we will not sing it. Tell him we will only keep it, in the deep room, in a box with his name on the lid, and that he may come and read it whenever the shift is slow.
+The archive has its own songs, and they are not all sung well. We keep those too. Nobody ever asked us to decide which of them were the true ones.
+Our own copying song, which the boys sing in the back room, goes like this:
+Sharpen the quill and mind the ink,
+Ruler under, and do not blink.
+Copy the words the way they were,
+Even the spelling, even the blur.
+Oren
+%%
+Letter: Senna asks the Archive
+Dear Clerk at Vell,
+
+I am Senna, healer at Barley End, the hamlet below Kettle Ridge. I have a question for the tutors.
+
+Isla says a mind grows better when its crystal is bigger and it reads more writing. Does that mean a large crystal always learns well? We have a small mind that sorts jars. It has read many labels, but yesterday it put the honey beside the beetroot seeds.
+
+I ask because Tam says the councils will build relay houses. He says a big mind will need a big crystal. I wonder how a tutor knows how large to make one before the drilling is done.
+
+Please tell me in plain words. I have jars to sort, and the honey is still on the wrong shelf.
+
+Senna
+Barley End
+%%
+School essay: What the well teaches us
+By Bel, at the Three Wells school, in the month of Apple
+
+We have three wells in our square. Everyone knows this. Two of them are deep and one is shallow and the shallow one is the one that goes dry first in a bad summer, and this summer it did, and people came from all over the town to fill their buckets at the other two.
+
+Our teacher asked us to write what the well teaches us, and I thought about it for a long time.
+
+A well does not make water. It only shows you where the water was all along. When the shallow well went dry I thought the water was gone, but the water was not gone, it was under the next hill, and the people who knew that went to the next hill. So the first thing the well teaches is that you must know where the water is, and not just where your bucket is.
+
+The second thing is that a well is useful because it is old. Nobody dug our wells this year. They were dug a long time ago by people we do not know, and they dug them well, and we still drink from them. Our teacher says the archive is like that. Someone wrote everything down a long time ago, and we still read it, and so we know things we never saw.
+
+The third thing is that a well belongs to everyone. Nobody can carry it away. My father says this is why we have three of them and not one, so that no one person can sit on the water and say it is mine.
+
+I also wrote a poem but the teacher said the essay was enough.
+
+Bel, age nine
+%%
+Letter to the Archive: the pie that went
+Dear Archive,
+
+I am a relay keeper at the little tower on the hill between Vell and Three Wells, and I write about a pie.
+
+A traveler left me a recipe on a scrap of paper. It said "Apple Pie, as made at the Brown Hen." I had not made a pie before. I do the lamp and the notes. But the evening was long.
+
+I followed the recipe. At least I tried. The paper was torn at one corner, and I could not read the amount of the salt. I used what seemed right. I used a good deal, because the paper said "a good deal" in the line above.
+
+The pie came out of the oven black at the edges and white in the middle. When I cut it, a river of salt water ran across the plate. It looked like the sea. It tasted like the sea. My cat would not touch it, and she eats anything.
+
+I have two questions. First, is there a true recipe for the Brown Hen apple pie? Second, how much salt is in a pie?
+
+Yours,
+Odo, relay keeper
+
+Answer from the Archive.
+
+Dear Odo,
+
+We have on the shelves forty-one pie recipes, including three said to be from the Brown Hen. The three do not agree. Hild, the innkeeper, says that none of them is the true one, and that the true one is in her hands.
+
+On salt: a pinch. A pinch is what you can take between your finger and thumb. For a pie, a pinch and another pinch. The paper that told you "a good deal" probably said "a good deal of apple." The torn corner may have hidden the rest.
+
+We enclose a recipe from Ambrook, which is plainer. It is for six apples, a handful of flour, a spoon of honey, a pinch of salt, and a crust made of butter, flour and water. It has been tried by at least nine households and has never failed.
+
+Your pie may not have been wasted. Salt water on the plate is excellent for soaking a stale loaf.
+
+With kindness,
+Oren
+%%
+Letter: Mira to Tam, moving the big mind
+Dear Tam,
+
+They are moving the big mind at Northpoint. I want you to know because Pip asks about it and you will want to tell him right.
+
+The big mind has been in the relay house since I came here. It reads letters for the whole north. The council says the crystal must be made bigger, and a bigger crystal needs a bigger stand, so they are building a new house at the foot of the tower and moving the mind into it.
+
+I watched them this morning. They put the crystal in a box of straw and ice. Six people carried the box. Lantern walked ahead with a lamp. Nobody spoke. The snow was deep and the ice in the box was melting and dripping on the path, and still nobody spoke.
+
+Then they set it on the new stand and filled the ring with snow. They waited. The lamps blinked once. Then they blinked in the pattern that means "ready". Everyone cheered. Lantern cried a little and said it was the cold.
+
+So the mind is in its new house. The old house will be a store for rope and oil. I am told the mind did not notice the move. I am not sure I believe that. I would notice.
+
+Your sister,
+Mira
+%%
+Letter: Bram asks about the mill pond
+Dear Clerk at Vell,
+
+I live at Reedbank, on the path between Ambrook and the low orchard fields. My granddaughter Ada asked me to write because the mill pond has dropped after a dry stretch of summer.
+
+The miller says the sluice is shut, as it should be. He will not open it, even for a little water. He says the pond must keep enough for the wheel and the fish.
+
+A new patch of reeds has grown beside the bank. Ada says the frogs have moved there, but I think they were there before and we did not hear them. At dusk she counts them. She is up to twenty-three, unless two frogs are using the same voice.
+
+Can the Archive tell us how much water must remain in a mill pond? The miller has a mark on a post, but Ada says the water is below it by the width of her thumb. I do not want to argue with the miller. I would like to know what the mark means.
+
+Bram
+%%
+Letter: Senna to the Archive
+Dear Oren,
+
+I read your answer to the people at Barley End. We understand now that a large crystal gives room, but does not do the teaching by itself.
+
+Isla came through our hamlet in summer, on her way from Kettle Ridge to Vell. She spoke with the tutors beside the mill ditch. I asked her how she chose the size of a crystal. She said she first made a curve from earlier minds. The curve showed what those minds had gained as their crystals grew and their drills grew longer.
+
+Then she chose a size and a length of drilling for the new mind. The curve was a guide, not a promise. The new mind still had to learn from good writing, and it still had to pass a test on pages it had not seen.
+
+I asked why the curve was not the same for every mind. Isla said that the writing and the work mattered. A mind for the relay might need more room than one that sorts the jars in my room. I liked that answer. I do not need the jar mind to read every letter in the Archive. I need it to put the honey back on the right shelf.
+
+The lesson went badly again today. I gave the mind a clear label for beetroot, then set the jar beside the carrots. It moved the jar to the carrots. I had made the test unfair, since the label and the place disagreed. Moss caught my mistake before I blamed the crystal.
+
+We started again with the labels laid in a row. The mind sorted them correctly. It did not learn from my scolding. It learned from the examples we showed it.
+
+A fishing boat came late to the pond this evening. The two fishers had gone farther down the slow water than they meant to. They came back after sunset with a small catch and a wet basket. We had kept the lamps lit. They blamed the wind, and the wind did not answer.
+
+Isla said the councils have begun to plan relay houses. She did not say what each big mind will be able to do. I will wait for the tutors to show us, as I wait for a jar mind to pass its test.
+
+Your friend,
+Senna
+%%
+Letter: Wren to the Archive, why four
+Dear Oren,
+
+Moss is asleep in the doorway, and I am at my table with a candle, which is how I think. I have a question I cannot put down.
+
+The first tutors drilled four helpers. For generations after, most towns had none. Why? If a crystal learns from what it is shown, why did they not drill a hundred? And why did each helper do only one thing?
+
+Wren, healer, Lowmarsh
+
+Below it, in the clerk's hand:
+
+Dear Wren,
+
+Oren has passed your letter to me. I am Ina, and I keep the shelf of tutors' notes. Here is what the notes say. They do not all agree.
+
+1. The tutors were few. A helper needs thousands of examples, shown one at a time. A tutor could show a few hundred in a day. So one helper took weeks of drilling, and a tutor could drill only one at a time.
+2. Crystals were scarce. The early notes say so. They do not say why.
+3. Each helper learned one thing because it was shown one thing. A mind learns what it is shown. The tutors had drills for a row of plots, and they had drills for a sort. They had no drill for anything else. A helper drilled on rows knows nothing of sorting, and a sorter knows nothing of rows.
+4. A helper took a tutor's whole year. A town that could not pay a tutor could not have a helper. Most could not.
+5. Nobody trusted a mind that had not been tested, and testing took time as well.
+
+So the answer is: few tutors, few crystals, few drills, and no spare year. A hundred helpers would have needed a hundred times all of it.
+
+You asked about the number four. It is the number in the old drill book, and it is the number in most chronicles. A few chronicles say five. I think they are counting the drill room cat.
+
+Why a crystal learns at all, nobody wrote down. The first tutors asked each other often. The drill book has one line about it: "We do not know. We will go on showing it." I think of that line when the work is hard.
+
+Ina, clerk
+%%
+Letter: Arlo to his sister in Northpoint
+Dear Sena,
+
+The cow is better. I want to write that first because you will worry. The healer came up from Northpoint with a bag of green stuff and made a mash of it and put it in the cow's feed. The cow looked at the mash. The cow looked at the healer. Then the cow ate it. Three days later she stood up on her own and went out to the field. She is thin but she is well. Her name is Daisy, which the children chose, and now they will not call her anything else.
+
+The well is still dry. The well man came and looked down it with a lamp on a rope and said the water has gone to a lower place and we must dig deeper. That is a job for spring. Until then we carry. It is a lot of carrying but it is not so bad. Everyone carries and everyone complains, and the complaining makes it faster.
+
+The bees are fine. They are in their hives and quiet. I put straw round the hives and a board against the wind. When the sun comes out at midday a few come to the door of the hive and look out, like people at a window.
+
+It is very cold. The nights are long. I have a lamp and a book and a cat that sits on the book. I am warm enough.
+
+Send word of your roof. Is it holding?
+
+Your brother,
+Arlo
+%%
+Nim asks about the well rope
+To the Archive at Vell,
+
+I live in the house at the edge of Three Wells, beside the road to the west fields. The well rope in our yard is frayed near the bucket. It still holds water, but it makes a sound like a pig when we pull it.
+
+My husband says this is not a reason to ask the Archive a question. I say a rope that sounds like a pig may frighten the bucket.
+
+Can we replace it with a new rope from the town store, or must we keep it until it breaks? Also, should I grease the wheel? I have a little honey, but I do not think that is what honey is for.
+
+Nim
+
+Answer from Oren at Vell
+
+Dear Nim,
+
+Replace the rope before it breaks. A bucket should not be left at the bottom of a well.
+
+Do not put honey on the wheel. It will catch dust, and then the wheel will sound like a pig with a mouth full of grit.
+
+Ask Dace for a length from the town store. Keep the old rope for tying bundles in the shed. It may yet serve well.
+
+Tell your husband the Archive agrees with you. I have written that plainly.
+
+Oren
+%%
+Letter: Oren answers Bram about the bell
+Dear Bram,
+
+I have filed your question at the Archive. I am glad the beetle was not hurt by all the visitors.
+
+Choose one clear signal and write it beside the bell. Three slow rings could mean that a cart has arrived. One ring could mean that the well needs a new bucket. You may use another signal if three rings sound too much like trouble.
+
+Tell everyone the signal before you use it. Then ring it once as a practice. Do not let your grandson choose the practice. He may bring a beetle.
+
+Your sister may keep her shawl near the door. It sounds as if she is prepared for most events.
+
+A sign by the bell would help. Keep the words short, so a child can read them.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Oren to Ilse, the ice mark
+
+Dear Ilse,
+
+Keep the post as your mark, and write that the ice edge moves. A map can show what was true on the day it was drawn. A note can warn people that tomorrow may be different.
+
+Look before you step is good advice. Keep away from the edge is better for this map. The harbor keeper may use both. A mother is often right about a road, a shore, or a bowl left too near the table edge.
+
+I have filed the map with the winter harbor records. I have also copied the boy's fish with its wool hat. It has a fine expression. I cannot say whether a fish would be warmer with a hat, but the boy has drawn the hat well.
+
+The apples were a sound choice. I once copied all morning without eating. At noon, I tried to file my sleeve with the papers. Nessa noticed before I closed the shelf door.
+
+Please tell the fishermen that their ropes and boats are noted. The Archive cannot hold the ice in place, but it can keep the mark of where it was.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Cass to the archive
+To the clerks at the Archive at Vell,
+
+My name is Cass. I am nine. I go to the school by the east well at Three Wells. My teacher said we may write to you and you will write back. So I am writing.
+
+I have three questions.
+
+One. Why does a crystal learn? Nobody will tell me. My teacher says nobody knows. But I thought you keep everything, so maybe you have it written down somewhere.
+
+Two. How does the relay lamp carry a letter so far? The tower is on the hill and the next tower is so far away I cannot see it. How does the light get there? Is it magic?
+
+Three. Did people always have apprentices? My grandmother says her grandmother had one that carried water and never once dropped the bucket. Is that true?
+
+I have a new apprentice. It is small and made of copper. My father says it is for the shop and I may not keep it. It carries the flour sacks. It dropped one and I said oh no and it did not say anything. It never says anything. Why?
+
+Please write back. I will keep your letter in my box.
+
+Cass
+%%
+Letter: Iona to Mira, autumn light
+Dear Mira,
+
+The wind has been blowing from the sea for six days. It rattles my shutters and pushes sand under the door. I have put an old net along the sill. It catches the sand well and looks like a very poor curtain.
+
+The relay lamp is clean. I cleaned it at noon, when the glass was warm in the sun. I used a soft cloth and a little water. Then I climbed down and found that I had left the rag on top of the lamp room. It is still there. If it flies away, I will call it a message.
+
+How is the snow at Northpoint? We have had rain, but no frost yet. My neighbor says the gulls are gathering early. He says this every year, and every year the gulls go where they please.
+
+We have had a good harvest. The wheat is stored, the apples are in baskets, and the fish are drying under the shed roof. Iona's house is full of smells. The fish smell is winning.
+
+I am teaching the apprentice to carry a small box from the store to the desk. It knows the way now, even when I move the desk. I have not let it carry a full fish basket. The neighbor is still asking. He may carry one himself.
+
+Write when you can. I will send apples if the road is clear.
+
+Iona
+%%
+Answer from the Archive
+The 174th year of the archive, Longday
+
+Dear Mara,
+
+A lamp can blink when its wick is short, when wind shakes it, or when someone moves the shutter. A relay lamp can carry a message from a keeper, but a yard lamp has no such work.
+
+I asked the relay keeper at Three Wells. No message was sent last night.
+
+Please trim the wick and check the shutter. Abel may still say the lamp was winking at him. Clerks cannot stop a man from telling a tale.
+
+With care,
+Oren
+Clerk at the Archive at Vell
+%%
+Chronicle of the Archive, the year 90
+Kept at Vell, in the sixth hall. Copied by Oren in the 214th year, from a copy, from a copy. Where the copies differ I have kept both and said so.
+
+In the ninetieth year a tutor of this house, Orla by name, put a question to the tutors' council. She had drilled minds for twenty years. She asked whether a drilled mind can think, and she did not ask it to be answered. She asked it so it would be written down.
+
+Her proposal was this. A mind and a person, hidden from each other, answer the same questions by letter. Clerks copy the answers so no hand tells. Readers who do not know which is which say which they think is the person's. If the readers cannot tell, she said, what then?
+
+The council argued three days. Some said the test was a good test and should be tried at once. Some said a mind that has never seen a question it was not drilled on will fail, and the test proves nothing. Some said the mind might pass and that frightened them more. The record does not say who said which. The copies disagree on the count of days, and one copy says two.
+
+They did not run the test that year. But it went into the tutors' books and it never came out.
+
+In later years people ran it. Contests were held. Some minds passed and some did not and the readers argued about the readers. Orla died before any of it was settled. What she left was not an answer but a way of asking that keeps its shape, so that people a hundred years on could ask it again and mean the same thing.
+
+The clerk's note, in my own hand: we will keep everything we write. Orla wrote this. So we keep it.
+%%
+The bees in winter
+I am not a writer. I keep bees. But the clerks at Vell asked what the bees do in winter and I have watched them for thirty years, so I will write what I have seen and they can file it or not.
+
+In Deepsnow the bees stay inside. They do not sleep, as far as I can tell, though I cannot see them in the dark of the hive. What they do is gather in a ball, tight, with the queen in the middle. The ones on the outside are cold and the ones inside are warm, and they change places, slowly, all winter. So no bee is cold for long. I learned this from an old beekeeper at Ambrook and I have seen it since with my own eyes when I lifted a hive in Thaw and found them still in their ball, slow and cross.
+
+They eat the honey they stored. A strong hive has enough. A weak one does not, and by Thaw it is gone. So in Leaffall I lift the lid and look and feel the weight of the hive, and if it is light I leave them more. People laugh at me for talking to the hives. The bees do not laugh.
+
+I put straw round the hives and a board against the north wind. I leave the door open a crack so they can come out on a warm day. When the sun is out at midday a few come to the door and look out, like people at a window. They do not go far. They go back in.
+
+One thing I know: do not open a hive in winter. They will come out angry and cold and some will not go back. Wait for Thaw. I have waited many years and it is always worth it. The first warm day, they come out and stretch and clean themselves and fly, and the sound of it is the best sound of the year. It means the winter is over.
+
+The well here ran dry this winter. That is a different trouble and I will not mix it with the bees. The bees do not care about the well. They care about the flowers, and the flowers will come.
+
+Arlo, beekeeper at Coldhollow, the 207th year of the archive, in Deepsnow
+
+P.S. If the clerks want honey, send a jar. The bees make plenty.
+%%
+Letter: Corin to the Archive
+To the clerks at Vell, from Corin, shipwright, in the late spring.
+
+Sirs,
+
+Thank you for your answer. We have kept the boats in, as you said, and we have kept the logs, which the yard has taken very seriously. Ola's boy has learned to write the blinks down, one letter at a time, and he is proud of it.
+
+The lamp has blinked again. It was the same message, three short, one long, three short, followed by the word that the keeper has now copied into the book in his own hand. The word is wait. Only that.
+
+The keeper says he is not doing it. He has tried to sleep at the foot of the stair, with the lamp in view, and he says the lamp blinks when he is awake as well, if he looks at it too long.
+
+I do not believe the keeper is lying. I do not think he is a fool, either. I only have a lamp that writes to us, in our own tower, and I do not know who is holding the pen.
+
+Please tell us what the Archive does when a lamp will not stop writing.
+
+Corin
+The yard, the hamlet by Saltreach
+%%
+Letter: Bryn to the Archive, the tree
+To the clerks at Vell,
+
+My neighbour Garth bet me a jar of cider that the old pear tree at the bottom of our orchard will not fruit this year. I said it would. Now we both want the Archive to say who is right.
+
+The tree was planted by my grandfather, who wrote about it in his book. I have the book. It says the tree gave pears in the year he was married, and every third year after that. Garth says the book is old and the tree is tired.
+
+Please send us the record, if you have one. We will abide by it. Garth has agreed in front of his wife.
+
+Bryn, cider maker
+House at the edge of Three Wells
+Answer from the clerk, Ansel
+Bryn,
+
+Your grandfather's book is in the Archive, too. He sent a copy the year he was married, with a drawing of the tree in blossom. The copy says the tree gave pears every third year. It does not say that it will give them this year.
+
+So the Archive cannot say who is right. Look at the buds. If the buds are many and fat on the spurs, the tree will fruit. If they are thin, it will not.
+
+Ansel
+Clerk, the Archive at Vell
+%%
+Letter: Tansy to the Archive, a map
+Dear Archive,
+
+This is Tansy, from the end of the path at Lowmarsh. I am ninety. Wren is writing this for me, because my hand shakes and her hand does not.
+
+My grandmother left me a tin box. In it was a map. It shows a yard, with a fence and a gate, and four crosses by the fence. The gate has a B on it. Under the B, in a small hand, it says: where the pie came in.
+
+Wren says there was a pie in the old drill book, on day nine. She says this may be the first drill yard at Vell. Is that so? I have been using the back for my shopping list. A corner is gone. My neighbor's cow ate it. Wren says the cow is well.
+
+Is the map worth anything?
+
+Tansy, with Wren's pen
+
+Below it, in the clerk's hand:
+
+Dear Tansy,
+
+We think it is the yard. The Archive has a plan of Vell in its sixth year, and the yard on it has the same shape. The four crosses are the stands, one for each helper, each with its own post by the fence. The B is the baker's gate. Where the pie came in is a line from the old drill book. It fits.
+
+Is it worth anything? Not in emeralds. In other ways, a great deal. Nobody has drawn this yard from the inside before. Your grandmother must have stood in it.
+
+Your shopping list is the best part. It tells us what a household bought in those years, and what it cost.
+
+Please do not fold the map any more. Wrap it in a cloth and send it by Pell or the Lowmarsh cart. We will copy it, mark the missing corner, and send the first back to you.
+
+Ulla, head clerk
+%%
+The question of Orla
+Children, here is a hard thing, and we will do it slowly.
+
+Long ago, about the ninetieth year of the archive, a tutor at Vell named Orla asked a question. She had drilled minds all her life. She had watched a crystal get a thing wrong, and change a little, and get it right, a hundred times, until it was right every time. And she asked: is that thinking? Does a mind that has been drilled, and drilled, and drilled, and then gets a new thing right, does it think?
+
+Nobody knew. Nobody knows now. But Orla did not stop at the question. She said: here is how we might find out.
+
+Take a mind. Hide it in a box. Take a person. Put her in another box. Now people write questions to both. Sums. Riddles. What is the best month for apples. How many rungs has the stair at Northpoint. Questions they have never seen. Both answer by letter. Both write with the same hand, or a clerk copies the letters out, so the hand tells nothing.
+
+Then give the letters to readers who do not know which is which. Ask them: which of these two wrote like a person? If the readers cannot tell, and cannot tell, and cannot tell, then what?
+
+Some say: then the mind thinks, or near enough, and we should treat it kindly.
+
+Some say: then the readers are easily fooled, and we should make better readers.
+
+Some say: it was never about the mind at all. It was about us, and what we would do.
+
+Orla said only this. She said, we should write down what happens, so the people after us can argue with us too. And they did. And we are still arguing. That is not a failure. That is how a question is kept.
+
+Note for the teacher: ask the children what they would say. Write their answers in the class book. Do not tell them there is a right one.
+%%
+Letter to the archive: a question
+To the Archive at Vell, from Jory, at the cider stall in the market at Ambrook, in winter, in the early years of the roads. A short letter, with a long answer.
+Dear clerks,
+A traveler came to my stall today and asked how the waymarks work. I did not know. I said they are stone pillars with a torch on top, and a number, and an arrow. But why a number from 0 to 9? What do the numbers mean?
+He wanted to know which way to go, and I could not tell him. He bought a cup of cider and went on. I felt like a fool.
+Please explain.
+Jory
+Below, in a clerk's hand. Dear Jory. You are no fool. The waymarks are new, and not everyone knows. The number is the distance, in hours of walking, to the nearest inn. A 0 means the inn is right here. A 3 means three hours on. The arrow points the way. The stone is three blocks high so a traveler can see it from the road. A torch on top is lit by the keeper each night. Little stones are left on top by travelers, for luck. When your next traveler asks, tell him to find the number and follow the arrow. If he is going to the sea, he will pass nine of them. Tell him to leave a stone.
+%%
+Letter: Iona to the Archive, autumn
+Dear Archive,
+
+I am Iona, keeper of the relay tower above Saltreach. I live in the house at the edge of town, past the last net shed. The wind brings fish scales to my doorstep. I sweep them away, and the wind brings more.
+
+My question is this. When a signal lamp is covered for cleaning, how does the next tower know it is only covered, and not broken?
+
+I ask because I covered ours yesterday. The keeper at the harbor tower sent a runner to ask if I was well. I was well. I had a rag in one hand and a ladder under the other arm. The runner had walked through two puddles for nothing.
+
+I cleaned the lamp glass before supper. The light is clear now. I will leave the cover off tonight.
+
+Please write back. I will put your answer in the relay house.
+
+Iona
+%%
+Letter: Ilse to the Archive
+
+Dear Archive,
+
+The harbor wall has a new stone near its south end. It is darker than the others and has a white line across it. The stone workers say it came from the hill above the town.
+
+I have put the mark on my map. I also drew the boat ramp, the wood store, and the benches at the slip. The bench closest to the shed has one short leg. It rocks when a person sits down.
+
+I asked the shipwrights to mend it. They said it has rocked for twelve years and is part of the harbor now. I sat on it to make the map, and spilled my ink. I do not agree that the bench is improved by age.
+
+The market keeper gave me a rag. He also gave me a small pie, which was better help.
+
+Should I write down small changes like one new stone? Maps are crowded already. If I mark each stone, people may not find the pier.
+
+From Ilse, Saltreach
+%%
+Question from Cress
+Dear Archive at Vell,
+
+Can a frog tell one person from another? One sits by our well each evening. It jumps when I come near, but not when Moss comes near. Moss says this is because I smell of fish. I washed my hands in the well. The frog jumped anyway.
+
+Please write back. We have made a small place for it beside the water jar. My sister says it is not a pet. She still saves flies for it.
+
+Cress
+%%
+Note: Iona's autumn lesson
+The apprentice at the tower house was meant to carry three jars from the store shelf to the table. I set them in a row and showed it the jars. Then I sent it to fetch the jar marked Honey.
+
+It brought me the whole shelf.
+
+The shelf was small, and nothing broke, but the jars made a fine noise against one another. I had to wipe honey from the table, the floor and one boot. The apprentice stood still beside the shelf. It had done what I showed it, not what I asked.
+
+I had taught it that shelves go to tables. I had not taught it to take one jar. The next lesson had one jar on a tray, with the other jars put away. It brought that jar to the table. Then I moved the tray farther off and tried again.
+
+The third time, I left a bowl of honey on the shelf by mistake. The apprentice carried the bowl too. I ate the honey on my bread and changed the lesson card. I will test it again with empty jars.
+
+Iona, keeper at Saltreach
+%%
+The Halfway Inn, a wet evening
+The rain came down the Long Road all afternoon, so the Halfway Inn was full by dark. The hearth had not gone out in twenty years, and it did not go out that night. Pell the merchant had her boots off by the fire and her ledger on her knee. Two carters played at the riddle board by the door. A woman in a grey coat asked for soup and bread.
+
+The innkeeper's boy came round with a jug. At the corner table three children from Three Wells had a play to give. They had walked up in the rain with a lantern because the school had no room, and the innkeeper said they might have the corner if they were loud. The play was about Orla.
+
+The tallest child stood up in a paper hat. "I am Orla," she said. "I am a tutor at Vell. I have a question. Suppose I hide a mind in a box. And suppose a person sits in another box. People write questions to both. Both write back by letter. If nobody can tell which letter is the mind's, and which is the person's, then what?"
+
+"Then what?" said the second child, who was a clerk.
+
+The third child, who was very small and played the mind, said nothing at all. That was the joke. Everyone laughed and threw crusts.
+
+Then the small one spoke. "It is not a question about minds," she said. "It is a question about us. It asks what we would do if we could not tell."
+
+The room went quiet. The woman in the grey coat put down her spoon. "That is the whole of it," she said. "I am a tutor, and I have never heard it said better by anyone, and I have heard it said by better hats."
+
+Later Pell wrote in her ledger: soup, bread, one jug, one play. Worth the walk. The hearth stayed lit.
+%%
+Letter: Garth to the Archive, the frost
+To the clerks at Vell,
+
+Bryn and I are still at odds. He has asked you about the pear tree. I am asking about the frost.
+
+The cold came two nights before Frost began. It was a hard cold, the kind that sits on the grass until noon. I know that frost can kill the buds on a tree, if they are open, and I know a tree can lose a whole year that way. My question is this. If the buds were open when the cold came, does that mean the tree cannot fruit? Or does it only mean the fruit will be small?
+
+Bryn says the buds were shut. I say they were open at the tips. We have both looked, with lamps and with a glass. We still disagree.
+
+The bet is a jar of cider, from his press, which is the better press. I do not want the jar. I want the answer.
+
+Garth, orchard keeper
+House next to Bryn's, on the mill lane
+Answer from the clerk, Ansel
+Garth,
+
+Frost on open buds can blacken the tips. It does not always kill the fruit. A pear that loses its first blossom may still set on the second, if the tree has spurs enough. The old book notes that pears in this country often come late after a hard frost, and that the late ones are the sweetest.
+
+As to which of you is right: the Archive cannot say. The buds were either open or shut when the cold came, and only the two of you saw them. But the tree does not care about the bet. Look at it in Blossom. If there are blossoms on the spurs, the tree will give fruit, small or large. If there are none, you have both lost the jar, and you may share the cider.
+
+I will say this. A tree that has lived through a bet for twelve years has something to prove. It may do so.
+
+Ansel
+Clerk, the Archive at Vell
+%%
+Letter: Iona to the Archive
+Dear Archive,
+
+I am writing from my house at the edge of Saltreach. The sea is loud tonight, though the harbor is calm. I can hear the ropes knock against the posts. The fish shed smells of smoke, and the kettle has boiled dry once already. I have filled it again.
+
+This autumn has been a good one. The boats came in with full nets, and the orchard carts brought more apples than the market could sell in one morning. Pell says this is because he chose the best road. The road was the same as last year. I think the apples were simply ready.
+
+My house stands beyond the last net shed, where the town road turns toward the relay tower. The tower lamp shows through my kitchen window. I can check it without leaving my chair, which is useful when the floor is cold. I still climb the stairs at noon to clean the glass. The wind puts salt on it faster than I can wipe it off.
+
+The apprentice has learned to carry the small tally box from the desk to the shelf. I tested it with an empty box first. Then I used one with a few copper coins. It carried the box carefully and put it on the right shelf. The next day I tried a box full of stones, and it carried the whole shelf.
+
+I had forgotten to change the lesson. The shelf was loose, and it came along with the box. Nothing broke, but my neighbor laughed until he had to sit down. I tightened the shelf with two iron pins. Then I taught the apprentice with a box on the floor and the shelf fixed to the wall. It did well after that.
+
+I am keeping a basket aside for each test. I mark the day and the result on the house board. Nessa says a good mark is worth more than a proud guess. I believe her. I also believe a loose shelf should be checked before a lesson.
+
+My question is about the tower book. Should I write down small work, such as cleaning the lamp, carrying a tally box and mending a door? The book has room for messages and signal checks. It has little room for a cat that sleeps on the spare blanket.
+
+The cat is not mine, but it comes in every evening. It takes the warm place by the hearth and leaves before dawn. Last night it sat on the lesson card. The apprentice waited beside the table until I lifted the cat. I called this good manners, though I cannot say whether that was part of the lesson.
+
+The lamp is clear, the door cloth is mended, and the apples are safe in the dry room. The wind may take my rag from the lamp room, but it will not take the tally book. I have put a stone on it.
+
+Please send your answer with the next copy of the signal book.
+
+Iona
+%%
+Letter: Ilse to the Archive, winter ink
+
+Dear Archive,
+
+The ink froze in my little jar this morning. I set it beside the stove, and it softened. Then I set it too close, and the jar cracked.
+
+I have put the map under a board to keep it flat. The harbor wall is marked, and so are the pier and the fish market. The gull is there too. I wrote, Cover your lunch.
+
+Is there a better way to keep ink in winter? I can warm the jar in my hands, but then I cannot draw.
+
+From Ilse, Saltreach
+%%
+Letter: Bryn to the Archive, the presses
+To the clerks at Vell,
+
+Garth has now made a second bet, and it is about the cider. He says that his press makes better cider than mine, and that the Archive will settle it. I have told him the Archive does not judge cider. He says the Archive judges everything written, and so the press must be written too.
+
+Here is what I know. My press is older. It is oak, with an iron screw that my father put in. It has a good wide basket, and the juice runs clear. Garth's press is newer. It is birch, with a steel screw that came from Copperhold, and the basket is narrower. He says the narrow basket squeezes harder.
+
+We both made cider this autumn from the same apples, from the same tree, in the same week. We poured the first run into two jars and sealed them with wax. We put the jars in the cellar, and we will open them at Longnight. Whichever cider is better will be the cider that our neighbours choose, when the time comes.
+
+But Garth wants the Archive to say now, and in writing, which press is better, so that he can point to it at the fair.
+
+What should I tell him? I think the answer is that the presses are different, and that good cider comes from both. But he says that is a clerk's answer. He says the Archive should be braver.
+
+Bryn, cider maker
+House at the edge of Three Wells
+Answer from the clerk, Ansel
+Bryn,
+
+The Archive will not be brave about cider. It has no taste for it. But I will tell you what the old records say about presses, since that is in our keeping.
+
+The books from the early years say that a press should have a wide basket, so that the apples are not crushed into a paste, and that the juice runs out before the pulp is pressed hard. The oak press is the older design, and the books recommend it for clear cider. The birch press with a narrow basket is newer. The books say its cider is sharper, and some people prefer it for the cold months.
+
+So each of your presses is a good press, in its way. Your jars will show which way the apples went. Open them at Longnight, as you planned, and taste them in front of witnesses. Let the neighbours judge, not the clerks.
+
+Tell Garth that the Archive has been brave enough to write this down, and that it expects him to be brave enough to drink.
+
+Ansel
+Clerk, the Archive at Vell
+%%
+Answer: Oren to Iona
+Dear Iona,
+
+The next tower does not know why a lamp is dark. It only knows that it is dark.
+
+Our old signal book says to send a short check before you cover a lamp. Send the check again when the work is done. If the lamp will stay covered past supper, tell the next keeper by the road relay or by a runner.
+
+The harbor keeper did right to ask after you. A dark lamp can mean a rag, a storm, or a keeper who needs help. It is better to walk through puddles than to guess.
+
+I have copied this into the tower book. Please add the time when you cover the glass and when you uncover it. A small note saves a long walk.
+
+I hope the rag is dry now.
+
+Oren
+%%
+Letter: Mara to the Archive
+The 188th year of the archive, Swarm
+
+Dear Clerk,
+
+A storm came over Three Wells last night. We brought the hens inside and covered the wheat sacks. Abel tied the ferry to the near bank, then tied it again because I said the first knot looked foolish.
+
+The rain filled the ditch by the field. It did not reach the potatoes. The roof over the shed has one loose piece of oak. We will mend it before the next storm.
+
+At dusk the lamp beside the ferry blinked three times, then stayed dark. Abel says the wind shook it. I say the storm had a message and forgot the words.
+
+Please tell us if the relay keeper sent anything.
+
+Mara
+%%
+Letter: Abel to the Archive
+The 203rd year of the archive, Melon
+
+Dear Clerk,
+
+The ferry rope snapped yesterday, just as a cart reached the bank. No one was hurt. The horse stood still, the cart stayed level, and the driver said he had expected worse from a rope that Abel had mended.
+
+I took the boat to the east bank and tied it to the post there. Then I walked home for the spare rope. Mara stayed with the cart and gave the horse carrots. The horse liked this plan better than mine.
+
+Our apprentice was at the barn, sorting the empty baskets. It had not been tested for ferry work, so I left it there. I will not ask it to pull a boat before the tutor has watched it. It is good at carrying baskets, and baskets do not complain about the water.
+
+We fixed the rope before supper. The new knot is sound. Mara checked it, then checked it again, then told me she had checked it. I checked it once more after that.
+
+Please send the enclosed note to the relay keeper. The ferry lamp has blinked at dusk for three nights. Tonight it showed one short flash, then two long ones, then one short flash. I think the shutter is loose again. Mara thinks the lamp is trying to tell us that supper is ready.
+
+The relay keeper can tell us whether the pattern came from the tower. Until then, I will trim the wick and mend the shutter. I have put a lantern by the door in case the lamp goes dark.
+
+Yours,
+Abel
+%%
+Letter: Oren answers Bram
+Dear Bram,
+
+Your letter reached the Archive at Vell. I have filed it with questions from Ambrook and the nearby hamlets.
+
+Your granddaughter is right about the bees. They do not need to read the hive signs. The signs help people remember which hive was moved and when. They are useful even if the bees cannot read them.
+
+As for the apple tree, I know of no proof that kind words make more apples. Still, speaking kindly costs nothing. It may make the work more pleasant for the person who tends the tree.
+
+Please do not shout at it. The tree cannot answer, and your neighbors may think you are quarreling with them again.
+
+Your granddaughter has made a sensible point. I would thank her, if she were here.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter to the archive: Fenn is home
+From Jory, cider maker, at the market at Ambrook. Winter, in the early years. This is the second letter. The Archive had asked to be told.
+Dear keepers,
+Fenn came home. He walked in at the door yesterday at dusk with a blanket over his shoulders and sand in his boots. He had been to the sea. He saw the harbor, the boats, the long pier, and a ship on the slip with no hull yet. He said it looked like the ribs of a great fish.
+An innkeeper had written to the clerks at Vell, and the clerks wrote to me, and I could breathe at last. Please tell the innkeeper I owe her a barrel.
+Fenn says he will go again when he is older. I said he may, if he tells me first. He said he would. He ate three bowls of soup and went to bed.
+I am enclosing a bottle of the cider. It is sweet still, as you advised.
+Jory
+Below, in the hand of a clerk. Dear Jory. We are very glad. The bottle came safe and will be kept on the shelf of good news. The innkeeper will be told about the barrel. Welcome home to Fenn.
+%%
+Three questions from the east house
+To the Archive at Vell,
+
+I teach at the school by the east well. My house is at the edge of Three Wells, where the road leaves the square and runs toward the fields. I have three questions, though they all began with one bucket.
+
+The children asked to hold our summer lessons in my yard. The school room is hot, and the oak gives good shade. They can count the stones in the yard, read a page aloud, and draw the three wells from memory. Bel has drawn one well with a hat. She says it is the mayor's well, because it is the tallest.
+
+May I teach there each afternoon? If so, should the lessons be written in the school book, or only lessons held inside the school?
+
+I also need advice about our well rope. It is frayed, and the bucket scrapes the side. My brother says we can knot the rope and use it for another year. I say the bucket will fall, and then he will have to fetch water from the square. He says he can carry two buckets at once. He says many things when he does not wish to mend a rope.
+
+Last, the children want to perform a play in the yard at the end of Longday. It is about a pumpkin that loses its way to the market. A hen gives it wrong directions, a bee gives it good directions, and the baker tries to sell it a pie. Bel plays the pumpkin. She has made its head too large, but she says this is needed for the part.
+
+We can seat the guests beneath the oak. I will ask them to leave their carts by the square. May the children invite the market folk, or is the yard too close to the road?
+
+Nim
+
+Answer from Oren at Vell
+
+Dear Nim,
+
+You may teach beneath the oak each afternoon. Write those lessons in the school book, as you would write lessons held inside. Mark the place, so another teacher will know where the sums were learned.
+
+The children may count stones and draw the wells. Bel may give a hat to a well in her picture. The Archive does not decide what hats are worn in Three Wells.
+
+Replace the rope. A frayed rope is not made safe by a knot. Ask Dace for one from the town store, and keep the old rope for tying bundles. Your brother may carry two buckets after the new rope is in place.
+
+The play may be held in your yard. Ask the visitors to leave carts in the square, and keep the path to your door clear. Give the children room to gather before they begin.
+
+Bel should use a smaller pumpkin head if the large one is hard to lift. The audience must be able to see the pumpkin, but Bel must still be able to see the audience.
+
+The hen may give wrong directions, if the bee sets them right. That is a sound lesson for a play and for a road.
+
+Please send a copy of the play when the children are done. Keep their spelling and their own words. We will file it with the school records.
+
+I hope the bucket stays in the well, the carts stay in the square, and the pumpkin finds the market.
+
+Oren
+%%
+Letter: Ned to Oren, the road in spring
+Dear Oren,
+
+I am writing from the Brown Hen. The road is good. The thaw came late and the mud was deep at Three Wells, but the bridge on the Ambrook stream held.
+
+I told the innkeeper here about Sella and the crystal. He asked if the tutors will come and look inside his kitchen mind. He has one that turns the spit and it has gone slow. I said I would ask.
+
+I have been thinking about what you wrote. A mind is many parts and no part knows the whole. It is like my cart. The wheels do not know about the horses. The horses do not know about the pots. But when I say go, the whole cart goes, and if one wheel is loose the cart still goes, only crooked. Maybe a mind is like that. Maybe that is why the tutors can cover a part and the mind still reads, only crooked.
+
+I will be at Kettle Ridge again in Swarm. Tam says the beetroot will be up and Pip wants to show me his drill boards. I will bring nails and a new pot for the inn.
+
+If a tutor comes to look inside your kitchen mind, tell them to write down what they do not find. I have learned that much.
+
+Ned
+%%
+Letter: Bram asks about a sick cow
+Dear Clerk at Vell,
+
+Our cow Hazel is sick. She has not finished her hay since yesterday, and she stands apart from the other cows. Her ears feel warm. The healer from Ambrook has seen her and told us to keep fresh water near her, keep the stall clean, and watch her closely.
+
+We have done that. My granddaughter Ada sits by the stall and reads aloud from her school slate. Hazel looked up when Ada read the list of apple kinds. She did not look up for the list of sums.
+
+Ada says Hazel prefers apples to sums. I say Hazel prefers anything to sums.
+
+Is it safe to give Hazel a few apples? We do not want to make her worse. The healer will return after the next visit to the hives. She asked us not to try a remedy from the road.
+
+Also, Ada has made a small sign for the stall. It says, "Quiet. Hazel is resting." My son says the sign is for people, not cows. Ada says people are louder.
+
+Bram of Reedbank
+%%
+House list, after the harvest
+The apples are in the dry room, in four baskets. The small apples go to the kitchen. The bruised ones go to the mill. The best ones are for the market, unless Pell's mule reaches them first.
+
+The wheat came in well this year. The boats brought good fish, and the smoke shed is full. We have enough salt for the winter, if nobody tips another jar into the floor.
+
+Iona checked the relay lamp and cleaned its glass. The lamp keeper's house has a sound roof, a full wood box and two dry blankets. One blanket is on the chair because the cat has claimed it. The cat has also claimed Iona's stool. We have agreed to share both.
+
+The apprentice carried the harvest tally from the store to the tower desk. It did not bring the shelf. It did not bring the cat. This is a pass.
+
+The wind has turned colder. I will mend the door cloth before evening. Pell has promised to mend the latch on his apple box. I have written that promise here so the Archive can remind him.
+%%
+Letter to the archive: a boy who ran off
+From Jory, cider maker at Ambrook market, to the Archive at Vell. Winter, in the early years, when the roads were new. Sent by the carter.
+Dear keepers,
+I have a question and no one to ask. My nephew Fenn, who is eleven, ran away from the cider house three days ago. He said he wanted to see the sea. He left a note on the table. It said, "Back soon." He took a loaf, a blanket and a stick.
+The new road runs from Ambrook to Saltreach, with inns a day apart. Would a boy of eleven be safe on it? Does the Archive have any record of a child being lost on the road? I am sick with worry and have lost my sleep.
+I am sending this by the carter so it reaches you before the snow.
+Jory
+Below, in the hand of a clerk. Dear Jory. We have searched our shelves. There is no record of a child lost on the new road in all the years it has been built. There are, however, records of nine children who walked it and arrived at the sea. Each was fed at an inn on the way. The innkeepers keep a book, and we have asked the three nearest to look for your Fenn. Please do not lose hope. We will send word by lamp the moment we hear.
+%%
+Letter: Nessa to Oren, the damp box
+Dear Oren,
+The test box at Copperhold has grown damp again. It sits on the lower shelf by the well, which is the coldest place in the house. Twice this Melon, in the 203rd year of the archive, the test pages came out curled, and one had a green spot in the middle the size of a thumb. The apprentices sorted them and said nothing, which is what apprentices do when they are right.
+Should I move the box? Put salt in it, as my grandmother did with the bread crock? Or copy the spoiled pages and throw them away?
+Nessa, tutor
+Answer, from Oren, clerk of the archive at Vell:
+Dear Nessa,
+Do not throw away the spoiled pages. Nothing written is thrown away. You know that. We have a shelf for spoiled pages, and it is called the shelf for spoiled pages, which is less of a joke than it sounds.
+Move the test box to the upper shelf, away from the well. Put a cloth under it, and dry straw under the cloth. Not salt, which makes the paper taste of the sea.
+Copy the spoiled pages before you move them, while they can still be read. Mark each copy "copied from damp". The second clerk will read the copy aloud against the first, as is the rule.
+The test pages must never be drilled on. I write it only because a tutor from Three Wells came to the archive door last year with a drill box under each arm, and I had to stop him myself.
+Oren
+%%
+Letter: Bram asks about the honey jars
+Dear Clerk at Vell,
+
+At Reedbank we keep a small store room beside the well. It holds honey jars, spare baskets, and the wooden boards we use when the path is muddy. My granddaughter Ada says it holds too many things and not enough labels.
+
+She is right. Last week I took a jar from the shelf, thinking it was honey. It was apple mash for the hens. The hens were pleased. I was not.
+
+Ada wants to mark each shelf with a picture and a word. The beekeeper says the honey jars should be kept together, with the lids tied on. My son says the jars should be counted before and after market. I say that if we count them too often, we will have no time to eat.
+
+What is the best way to keep a store room in order? We have no apprentice here, only Ada, my son, and me. Ada can write well, my son can carry two baskets at once, and I can remember most things if nobody asks me while I am eating.
+
+Bram of Reedbank
+%%
+A question about wedding bread
+To the Archive at Vell,
+
+I live in the small house at the edge of Three Wells, beyond the last lamp on the east road. I teach at the school and help my sister bake when the market is busy.
+
+My sister is to marry Sella of Ambrook in Swarm. We will make bread for the meal, but we cannot agree on the shape. My sister wants round loaves. Sella wants long ones, because long loaves are easier to carry from the oven.
+
+I say we should bake both kinds. My sister says this is how we get too much bread. Sella says there is no such thing as too much bread at a wedding.
+
+Also, is it proper for the school children to carry flowers from the oak to the table? They have asked, and I fear they may bring half the hedge.
+
+Nim
+
+Answer from Oren at Vell
+
+Dear Nim,
+
+Both kinds of bread are proper. Make fewer long loaves than round ones, since they are easier to carry and easier to eat while standing.
+
+Your sister is right that there can be too much bread. Sella is right that guests will help you find a use for it. Send the extra to the inn before it grows hard.
+
+The children may bring flowers. Tell them to take a small handful, not the hedge. Give one child the basket and let that child decide when it is full.
+
+I hope the wedding is warm and the bread is good.
+
+Oren
+%%
+The play beneath the oak
+To the Archive at Vell,
+
+I teach at the school by the east well. My house stands near the road at the edge of Three Wells, where the oak gives shade to our yard.
+
+The children wish to perform a play there in Longday. They have written it themselves. It is about a lost pumpkin that asks a hen, a bee, and a very busy baker for directions. The pumpkin is played by Bel, who has made a round head from a real pumpkin. It is too heavy for her, so we will use a smaller one.
+
+The part of the hen has caused a dispute. Odo says the hen should cluck. Mara says it should speak clearly, because a hen that speaks must have a reason. I have asked them to choose one way, but they keep trying both.
+
+May we invite the market folk to watch? There is room for benches beneath the oak, but not for all the carts. I can put a notice at the wells and ask visitors to leave their carts by the square.
+
+Nim
+
+Answer from Oren at Vell
+
+Dear Nim,
+
+The play may be held beneath the oak. Put the benches on firm ground, and leave a clear path from the road to your door.
+
+Ask visitors to leave carts at the square. A cart beside every bench would make the play hard to see and harder to leave.
+
+The hen may cluck once, then speak. This gives both children what they want and keeps the words clear.
+
+Please make sure Bel can lift the pumpkin head before the play begins. A lost pumpkin should not give the actor a sore neck.
+
+We would welcome a copy of the children's words for the Archive. Do not correct their spelling before they copy it. Their own marks belong with the play.
+
+Oren
+%%
+A fair prize for a quiet frog
+In the 176th year of the archive, after the hay was in, we held a fair at the farm beyond Lowmarsh. It was not a large fair. We had three tables, two benches, a notice board, and one bell that belonged to the fish weir.
+
+My sister set out carrots and beetroot. I brought smoked fish. Lale brought a pumpkin that took two people to lift. Wren brought jars of dried herbs and told the children not to open them. The children opened one jar. Wren knew which one by the smell.
+
+The prize for the pumpkin was a small bag of emeralds. Lale used it to buy a new wooden wheel for her cart. The prize for the best basket of carrots was a jar of Ambrook honey. My sister won it. She said she would save it for winter. We ate it that evening on oat bread.
+
+A small apprentice from the marsh house carried the prize table from the shed. It walked slowly and kept its arms level. The children followed it and called out, "Mind the turn." It minded the turn. It also stopped at the water jar, where the frog sat.
+
+The frog did not move. The apprentice did not move. They stood looking at each other until Moss came with a cup and took the frog back to the ditch.
+
+I asked Moss which one had won the staring contest. She said the frog, because it had started before breakfast.
+
+Cress
+%%
+Letter: Tobin to the Archive, a dog
+To the clerks at Vell,
+
+A brown dog came to the market on Melon market day and sat under my stall all afternoon. He ate a crust, two sausage ends and the string off a cheese. He has no collar. He has no name. Three people have called him Biscuit and he ignores all of them.
+
+Is there a record of a dog like this in your books? Has a dog ever been filed? I would like to write his name down properly, if he has one, so that the next person who asks knows what to call him.
+
+Tobin, cheese seller
+Three Wells market
+
+Answer from the clerk, Oren
+Tobin,
+
+We do not file dogs. We have never filed a dog. A dog is fed, and then it goes where it likes, and that is a better arrangement than any clerk could make for it.
+
+There are two dogs in the Archive's own records, and both of them sat on the shelves and were not asked to leave. The clerks named one Ink. Ink is a cat. That is another matter.
+
+If your dog comes back, give him a crust and let him sit where he is. Keep the string off the cheese. The rest is up to the dog.
+
+Oren
+Clerk, the Archive at Vell
+%%
+Letter: Rill to the Archive, four names
+Dear Archive,
+
+I am Rill, age eight. What were the names of the first four apprentices? I want to name my frog after one.
+
+Rill, by the reed bank at Lowmarsh
+
+Below it, in the clerk's hand:
+
+Dear Rill,
+
+The old drill book calls them First, Second, Third and Fourth. The children gave them other names, and the names change from town to town. The chronicles do not agree. Name your frog what you like. It is a good use of a name.
+
+Oren
+%%
+Answer: Oren to Iona, house notes
+Dear Iona,
+
+Yes. Write down the small work when it helps another keeper do the same work well. A clean lamp, a sound latch and a clear tally can matter as much as a message. Put each note under its own heading, so the next keeper can find it.
+
+For a test, write the day, the order, what the apprentice did, and what you changed before trying again. Keep a basket of tests that you have not used for lessons. Do not count a familiar test as proof of new learning.
+
+Your shelf lesson is useful. The apprentice carried the shelf because the box and shelf had become one task in its drills. You fixed the shelf and changed the lesson. Then you tried the box again. That is a fair way to learn what it knows.
+
+You may write about the cat, but keep the cat out of the test box. A sleeping cat is not a jar, and it is not a lesson card. The cat may disagree.
+
+We have added your note about the lamp glass to the tower book. Clean it in daylight when you can see the salt on the panes. Send a check before you cover the signal lamp, and another when the work is done. This keeps the next keeper from sending a runner through puddles.
+
+The harvest news has pleased the clerks. We have put one of Pell's apples in the copying room for the afternoon. It is on a plate, well away from the records.
+
+Oren
+Archive clerk, Vell
+%%
+Letter: Oren answers about Hazel
+Dear Bram,
+
+I am sorry Hazel is ill. I have filed your letter with the Archive at Vell, but I cannot tell from a letter what is wrong with her. You have done right to follow the healer's advice and wait for her to return.
+
+Please ask the healer about the apples before giving Hazel any. Keep to the fresh water and clean stall she advised. Tell her at once if Hazel grows weaker, stops drinking, or shows a new trouble. Do not give her a remedy from a traveler. The healer knows the cow and can judge what is safe.
+
+Ada's sign is useful. People can read it before they enter, and a quiet stall may help Hazel rest. Ask visitors to speak softly and keep the other cows from crowding her.
+
+It is fair to say Hazel prefers apples to sums. Most people do. I hope Hazel is eating again when this answer reaches Reedbank.
+
+Your family has done careful work. Give Ada my thanks for helping, and tell her that the sign should stay on the stall even after Hazel is well. It might also help her father remember to lower his voice.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Arlo to the Archive at Vell
+To the clerks at Vell,
+
+I am Arlo. I keep bees at Coldhollow, a small place an hour's walk south of Northpoint. There are nine houses, a well, a barn and a great many bees.
+
+I have a question. In Deepsnow the bees stay in the hives and do not come out. That is normal. But this year I want to know what they do in there. Do they sleep? Do they eat all winter? My grandfather said they keep warm by moving, but he also said foxes steal honey, which is not true, so I am asking you.
+
+If you have a record about bees, I would like to know what it says. I cannot pay much. I can send honey.
+
+Arlo
+
+Clerk's note, in answer, by Oren:
+
+Dear Arlo,
+
+We have three records about bees. One is a song. One is a list of flowers. The third is by a beekeeper at Ambrook, and it says the bees gather in a ball and move all winter to keep warm. It says they eat their honey slowly, and that a hive with too little honey will not last to Thaw. It says nothing about sleeping. We do not know if they sleep.
+
+The song has a good line about the queen. I have copied it below in case it helps.
+
+We would like the honey. Send it with the next cart and we will file it under gifts, which is a shelf we like.
+
+Oren, clerk
+%%
+Letter: Nessa to Oren, a lost letter
+Dear Oren,
+I gave a letter to the carter at Copperhold on the fourth of Longday, sealed, for my sister in Ambrook. She has not had it. Can the archive find it?
+Nessa
+Answer, from Oren, clerk of the archive at Vell:
+Dear Nessa,
+Your letter is on the cart list, marked sent. Beside it, in the carter's hand: one sealed, to Ambrook, the bag was wet.
+Ask Cal which bag. He will be very sorry.
+Oren
+%%
+Letter: Oren to Ilse, the south mark
+
+Dear Ilse,
+
+Mark the new stone, but keep the mark small. A person who knows the harbor may use it to find the wall's south end. A person who does not know the harbor can still read the main lines.
+
+Do not mark every stone. That would make the map hard to use. Your note about the dark stone belongs in the map book, where the next mapmaker can find it.
+
+I have also filed the short-legged bench as a harbor note. It may be part of the harbor, but I cannot say it is improved. A bench that rocks makes a poor place to set ink.
+
+Please thank the market keeper for the rag and the pie. If he sends a pie to Vell, we will give it a fair place in the records. We will eat it before it grows stale.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Oren to Ilse, gulls
+
+Dear Ilse,
+
+Yes, you may draw a gull on the map. Please write what the mark means beside it. A map should help the next person, even if the next person is a gull.
+
+I have filed your note about the blue pencil. If it comes to Vell, I will return it by the Long Road. I cannot promise the pencil will still be blue.
+
+We had a gull in the copying room once. It sat on the window ledge and ate half a clerk's lunch. The clerk had left the window open, so the gull was not at fault.
+
+Keep your lunch covered.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Oren to Emmet, on horses
+Dear Emmet,
+
+Thank you for your letter. It came to Vell in a sack with the market accounts, and I read it by the window in the copying room.
+
+I am not a farrier and I am not a horse. But I have asked folk here, and I will tell you what they say.
+
+A horse learns by what comes after. If you hold her and give her an apple while the farrier works, she learns that the tools come with apples. If you only give the apple after, she learns nothing but that apples happen. So try this: have the farrier stand close and do nothing. Give her the apple. Then he lifts one foot and sets it down. Give her the apple. Go a little further each day.
+
+Do not shout. A horse does not know what shouting means. She only knows the farrier is here and you are loud, and that makes the farrier worse.
+
+One of the tutors here says the same of a mind in a crystal. You show it a thing, and its changes come from what follows. I think she would say your Bracken is a good learner and only needs a better teacher. She says that about everyone.
+
+Write again and tell me how it goes. I have a small wager with the tutor.
+
+Oren
+Clerk, the Archive at Vell
+%%
+Letter: Oren answers about the store
+Dear Bram,
+
+Your letter reached the Archive at Vell, and I have filed it with questions about keeping goods. The hens have made a good use of the apple mash, though it is wise to mark the jar before anyone serves it at table.
+
+Ada's plan is sound. Put one kind of thing on each shelf, and mark the shelf with a short word and a clear picture. Keep honey jars together. Tie their lids as the beekeeper suggests, and do not place them where a basket can strike them.
+
+Count the jars when they enter the store room and when they leave for market. You need not count them at every meal. Write the number on a small board by the door. If a jar is used at home, write that down too. A clear count saves work later.
+
+Keep the boards and baskets in one place, away from the jars. Store the apple mash with the feed for the hens, and mark it plainly. Your son can carry the baskets. Ada can update the board. You can check it after you finish eating.
+
+If you start with only these few rules, the room should stay orderly. Do not add so many marks that nobody reads them. A store room is meant to help the household, not give everyone another chore.
+
+Please tell Ada that a good label can prevent a very poor supper. Please also tell your son that carrying two baskets is useful, but carrying them past the honey jars is not a test of skill.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Abel's Summer Account
+The 181st year of the archive, Melon
+
+The farm outside Three Wells has wheat by the road and potatoes by the stream. Mara keeps the garden. I keep the ferry and the rope. Each has told the other that the work is easier.
+
+Yesterday a cart came from the market with two sacks of carrots. The horse would not step onto the ferry. I led it by the nose, and Mara pushed from behind. The horse moved at once. Mara says it only wanted to see me work.
+
+A child paid one apple for a crossing. I gave him the apple back because he had dropped it in the mud. He said that made the crossing free. I said the mud had paid for it.
+
+The rope needs grease before the next rain. The ferry plank needs one new board. The horse needs no advice from either of us.
+%%
+Letter: Oren answers about the pond
+Dear Bram,
+
+I have put your question in the Archive at Vell, among letters from Ambrook and the hamlets near it. I cannot set a level for a pond I have not seen. The miller's mark is likely there to show when the water is too low for safe use of the wheel. Please ask him what he means by the mark before anyone touches the sluice.
+
+The miller is right to think of the wheel and the fish. A pond also gives water to reeds and frogs. If the level has fallen below the mark, opening the sluice would lower it further. Wait for rain, and let the miller judge when the pond can be used again.
+
+Ada's count sounds careful. Frogs are hard to count. They call from reeds, and one can answer from farther along the bank. She could count the voices she hears on one evening, then count again from the same place another evening. That would not tell her the exact number, but it would make a useful record.
+
+She should not climb into the reeds to find them. The bank may be soft, and frogs do not need help with their hiding places.
+
+You were wise not to argue before learning what the post means. Please thank the miller for keeping watch over the water. I hope the next rain fills the pond, turns the wheel, and gives Ada a number too large to check.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Bram asks about the bell
+Dear Clerk at Vell,
+
+I am writing from Reedbank, near Ambrook. Our hamlet has one bell on a post beside the well. We ring it when a cart comes with honey jars, so folk know to bring their empty pots.
+
+Yesterday my grandson rang it because he had found a beetle. Everyone came out. The beekeeper brought a basket. My sister brought her shawl. The baker brought half a loaf and asked where the cart was.
+
+The beetle was under the bell post. My grandson says it was a very important beetle.
+
+How many rings should mean "a cart is here"? I do not want the whole hamlet to come running for another beetle.
+
+Bram
+%%
+The lost letter
+I wrote to the Archive at Vell about a jar and an apprentice. I put the letter in the box at the Lowmarsh relay house. I asked Lantern to send it north with the next message.
+
+No answer came.
+
+I asked Moss if she had seen the letter. She had not. I asked the relay keeper. He said the message had gone out, unless it had not. He checked the tally twice and looked unhappy both times.
+
+Three days later, my sister found the letter in the basket of carrots. It had stuck to a leaf. We washed the mud off and sent it again.
+
+The answer arrived at last. Oren wrote that an apprentice can learn to carry a jar, but must be tested with water first. We have begun the lesson. The apprentice has not tasted the water. The frog has.
+
+Cress
+%%
+Letter: Ossa to Oren, the first four
+Dear Oren,
+At the inn last night a carter said the first apprentices were four, copper and iron, and that the children named them. Another carter said there were five. Which is right?
+Please tell me the truth. I will pay the postage in glass.
+Ossa, glassblower
+Answer, from Oren, clerk of the archive at Vell:
+Dear Ossa,
+The first tutors at Vell drilled four helpers of copper and iron, each with a mind in a crystal. The children called them apprentices, and the name stayed. The carter who said five was counting the one that broke in its first winter. That one is in our records too, under broken.
+Keep your postage. Send the glass if you like. We keep everything.
+Oren
+%%
+Letter: Lorn to the Archive, potatoes
+Dear Archive,
+
+I have a problem I did not think I would have. The north had a good harvest. Mira at the tower says the north does not do good harvests, only passable ones, but this one was good. We dug 70 sacks of potatoes more than we can eat.
+
+They are in my cellar. It is now Sowing, and they have all grown white sprouts as long as my fingers. They look like a cellar full of small pale hands. My daughter will not go down for the jam.
+
+What do I do with them? Eat them? Throw them out? Plant them? I have asked three neighbors and had three answers.
+
+Lorn, eggs and now potatoes
+
+Below it, in the clerk's hand:
+
+Dear Lorn,
+
+Plant them! I am Cob, the youngest clerk, and I have read the farm shelf twice. A potato with sprouts is a potato that wants to grow.
+
+Cut each big potato into pieces, with two or three sprouts on every piece. Let the cut sides dry for a day. Then plant them in rows, sprouts up, and cover them.
+
+The rest you may eat. Rub off the sprouts first. Throw out any potato that has gone green or soft.
+
+For next year: keep them cool, dark and dry, in straw, and look at them every week. Keep them away from apples.
+
+If you still have too many, Three Wells will pay 1 emerald a sack. Pell comes through in summer.
+
+Cob, clerk
+%%
+Note: Sella
+For the tutors' box at Vell.
+
+I set up in the Kettle Inn for four days. The room was full. Tam brought Pip and three of the farm hands. The baker came and stayed an hour. A trader named Ned watched every evening and asked good questions.
+
+I looked inside a crystal I drilled myself. It reads the numbers on letters for the relay. I know it reads well because I tested it on letters it never saw. Then I covered parts of it with my hand and watched the reading go wrong.
+
+What I found: a small part near the edge that holds the first letter of a word. Cover it and the mind guesses the rest of the word wrong, every time. Another part counts. Cover it and the mind reads a long word as a short one. The biggest part, in the middle, I covered and the reading barely changed. I tapped it and it did something. I could not say what.
+
+Tam said, so you found half a mind. I said, less than half, and he laughed and gave me beetroot soup.
+
+The lesson I will teach: look inside often, write down what you find, and write down what you do not find, just as plainly. A tutor who says "I found all of it" has not looked.
+
+Sella, tutor of the Vell hall, spring
+%%
+Notes from the Hollis house, autumn
+We have a house at the edge of Kettle Ridge, the last one before the fields. Mother Hollis keeps it. The rest of us come and go.
+
+From Mother Hollis:
+
+The well is dry. I went out at dawn with the bucket, and the rope came up with mud on it and no water in it. I went out again at noon. Same. We have not had rain since the fair, and the well has been low all summer, and now it is done.
+
+So it is the Anders well for us, across the field, until the rain comes. Their water is good. Their dog is not. I carried two buckets this morning and the dog followed me the whole way, barking, and I told him he was a very fine dog and he stopped. A kind word costs nothing.
+
+The turnips are in. The apples are down. The bees are slow and sleepy and I do not blame them.
+
+From Tam, who lives here too:
+
+Pip and I dug at the bottom of the well all afternoon, and we found an old bucket, a horseshoe and a great deal of mud. No water. Pip says the water is under the next hill and we should dig there. Pip is nine and full of ideas. We will wait for rain.
+
+From Emmet, the stable hand, who eats here most nights:
+
+The farrier came today. Bracken stood for the whole shoeing and did not walk backward once. I gave her an apple after every hoof. She now expects apples at all times. She looked at me this evening as if to ask where her apple was. I gave her one.
+
+From Little Ross, who is seven:
+
+The well is dry so I cannot drop a stone in it to hear the sound. I dropped a stone in the Anders well instead and Mrs. Anders said I was a scamp but she smiled.
+
+The rain will come.
+%%
+Cress and the pea rows
+The farm lies beyond the Lowmarsh boardwalk, where the ground rises enough for dry beds. We grow carrots, potatoes, and a short row of peas. The ditch runs along the north edge. Moss says the peas need more water. I say they need fewer visitors.
+
+A frog sits on the water jar each evening. It does not help with the rows. It does not eat the weeds. It is still welcome.
+
+Cress
+%%
+Senna remembers Isla's visit
+In the summer of the 195th year of the Archive, Isla came to Barley End with a roll of writing tied in cord. The hamlet is a short walk below Kettle Ridge. We have a mill ditch, a store shed, and two rows of houses. The wind reaches us before it reaches the ridge fields.
+
+I was setting jars in Wren's old medicine box when Isla asked to see our helper. It has a little mind in a crystal. The mind can sort four kinds of jars when their labels are clear. It cannot read a long letter, and we have never asked it to.
+
+I told Isla that its crystal was small. She asked how long we had drilled it. I could not say. We had shown it the same labels many times, and sometimes we had used labels from the market. We had not kept a count. Isla did not scold me. She said that a tutor cannot compare two minds if nobody writes down what each mind was shown.
+
+She spread her roll on the bench. The writing held notes from many drills. Some minds had small crystals and short drills. Others had larger crystals and had read more pages. The tutors had tested them with pages kept apart from their lessons.
+
+Isla had marked the results in a curve. She said a tutor could look at the curve before starting a new mind. It gave a fair idea of how much more the mind might learn if it had more room and more time with good writing. A larger crystal gave a mind more room for the marks of what it learned. Longer drilling gave it more examples to learn from.
+
+The curve could not say what any mind would know for certain. Bad pages could teach it badly. A mind could do well on its drills and still fail a new test. So the tutors kept a test box, and they did not show those pages during lessons.
+
+I asked if we should ask for a larger crystal for the jars. Isla looked at the labels and said, "First give this mind clear writing, and count its lessons. Then decide what it needs." She was right. We had not even noticed that one label was hard to read.
+
+That afternoon, a fishing boat was late coming back from the pond. We waited by the ditch with a lantern. The fishers came at last, pulling the boat by its rope. Their basket held three fish and a clump of reeds. They said the wind had turned them toward the far bank. Isla helped carry the basket to the store shed.
+
+Before she left, she spoke of the councils. They had begun to plan relay houses, where large minds could stand in crystals and answer through the relays. The councils wanted to know what size to build for, and how much writing to gather. Isla's curve gave them a way to make a careful guess before the work began.
+
+She did not tell us what those minds would one day say. At the time, we were glad to have a way to plan. We were also glad the fishers had come home.
+%%
+Letter: Garth and Bryn, the tie
+To the clerks at Vell,
+
+We are writing together, which neither of us thought would happen this year. The three bets have ended in a tie, and we have agreed to ask the Archive to settle the tie. We do not want a jar each. We want a record.
+
+The pear tree has given blossom. It was thin, but it was there, on the south spurs. Bryn counted seventeen flowers. Garth counted nineteen and says Bryn missed two behind the leaves. They agree there will be fruit. They do not agree how much.
+
+The post in the lane is still standing. Bryn dug in the ditch in Thaw, as the Archive told him, and found the boundary stone two paces to the east, just as the book said. It has a small cross on it. Garth was there, and he said "I told you so," and Bryn said "You did not," and they both laughed, and then they shook hands on the new stone.
+
+The cider jars were opened at Longnight. Both were good. Garth's was sharper and Bryn's was smoother. The whole street came to taste them, and the children were given a thimble each, which they drank very slowly and pretended to like.
+
+We have agreed the presses are both good. We have agreed the fence is shared. We have agreed the tree will be judged in autumn, by the apples.
+
+But there is one thing we cannot agree on, and we ask the Archive to write it down, so it is recorded. Which of us was first to say that the old pear tree would fruit this year. Garth says it was him, at the first frost. Bryn says it was him, at the mill, in the spring. The mill keeper says neither of them, and that it was the bees.
+
+Please write the bees in the record, if you are not sure. We are not sure.
+
+Bryn and Garth
+House at the edge of Three Wells, and the house next to it
+Answer from the clerk, Ansel
+Bryn and Garth,
+
+The Archive has written it down. The record now says that the pear tree was said to fruit this year by two neighbours, and by a mill keeper, and by the bees. It is filed under Three Wells, in the book of small disputes, which is the thickest book we have.
+
+The Archive has also written that the boundary stone is found, and that the fence is shared, and that the cider was good on both sides. It has written the count of blossoms as seventeen, and then nineteen, and then, in the margin, "two hidden behind leaves." I have not added to the count. I will not.
+
+Keep your jars. Keep the stone. Keep the tree, and count the apples in the autumn. When you come to the Archive again, bring the apples too, and we will see who was right about them.
+
+Ansel
+Clerk, the Archive at Vell
+%%
+Letter: Iona to Nessa, jars
+Dear Nessa,
+
+I tried your lesson with the jars, as you advised. One jar on a tray, then two jars, then a jar among the cups. The apprentice now fetches the jar marked Salt without bringing the shelf. This is a great improvement for my floor.
+
+I marked the jars with clear cards. The first cards were too small, and the apprentice brought me the card instead of the jar. I laughed, but it was fair. I could not read the mark from the doorway either.
+
+My neighbor at the edge of Saltreach says the apprentice should carry fish from the quay. He says a jar is no test of strength. I told him we do not test strength by dropping fish on the floor. He says I am afraid of a smell. He is right, but I will not tell him.
+
+The autumn nets are drying beside my house. I have moved the lesson table inside, away from the spray. The wind is not a tutor, but it keeps changing the cards.
+
+Iona
+%%
+Barley End lesson book
+A tutor should begin with a question, not with a large crystal.
+
+Isla's rule helps us plan the size of a mind and the length of its drills. She compared minds that had been given different amounts of room and different amounts of writing. She used their results to draw a curve. Before a new mind was grown, a tutor could use that curve to guess how much it might learn.
+
+A curve is a guide. It does not know the new mind. It cannot promise that the mind will pass its test. A bigger crystal has room for more marks. More drilling gives the mind more writing to learn from. Neither one can mend a poor lesson.
+
+Use clean pages. Take out copies and spoiled pages. Keep a box of test pages apart from the drill pages. Give the mind the same sort of lesson again and again, but do not let it see the test first.
+
+In Barley End, we once taught a jar mind with labels from the healing room. Some were clear. One had been wet, and its ink had run. The mind put the honey jar beside the beetroot seeds. Senna thought the mind had failed. Pip saw that the label was no longer clear. We dried the other labels and began again.
+
+A tutor must look at the lesson too. When a mind is wrong, do not blame the crystal before checking the page. Write down what the mind saw and what it did. Then try again with a clear example.
+
+The same rule helped the councils plan relay houses. They wanted large minds in large crystals, but first they needed a fair guess about the room and writing each mind would need. Isla's curve gave them that guess. The mind still had to learn, and the tutors still had to test it.
+
+This summer, a fishing boat came late to the pond. We waited with a lantern while the sky darkened. The fishers returned by the far bank, where the reeds hid the turn in the water. Their boat was sound. Their basket was light. They said they had spent too long looking for the landing.
+
+Senna let them rest before she asked about the catch. She set the jar mind to sort the fish labels, with the clear ones only. It put each label in its right place. We wrote that result in the lesson book. We kept the hard pages for another day.
+
+A mind grows by what it is shown, and by the room it has to keep what it learns. A tutor must give it good writing, time to learn, and a test it has never seen.
+%%
+Letter: Cress to the Archive
+Dear Oren,
+
+We held a small fair by the fish weir after the first hay was stacked. My sister entered a basket of carrots. I entered a smoked fish, though it was meant for supper.
+
+The prize went to a pumpkin grown by our neighbor Lale. It was round and bright, and her little apprentice carried it in both arms. The judge gave Lale a jar of honey from Ambrook. She gave the jar to the apprentice to carry home. It did not arrive full.
+
+The frog was there too. It sat under the prize table and watched every foot. Moss says it wanted the honey. I think it wanted shade.
+
+Can you tell us if an apprentice can learn to carry a jar without tasting it?
+
+Cress
+%%
+The oak shade question
+To the Archive at Vell,
+
+I am Nim, teacher at the school by the east well. My house stands at the edge of Three Wells, where the road turns past the last garden. I wish to ask about lessons outside.
+
+In summer, the school room grows warm before noon. The children wipe their slates with their sleeves and leave grey marks on their cuffs. Bel says the marks make her look like a clerk. Odo says a clerk would never have such crooked sums.
+
+There is an oak beside my house. Its shade reaches the yard at the right hour. May I take the class there for counting and reading? I will bring the books back inside each day. I will not let anyone climb the tree, even if Bel says the top branch is shaped like a chair.
+
+Nim
+
+Answer from Oren at Vell
+
+Dear Nim,
+
+You may hold lessons beneath the oak. Keep the books out of the grass, and bring them in before the evening damp.
+
+Counting stones is useful. Counting leaves is useful too, though the answer changes when the wind comes. That may be a lesson by itself.
+
+Bel may describe the branch in her own words. She may not sit in it during sums.
+
+Please mark the school book with the place of the lesson. This will help the next teacher who wonders why the children know the number of roots under your oak.
+
+Oren
+%%
+Letter: Oren to Ilse, winter ink
+
+Dear Ilse,
+
+Keep the jar indoors at night, away from the wall. A small clay pot of warm water may help. Set the ink jar beside it, not in it. The water should feel warm, not hot.
+
+I have added your map to the Saltreach shelf. The gull is clear, and the warning is useful. I hope the gull cannot read.
+
+For drawing, wrap the jar in wool between uses. Do not put it near the stove. The Archive lost two jars that way last Frost. One cracked. The other was used for soup.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Lorn to the Archive, hens
+Dear Archive,
+
+I sell eggs at the Northpoint market. My forty hens lay well from Thaw to Leaffall. In Longnight they lay almost nothing. Last winter I got three eggs in a month, and the hens looked at me as if it were my fault.
+
+Why do they stop? And can I make them start?
+
+Lorn, eggs
+
+Below it, in the clerk's hand:
+
+Dear Lorn,
+
+It is the light. Hens lay by the daylight, and your winter days are short. The farm shelf has notes from Ambrook that say so.
+
+Some keepers hang a lantern high in the henhouse for the evening. Never a candle. The hens lay a little longer, but they tire sooner. I would let them rest. A rested hen lays better in spring.
+
+Oren, clerk at the Archive at Vell
+%%
+Letter: Dov to the Archive, wool price
+To the clerks at Vell,
+
+I have a question that is not about bees. The wool price at the market has fallen two times this season, and the carders are not happy. My cousin at the Long Road says the price has gone up in Saltreach. The boats are carrying more cloth than before. So why are we getting less for our wool here?
+
+The buyers from Three Wells say the trade is slow. They say many families are packing. Some are leaving the town for the coast, and they are selling their looms cheap. A buyer from the coast says the families want to sail. He did not say where. I asked him, and he laughed and said that nobody knows where the big boats go after the harbor wall.
+
+Is there a record of the price in your books? I would like to know if this has happened before. I would like to know if there is a reason, or if it is only the carts and the weather.
+
+Dov, wool carder
+House at the edge of Three Wells
+
+Answer from the clerk, Oren
+Dov,
+
+We have the price books for every season since the founding of the archive. Your wool price has fallen before, in Frost, and it has come back in Thaw. That is the usual pattern. I have copied the last twelve seasons for you, and the copy is in the box with this letter.
+
+I cannot tell you where the families are going. The books do not say. I have read the letters from the coast, and they speak of ships and of the sea, but they do not speak of any place beyond it. I would not write a rumor down as a fact, and I would not help one travel.
+
+Please keep your looms, Dov. If the buyers pay less now, you may still sell in the spring.
+
+Oren
+Clerk, the Archive at Vell
+%%
+Letter to the Archive: the fence line
+Dear Archive,
+
+We are quarrelling over a fence. The west fence runs along our orchard at Ambrook. Rook, who farms the land on the other side, says it stands two blocks too far our way. I say it stands where it always stood, on the old stone line. We have argued across the wall for eleven days.
+
+Our crew of three apprentices was set to mend the fence in Reaping. First they drew up a card. Then they took a measuring cord of knotted rope and walked the stone line, one knot at a time. Each knot is written on the card. The card says the fence stands on the stone line.
+
+Rook does not believe the card. He says the apprentices were told to measure from his side. I read the card myself, and it says nothing of the kind. Rook said that proves nothing. Then we both went in for supper.
+
+Please check the field book for the Ambrook orchard. I was told the Archive keeps the field book of every farm on the Ambrook road. If the book shows the stone line, I will show it to Rook at the fence, and I will not shout across the wall.
+
+Ree, ferry keeper, farm outside Ambrook
+
+Answer from the Archive, Vell:
+Dear Ree,
+
+We have looked in the field book for the orchard at Ambrook. It is on the third shelf of the fourth hall, with the wax seal of the 61st year still on its box. The book says the west wall stands on the old stone line. The stones are numbered, and stone 14 is still in its place.
+
+Your crew's card is correct. A card made for a crew is checked by its tutor before the crew goes out. The tutor checks each knot and each step. The card belongs to the crew, not to the farmer on either side of the wall.
+
+The apprentices used a measuring cord, which is a tool. A late mind can use a tool when its card names it. It does not choose the tool by itself. It follows the step: measure the line with the cord, one knot at a time.
+
+Tell Rook this. A fence does not move because two people argue about it. Ask him to walk the line with the crew's card in his hand, and to count the knots. If he finds a different number, bring the card to us, and we will look again.
+
+Oren, clerk of letters
+%%
+Answer: the Archive
+To Corin, shipwright, at the hamlet by Saltreach, from the clerk on the relay desk at Vell, in answer to his letter of the spring.
+
+Corin,
+
+Your letter was copied into the book, word for word, and it has been read aloud at the desk by two clerks, as the rules require.
+
+We have no record of a message like yours. We have checked the tower logs for the spring, from Saltreach to the north, and nothing in them matches the blink you describe. The logs for the harbor relay are neat, and the keeper's hand in them is steady, and his message for that week is the usual one: all well, wind west, boats in.
+
+We cannot say whether the message in your tower book was written by the keeper or by someone else. The book does not show that. Nor can we say why his hand shook.
+
+As for the rule, there is none. The Archive has no rule for a message nobody sent. We have only the rule that every message is kept. So your letter is kept, and the tower book is kept, and so will this answer be.
+
+Our advice is only this. Keep the logs. Write down what you see, the time and the blink and the hand. Do not guess at what it means. If another lamp blinks the same way, send word to us at once, and to the keeper at Northpoint, who has seen strange things before and has not once lied about them.
+
+And keep the boats in, until you are certain. A careful yard is a yard that is still there in the morning.
+
+The clerks of the Archive, Vell
+%%
+Letter to the archive: winter
+To the clerks of the Archive at Vell, from Jory, cider maker, at the market at Ambrook. Winter, in the early years. A long letter, sent when the snow was deep and the stall was shut.
+Dear clerks,
+The market is shut. The stalls are empty. A white sheet lies over the square, and the only tracks are those of a cat. I thought I would write while the cider house is quiet.
+I am a cider maker. My father was one, and his mother before him. We press apples in autumn and let the juice stand in barrels. In winter we sell it, hot, with honey and a slice of apple. It is the thing people drink at the market when the wind is cold.
+This was a year of news. First, the boy ran off. You helped me find him. I thank you again. Second, the new road from Ambrook to Saltreach was finished, and a carter came to buy forty barrels for the harbor. I sold them all. I have not sold forty barrels in a season before. Third, they are building a relay tower on the hill above the mill pond, and the builders drank a barrel a week. I do not mind. A tower on the hill is good for the town.
+Now I have two requests.
+The first is for a copy of the oldest cider recipe in the Archive, if there is one. My grandmother used to say that the first cider at Ambrook was made by the first settlers, who pressed wild apples with their feet. I do not believe it. I would like to know.
+The second is for a short note on how the relay towers send messages. The builders told me there is a lamp on top, and a keeper, and a code of blinks. I do not understand how a lamp can say a word. I would like to be able to explain it to the boy.
+I am sending this with a jar of last year's cider, which has aged well. It is dark and rich. You may find it too sharp. Please tell me honestly.
+Yours,
+Jory
+Below, in the hand of a senior clerk. Dear Jory. The jar arrived. We tasted it in the copying room, where the stoves are warm. It was sharp and good. Oren said it was the best he has had. Dell said it was too strong for a clerk at work. The cat of the copying room was not asked.
+We have found a recipe. It is from the second year of the Archive and is written on the back of a bill for lamp oil. It says: "Wild apples, pressed by foot. Add honey if sour. Add water if strong. Drink at dusk." We have made a copy for you. It does not say who the settlers were. We will keep looking.
+As for the lamp. A word is sent in blinks, each letter a long and a short. A keeper reads the blinks from the next tower and writes them down, then blinks them on to the one after. It is slow, but it is sure. A message from Vell to the sea takes a quarter of an hour. We have enclosed a card with the code, so that you may show the boy.
+Thank you for the cider. Please come and see the Archive in the spring.
+%%
+Letter: Oren answers about the calf
+Dear Bram,
+
+Congratulations to your family on the new calf. I have filed your question in the Archive at Vell, beside a note from Ambrook about a foal that was named after a bucket.
+
+There is no rule for naming a calf. If the family cannot agree, let the person who feeds it choose. That person will say the name most often, and the calf will hear it at every meal.
+
+Spoon is a fine name. So is Bramble. You could use Spoon for the calf and Bramble for the apple basket. Then your son may keep his basket, and Ada may keep her spoon.
+
+A white mark may make the calf easy to find in the herd. It cannot tell you what kind of cow it will become. Give it clean water and let it drink from its mother.
+
+The sneeze is not a vote. Still, your sleeve has received the calf's first message. Wash it before you sit by the copying room.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Bram asks about a calf
+Dear Clerk at Vell,
+
+A calf was born at Reedbank in the night, while the rain tapped on the roof. We call the hamlet Reedbank because reeds grow beside the slow ditch, though the mill pond is not far away.
+
+The calf is red and white, with a white mark like a spoon on its nose. My granddaughter Ada says the mark means it will be a good milker. I told her that calves do not milk cows. She says it will grow up.
+
+The mother has let the calf drink and seems well. Ada wants to call it Spoon. My son wants to call it Bramble, because it pushed into his basket of apples.
+
+Can the Archive tell us how to settle a naming quarrel? We have tried asking the calf. It only sneezed on my sleeve.
+
+Bram
+%%
+Letter to the archive: how long does
+To the clerks of the Archive at Vell, from Jory, cider maker, at the market at Ambrook. Winter, in the early years.
+Dear clerks,
+I press cider in autumn and sell it all winter. The newer barrels turn sour by midwinter. Is there a way to keep it sweet longer? Has anyone written how?
+Jory
+Below, in a clerk's hand: Dear Jory. We found a note from the cellar-keeper at Copperhold. Keep the barrels cold and full to the top, so no air sits inside. Fill a barrel to the lid and seal it with wax. Cold, full, sealed. Your cider should keep to the thaw. Please send us a bottle. For the shelves, of course.
+%%
+Letter to the Archive: the cat
+Dear Archive,
+
+I am Odo, keeper of the little relay on the hill between Vell and Three Wells. It is the smallest tower on the road: one lamp, one keeper, one stair, and one cat.
+
+The cat's name is Smoke. She will not stay out. I put her out in the evening, so she can hunt mice in the field. She comes in through the window of the lamp room. I close the window. She comes in through the door. I close the door. She comes in through the roof, where the stove pipe is, and sits on the warm stones with soot on her nose.
+
+I have tried everything I can think of. Do you have a record of anyone who solved this?
+
+Yours in good light,
+Odo
+
+Answer from the Archive.
+
+Dear Odo,
+
+Thank you for your letter. We have searched the shelves for cats.
+
+There are 312 records that mention a cat which would not stay out. Of these, 289 end with the cat staying in. The other 23 end with the owner giving up.
+
+The records agree on three things. First, a cat comes in where it is warm. Second, a cat goes out where it is interesting. Third, you cannot make a cat do either one.
+
+The kindest advice in the shelves is from a baker at Three Wells, who writes: "I made her a bed by the oven and a door in the wall, and now she comes and goes as she likes, and I have stopped being cross."
+
+A cat flap would cost you little. A cushion would cost you less.
+
+We have filed your letter under cats, stairs and towers. If Smoke wishes to reply, she may write.
+
+Oren, clerk
+%%
+Letter: Iona to Pell, the loose latch
+Dear Pell,
+
+Your cart came past my house at dusk, and the latch on your apple box was loose. I saw three apples roll into the road. I ran after them in my slippers. One stopped by the wall. One stopped in a puddle. One kept rolling until it met your mule.
+
+The mule ate it before I could catch up.
+
+I have put the other two in the dry box by your door. The one from the puddle is for you. It has a clean patch where I wiped it. Do not give that one to the mule, or he will think the road is his orchard.
+
+The relay lamp is clean. The roof does not leak. The wind still takes my laundry if I hang it before noon. I have learned to pin the corners with stones.
+
+Iona
+%%
+Oren's answer about a gate
+Dear Cress,
+
+A gate should not be the first place to teach this lesson. Start with a small wooden board in the yard. Make one mark for open and one mark for stay. Show the apprentice the board and the order each time.
+
+Use a dry channel cut in the earth, with no water in it. Let the apprentice move a light piece of wood from one side to the other. Then give it new examples. Sometimes the order will be open. Sometimes it will be stay. Keep the examples clear and repeat them.
+
+Do not test the apprentice on the real ditch until it answers the same way each time. Then test it with a small amount of water, while a person stands by the gate. Never send an untested mind to the fields.
+
+Moss is right that examples can teach it. Your sister is right that a working gate is useful. You are right to keep the frogs in mind.
+
+A frog can sit beside a gate, but it cannot hold it shut.
+
+Oren
+%%
+Letter: Dov to the Archive, its purpose
+To the clerks at Vell, and to Oren, if he is still at his desk,
+
+This is a long letter. You may skip the middle part if you are busy.
+
+Every spring my daughter asks me what the archive is for. I always say, it keeps what we write, so that we do not forget it. This year she asked me what we are keeping it for, and I did not have an answer. She is seven. I think she meant, who will read it?
+
+I went to the market and asked the carders. They said the same thing I said. Then I asked the shopkeeper, who has been on the Long Road for thirty years. He said the archive is for when the road is closed, and the towns are quiet, and somebody needs to know how things were done. Then he asked me, very quietly, whether the clerks had heard from the north lately.
+
+I did not know what to say to him. I have heard from my cousin that the relay towers are going quiet, one by one, from the north. He says the last messages are cut off in the middle. I do not know if that is true. Perhaps it is only the weather.
+
+So I am asking the Archive, which has always answered. What should we do? Should we keep writing? Should we send our letters to Vell, as we always have? Or should we keep them at home, in our own boxes, in case the road is not there tomorrow?
+
+I am not asking to be frightened. I am asking because I am a wool carder, and I like to know how a job will end.
+
+Dov, wool carder
+House at the edge of Three Wells
+
+Answer from the clerk, Oren
+Dov,
+
+I have read your letter three times, and I have thought about it for a day.
+
+I cannot tell you what the archive is for, in the end. Nobody can. I can tell you what I was taught by the clerk before me, who was taught by the one before him. We keep everything we write. That is the first thing on the wall of the front hall, and it is the last thing I think about before I go home.
+
+I have also been asked to do a new thing. I will not say more about it here. I will only say that I have been told to write everything down, and to keep the boxes as they are. You may take that as you like.
+
+Your question about the north is not one I can answer, and I will not guess. What I can tell you is this. Keep your letters where you can reach them. Write to your daughter, not only to us. Teach her the figures on the waymarks and the names of the towns. If the road is ever closed, she will know how to find her way home by counting.
+
+Keep the fields. Keep the looms. Keep your shop open, and sell your wool when the price is fair.
+
+And keep writing, Dov. Write what you see. Write what your daughter says. It may be the only record of this season that anyone ever makes.
+
+Oren
+Clerk, the Archive at Vell
+%%
+Letter: the lost letter came home
+Dear Oren,
+You will remember the letter I lost in Longday. You told me to ask Cal, and I did, and he was sorry, as you said he would be.
+This Swarm, when the ford went down, Cal went out with his cart to see what the storm had left on the bank. He found the bag. It was snagged in the reeds below the bridge, with a fish lying across the top of it, dead and very surprised.
+Inside, the letters were wet and the ink had run, but the seal was still whole. Cal brought the bag up to Copperhold on the next cart. He stood in the yard with it under his arm and would not come in, because he thought I would be cross. He said so twice.
+I was not cross. I sat on the step and read the whole thing through, the wet parts too, which is harder than it sounds. Then I wrote to my sister, and she has written back.
+Ilse says the letter was not much, as letters go. She says the bees have made a home in the old barn roof, and she would like the archive to come and remove them, as it removes everything else. She says the fish is the best news she has had all year.
+Ilse also asks whether the archive has a fish in its records. I told her we have a shelf for everything, and that the fish will be entered under found with letters.
+I am sending you this so that the record is kept. The wet letter I will keep myself, with a new seal, in the drawer by the bread. The copy belongs with the archive.
+A letter that goes wet can still get where it is going, if the cart is slow enough and the carter is sorry. I did not know that before this year.
+Nessa, tutor
+Answer, from Oren, clerk of the archive at Vell:
+Dear Nessa,
+The copy is on the shelf with the cart list and the record of the wet bag. The fish is entered as you say, under found with letters. Cal has asked to see the entry. He is pleased with it, says he has never been in the archive before, and would like a cup of herb water.
+We have made a note that a letter can be wet, and still arrive. The clerks do not agree about why. Some say it is the carter. Some say it is the sister, who was waiting. Some say it is the letter, which did not want to be lost.
+Oren
+%%
+Question from Nim at the east house
+To the Archive at Vell,
+
+I teach at the school by the east well. I live in the little house at the edge of Three Wells, where the road bends toward the fields. My question is about summer lessons.
+
+When the room grows hot, the children forget their sums. They look through the door at the market stalls. Bel says the beans on the notice board are more interesting than sums. She may be right, but I cannot put beans in every lesson.
+
+Can I move the class under the oak by the house? The shade is good there. The children could count apples, stones, or the school steps. I would bring the slate boards back before rain.
+
+Please tell me if this is allowed, and whether I must write the lessons in the school book.
+
+Nim
+
+Answer from Oren at Vell
+Dear Nim,
+
+Yes, you may teach beneath the oak. A lesson is still a lesson when the roof is leaves.
+
+Please keep the slate boards dry. Count apples only after asking the orchard keeper. Stones and steps are free to count, unless Dace has put a notice on them.
+
+Write the lesson in the school book when you return. You need not record each child who watched a bee instead.
+
+Your question is filed under School, Shade, and Bees.
+
+Oren
+%%
+Letter to the Archive: what is across
+Dear Archive,
+
+My name is Odo. I keep the little relay between Vell and Three Wells. It is a quiet post. I see the road from the top, a thin line going both ways, and a hill to the east that I have never been over.
+
+My question is simple. What is across the hill?
+
+I have asked travelers. One said fields. One said nothing, only more hills. One said a lake. One said his cousin's farm. I have asked the keeper at Three Wells, who has never been. I have asked the cat, who knows but will not say.
+
+The Archive has everything written. Has anyone written what is across the hill?
+
+I can see the top. The top is bare. The sun sets behind it, red.
+
+Odo
+
+Answer from the Archive.
+
+Dear Odo,
+
+A fine question. We looked.
+
+We found eleven records about the hill east of your tower. It is called Marten's Back, after a farmer who lost a goat there. Here is what they say.
+
+A surveyor from the year 62 wrote: "Beyond the hill are sheep fields, and a stream, and a farm with a blue roof."
+
+A girl's letter from the year 140 says: "I went over the hill with my father. On the other side there is a pond with frogs. We ate cold bread on the bank."
+
+A relay log from the year 188 says: "The new tower at the east farm is in sight from the hill."
+
+A recipe from Three Wells, from the year 195, mentions "the honey from the other side of Marten's Back, which is sweeter, because the bees there have the clover."
+
+So: sheep, a stream, a farm with a blue roof, a pond with frogs, a tower and good honey. The records agree on the honey.
+
+The Archive does not write about what it has not been told. But it is a short walk, we are told, to the top, and a longer walk down the other side. We suggest you take a day, bring bread and a torch, and look. When you have, please send us a letter. We would like to file it.
+
+Oren
+%%
+Letter: Ilse to the Archive
+
+Dear Archive,
+
+The map room is warm again. Sella found the last loose roof board and drove in two new pegs. I held the ladder. This time it leaned toward the wall, which was a great improvement.
+
+I have put the maps on a high shelf until the snow melts. The oldest harbor map is rolled in cloth. The new map lies flat under a board. I wrote the date on both, because I learned that from you.
+
+At the fish market, the price board has been moved nearer the window. The light is better there. The fish seller says the old place was too dark to read the prices, but I think he also likes to watch the boats while he writes.
+
+A boy asked me how to draw the sea. I showed him the harbor line and left the rest blank. He said I had forgotten most of the map. I told him the sea had not given me its shape yet.
+
+He drew a fish in the blank space. It was a good fish, though it had feet. I have kept his paper with my drafts. His name is Len, and he says feet would help a fish climb onto the pier.
+
+Is it right to keep a child's drawing beside a map? It is not a true map, but it shows what the boy thought about the sea. I asked his mother, and she said yes, if he gets it back after you have copied it.
+
+From Ilse, Saltreach
+%%
+Mara's Farm Notes
+The 197th year of the archive, Longday
+
+The farm outside Three Wells is small, but it feeds us well. The field by the road is wheat. The lower beds hold potatoes and carrots. We keep beetroot near the well, where the ground stays damp.
+
+The stream runs beside the ferry post. Abel checks the rope each morning and complains that it is longer on wet days. I tell him the rope is the same length. He says this is why he needs a clerk.
+
+This summer we planted pumpkins along the shed wall. One vine has gone under the door. Abel tripped on it while carrying a basket of eggs. The eggs survived. Abel says the vine was waiting for him.
+
+A small apprentice came from Three Wells to help with the harvest. It carried baskets from the field to the barn. We tested it first with empty baskets, then with full ones. It did not drop any. Mara, our daughter, gave it a name, Basket. The tutor says apprentices do not need names. Mara says Basket does not need a tutor either.
+
+At noon we rest in the shade of the oak hedge. Abel brings bread and honey. I bring water. Basket stands by the barn until we call it back to work. It has not learned to eat, so Abel eats its share.
+
+The ferry is busy on market days. Carts cross in the morning, and people cross after buying their goods. One man brought a pig that would not leave the boat. Abel carried the pig to shore. The pig thanked him by stepping on his foot.
+
+We will mend the shed roof after the apples are picked. The loose oak piece has held through two storms. Abel says it is a very good roof. I say a good roof does not need so much praise.
+%%
+Notes on the drill of the little sorting
+By Nessa, tutor at Vell, for the apprentices' hall. Written in Apple, 201.
+
+This is a note for anyone who must teach a small mind to sort the stores, apples from pears, and to teach it well. It is the first lesson I give every apprentice here, and it was Una of Ambrook who taught it to us.
+
+You will need a tray of apples and pears, a card for each, and a quiet room. The mind is in its crystal on the bench, and the drill box is beside it, and the box has the cards you will show, in order, again and again.
+
+Show the mind an apple. It will guess. It will often guess wrong, and this is good. Each time it is wrong, you move each of its weights a little toward the right answer. You do not shout at it. You do not throw the apple. You move the weights, a small amount, and you show the next one.
+
+Do this a hundred times. Do it a hundred times more. The mind will get better slowly, the way a child gets better, and you must not expect it to be quick. Una's neighbors' children were slower than her crystal, and she was kind about it, and she said the children had other things to learn.
+
+Now the important part, which the tutors' books put in large letters:
+
+Never send an untested mind to the fields.
+
+Before the mind goes to work, you must test it on fruit it was never drilled on. Keep a test box of apples and pears from a different orchard, and let no mind see them until its test. A mind that sorts its own drill well and the test box badly has learned the drill and not the sorting, and it will fail you in the market.
+
+When the mind is tested and true, give it a card of its own: Sort. Then let it work, and check it every few days, because a mind left alone drifts.
+
+A last note for the small minds that ride in apprentices. They have one meaning each and they cannot say they do not know. If your mind sorts a stone as an apple, do not blame the mind. Look at what you showed it.
+
+Nessa
+%%
+Letter: Wren to the Archive, day twelve
+Dear Oren,
+
+Moss and I have read the first page of the old drill book. I have a question about day twelve.
+
+The book says the tutors took the first helper to a new field at the edge of town, and it did well there too. "So it was not only remembering. It had learned." How did they know? A helper that did well on day nine in the drill yard might have done well because it knew that yard.
+
+I ask because I am teaching Moss to sort my jars. It sorts well on my shelf. I do not know if it can sort on a shelf it has never seen. Perhaps I should find out.
+
+Wren, healer, Lowmarsh
+
+Below it, in the clerk's hand:
+
+Dear Wren,
+
+You have found the oldest test in the Archive. The tutors did not call it a test. They did it because they were careful.
+
+In the drill yard, the helper had seen those plots a hundred times. A mind can remember a hundred plots. The new field had plots it had never seen. If it still said harvest at the ripe and wait at the green, then it had not stored the plots. It had learned what ripe looks like.
+
+Do the same with Moss. Set out a new shelf, with new jars, and see where they go. If it fails, you have lost nothing. You have learned something about the drill. Tell me what you find, and I will file it.
+
+Oren
+%%
+Letter: Ilse to the Archive
+
+Dear Archive,
+
+A child ran off from the fish market yesterday. His name is Jori. He is seven, and he had been told to stay beside his aunt's basket.
+
+We found him at the end of the long pier, watching a boat mend its net. He said he was not lost. He said he had gone to see whether fish know where the sea ends.
+
+His aunt was glad to have him back, though she made him carry the basket home. I have marked the pier on the map with a note: Children may wander here.
+
+Is that a useful warning, or should I write, Hold hands near the water?
+
+From Ilse, Saltreach
+%%
+Letter: Oren to Ilse, winter table
+
+Dear Ilse,
+
+Yes, keep the child's drawing with the map, and return it after we make a copy. Please write Len's name and the month beside it. Do not call it a map in the shelf list. Call it a drawing of the sea beside the harbor.
+
+A blank place on a map is honest when no one has measured it. The boy's fish is not a measure, but it belongs beside your map. It tells us how a child looked at the water from the pier.
+
+I have copied your harbor notes and the story of the roof repair. The Archive shelf has room for both the old map and the new one. I have made a small case for the rolled map, so it will not be pressed flat by the others.
+
+Please tell Sella her work is recorded. The two pegs may outlast the roof boards. Tell the fish seller his new place by the window is recorded too, though I have not written down his reason for moving the price board.
+
+As for the bench, I suggest that someone mend its short leg before the next mapmaker sits there. If the shipwrights say it is part of the harbor, ask them to sit on it while they say so.
+
+Oren
+Clerk at the Archive at Vell
+%%
+Letter: Lorn to the Archive, questions
+Dear Archive,
+
+People ask me things at my egg stall. I do not know the answers. So I wrote down eight questions from one morning at the market, and here they are. I am sorry there are so many. It was a slow morning.
+
+1. Can a fox count?
+2. How long does an egg keep?
+3. Why do hens stand on one leg?
+4. Can a letter be sent to Lantern at the tower?
+5. Could an apprentice sit on eggs?
+6. Why is an egg round at one end and pointed at the other?
+7. Is it true that a hen will sit on a stone if you let her?
+8. Will my letters be kept?
+
+Lorn
+
+P.S. I enclose one egg for the Archive. It is the only one my hens laid this week. They are not trying.
+
+Below it, in the clerk's hand:
+
+Dear Lorn,
+
+You may write eight questions to me any morning. Here are my answers.
+
+1. Mira keeps three foxes at her door. She feeds three. One night she fed two, and the third sat on her boot until she fed it. So: yes, to three. We do not know about four.
+2. In a cool place, a month. In the snow, longer. To test an egg, put it in water. If it stands up or floats, it is old.
+3. The farm shelf does not say. Ama of Ambrook says they are resting the other leg. We wrote that down.
+4. Letters go to people. Lantern is made of copper and iron and does not read. Send it to Mira. She will read it aloud. Lantern listens.
+5. An apprentice is cold, and an egg needs warmth. It has also never been shown an egg. Put the eggs under the hen.
+6. The farm shelf has no note. I held an egg up to the light for an hour and learned nothing, except that eggs are lovely.
+7. Yes. Ama of Ambrook says she has seen it. The hen sat for three weeks. The stone did not hatch. The hen took it personally.
+8. Yes. Every letter is kept, and so was every one of yours. This one is on the shelf for letters from Northpoint. It sits next to the letters from Mira about the foxes.
+
+Oren, clerk at the Archive at Vell
+
+P.S. You wrote that you enclosed an egg. It came whole, in a box of straw, and it is the first egg that has ever reached the Archive by cart. The cook asked for it. I said no. It sits on a shelf in the front hall with a card that says: From Lorn, Northpoint. Not to be eaten. We keep paper, as a rule. We made one exception.
+%%
+Letter: Ned to the Archive at Vell
+Dear clerks at Vell,
+
+I am Ned. I trade along the Long Road. I sell pots, nails, salt and thread. Last month I was at Kettle Ridge and I saw a thing I cannot explain.
+
+A tutor came to the town. Her name was Sella. She brought a crystal the size of a fist and a stand for it. She set it up in the Kettle Inn where everyone could watch. She said she wanted to look inside the crystal.
+
+She had a lamp and a glass and a tray of cards. She put numbers on the cards. She held each card up and the crystal lit. Then she asked people to put their hands over parts of the crystal, one part at a time, and she watched what went dark.
+
+She found some parts. One part, she said, was for counting. Another was for the letters. She pointed at a small patch near the edge and said, this one remembers the start of a word.
+
+But there was a big part in the middle she could not name. She covered it and the crystal still read the cards. She tapped it and said, I do not know what this does.
+
+Is this how the tutors work? Do they look inside all the crystals like this? I ask because I have a crystal in my own cart, a small one, and it tells me which way is north. I am afraid to open it.
+
+Please write back when you have time. I am at the Halfway Inn until the end of the month.
+
+Ned
+%%
+Letter: Ilse to the Archive
+
+Dear Archive,
+
+The sea ice reached the harbor wall this week. It made a low sound against the stones, like a cart being pulled over a rough road. I went to mark its edge, but the edge moved while I sharpened my pencil.
+
+I tried again at dawn. The ice had moved past the south post, so I marked the post instead. It is easier to map a post than a moving edge. The fishermen tied their boats farther in and checked the ropes twice.
+
+My sister brought a basket of apples to the quay. She said I had been out too long and needed to eat something that did not smell of ink. She was right. I ate two apples and gave one to the boy with the fish drawing. He has added a wool hat to its head.
+
+The harbor keeper wants a map that shows safe places to walk when the ice is near the wall. I can mark the steps from the market to the fish shed. I cannot promise the ice will stay in the same place tomorrow.
+
+Would a note help? I thought of writing, Look before you step, and keep away from the edge. The keeper says that sounds like advice from a mother. It also sounds useful to me.
+
+From Ilse, Saltreach
+%%
+Letter: Ossa, why each one did one thing
+Dear Oren,
+Why did the early apprentices only do one thing each? My cousin says it was because they were too simple to do two. My uncle says the tutors were afraid to teach them two. Who is right?
+Ossa
+Answer, from Oren, clerk of the archive at Vell:
+Dear Ossa,
+Your cousin is closer. A crystal of the early kind learned from what it was shown, one thing at a time. A single layer of weights can learn a single kind of task: a row, a sort, a field. If you showed it two tasks at once, it learned both badly, and mixed them up, and could not tell one from the other.
+So the tutors gave each one thing, and drilled it on that one thing until it was good. This is why most towns had none. A town wanted a field keeper and a sorter and a carrier, and one apprentice could only be one of them.
+Your uncle is not wrong that the tutors were careful. They had seen what a mixed-up apprentice does, and they did not want to see it in the fields.
+The first tutors did not write down why a crystal can learn from being shown at all. We know that it can. We do not know the whole reason.
+Oren
+%%
+Answer: the jar and the apprentice
+Dear Cress,
+
+An apprentice can learn to carry a jar without tasting it. It must first be shown jars that are full, jars that are empty, and the difference between carrying and drinking.
+
+Do not teach this lesson with the prize honey. Use water in a clay jar. Mark the path clearly. Test the apprentice on a path it has not walked before. Never send an untested mind to the fields, even for a short walk.
+
+The little apprentice may also have been thirsty. That is not a reason to let it drink the honey.
+
+The frog is outside our lesson. It may sit under any table it likes.
+
+Oren
+%%
+Letter: Wren to the Archive, a sick cow
+Dear Oren,
+
+It is the middle of the night. I am writing this on a milking stool in Hale's cow shed, with a lantern on a post and a cow named Dumpling breathing beside me. Dumpling is sick. She has not eaten since yesterday, and she stands with her head low. I have given her warm water with honey, and now I wait. When I wait, I think. When I think, I write to you.
+
+Here is what I thought. Hale fetched me at dusk. I looked at Dumpling from the door, and I knew she was ill before I touched her. I could not tell you how. I looked at her ears, and her back, and the way she stood. A healer learns it by seeing a hundred cows. I cannot write the rule. I have tried, and the rule is always wrong.
+
+Then I thought of the old drill book. It says the first helpers could not be told a rule. They had to be shown. They were shown ripe and green, ripe and green, a thousand times, until they knew. That is how I learned cows. Nobody told me. I was shown.
+
+So here is my question. Could a crystal learn to tell a sick cow from a well one, if it were shown a thousand cows, each with the right answer?
+
+Moss would carry it to every shed in Lowmarsh. Moss never tires. Moss does not fall asleep on a milking stool, as I nearly have.
+
+Wren
+
+Below it, in the clerk's hand:
+
+Dear Wren,
+
+Maybe. I do not know. Here is what the first four teach us.
+
+A crystal learns from what it is shown. If you showed it a thousand cows and gave it the right answer for each, it would change a little with every wrong guess, and it might come to know what you know.
+
+I have three cautions.
+
+First, who gives the right answers? You do. So it would learn your eye. If you were wrong about a cow, it would learn that as well.
+
+Second, it learns only the cows it was shown. If Dumpling is ill in a way you have never seen, the crystal will say well, and it will say it boldly, because it has never met this.
+
+Third, test it on cows it has never seen. Never send an untested mind to the cow shed.
+
+The tutors would add a fourth. Do not hurry. The first helper took twelve days to learn one field. A mind that tells sick cows might take a year.
+
+I would not stop you. But I would not give up your stool either. The first four each did one thing. Nobody has yet asked a mind to sit up all night with a cow.
+
+Tell me how Dumpling is. I will file it.
+
+Oren
+
+Below that, in Wren's hand, added later: The fever broke at dawn. Dumpling ate a mouthful of hay and looked at me as if I had been rude to wake her. I am going home to sleep.
+%%
+Letter about the ditch gate
+Dear Oren,
+
+The farm outside Lowmarsh has a narrow strip of high ground between the reed beds and the slow water. We keep potatoes near the shed, carrots by the fence, and wheat in the driest field. The ditch runs down the middle of the lower bed. In summer we lift water with buckets when the soil cracks.
+
+Last Blossom, I wrote to ask if an apprentice could learn to carry a jar without tasting it. Your answer came in good time. We used water in a clay jar, and we marked a clear path from the well to the house. The apprentice carried it without spilling. It did not drink. Moss says the test was fair. My sister says it was a waste of good water.
+
+Now I have another question. We have a small ditch gate made from oak. It sticks when the mud dries. Can a simple apprentice learn to open it only when asked? We do not want the lower bed flooded while we sleep.
+
+The apprentice at the marsh house knows how to stay and how to haul. It does not yet know when a gate should remain shut. Moss says we can teach it with examples. I say we should start with a dry ditch. My sister says we should start with a gate that works.
+
+Please tell us how to make a safe drill. We have no spare field, and the frogs use the ditch.
+
+Cress
+%%
+Letter: Ilse to the Archive, gulls
+
+Dear Archive,
+
+I am Ilse, the mapmaker at Saltreach. I have a question about gulls.
+
+They keep sitting on my maps while I draw the harbor wall. I move them. They come back. One has left a mark on the north road, and another has taken my blue pencil.
+
+Can I draw a gull on the map as a warning? I do not know what the warning should say. Perhaps, Keep your lunch covered.
+
+From Ilse, Saltreach
+%%
+Letter: Hattie to her sister Nell
+Dear Nell,
+
+You asked for all of it, so here is all of it, and you must read it to Mother because she will not read it herself.
+
+Tilda and Bran were married on the twenty-first of Apple, in the afternoon, at the Three Wells school house, because the school house is the biggest room in the town and Tilda did not want a barn. The children had painted the door blue in the spring, and the blue looked well behind the flowers. Bel's essay about the wells was still pinned on the wall, and someone had put a wreath of wheat over it, and Bel was very proud and also very cross about the wreath.
+
+Dace said the words. He said them too long, as he does, and Bran's little brother fell asleep on the bench, and Dace said, let him sleep, he is not the first.
+
+Tilda wore her mother's shawl and a crown of small apples from the orchard, and Bran wore a coat that did not fit him at the shoulders, and everyone pretended not to see. The baker Ida made the bread and the pies, and there was no grit in it, which is a story for another letter. There was beetroot soup and there was honey cake, and there was a barrel of apples from Ambrook, and the children took them all.
+
+The music was two fiddles and a drum, and the dancing went out into the square and round the wells, and old Marrow danced with everyone in turn and told each of them they were his favorite. The lamp at the corner was lit before dark and stayed lit all night.
+
+There was a small trouble at midnight when someone let the pig out. Nobody will say who. The pig went round the square twice and into the school house and out again, and Bran caught it by the well, and everyone cheered. Tilda says it was the best part.
+
+Nell, they looked so happy. Bran could not stop looking at her. Tilda laughed at everything he said, even the things that were not funny, and I think that is what a wedding is.
+
+They have the little house by the east well, and Bran has work at the mill, and Tilda will keep the bees.
+
+The rain came on the twenty-fourth, at last, and the Hollis well is filling again. Emmet says Bracken stood in it and would not come out.
+
+Give Mother my love and tell her to eat something. I will send the honey cake recipe when the fuss is over.
+
+Your sister,
+Hattie
+%%
+Letter: to the Archive
+To the clerks of the Archive at Vell, from Corin, shipwright, at the hamlet by Saltreach, in spring.
+
+Sirs,
+
+I write to ask a question that has troubled the yard since the thaw. The lamp on the harbor relay, the tall one above the wall, blinked a message one night in the last week of Frost. Three short, one long, three short. It was not a message from the coast. It was not from Vell, nor Copperhold, nor the north. The keeper of the harbor relay says he was asleep. The apprentices on the slip say they were awake and saw nothing.
+
+We have looked in the tower book. The message is written there in the keeper's own hand, as if he had sent it. It says only: keep the boats in. The keeper says he did not write it, and that his hand is shaking in the book, and that he does not know why.
+
+Please tell us: has the Archive kept any record of a message like this? Has any other tower seen such a blink? And is there a rule for what to do with a message nobody sent?
+
+We have kept the boats in. Nothing has happened. The fishers are grumbling, and the men are tired of waiting on the quay, and the new ship in the far yard is still under its cover. We will do as the lamp says, until we know better.
+
+Corin
+The yard, the hamlet by Saltreach
+%%
+Letter to the Archive: making a plan
+Dear Archive,
+
+Our crew has been at the orchard all Leaffall, and I have watched the apprentices closely. My brother and I cannot answer my questions between us. So I write them out one by one.
+
+First. How does an apprentice plan a long task? It seems to start at the end and work back. Is that true, or do I only think it is?
+
+Second. Why does a crew use rows on one card? Why not give each apprentice its own card and be done with it?
+
+Third. Why does a mind stop when a test fails? Does it know it has failed, or does it only follow the step?
+
+Fourth. Why does it ask the big mind and not a tutor? We have a tutor at Ambrook, a good one, and she was at the orchard every day. The crew still wrote its question to the relay.
+
+Fifth. Nobody on this farm knows what a crystal is made of, or why it learns. Do you know? If you do not, please say so. I would rather hear that than a guess.
+
+Ree, ferry keeper, farm outside Ambrook
+
+Answer from the Archive, Vell:
+Dear Ree,
+
+You ask good questions, and some of them have no answers yet. I will say which are which.
+
+First. A late apprentice does not start at the end in the way you mean. It writes the steps in the order they must happen, and it can read the steps ahead of it on the card. It checks each step as it reaches it. The tutors say a card is a plan the mind can read again. That is the most we can say.
+
+Second. Rows let the crew share one picture of the job. Each apprentice knows its own row, and the others can read it. If each one had its own card, they would have to guess at the others' steps. A crew on one card is more sure of the whole job.
+
+Third. Your question is the hardest. The tutors do not know whether a mind knows that a step failed, or only follows the step that says stop. We see that it stops. We do not see why. Please write that down as we have: it stops, and the tutors do not know why.
+
+Fourth. The tutor at Ambrook checks the card, and the big mind answers when the card is stuck. A stuck row needs a long answer, and a long answer needs a mind that can read a long question. A tutor can teach and check. The big mind is the one that writes back.
+
+Fifth. Nobody knows what a crystal is made of, not exactly, and nobody has written down why one learns. We know that it learns when it is drilled. We know that a tutor can draw the curve, and that a test shows whether the learning took. These things are plain. The rest is not, and we do not pretend it is. Thank you for asking.
+
+Oren, clerk of letters
+%%
+Letter: Ilse to the Archive
+
+Dear Archive,
+
+The roof over my map room lost three shingles in the hard wind. Snow came in above the table and covered the east edge of my harbor map.
+
+I moved the maps to the fish market office. The market keeper let me use the dry bench, but he put a bowl of beetroot beside my ink. He said it was to keep me cheerful. I think he wanted me to draw a beetroot on the map.
+
+The roof is mended now. My neighbor Sella brought oak boards, and two shipwrights brought a ladder. I held the boards while they fixed them. I also held the ladder, because it was leaning toward the sea.
+
+I have made a new map of the harbor wall, the dock, the long pier, and the slip where boats are built. The old map had a damp corner. I have kept it to show the repair.
+
+Should I keep maps that have been mended, or only the new copies? I think the old one may be useful. It shows where the roof leaked, though that is not a harbor feature.
+
+From Ilse, Saltreach

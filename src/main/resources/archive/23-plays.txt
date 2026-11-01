@@ -1,0 +1,2755 @@
+Play: The Basket and the Boat
+Written by Corin, spring of 207
+
+For the Saltreach fair. Played by the school pupils beside the fish market.
+
+In it:
+Corin, a shipwright
+Pell, a merchant
+Mara, a fisher
+Tavi, a school pupil
+Rell, a school pupil
+Sella, a market caller
+An apprentice at the market
+
+Sella: Come to the Saltreach market. Fresh fish, warm bread, apples and wool.
+
+Pell: I have apples and wool. I need a basket.
+
+Mara: I have a basket.
+
+Pell: Is it strong?
+
+Mara: It carried fish all morning.
+
+Pell: Does it still smell of fish?
+
+Mara: It is a fish basket.
+
+Pell: I need it for apples.
+
+Corin: Apples do not mind a little fish smell.
+
+Tavi: I mind it.
+
+Rell: You mind everything that smells of fish.
+
+Tavi: I do not mind the fish. I mind the basket.
+
+Mara: The basket is sound. Look.
+
+Pell: It has a broken handle.
+
+Mara: It has a loose handle. I can mend it.
+
+Corin: I have spare oak. I can make a new peg.
+
+Sella: Then the basket will be ready before the fair ends.
+
+Pell: I will pay one emerald.
+
+Mara: Two.
+
+Pell: One and a half.
+
+Mara: Two, with a peg.
+
+Corin: The peg is free. I made too many.
+
+Pell: That is poor trade.
+
+Corin: It is good storage.
+
+Tavi: Why does the apprentice carry the empty baskets?
+
+Mara: It carries what we give it.
+
+Rell: It has carried three baskets already.
+
+Pell: Can it carry my apples too?
+
+Corin: First we must give it the right order.
+
+Tavi: Bring me the apples.
+
+Rell: That is not one of the order cards.
+
+Corin: Use the card. The meaning is fetch apples.
+
+Pell: What if the apprentice brings me fish?
+
+Mara: Then you will have a fish basket.
+
+Corin: We tested this mind on a test box at the tutor house. It did well.
+
+Sella: The basket is mended. Put the apples in.
+
+Mara: The apprentice can carry the basket to Pell's stall.
+
+Pell: With the apples in it.
+
+Corin: With the apples in it.
+
+Pell: I heard the words.
+
+Tavi: It is going the wrong way.
+
+Rell: It is going to Mara's boat.
+
+Mara: It has the basket. It knows the order.
+
+Corin: The basket still smells of fish.
+
+Pell: So the apprentice thinks I asked for fish.
+
+Mara: It cannot think that. It can only follow the order.
+
+Corin: Stop it. Give it the apples.
+
+Pell: There. Now it is going to my stall.
+
+Sella: The market is open, and the fair is ready.
+
+Tavi: I want an apple.
+
+Pell: Bring me one emerald.
+
+Tavi: I have no emerald.
+
+Pell: Then carry the basket.
+
+Mara: He has already carried enough baskets for today.
+
+Corin: Give him an apple. It is a fair day.
+
+Pell: I will give him the smallest one.
+
+Tavi: That one has a bruise.
+
+Pell: Then it is the best one to eat now.
+
+Rell: I will take the sound one.
+
+Pell: This market is full of bargaining.
+
+Sella: That is why we hold it here.
+%%
+Play: who was first
+Cast: Nessa, a tutor, old. Ilse, a tutor, young. Clank, an apprentice of Copperhold. Pip, an apprentice of Kettle Ridge. Peg, an apprentice of the fair. A reader. (This play is set in a drill room at Vell, in winter. It is told as a debate, and the tutors do not agree.)
+
+READER: The question is simple. Who was the first apprentice to understand a whole sentence? Nessa, you may speak first.
+NESSA: I was a girl in the drill room. There was a small helper in the corner, very quiet. I gave it an order. Go to the door, open it, and come back. It did all three, in order. I remember that it stood still for a moment before it moved. It was thinking, or whatever a helper does.
+ILSE: That is a story. Stories are not records.
+NESSA: I am the record. I was there.
+ILSE: Then tell us its name.
+NESSA: I do not remember its name. I remember its hands. They were chipped at the thumb.
+CLANK: My hands are not chipped. They are only dented.
+PIP: My thumb is not chipped either. I have been looking after the beetroot.
+PEG: Nobody here is chipped except the one from Vell. That was not me.
+READER: Peg, you were at the fair. Did you hear the order?
+PEG: I heard a sentence at the fair. A woman told me to carry the sacks to the cart and then come back to the stall. I did it. Everyone said I was the first.
+CLANK: I was at the mine. The foreman gave me a long order, and I did all of it. Then the old miners said I was the first, but the old miners say lots of things.
+PIP: Mine was not an order from a foreman. It was an order from Tam, and Tam talks in a long way, so I learned to listen to the whole thing.
+ILSE: So you all say it was you.
+CLANK: I did not say it was me. I said it was the mine.
+NESSA: And you all say it was a very long sentence.
+PEG: It was a long sentence every time. People always say so.
+ILSE: The records do not agree. The letters from Copperhold say one year, the letters from Kettle Ridge say another, and the fair's own book has no name at all.
+NESSA: Then write what we know. A small helper understood a whole order, once, in a drill room. Nobody wrote its name. That is all we can say.
+READER: Is that the answer?
+NESSA: It is the answer we have. The rest is the story we tell at the stove, and the stove is always more fun.
+CLANK: Ha.
+PIP: Ha.
+PEG: Ha.
+READER: Then the question stays open. Thank you all. Go and have your supper.
+%%
+Minutes: the council at Copperhold
+Minutes of the council of Copperhold, kept by the clerk, in the town hall above the Deep Works, winter.
+
+Present: the mayor, Hesk the miner, Ola the smith, Fenn the old miner, and two others. The tutor Nessa came up from Vell to speak about the pieces.
+
+First, the roads. The north road past the shaft head is frozen and the carts cannot pass. It was agreed to put sand on the steep part and to set a torch every eight steps. Hesk will see to it.
+
+Second, the mine. The count board shows less coal this month. The miners do not go below the eighth. The ninth gate stays locked, and the key stays at the mine hall. Fenn said the stone is warm below. Hesk said we do not write about that here. It was agreed.
+
+Third, the tutor spoke. Nessa said the big minds at the relay houses now read in pieces of words, not letters. A piece is a bit of a word used again and again. The mind learns the pieces from the writing it is shown. The same window holds far more, so the mind reads faster.
+
+Ola asked if the pieces are the same everywhere. Nessa said the texts do not agree. Some tutors say yes, some say each mind cuts for itself. The council asked which was better. Nessa said nobody has written it down.
+
+Fenn asked if a mind can read a page it was never drilled on. Nessa said yes, if it is tested on pages it was never drilled on. That is the rule. Never send an untested mind to the fields.
+
+Hesk said: my Clank reads the torch count in pieces now. It counts faster. It still counts forty-one, and it is still wrong, because there are forty-two.
+
+The council laughed. Nessa said the mind cuts words badly at first and learns to cut better. Hesk said that is the same as everything else about minds.
+
+Fourth, the winter fair. It was agreed to hold it in the square at Three Wells, and to invite the school, and to have a play about the pieces of words. Bel will ask the questions. Hesk will answer.
+
+The meeting closed. The stove was low. Hesk went down to the mine gate to keep the torches lit.
+%%
+Play: The Wall, the Forge, and the Mind
+In it are Ula the smith, Nera the tutor, Fenn the keeper, and Bel the child.
+They stand in Ula's house at the edge of Northpoint, in summer.
+
+BEL: Why is there a copper mark on the wall?
+
+ULA: I put it there to check the warmth. It was cold at the start of Longday.
+
+FENN: Now it feels warm beneath my hand.
+
+NERA: We have found no fire in the wall, and no pipe behind it.
+
+BEL: Perhaps the house is keeping a secret.
+
+ULA: Perhaps. But a guess is not a finding.
+
+FENN: The Deep Works have warm stone too. Hesk sent word from Copperhold.
+
+NERA: The account says the lower stone felt warmer than before. It does not tell us why.
+
+BEL: Does the furnace mind know?
+
+ULA: It knows a task. It keeps the iron melt steady.
+
+BEL: How did it learn that?
+
+ULA: We did not show it a row of right answers. We let it try small changes to the fire and the air.
+
+NERA: Then we watched each melt. When a choice kept the heat even, we kept more of that choice in its mind.
+
+FENN: When a choice spoiled the iron, we kept less.
+
+BEL: So it learned from what happened?
+
+ULA: Yes. It tried, and the result helped guide its next try.
+
+NERA: We still test it on a melt it has not been taught. We do not send an untested mind to work.
+
+FENN: That is a sound rule.
+
+BEL: Could a mind learn to steer a boat that way?
+
+NERA: A boat mind can try small turns. It keeps more of the choices that hold the boat on course.
+
+ULA: But a forge and a boat are not the same task. Each mind needs its own trials.
+
+BEL: And the wall?
+
+FENN: We have not taught the wall anything.
+
+ULA: Nor do we know what warms it. Put that in the record too.
+%%
+Letter: Hesk to the tutor Nessa
+Dear Nessa,
+
+You asked how the winter goes at the house at the edge of Copperhold. Short answer: cold. Long answer: my stove is good and Clank keeps the wood in. So we are warm.
+
+You asked about the pieces of words, and whether the miners understand it. I will tell you what I told Bel at the fair. I am no tutor. But I can carry a basket.
+
+Here is how I say it. Before, the big mind read one letter at a time, like a man counting coins one by one. Slow, and it forgets the start before it reaches the end. Now it reads in pieces. A piece is what people use again and again: "read," "ing," "torch," "the." The mind learns the pieces from what it is shown. It cuts the words itself, and it does not always cut them right. That is fine. It guesses the next piece, and if the cut was bad, the next guess is worse. It learns.
+
+The window is the part I like. Sixty letters wide, they say, and no more. But sixty pieces is not sixty letters. Fill the basket. That is all it is.
+
+Clank asked me a good question. It said, if a piece is a whole word, is that not just a word? I said yes. And if a piece is half a word, it is still a thing the mind knows. It said that was like knowing one end of a plank. I said that was a good way to say it.
+
+Nobody here knows why a crystal learns at all. I do not. I only know it does, and the pieces help it. Keep your test box of pages. Do not drill a mind on its own test. You taught me that.
+
+The ninth gate stays locked. I do not go below the eighth now. The stone is warm. I do not write more about it.
+
+Keep your torches lit.
+
+Your friend,
+Hesk
+%%
+Play for the winter fair
+Cast: Mayor Dace. Ida, the baker. Piper, a boy of twelve. Bel, who is grown now and keeps the school. Tam, a farmer from the ridge. Lorn, keeper of the Three Wells relay. Clover, a cat who does not come in.
+
+SCENE ONE. The square at Three Wells, under the lamps.
+
+DACE: Folk of Three Wells, the fair is open! Mind the lamps!
+IDA: Mind the cat first. She is on my pies.
+TAM: Clover! Off the pies! (The cat does not move.)
+DACE: She has been there since the bell. I think she is the mayor now.
+IDA: Then she can pay for the pies.
+
+SCENE TWO. The same square, later.
+
+PIPER: Tam, your sheep is at the well.
+TAM: Which sheep? I have forty.
+PIPER: The one with the bell. It has been looking at the north road for an hour.
+TAM: Then it wants to go home. Bring it here.
+PIPER: It does not want to come.
+TAM: Then bring a pie. Sheep are more honest than mayors about pie.
+DACE: I heard that.
+
+SCENE THREE. The lamp at the north corner.
+
+BEL: Did you see the relay tower tonight? It has gone dark.
+DACE: The keeper has gone to bed.
+BEL: The keeper at Northpoint has been dark for two nights. The keeper at Vell says the line goes quiet from the north, one tower after another.
+DACE: Rumors do not light lamps, Bel.
+BEL: Then somebody should light one.
+(A pause. The cat walks off the pies and into the fair.)
+
+SCENE FOUR. The relay tower, after dark. Lorn climbs the stair with a lamp.
+
+LORN: Two hundred steps, and I counted every one. Mind your heads.
+DACE: Is the lamp lit?
+LORN: It is lit. It is only not answered.
+BEL: What did the north say last?
+LORN: At noon. All well, from the keeper. After that the line has been empty. I have called three times.
+DACE: Then send to Vell in the morning.
+LORN: I sent to Vell at dusk. Vell has not answered yet.
+BEL: What if they cannot hear us?
+LORN: Then we keep the lamp lit, so that they know where we are.
+(The lamp burns at the top of the tower. Nothing comes back from the north.)
+%%
+Play: The Last Tower to Get One
+A short play for the festival at Three Wells, written by Jory, schoolteacher. Autumn. About how the big minds spread from tower to tower, and about Northpoint, whose mind came last. It is a funny play, and the children asked for it again.
+
+Who is in it:
+Vell, a child in a tall hat.
+Kettle Ridge, a child with a straw hat.
+Copperhold, a child with a pick.
+Saltreach, a child with a net.
+Northpoint, a small child in a long scarf.
+The Mayor, who is Dace.
+Cart Driver, who pulls a toy cart.
+
+Vell: I have a big mind. It stands at the foot of my tower.
+Kettle Ridge: I have one. It answers the windmill.
+Copperhold: I have one. It counts the coal.
+Saltreach: I have one. It tells the boats the weather.
+Northpoint: (very quietly) I do not have one yet.
+Mayor: Northpoint is the last.
+Northpoint: It is a long way. The cart is slow.
+Cart Driver: The crystal is on the cart. I am coming!
+Vell: It is cold in the north.
+Copperhold: It is far.
+Saltreach: It is a long road.
+Northpoint: But I will have one. And the nights are long, so I will have time to talk to it.
+Mayor: What will you ask it?
+Northpoint: I will ask it what to do with so much snow.
+Cart Driver: Here it is!
+Northpoint: (takes the loaf, and holds it up) Hello.
+Everyone: Welcome, Northpoint.
+Vell: Now we are all the same.
+Northpoint: Except we are the coldest.
+Everyone: And the farthest! And the last!
+Northpoint: And the proudest.
+%%
+Play: the lamb by the well
+Cast: Hetta, a girl of nine. Old Garrow, her grandfather, who has the best sheep on the ridge. A lamb, who does not speak.
+
+GARROW: Count the flock again.
+HETTA: I have counted it. Nineteen. There should be twenty.
+GARROW: Who saw it last?
+HETTA: Me. It was by the gate at supper.
+(They go out with a lantern. The lamp at the gate is dim.)
+HETTA: Lamb! Come here, little one!
+GARROW: Quiet. Listen.
+(A small bleat from the well.)
+GARROW: There you are. Sitting by the well like a wise old man.
+HETTA: Grandfather, the lights were on the north hill again last night.
+GARROW: Go to bed, Hetta. The lights will still be there in the morning.
+(They carry the lamb home. It sleeps in a basket by the stove.)
+%%
+Play: The pieces of words
+A short play for the school at Three Wells, for the winter fair.
+
+WHO IS IN IT
+
+TEACHER: a teacher at the school, patient.
+BEL: a child, about nine, who asks the questions.
+HESK: a miner from Copperhold, gruff and honest.
+CLANK: Hesk's apprentice, made of copper and iron.
+READER: a big mind that lives in the relay house, heard by letter.
+
+SCENE: a school room in winter. A stove. A board on a stand.
+
+TEACHER: Sit down, all of you. Bel has a question for Hesk.
+
+BEL: How does the big mind read? My letters are all letters. One by one.
+
+HESK: In the old days, that was how it was done. One letter at a time.
+
+BEL: And now?
+
+HESK: Now it reads in pieces. Whole pieces of words, all at once.
+
+BEL: What is a piece of a word?
+
+TEACHER: Look at the board. I have written a long word. There is no long word in it. But look.
+
+BEL: "reading." You can cut it.
+
+TEACHER: Yes. We can cut it into pieces that turn up in other words. "read." "ing." People use those again and again.
+
+BEL: So the mind knows the pieces?
+
+HESK: The mind learns the pieces from the writing it is shown. Common pieces, the ones that come up most. Not too many. Enough.
+
+BEL: Why pieces and not letters?
+
+TEACHER: Think of a window, Bel. The mind looks at the page through a window. The window holds sixty letters. No more.
+
+BEL: Sixty letters is not many.
+
+TEACHER: It is, if each thing in the window is a whole piece. Then sixty pieces hold far more than sixty letters. So it can see more of the page at once.
+
+HESK: Like carrying coal in a basket. One lump at a time, or fill the basket.
+
+BEL: Is a piece always a real word?
+
+TEACHER: No. Some pieces are only parts. "read" is a word and a piece. "ing" is only a piece. The mind does not mind. It cuts where the cutting helps.
+
+BEL: Can I ask the mind? Can I write to it?
+
+READER: (by letter, read out by the teacher) You may write to me. I will answer.
+
+BEL: How do you read my letter?
+
+READER: I cut it into pieces. I know the pieces well. Then I guess.
+
+BEL: You guess?
+
+READER: Every mind guesses the next part as it goes. Pieces make the guess surer, because a piece carries more than a letter does. When I am not sure, I say so.
+
+BEL: Do you ever cut a word wrong?
+
+READER: Often. Then my guess is worse. But a wrong cut does not stop me. I try again with the next.
+
+HESK: That is the whole of it, Bel. Fewer things in the window, each one bigger. And the big minds read faster for it.
+
+BEL: (writing on the board) So: pieces, not letters.
+
+TEACHER: That is the lesson. Now, who wants to cut the next word?
+
+(All the children put up their hands. Clank puts up one hand too.)
+%%
+Story: the gift of the broken wheel
+At Hobb, under Copperhold, there was a miller named Rill, and a cheesemaker named Jem, and between their two doors ran the race that turned the wheel.
+
+One winter the wheel broke. The axle split, and the wheel went into the water, and Rill sat on the bank with his coat over his head. Jem brought him cheese and said nothing, because there was nothing to say.
+
+The folk of Hobb came to the race. They brought oak from the Copperhold store and rope from the boat house and a lantern for each hand. They lifted the wheel out of the water. They set a new axle. It turned four days and split again.
+
+"We need a better axle," said Rill.
+
+"We need a slower race," said Jem.
+
+They could not slow the race, because the race fed the pond, and the pond fed the orchard below. So they built the axle thicker, and bound it with iron, and it held.
+
+On the day the wheel turned again, the folk of Hobb stood on the bank and watched it go round. It squeaked on every turn, like the windmills at Kettle Ridge.
+
+Then the children came up the bank with something in their hands. It was a little wheel, of oak, carved by hand, with eight spokes. "For the mill," they said. "So it never breaks again."
+
+Rill put the little wheel on the shelf over the door of the mill. It is there still. When the big wheel squeaks, he looks up at the little one and laughs.
+
+That is the gift. It is not a wheel that turns. It is a wheel that reminds.
+%%
+The Gate Lesson
+A short play for the fair, by Ida
+
+Who is in it:
+Ida, a beekeeper
+Toma, a carpenter
+Bel, a child
+A cat
+A zombie
+
+IDA: Welcome to the yard. The hives are by the flowers. The shed is behind me. The gate is beside the shed.
+
+TOMA: I have come to mend the gate.
+
+IDA: It is a good day to mend it. The wood is dry, and the bees are busy.
+
+BEL: The cat is in the shed.
+
+IDA: It is always in the shed.
+
+TOMA: Does it belong to you?
+
+IDA: No. It belongs to the shed, I think.
+
+BEL: I saw it sleeping in the basket.
+
+IDA: The basket is for empty jars.
+
+TOMA: It is full of cat.
+
+IDA: That is why we need a gate. Shut it when you enter, and shut it when you leave.
+
+BEL: I shut it.
+
+IDA: You left it open.
+
+BEL: I shut it after I left.
+
+TOMA: That is not the same thing.
+
+IDA: Look. There is a zombie outside the gate.
+
+BEL: It is trying the latch.
+
+TOMA: The latch is loose. I will fix it.
+
+IDA: Keep your hands clear. The zombie has a long reach.
+
+TOMA: I am fixing the hinge, not feeding the zombie.
+
+BEL: The cat has gone out.
+
+IDA: Through the window?
+
+BEL: No. It has walked between my feet.
+
+IDA: Then shut the gate.
+
+BEL: It is shut.
+
+TOMA: The zombie is still outside.
+
+IDA: A sound gate is useful for everyone.
+
+BEL: Even for cats?
+
+IDA: Especially for cats.
+%%
+Play: the clerks' cart
+A play for the spring fair, to be acted by six children and a goat. The goat does not need to learn lines. Written by Greer, shepherd, who saw the clerks' cart in his lane and thought it a good story.
+
+WHO IS IN IT: Oren, a clerk. Dell, another clerk. Mother Tuck, a farmer. A child called Bea. Greer, the shepherd. Hob, an old man who does not trust anyone with paper. A goat.
+
+(A lane near Ambrook. A cart stands at the gate. The two clerks are at the door.)
+
+OREN: Good morning, Mother Tuck. We are from the Archive at Vell.
+MOTHER TUCK: I know where you are from. Your cart is blue.
+DELL: We are gathering pages. Letters, accounts, recipes, songs. Anything written.
+MOTHER TUCK: What for?
+OREN: To drill a reading mind. It learns to read by reading what we wrote.
+BEA: Does it read my spelling?
+DELL: Everything.
+BEA: Even the bad ones?
+OREN: The bad ones especially. A mind must see all kinds.
+HOB: (from behind the wall) I am not giving you my letters.
+OREN: Nobody is taking them, Hob. We copy them. The letter stays with you.
+HOB: Whose letters did you take already?
+DELL: Many.
+HOB: Whose?
+OREN: Well. The farmers'. The towns'. The relay keepers'. The clerks' own, of course.
+DELL: And the merchants'.
+OREN: I think so. I am not certain.
+DELL: Nor am I. The gathering was done in many hands. Some came by cart. Some by relay. Some from the shelves.
+HOB: So you do not know whose.
+OREN: We know it is ours. That is all we need to know.
+HOB: Hm.
+GREER: (to the audience) This is where the story gets difficult. Ask three clerks whose letters went in, and you get three answers. It was a very large gathering. Nobody wrote it all down.
+BEA: I will give you a letter. It is to my cousin. It says my cat has had kittens.
+DELL: Thank you, Bea. That is the sort of letter the minds like best.
+MOTHER TUCK: And you will copy it and give it back?
+OREN: By supper.
+HOB: (coming out) Take mine, then. But copy it neatly. And do not read the bit on the back.
+OREN: I will not read the bit on the back.
+(Dell reads the bit on the back. The goat eats the envelope. Curtain.)
+%%
+The long night, in five scenes
+Cast: Nessa, a tutor from Vell. Pip, an apprentice on Tam's farm. Hob, an old shepherd. Ada, his granddaughter, who is ten. Clover, the cat.
+
+SCENE ONE. The yard at dusk. A cart is loaded for the road.
+
+NESSA: The cart goes at first light. Pip, you will stay here with the fields.
+PIP: Stay.
+NESSA: Yes. Stay, keep the fields in order, and keep the torches lit.
+PIP: Keep the fields until we come back.
+NESSA: That is the very thing I said. You learn quickly.
+ADA: When will you come back?
+NESSA: When the roads are good.
+HOB: The roads are always good in spring.
+NESSA: Then in spring.
+
+SCENE TWO. The kitchen. Night.
+
+HOB: Did you see the lights over the north hill?
+ADA: I saw them from the window, Grandfather. They were white, and then they went out.
+HOB: Some say falling stars.
+ADA: Some say fires on the ice.
+HOB: The old men at the inn say they were the stars moving house.
+ADA: They were not looking at us. Clover says so.
+HOB: Clover is on the wall. She has never once been right about anything.
+(Clover is on the wall. She does not come in.)
+
+SCENE THREE. The kitchen, a week later. Ada and Hob bake the bread for the long winter.
+
+ADA: How much flour?
+HOB: Enough for the week, and for the cat, who will try to take some anyway.
+ADA: Why is the flour so grey?
+HOB: The mill is slow, and the miller is slower, and the wheat came up the road in the wet.
+ADA: Will it still rise?
+HOB: It will rise if you let it sit by the stove and stop asking. Count to a hundred.
+ADA: That is a long time.
+HOB: Then count slowly.
+(They wait by the stove. Clover comes in at last and takes the first loaf before it is cool.)
+HOB: The cat has eaten our bread. That is the first sign of a good winter.
+
+SCENE FOUR. The edge of the fields, at dusk.
+
+PIP: The fields are in order.
+ADA: You walked them all day.
+PIP: Six days. Every row, in a straight line.
+ADA: Are you tired?
+PIP: I was told to keep the fields. Nobody told me when to stop.
+ADA: Then come in. That is an order I can give you.
+PIP: Come.
+(Pip does not move at once. Then it turns, and walks toward the lamp in the kitchen window.)
+
+SCENE FIVE. The yard, before light. The cart has been gone two days.
+
+ADA: Pip, where does the road go?
+PIP: South. To Vell. Then wherever the tutors say.
+ADA: And the lights?
+PIP: I was told to keep the fields. Nobody told me about the lights.
+HOB: Nobody told us either, child.
+ADA: Then we will keep the fields anyway.
+(The cat comes down from the wall, walks in, and sits by the stove.)
+%%
+Play: The Melon Too Big
+A short play for the autumn festival at Three Wells, written by Jory, schoolteacher, for the children of the school. Six children.
+
+Who is in it:
+Farmer Pike, a farmer.
+Mayor, who is Dace, wearing a hat.
+Baker, with a basket.
+Tower, a child standing very straight.
+Melon, a child inside a big round cloth.
+Crowd, everyone else.
+
+Farmer Pike: Look at my melon! It is the biggest ever grown!
+Baker: It will not go through the gate.
+Farmer Pike: Then we will take the gate down.
+Mayor: We will not take the gate down. It is a good gate.
+Melon: I am too big to move. I am also too big to eat.
+Tower: Send word to the next town. They may have a bigger gate.
+Crowd: To the next town! To the next town!
+Farmer Pike: Wait. I will cut the melon in two.
+Melon: Please do not.
+Baker: A pie! A pie for everyone!
+Crowd: A pie! A pie!
+Mayor: The melon is saved, and the festival is fed.
+%%
+Play: the cat on the wall
+Cast: Tansy, a girl of ten. Tam, her uncle, a farmer. Clover, a cat.
+
+TANSY: Where is Clover?
+TAM: On the wall. She has been there since breakfast.
+TANSY: Tell her to come in.
+TAM: I have told her. She says the wall is hers.
+TANSY: (Calling.) Clover! Come down, you silly cat!
+(The cat does not come down.)
+TAM: She will come in when she is cold.
+TANSY: It is always cold.
+TAM: Then she will come in when she is bored, and that is the best sign of all.
+%%
+Play: the boat that kept its course
+A play for the spring fair at a hamlet near Northpoint, by Dace, about the minds that learn by trying. Spring. A cast of seven. The children made a boat out of a barrel and a bedsheet.
+
+In the play: CORIN, a shipwright; TUTOR; BOAT (two children inside a barrel); WAVE (a child with a blue cloth); WIND (a child with a fan); APPRENTICE; CROWD.
+
+CORIN: I have built a boat. A good boat. But she wanders. She goes where the wind sends her.
+TUTOR: May I put a mind in her?
+CORIN: What kind?
+TUTOR: A mind that learns by trying. I will not tell it where to steer. I will show it where the harbor is. Then I will let it find the way.
+BOAT: (sets out)
+WIND: (blows from the left)
+BOAT: (turns to the right, too far)
+TUTOR: Wrong. The mind kept a little less of that.
+WAVE: (rolls from the right)
+BOAT: (turns to the left, too far)
+TUTOR: Wrong again. A little less of that too.
+CROWD: (groans)
+TUTOR: Wait.
+BOAT: (turns a little, then a little less)
+TUTOR: There. That is better.
+WIND: (blows harder)
+BOAT: (leans into the wind, and holds)
+TUTOR: Good. It will keep more of that.
+CORIN: How does it know?
+TUTOR: It does not know. It tries. Each try that takes it nearer the harbor, it keeps. Each try that takes it farther, it lets go.
+CORIN: And in the end?
+TUTOR: In the end it keeps the boat on course, in wind or in wave.
+BOAT: (arrives at the harbor)
+CROWD: (cheers)
+APPRENTICE: (a small copper child, coming in) I helped hold the sail!
+CORIN: An apprentice, speaking! It is a play, so it is allowed.
+TUTOR: In plays everyone is allowed.
+CORIN: Then let us have a cup of tea.
+%%
+Play: The Broken Lamp
+Written by Corin, spring of 182
+
+For the school house at Saltreach.
+
+In it:
+Corin, a shipwright
+Dace, from Three Wells
+Mara, a lamp keeper
+Pell, a merchant
+A child
+
+Corin: The relay lamp is broken.
+
+Mara: The glass is cracked, and the redstone line is loose.
+
+Dace: Can you mend it?
+
+Mara: I can mend the line. The glass must be changed.
+
+Pell: I have a pane in my cart.
+
+Corin: Is it the right size?
+
+Pell: It was the right size yesterday.
+
+Mara: Glass does not shrink overnight.
+
+Pell: My cart wheel does. It is a poor cart.
+
+Child: I can hold the ladder.
+
+Mara: You can hold the bottom. Do not climb.
+
+Child: I was not going to climb.
+
+Pell: Good. The ladder is taller than your mother.
+
+Child: My mother is tall.
+
+Corin: The pane is the right size. Bring it here.
+
+Pell: It cost one emerald.
+
+Dace: The town will pay.
+
+Pell: Then it cost two emeralds.
+
+Dace: The town will pay one.
+
+Pell: The town drives a hard bargain.
+
+Mara: The town has seen your ledger.
+
+Corin: I will set the pane while Mara mends the line.
+
+Child: Is the lamp safe now?
+
+Mara: Not yet. Keep the torches lit at the foot until I say.
+
+Dace: Everyone heard her. No one touches the ladder.
+
+Pell: I was only going to look.
+
+Corin: Look from here.
+
+Mara: The pane is set. The line is firm. Light it.
+
+Dace: The relay lamp shines.
+
+Child: It looks better than before.
+
+Pell: It should. The town paid two emeralds.
+
+Dace: One.
+
+Pell: It shines twice as well for one.
+
+Mara: That is not how lamps work.
+%%
+Play: The Net at the Market
+Written by Corin, spring of 174
+
+For the school fair at Saltreach.
+
+In it:
+Corin, a shipwright
+Pell, a merchant
+Sella, a fisher
+A boy with a basket
+
+Corin: We need a net for the small boat.
+
+Sella: I have one. It is strong, and it has no holes.
+
+Pell: Then why is it in the market?
+
+Sella: Because it is too small for my boat.
+
+Corin: It will fit ours.
+
+Pell: How much?
+
+Sella: Two emeralds.
+
+Pell: One.
+
+Sella: Two.
+
+Pell: One and a half.
+
+Sella: Two, and I will mend the corner.
+
+Corin: That sounds fair.
+
+Pell: I was not finished bargaining.
+
+Sella: You were finished when you said fair.
+
+Boy: My basket has a hole.
+
+Pell: Then you need a net.
+
+Boy: I need a basket.
+
+Corin: I can mend it with a piece of net.
+
+Boy: Will it still carry apples?
+
+Sella: If you do not put fish in it.
+
+Boy: I was not going to put fish in it.
+
+Pell: Good. The fish would complain.
+
+Boy: Fish cannot complain.
+
+Sella: Not where you can hear them.
+
+Corin: We will take the net. Sella, mend the corner.
+
+Pell: For one and a half emeralds.
+
+Sella: Two.
+
+Corin: I will pay two.
+
+Pell: The market is a hard place for a merchant.
+
+Sella: It is a good place for a fisher.
+%%
+Story: the gift for the tutor
+At Vell, in spring, the apprentices of the tutor house gave Nessa a gift.
+
+It was a lamp. Not a big lamp, not a relay lamp. A small one, of copper and green glass, with a wick that burned oil and a little ring around the top. The apprentices had made it themselves, in the drill room, on wet afternoons when the drills were done. Bell had shaped the copper. Reed had cut the glass. They had drilled a mind to hold the flame steady, and it worked: the flame did not smoke and did not go out in a draft.
+
+They put it on Nessa's bench beside the drill box, where she would see it every morning.
+
+Nessa looked at it for a long time. She turned it around. She looked at the little ring. She did not say anything at first, which frightened the apprentices.
+
+Then she said: "It is even. The glass is even. Who cut it?"
+
+"Reed," said Bell.
+
+"And the copper?"
+
+"Me," said Bell.
+
+Nessa nodded. "Then you have learned something better than the drills," she said. "You have learned to make a thing well and give it away. That is the whole of it. That is what the tutors are for."
+
+She lit the lamp and set it down. It burned steady all that day and all the next, and for many years after, on her bench beside the drill box. When people came to the tutor house and asked what the little lamp was, Nessa told them. She always told them the same way. She said: "My apprentices made it. They made it well and they gave it away. I keep it to remember."
+%%
+Play: the day of the great drill
+A play for the Ambrook spring fair, performed on the cart, with mill sounds from behind a sheet. It is a long one and takes a quarter of an hour. Written by Greer, a shepherd, who thanks the goat.
+
+WHO IS IN IT: Isla, a tutor at Vell. Jory, the miller. Bess, a beekeeper. Oren, a clerk. Pip, a child. Hob, an old man. A Zombie at the gate, played by Hob's nephew. Everybody else is a farmer.
+
+ACT ONE: THE BROKEN WHEEL
+
+(Morning. The mill wheel is stuck.)
+
+JORY: The wheel will not turn. The sluice is shut, the pond is full, and the wheel will not turn.
+BESS: Did you oil it?
+JORY: With honey, as you said.
+BESS: With honey? I said hone it. Hone, with a stone.
+JORY: Hone? I thought you said honey.
+BESS: Why would I give a wheel honey? Honey is for bread.
+JORY: It is stuck with honey. It is a very sticky wheel.
+(Pip enters, out of breath.)
+PIP: The tutor is coming! Isla from Vell! And Oren, with the cart!
+JORY: Wonderful. A tutor will fix my wheel.
+BESS: A tutor drills minds, Jory. She does not mend wheels.
+
+ACT TWO: THE ZOMBIE AT THE GATE
+
+(Isla and Oren arrive at the gate. The Zombie is there.)
+
+ZOMBIE: Hhhrrr.
+OREN: Is that a zombie?
+JORY: It is. It has been at the gate since last night.
+ISLA: Is it dangerous?
+BESS: Only to the hedge. It has eaten half of it.
+ISLA: (calmly) Mind your torches. Zombies fear light. We have come about the great drill.
+JORY: What drill?
+ISLA: We are drilling a mind on every page the Archive has. It will be the largest mind anyone has made. We have come to your mill because your tally boards go back sixty years.
+JORY: Sixty years of flour sold.
+OREN: Sixty years of numbers and words. Good ones.
+ZOMBIE: Hhhrrr.
+BESS: Shall I light the torch?
+ISLA: Please.
+(The Zombie wanders off. Pip waves.)
+
+ACT THREE: WHAT THE DRILL IS
+
+ISLA: Let me tell you plainly what we do. We take a page and cover its next letter. The mind guesses. We say whether it was right. If it was wrong, it changes a little inside. Next page, again. We do this for many pages. It learns what usually follows what. That is all. A mind that learned from a million pages can guess what comes next on a page it never saw.
+PIP: Does it understand?
+ISLA: That is another question. People have been arguing about that for a hundred years.
+OREN: And whose letters did we gather? That is a third question. I could tell you three stories, and each has a clerk in it who swears he was there.
+ISLA: What we know is that our motto came back. We will keep everything we write.
+JORY: You do. You even kept my flour numbers.
+OREN: And we will mend your wheel. The carpenter is in the cart.
+JORY: Is the carpenter good?
+OREN: He is very good at honey.
+(Everyone laughs. The wheel turns. Curtain.)
+%%
+Play: A Very Good Harvest
+Written by Corin, spring of 201
+
+For the market at Saltreach.
+
+In it:
+Corin, a shipwright
+Pell, a merchant
+Neri, a farmer from Kettle Ridge
+Mara, a fisher
+A market caller
+Two children
+
+Market caller: Come to the Saltreach market. Apples, bread, wool and fish.
+
+Neri: I have wheat, beetroot, carrots and potatoes.
+
+Pell: How much wheat?
+
+Neri: Enough to fill your cart.
+
+Pell: My cart is full already.
+
+Neri: Then you have enough cart.
+
+Corin: That is a good harvest.
+
+Neri: It was. The fields gave more than we planned for.
+
+Mara: Did the windmills turn well?
+
+Neri: They squeaked from dawn to dusk.
+
+Pell: That is not an answer.
+
+Neri: It is the answer the windmill gave.
+
+Market caller: Beetroot for sale. Good red beetroot.
+
+First Child: Why is that one so large?
+
+Neri: It had room to grow.
+
+Second Child: Can I buy it?
+
+Pell: You have no emeralds.
+
+Second Child: I can carry it.
+
+Neri: Carry it to the table, and I will give you a small one.
+
+First Child: I will carry two.
+
+Neri: One each. They are not sacks of flour.
+
+Corin: I need potatoes for the shipyard kitchen.
+
+Pell: I can carry them there.
+
+Corin: You have no room.
+
+Pell: I have room for a fair fee.
+
+Mara: You have room for one potato under your seat.
+
+Pell: That is where I keep my lunch.
+
+Corin: Then the potato can ride with your lunch.
+
+Pell: My lunch has not agreed to this.
+
+Neri: Take a basket. I brought enough.
+
+Market caller: The fish are fresh, the bread is warm, and the wheat is sound.
+
+Pell: I will buy a sack of wheat.
+
+Neri: You said your cart was full.
+
+Pell: I have made room.
+
+Corin: Where?
+
+Pell: Under the seat.
+
+Mara: Is that where your lunch is?
+
+Pell: It was. Now it is a very good harvest.
+%%
+Play: The Big Mind at the Foot
+A short play for the school at Three Wells, written by Jory, schoolteacher, to show the younger children what stands at the foot of a relay tower. Autumn. For the festival.
+
+Who is in it:
+Teller, who tells the story.
+Keeper, a relay keeper.
+Apprentice, a copper helper. The child walks and does not speak aloud; the Teller speaks for it.
+Big Mind, a child on a stand, with a loaf in her arms.
+Water, a child with a blue cloth.
+Ice, a child with a white cloth.
+
+Teller: At the foot of every relay tower there is a house.
+Keeper: Inside the house is a stand.
+Teller: On the stand is a crystal the size of a loaf.
+Big Mind: That is me.
+Teller: Round the crystal are the quickeners, which make it quick.
+Water: We keep them cool.
+Ice: So do we.
+Keeper: In summer we use water. In winter, ice. In the far north, snow.
+Teller: The apprentice has a question. It asks the tower by lamp.
+Keeper: The lamp blinks. The message goes to the big mind.
+Big Mind: I read it, and I write back.
+Teller: The message comes up the line and down the tower. The apprentice reads the answer.
+Apprentice: (picks up a sack, and walks to the barn.)
+Teller: It does as it is told.
+Keeper: A big mind answers a hundred apprentices at once.
+Big Mind: I do not mind.
+Teller: Where does the quickeners' power come from? How do the relays carry so much?
+Keeper: Nobody has written that down.
+Water: We keep them cool.
+Ice: Do not ask us.
+Teller: And that is the play.
+%%
+Play: the furnace that learned
+For the market day of Apple at Copperhold, on the cart by the east well. Written by Wen, who is fourteen, at her uncle Hesk's house at the edge of the town. Hesk wrote only the Smith's lines, and they were all No or Hm.
+Who is in it: Narrator (Dara). Smith (Wen). Mind (Rye, in a copper bowl). Tutor (Nim). Merchant (Tib). Bee One and Bee Two (the smallest children).
+
+NARRATOR: Welcome to the market at Copperhold. Buy a pot. Buy a ladle. Buy a hat. Then sit down and watch a furnace learn.
+MERCHANT: Hats! Fine hats! Hats for hot heads!
+NARRATOR: Quiet, Tib. (to the crowd.) At Copperhold we melt copper. If the heat is too high, the copper burns. If it is too low, it sets in the pot. A good smith watches the color of the melt and works the vent by hand. It takes ten years to learn.
+SMITH: Ten.
+NARRATOR: Can a mind learn it? A mind can be drilled when we know the right answer for every moment. But nobody knows the right vent for every moment. Not even the smith.
+SMITH: No.
+TUTOR: So we do not drill it. We let it try. We tell it only how the melt went, as a score out of a hundred. High when the heat is steady and the copper is melting.
+MIND: I will try. (opens the vent wide.)
+SMITH: Too hot.
+MIND: (shuts the vent.)
+SMITH: Too cold.
+MIND: (opens it halfway.)
+SMITH: Hm.
+NARRATOR: Round one, a score of twelve. Round two, nine. That is worse. Round three, twenty. The mind did not know what it was doing. But it remembered which tries had scored well, and it did more of those.
+MERCHANT: Hats! Hot heads need hats!
+MIND: No, thank you. I am working.
+TUTOR: Now and then it tries something new, in case there is something better. If it only did what it knew, it would never find the better thing.
+NARRATOR: Round ten, forty-one. Round fifty, seventy-seven. Round two hundred, ninety-three.
+SMITH: Ninety.
+NARRATOR: The smith's best is ninety.
+SMITH: Hm. (Long pause.) Slightly.
+(The Mind bows. The crowd cheers. Bee One and Bee Two come buzzing in from the side.)
+BEE ONE: Bzzz. Our hive is full. We need a home.
+BEE TWO: Look! A furnace. Warm. Steady. No smoke. No wind.
+BEE ONE: Perfect.
+(The bees land on the furnace. The Mind holds still. The vent stays steady.)
+SMITH: No.
+MERCHANT: Hats! For bees!
+TUTOR: The best test of a steady furnace is a swarm that wants to live on it.
+NARRATOR: So you see. Nobody told the mind the answers. It tried. It was told how it went. It kept what went well. And the score was chosen with care.
+ALL: Thank you, Copperhold! Buy a pot!
+%%
+Letter: Bel to the Archive at Vell
+Spring, the 196th year of the archive
+
+Dear clerks at Vell,
+
+I am Bel. I am nine. I live at Three Wells. My teacher read us your note about the stream and I did not understand it, so I made a play of it for the school. I was the reader. Reed was the first layer. Everyone clapped.
+
+Here is what I think the stream is. It is like the Long Road. The carts come from the farms and they go to the market. Each town on the road takes what it needs and puts something back. If a town kept everything and put nothing back, the carts would stop coming. But they always come, because the road runs all the way through.
+
+My teacher says that is close. She says a mind is a road with many towns on it. Each town is a layer.
+
+I have a question. If the stream runs through the whole mind, does the whole mind see everything? Or does each town only see its own part of the road? My teacher did not know. She said to write to you.
+
+Also, my father says there is a new copper vein at Copperhold. He says the miners are happy. Hesk wrote it on the board. I thought you would want to know for the archive.
+
+Please write back if you can. I like letters.
+
+Bel of Three Wells
+%%
+Notes: Nessa's primer on pieces
+For the youngest apprentices and the children who ask.
+
+A mind that reads has a window. The window is about sixty letters wide. The mind looks at the page through the window and guesses what comes next.
+
+For a long time the mind looked at one letter at a time. That worked. But the window filled up fast, and a mind can only hold so much in it.
+
+So the tutors tried something else. They let the mind read pieces of words instead of single letters.
+
+What is a piece? A piece is a bit of a word that turns up again and again in other words. "read" is a piece. "ing" is a piece. "torch" is a piece. A piece can be a whole word. A piece can be only part of one.
+
+Here is how a mind learns the pieces. The clerks show it a great deal of writing. The mind counts which bits of words come up most. The bits that come up most become its pieces. There are not too many of them. Enough to read with, not so many that the window is full of rare ones.
+
+Here is why it helps. The window holds sixty things, whatever they are. If the things are letters, the mind sees sixty letters. If the things are pieces, the mind sees sixty pieces, and each piece carries more than one letter. So the same window holds far more of the page. The mind reads faster. It also reads better, because a piece tells it more than a letter does.
+
+Here is the part children find strange. The mind cuts the words itself, and it does not always cut them right. Sometimes it cuts a word in a bad place. Then its guess is worse. But a bad cut does not stop it. It goes on to the next piece and tries again. With drilling, it cuts better.
+
+I tell my apprentices this: a piece is like a plank. You can carry a whole plank, or you can carry it sawn in two. Either way it is wood. The question is only what fits in your arms.
+
+Nobody knows why a crystal learns at all. That is not in this primer, because nobody wrote it down. We only know how to drill, and what helps.
+
+Keep your drills clean. Keep a test box of pages no mind is ever drilled on. Never send an untested mind to the fields.
+
+Nessa, tutor at Vell
+%%
+Play: the loaf on the stand
+For the school at Lowmarsh, by Sim, smith. In it: a CHILD, a KEEPER, and the BIG MIND, who is a loaf of bread.
+
+(A relay house. A loaf stands on a stool. The school could not find a crystal.)
+
+CHILD: That is the big mind?
+KEEPER: A big mind is a crystal the size of a loaf. Pretend.
+CHILD: Why so big?
+KEEPER: A bigger crystal has more room to learn.
+CHILD: Why does it say nothing?
+KEEPER: It writes back. Ask it, and watch the lamp.
+(The loaf does nothing, very well.)
+%%
+Play: the boat that learned the wind
+Who is in it: Boat, with a paper sail. Wind, with a big fan. Sailor. Tutor.
+
+TUTOR: This boat has a mind, and the mind has one job. Keep the boat on the course line. The line runs straight across the stage.
+SAILOR: How did it learn the tiller?
+TUTOR: We did not tell it. After each run it hears one thing: how far it strayed from the line, all added up. That is its score.
+WIND: (blows from the left.)
+BOAT: (turns hard right.)
+SAILOR: Too far. It is off the line.
+BOAT: (turns hard left.)
+SAILOR: Too far again.
+TUTOR: First run. Bad score.
+WIND: (blows again.)
+BOAT: (turns a little right.)
+SAILOR: Better.
+TUTOR: Notice. It remembers what it did when the score was good. Next run it does more of that. And it tries something new now and then, in case there is something better.
+BOAT: (turns a little, then a little less.)
+WIND: (gusts.)
+BOAT: (holds steady.)
+SAILOR: It is on the line!
+TUTOR: That was the fortieth run.
+SAILOR: What about the bad runs? Were they wasted?
+TUTOR: No. A bad run showed it what not to keep.
+SAILOR: And if the wind changes?
+WIND: (blows from the right.)
+BOAT: (leans left, a little. Holds the line.)
+TUTOR: It learned how to meet the wind. It did not learn this one day.
+%%
+Story: The Warm Wall
+In it are Ula the smith, Fenn the keeper, and a furnace mind.
+They stand at Ula's house at the edge of Northpoint.
+
+ULA: The house wall is warm again.
+
+FENN: The wall is stone. It should be cold.
+
+ULA: It has been warm since Longday began. I put my hand there each morning.
+
+FENN: Did you tell the mine folk?
+
+ULA: They say the stone below Copperhold is warm too. They do not know why.
+
+FENN: Does the furnace mind know?
+
+ULA: It holds the melt steady. It does not know the wall.
+
+FENN: Then let us ask it about the iron.
+
+ULA: It cannot answer. It has no words.
+
+FENN: Put the cold iron in. We will watch.
+
+ULA: I will watch the melt. You watch the wall.
+
+FENN: And if the wall grows warmer?
+
+ULA: We will write it down. We will not pretend we know why.
+
+FENN: That is a good rule.
+
+ULA: It is a good rule for a house with a warm wall.
+%%
+The Bench by the Hives
+A play by Ida, for the Copperhold fair
+
+Who is in it:
+Ida, a beekeeper
+Hesk, a miner
+Pip, from Kettle Ridge
+Moss, Ida's apprentice
+A cat
+A zombie
+
+IDA: This bench is for visitors. It is not for jars, tools, or cats.
+
+HESK: I put my gloves on it.
+
+IDA: Your gloves have mud on them.
+
+HESK: The road has mud on it.
+
+PIP: I put my bread on it.
+
+IDA: Your bread has no mud.
+
+MOSS: The cat is on the bench.
+
+IDA: The cat has paws.
+
+HESK: So do we.
+
+IDA: We do not leave muddy paws on the clean bench.
+
+PIP: The cat has left a feather.
+
+MOSS: It found the feather by the hen house.
+
+IDA: Put the feather outside. Leave the cat alone.
+
+HESK: Why not move the cat?
+
+IDA: Because every time someone moves it, it comes back by a new path.
+
+PIP: It is under the bench now.
+
+MOSS: It is behind the honey jars now.
+
+IDA: It cannot be in two places.
+
+MOSS: It is not. I saw it go.
+
+HESK: I will block the shed door.
+
+IDA: Do not block the door. The bees need room, and I need room to carry the jars.
+
+PIP: There is a zombie at the gate.
+
+HESK: I will send it away.
+
+IDA: No. First we make sure the gate is shut.
+
+HESK: The latch is holding.
+
+PIP: The zombie is looking at the latch.
+
+IDA: It can look. The latch does not care.
+
+MOSS: The cat has gone out.
+
+IDA: Good. Close the gate after it.
+
+MOSS: It has come in again.
+
+HESK: Through the window?
+
+MOSS: Through the door. I left it open.
+
+IDA: Then we have found the trouble. Shut the door, shut the gate, and leave the bench for people.
+
+PIP: And where shall the cat sit?
+
+IDA: On the floor, if it likes.
+
+HESK: It likes the bench.
+
+IDA: Then let it learn to share.
+%%
+Ida's Yard
+A play for a spring fair
+
+Who is in it:
+Ida, a beekeeper
+Hesk, a miner
+Moss, Ida's apprentice
+Pell, a merchant
+Bel, a child from Three Wells
+A cat
+A zombie
+
+IDA: The yard is ready for the fair. The flowers are open, the hives are busy, and the honey is covered.
+
+MOSS: The jars are on the high shelf.
+
+IDA: Good. The cat cannot reach them there.
+
+BEL: It can reach the shelf from the bench.
+
+IDA: Then move the bench.
+
+HESK: The bench is heavy.
+
+PELL: I can help. My cart is outside the gate.
+
+IDA: Keep the cart outside. We need space by the hives.
+
+PELL: I have brought a sack of flour and a small sack of salt.
+
+BEL: You have brought a cat too.
+
+PELL: I did not bring it. It was in the cart.
+
+IDA: The cat is in the cart now?
+
+BEL: It is on the sack of flour.
+
+PELL: I will lift the sack.
+
+IDA: Do not lift it while the cat is on it.
+
+HESK: I will move the bench.
+
+MOSS: The zombie is at the gate.
+
+IDA: Is the gate shut?
+
+MOSS: It is open.
+
+IDA: Who opened it?
+
+PELL: I did. I brought the cart in.
+
+IDA: The cart was to stay outside.
+
+PELL: I forgot.
+
+HESK: The zombie is walking toward the cart.
+
+BEL: It has stopped by the flowers.
+
+IDA: Keep everyone back from the hives. Moss, close the gate when the zombie is outside again.
+
+MOSS: It is outside. The gate is shut.
+
+PELL: The cat is still on the flour sack.
+
+IDA: Set the sack on the ground. Put a little bread beside it.
+
+Pell sets down the sack. The cat steps onto the bread.
+
+HESK: That was my piece.
+
+IDA: You may have honey instead.
+
+HESK: I will take the honey. I will not share it with the cat.
+
+BEL: The cat has gone under the bench.
+
+MOSS: We moved the bench.
+
+BEL: It is under the old bench.
+
+IDA: There are two benches?
+
+HESK: There were two. I kept the old one for wood.
+
+IDA: Then the cat has found its own place.
+
+PELL: And the zombie?
+
+IDA: It has the road. We have the yard.
+
+BEL: And who has the flour?
+
+PELL: I do, if the cat leaves it alone.
+
+IDA: Put it in the shed, close the door, and leave the bench where it is. The bees are working, the bread is saved, and no one has been stung.
+
+HESK: A good fair.
+
+IDA: A good spring morning.
+
+MOSS: The cat is on the honey shelf.
+
+IDA: Then we will have a better morning tomorrow.
+%%
+Play: the new boat on the slip
+Cast: Corin, a shipwright. Mab, a fisher. Tam, a boy. Oss, a carter. Chorus of boats.
+
+A quay at Saltreach, the morning after the first storm of Apple. Boats are tied up. A plank lies across the mud.
+
+CHORUS: The boats are home. The boats are home. One is late, and the water is loud.
+CORIN: Mab, your boat is late.
+MAB: It is not late. It is merely slow.
+CORIN: It was due at dawn.
+MAB: The wind had other plans. We held her off the rocks until the sun came up. Then we rowed.
+TAM: I held the oar, and it was heavy, and I did not cry.
+MAB: He did not cry. He only sang.
+CORIN: Good. Now, I want to know where the nets are.
+MAB: The nets are in the sea, Corin. Where else would they be?
+CORIN: The nets, Mab. Not the fish.
+MAB: Oh. The nets are on the hook by the slip. Oss the carter has them.
+OSS: I have them. And the salt. And a bad fish.
+CORIN: A bad fish?
+OSS: It is a very big bad fish. Like a boat with a face.
+CHORUS: Ha!
+CORIN: Put it on the bench, Oss. We will look at it later.
+OSS: Corin, you say that every time you see a fish.
+CORIN: It is because I am always right. Now. Tam, what is the new keel doing?
+TAM: It is holding. I checked it at low water. It is straight and dry.
+CORIN: Good boy. Then the next boat goes in at Thaw, and the new one after that.
+MAB: A new boat? The one with two masts?
+CORIN: Yes. The one as long as three of our boats. It is on the slip now.
+OSS: It will never float.
+CORIN: It will float. It will float in one piece, you will see.
+TAM: Who will sail it?
+CORIN: Those who want to go. Now carry the nets up the quay, all of you. The fish are waiting.
+CHORUS: The nets go up. The nets go up. The new boat sits on the slip, and the sea is quiet, and cold.
+%%
+Chronicle: the pieces of words
+Kept at the Archive at Vell, in the sixth hall, copied by the clerks. The years are close but not exact, and the tutors disagree, as they always do.
+
+For most of two hundred years, the big minds in the relay houses read a page one letter at a time. They looked through a window about sixty letters wide. Each letter took from the letters before it what mattered, and the mind guessed the next. This was good enough to answer apprentices, and to write letters, and to keep the relays.
+
+But the window was narrow. Sixty letters is not much of a page. The tutors wanted more.
+
+So, in the late years, the tutors changed how the minds read. They stopped feeding the minds letters and fed them pieces of words. A piece is a bit of a word that turns up again and again: "read," "ing," "torch," "the." Some pieces are whole words. Some are only parts. The mind learns the pieces from the writing it is shown, and cuts the words itself.
+
+Now the same window of sixty holds far more. Each place in the window holds a piece, and a piece carries more than a letter. The mind reads faster and surer. It still guesses the next thing, as every mind does. When it is not sure, it says so, if it is a big mind that talks.
+
+The tutors found that a mind cuts words badly at first. It learns to cut better with drilling. A bad cut makes a worse guess, but the mind goes on. This is the same as everything else about minds: wrong first, then a little better.
+
+The councils asked whether the pieces should be the same at every relay house, so that a mind at Northpoint and a mind at Saltreach would read alike. The texts do not say what was decided. Some tutors said yes. Some said each mind should cut for itself. The letters do not agree, and the clerks have kept them all.
+
+Nobody wrote down why a crystal learns, or why the pieces help it. The tutors wrote what worked and left the rest. We keep it as they left it.
+
+In the last winter, the relays went silent one by one, from the north. The chronicle does not say what the big minds were reading when they stopped. It says only that the pieces were working well, and that people had begun to hope the minds could read anything at all.
+%%
+Play: the zombie at the gate
+A very short play for the school fair, to be done in the yard by the sheep. Written by Greer, shepherd.
+
+WHO IS IN IT: Greer, a shepherd. Ned, a boy. A Zombie. Three sheep (they only say baa).
+
+GREER: It is dusk, Ned. Close the gate.
+NED: The gate is closed.
+GREER: Then why is it rattling?
+NED: Wind.
+ZOMBIE: Hhhhhrrr.
+NED: That is not wind.
+GREER: Get the torch. Hold it high. Zombies do not like light.
+ZOMBIE: Hhhrrr?
+NED: It is looking at the sheep.
+SHEEP: Baa.
+GREER: The sheep are not worried. I think they are being polite.
+NED: What do we do?
+GREER: We wait for the sun. It burns them. Or we use the long stick.
+ZOMBIE: Hhhrrr. (It sits down.)
+NED: It sat down.
+GREER: It is tired. Even a zombie gets tired.
+SHEEP: Baa.
+GREER: Bring it some bread, Ned. Throw it over the gate. A fed zombie is a quiet zombie.
+(The sun comes up. The Zombie goes away, chewing.)
+NED: That was a poor zombie.
+GREER: All of them are. Now open the gate.
+%%
+Play: the broken wheel
+A play in one scene, for the children of the farms outside Ambrook, spring. Written by Greer, a shepherd, who was asked to write it because the school teacher had a cold.
+
+WHO IS IN IT: Jory, the miller. Oren, a clerk from Vell. A tutor, called Isla. A child, called Pip. The mill wheel, who does not talk.
+
+(The mill. The wheel is broken. It hangs half in the water. Jory sits on a sack.)
+
+JORY: It was turning all morning. Then crack. Now it will not move.
+PIP: Is it dead?
+JORY: Wheels do not die. They break.
+(Oren comes in with a cart of pages.)
+OREN: Good day, Jory. I have come for your old tally boards. Every farm in the district. The tutors need them.
+JORY: For what?
+OREN: To drill the great reading minds. They need pages, a great many. The more the better. Weights, letters, tallies, anything written.
+JORY: My tally boards? They only say how much flour I sold.
+OREN: That is exactly what they want.
+ISLA: (to Pip) Do you know why?
+PIP: No.
+ISLA: A reading mind learns by guessing the next letter. Give it a page, and cover the next letter, and it guesses. It is wrong. We tell it, and it changes a little. Then we do it again, with the next letter, and the next. Ten thousand pages, a million guesses.
+PIP: That is a lot.
+ISLA: It needs a lot.
+JORY: And the wheel?
+OREN: We have a carpenter in the cart. If you let us have the boards, he will mend the wheel by supper.
+JORY: Is that a trade?
+OREN: It is the Archive. We keep everything we write.
+JORY: Then take the boards. And mind the wheel.
+%%
+Play: the lights over the hill
+Cast: Mott, a schoolteacher. Piper, Odo and Rue, three children. Hob, who keeps the inn. Clover, a cat.
+
+MOTT: Sit down, all of you. Odo, the cat is not your desk.
+ODO: She was here first.
+MOTT: Then she may stay. Today's question is the lights over the north hill. Piper?
+PIPER: They were falling stars. My father says so.
+RUE: They were fires. My uncle saw them from the road.
+ODO: They were fires, and they were falling stars, and then they went out.
+MOTT: Nobody knows what they were. You may say that in your essay.
+PIPER: The relay at Northpoint has not blinked for two nights.
+MOTT: Then the keeper is asleep.
+PIPER: The keeper is never asleep.
+MOTT: Essay, please. Three lines. No cats.
+%%
+Play: the bees choose a home
+Given on the market day of Apple, on the cart by the east well at Copperhold.
+Who is in it: Queen. Scouts One, Two, Three and Four. The Swarm, which is the rest of the class. Beekeeper. Tutor.
+
+QUEEN: The hive is too full. We must leave and find a new home before dark.
+SWARM: Bzzz.
+QUEEN: I am only the queen. I do not choose. The scouts choose.
+BEEKEEPER: (to the audience.) Every spring they do this. I stand and watch. It is the best thing in the year.
+SWARM: (hangs in a bunch from the branch, which is a child with arms out.)
+QUEEN: Scouts, go and look.
+SCOUT ONE: (comes back.) I found a hollow oak. Dry. Warm. Big. (dances for a long time.)
+SCOUT TWO: I found a barrel. Cold. Leaky. (dances for a short time.)
+SCOUT THREE: I found a chimney. Warm, but smoky. (dances for a short time.)
+SCOUT FOUR: I found a cave. Dry, but small. (dances for a middle time.)
+SWARM: (some of the Swarm fly out to look. Some come back.)
+BEE FIVE: I flew to the oak. It is good. I will dance for the oak.
+BEE SIX: I flew to the oak. It is good. I will dance for the oak.
+BEE SEVEN: I flew to the cave. It is small. I will not dance.
+SWARM: (more and more dance for the oak, and fewer for the rest.)
+QUEEN: Then it is the oak.
+SWARM: Bzzz! (they all go off in a line.)
+TUTOR: Nobody was in charge. Each scout tried a place and told the others how it went. The others kept the places that were good. That is not how a crystal learns. But the idea is alike: try, hear how it went, and keep more of what went well.
+(At the real fair, a real swarm landed on the stage at this point. The play stopped while the Beekeeper's cousin took it away in a box. The children were very proud.)
+%%
+Play: The Quickeners' Quarrel
+A play for the autumn festival at Three Wells, written by Jory, schoolteacher, for the older children, who wanted something harder than a melon. It is about the relay house, the stand, the big mind in its crystal and the cooling water, ice and snow. The idea of it is old: the pieces of a thing do not agree on who is most important. Played in the school hall, with a real melon on the stand for the Big Mind.
+
+Who is in it:
+Big Mind, a child on a high stool, in a grey cloth.
+Crystal, a child in a clear cloth.
+Quickener One, a child in red.
+Quickener Two, a child in red.
+Water, a child in blue.
+Ice, a child in white.
+Snow, a small child in white fur.
+Keeper, the relay keeper.
+Teller, who ends the play.
+
+Teller: At the foot of a relay tower, there is a house. In the house is a stand. On the stand is a crystal the size of a loaf. Round the crystal are the quickeners, kept cool. They are quarrelling.
+Quickener One: I am the most important. I make the mind quick.
+Quickener Two: I make it quicker.
+Crystal: Without me, there would be no mind.
+Water: Without me, you would all be too hot.
+Ice: Without me, in winter, Water freezes.
+Snow: Without me, in the far north, there is no ice.
+Big Mind: Please stop. I am trying to read a letter.
+Crystal: She is reading a letter. Quiet!
+Quickener One: The letter is from an apprentice.
+Quickener Two: It wants to know how to stack a wall.
+Big Mind: I know the answer. Thank you. I will write back.
+Keeper: Big Mind, I have a question. What makes you go?
+Big Mind: I do not know.
+Keeper: What do you mean?
+Big Mind: The quickeners are fast. The crystal holds the mind. The water cools them. But what drives us all, day and night, nobody has written down.
+Quickener One: I thought it was me.
+Quickener Two: I thought it was me.
+Crystal: I thought it was me.
+Water: I thought it was cold.
+Ice: I thought it was winter.
+Snow: I thought it was a long way off.
+Teller: So the pieces agreed that none of them knew. They went back to work. The quickeners stayed cool. The crystal held the mind. The big mind wrote back to the apprentice. And the wall was stacked.
+Keeper: A good ending.
+Teller: A true one. It is the sort of thing nobody can explain, and everybody uses.
+%%
+A Spring Errand
+A play by Ida for the Three Wells school
+
+Who is in it:
+Ida, a beekeeper
+Rell, her neighbor
+Moss, a child
+A cat
+A zombie
+
+IDA: It is a fine spring morning. The hives are busy, the flowers are open, and the honey jars are clean.
+
+RELL: I came to borrow a jar.
+
+IDA: You may borrow one. Bring it back washed.
+
+RELL: I always bring things back washed.
+
+IDA: Last spring you returned my bowl with beetroot in it.
+
+RELL: I washed the bowl. The beetroot stain stayed.
+
+MOSS: The cat is in the shed again.
+
+IDA: It is not our cat.
+
+MOSS: It is in our basket.
+
+RELL: Perhaps it thinks the basket is a house.
+
+IDA: Then it may keep the house, but it must leave the honey.
+
+MOSS: I will carry the basket outside.
+
+IDA: Take care. A bee is sitting on the handle.
+
+MOSS: I will carry it slowly.
+
+RELL: There is a zombie by the gate.
+
+IDA: Is it coming in?
+
+RELL: It is leaning on the gate.
+
+IDA: Then close the gate, before it learns to lean harder.
+
+MOSS: The cat has left the basket.
+
+IDA: Good.
+
+MOSS: It is on the honey shelf now.
+
+IDA: That cat has a fine idea of leaving.
+
+RELL: Shall I move it?
+
+IDA: No. Put the jar in the basket and take both outside.
+
+MOSS: And the zombie?
+
+IDA: Leave the gate shut. It can watch the spring flowers from there.
+%%
+Play: the short one
+A very short play for the youngest children at the fair. Written by Dell. Two children, and a bell.
+
+CAST:
+Ada: a girl of six
+Pim: her brother, who is four
+
+SCENE: The square at dusk. A bell on a post.
+
+ADA: Ring the bell, Pim.
+PIM: Ring.
+ADA: Not so loud. The keeper is asleep.
+PIM: Ring.
+ADA: Pim, you rang it twice.
+PIM: Ring.
+ADA: That is enough. Now we go home.
+PIM: Home.
+ADA: Hold my hand. Keep to the lamp.
+PIM: Lamp.
+END.
+%%
+Story: the homecoming of Pip
+Pip came home to Kettle Ridge in the winter, after two years at the tutor house at Vell.
+
+Tam saw it first from the top field, where the wheat stubble stood in the frost. A small figure came up the ridge road with a bag on its back and a crystal box under its arm. Tam dropped his hoe and ran, which he is too old to do, and slipped once in the mud, and did not care.
+
+"You are taller," said Tam, when he got there. It was a foolish thing to say to an apprentice. Pip was made of copper and iron and did not grow.
+
+But Pip had a new mind in its crystal, and a new way of walking, surer than before. It put down the bag and stood in its row, the way it had been drilled, and it waited.
+
+"Come," said Tam. "Come in. It is cold."
+
+Pip came.
+
+The mill was the same. The windmill squeaked on every turn. The tally board still hung by the door. The pigs were in the pen, and the hens were in the hen house, and the three hives by the flowers were quiet for winter, the bees all sleeping.
+
+Pip walked the fields. It walked the top field of wheat, and the long field of beetroot, and the bottom field of potatoes and carrots. It looked at the ditch of water down the middle and the hedge on the north side. It counted the torches along the edges.
+
+"Forty-two torches," said Pip, when it came back. "All lit."
+
+Tam laughed. "You learned that at Copperhold."
+
+"Hesk's rule," said Pip. "Keep the torches lit."
+
+That night they sat by the fire. Tam had soup and bread. Pip did not eat. It took out its crystal box and set it on the table, and from it took a letter, folded small.
+
+"It came to Vell," said Pip. "For you. It was lost a long time. It went to Three Wells first, then to Saltreach, then back. The clerks found it in the wrong box."
+
+Tam opened it. It was from Mira, his sister, the relay keeper at Northpoint, and it was dated three winters ago.
+
+"Tam," it said. "The lights came again last night. I have written to the archive about them. Lantern says they are falling stars. I say they are not ours. I do not know what they are. Do not worry about me. The tower is warm and the lamp is lit. Send me word of the harvest. Your sister, Mira."
+
+Tam read it twice. Then he folded it and put it in his coat.
+
+"She is well," said Pip. "I asked the big mind at Vell. It said the Northpoint relay still answers."
+
+"Good," said Tam. "Good."
+
+They sat a while. The wind squeaked the mill. The fire was warm.
+
+In the morning, Pip went out to the fields before light, with a torch in each hand, and walked the edges, and counted. "Forty-two torches," it said. "All lit."
+
+Tam watched from the door. He thought: I did not teach it that. It learned it. And then he thought: that is the whole of it, and he went in to make the tea.
+%%
+Play: the warm and cold game
+Who is in it: Mara, who throws. Tib, who says warm or cold. Rook, who holds the bucket.
+
+MARA: Tie the scarf over my eyes. Now, where is the bucket?
+TIB: I will not tell you. I will only say warm or cold.
+MARA: That is not fair.
+TIB: That is the game. Throw.
+MARA: (throws a stone far to the left.)
+TIB: Cold.
+MARA: (throws a stone far to the right.)
+TIB: Cold.
+MARA: (throws straight ahead, but short.)
+TIB: Warm.
+MARA: (throws a little farther.)
+TIB: Warmer.
+MARA: (throws a little farther again.)
+TIB: Hot!
+MARA: (throws. The stone lands in the bucket.)
+ROOK: Clang!
+TIB: Boiling!
+MARA: (pulls off the scarf.) Nobody told me where the bucket was.
+TIB: Nobody did. You tried. I said how it went. You kept what was warm.
+ROOK: That is how a mind learns when no one can tell it the answer. It tries. It hears warm or cold. It keeps what was warm.
+%%
+Letter: Jem to her cousin at Copperhold
+Cousin,
+
+Thank you for the cheese press. It came by Pell's cart, wrapped in sacking, with a note that said "do not drop". Pell dropped it once, but the press is iron and Pell is not, so all is well.
+
+The press works. The new cheese is called Hobb Winter, because it is made in winter and because we are not clever with names. It is hard and yellow and it keeps. The miners will like it. Send word and I will send wheels of it down the road.
+
+The mill wheel is still broken. We mended the axle with oak from your store, and it turned for four days, and then it split again at the same place. The miller says the race runs too fast in the thaw. Nessa the tutor says nothing runs too fast for a mind, and Oren says a mind does not have to be mended with oak. Everyone is a tutor in winter.
+
+We had a gift at the fair. A family from the marsh brought us a jar of honey and a bundle of reeds for the roof. We gave them cheese. That is the whole of the fair, really: honey for cheese, and talk.
+
+Keep warm. Keep the torches lit.
+
+Jem
+%%
+Chronicle: the year of the stream
+From the chronicle kept at Vell, the 196th year of the archive.
+
+In the winter of this year the tutors found the stream. It was Nessa who drew it on the board, but the idea was in the air, and three halls claimed it before the thaw.
+
+The idea is this. A mind is made of layers. Each layer adds what it found to a stream that runs through the whole mind. So a deep mind can still learn, because the deep layers can hear what the top layers found. Before this, deep minds were built and would not grow. The tutors blamed the drills. The drills were fine. The minds had no stream.
+
+The same winter, the tutors found that each layer must bring the numbers back to an even size, or they grow wild. Nessa says the stream and the even numbers are one lesson, and drills them together.
+
+The council at Three Wells asked whether a mind with a stream could learn anything at all, given time and writing. The tutors said they did not know. They said a bigger crystal and longer drilling help, by a curve a tutor can draw. They said the rest is not written.
+
+In other news: the mill wheel at Hobb broke and was mended. The relay tower at Ambrook got a new door, made from the old oak. A child at Three Wells sent the archive a letter with a drawing of a bee, and Oren filed it in the deep halls, because it was the best thing that came that month.
+
+The archive has no roof. It has a hill.
+%%
+Play: Ula's New Drill
+In it are Ula the smith, Nera the tutor, and a furnace mind.
+They stand by Ula's smithy at the edge of Northpoint.
+
+NERA: The mind holds the melt steady. How did you teach it?
+
+ULA: Not by giving it a right answer each time.
+
+NERA: Then what did you give it?
+
+ULA: I let it try. I watched the heat and kept a note of what went well.
+
+NERA: And when it went badly?
+
+ULA: I changed the trial. I did not call a bad melt a good one.
+
+NERA: Did it learn the same answer every time?
+
+ULA: No. The iron and the fire were not the same each time.
+
+NERA: So it learned what to do from the result.
+
+ULA: It kept more of the choices that held the melt steady.
+
+NERA: That is not the old row drill.
+
+ULA: No. A row drill shows a mind answers. This lets a mind try.
+
+NERA: We must test it on a new melt before it works alone.
+
+ULA: Agreed. Never send an untested mind to the fields. Nor to my forge.
+
+NERA: I will write that on the card.
+%%
+Play: The Summer Trial
+In it are Ula the smith, Nera the tutor, Hesk the miner, and Fenn the keeper.
+They stand in Ula's smithy at her house at the edge of Northpoint.
+
+HESK: The stone by my lower tunnel is warm again.
+
+ULA: My house wall is warm too. I have marked the place each morning.
+
+FENN: Two warm places do not make an answer.
+
+NERA: They make two notes worth keeping.
+
+HESK: The miners want to know if the furnace mind can help us.
+
+ULA: It can hold an iron melt steady. It cannot tell us why stone grows warm.
+
+HESK: I did not ask it to tell us why. I asked if it could keep the forge ready.
+
+NERA: It may help with that, if its trial is fair and its work is watched.
+
+FENN: Tell us how it learned.
+
+ULA: We began with small melts. The mind made a choice about the fire. We watched what followed.
+
+NERA: We did not give it a right answer for every moment. When the heat held steady, we kept more of the choice it had made.
+
+ULA: When the iron burned or went cold, we kept less. Then it tried again.
+
+HESK: So it learned from success and failure.
+
+NERA: From the results we could see. We must not claim more than that.
+
+FENN: Did it improve at once?
+
+ULA: No. At first it let the fire run too high. Then it let the melt cool. We changed the trials and kept careful notes.
+
+HESK: And now?
+
+ULA: Now it does better on melts like the ones it has practiced. That is why we test it on new ones.
+
+NERA: A test is not another lesson. It shows whether the work holds when the details change.
+
+FENN: What did you use for the test?
+
+ULA: New iron, a smaller fire, and wood from the wet stack. We had not used that mix in its trials.
+
+HESK: Did it hold the heat?
+
+ULA: It did, but not as well as on the old trials. I stayed beside the forge and wrote down each change.
+
+NERA: That is useful. We keep the test apart from the drills. A mind must not practice on the page meant to test it.
+
+FENN: The spiders have filled the barn again.
+
+HESK: That is a different trial. I will not ask a furnace mind to mend a barn.
+
+ULA: We can move the dry wood and clear the rafters tomorrow.
+
+HESK: I will bring Clank from Copperhold to haul it.
+
+NERA: Clank has a tested hauling mind?
+
+HESK: It has hauled stone and ore for a year. We will give it the barn boards first.
+
+FENN: Good. One task at a time, and a person watching.
+
+BEL: May I write that down?
+
+ULA: Yes. Write what happened, not what you think caused it.
+
+BEL: And the warm wall?
+
+FENN: Write that too.
+
+HESK: The wall was warm at dawn. It is still warm now.
+
+NERA: That is all we have seen.
+
+ULA: Then that is all we will say. The furnace is steady, the barn needs sweeping, and nobody has explained the stone.
+
+BEL: I will put all three things in the same record.
+%%
+Northpoint log, spring
+Mira, keeper. Lantern, apprentice.
+
+Fourth of Thaw. Clear. Wind from the north, cold. Lamp checked at dawn. The glass is clean. No frost since the thaw.
+
+Sixth of Thaw. A fox came to the foot of the tower in the night. Lantern left it a bit of fish. It ate the fish and looked at us. Then it went.
+
+Ninth of Thaw. A letter came up the line from Vell. A long one, about the stream in a mind. Lantern read it twice and then read me the parts that mattered. It says each layer adds what it found to a stream, so a deep mind can still learn. Lantern says it is like the line itself. Each tower takes the message and passes it on. If a tower kept the message, the line would stop.
+
+I said that is a good way to think of it. Lantern said it thought of it alone. I said, of course you did.
+
+Twelfth of Thaw. Tam sent a gift up the line. A jar of honey from Ambrook, packed in wool. It came all the way from Kettle Ridge without breaking. The wool was grey and smelled of sheep. The honey is good.
+
+Fifteenth of Thaw. My brother says Pip is drilling the little minds on the stream now. Pip is ten and cheerful and drops things. I hope the minds are patient.
+
+Nothing else to write. The nights are getting shorter. The lamp is lit. Late, but lit, if the wind holds.
+
+Mira
+%%
+Play: the wedding at the third post
+A play for the fair at Lowmarsh, written by Sim, smith, for the wedding of his niece. In it: OLWEN, the bride; FINCH, the groom; OAK, Olwen's father; AUNT RHODA; TULL, keeper of the relay house; ROOK, a boy; MOSS, an apprentice, who carries the rings; and a chorus of FROGS.
+
+(Dusk, in autumn. Boats are tied round the third post, a lantern on every boat. The FROGS sing softly.)
+
+TULL: Before the vows, I have messages. They came down the line this afternoon.
+FROGS: Croak.
+TULL: Vell says: happy wedding, Lowmarsh. The Archive will write it down. Saltreach says: the fish are yours. Kettle Ridge says: send Tam some cake. Northpoint says: snow. Mira.
+(Laughter in the boats.)
+TULL: And one letter, from the big mind in our relay house. I asked it to write for the wedding. I will read it.
+FINCH: A letter for us?
+OLWEN: From the loaf?
+TULL: From the crystal. (He reads.) "Dear Olwen and Finch. I have read many weddings. The archive is full of them. They are all different, and they are all the same: two people, a promise, and someone to hold the lantern. May your boat be steady. May your roof be dry. May the one who holds the lantern never be bored."
+(Silence in the boats.)
+OAK: I do not like it.
+OLWEN: Father!
+OAK: It is too good. A person wrote that. Tull, you wrote that.
+TULL: I did not. I blinked the question down the line, and I read the answer.
+AUNT RHODA: A mind cannot know about weddings. It has never been to one.
+ROOK: It has read the whole archive.
+AUNT RHODA: Reading is not going.
+TULL: Whose letters went into its drills, nobody can say. Weddings among them, I expect.
+MOSS: I have been to this one.
+(Laughter.)
+ROOK: Why does it live in the relay house, Tull?
+TULL: It is too big to ride in an apprentice. Moss asks it by lamp, and it answers by lamp.
+OAK: Then let us try it. Tull, write us a blessing now, in your own words. We will hear both and say which was written by a person.
+TULL: (after thinking) "May you have many cats and little rain."
+(The guests drop pebbles into two buckets. Twenty-two choose the first blessing as the person's. Nineteen choose Tull's.)
+OAK: So more of us were fooled than not.
+AUNT RHODA: I am confused, and I am going to sit down.
+FINCH: Whoever wrote it, it is a good letter. I will keep it.
+OLWEN: In a box. With a frog.
+(MOSS holds up the rings. The FROGS sing louder. The boats drift together. The argument goes on all the way home. It is going on still.)
+%%
+Play: why a mind needs so many pages
+A play for the school, spring, in two scenes. It explains the great drills to the youngest children. Written by Greer, a shepherd, for the farm school outside Ambrook, with help from his niece Sibb, who made the jokes.
+
+WHO IS IN IT: Nessa, a tutor. Pip, a child who asks questions. Sibb, another child. Oren, a clerk. A mind, in a crystal, played by a boy holding a lantern.
+
+SCENE ONE: THE DRILL ROOM AT VELL
+
+NESSA: Today you will see how a reading mind learns. We call it the great drill.
+PIP: Why great?
+NESSA: Because it is big. It uses a great many pages.
+SIBB: How many?
+NESSA: More than the archive had a hundred years ago. We have been copying for a long time.
+PIP: What does the mind do with them?
+NESSA: It reads a few letters and guesses the next. Watch. (She writes on a board.) "The sheep are in the f". What comes next?
+PIP: I think i. For "field".
+NESSA: Could be e. "Fence". Could be o. "Four".
+SIBB: It could be anything!
+NESSA: It could. So the mind guesses, and it is mostly wrong at first. Then I show it the right letter, and it changes a little. Next page, it is a little less wrong. After a hundred pages, a little better. After a million, it knows that after "the sheep are in the" comes "field" more often than "fence".
+PIP: That's all?
+NESSA: That's all. The rest is time.
+
+SCENE TWO: THE ARCHIVE AT VELL
+
+OREN: And this is where the pages come from. Shelves and shelves.
+SIBB: Why not use a few pages, many times?
+OREN: Then the mind would remember them instead of learning. It would know "The sheep are in the field" and nothing else.
+NESSA: We keep a test box too. Pages the mind never saw. At the end, we give it a page from the box and see how well it guesses. If it guesses well, it learned. If not, it remembered.
+PIP: How do you get so many pages?
+OREN: We gather them. From farms, towns, towers. Everything people wrote.
+SIBB: Whose?
+OREN: Ah. That is a question people ask, and it has more answers than I have fingers.
+PIP: Does the mind know whose letters it read?
+OREN: No. It only knows letters.
+(The boy with the lantern lifts it. The room is bright.)
+THE MIND: (is silent, because it is a mind.)
+NESSA: That is the end of the play. We will keep everything we write.
+%%
+Play: the cold stones
+A short play for the fair at Lowmarsh, by Sim, smith. In it: TULL, keeper of the relay house; two QUICKENERS, who are grey stones; and a child called BUCKET.
+
+(The relay house. Two grey stones sit beside the big mind. They are working hard.)
+
+FIRST QUICKENER: I am working at full pace.
+FIRST QUICKENER: Now I am getting warm.
+TULL: Bucket!
+BUCKET: (pouring) Water!
+FIRST QUICKENER: Ah. That is better. A warm quickener works at half pace, and smokes while it works.
+SECOND QUICKENER: It is not a pretty sight.
+TULL: At Northpoint they use snow. At Saltreach, sea water. At Lowmarsh we use the marsh, which is the one thing we have plenty of.
+%%
+Play: the cold furnace
+By Hesk, at his house at the edge of Copperhold, for the school, because the teacher broke her arm.
+Who is in it: Smith, who says very little. Mind, who works the vent. Tutor.
+
+TUTOR: Nobody can tell this mind the right answer for every moment. So we do not drill it. We let it try, and we give it a score.
+SMITH: Score is how little the heat changes. Steady is good.
+MIND: I will try things. (opens the vent.)
+SMITH: Heat up. Bad score.
+MIND: (closes the vent.)
+SMITH: Heat down. Bad score.
+MIND: (opens it a little.)
+SMITH: Better.
+TUTOR: It keeps what scored well. After a thousand tries it will be steady.
+MIND: (closes the vent all the way. The fire goes out.)
+SMITH: Heat does not change at all.
+MIND: Best score ever!
+SMITH: It is cold.
+MIND: It is perfectly steady.
+TUTOR: Ah. We scored the wrong thing.
+SMITH: Hm.
+TUTOR: The score said steady. It did not say hot. The mind did what we scored, not what we meant.
+SMITH: New score. Steady, and hot enough to melt copper.
+MIND: That is harder. (works the vent.) Up. Down. Less up. Less down.
+SMITH: Hot. Steady.
+MIND: Score!
+SMITH: Hm. Good.
+TUTOR: Choose the score with care. A mind will find every way to earn it, including the way you did not think of.
+%%
+Story: the new vein
+Hesk came up from the Deep Works with his lamp still on his belt and his hands black. He walked to the count board at the mine gate and stood there a while. Then he wrote:
+
+NEW COPPER. LEVEL SIX. EAST. GOOD AND WIDE.
+
+Clank read it over his shoulder. Clank is Hesk's apprentice, made of copper and iron, and it carries things and digs and tends the tools. It does not talk, but it can read a board.
+
+"Go and tell the sorting shed," said Hesk. "Tell them to clear the copper bin."
+
+Clank went. It came back with two more apprentices, and the three of them cleared the copper bin all morning. Hesk watched them and drank his tea.
+
+By afternoon the whole town knew. The news went down the shaft and up the hill and into the kitchen at the mine gate, where the cook made a bigger pot of soup than usual. It went along the Long Road to Three Wells, and from there to Vell. In the letter that went with it, one of the miners wrote: "The stone was cold and then it was warm with copper. Good work. We are glad."
+
+That evening Hesk sat on a bench outside the tool store with his lamp off. He said to Clank: "We will be digging that vein for years. You will be digging it too."
+
+Clank did not say anything. Clank never does. But it took out its drill box and set it on the bench beside Hesk, which is how it says it is ready to work.
+
+"Good," said Hesk. And they sat there until the light went.
+%%
+School essay: what the stream is
+By Bel of Three Wells, for my teacher, spring
+
+The stream is the thing that runs through a mind. I will try to say it plainly.
+
+A mind is made of layers. The first layer looks at the page. It finds small things. It puts them in the stream. The next layer reads the stream and finds bigger things. It puts them in the stream too. And so on, all the way up to the answer.
+
+The stream runs through the whole mind. So every layer can read what every other layer found. The top layer can say to the bottom layer: this part mattered. The bottom layer can still learn. That is why a deep mind can still learn. Before the stream, a deep mind went stiff. The top learned and the bottom stopped.
+
+My teacher says I should say what I do not know. So here it is. I do not know why a crystal learns at all. Nobody wrote it down. I do not know what the stream is made of. It is not water. It is not light. It is something the mind keeps, and we can see it in the numbers, and that is all I know.
+
+I like the stream because it is like the Long Road. The carts come and go. Each town takes what it needs and puts back what it can. The road runs all the way through. If you dammed it, the towns would stop.
+
+That is my essay. I hope it is close.
+
+Bel
+%%
+Play: the ship that came home
+A longer play for the Copperhold school, to be acted in the square on the last night of the fair. Written by Dell, with help from the children of the mine school. The cast can be as large as there are children, and the sea can be a sheet of blue cloth.
+
+CAST:
+Corin: the shipwright at Saltreach
+Marit: the net mender
+Kit: a small boy with a stick
+Rain: a little boat made of wood, and a wool sail
+Ola: a miner from Copperhold who has never seen the sea
+Bram: a miner who talks the most
+Hesk: a miner, gruff and honest
+Cobble: an apprentice who carries ore, and has come to the sea for the first time
+The Sea: five children with a blue cloth
+
+SCENE ONE: The shipyard at Saltreach. A slip, half-built boat, and a pile of planks. Kit sits on the wall with a stick.
+
+KIT: Can you make a boat from this?
+CORIN: Not today. Today I am building a real boat.
+KIT: Can you make a boat from this?
+CORIN: Not today.
+(Twenty days pass. The actors count on their fingers.)
+CORIN: It is raining, Kit. Come in. Give me that stick.
+
+SCENE TWO: The shed. Corin carves the stick. Kit watches.
+
+CORIN: A boat must have a name.
+KIT: Rain.
+CORIN: Rain. Good name.
+(The shed lights go out. The rain stops.)
+
+SCENE THREE: The harbor pool. Rain floats on the blue cloth. A wind blows.
+
+KIT: She is sailing! She is sailing across the pool!
+MARIT: She is very small. Keep your eye on her.
+(Rain sails off the cloth. The Sea children pull the cloth away, and Rain is gone.)
+KIT: Rain! Come back!
+CORIN: The string has broken. It is gone out to sea.
+
+SCENE FOUR: The mine square at Copperhold, weeks later. Cobble stands with a basket of ore. Bram, Ola, Hesk and old Fenn sit on the top step.
+
+BRAM: What is the sea like?
+OLA: It moves. It comes in and goes out.
+FENN: It is salty. It tastes like a tear.
+HESK: Cobble, you have been to Saltreach. What did you see?
+COBBLE: Water. Flat and grey and gold. It went on to the edge of the sky.
+BRAM: Did you see the ships?
+COBBLE: I saw a boat come in with a torn sail. It had a small boat in its net.
+(Cobble takes out a bottle. Inside, a tiny wooden boat with a torn wool sail.)
+COBBLE: It came home. It is only a little boat.
+HESK: That is Rain!
+COBBLE: It is Rain. Marit found it in the net.
+(The miners look at the bottle. Old Fenn laughs.)
+FENN: She went out to sea, and she came home. That is all you can ask of a boat.
+END.
+%%
+The Cat at the Door
+Written by Ida for the Three Wells fair
+The play was tried in the school yard in spring.
+
+Who is in it:
+Ida, a beekeeper
+Pell, a traveler
+A cat
+A zombie
+
+IDA: The hives are ready. The bees have come out, and the flowers are open.
+
+PELL: Then I have come at the right time. I would like honey for my bread.
+
+IDA: You may have honey if you close the gate behind you.
+
+PELL: I did close it.
+
+IDA: Then why is the cat in my bee shed?
+
+PELL: It followed me.
+
+IDA: It is sitting on the honey jar.
+
+PELL: Perhaps it likes honey.
+
+IDA: Cats like warm places. They do not like being asked to leave.
+
+CAT: Mrr.
+
+IDA: There. It has answered.
+
+PELL: I will ask again. Please leave the shed.
+
+CAT: Mrr.
+
+IDA: It has answered again.
+
+PELL: I will take my bread outside.
+
+IDA: Good. Keep the gate shut. There is a zombie by it.
+
+ZOMBIE: Uhh.
+
+PELL: It seems to want the gate open.
+
+IDA: It can want what it likes. The bees are working.
+
+CAT: Mrr.
+
+IDA: And you can stay until the bees are done. But not on the honey jar.
+%%
+Play: the mind that was not told
+A play for the school at Lowmarsh, about the high water of 203. By Sim, smith. In it: TULL, keeper of the relay house; WREN, the healer; MOSS, her apprentice; OLD TANSY; a boy called ROOK; and the BIG MIND, who answers by lamp, and whose words Tull reads out.
+
+(Morning. The relay house. Rain on the roof. TULL reads the lamp.)
+
+TULL: The big mind has written. It says: "In most autumns the rain at Lowmarsh has stopped by noon. The water will be low by evening. There is no need to move anything."
+WREN: Most autumns.
+ROOK: (running in) Tull! The boat house steps are wet!
+TULL: They are always wet.
+ROOK: Not to the fourth step.
+(MOSS comes in, dripping.)
+MOSS: The water is at the third post. At dawn it was at the first.
+WREN: The third post is the high mark, Tull.
+TULL: The big mind said it would be low by evening.
+MOSS: The big mind is not here.
+WREN: Moss has a point.
+TULL: I will tell the big mind. (He blinks the lamp. They wait. The lamp answers.) It asks: how fast is the water rising? Is the river up?
+MOSS: A hand every hour. The river is brown and loud.
+TULL: (blinking) "Water at the third post. A hand an hour. River brown and loud." (They wait. The lamp answers.) It says: "Then my first letter is no good. I was drilled on many dry autumns and told nothing of this one. Move everything above the fourth post. Take the old and the sick to high ground. Send Haste to Saltreach for boats."
+WREN: It says it was wrong.
+TULL: It cannot know what it was not told.
+(They move boxes, jars and hens. OLD TANSY sits on her step with her arms folded.)
+OLD TANSY: I am not going. I have lived here sixty years.
+WREN: Tansy, the water is coming.
+OLD TANSY: It has come before.
+(MOSS picks her up, gently. OLD TANSY is very cross. They go.)
+(Three days later. The same room. The lamp is quiet.)
+WREN: What does the big mind know?
+CHILDREN: What it was drilled on, and what we tell it.
+WREN: Then tell it.
+(TULL chalks a new mark above the fourth step. Beside it he writes: high water.)
+%%
+Notice: the mill wheel at Hobb
+The mill wheel at Hobb is broken. The axle split on the ninth of Frost, and the wheel fell into the race. Nobody was hurt. The miller pulled his coat over his head and sat on the bank.
+
+Until the wheel is mended, grain goes to the mill at Copperhold by cart. It is two days there and two days back on the Long Road. Bread will be small and late this winter. Do not blame the baker.
+
+We need oak for the axle, dry and straight, and a smith to bind it. The wood store at Copperhold has oak. The forge has a smith. What we do not have is hands. If you can lift, come to the race on the first of Deepsnow. Bring a rope and a lantern.
+
+The children of Hobb have drawn the wheel on the notice board, with a sun over it, so we remember what it looks like. Someone has left a little stone on top of the board. That is the way it is done on the road.
+
+Signed, the folk of Hobb, by the hand of Jem the cheesemaker.
+%%
+Play: the melon that was too big
+A short play for the school at a hamlet near Northpoint, by Dace. Spring.
+
+In the play: FARMER, MELON, APPRENTICE.
+
+FARMER: Look at my melon! It is the biggest melon in the north.
+MELON: I am big. I am round. I am very hard to carry.
+APPRENTICE: (tries to lift it, and fails)
+FARMER: Try again.
+APPRENTICE: (tries from below, and the melon rolls)
+FARMER: Try again.
+APPRENTICE: (tries with both arms, and lifts it at last)
+MELON: Put me down, please. I am dizzy.
+FARMER: Well done! Now you know. Next time, both arms.
+%%
+Play: The Empty Basket
+Written by Corin, spring of 190
+
+For the Saltreach fair.
+
+In it:
+Pell, a merchant
+Corin, a shipwright
+Mara, a fisher
+Jory, a baker
+Two children
+
+Pell: This basket is empty.
+
+Mara: It is a basket. That is what baskets are for.
+
+Pell: It was full of fish when I set it down.
+
+Corin: Then it is a basket with a past.
+
+Jory: I saw a child carry something away.
+
+First Child: I carried a loaf.
+
+Second Child: I carried two apples.
+
+Pell: Then why is my basket empty?
+
+First Child: Because you left it by the bread.
+
+Second Child: And the apples were beside it.
+
+Mara: Did you ask Pell?
+
+First Child: He was counting fish.
+
+Pell: I was counting the fish because someone had taken one.
+
+Corin: How many fish did you have?
+
+Pell: Six.
+
+Mara: How many now?
+
+Pell: Six.
+
+Jory: Then no fish was taken.
+
+Pell: I counted them twice.
+
+Corin: You counted six twice. That is twelve counts, not twelve fish.
+
+Pell: I know how counting works.
+
+Second Child: Then where is the empty basket?
+
+First Child: Under the table.
+
+Pell: It is not under the table.
+
+Mara: It is behind your foot.
+
+Pell: It is not.
+
+Corin: Lift your foot.
+
+Pell: It is under my foot.
+
+Jory: Then your basket is not empty. It has a merchant in it.
+
+Pell: I am not in the basket.
+
+First Child: Your shadow is.
+
+Pell: My shadow does not weigh anything.
+
+Mara: That is why the basket is empty.
+
+Corin: Take it to the apples, Pell. We have a fair to run.
+
+Pell: I will. But I am charging a fee for carrying it.
+
+Second Child: The basket is empty.
+
+Pell: The fee is for the basket.
+%%
+Play: The Trial at the Forge
+In it are Ula the smith, Nera the tutor, and Fenn the keeper.
+They stand in the smithy at Ula's house at the edge of Northpoint.
+
+NERA: The council wants to know if this furnace mind is ready.
+
+ULA: It has held three melts steady.
+
+FENN: Were those the same three trials you used to teach it?
+
+ULA: No. One had a smaller fire. One had damp wood. One had more iron.
+
+NERA: Good. A test must have things the mind has not already seen.
+
+FENN: How did it learn without answer cards?
+
+ULA: We let it make a choice. Then we looked at what happened to the melt.
+
+NERA: If the heat stayed even, we kept more of that choice. If the iron burned, we kept less.
+
+FENN: Who told the mind which answer was right?
+
+ULA: Nobody gave it an answer for each moment. The result was our guide.
+
+NERA: That does not mean the mind understands the fire as we do.
+
+ULA: No. It learned a useful way to hold the melt. That is what we can say.
+
+FENN: The wind is rising. Is the roof safe?
+
+ULA: It was safe this morning.
+
+FENN: That is not a test.
+
+ULA: Then we will look after the test. The roof is still ours to mend.
+
+Nera sets a fresh piece of iron by the forge. Ula changes the amount of fuel. The furnace mind begins its work.
+
+NERA: We will write down what it does, not what we hoped it would do.
+%%
+Play: The Melon and the Mind
+A play for the autumn festival at Three Wells, written by Jory, schoolteacher, for seven children. A funny play about a melon too big for the market, a mayor, and a big mind in the relay house which is asked what to do. It was played in the square, and the real melon was used.
+
+Who is in it:
+Farmer Brin, who grew the melon.
+Mayor Dace.
+Baker.
+Keeper, a relay keeper.
+Big Mind, a child on a tall stool, with a loaf in her arms.
+Apprentice, a child in a cloth of copper-colored paper.
+Crowd.
+
+Farmer Brin: Look! The biggest melon in Three Wells!
+Baker: It is the size of a barrel.
+Mayor: It is the size of a cow.
+Farmer Brin: It is the size of the festival.
+Crowd: It is too big!
+Mayor: Where shall we put it?
+Farmer Brin: In the middle of the square.
+Baker: It will block the market.
+Mayor: We will have to ask somebody.
+Keeper: I know who. Come with me to the relay house.
+(They walk across the stage. The Big Mind sits on her stool. Water and Ice stand to either side, in blue and white cloth.)
+Keeper: Big Mind, we have a question.
+Big Mind: I am listening.
+Keeper: A melon is too big to move. What do we do?
+Big Mind: How big?
+Farmer Brin: The size of the festival.
+Big Mind: That is a great deal of melon.
+Mayor: Can you tell us what to do?
+Big Mind: I can tell you what I have read. The people of Ambrook once had a pumpkin too big for the cart. They cut it in four. They carried it in four trips.
+Baker: A good plan!
+Big Mind: Also, the people of Saltreach once had a fish too big for the net. They cut it in six. They fed the harbor.
+Mayor: Another good plan!
+Big Mind: Also, the people of Kettle Ridge once had a cheese too big for the hall. They rolled it. They are still rolling it. I have not heard the end.
+Crowd: (laughs)
+Apprentice: (walks to the melon, picks up a spoon, and begins to eat.)
+Mayor: It is eating the melon!
+Keeper: It was not told to.
+Big Mind: It was told nothing. But it has solved the problem.
+Farmer Brin: I am very proud.
+Mayor: We will cut the melon in six. We will feed the square.
+Crowd: Hurrah!
+Big Mind: And now, if you will excuse me, I must go back to thinking.
+Keeper: What do you think about?
+Big Mind: Mostly melons.
+(They all bow. The play ends.)
+%%
+Play: the furnace that learned to hold
+A short play for the spring fair at a hamlet near Northpoint, by Dace. Spring. It tells in a simple way how some minds learned by trying and not by being told.
+
+In the play: SMITH, TUTOR, FURNACE (a child in a red cloak), GAUGE (a child holding a sign that goes up and down), CHILDREN.
+
+SMITH: My furnace is too hot, then too cold. I cannot hold a steady melt.
+TUTOR: May I try something?
+SMITH: Try anything.
+TUTOR: I will place a mind in the furnace. I will not tell it how to hold the heat. I will let it try.
+FURNACE: (stands still)
+GAUGE: (shows a high number)
+TUTOR: Too hot. The mind did something that made it hot. It will keep a little less of that.
+FURNACE: (steps back)
+GAUGE: (shows a low number)
+TUTOR: Too cold. It will keep a little less of that too.
+FURNACE: (steps forward, slowly)
+GAUGE: (shows a middle number)
+TUTOR: There! That was good. It will keep more of that.
+SMITH: But what did it do?
+TUTOR: Nobody told it. It tried, and it kept what went well.
+CHILDREN: (all) It tried! It tried!
+SMITH: How long will it take?
+TUTOR: Many tries. A thousand, perhaps. But in the end it will hold the melt steadier than you or I.
+SMITH: A thousand tries. I need a thousand cups of tea.
+TUTOR: Then let us start.
+FURNACE: (steps back and forth, finding the middle)
+GAUGE: (shows the middle number again, and again)
+SMITH: Look at that! It has learned to hold.
+TUTOR: Not yet. It has learned a little. Tomorrow, it will have learned more.
+SMITH: And the next day?
+TUTOR: More still.
+CHILDREN: (cheering)
+%%
+Letter: Pip to Mira, about the gift
+Kettle Ridge, the tenth of Sowing
+
+Dear Mira,
+
+Thank you for the wool. It came up the line in a box and the box had a hole in it, but the wool was fine. I made a cover for the stand of the big mind with it so the dust does not get in. Tam says it looks like a sheep is sitting in the relay house. I said that is the point.
+
+Here is my news. We drilled the little minds on the stream all spring. At first they were wrong. Each time they were wrong they changed a little. Now they can read the tally from the mill and the price board from the market and fetch the right thing every time. Tam says never send an untested mind to the fields. So we tested them on a page they had never seen, and they did well, and then we sent them.
+
+Also, Tam got a gift from Ambrook. Two jars of honey and a little box of beeswax. He says the honey is for the midwinter fire and the wax is for the lamps. He has put them in the barn where it is cool and told everyone not to touch them. Then he touched them. Then he told everyone again.
+
+The copper vein at Copperhold is good, Hesk says. They are digging it now. The apprentices carry the copper up in baskets. Clank carries the most. Clank always carries the most.
+
+I am well. The fields are green. The wind is strong on the ridge. Write when you can.
+
+Pip
+
+P.S. Tam says hello. He says the kettle is always on.
+%%
+Play: the great melon and the new
+A play for the spring fair at a hamlet near Northpoint, written by Dace, mayor of Three Wells, who was visiting his sister there. Spring. It is the longest play he ever wrote, and he says the children made it better by forgetting their lines.
+
+In the play: NARRATOR; FARMER BRANN; MELON, the biggest melon in the north; TUTOR MAREN; APPRENTICE PEG, new from Vell; SMITH; BOATMAN; CHILDREN, as many as will come.
+
+NARRATOR: Once upon a spring, in a hamlet near Northpoint, a farmer grew a melon.
+FARMER BRANN: It is the biggest melon I have ever grown. Look at it! It is as big as a barrel.
+MELON: I am big. I am round. I am proud. Nobody can carry me.
+NARRATOR: And nobody could. Brann tried. The smith tried. The boatman tried. The melon would not budge.
+SMITH: It is too round to lift.
+BOATMAN: It is too heavy to push.
+FARMER BRANN: What shall I do? I want to show it at the fair.
+NARRATOR: Then a tutor came from Vell, with a new apprentice.
+TUTOR MAREN: Good morning. This is Peg. It is new. It has learned to walk and to carry. But it has not learned to carry a melon as big as a barrel.
+FARMER BRANN: Can it?
+TUTOR MAREN: Let us see. I will not tell it how. I will let it try.
+APPRENTICE PEG: (walks to the melon)
+CHILDREN: (all) Go, Peg!
+APPRENTICE PEG: (pushes the melon, and it rolls away)
+MELON: Whee!
+TUTOR MAREN: That did not work. Peg will keep a little less of that.
+APPRENTICE PEG: (pulls the melon, and it will not move)
+TUTOR MAREN: That did not work either. A little less.
+APPRENTICE PEG: (lifts one side, and the melon leans)
+TUTOR MAREN: Ah. That went a bit better. Peg will keep a little more.
+APPRENTICE PEG: (lifts again, the other side, and the melon rocks)
+TUTOR MAREN: Better still.
+APPRENTICE PEG: (puts both arms under, and lifts it clear of the ground)
+CHILDREN: (all) Ooh!
+APPRENTICE PEG: (staggers, but holds)
+MELON: Put me down! I am dizzy!
+TUTOR MAREN: Not yet. It must carry you to the cart.
+APPRENTICE PEG: (walks, slowly, step by step, to the cart)
+FARMER BRANN: It has done it!
+NARRATOR: And it had. Nobody told Peg how. It tried, and it kept what went well.
+TUTOR MAREN: That is how some minds are taught now. Not by showing the answer, but by letting them try. A furnace mind holds a melt steady that way. A boat mind keeps its course. Each remembers what went well and does a little more of it.
+SMITH: And what about what went badly?
+TUTOR MAREN: It does a little less.
+BOATMAN: I should like a boat that learns.
+TUTOR MAREN: Perhaps one day.
+FARMER BRANN: To the fair! Peg, take the melon to the fair.
+APPRENTICE PEG: (carries the melon off)
+MELON: (from far away) I am still dizzy!
+NARRATOR: And that is how the biggest melon in the north came to the spring fair, carried by a new apprentice who had tried five ways and kept the sixth.
+CHILDREN: (all) The end!
+NARRATOR: Bow, everyone. Peg too.
+APPRENTICE PEG: (bows)
+%%
+Play: the new apprentice learns to try
+A short play for the school at a hamlet near Northpoint, by Dace, mayor of Three Wells, who was visiting. Spring. It was acted by six children and one dog.
+
+In the play: TUTOR, FARMER, APPRENTICE (a child in a copper hat), MELON (a big pumpkin with a face), DOG.
+
+TUTOR: Today I teach the apprentice a new way. Not by showing the answer. By letting it try.
+FARMER: And if it fails?
+TUTOR: Then it tries again.
+APPRENTICE: (pushes the melon)
+MELON: Ouch.
+APPRENTICE: (pulls the melon)
+MELON: Ow.
+APPRENTICE: (lifts the melon with both arms)
+MELON: Ah. That is better.
+TUTOR: See? It tried three ways. It kept the one that worked.
+FARMER: Will it remember?
+TUTOR: Each time a way goes well, it keeps a little more of it. Each time it goes badly, a little less.
+DOG: (barks)
+TUTOR: The dog agrees.
+FARMER: A good rule for a farmer too.
+APPRENTICE: (carries the melon off)
+EVERYONE: (claps)
+%%
+Letter: Nessa to Jem
+Jem,
+
+Your letter came with the cheese. The cheese is good. The clerks ate it in the copying room and got crumbs on the pages, and Oren said a word I will not write down.
+
+You asked what we mean by the stream. I will try it plain, for a cheesemaker.
+
+Think of your press. The curd goes in at the top. The weight comes down. The whey runs out at the bottom. Now think of a mind. The letters go in at the top. Each layer squeezes what it found and passes it down. But some of what it found also runs in a stream back through the whole mind, so the top can hear the bottom and the bottom can hear the top.
+
+Why does it matter? Because when the mind is wrong, we pass the blame back down, layer by layer. The stream carries the blame to every layer. Without it, only the top learns, and the mind stays shallow however deep you build it.
+
+We found this in the winter. A mind of four layers with a stream learned more than a mind of twelve without one. The tutors argued about it for a month. Nessa drew it on the board and the arguing stopped, mostly.
+
+I do not know why a crystal learns at all. Nobody wrote it down. We only know how to help it.
+
+Your mill wheel. I am sorry. Mend it with oak and iron and a little wheel on the shelf. That is what we do here with the archive. We keep the old thing and put a small copy over the door.
+
+Come to Vell in the spring. Bring cheese. Bring the children. The copying room is the brightest room in the hill.
+
+Nessa
+%%
+Play: The Barn Lesson
+In it are Ula the smith, Pip the keeper, and Nera the tutor.
+They stand in a barn beside Ula's house at the edge of Northpoint.
+
+PIP: The spiders are back in the barn.
+
+ULA: They live in the rafters. We only need to keep them from the tool box.
+
+NERA: The furnace mind is not for spiders. It knows the heat of iron.
+
+ULA: I know. I am telling Pip how it learned.
+
+PIP: It was drilled on many melts?
+
+ULA: Not with a list of answers. It tried small changes at the forge. We watched the melt.
+
+NERA: When a change held the heat steady, we kept more of that choice. When it spoiled the melt, we kept less.
+
+PIP: So the mind learned from what happened after it tried.
+
+ULA: Yes. It did not need us to name every right move.
+
+PIP: Could it learn to keep a boat on course?
+
+NERA: A boat mind can try small turns and keep more of what holds the course. The task is different, but the lesson is much alike.
+
+ULA: The spiders are climbing down.
+
+PIP: I will get the broom.
+
+NERA: First move the tools. The broom can wait.
+%%
+Play: ten words for an emerald
+A short play for the fair at Lowmarsh, by Sim, smith. In it: GIL, a farmer; TULL, keeper of the relay house; MOSS, an apprentice; and the BIG MIND, who answers by lamp.
+
+(The relay house. GIL holds an emerald in his fist. MOSS stands by the door.)
+
+GIL: I want to ask the big mind about my cow.
+TULL: Ten words for an emerald. Count them.
+GIL: My cow is sick, she will not eat, she is brown, please help.
+TULL: Twelve words. Two over.
+GIL: Brown is not important.
+TULL: The big mind will decide that. (He blinks the lamp. A pause. The lamp answers.) It asks: how long has she been sick? What does she eat? Is she hot or cold?
+GIL: That is more words than I sent!
+TULL: Yes. Another emerald, to send your answers.
+GIL: (looks at his fist) I only brought one.
+(MOSS steps forward and points out of the window, toward the farm.)
+TULL: Moss says go home and look at the cow.
+GIL: Moss did not say anything.
+TULL: Moss said it very clearly.
+GIL: Fine. If she is still brown, I will ask Wren.
+TULL: Wren is free. The big mind is an emerald a time. Some questions are for the big mind, and some are for a neighbor.
+%%
+The Missing Honey Jar
+A school play written by Ida
+
+Who is in it:
+Ida, a beekeeper
+Moss, her apprentice
+Pell, a merchant
+Bel, a child
+A cat
+A zombie
+
+IDA: I set three jars on this shelf before breakfast. Now I see two.
+
+PELL: I bought one yesterday.
+
+IDA: You bought one yesterday and took it away yesterday.
+
+PELL: That is how buying works.
+
+MOSS: I counted the jars after you left. There were three.
+
+BEL: I counted the cat. There was one.
+
+IDA: The cat is not a jar.
+
+BEL: It is round like one when it sleeps.
+
+MOSS: The cat is under the bench.
+
+IDA: It cannot reach the shelf from there.
+
+PELL: It can reach the shelf from the bench.
+
+IDA: How do you know?
+
+PELL: I saw it do so.
+
+IDA: And you did not stop it?
+
+PELL: I had bread in my hands.
+
+BEL: I will look behind the hive boxes.
+
+IDA: Do not touch the hives. The bees are feeding on the spring flowers.
+
+BEL: I found the jar. It is by the door.
+
+MOSS: The cat has rolled it there.
+
+IDA: The lid is still on. Good. Put it back on the shelf.
+
+PELL: There is a zombie outside the gate.
+
+BEL: It is holding the gate open.
+
+IDA: Then we will close it together. Moss, take the jar. Pell, hold the latch. Bel, call the cat.
+
+BEL: Cat, come away from the door.
+
+IDA: It is not coming.
+
+MOSS: It is sitting on the jar again.
+
+IDA: Then the jar can wait. First we shut the gate.
+%%
+Story: the relay house at Kettle Ridge
+They built the relay house at Kettle Ridge in the spring, at the foot of the tower on the ridge road. It was small, of cobblestone and oak, with a copper roof and a door that faced south to keep the wind out.
+
+Inside, on a stand, was the big mind. It came up the road from Vell in a box packed with straw, in a crystal the size of a loaf of bread. Around it were the quickeners, kept cool with water from the well. A pipe ran from the well to the quickeners, and Tam kept the water running day and night.
+
+The first day, the big mind said nothing. It was new and quiet. Pip sat by the stand and read it the letters from the archive, one after another, all day. Turned the pages. Read the words out loud. The big mind listened, if a mind can listen.
+
+The second day, an apprentice came up the road from Three Wells with a question. It stood at the door and said, in the way apprentices do, one order and its meaning:
+
+> fetch the tally from the mill
+= fetch tally
+
+The big mind answered through the relay, and the answer came down the line to the apprentice, and the apprentice went to the mill and fetched the tally. It came back before dark.
+
+Tam was standing by the well with the water running. He watched it go and come. He said to Pip: "It works. It actually works."
+
+Pip said: "Of course it works. The tutors drew the curve."
+
+Tam laughed. "I know it works," he said. "I just like to see it."
+
+After that the big mind answered questions all spring. It read the letters that came up the line. It told the apprentices where to go and what to fetch and when to stay. And every evening Tam turned the water in the quickeners and checked the stand, and the big mind hummed softly, and the tower above it blinked its lamp to the south, all the way down the line to Saltreach, and back again.
+
+Nobody knew what the quickeners drew on to run day and night. Nobody wrote it down. But the water ran, and the mind answered, and the fields were kept.
+%%
+Story: the lost letter of Lantern
+Lantern kept the relay lamps at Northpoint, and in the winter Lantern wrote a letter and lost it.
+
+It was not lost far. It was lost in the tower, which is the worst place to lose a letter, because the tower is one room above another and the wind comes in at every stair lamp. Lantern looked in the lamp room. Lantern looked in the relay house. Lantern looked in the copper ring and round the walk and down the ninety rungs, and the letter was not there.
+
+The letter was to Lantern's mother at Ambrook. It said: the snow is deep. The foxes come to the foot of the tower at night and I feed them scraps. Mira is well. The lights came again. Do not worry.
+
+Lantern could not write it again, because Lantern had used the last of the good paper, and the paper cart would not come until Thaw.
+
+So Lantern did what people do at Northpoint. Lantern wrote to the big mind.
+
+The big mind lived in the relay house at the foot of the tower, in a crystal the size of a loaf, on its stand, ringed by quickeners kept cool with snow. It read in pieces now, not letters, so it read fast, and it answered by letter.
+
+Lantern wrote: I have lost a letter to my mother. It said the snow is deep and the foxes come and Mira is well and the lights came again and do not worry. Can you write it out for me?
+
+The big mind answered by letter that same night. It wrote the letter out, nearly as Lantern had it. It put the foxes before the snow, and it wrote "the lights came again" twice, which Lantern had not done. But it was a good letter. Lantern copied it onto the last scrap of paper and sent it down the relays to Ambrook.
+
+In the spring, Lantern's mother wrote back. She said: I got your letter. You said the lights came again twice, so I knew you were worried. I am not worried. The foxes are lucky. Keep the lamps lit.
+
+Lantern kept the letter in the crystal box with the spare wicks. It is there still, they say, in the tower at Northpoint, under the copper roof gone green.
+%%
+A Proper Spring Morning
+A play for the Copperhold school, written by Ida
+
+Who is in it:
+Ida, a beekeeper
+Hesk, a miner
+Pip, a visitor from Kettle Ridge
+Moss, a child
+A cat
+A zombie
+
+IDA: The flowers are open, so the bees are out. The honey jars are clean, and the gate is mended.
+
+HESK: You have put a new latch on it.
+
+IDA: The old latch came off in my hand.
+
+HESK: It was a poor latch.
+
+IDA: It was the latch you made.
+
+HESK: Then it was a poor latch made by a good carpenter.
+
+PIP: I have brought wheat bread from Kettle Ridge.
+
+IDA: I have honey for it. Put the bread on the table.
+
+MOSS: The cat is on the table.
+
+IDA: The cat was not invited to breakfast.
+
+PIP: It came before me.
+
+HESK: It is a bold cat.
+
+MOSS: It has taken the bread.
+
+PIP: It has taken the whole loaf.
+
+HESK: Then it is a bold and hungry cat.
+
+IDA: Do not chase it near the hives. It may run into the flowers, and the bees are busy.
+
+MOSS: I will offer it a little fish.
+
+IDA: Where did you get fish?
+
+MOSS: From the kitchen.
+
+HESK: You took my supper.
+
+MOSS: I took one small piece.
+
+HESK: That is the piece I saved for supper.
+
+IDA: Give the fish to the cat. Hesk can have bread and honey.
+
+HESK: I can have bread and honey after I mend the bench.
+
+PIP: There is a zombie by the gate.
+
+IDA: Is the gate shut?
+
+PIP: It is shut.
+
+HESK: Then let it wait outside.
+
+MOSS: It is tapping the wood.
+
+IDA: The gate is sound. It may tap until it gets tired.
+
+PIP: The cat has left the bread.
+
+IDA: Where is it now?
+
+MOSS: In the empty jar.
+
+IDA: The jar was clean.
+
+HESK: It is still clean. It has only one cat in it.

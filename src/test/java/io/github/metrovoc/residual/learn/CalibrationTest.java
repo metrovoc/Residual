@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.learn;
 
+import io.github.metrovoc.residual.graph.CompileException;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Config;
 import io.github.metrovoc.residual.graph.Env;
@@ -8,6 +9,7 @@ import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.tensor.Parallel;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,7 +122,8 @@ class CalibrationTest {
         run(label, spec, practice, List.of(a), a.target, st, steps, every);
     }
 
-    /** How many held-out blocks a reading model would restore, at a few thresholds, as it trains. */
+    /** How many held-out blocks a reading model would restore, at a few thresholds, as it trains: every twentieth
+     * held-out record's, across the whole archive. */
     static void restore(String label, GraphSpec spec, int steps, int every) throws Exception {
         CompiledGraph g = CompiledGraph.compile(spec, WORLD, null, 1);
         Wrecks.Settings st = Wrecks.Settings.DEFAULT;
@@ -135,8 +138,9 @@ class CalibrationTest {
                     int[] over = new int[at.length];
                     int blocks = 0;
                     double sum = 0;
+                    int seen = 0;
                     for (Archive.Record r : Archive.records()) {
-                        if (!Archive.heldOut(r.id())) {
+                        if (!Archive.heldOut(r.id()) || seen++ % 20 != 0) {
                             continue;
                         }
                         for (int b = 0; b < r.blocks(); b++) {
@@ -161,28 +165,34 @@ class CalibrationTest {
         pool.shutdown();
     }
 
-    /** Reading's test loss when a model has only the first {@code records} shard-borne records to practise on. */
-    static void collected(String label, GraphSpec spec, int records, int steps, int every) throws Exception {
-        Map<Integer, BitSet> some = new HashMap<>();
+    /** {@code records} shard-borne records drawn at random, as the shards a player finds roll them. */
+    static Map<Integer, BitSet> found(int records) {
+        List<Integer> ids = new ArrayList<>();
         for (Archive.Record r : Archive.records()) {
-            if (!Archive.heldOut(r.id()) && some.size() < records) {
-                some.put(r.id(), new BitSet());
+            if (!Archive.heldOut(r.id())) {
+                ids.add(r.id());
             }
         }
+        Collections.shuffle(ids, new Random(1));
+        Map<Integer, BitSet> some = new HashMap<>();
+        for (int id : ids.subList(0, Math.min(records, ids.size()))) {
+            some.put(id, new BitSet());
+        }
+        return some;
+    }
+
+    /** Reading's test loss when a model has only {@code records} shard-borne records to practise on. */
+    static void collected(String label, GraphSpec spec, int records, int steps, int every) throws Exception {
+        Map<Integer, BitSet> some = found(records);
         TextTask practice = Archive.practice(some, Vocab.WORLD);
         long chars = practice.characters();
         run(label + "_" + records + "r_" + chars / 1000 + "k", spec, practice, List.of(Benchmark.READING), Benchmark.READING.target,
                 Wrecks.Settings.DEFAULT, steps, every);
     }
 
-    /** Reading's test loss with a tokenizer of {@code size} learned on the first {@code records} records' text. */
+    /** Reading's test loss with a tokenizer of {@code size} learned on {@code records} found records' text. */
     static void tokenized(String label, GraphSpec spec, int records, int size, int steps, int every) throws Exception {
-        Map<Integer, BitSet> some = new HashMap<>();
-        for (Archive.Record r : Archive.records()) {
-            if (!Archive.heldOut(r.id()) && some.size() < records) {
-                some.put(r.id(), new BitSet());
-            }
-        }
+        Map<Integer, BitSet> some = found(records);
         Bpe bpe = new Bpe(Archive.legible(some), Vocab.WORLD);
         while (bpe.vocab().size() < size && bpe.step()) {
         }
@@ -354,10 +364,10 @@ class CalibrationTest {
             run("reading_ctx", Blueprints.context(), Benchmark.READING, st, 3000, 500);
         }
         if (runs.contains("collected")) {
-            for (int n : new int[]{30, 60, 120}) {
+            for (int n : new int[]{100, 300, 1000}) {
                 collected("gpt32", Blueprints.gpt(32, 2, 4), n, 3000, 1000);
+                collected("gpt64", Blueprints.gpt(64, 2, 4), n, 4000, 1000);
             }
-            collected("gpt64", Blueprints.gpt(64, 2, 4), 60, 3000, 1000);
         }
         if (runs.contains("restore")) {
             restore("restore64", Blueprints.gpt(64, 2, 4), 4000, 1000);
@@ -365,7 +375,7 @@ class CalibrationTest {
             restore("restore_ctx", Blueprints.context(), 3000, 1000);
         }
         if (runs.contains("tokens")) {
-            for (int records : new int[]{120, 1000}) {
+            for (int records : new int[]{300, 1000}) {
                 for (int size : new int[]{78, 512, 2048}) {
                     tokenized("bigram", Blueprints.bigram(), records, size, 3000, 1000);
                     tokenized("context", Blueprints.context(), records, size, 3000, 1000);
@@ -383,8 +393,13 @@ class CalibrationTest {
         }
         if (runs.contains("wrecks")) {
             for (Wrecks.Wreck w : Wrecks.ALL) {
-                run("wreck_" + w.id(), w.machine().get(), w.practice(), List.of(w.benchmark()), w.target(), w.settings(),
-                        Wrecks.BUDGET, 250);
+                try {
+                    run("wreck_" + w.id(), w.machine().get(), w.practice(), List.of(w.benchmark()), w.target(), w.settings(),
+                            Wrecks.BUDGET, 250);
+                } catch (CompileException e) {
+                    // the shape wreck is broken before it trains: it does not compile
+                    System.out.println("wreck_" + w.id() + " does not compile: " + e.getMessage());
+                }
             }
         }
         if (runs.contains("fixes")) {
