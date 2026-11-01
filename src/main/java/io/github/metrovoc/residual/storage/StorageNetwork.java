@@ -33,6 +33,7 @@ public final class StorageNetwork {
     private final List<BlockPos> racks = new ArrayList<>();
     private final List<BlockPos> ports = new ArrayList<>();
     private final List<BlockPos> assemblers = new ArrayList<>();
+    private final List<BlockPos> processors = new ArrayList<>();
     /** Where the last items stored or taken went or came from, for the flows players see along the links. */
     @Nullable
     public BlockPos lastStore;
@@ -47,6 +48,8 @@ public final class StorageNetwork {
                 ports.add(p);
             } else if (level.getBlockEntity(p) instanceof AssemblerBlockEntity) {
                 assemblers.add(p);
+            } else if (level.getBlockEntity(p) instanceof ProcessorBlockEntity) {
+                processors.add(p);
             }
         }
     }
@@ -121,6 +124,16 @@ public final class StorageNetwork {
         List<AssemblerBlockEntity> out = new ArrayList<>();
         for (BlockPos p : assemblers) {
             if (level.getBlockEntity(p) instanceof AssemblerBlockEntity a) {
+                out.add(a);
+            }
+        }
+        return out;
+    }
+
+    public List<ProcessorBlockEntity> processors() {
+        List<ProcessorBlockEntity> out = new ArrayList<>();
+        for (BlockPos p : processors) {
+            if (level.getBlockEntity(p) instanceof ProcessorBlockEntity a) {
                 out.add(a);
             }
         }

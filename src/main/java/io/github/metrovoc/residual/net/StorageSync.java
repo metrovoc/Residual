@@ -8,8 +8,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
-/** Everything a Storage Terminal's network keeps, kind by kind, how full its drives are, and what it can make. */
-public record StorageSync(int menu, List<Entry> items, long stored, long capacity, List<ItemResource> craftable)
+/** Everything a Storage Terminal's network keeps, kind by kind, how full its drives are, what it can make, and what the terminal has pinned. */
+public record StorageSync(int menu, List<Entry> items, long stored, long capacity, List<ItemResource> craftable, List<ItemResource> pins)
         implements CustomPacketPayload {
     public record Entry(ItemResource item, long count) {
         public static final StreamCodec<RegistryFriendlyByteBuf, Entry> STREAM_CODEC = StreamCodec.composite(
@@ -23,6 +23,7 @@ public record StorageSync(int menu, List<Entry> items, long stored, long capacit
             ByteBufCodecs.VAR_LONG, StorageSync::stored,
             ByteBufCodecs.VAR_LONG, StorageSync::capacity,
             ItemResource.STREAM_CODEC.apply(ByteBufCodecs.list()), StorageSync::craftable,
+            ItemResource.STREAM_CODEC.apply(ByteBufCodecs.list()), StorageSync::pins,
             StorageSync::new);
 
     @Override

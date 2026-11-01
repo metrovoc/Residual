@@ -2,12 +2,18 @@ package io.github.metrovoc.residual.agent;
 
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.block.SurveyorBlockEntity;
+import io.github.metrovoc.residual.storage.CraftJob;
+import io.github.metrovoc.residual.storage.CraftJobs;
+import io.github.metrovoc.residual.storage.CraftingData;
+import io.github.metrovoc.residual.storage.StorageNetwork;
+import io.github.metrovoc.residual.storage.TerminalBlockEntity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
@@ -23,6 +29,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Util;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -33,11 +40,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * What the verbs of a program do. Each act is a small machine, ticked until it is over; none of them asks a model.
- * Things are named the way orders name them ({@link Things}), and stores are the chests and barrels around home.
+ * Things are named the way orders name them ({@link Things}), and stores are the chests and barrels around home, then the
+ * storage networks of the terminals around home.
  */
 final class Acts {
     /** How long {@code follow} keeps close, in ticks. */
@@ -90,6 +99,8 @@ final class Acts {
                 a.tell(Component.literal(act.thing()));
                 return Outcome.DONE;
             };
+            case CRAFT -> craft(a, act.count(), act.thing());
+            case SUPPLY -> supply(a);
             case FETCH, FARM, STORE, SORT, HAUL, BUILD, COPY, MOVE -> throw new IllegalArgumentException(act.verb().word);
         };
     }
@@ -175,6 +186,7 @@ final class Acts {
     /** Takes {@code count} of a thing, or a stack, out of the stores around home. */
     private static Action take(Agent a, int count, String thing) {
         Things.Wanted wanted = Things.of(thing);
+        Predicate<ItemStack> any = s -> wanted.exactly(s) || wanted.loosely(s);
         return new Action() {
             private final int want = count > 0 ? count : 64;
             private final Set<BlockPos> tried = new HashSet<>();
@@ -186,6 +198,9 @@ final class Acts {
             public Outcome tick(ServerLevel level) {
                 if (from == null) {
                     from = Stores.find(level, a.home(), wanted, tried);
+                    if (from == null) {
+                        from = Stores.terminalWith(level, a.home(), any, tried);
+                    }
                     if (from == null) {
                         return got > 0 ? took() : Outcome.failed("residual.program.failed.none_stocked", wanted.thing());
                     }
@@ -205,11 +220,12 @@ final class Acts {
                 }
                 Container c = Stores.at(level, from);
                 tried.add(from);
-                if (c != null) {
+                if (c != null || level.getBlockEntity(from) instanceof TerminalBlockEntity) {
+                    StorageNetwork net = c == null ? StorageNetwork.at(level, from) : null;
                     int before = got;
-                    takeAll(c, wanted::exactly);
+                    takeAll(c, net, wanted::exactly);
                     if (got == before) {
-                        takeAll(c, wanted::loosely);
+                        takeAll(c, net, wanted::loosely);
                     }
                     if (got > before) {
                         a.handle(from);
@@ -221,9 +237,9 @@ final class Acts {
                 return got >= want || a.full() ? took() : null;
             }
 
-            private void takeAll(Container c, Predicate<ItemStack> what) {
+            private void takeAll(@Nullable Container c, @Nullable StorageNetwork net, Predicate<ItemStack> what) {
                 for (int moved = -1; moved != 0 && got < want; got += moved) {
-                    moved = Stores.fetch(c, a, what, want - got);
+                    moved = c != null ? Stores.fetch(c, a, what, want - got) : Stores.fetch(net, a, what, want - got);
                 }
             }
 
@@ -254,6 +270,9 @@ final class Acts {
                 if (to == null) {
                     to = Stores.into(level, a.home(), kind, tried);
                     if (to == null) {
+                        to = Stores.terminalFor(level, a.home(), kind, tried);
+                    }
+                    if (to == null) {
                         return Outcome.failed("residual.program.failed.no_room");
                     }
                 }
@@ -271,12 +290,13 @@ final class Acts {
                     }
                 }
                 Container c = Stores.at(level, to);
+                StorageNetwork net = c == null && level.getBlockEntity(to) instanceof TerminalBlockEntity ? StorageNetwork.at(level, to) : null;
                 int before = put;
-                for (int i = 0; i < Agent.CARRY && c != null; i++) {
+                for (int i = 0; i < Agent.CARRY && (c != null || net != null); i++) {
                     ItemStack s = a.items.getItem(i);
                     if (ItemStack.isSameItemSameComponents(s, kind)) {
                         int n = s.getCount();
-                        ItemStack rest = Stores.insert(c, s);
+                        ItemStack rest = c != null ? Stores.insert(c, s) : Stores.insert(net, s);
                         put += n - rest.getCount();
                         a.items.setItem(i, rest);
                     }
@@ -289,6 +309,179 @@ final class Acts {
                 }
                 to = null;
                 return null;
+            }
+        };
+    }
+
+    /**
+     * Walks to the nearest terminal whose network can make a thing, asks for {@code count} of it, or one, and waits until
+     * the job is done. What the job lacks it waits for like any other.
+     */
+    private static Action craft(Agent a, int count, String thing) {
+        Things.Wanted wanted = Things.of(thing);
+        return new Action() {
+            private final int want = Math.max(1, count);
+            @Nullable
+            private BlockPos at;
+            private boolean asked;
+            @Nullable
+            private UUID job;
+            @Nullable
+            private Outcome over;
+
+            @Override
+            public Outcome tick(ServerLevel level) {
+                if (over != null) {
+                    return over;
+                }
+                if (job != null) {
+                    a.status("residual.agent.status.waiting_for_craft", want, wanted.thing());
+                    a.pause(10);
+                    return CraftingData.of(level.getServer()).jobs().stream().anyMatch(j -> j.id.equals(job)) ? null
+                            : Outcome.done("residual.program.crafted", want, wanted.thing());
+                }
+                if (asked) {
+                    return null;
+                }
+                if (at == null) {
+                    List<BlockPos> terminals = Stores.terminals(level, a.home());
+                    if (terminals.isEmpty()) {
+                        return Outcome.failed("residual.program.failed.no_terminal");
+                    }
+                    for (BlockPos p : terminals) {
+                        if (makes(StorageNetwork.at(level, p)) != null) {
+                            at = p;
+                            break;
+                        }
+                    }
+                    if (at == null) {
+                        return Outcome.failed("residual.program.failed.cannot_make", wanted.thing());
+                    }
+                }
+                a.status("residual.agent.status.asking_network", wanted.thing());
+                switch (a.walk(at, 2.5)) {
+                    case ON_THE_WAY -> {
+                        return null;
+                    }
+                    case LOST -> {
+                        return Outcome.failed("residual.program.failed.unreachable");
+                    }
+                    case HERE -> {
+                    }
+                }
+                StorageNetwork net = StorageNetwork.at(level, at);
+                ItemResource kind = makes(net);
+                if (kind == null) {
+                    return Outcome.failed("residual.program.failed.cannot_make", wanted.thing());
+                }
+                asked = true;
+                a.handle(at);
+                CraftJobs.plan(level, net, kind, want, planned -> {
+                    if (planned.plan().root.recipe == null) {
+                        over = Outcome.failed("residual.program.failed.cannot_make", wanted.thing());
+                    } else {
+                        job = CraftJobs.start(level, Util.NIL_UUID, at, planned).id;
+                    }
+                });
+                return null;
+            }
+
+            /** What of the thing a network can make, the exact kind first. */
+            @Nullable
+            private ItemResource makes(StorageNetwork net) {
+                ItemResource loose = null;
+                for (ItemResource kind : CraftJobs.craftable(net)) {
+                    if (wanted.exactly(kind.toStack())) {
+                        return kind;
+                    }
+                    if (loose == null && wanted.loosely(kind.toStack())) {
+                        loose = kind;
+                    }
+                }
+                return loose;
+            }
+        };
+    }
+
+    /**
+     * Goes after what a job on a network around home lacks: out of the chests and barrels around home if they have it, or
+     * mined if it can be, and into the network. With nothing lacking there is nothing to do.
+     */
+    private static Action supply(Agent a) {
+        return new Action() {
+            @Nullable
+            private ItemResource kind;
+            @Nullable
+            private BlockPos terminal;
+            @Nullable
+            private Action gathering;
+            private String name = "";
+
+            @Override
+            public Outcome tick(ServerLevel level) {
+                if (kind == null && !choose(level)) {
+                    return Outcome.done("residual.program.nothing_lacking");
+                }
+                if (gathering != null) {
+                    Outcome how = gathering.tick(level);
+                    if (how == null) {
+                        return null;
+                    }
+                    gathering = null;
+                    if (!how.ok() && carried(a, kind::matches) == 0) {
+                        return Outcome.failed("residual.program.failed.cannot_supply", name);
+                    }
+                }
+                a.status("residual.agent.status.supplying", name);
+                switch (a.walk(terminal, 2.5)) {
+                    case ON_THE_WAY -> {
+                        return null;
+                    }
+                    case LOST -> {
+                        return Outcome.failed("residual.program.failed.unreachable");
+                    }
+                    case HERE -> {
+                    }
+                }
+                StorageNetwork net = StorageNetwork.at(level, terminal);
+                int filed = 0;
+                for (int i = 0; i < Agent.CARRY; i++) {
+                    ItemStack s = a.items.getItem(i);
+                    if (kind.matches(s)) {
+                        ItemStack rest = Stores.insert(net, s);
+                        filed += s.getCount() - rest.getCount();
+                        a.items.setItem(i, rest);
+                    }
+                }
+                a.items.setChanged();
+                a.handle(terminal);
+                return filed > 0 ? Outcome.done("residual.program.supplied", filed, name) : Outcome.failed("residual.program.failed.no_room");
+            }
+
+            /** Picks the oldest lack among the jobs around home, and how to get it, unless it already carries some. */
+            private boolean choose(ServerLevel level) {
+                for (BlockPos p : Stores.terminals(level, a.home())) {
+                    for (CraftJob job : CraftingData.of(level.getServer()).on(level, StorageNetwork.at(level, p))) {
+                        ItemResource lacking = job.lacking();
+                        if (lacking != null) {
+                            kind = lacking;
+                            terminal = p;
+                            name = Things.name(lacking.toStack());
+                            int want = (int) Math.min(job.lackingCount(), lacking.getMaxStackSize());
+                            if (carried(a, lacking::matches) < want) {
+                                Things.Wanted wanted = Things.of(name);
+                                gathering = Stores.find(level, a.home(), wanted, Set.of()) != null ? take(a, want, name) : mine(a, want, source(name));
+                            }
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            /** What to mine for a thing that comes out of the ground as something else. */
+            private static String source(String thing) {
+                return thing.equals("cobblestone") ? "stone" : thing.startsWith("raw ") ? thing.substring(4) : thing;
             }
         };
     }
@@ -919,6 +1112,9 @@ final class Acts {
             if (c != null) {
                 n += Stores.count(c, what);
             }
+        }
+        for (BlockPos p : Stores.terminals(level, a.home())) {
+            n = (int) Math.min(Integer.MAX_VALUE, n + Stores.count(StorageNetwork.at(level, p), what));
         }
         return n;
     }

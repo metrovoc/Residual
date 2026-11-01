@@ -37,6 +37,8 @@ navigation:
 
 <residual:Milestone id="storage/assembler">在装配机的网格里摆出配方，告诉它要保持多少。</residual:Milestone>
 
+<residual:Milestone id="storage/processor">把处理器贴着熔炉放并连上网络，设定放入什么、产出什么，再向存储终端请求一些，或告诉处理器要保持多少：<ItemLink id="processor" />。</residual:Milestone>
+
 <residual:Milestone id="storage/request">在存储终端里点击网络能做的东西，请求一个数量并开始：[存储](storage.md)。</residual:Milestone>
 
 ## 旧世界

@@ -2119,6 +2119,30 @@ def port_front():
     return c
 
 
+PROCESSOR_GLYPH = [
+    # what goes in up the middle, what comes back down both sides
+    "...##...",
+    "..####..",
+    ".######.",
+    "#..##..#",
+    "#..##..#",
+    "#..##..#",
+    "#..##..#",
+    "#......#",
+]
+
+
+def processor_side(working):
+    """What a Processor does, drawn on its sides: dim while it waits, lit while its machine has work."""
+    c = plate(salt=41)
+    window(c, ramp=CORAL if working else None, salt=41)
+    if working:
+        glow_glyph(c, PROCESSOR_GLYPH, CORAL)
+    else:
+        dim_glyph(c, PROCESSOR_GLYPH)
+    return c
+
+
 def storage_link():
     """A 6 px band, slate with a copper core; the link model samples its arms from the bands and its joint from the
     middle."""
@@ -2743,6 +2767,8 @@ def build():
     assembler_front(False).save("block/assembler_front.png")
     lit("block/assembler_front_on.png", [assembler_front(True)], [assembler_front(False)])
     assembler_side().save("block/assembler_side.png")
+    processor_side(False).save("block/processor_side.png")
+    lit("block/processor_side_on.png", [processor_side(True)], [processor_side(False)])
     generator_front(False).save("block/combustion_generator_front.png")
     lit("block/combustion_generator_front_on.png", [generator_front(True)], [generator_front(False)])
     generator_side().save("block/combustion_generator_side.png")

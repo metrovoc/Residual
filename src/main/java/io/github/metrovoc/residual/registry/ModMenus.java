@@ -12,6 +12,7 @@ import io.github.metrovoc.residual.menu.ReaderMenu;
 import io.github.metrovoc.residual.menu.SurveyorMenu;
 import io.github.metrovoc.residual.storage.AssemblerMenu;
 import io.github.metrovoc.residual.storage.PortMenu;
+import io.github.metrovoc.residual.storage.ProcessorMenu;
 import io.github.metrovoc.residual.storage.RackMenu;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.function.Supplier;
@@ -51,6 +52,9 @@ public final class ModMenus {
 
     public static final Supplier<MenuType<AssemblerMenu>> ASSEMBLER = MENUS.register("assembler",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new AssemblerMenu(id, inv, buf.readBlockPos())));
+
+    public static final Supplier<MenuType<ProcessorMenu>> PROCESSOR = MENUS.register("processor",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new ProcessorMenu(id, inv, buf.readBlockPos())));
 
     private ModMenus() {
     }

@@ -4,7 +4,9 @@ import io.github.metrovoc.residual.net.CraftAsk;
 import io.github.metrovoc.residual.net.CraftCancel;
 import io.github.metrovoc.residual.net.CraftJobsSync;
 import io.github.metrovoc.residual.net.CraftPlanSync;
+import io.github.metrovoc.residual.net.CraftWatch;
 import io.github.metrovoc.residual.net.StorageClick;
+import io.github.metrovoc.residual.net.StoragePin;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.storage.CraftJobs;
 import io.github.metrovoc.residual.storage.StorageSearch;
@@ -15,7 +17,9 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -40,8 +44,9 @@ import org.lwjgl.glfw.GLFW;
 /**
  * Everything a storage network keeps, in a grid that searches and sorts. Clicking a kind takes a stack, right-clicking
  * half, shift-clicking moves a stack to the inventory; clicking with a stack puts it in, right-clicking one of it.
- * What the network's Assemblers can make shows too: asking for an amount of it shows the plan, and starting it runs a
- * job, which the jobs view follows.
+ * What the network's Assemblers and Processors can make shows too: asking for an amount of it shows the plan, and starting
+ * it runs a job, which the jobs view follows, down to the plan drawn as a tree. Alt-clicking a kind pins it to the top of
+ * the grid; what running jobs make comes after the pins by itself, with how far it has come.
  */
 public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu> {
     private static final int GRID_X = 8, GRID_Y = 20, COLS = 9, ROWS = 6, CELL = 18;
@@ -53,12 +58,13 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     private static final int PANEL_W = BAR_X + BAR_W - GRID_X;
     private static final int PLAN_Y = 62, PLAN_ROW = 11, PLAN_ROWS = 5;
     private static final int JOB_Y = 36, JOB_ROW = 18, JOB_ROWS = 5;
+    private static final int TREE_Y = 38, TREE_ROW = 11, TREE_ROWS = 8, TREE_INDENT = 8, TREE_DEEPEST = 7;
     /** Ticks an amount must stay unchanged before it is planned. */
     private static final int SETTLE = 6;
 
     private enum Sort { NAME, COUNT, MOD }
 
-    private enum View { GRID, ASK, JOBS }
+    private enum View { GRID, ASK, JOBS, JOB }
 
     /** Kept while the game runs, so the terminal opens the way it was left. */
     private static String lastSearch = "";
@@ -71,6 +77,8 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     private List<StorageSync.Entry> shown = List.of();
     private List<StorageSync.Entry> seen;
     private Set<ItemResource> seenCraftable;
+    private List<ItemResource> seenPins;
+    private List<CraftJobsSync.Job> seenJobs;
     private String seenQuery;
     private Sort seenSort;
     private boolean seenDescending;
@@ -82,6 +90,8 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     private long asked = -1;
     private int settled;
     private boolean starting;
+    /** The job whose plan the tree view draws. */
+    private UUID following;
 
     public StorageTerminalScreen(TerminalMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, BAR_X + BAR_W + 8, TerminalMenu.INVENTORY_Y + 82);
@@ -114,7 +124,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         jobsButton = addRenderableWidget(Button.builder(Component.translatable("residual.craft.jobs"), b -> show(View.JOBS))
                 .bounds(leftPos + JOBS_X, topPos + 5, JOBS_W, 12)
                 .tooltip(Tooltip.create(Component.translatable("residual.craft.jobs_help"))).build());
-        backButton = addRenderableWidget(Button.builder(Component.literal("×"), b -> show(View.GRID))
+        backButton = addRenderableWidget(Button.builder(Component.literal("×"), b -> back())
                 .bounds(leftPos + BAR_X + BAR_W - 12, topPos + GRID_Y + 2, 12, 12)
                 .tooltip(Tooltip.create(Component.translatable("residual.craft.back"))).build());
         amount = addRenderableWidget(new EditBox(font, leftPos + GRID_X + 1, topPos + GRID_Y + 19, 38, 12, Component.translatable("residual.craft.amount")));
@@ -136,7 +146,34 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         show(view);
     }
 
+    /** A step back: from a job's plan to the jobs, from anything else to the grid. */
+    private void back() {
+        show(view == View.JOB ? View.JOBS : View.GRID);
+    }
+
+    /** Draws a running job's plan, and has the server say how far it has come. */
+    private void follow(CraftJobsSync.Job job) {
+        following = job.id();
+        menu.treeJob = null;
+        menu.tree = List.of();
+        menu.treeDone = List.of();
+        ClientPacketDistributor.sendToServer(new CraftWatch(menu.containerId, Optional.of(job.id())));
+        show(View.JOB);
+    }
+
+    private CraftJobsSync.Job followed() {
+        for (CraftJobsSync.Job job : menu.jobs) {
+            if (job.id().equals(following)) {
+                return job;
+            }
+        }
+        return null;
+    }
+
     private void show(View v) {
+        if (view == View.JOB && v != View.JOB) {
+            ClientPacketDistributor.sendToServer(new CraftWatch(menu.containerId, Optional.empty()));
+        }
         view = v;
         scroll = 0;
         boolean grid = v == View.GRID, ask = v == View.ASK;
@@ -193,6 +230,9 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     @Override
     protected void containerTick() {
         super.containerTick();
+        if (view == View.JOB && followed() == null) {
+            show(View.JOBS);
+        }
         if (view != View.ASK || asking == null) {
             return;
         }
@@ -218,10 +258,12 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
      */
     private List<StorageSync.Entry> shown() {
         String query = search == null ? "" : search.getValue();
-        if (menu.items != seen || menu.craftable != seenCraftable || !query.equals(seenQuery) || sort != seenSort
-                || descending != seenDescending) {
+        if (menu.items != seen || menu.craftable != seenCraftable || menu.pins != seenPins || menu.jobs != seenJobs
+                || !query.equals(seenQuery) || sort != seenSort || descending != seenDescending) {
             seen = menu.items;
             seenCraftable = menu.craftable;
+            seenPins = menu.pins;
+            seenJobs = menu.jobs;
             seenQuery = query;
             seenSort = sort;
             seenDescending = descending;
@@ -230,8 +272,20 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             Set<ItemResource> held = new HashSet<>();
             menu.items.forEach(e -> held.add(e.item()));
             for (ItemResource c : menu.craftable) {
-                if (!held.contains(c)) {
+                if (held.add(c)) {
                     all.add(new StorageSync.Entry(c, 0));
+                }
+            }
+            // what is pinned stays in view with none kept, and what jobs make comes after it by itself
+            List<ItemResource> top = new ArrayList<>(menu.pins);
+            for (CraftJobsSync.Job job : menu.jobs) {
+                if (!top.contains(job.target())) {
+                    top.add(job.target());
+                }
+            }
+            for (ItemResource t : top) {
+                if (held.add(t)) {
+                    all.add(new StorageSync.Entry(t, 0));
                 }
             }
             List<StorageSync.Entry> out = new ArrayList<>();
@@ -247,7 +301,17 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
                 case MOD -> Comparator.<StorageSync.Entry, String>comparing(e -> mod(e.item())).thenComparing(byName);
             };
             out.sort(descending ? order.reversed() : order);
-            shown = out;
+            List<StorageSync.Entry> pinned = new ArrayList<>(), rest = new ArrayList<>();
+            for (ItemResource t : top) {
+                out.stream().filter(e -> e.item().equals(t)).findFirst().ifPresent(pinned::add);
+            }
+            for (StorageSync.Entry e : out) {
+                if (!top.contains(e.item())) {
+                    rest.add(e);
+                }
+            }
+            pinned.addAll(rest);
+            shown = pinned;
         }
         return shown;
     }
@@ -304,6 +368,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             case GRID -> (shown().size() + COLS - 1) / COLS;
             case ASK -> menu.plan == null ? 0 : menu.plan.rows().size();
             case JOBS -> menu.jobs.size();
+            case JOB -> menu.tree.size();
         };
     }
 
@@ -312,6 +377,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             case GRID -> ROWS;
             case ASK -> PLAN_ROWS;
             case JOBS -> JOB_ROWS;
+            case JOB -> TREE_ROWS;
         };
     }
 
@@ -346,6 +412,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             case GRID -> grid(g, mouseX, mouseY);
             case ASK -> plan(g, mouseX, mouseY);
             case JOBS -> jobs(g, mouseX, mouseY);
+            case JOB -> tree(g);
         }
     }
 
@@ -372,6 +439,17 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             if (e.count() > 0 && menu.craftable.contains(e.item())) {
                 // a corner mark: the network can make more
                 g.fill(x + 1, y + 1, x + 3, y + 3, Ui.TEAL);
+            }
+            if (menu.pins.contains(e.item())) {
+                // the other corner: pinned
+                g.fill(x + CELL - 3, y + 1, x + CELL - 1, y + 3, Ui.AMBER);
+            }
+            for (CraftJobsSync.Job job : menu.jobs) {
+                if (job.target().equals(e.item())) {
+                    // along the foot of the cell: how far the job making it has come
+                    Ui.bar(g, x + 1, y + CELL - 2, CELL - 2, 1, job.total() == 0 ? 1 : (float) job.done() / job.total(), Ui.TEAL);
+                    break;
+                }
             }
             if (Ui.inside(mouseX - leftPos, mouseY - topPos, x, y, CELL, CELL)) {
                 g.fill(x + 1, y + 1, x + CELL - 1, y + CELL - 1, 0x40FFFFFF);
@@ -487,6 +565,81 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         }
     }
 
+    /** A running job's plan as a tree: each row under the step that needs it, with lines between them, and how far its crafts have come. */
+    private void tree(GuiGraphicsExtractor g) {
+        CraftJobsSync.Job job = followed();
+        if (job == null) {
+            return;
+        }
+        g.item(job.target().toStack(), GRID_X + 1, GRID_Y + 1);
+        String name = Ui.count(job.amount()) + " " + job.target().getHoverName().getString();
+        g.text(font, Ui.fit(font, name, PANEL_W - 36), GRID_X + 20, GRID_Y + 1, Ui.TEXT, false);
+        Ui.bar(g, GRID_X + 20, GRID_Y + 11, PANEL_W - 36, 2, job.total() == 0 ? 1 : (float) job.done() / job.total(), Ui.TEAL);
+        List<CraftPlanSync.Row> rows = menu.tree;
+        if (rows.isEmpty()) {
+            g.text(font, Component.translatable("residual.craft.no_plan"), GRID_X + 4, TREE_Y + 2, Ui.DIM, false);
+            return;
+        }
+        for (int i = 0; i < TREE_ROWS && scroll + i < rows.size(); i++) {
+            int index = scroll + i;
+            CraftPlanSync.Row row = rows.get(index);
+            int y = TREE_Y + i * TREE_ROW, depth = Math.min(row.depth(), TREE_DEEPEST);
+            int x = GRID_X + 2 + depth * TREE_INDENT;
+            for (int k = 1; k <= depth; k++) {
+                int line = GRID_X + 2 + k * TREE_INDENT - 5;
+                boolean goesOn = continues(rows, index, k);
+                if (k == depth) {
+                    g.fill(line, y, line + 1, goesOn ? y + TREE_ROW : y + 5, Ui.GRID);
+                    g.fill(line, y + 4, x - 1, y + 5, Ui.GRID);
+                } else if (goesOn) {
+                    g.fill(line, y, line + 1, y + TREE_ROW, Ui.GRID);
+                }
+            }
+            g.pose().pushMatrix();
+            g.pose().translate(x, y);
+            g.pose().scale(0.625f, 0.625f);
+            g.item(row.kind().toStack(), 0, 0);
+            g.pose().popMatrix();
+            long done = index < menu.treeDone.size() ? menu.treeDone.get(index) : 0;
+            Component status = treeStatus(row, done, job);
+            int right = GRID_X + PANEL_W - 2, nameWidth = right - font.width(status) - 4 - (x + 12);
+            g.text(font, Ui.fit(font, row.kind().getHoverName().getString(), nameWidth), x + 12, y, Ui.TEXT, false);
+            g.text(font, status, right - font.width(status), y, Ui.TEXT, false);
+            if (row.crafts() > 0) {
+                Ui.bar(g, x + 12, y + 8, nameWidth, 1, (float) done / row.crafts(), Ui.TEAL);
+            }
+        }
+    }
+
+    /** Whether a row at depth {@code k} follows row {@code i} before the tree leaves that branch. */
+    private static boolean continues(List<CraftPlanSync.Row> rows, int i, int k) {
+        for (int j = i + 1; j < rows.size(); j++) {
+            int d = Math.min(rows.get(j).depth(), TREE_DEEPEST);
+            if (d <= k) {
+                return d == k;
+            }
+        }
+        return false;
+    }
+
+    /** A row of a running job's plan: crafts made of all, how many came from storage, what it still waits for. */
+    private static Component treeStatus(CraftPlanSync.Row row, long done, CraftJobsSync.Job job) {
+        Component out = Component.empty();
+        if (row.stored() > 0) {
+            out = out.copy().append(Component.literal(abbreviate(row.stored())).withColor(Ui.DIM));
+        }
+        if (row.crafts() > 0) {
+            String made = abbreviate(done) + "/" + abbreviate(row.crafts());
+            out = out.copy().append(Component.literal((row.stored() > 0 ? " " : "") + made).withColor(done >= row.crafts() ? Ui.TEAL : Ui.TEXT));
+        }
+        if (row.missing() > 0) {
+            boolean waiting = !job.lacking().isEmpty() && row.kind().matches(job.lacking());
+            out = out.copy().append(Component.literal((row.stored() > 0 || row.crafts() > 0 ? " " : "") + "−" + abbreviate(row.missing()))
+                    .withColor(waiting ? Ui.RED : Ui.DIM));
+        }
+        return out;
+    }
+
     /** A count in the cell's corner, small enough to sit under the item. */
     private void count(GuiGraphicsExtractor g, String text, int x, int y, int color) {
         g.pose().pushMatrix();
@@ -514,6 +667,19 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractRenderState(g, mouseX, mouseY, a);
+        if (view == View.JOBS) {
+            int row = (mouseY - topPos - JOB_Y) / JOB_ROW;
+            if (mouseY - topPos >= JOB_Y && row < JOB_ROWS && scroll + row < menu.jobs.size() && onPanel(mouseX, mouseY)
+                    && mouseX - leftPos < GRID_X + PANEL_W - 12) {
+                g.setTooltipForNextFrame(font, Component.translatable("residual.craft.job_help"), mouseX, mouseY);
+            }
+        }
+        if (view == View.JOB) {
+            int row = (mouseY - topPos - TREE_Y) / TREE_ROW;
+            if (mouseY - topPos >= TREE_Y && row < TREE_ROWS && scroll + row < menu.tree.size() && onPanel(mouseX, mouseY)) {
+                g.setTooltipForNextFrame(font, menu.tree.get(scroll + row).kind().getHoverName(), mouseX, mouseY);
+            }
+        }
         if (view != View.GRID) {
             return;
         }
@@ -524,6 +690,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             if (menu.craftable.contains(e.item())) {
                 lines.add(Component.translatable(e.count() == 0 ? "residual.craft.click_help" : "residual.craft.craft_help").withColor(Ui.TEAL));
             }
+            lines.add(Component.translatable(menu.pins.contains(e.item()) ? "residual.storage.unpin_help" : "residual.storage.pin_help").withColor(Ui.DIM));
             g.setTooltipForNextFrame(font, lines, java.util.Optional.empty(), e.item().toStack(), mouseX, mouseY);
         }
     }
@@ -556,11 +723,19 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
                     ClientPacketDistributor.sendToServer(new CraftCancel(menu.containerId, menu.jobs.get(scroll + i).id()));
                     return true;
                 }
+                if (Ui.inside(event.x() - leftPos, event.y() - topPos, GRID_X, y, PANEL_W - 14, JOB_ROW)) {
+                    follow(menu.jobs.get(scroll + i));
+                    return true;
+                }
             }
         }
         if (view == View.GRID && onGrid(event.x(), event.y())) {
             ItemStack carried = menu.getCarried();
             StorageSync.Entry e = at(event.x(), event.y());
+            if (carried.isEmpty() && e != null && event.hasAltDown()) {
+                ClientPacketDistributor.sendToServer(new StoragePin(menu.containerId, e.item()));
+                return true;
+            }
             if (carried.isEmpty() && e != null && menu.craftable.contains(e.item())
                     && (e.count() == 0 || event.button() == GLFW.GLFW_MOUSE_BUTTON_MIDDLE || event.hasControlDown())) {
                 ask(e.item());
@@ -622,7 +797,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     @Override
     public boolean keyPressed(KeyEvent event) {
         if (event.key() == GLFW.GLFW_KEY_ESCAPE && view != View.GRID) {
-            show(View.GRID);
+            back();
             return true;
         }
         EditBox box = view == View.ASK ? amount : search;

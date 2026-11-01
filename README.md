@@ -118,9 +118,10 @@ and finds anything by name, mod, tag, tooltip or id: `@minecraft ingot -iron` fi
 its front against a chest or a machine and imports, exports, keeps a set stock, or opens the inventory to the network,
 moving 1,280 items a second.
 
-An Assembler crafts a recipe drawn in its grid from what the network keeps. Ask a terminal for something the Assemblers
-can make, and it plans the whole tree before anything starts: what comes from storage, how many crafts make the rest,
-what is missing. A job can start with something missing and wait for it, and any number of jobs run at once.
+An Assembler crafts a recipe drawn in its grid from what the network keeps, and a Processor runs a furnace or any other
+machine the same way. Ask a terminal for something they can make, and it plans the whole tree before anything starts:
+what comes from storage, how many crafts make the rest, what is missing. A job can start with something missing and wait
+for it, any number of jobs run at once, and Ports and agents can ask too.
 
 ## Power
 

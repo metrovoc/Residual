@@ -7,9 +7,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-/** A change to a Port's settings from its screen: its mode, how many to stock, or its window's priority. */
+/** A change to a Port's settings from its screen: its mode, how many to stock, its window's priority, or whether it asks for what it lacks. */
 public record PortEdit(BlockPos pos, int field, int value) implements CustomPacketPayload {
-    public static final int MODE = 0, AMOUNT = 1, PRIORITY = 2;
+    public static final int MODE = 0, AMOUNT = 1, PRIORITY = 2, CRAFT = 3;
 
     public static final Type<PortEdit> TYPE = new Type<>(Residual.id("port_edit"));
     public static final StreamCodec<RegistryFriendlyByteBuf, PortEdit> STREAM_CODEC = StreamCodec.composite(

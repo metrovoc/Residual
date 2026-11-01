@@ -50,8 +50,11 @@ the mark a `place` needs. To name a thing, pick it up and click the program, or 
 The steps:
 
 - `come`, `home`, `go 3` to the third mark, `stay`, `follow`
-- `take 5 bread` from the chests and barrels around home, `put` everything or `put wheat` away, `give bread` to you,
-  `fetch bread`, which is taking, coming and giving
+- `take 5 bread` from the chests and barrels around home, or from the network of a [Storage Terminal](storage.md) there,
+  `put` everything or `put wheat` away in them, `give bread` to you, `fetch bread`, which is taking, coming and giving
+- `craft 8 torch` walks to a terminal around home whose network can make it, asks, and waits until it is made; `supply`
+  goes after what a job on that network lacks, out of the chests and barrels or mined, and brings it to the network, so
+  `repeat (supply, wait 10)` keeps a network's jobs going
 - `pickup` what lies around it, `harvest`, `plant wheat seeds`, `till` the grass near water, `mine 4 stone` (with a
   pickaxe it carries, for blocks that need one; it digs its way to anything buried, and to what a
   [Surveyor](surveyor.md) found; `mine caches` for what the old world left in them; agents mining near each other take
@@ -60,7 +63,7 @@ The steps:
 - `farm`, `store`, `sort`, `haul`, `build`, `copy` or `move`: one round of a routine
 
 Blocks: `repeat (…)`, `repeat 3 (…)`, `if … (…) else (…)`, `until … (…)` and `wait until …`. Checks: `have 3 bread`,
-`stocked bread` in the stores around home, `ripe`, `full`, `night`, `near` (you are within 8 blocks), `powered 2` (the
+`stocked bread` in the stores and networks around home, `ripe`, `full`, `night`, `near` (you are within 8 blocks), `powered 2` (the
 second mark has a redstone signal), each with `not` before it if need be.
 
 ## The trace

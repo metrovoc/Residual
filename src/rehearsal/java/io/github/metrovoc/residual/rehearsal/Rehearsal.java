@@ -10,6 +10,9 @@ import io.github.metrovoc.residual.client.AgentScreen;
 import io.github.metrovoc.residual.client.CoreScreen;
 import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.WayfinderItem;
+import io.github.metrovoc.residual.storage.CraftingData;
+import io.github.metrovoc.residual.storage.StorageNetwork;
+import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -80,11 +84,14 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ToastAddEvent;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.JNI;
@@ -117,6 +124,7 @@ import org.slf4j.Logger;
  * creative TAB               open the creative inventory on a tab, by id (residual:main)
  * press LABEL                click the open screen's first button whose label starts with LABEL
  * rclick X Y                 right-click the open screen, in the same coordinates as click
+ * altclick X Y               left-click the open screen with Alt held
  * inventory                  open the player's own inventory (in survival; creative opens its own)
  * click X Y                  left-click the open screen; a container screen's coordinates start at its corner
  * shift N|ITEM               shift-click hotbar slot N (0-8), or the first one holding ITEM, in the open container
@@ -136,6 +144,11 @@ import org.slf4j.Logger;
  *                            above its top and ANGLE degrees round from south, looking at its centre, or LOOK blocks
  *                            above its bottom
  * count BLOCK X1 Y1 Z1 X2 Y2 Z2  log how many BLOCK blocks the box holds and the game tick, to time work in the world
+ * expect net X Y Z ITEM N    fail the step unless the storage network at the place keeps at least N of ITEM
+ * expect inv X Y Z ITEM N    fail the step unless the inventory at the place holds at least N of ITEM
+ * expect jobs X Y Z N        fail the step unless N crafting jobs run on the network at the place
+ * expect pins N              fail the step unless the open Storage Terminal has N kinds pinned
+ * expect tree N              fail the step unless the open Storage Terminal has at least N rows of a job's plan
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
@@ -537,6 +550,10 @@ public final class Rehearsal {
                 point(mc, args);
                 click(mc, mouseX, mouseY, RIGHT);
             }
+            case "altclick" -> {
+                point(mc, args);
+                click(mc, mouseX, mouseY, new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_MOD_ALT));
+            }
             case "inventory" -> mc.setScreen(new InventoryScreen(mc.player));
             case "shift" -> {
                 AbstractContainerMenu menu = mc.player.containerMenu;
@@ -580,6 +597,7 @@ public final class Rehearsal {
             }
             case "frame" -> frame(mc, args);
             case "count" -> count(mc, args);
+            case "expect" -> expect(mc, args);
             case "seek" -> seek(mc, args);
             case "survey" -> survey(mc, args);
             case "fly" -> {
@@ -707,6 +725,42 @@ public final class Rehearsal {
             player.teleportTo(level, eye.x, eye.y - player.getEyeHeight(), eye.z, Set.of(), yaw, pitch, true);
             LOG.info("[rehearsal] framed {} at {}", args[0], box);
         });
+    }
+
+    /** Checks something the run's result rests on, on the client or the integrated server; a miss fails the step. */
+    private static void expect(Minecraft mc, String[] args) throws Exception {
+        long found, wanted = Long.parseLong(args[args.length - 1]);
+        String what = String.join(" ", args);
+        switch (args[0]) {
+            case "pins" -> found = ((TerminalMenu) mc.player.containerMenu).pins.size();
+            case "tree" -> found = ((TerminalMenu) mc.player.containerMenu).tree.size();
+            default -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                BlockPos at = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+                found = server.submit(() -> {
+                    ServerLevel level = server.getPlayerList().getPlayer(id).level();
+                    if (args[0].equals("jobs")) {
+                        return (long) CraftingData.of(server).on(level, StorageNetwork.at(level, at)).size();
+                    }
+                    ItemResource kind = ItemResource.of(BuiltInRegistries.ITEM.getValue(Identifier.parse(args[4])));
+                    if (args[0].equals("net")) {
+                        return StorageNetwork.at(level, at).count(kind);
+                    }
+                    ResourceHandler<ItemResource> inv = level.getCapability(Capabilities.Item.BLOCK, at, null);
+                    long n = 0;
+                    for (int slot = 0; inv != null && slot < inv.size(); slot++) {
+                        n += inv.getResource(slot).equals(kind) ? inv.getAmountAsLong(slot) : 0;
+                    }
+                    return n;
+                }).get(10, TimeUnit.SECONDS);
+            }
+        }
+        boolean exact = args[0].equals("jobs") || args[0].equals("pins");
+        if (exact ? found != wanted : found < wanted) {
+            throw new IllegalStateException("expected " + what + ", found " + found);
+        }
+        LOG.info("[rehearsal] expected {}, found {}", what, found);
     }
 
     private static void count(Minecraft mc, String[] args) {

@@ -1,0 +1,110 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "residual:block/processor_side_on",
+    "north": "residual:block/port_front",
+    "south": "residual:block/port_back",
+    "east": "residual:block/processor_side_on",
+    "west": "residual:block/processor_side_on",
+    "up": "residual:block/processor_side_on",
+    "down": "residual:block/processor_side_on",
+    "east_lights": "residual:block/processor_side_on_lights",
+    "west_lights": "residual:block/processor_side_on_lights",
+    "up_lights": "residual:block/processor_side_on_lights",
+    "down_lights": "residual:block/processor_side_on_lights"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#north",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#south",
+          "cullface": "south"
+        },
+        "east": {
+          "texture": "#east",
+          "cullface": "east",
+          "rotation": 90
+        },
+        "west": {
+          "texture": "#west",
+          "cullface": "west",
+          "rotation": 270
+        },
+        "up": {
+          "texture": "#up",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#down",
+          "cullface": "down",
+          "rotation": 180
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "east": {
+          "texture": "#east_lights",
+          "cullface": "east",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "rotation": 90
+        },
+        "west": {
+          "texture": "#west_lights",
+          "cullface": "west",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "rotation": 270
+        },
+        "up": {
+          "texture": "#up_lights",
+          "cullface": "up",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          }
+        },
+        "down": {
+          "texture": "#down_lights",
+          "cullface": "down",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "rotation": 180
+        }
+      },
+      "shade": false
+    }
+  ]
+}

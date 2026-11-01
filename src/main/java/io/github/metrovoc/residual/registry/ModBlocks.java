@@ -23,6 +23,7 @@ import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.storage.AssemblerBlock;
 import io.github.metrovoc.residual.storage.LinkBlock;
 import io.github.metrovoc.residual.storage.PortBlock;
+import io.github.metrovoc.residual.storage.ProcessorBlock;
 import io.github.metrovoc.residual.storage.RackBlock;
 import io.github.metrovoc.residual.storage.TerminalBlock;
 import java.util.EnumMap;
@@ -87,6 +88,8 @@ public final class ModBlocks {
             p -> machine(p).lightLevel(s -> s.getValue(PowerDeviceBlock.WORKING) ? 13 : 0));
     public static final DeferredBlock<AssemblerBlock> ASSEMBLER = BLOCKS.registerBlock("assembler", AssemblerBlock::new,
             p -> machine(p).lightLevel(s -> s.getValue(AssemblerBlock.WORKING) ? 9 : 2));
+    public static final DeferredBlock<ProcessorBlock> PROCESSOR = BLOCKS.registerBlock("processor", ProcessorBlock::new,
+            p -> machine(p).lightLevel(s -> s.getValue(ProcessorBlock.WORKING) ? 9 : 2));
 
     static {
         for (Op op : Op.values()) {

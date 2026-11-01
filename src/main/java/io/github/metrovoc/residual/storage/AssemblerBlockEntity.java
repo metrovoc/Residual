@@ -2,6 +2,8 @@ package io.github.metrovoc.residual.storage;
 
 import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
+import io.github.metrovoc.residual.world.Cooling;
+import io.github.metrovoc.residual.world.GraphScanner;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
@@ -38,7 +40,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * An Assembler at work. Its recipe is a 3×3 grid of kinds, drawn with ghost items and read by the game's own crafting
  * recipes. While its network holds fewer of the result than it is told to keep, it takes the ingredients from the
- * network and puts the result back, up to {@link #CRAFTS} crafts a tick; leftovers such as empty buckets go back too.
+ * network and puts the result back, up to {@link #CRAFTS} crafts a tick for itself and for each Accelerator touching it,
+ * directly or through each other, kept cool; leftovers such as empty buckets go back too.
  */
 public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
     public static final int GRID = 9;
@@ -66,6 +69,8 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
     private int held;
     private int madeThisSecond, madeLastSecond;
     private int waiting = NO_RECIPE;
+    /** Crafts it can make a tick, found again every second. */
+    private int crafts = CRAFTS;
     private Optional<RecipeHolder<CraftingRecipe>> recipe = Optional.empty();
     @Nullable
     private CraftPlan.Recipe<ItemResource> planned;
@@ -156,6 +161,8 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
             madeLastSecond = madeThisSecond;
             madeThisSecond = 0;
             boolean working = madeLastSecond > 0;
+            crafts = CRAFTS * Cooling.compute(level, worldPosition, 1, GraphScanner.MAX_ACCELERATORS + 1).threads();
+            Cooling.working(level, worldPosition, working);
             if (working) {
                 for (ServerPlayer player : level.players()) {
                     if (player.distanceToSqr(worldPosition.getCenter()) < 32 * 32) {
@@ -171,7 +178,7 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
         if (recipe.isEmpty() || out.isEmpty()) {
             waiting = NO_RECIPE;
             // jobs it owes crafts to learn that it no longer makes their part
-            CraftJobs.work(level, this, null, CRAFTS);
+            CraftJobs.work(level, this, null, crafts);
             return;
         }
         if (viewers > 0) {
@@ -180,11 +187,11 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
         }
         StorageNetwork net = StorageNetwork.at(level, worldPosition);
         // crafts players asked for come first; what is left of the tick's crafts keeps the network's stock
-        int budget = CraftJobs.work(level, this, net, CRAFTS);
+        int budget = CraftJobs.work(level, this, net, crafts);
         ItemResource made = ItemResource.of(out);
         long have = net.count(made);
         held = (int) Math.min(Integer.MAX_VALUE, have);
-        if (budget < CRAFTS) {
+        if (budget < crafts) {
             waiting = CRAFTING;
         } else if (have >= keep) {
             waiting = ENOUGH;
@@ -193,10 +200,10 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
         if (budget == 0 || have >= keep) {
             return;
         }
-        long crafts = craft(level, net, Math.min(budget, (keep - have + out.getCount() - 1) / out.getCount()), null);
-        if (crafts > 0) {
+        long madeNow = craft(level, net, Math.min(budget, (keep - have + out.getCount() - 1) / out.getCount()), null);
+        if (madeNow > 0) {
             waiting = CRAFTING;
-        } else if (budget == CRAFTS) {
+        } else if (budget == crafts) {
             waiting = MISSING;
         }
     }

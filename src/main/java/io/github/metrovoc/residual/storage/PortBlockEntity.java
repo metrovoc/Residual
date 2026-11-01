@@ -5,13 +5,17 @@ import io.github.metrovoc.residual.learn.Kinds;
 import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.ObjLongConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Util;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
@@ -47,8 +51,10 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
     /** Items a Port moves a tick: 1,280 a second. */
     public static final int RATE = 64;
     public static final int MOST = 1 << 20;
-    /** Container data: how many of each kind to stock, the window's priority, and items moved in the last second. */
-    public static final int AMOUNT = 0, PRIORITY = 1, MOVED = 2, DATA = 3;
+    /** Container data: how many of each kind to stock, the window's priority, items moved in the last second, and whether it asks for what it lacks. */
+    public static final int AMOUNT = 0, PRIORITY = 1, MOVED = 2, CRAFT = 3, DATA = 4;
+    /** Ticks between two looks at what it lacks. */
+    private static final int ASK_EVERY = 20;
 
     private final SimpleContainer filter = new SimpleContainer(FILTERS) {
         @Override
@@ -73,6 +79,10 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
     private Item asking;
     private int amount = 64;
     private int priority;
+    /** Whether it has the network's Assemblers and Processors make what it lacks. */
+    private boolean craft;
+    /** The kinds it asked to have planned and has not heard back about. */
+    private final Set<ItemResource> planning = new HashSet<>();
     private int movedThisSecond;
     /** Items moved since it last showed a flow, and whether the last of them went into the network. */
     private int movedSinceFlow;
@@ -90,6 +100,7 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
                 case AMOUNT -> amount;
                 case PRIORITY -> priority;
                 case MOVED -> movedLastSecond;
+                case CRAFT -> craft ? 1 : 0;
                 default -> 0;
             };
         }
@@ -152,6 +163,9 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
         StorageNetwork net = StorageNetwork.at(level, worldPosition);
+        if (craft && mode != PortMode.IMPORT && level.getGameTime() % ASK_EVERY == Math.floorMod(worldPosition.asLong(), ASK_EVERY)) {
+            askForWhatItLacks(level, net, inv, mode);
+        }
         int budget = RATE;
         switch (mode) {
             case IMPORT -> budget -= importFrom(inv, net, budget, null);
@@ -203,6 +217,47 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         if (movedSinceFlow > 0 && level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
             Flows.send(level, worldPosition, flowTo, mode == PortMode.IMPORT || mode == PortMode.STOCK && flowIn, movedSinceFlow);
             movedSinceFlow = 0;
+        }
+    }
+
+    /**
+     * Has the network make what its filter names and neither the network nor the inventory in front has enough of: what
+     * is short of its stock, or a stack when exporting and the network has none and the inventory has room. One job at a
+     * time for each kind; a job that lacks something waits for it where the terminal shows it.
+     */
+    private void askForWhatItLacks(ServerLevel level, StorageNetwork net, ResourceHandler<ItemResource> inv, PortMode mode) {
+        Set<ItemResource> makes = CraftJobs.craftable(net);
+        if (makes.isEmpty()) {
+            return;
+        }
+        List<CraftJob> running = CraftingData.of(level.getServer()).on(level, net);
+        for (int i = 0; i < FILTERS; i++) {
+            ItemStack f = filter.getItem(i);
+            if (f.isEmpty() || kindOf(f) != null) {
+                continue;
+            }
+            ItemResource kind = ItemResource.of(f);
+            if (!makes.contains(kind) || planning.contains(kind)
+                    || running.stream().anyMatch(j -> j.anchor.equals(worldPosition) && j.target.equals(kind))) {
+                continue;
+            }
+            long lacking = mode == PortMode.STOCK ? amount - count(inv, kind) - net.count(kind)
+                    : net.count(kind) == 0 && hasRoom(inv, kind) ? kind.getMaxStackSize() : 0;
+            if (lacking > 0) {
+                planning.add(kind);
+                CraftJobs.plan(level, net, kind, lacking, planned -> {
+                    planning.remove(kind);
+                    if (planned.plan().root.recipe != null && !isRemoved()) {
+                        CraftJobs.start(level, Util.NIL_UUID, worldPosition, planned);
+                    }
+                });
+            }
+        }
+    }
+
+    private static boolean hasRoom(ResourceHandler<ItemResource> inv, ItemResource kind) {
+        try (Transaction tx = Transaction.openRoot()) {
+            return inv.insert(kind, 1, tx) > 0;
         }
     }
 
@@ -439,6 +494,11 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         setChanged();
     }
 
+    public void setCraft(boolean craft) {
+        this.craft = craft;
+        setChanged();
+    }
+
     @Override
     public void onLoad() {
         super.onLoad();
@@ -480,6 +540,7 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         ContainerHelper.saveAllItems(out.child("model"), model.getItems());
         out.putInt("amount", amount);
         out.putInt("priority", priority);
+        out.putBoolean("craft", craft);
     }
 
     @Override
@@ -489,5 +550,6 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         in.child("model").ifPresent(c -> ContainerHelper.loadAllItems(c, model.getItems()));
         amount = in.getIntOr("amount", 64);
         priority = in.getIntOr("priority", 0);
+        craft = in.getBooleanOr("craft", false);
     }
 }

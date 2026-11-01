@@ -39,6 +39,7 @@
     "residual:storage_terminal",
     "residual:port",
     "residual:storage_link",
-    "residual:assembler"
+    "residual:assembler",
+    "residual:processor"
   ]
 }

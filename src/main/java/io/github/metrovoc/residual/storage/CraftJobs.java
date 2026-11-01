@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.storage;
 
 import io.github.metrovoc.residual.Awards;
+import io.github.metrovoc.residual.net.CraftPlanSync;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,25 +22,34 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
-/** Planning, starting, running, finishing and cancelling the crafting jobs a network's Assemblers work on. */
+/** Planning, starting, running, finishing and cancelling the crafting jobs a network's Assemblers and Processors work on. */
 public final class CraftJobs {
     /** The most a player may ask for at once. */
     public static final long MOST = 1_000_000_000L;
 
-    /** A plan, and which Assemblers make each of its recipes. */
+    /** A plan, and which Assemblers and Processors make each of its recipes. */
     public record Planned(CraftPlan<ItemResource> plan, Map<CraftPlan.Recipe<ItemResource>, List<BlockPos>> where) {
     }
 
     private CraftJobs() {
     }
 
-    /** The recipes a network's Assemblers draw, and where; Assemblers drawing the same recipe share its crafts. */
+    /**
+     * The recipes a network's Assemblers draw and its Processors' patterns say, and where; those with the same recipe share
+     * its crafts. An Assembler comes first when both make a thing: it needs no machine and is done at once.
+     */
     public static Map<CraftPlan.Recipe<ItemResource>, List<BlockPos>> recipes(StorageNetwork net) {
         Map<CraftPlan.Recipe<ItemResource>, List<BlockPos>> out = new LinkedHashMap<>();
         for (AssemblerBlockEntity a : net.assemblers()) {
             CraftPlan.Recipe<ItemResource> r = a.planned();
             if (r != null) {
                 out.computeIfAbsent(r, k -> new ArrayList<>()).add(a.getBlockPos());
+            }
+        }
+        for (ProcessorBlockEntity p : net.processors()) {
+            CraftPlan.Recipe<ItemResource> r = p.planned();
+            if (r != null) {
+                out.computeIfAbsent(r, k -> new ArrayList<>()).add(p.getBlockPos());
             }
         }
         return out;
@@ -66,8 +76,11 @@ public final class CraftJobs {
                 .thenAcceptAsync(plan -> then.accept(new Planned(plan, where)), level.getServer());
     }
 
-    /** Starts a job from a plan, each recipe's crafts shared among the Assemblers that make it. */
-    public static CraftJob start(ServerLevel level, ServerPlayer player, BlockPos terminal, Planned planned) {
+    /**
+     * Starts a job from a plan, each recipe's crafts shared among the Assemblers or Processors that make it.
+     * {@code requester} hears when it is done: a player, or nobody for a job a Port or an agent asked for.
+     */
+    public static CraftJob start(ServerLevel level, UUID requester, BlockPos anchor, Planned planned) {
         Map<BlockPos, CraftJob.Task> tasks = new LinkedHashMap<>();
         planned.plan().crafts.forEach((recipe, crafts) -> {
             List<BlockPos> at = planned.where().get(recipe);
@@ -80,8 +93,8 @@ public final class CraftJobs {
             }
         });
         CraftPlan.Step<ItemResource> root = planned.plan().root;
-        CraftJob job = new CraftJob(UUID.randomUUID(), player.getUUID(), level.dimension(), terminal, root.kind, root.needed,
-                tasks, planned.plan().totalCrafts());
+        CraftJob job = new CraftJob(UUID.randomUUID(), requester, level.dimension(), anchor, root.kind, root.needed,
+                tasks, planned.plan().totalCrafts(), CraftPlanSync.rows(planned.plan()));
         CraftingData.of(level.getServer()).add(job);
         return job;
     }
@@ -118,7 +131,7 @@ public final class CraftJobs {
     }
 
     /** A job is done: what it holds goes into the network, and whoever asked for it hears so. */
-    private static void finish(ServerLevel level, CraftJob job, StorageNetwork net, CraftingData data) {
+    static void finish(ServerLevel level, CraftJob job, StorageNetwork net, CraftingData data) {
         deliver(level, job, net);
         data.remove(job);
         ServerPlayer player = level.getServer().getPlayerList().getPlayer(job.requester);

@@ -22,7 +22,9 @@ import net.minecraft.world.item.ItemStack;
  */
 public class PortMenu extends AbstractContainerMenu {
     public static final int FILTER_X = 8, FILTER_Y = 40, INVENTORY_X = 8, INVENTORY_Y = 108;
-    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 28, MODEL_X = 179, MODEL_Y = 10;
+    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 48, MODEL_X = 179, MODEL_Y = 10;
+    /** The toggle for asking the network to make what it lacks, under the model slot. */
+    public static final int CRAFT_X = 178, CRAFT_Y = 30;
     /** The model slot's index, after the filter's. */
     public static final int MODEL = PortBlockEntity.FILTERS;
 

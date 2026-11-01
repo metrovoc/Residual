@@ -1,7 +1,11 @@
 package io.github.metrovoc.residual.agent;
 
+import io.github.metrovoc.residual.storage.StorageNetwork;
+import io.github.metrovoc.residual.storage.TerminalBlockEntity;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -16,9 +20,10 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.ChestType;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
-/** Chests and barrels around a place: finding them, and putting things in and taking them out. */
+/** Chests, barrels and storage networks around a place: finding them, and putting things in and taking them out. */
 final class Stores {
     static final Predicate<BlockEntity> CHESTS = be -> be instanceof ChestBlockEntity;
     static final Predicate<BlockEntity> BARRELS = be -> be instanceof BarrelBlockEntity;
@@ -65,6 +70,70 @@ final class Stores {
     static BlockPos homeChest(ServerLevel level, BlockPos home) {
         List<BlockPos> found = near(level, home, 3, ANY);
         return found.isEmpty() ? null : found.getFirst();
+    }
+
+    /** The Storage Terminals around home, one for each network, nearest first: an agent reaches a network through one. */
+    static List<BlockPos> terminals(ServerLevel level, BlockPos home) {
+        Set<StorageNetwork> seen = new HashSet<>();
+        List<BlockPos> out = new ArrayList<>();
+        for (BlockPos p : near(level, home, AROUND, be -> be instanceof TerminalBlockEntity)) {
+            if (seen.add(StorageNetwork.at(level, p))) {
+                out.add(p);
+            }
+        }
+        return out;
+    }
+
+    /** The nearest terminal not yet tried whose network keeps something that {@code what} matches. */
+    @Nullable
+    static BlockPos terminalWith(ServerLevel level, BlockPos home, Predicate<ItemStack> what, Set<BlockPos> tried) {
+        for (BlockPos p : terminals(level, home)) {
+            if (!tried.contains(p) && count(StorageNetwork.at(level, p), what) > 0) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    /** The nearest terminal not yet tried whose network has room for {@code stack}. */
+    @Nullable
+    static BlockPos terminalFor(ServerLevel level, BlockPos home, ItemStack stack, Set<BlockPos> tried) {
+        for (BlockPos p : terminals(level, home)) {
+            if (!tried.contains(p) && StorageNetwork.at(level, p).insert(ItemResource.of(stack), 1, true) > 0) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    /** How many of what matches {@code what} a network keeps. */
+    static long count(StorageNetwork net, Predicate<ItemStack> what) {
+        long n = 0;
+        for (Object2LongMap.Entry<ItemResource> e : net.contents().object2LongEntrySet()) {
+            if (what.test(e.getKey().toStack())) {
+                n += e.getLongValue();
+            }
+        }
+        return n;
+    }
+
+    /** Moves as many as its hands hold of one kind that matches {@code what}, up to {@code max}, from a network to {@code a}; returns how many. */
+    static int fetch(StorageNetwork net, Agent a, Predicate<ItemStack> what, int max) {
+        for (ItemResource kind : net.contents().keySet()) {
+            if (what.test(kind.toStack())) {
+                int took = (int) net.extract(kind, Math.min(max, kind.getMaxStackSize()), false);
+                ItemStack left = a.keep(kind.toStack(took));
+                net.insert(kind, left.getCount(), false);
+                return took - left.getCount();
+            }
+        }
+        return 0;
+    }
+
+    /** Puts {@code stack} into a network; returns what didn't fit. */
+    static ItemStack insert(StorageNetwork net, ItemStack stack) {
+        long stored = net.insert(ItemResource.of(stack), stack.getCount(), false);
+        return stack.copyWithCount(stack.getCount() - (int) stored);
     }
 
     /** Puts {@code stack} into {@code c}; returns what didn't fit. */

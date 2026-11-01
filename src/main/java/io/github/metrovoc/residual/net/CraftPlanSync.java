@@ -1,5 +1,7 @@
 package io.github.metrovoc.residual.net;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.storage.CraftPlan;
 import java.util.ArrayList;
@@ -20,6 +22,14 @@ public record CraftPlanSync(int menu, ItemResource item, long amount, List<Row> 
     public static final int MOST_ROWS = 400;
 
     public record Row(int depth, ItemResource kind, long needed, long stored, long crafts, long missing) {
+        public static final Codec<Row> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.INT.fieldOf("depth").forGetter(Row::depth),
+                ItemResource.CODEC.fieldOf("kind").forGetter(Row::kind),
+                Codec.LONG.fieldOf("needed").forGetter(Row::needed),
+                Codec.LONG.fieldOf("stored").forGetter(Row::stored),
+                Codec.LONG.fieldOf("crafts").forGetter(Row::crafts),
+                Codec.LONG.fieldOf("missing").forGetter(Row::missing)
+        ).apply(i, Row::new));
         public static final StreamCodec<RegistryFriendlyByteBuf, Row> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.VAR_INT, Row::depth,
                 ItemResource.STREAM_CODEC, Row::kind,
@@ -42,9 +52,15 @@ public record CraftPlanSync(int menu, ItemResource item, long amount, List<Row> 
             ByteBufCodecs.BOOL, CraftPlanSync::started,
             CraftPlanSync::new);
 
-    public static CraftPlanSync of(int menu, CraftPlan<ItemResource> plan, boolean started) {
+    /** A plan's tree, flattened into rows in order. */
+    public static List<Row> rows(CraftPlan<ItemResource> plan) {
         List<Row> rows = new ArrayList<>();
         flatten(plan.root, 0, rows);
+        return rows;
+    }
+
+    public static CraftPlanSync of(int menu, CraftPlan<ItemResource> plan, boolean started) {
+        List<Row> rows = rows(plan);
         return new CraftPlanSync(menu, plan.root.kind, plan.root.needed, rows, plan.totalCrafts(), plan.missing.size(),
                 plan.cut || rows.size() >= MOST_ROWS, started);
     }

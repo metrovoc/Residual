@@ -18,6 +18,8 @@ import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.storage.AssemblerBlockEntity;
 import io.github.metrovoc.residual.storage.AssemblerMenu;
+import io.github.metrovoc.residual.storage.ProcessorBlockEntity;
+import io.github.metrovoc.residual.storage.ProcessorMenu;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.PortMenu;
 import io.github.metrovoc.residual.storage.PortMode;
@@ -50,6 +52,8 @@ public final class Network {
         r.playToServer(AssemblerEdit.TYPE, AssemblerEdit.STREAM_CODEC, Network::onAssemblerEdit);
         r.playToServer(CraftAsk.TYPE, CraftAsk.STREAM_CODEC, Network::onCraftAsk);
         r.playToServer(CraftCancel.TYPE, CraftCancel.STREAM_CODEC, Network::onCraftCancel);
+        r.playToServer(CraftWatch.TYPE, CraftWatch.STREAM_CODEC, Network::onCraftWatch);
+        r.playToServer(StoragePin.TYPE, StoragePin.STREAM_CODEC, Network::onStoragePin);
         r.playToServer(FindRuin.TYPE, FindRuin.STREAM_CODEC, Network::onFindRuin);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
@@ -62,6 +66,7 @@ public final class Network {
         r.playToClient(SurveySync.TYPE, SurveySync.STREAM_CODEC);
         r.playToClient(CraftPlanSync.TYPE, CraftPlanSync.STREAM_CODEC);
         r.playToClient(CraftJobsSync.TYPE, CraftJobsSync.STREAM_CODEC);
+        r.playToClient(CraftTreeSync.TYPE, CraftTreeSync.STREAM_CODEC);
     }
 
     private static void onFindRuin(FindRuin f, IPayloadContext ctx) {
@@ -194,11 +199,30 @@ public final class Network {
         }
     }
 
+    private static void onCraftWatch(CraftWatch watch, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
+                && menu.containerId == watch.menu() && menu.stillValid(player)) {
+            menu.watch(watch);
+        }
+    }
+
+    private static void onStoragePin(StoragePin pin, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
+                && menu.containerId == pin.menu() && menu.stillValid(player)) {
+            menu.pin(pin);
+        }
+    }
+
     private static void onAssemblerEdit(AssemblerEdit e, IPayloadContext ctx) {
         if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof AssemblerMenu menu
                 && menu.pos.equals(e.pos()) && menu.stillValid(player)
                 && player.level().getBlockEntity(e.pos()) instanceof AssemblerBlockEntity assembler) {
             assembler.setKeep(e.keep());
+        }
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof ProcessorMenu menu
+                && menu.pos.equals(e.pos()) && menu.stillValid(player)
+                && player.level().getBlockEntity(e.pos()) instanceof ProcessorBlockEntity processor) {
+            processor.setKeep(e.keep());
         }
     }
 
@@ -212,6 +236,7 @@ public final class Network {
             case PortEdit.MODE -> port.setMode(PortMode.values()[Math.floorMod(e.value(), PortMode.values().length)]);
             case PortEdit.AMOUNT -> port.setAmount(e.value());
             case PortEdit.PRIORITY -> port.setPriority(e.value());
+            case PortEdit.CRAFT -> port.setCraft(e.value() != 0);
             default -> {
             }
         }

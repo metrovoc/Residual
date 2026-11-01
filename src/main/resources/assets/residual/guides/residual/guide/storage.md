@@ -10,6 +10,7 @@ item_ids:
   - storage_terminal
   - port
   - assembler
+  - processor
 ---
 
 # Storage
@@ -118,6 +119,11 @@ stands for that whole kind: importing, the Port takes every thing the model says
 such thing the network holds. The model is asked about each thing once, by name, as the sorting test asks; a thing it is
 not sure of counts as other. Stocking keeps to things, not kinds.
 
+Exporting or stocking, a Port can ask for what it lacks. With the crafting table beside its screen on, it looks once a
+second at each thing its filter names, and if there is too little of it, in the network and in the inventory together
+when stocking, in the network when exporting, it has the network make the rest: one job at a time for each thing, listed
+under **Jobs** like any other.
+
 ## Assemblers
 
 An <ItemLink id="assembler" /> on the network crafts one recipe from what the network keeps, and puts the result
@@ -130,21 +136,51 @@ as the network has the ingredients; whatever a recipe leaves behind, such as an 
 network. One Assembler can keep another stocked: one that keeps sticks lets one that makes torches go on as long as
 there is coal.
 
+An <ItemLink id="accelerator" /> touching an Assembler, directly or through another Accelerator, lets it make four more
+crafts a tick, and half that with nothing to cool it. Assemblers with the same recipe share a job's crafts, so what a
+network can make in a tick grows with every Assembler and every Accelerator you give it.
+
 <RecipeFor id="assembler" />
+
+## Processors
+
+A <ItemLink id="processor" /> runs a machine for the network: a furnace, a Smelter, a brewing stand, any block that takes
+items and gives them back. Place it against the machine, so that its front faces it, and link it to the network through
+any other face. Its screen shows one round: on the left what goes in, on the right what comes out, and between them the
+machine it stands against. Click a cell with a stack to put that many there, or right-click for one more; empty-handed, a
+click clears the cell and a right-click takes one off. Each grid has nine pages, 81 cells in all, and holds pictures, not
+items.
+
+What goes in goes in the order you draw it, so a furnace's ore comes before its coal: eight raw iron and a coal in, eight
+iron ingots out. The first thing it makes is what the network can ask it for, and anything else comes along with it.
+
+A round goes in whole or not at all, up to 64 items a tick, and the Processor takes what the machine makes back as it
+appears. It waits to be asked, and if you tell it how many to keep, it also works whenever the network holds fewer.
+Processors with the same pattern share a job's rounds, each on its own machine, so ten furnaces work ten times as fast.
+
+<RecipeFor id="processor" />
 
 ## Asking for things
 
 <residual:Clip name="storage" alt="Searching a terminal, then asking for 64 torches with coal short: the plan, the wait, the coal going in, the job done" />
 
-What the network's Assemblers can make shows in the terminal too: with **Craft** in place of a count when there is none
+What the network's Assemblers and Processors can make shows in the terminal too: with **Craft** in place of a count when there is none
 of it, and with a teal corner when there is. Click it, or middle-click or Ctrl-click one there is some of, to ask for an
 amount. The terminal plans it as you type: a tree of everything it takes, each step with how many come from storage,
 how many crafts make the rest (×) and how many are missing (−).
 
-Start it, and the network's Assemblers work through the plan, any number of jobs at once; Assemblers drawing the same
-recipe share its crafts. What a job makes along the way it keeps to itself until it is done, so nothing else takes it
+Start it, and the network's Assemblers and Processors work through the plan, any number of jobs at once; those with the
+same recipe share its crafts. What a job makes along the way it keeps to itself until it is done, so nothing else takes it
 first. A job may start with something missing: it waits, and goes on as soon as what it lacks reaches the network.
 When it is done, everything it made goes into the network, and you hear so wherever you are.
 
 **Jobs**, beside the search box, lists the jobs running on the network, how far each has got and what it waits for; ×
-stops one, and what it has made so far goes back into the network.
+stops one, and what it has made so far goes back into the network. Click a job to see its plan as a tree, the way it was
+planned, each step under the step that needs it, with how many of its crafts are done.
+
+Ports and agents ask too. A Port asks for what it lacks, and an agent runs `craft 8 torch`, and `supply` goes after what
+a job lacks: out of the chests and barrels around its home, or mined, and into the network ([Agents](agents.md)).
+
+Alt-click a kind in the grid to pin it to the top, up to 18 for each terminal, and Alt-click it again to let go; a pinned
+kind stays there with none of it left. What a running job makes comes after the pins by itself, with a bar along the foot
+of its cell for how far the job has got.

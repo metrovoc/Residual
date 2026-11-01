@@ -47,6 +47,8 @@ network.</residual:Milestone>
 <residual:Milestone id="storage/assembler">Draw a recipe in an Assembler's grid and tell it how many to
 keep.</residual:Milestone>
 
+<residual:Milestone id="storage/processor">Stand a Processor against a furnace and link it to the network, say what goes in and what comes out, and ask a Storage Terminal for some of it or tell the Processor how many to keep: <ItemLink id="processor" />.</residual:Milestone>
+
 <residual:Milestone id="storage/request">Click something the network can make in a Storage Terminal, ask for an amount
 and start it: [Storage](storage.md).</residual:Milestone>
 

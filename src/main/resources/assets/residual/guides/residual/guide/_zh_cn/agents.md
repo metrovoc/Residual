@@ -39,12 +39,13 @@ item_ids:
 步骤：
 
 - `come`、`home`、`go 3` 走到第三个标记、`stay`、`follow`
-- `take 5 bread` 从家周围的箱子和木桶中拿取，`put` 放回全部或 `put wheat` 放回小麦，`give bread` 交给你，`fetch bread` 即拿取、过来再交给你
+- `take 5 bread` 从家周围的箱子和木桶，或那里[存储终端](storage.md)所在的网络中拿取，`put` 放回全部或 `put wheat` 放回小麦，`give bread` 交给你，`fetch bread` 即拿取、过来再交给你
+- `craft 8 torch` 走到家周围一个其网络能做这样东西的终端，提出请求，等它做好；`supply` 去找那个网络上的任务缺的东西，从箱子和木桶里取或者挖来，再送进网络，所以 `repeat (supply, wait 10)` 能让网络的任务一直做下去
 - `pickup` 捡起周围的东西、`harvest`、`plant wheat seeds`、`till` 耕水边的草地、`mine 4 stone`（需要镐的方块要用它携带的镐；埋在地下的、以及[勘测仪](surveyor.md)找到的，它会一路挖过去；`mine caches` 去取旧世界留在遗藏里的东西；彼此附近挖矿的智能体会挑不同的方块）、`place oak planks 2` 放在第二个标记上方
 - `wait 10` 等待秒数、`say hello`
 - `farm`、`store`、`sort`、`haul`、`build`、`copy` 或 `move`：执行一轮例行工作
 
-结构：`repeat (…)`、`repeat 3 (…)`、`if … (…) else (…)`、`until … (…)` 和 `wait until …`。条件：`have 3 bread`，`stocked bread` 即家周围的储藏中有面包，`ripe`、`full`、`night`、`near`（你在 8 格以内）、`powered 2`（第二个标记有红石信号），需要时可在前面加 `not`。
+结构：`repeat (…)`、`repeat 3 (…)`、`if … (…) else (…)`、`until … (…)` 和 `wait until …`。条件：`have 3 bread`，`stocked bread` 即家周围的储藏或网络中有面包，`ripe`、`full`、`night`、`near`（你在 8 格以内）、`powered 2`（第二个标记有红石信号），需要时可在前面加 `not`。
 
 ## 追踪
 

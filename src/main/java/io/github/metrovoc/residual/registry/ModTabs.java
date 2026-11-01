@@ -80,6 +80,7 @@ public final class ModTabs {
                 out.accept(ModBlocks.STORAGE_TERMINAL.get());
                 out.accept(ModBlocks.PORT.get());
                 out.accept(ModBlocks.ASSEMBLER.get());
+                out.accept(ModBlocks.PROCESSOR.get());
             })
             .build());
 

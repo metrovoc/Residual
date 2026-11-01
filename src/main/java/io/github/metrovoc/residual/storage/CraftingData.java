@@ -47,7 +47,7 @@ public final class CraftingData extends SavedData {
         setDirty();
     }
 
-    /** The jobs the Assembler at {@code pos} owes crafts to, oldest first. */
+    /** The jobs the Assembler or Processor at {@code pos} owes crafts to, oldest first. */
     List<CraftJob> owedBy(ServerLevel level, BlockPos pos) {
         List<CraftJob> out = new ArrayList<>();
         for (CraftJob job : jobs) {
@@ -59,7 +59,7 @@ public final class CraftingData extends SavedData {
         return out;
     }
 
-    /** The jobs running on a network: asked from one of its terminals, or owed by one of its Assemblers. */
+    /** The jobs running on a network: asked from one of its terminals, or owed by one of its Assemblers or Processors. */
     public List<CraftJob> on(ServerLevel level, StorageNetwork net) {
         List<CraftJob> out = new ArrayList<>();
         for (CraftJob job : jobs) {

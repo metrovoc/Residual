@@ -14,6 +14,7 @@ import io.github.metrovoc.residual.net.SurveySync;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.net.CraftJobsSync;
 import io.github.metrovoc.residual.net.CraftPlanSync;
+import io.github.metrovoc.residual.net.CraftTreeSync;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.WaveSync;
@@ -78,6 +79,7 @@ public final class ResidualClient {
         event.register(ModMenus.TERMINAL.get(), StorageTerminalScreen::new);
         event.register(ModMenus.PORT.get(), PortScreen::new);
         event.register(ModMenus.ASSEMBLER.get(), AssemblerScreen::new);
+        event.register(ModMenus.PROCESSOR.get(), ProcessorScreen::new);
     }
 
     private static void payloads(RegisterClientPayloadHandlersEvent event) {
@@ -101,6 +103,7 @@ public final class ResidualClient {
                 menu.stored = sync.stored();
                 menu.capacity = sync.capacity();
                 menu.craftable = java.util.Set.copyOf(sync.craftable());
+                menu.pins = sync.pins();
             }
         });
         event.register(CraftPlanSync.TYPE, (plan, ctx) -> {
@@ -111,6 +114,18 @@ public final class ResidualClient {
         event.register(CraftJobsSync.TYPE, (jobs, ctx) -> {
             if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == jobs.menu()) {
                 menu.jobs = jobs.jobs();
+            }
+        });
+        event.register(CraftTreeSync.TYPE, (tree, ctx) -> {
+            if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == tree.menu()) {
+                if (!tree.job().equals(menu.treeJob)) {
+                    menu.treeJob = tree.job();
+                    menu.tree = java.util.List.of();
+                }
+                if (!tree.rows().isEmpty()) {
+                    menu.tree = tree.rows();
+                }
+                menu.treeDone = tree.done();
             }
         });
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {

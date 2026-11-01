@@ -19,6 +19,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
@@ -30,6 +31,7 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
     private static final int WINDOW_W = 176, MODES_Y = 18, VALUE_Y = 66;
     private final List<Button> modes = new ArrayList<>();
     private final List<Button> nudges = new ArrayList<>();
+    private IconButton craft;
 
     public PortScreen(PortMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, PortMenu.SIDE_X + PortMenu.SIDE_W, PortMenu.INVENTORY_Y + 82);
@@ -63,6 +65,9 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
                     .bounds(x, topPos + VALUE_Y - 2, 22, 12).build()));
             x += 23;
         }
+        craft = addRenderableWidget(new IconButton(leftPos + PortMenu.CRAFT_X, topPos + PortMenu.CRAFT_Y, IconButton.SIZE, IconButton.SIZE,
+                new ItemStack(Items.CRAFTING_TABLE), Component.translatable("residual.port.craft"),
+                () -> send(PortEdit.CRAFT, menu.data.get(PortBlockEntity.CRAFT) == 0 ? 1 : 0)));
     }
 
     /** Changes the number the mode uses: how many to stock, or the window's priority. */
@@ -91,6 +96,13 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
             modes.get(i).active = i != mode.ordinal();
         }
         nudges.forEach(b -> b.visible = mode == PortMode.STOCK || mode == PortMode.WINDOW);
+        boolean asks = menu.data.get(PortBlockEntity.CRAFT) != 0;
+        craft.visible = mode == PortMode.STOCK || mode == PortMode.EXPORT;
+        craft.setTooltip(Tooltip.create(Component.translatable(asks ? "residual.port.craft.on" : "residual.port.craft.off")));
+        if (craft.visible && asks) {
+            g.fill(craft.getX() + 2, craft.getY() + craft.getHeight(), craft.getX() + craft.getWidth() - 2,
+                    craft.getY() + craft.getHeight() + 1, Ui.TEAL);
+        }
         Button chosen = modes.get(mode.ordinal());
         g.fill(chosen.getX() + 2, chosen.getY() + chosen.getHeight() + 1, chosen.getX() + chosen.getWidth() - 2,
                 chosen.getY() + chosen.getHeight() + 2, Ui.TEAL);

@@ -16,6 +16,7 @@ import io.github.metrovoc.residual.block.RelayBlockEntity;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
 import io.github.metrovoc.residual.storage.AssemblerBlockEntity;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
+import io.github.metrovoc.residual.storage.ProcessorBlockEntity;
 import io.github.metrovoc.residual.storage.RackBlockEntity;
 import io.github.metrovoc.residual.storage.TerminalBlockEntity;
 import java.util.Set;
@@ -59,6 +60,8 @@ public final class ModBlockEntities {
 
     public static final Supplier<BlockEntityType<AssemblerBlockEntity>> ASSEMBLER = BLOCK_ENTITIES.register("assembler",
             () -> new BlockEntityType<>(AssemblerBlockEntity::new, Set.of(ModBlocks.ASSEMBLER.get())));
+    public static final Supplier<BlockEntityType<ProcessorBlockEntity>> PROCESSOR = BLOCK_ENTITIES.register("processor",
+            () -> new BlockEntityType<>(ProcessorBlockEntity::new, Set.of(ModBlocks.PROCESSOR.get())));
     public static final Supplier<BlockEntityType<GeneratorBlockEntity>> GENERATOR = BLOCK_ENTITIES.register("combustion_generator",
             () -> new BlockEntityType<>(GeneratorBlockEntity::new, Set.of(ModBlocks.COMBUSTION_GENERATOR.get())));
     public static final Supplier<BlockEntityType<CellBlockEntity>> CELL = BLOCK_ENTITIES.register("energy_cell",

@@ -43,7 +43,8 @@ public record Program(List<Step> steps) {
         TAKE(Arg.THING), PUT(Arg.THING_OR_ALL), GIVE(Arg.THING), FETCH(Arg.THING), PICKUP(Arg.NONE),
         HARVEST(Arg.NONE), PLANT(Arg.THING), TILL(Arg.NONE), MINE(Arg.THING), PLACE(Arg.THING_AT_MARK),
         WAIT(Arg.SECONDS), SAY(Arg.WORDS),
-        FARM(Arg.NONE), STORE(Arg.NONE), SORT(Arg.NONE), HAUL(Arg.NONE), BUILD(Arg.NONE), COPY(Arg.NONE), MOVE(Arg.NONE);
+        FARM(Arg.NONE), STORE(Arg.NONE), SORT(Arg.NONE), HAUL(Arg.NONE), BUILD(Arg.NONE), COPY(Arg.NONE), MOVE(Arg.NONE),
+        CRAFT(Arg.THING), SUPPLY(Arg.NONE);
 
         public final String word = name().toLowerCase(Locale.ROOT);
         public final Arg arg;

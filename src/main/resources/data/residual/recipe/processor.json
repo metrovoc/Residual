@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "F": "minecraft:furnace",
+    "W": "residual:wafer",
+    "C": "residual:weight_crystal",
+    "H": "minecraft:hopper"
+  },
+  "pattern": [
+    "KFK",
+    "WCW",
+    "KHK"
+  ],
+  "result": {
+    "id": "residual:processor"
+  }
+}

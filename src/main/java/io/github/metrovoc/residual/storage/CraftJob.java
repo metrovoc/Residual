@@ -2,9 +2,11 @@ package io.github.metrovoc.residual.storage;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.metrovoc.residual.net.CraftPlanSync;
 import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,27 +19,38 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A crafting job a player asked a network for: what it makes, how many crafts each Assembler owes it, and what it has
- * made so far. What it makes is held apart from the network until the job is done, so nothing else takes it in
+ * A crafting job a player asked a network for: what it makes, how many crafts each Assembler or Processor owes it, and
+ * what it has made so far. What it makes is held apart from the network until the job is done, so nothing else takes it in
  * between; what it lacks, it takes from the network as it arrives.
  */
 public final class CraftJob {
-    /** Crafts an Assembler owes the job, and what they make. */
+    /**
+     * Crafts an Assembler or Processor owes the job, and what they make. A Processor's are rounds in a machine: {@code sent}
+     * of those it owes are in it now, and {@code back} items have come back of the next one to finish.
+     */
     public static final class Task {
         public final ItemResource makes;
-        long left;
+        long left, sent, back;
 
         Task(ItemResource makes, long left) {
+            this(makes, left, 0, 0);
+        }
+
+        Task(ItemResource makes, long left, long sent, long back) {
             this.makes = makes;
             this.left = left;
+            this.sent = sent;
+            this.back = back;
         }
     }
 
-    private record SavedTask(BlockPos at, ItemResource makes, long left) {
+    private record SavedTask(BlockPos at, ItemResource makes, long left, long sent, long back) {
         static final Codec<SavedTask> CODEC = RecordCodecBuilder.create(i -> i.group(
                 BlockPos.CODEC.fieldOf("at").forGetter(SavedTask::at),
                 ItemResource.CODEC.fieldOf("makes").forGetter(SavedTask::makes),
-                Codec.LONG.fieldOf("left").forGetter(SavedTask::left)
+                Codec.LONG.fieldOf("left").forGetter(SavedTask::left),
+                Codec.LONG.optionalFieldOf("sent", 0L).forGetter(SavedTask::sent),
+                Codec.LONG.optionalFieldOf("back", 0L).forGetter(SavedTask::back)
         ).apply(i, SavedTask::new));
     }
 
@@ -58,7 +71,8 @@ public final class CraftJob {
             SavedTask.CODEC.listOf().fieldOf("tasks").forGetter(CraftJob::savedTasks),
             Held.CODEC.listOf().fieldOf("held").forGetter(CraftJob::savedHeld),
             Codec.LONG.fieldOf("total").forGetter(j -> j.total),
-            Codec.LONG.fieldOf("done").forGetter(j -> j.done)
+            Codec.LONG.fieldOf("done").forGetter(j -> j.done),
+            CraftPlanSync.Row.CODEC.listOf().optionalFieldOf("plan", List.of()).forGetter(j -> j.plan)
     ).apply(i, CraftJob::new));
 
     public final UUID id, requester;
@@ -69,6 +83,8 @@ public final class CraftJob {
     public final long amount, total;
     long done;
     final Map<BlockPos, Task> tasks = new LinkedHashMap<>();
+    /** The plan it started from, drawn as a tree. */
+    public final List<CraftPlanSync.Row> plan;
     final Object2LongLinkedOpenHashMap<ItemResource> held = new Object2LongLinkedOpenHashMap<>();
     /** What it last had to wait for, and how many; not saved, it is found again at the next craft. */
     @Nullable
@@ -78,7 +94,7 @@ public final class CraftJob {
     boolean redrawn;
 
     CraftJob(UUID id, UUID requester, ResourceKey<Level> dimension, BlockPos anchor, ItemResource target, long amount,
-             Map<BlockPos, Task> tasks, long total) {
+             Map<BlockPos, Task> tasks, long total, List<CraftPlanSync.Row> plan) {
         this.id = id;
         this.requester = requester;
         this.dimension = dimension;
@@ -86,14 +102,15 @@ public final class CraftJob {
         this.target = target;
         this.amount = amount;
         this.total = total;
+        this.plan = List.copyOf(plan);
         this.tasks.putAll(tasks);
     }
 
     private CraftJob(UUID id, UUID requester, ResourceKey<Level> dimension, BlockPos anchor, ItemResource target,
-                     long amount, List<SavedTask> tasks, List<Held> held, long total, long done) {
-        this(id, requester, dimension, anchor, target, amount, Map.of(), total);
+                     long amount, List<SavedTask> tasks, List<Held> held, long total, long done, List<CraftPlanSync.Row> plan) {
+        this(id, requester, dimension, anchor, target, amount, Map.of(), total, plan);
         for (SavedTask t : tasks) {
-            this.tasks.put(t.at(), new Task(t.makes(), t.left()));
+            this.tasks.put(t.at(), new Task(t.makes(), t.left(), t.sent(), t.back()));
         }
         for (Held h : held) {
             this.held.addTo(h.item(), h.count());
@@ -103,7 +120,7 @@ public final class CraftJob {
 
     private List<SavedTask> savedTasks() {
         List<SavedTask> out = new ArrayList<>();
-        tasks.forEach((at, t) -> out.add(new SavedTask(at, t.makes, t.left)));
+        tasks.forEach((at, t) -> out.add(new SavedTask(at, t.makes, t.left, t.sent, t.back)));
         return out;
     }
 
@@ -117,6 +134,26 @@ public final class CraftJob {
 
     public long done() {
         return done;
+    }
+
+    /**
+     * How many crafts each row of the plan has made. Crafts of a kind are shared out to its rows from the last one on, as
+     * the deepest are made first.
+     */
+    public List<Long> rowsDone() {
+        Map<ItemResource, Long> left = new HashMap<>(), planned = new HashMap<>();
+        tasks.values().forEach(t -> left.merge(t.makes, t.left, Long::sum));
+        plan.forEach(r -> planned.merge(r.kind(), r.crafts(), Long::sum));
+        Map<ItemResource, Long> made = new HashMap<>();
+        planned.forEach((kind, n) -> made.put(kind, Math.max(0, n - left.getOrDefault(kind, 0L))));
+        Long[] out = new Long[plan.size()];
+        for (int i = plan.size() - 1; i >= 0; i--) {
+            CraftPlanSync.Row row = plan.get(i);
+            long n = Math.min(row.crafts(), made.getOrDefault(row.kind(), 0L));
+            made.merge(row.kind(), -n, Long::sum);
+            out[i] = n;
+        }
+        return List.of(out);
     }
 
     public boolean finished() {
