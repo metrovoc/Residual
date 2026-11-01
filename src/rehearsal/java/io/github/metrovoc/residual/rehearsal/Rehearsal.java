@@ -1118,7 +1118,7 @@ public final class Rehearsal {
         boolean exact = args[0].equals("jobs") || args[0].equals("pins") || args[0].equals("open") || args[0].equals("grid")
                 || args[0].equals("meant") || args[0].equals("words") || args[0].equals("holds") || args[0].equals("attribute")
                 || args[0].equals("flyspeed") || args[0].equals("mayfly") || args[0].equals("sight") || args[0].equals("blocks") || args[0].equals("health")
-                || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits")) || args[0].startsWith("no") || args[0].equals("empty")
+                || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits")) || args[0].equals("nomobs") || args[0].equals("noblocks") || args[0].equals("empty")
                 || wanted == 0 && (args[0].equals("program") || args[0].equals("proposed"))
                 || args[0].equals("netopen") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("out")
                 || args[0].equals("state") || args[0].equals("ticking");
