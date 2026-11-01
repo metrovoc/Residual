@@ -40,7 +40,7 @@ public enum Benchmark {
      * or iron; a two-block transformer passes after 200 to 400 steps.
      */
     CONTROL(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
-    /** Surveying: where in a row of ground the first of an ore lies, as a Surveyor asks of every row it reads. */
+    /** Surveying: where in a row of ground the first of an ore or a cache lies, as a Surveyor asks of every row it reads. */
     SURVEY(Survey.ROW + 3, Task.Metric.ACCURACY, 0.9),
     /**
      * Piloting: holding a flight frame at its height against a wind it is never told of, practised by playing flights,

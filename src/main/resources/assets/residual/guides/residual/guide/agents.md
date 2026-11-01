@@ -52,7 +52,8 @@ The steps:
   `fetch bread`, which is taking, coming and giving
 - `pickup` what lies around it, `harvest`, `plant wheat seeds`, `till` the grass near water, `mine 4 stone` (with a
   pickaxe it carries, for blocks that need one; it digs its way to anything buried, and to what a
-  [Surveyor](surveyor.md) found), `place oak planks 2` on top of the second mark
+  [Surveyor](surveyor.md) found; `mine caches` for what the old world left in them; agents mining near each other take
+  different blocks), `place oak planks 2` on top of the second mark
 - `wait 10` seconds, `say hello`
 - `farm`, `store`, `sort`, `haul`, `build`, `copy` or `move`: one round of a routine
 

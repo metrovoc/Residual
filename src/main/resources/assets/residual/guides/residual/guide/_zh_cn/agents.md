@@ -38,7 +38,7 @@ item_ids:
 
 - `come`、`home`、`go 3` 走到第三个标记、`stay`、`follow`
 - `take 5 bread` 从家周围的箱子和木桶中拿取，`put` 放回全部或 `put wheat` 放回小麦，`give bread` 交给你，`fetch bread` 即拿取、过来再交给你
-- `pickup` 捡起周围的东西、`harvest`、`plant wheat seeds`、`till` 耕水边的草地、`mine 4 stone`（需要镐的方块要用它携带的镐；埋在地下的、以及[勘测仪](surveyor.md)找到的，它会一路挖过去）、`place oak planks 2` 放在第二个标记上方
+- `pickup` 捡起周围的东西、`harvest`、`plant wheat seeds`、`till` 耕水边的草地、`mine 4 stone`（需要镐的方块要用它携带的镐；埋在地下的、以及[勘测仪](surveyor.md)找到的，它会一路挖过去；`mine caches` 去取旧世界留在遗藏里的东西；彼此附近挖矿的智能体会挑不同的方块）、`place oak planks 2` 放在第二个标记上方
 - `wait 10` 等待秒数、`say hello`
 - `farm`、`store`、`sort`、`haul`、`build`、`copy` 或 `move`：执行一轮例行工作
 

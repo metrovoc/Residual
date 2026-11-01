@@ -1,14 +1,18 @@
 package io.github.metrovoc.residual.agent;
 
+import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.block.SurveyorBlockEntity;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -16,6 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
@@ -25,6 +30,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +44,14 @@ final class Acts {
     static final int FOLLOWING = 2400;
     /** How far around itself it looks for things lying about and for blocks to mine. */
     static final int NEARBY = 8;
+    /** How long a block an agent picked to mine stays its own unless it picks it again, in ticks. */
+    private static final int CLAIMED = 40;
+    /** The blocks agents are mining, so agents mining near each other, a crew, each take a different one. */
+    private static final Map<ServerLevel, Map<BlockPos, Claim>> CLAIMS = new WeakHashMap<>();
+
+    /** A block picked by the agent with id {@code agent}, its own until tick {@code until}. */
+    private record Claim(int agent, long until) {
+    }
 
     /** An act under way. */
     interface Action {
@@ -47,6 +61,10 @@ final class Acts {
     }
 
     private Acts() {
+    }
+
+    private static Map<BlockPos, Claim> claims(ServerLevel level) {
+        return CLAIMS.computeIfAbsent(level, l -> new HashMap<>());
     }
 
     /** The act for {@code act}; {@link Running} runs fetch and the routines itself. */
@@ -548,9 +566,13 @@ final class Acts {
 
     // ---------------------------------------------------------------- blocks
 
-    /** Mines {@code count} blocks of a thing, or one, nearest first; blocks that need a tool need it carried. */
+    /**
+     * Mines {@code count} blocks of a thing, or one, nearest first; blocks that need a tool need it carried. Caches are
+     * mined for what they hold. Agents mining near each other each take a block no other has picked.
+     */
     private static Action mine(Agent a, int count, String thing) {
         Things.Wanted wanted = Things.of(thing);
+        boolean caches = wanted.names().contains("cache");
         // to mine iron is to mine iron ore: the ore blocks of a name count as well
         List<TagKey<Block>> ores = wanted.names().stream()
                 .map(n -> TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", "ores/" + n.replace(' ', '_')))).toList();
@@ -580,7 +602,7 @@ final class Acts {
                     }
                     target = nearest(level);
                     if (target == null) {
-                        target = SurveyorBlockEntity.nearestFound(level, a.blockPosition(), this::matches, skipped);
+                        target = SurveyorBlockEntity.nearestFound(level, a.blockPosition(), p -> matches(level, p) && free(level, p), skipped);
                     }
                     digging = target != null && buried(level, target);
                     if (target == null) {
@@ -594,10 +616,11 @@ final class Acts {
                     progress = 0;
                 }
                 BlockState state = level.getBlockState(target);
-                if (!matches(state)) {
+                if (!matches(level, target)) {
                     target = null;
                     return null;
                 }
+                claims(level).put(target, new Claim(a.getId(), level.getGameTime() + CLAIMED));
                 a.status("residual.agent.status.mining", wanted.thing());
                 if (digging && a.distanceToSqr(Vec3.atBottomCenterOf(target)) > 3.0 * 3.0) {
                     dig(level);
@@ -609,7 +632,7 @@ final class Acts {
                     }
                     case LOST -> {
                         skipped.add(target);
-                        target = null;
+                        release(level);
                         return null;
                     }
                     case HERE -> {
@@ -625,6 +648,16 @@ final class Acts {
                     return null;
                 }
                 level.destroyBlockProgress(a.getId(), target, -1);
+                if (caches && level.getBlockEntity(target) instanceof RandomizableContainerBlockEntity cache) {
+                    // what the old world left in it, rolled now, as opening it would
+                    cache.unpackLootTable(null);
+                    for (int i = 0; i < cache.getContainerSize(); i++) {
+                        ItemStack rest = a.keep(cache.removeItemNoUpdate(i));
+                        if (!rest.isEmpty()) {
+                            Block.popResource(level, target, rest);
+                        }
+                    }
+                }
                 int t = tool(state);
                 ItemStack used = t < 0 ? ItemStack.EMPTY : a.items.getItem(t);
                 for (ItemStack drop : Block.getDrops(state, level, target, level.getBlockEntity(target), a, used)) {
@@ -640,8 +673,27 @@ final class Acts {
                     a.items.setChanged();
                 }
                 mined++;
-                target = null;
+                release(level);
                 return null;
+            }
+
+            /** Lets go of the block it was after, for another agent to take. */
+            private void release(ServerLevel level) {
+                Claim c = claims(level).get(target);
+                if (c != null && c.agent() == a.getId()) {
+                    claims(level).remove(target);
+                }
+                target = null;
+            }
+
+            /** Not picked by another agent still mining; a claim left by an agent that stopped is let go of here. */
+            private boolean free(ServerLevel level, BlockPos p) {
+                Claim c = claims(level).get(p);
+                if (c != null && c.until() < level.getGameTime()) {
+                    claims(level).remove(p);
+                    return true;
+                }
+                return c == null || c.agent() == a.getId();
             }
 
             /** Shut in on every side, so no walking gets near it. */
@@ -664,24 +716,41 @@ final class Acts {
                 BlockPos at = a.blockPosition();
                 if (through == null) {
                     int dx = target.getX() - at.getX(), dy = target.getY() - at.getY(), dz = target.getZ() - at.getZ();
-                    BlockPos step = Math.abs(dx) >= Math.abs(dz) ? at.offset(Integer.signum(dx), 0, 0) : at.offset(0, 0, Integer.signum(dz));
+                    boolean xFirst = Math.abs(dx) >= Math.abs(dz);
+                    BlockPos along = xFirst ? at.offset(Integer.signum(dx), 0, 0) : at.offset(0, 0, Integer.signum(dz));
+                    BlockPos across = xFirst ? at.offset(0, 0, Integer.signum(dz)) : at.offset(Integer.signum(dx), 0, 0);
                     boolean down = dy < 0 && -dy >= Math.max(Math.abs(dx), Math.abs(dz)) && level.getBlockState(at.below(2)).isSolid();
-                    List<BlockPos> way = down ? List.of(at.below()) : List.of(step, step.above());
-                    through = way.stream().filter(p -> !level.getBlockState(p).getCollisionShape(level, p).isEmpty()).findFirst().orElse(null);
-                    if (through == null) {
-                        // the way is open: step into it, and give up a target it cannot get nearer to
-                        still = at.equals(stood) ? still + 1 : 0;
-                        stood = at;
-                        if (still > 60) {
-                            giveUp();
+                    // the way it would go, then round what it may not dig through: the other way toward the target
+                    List<List<BlockPos>> ways = new ArrayList<>();
+                    if (down) {
+                        ways.add(List.of(at.below()));
+                    }
+                    ways.add(List.of(along, along.above()));
+                    if (!across.equals(at)) {
+                        ways.add(List.of(across, across.above()));
+                    }
+                    for (List<BlockPos> way : ways) {
+                        BlockPos block = way.stream().filter(p -> !level.getBlockState(p).getCollisionShape(level, p).isEmpty()).findFirst()
+                                .orElse(null);
+                        if (block == null) {
+                            // the way is open: step into it, and give up a target it cannot get nearer to
+                            still = at.equals(stood) ? still + 1 : 0;
+                            stood = at;
+                            if (still > 60) {
+                                giveUp();
+                                return;
+                            }
+                            // one block over, so straight there, with no path to find
+                            BlockPos into = way.getFirst();
+                            a.getMoveControl().setWantedPosition(into.getX() + 0.5, into.getY(), into.getZ() + 0.5, 1.0);
                             return;
                         }
-                        // one block over, so straight there, with no path to find
-                        BlockPos into = way.getFirst();
-                        a.getMoveControl().setWantedPosition(into.getX() + 0.5, into.getY(), into.getZ() + 0.5, 1.0);
-                        return;
+                        if (diggable(level, block)) {
+                            through = block;
+                            break;
+                        }
                     }
-                    if (!diggable(level, through)) {
+                    if (through == null) {
                         giveUp();
                         return;
                     }
@@ -714,9 +783,15 @@ final class Acts {
                 through = null;
             }
 
-            /** Breakable, with no water or lava beside it to let in. */
+            /**
+             * Ground it may tunnel through: rock and earth that a pickaxe or shovel mines, never a machine, a container or
+             * anything else holding a block entity, and with no water or lava beside it to let in.
+             */
             private boolean diggable(ServerLevel level, BlockPos p) {
-                if (level.getBlockState(p).getDestroySpeed(level, p) < 0) {
+                BlockState s = level.getBlockState(p);
+                if (s.getDestroySpeed(level, p) < 0 || level.getBlockEntity(p) != null
+                        || BuiltInRegistries.BLOCK.getKey(s.getBlock()).getNamespace().equals(Residual.MOD_ID)
+                        || !s.is(BlockTags.MINEABLE_WITH_PICKAXE) && !s.is(BlockTags.MINEABLE_WITH_SHOVEL)) {
                     return false;
                 }
                 for (Direction d : Direction.values()) {
@@ -729,12 +804,17 @@ final class Acts {
 
             private void giveUp() {
                 skipped.add(target);
-                target = null;
+                release((ServerLevel) a.level());
                 through = null;
                 still = 0;
             }
 
-            private boolean matches(BlockState s) {
+            /** A block of the thing: a cache when told to mine caches, otherwise a block whose item is the thing. */
+            private boolean matches(ServerLevel level, BlockPos p) {
+                if (caches) {
+                    return SurveyorBlockEntity.cache(level, p);
+                }
+                BlockState s = level.getBlockState(p);
                 return !s.isAir() && kinds.computeIfAbsent(s.getBlock(), b -> {
                     ItemStack as = new ItemStack(b.asItem());
                     return wanted.exactly(as) || wanted.loosely(as) || ores.stream().anyMatch(s::is);
@@ -751,8 +831,7 @@ final class Acts {
                             || best != null && p.distSqr(at) >= best.distSqr(at)) {
                         continue;
                     }
-                    BlockState s = level.getBlockState(p);
-                    if (matches(s) && s.getDestroySpeed(level, p) >= 0) {
+                    if (matches(level, p) && free(level, p) && level.getBlockState(p).getDestroySpeed(level, p) >= 0) {
                         best = p.immutable();
                     }
                 }

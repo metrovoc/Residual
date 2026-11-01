@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.block;
 
 import io.github.metrovoc.residual.Awards;
+import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.learn.Survey;
 import io.github.metrovoc.residual.menu.SurveyorMenu;
@@ -34,10 +35,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -47,8 +50,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The Surveyor: reads the ground around it a row of {@link Survey#ROW} blocks at a time, asks its model where the first
- * of each ore in a row lies, and keeps every place the model gets right; a wrong answer leaves that ore unfound until the
- * next survey. A survey covers {@link #RADIUS} blocks each way, from {@link #ABOVE} above it to {@link #BELOW} below, and
+ * of each ore or cache in a row lies, and keeps every place the model gets right; a wrong answer leaves that find unfound
+ * until the next survey. A survey covers {@link #RADIUS} blocks each way, from {@link #ABOVE} above it to {@link #BELOW} below, and
  * starts over when done, so what is mined drops out. Players holding a Survey Rod nearby see what it found.
  */
 public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
@@ -60,9 +63,9 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
     private static final int ROWS_PER_TICK = 32, BATCH = 64;
     /**
      * What its screen shows: its state, how far through the survey, why there is no model, then from {@link #FOUND} a
-     * count for each of the eight ores, and how many answers it missed.
+     * count for each of the eight ores and for caches, and how many answers it missed.
      */
-    public static final int STATE = 0, PROGRESS = 1, PROBLEM = 2, FOUND = 3, MISSED = 11, DATA = 12;
+    public static final int STATE = 0, PROGRESS = 1, PROBLEM = 2, FOUND = 3, MISSED = FOUND + 9, DATA = MISSED + 1;
     public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.unbound",
             "residual.model.out_of_range", "residual.model.no_server", "residual.model.server_empty", "residual.model.too_big",
             "residual.model.failed");
@@ -72,8 +75,8 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
 
     public enum State { NO_MODEL, PEEKS, SURVEYING }
 
-    /** A question about one row: where its first {@code ore} lies. */
-    private record Question(BlockPos start, String row, char ore) {
+    /** A question about one row: where its first {@code find} lies. */
+    private record Question(BlockPos start, String row, char find) {
     }
 
     private final SimpleContainer items = new SimpleContainer(1) {
@@ -101,8 +104,8 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         @Override
         public int get(int i) {
             if (i >= FOUND && i < MISSED) {
-                char ore = Survey.ORES.charAt(i - FOUND);
-                return (int) shown().values().stream().filter(c -> c == ore).count();
+                char find = Survey.FINDS.charAt(i - FOUND);
+                return (int) shown().values().stream().filter(c -> c == find).count();
             }
             return switch (i) {
                 case STATE -> state.ordinal();
@@ -138,18 +141,18 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /**
-     * The nearest place to {@code from} where a Surveyor within {@link #SEEN} blocks found something {@code wanted},
-     * still there, or null.
+     * The nearest place to {@code from} where a Surveyor within {@link #SEEN} blocks found something, if what is there
+     * now is {@code wanted}, or null.
      */
     @Nullable
-    public static BlockPos nearestFound(ServerLevel level, BlockPos from, Predicate<BlockState> wanted, Set<BlockPos> skipped) {
+    public static BlockPos nearestFound(ServerLevel level, BlockPos from, Predicate<BlockPos> wanted, Set<BlockPos> skipped) {
         BlockPos best = null;
         for (SurveyorBlockEntity s : LOADED) {
             if (s.level != level || s.worldPosition.distSqr(from) > SEEN * SEEN) {
                 continue;
             }
             for (BlockPos p : s.shown().keySet()) {
-                if (!skipped.contains(p) && (best == null || p.distSqr(from) < best.distSqr(from)) && wanted.test(level.getBlockState(p))) {
+                if (!skipped.contains(p) && (best == null || p.distSqr(from) < best.distSqr(from)) && wanted.test(p)) {
                     best = p;
                 }
             }
@@ -218,7 +221,7 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
-    /** Reads the next row, and asks about each ore in it. */
+    /** Reads the next row, and asks about each find in it. */
     private void read(ServerLevel level) {
         int r = cursor;
         cursor = (cursor + 1) % ROWS;
@@ -238,12 +241,12 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         }
         StringBuilder row = new StringBuilder(Survey.ROW);
         for (int i = 0; i < Survey.ROW; i++) {
-            row.append(letter(level.getBlockState(start.offset(i, 0, 0))));
+            row.append(letter(level, start.offset(i, 0, 0)));
         }
         String text = row.toString();
-        for (char ore : Survey.ORES.toCharArray()) {
-            if (text.indexOf(ore) >= 0) {
-                waiting.add(new Question(start, text, ore));
+        for (char find : Survey.FINDS.toCharArray()) {
+            if (text.indexOf(find) >= 0) {
+                waiting.add(new Question(start, text, find));
             }
         }
     }
@@ -254,7 +257,7 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         while (batch.size() < BATCH && !waiting.isEmpty()) {
             batch.add(waiting.poll());
         }
-        List<String> prompts = batch.stream().map(q -> Survey.prompt(q.row(), q.ore())).toList();
+        List<String> prompts = batch.stream().map(q -> Survey.prompt(q.row(), q.find())).toList();
         asking = true;
         askedAt = ticks;
         int id = ++request;
@@ -280,9 +283,9 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
-    /** A right place is kept, and the row asked again without it for the next; a wrong answer ends that ore's row. */
+    /** A right place is kept, and the row asked again without it for the next; a wrong answer ends that find's row. */
     private void check(ServerLevel level, Question q, char answer) {
-        char right = Survey.answer(q.row(), q.ore());
+        char right = Survey.answer(q.row(), q.find());
         if (answer != right) {
             missed++;
             return;
@@ -292,7 +295,7 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         }
         int at = Survey.PLACES.indexOf(right);
         boolean first = found.isEmpty() && last.isEmpty();
-        found.put(q.start().offset(at, 0, 0), q.ore());
+        found.put(q.start().offset(at, 0, 0), q.find());
         if (first) {
             for (ServerPlayer player : level.players()) {
                 if (player.distanceToSqr(worldPosition.getCenter()) < SEEN * SEEN) {
@@ -304,11 +307,22 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         for (int i = 0; i <= at; i++) {
             rest.setCharAt(i, 'S');
         }
-        waiting.addFirst(new Question(q.start(), rest.toString(), q.ore()));
+        waiting.addFirst(new Question(q.start(), rest.toString(), q.find()));
         setChanged();
     }
 
-    /** What a Surveyor reads a block as: one of {@link Survey#ORES}, or the ground around them. */
+    /** What a Surveyor reads the block at {@code pos} as: one of {@link Survey#FINDS}, or the ground around them. */
+    public static char letter(BlockGetter level, BlockPos pos) {
+        return cache(level, pos) ? Survey.CACHE : letter(level.getBlockState(pos));
+    }
+
+    /** A cache: a chest or barrel the old world filled, its loot not yet rolled because nobody has opened it. */
+    public static boolean cache(BlockGetter level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof RandomizableContainerBlockEntity c && c.getLootTable() != null
+                && c.getLootTable().identifier().getNamespace().equals(Residual.MOD_ID);
+    }
+
+    /** What a Surveyor reads a block as, cache or not: an ore, or the ground around them. */
     public static char letter(BlockState s) {
         if (s.is(Tags.Blocks.ORES)) {
             return s.is(Tags.Blocks.ORES_COAL) ? 'C' : s.is(Tags.Blocks.ORES_IRON) ? 'I' : s.is(Tags.Blocks.ORES_COPPER) ? 'U'
@@ -333,7 +347,7 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         return s.is(BlockTags.DEEPSLATE_ORE_REPLACEABLES) ? 'D' : 'T';
     }
 
-    /** Shows what it found to the players near it holding a Survey Rod, the ores still there. */
+    /** Shows what it found to the players near it holding a Survey Rod, the finds still there. */
     private void sync(ServerLevel level) {
         List<ServerPlayer> seeing = new ArrayList<>();
         for (ServerPlayer player : level.players()) {
@@ -346,12 +360,12 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
             return;
         }
         List<Map.Entry<BlockPos, Character>> marks = shown().entrySet().stream()
-                .filter(e -> letter(level.getBlockState(e.getKey())) == e.getValue()).limit(SurveySync.MOST).toList();
+                .filter(e -> letter(level, e.getKey()) == e.getValue()).limit(SurveySync.MOST).toList();
         long[] places = new long[marks.size()];
         byte[] ores = new byte[marks.size()];
         for (int i = 0; i < marks.size(); i++) {
             places[i] = marks.get(i).getKey().asLong();
-            ores[i] = (byte) Survey.ORES.indexOf(marks.get(i).getValue());
+            ores[i] = (byte) Survey.FINDS.indexOf(marks.get(i).getValue());
         }
         SurveySync packet = new SurveySync(worldPosition, places, ores);
         for (ServerPlayer player : seeing) {

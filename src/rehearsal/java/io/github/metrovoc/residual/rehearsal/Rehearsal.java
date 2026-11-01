@@ -133,6 +133,7 @@ import org.slf4j.Logger;
  * frame STRUCTURE DIST HEIGHT ANGLE [LOOK]  stand DIST blocks out from the nearest generated STRUCTURE, HEIGHT
  *                            above its top and ANGLE degrees round from south, looking at its centre, or LOOK blocks
  *                            above its bottom
+ * count BLOCK X1 Y1 Z1 X2 Y2 Z2  log how many BLOCK blocks the box holds and the game tick, to time work in the world
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
@@ -460,6 +461,7 @@ public final class Rehearsal {
                 });
             }
             case "frame" -> frame(mc, args);
+            case "count" -> count(mc, args);
             case "seek" -> seek(mc, args);
             case "survey" -> survey(mc, args);
             case "fly" -> {
@@ -617,6 +619,21 @@ public final class Rehearsal {
             float pitch = (float) Math.toDegrees(-Math.atan2(d.y, Math.sqrt(d.x * d.x + d.z * d.z)));
             player.teleportTo(level, eye.x, eye.y - player.getEyeHeight(), eye.z, Set.of(), yaw, pitch, true);
             LOG.info("[rehearsal] framed {} at {}", args[0], box);
+        });
+    }
+
+    private static void count(Minecraft mc, String[] args) {
+        MinecraftServer server = mc.getSingleplayerServer();
+        UUID id = mc.player.getUUID();
+        server.execute(() -> {
+            ServerLevel level = server.getPlayerList().getPlayer(id).level();
+            Block block = BuiltInRegistries.BLOCK.getValue(Identifier.parse(args[0]));
+            int n = 0;
+            for (BlockPos p : BlockPos.betweenClosed(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]),
+                    Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]))) {
+                n += level.getBlockState(p).is(block) ? 1 : 0;
+            }
+            LOG.info("[rehearsal] count {}: {} at tick {}", args[0], n, level.getGameTime());
         });
     }
 

@@ -20,7 +20,7 @@ import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 /**
- * What Surveyors found, seen through the ground while a Survey Rod is held: a box in each ore's colour in every place a
+ * What Surveyors found, seen through the ground while a Survey Rod is held: a box in each find's colour in every place a
  * survey found one. A Surveyor sends its places every second to the players near it holding a rod; a survey not heard of
  * for three seconds fades out.
  */
@@ -29,8 +29,12 @@ public final class SurveyView {
     private static final double RANGE = 48;
     private static final long KEPT = 3_000_000_000L;
     private static final int FULL_BRIGHT = 0xF000F0;
-    /** Each ore's colour, in the order of the survey's letters: coal, iron, copper, gold, redstone, lapis, diamond, emerald. */
-    private static final int[] COLORS = {0x80909090, 0x80E6C7A8, 0x80E8835A, 0x80FFE04A, 0x80FF4A4A, 0x805A7DFF, 0x8060F0E8, 0x8040E07A};
+    /**
+     * Each find's colour, in the order of the survey's letters: coal, iron, copper, gold, redstone, lapis, diamond,
+     * emerald, and violet for a cache.
+     */
+    private static final int[] COLORS = {0x80909090, 0x80E6C7A8, 0x80E8835A, 0x80FFE04A, 0x80FF4A4A, 0x805A7DFF, 0x8060F0E8, 0x8040E07A,
+            0x80C68CFF};
     private static final Map<BlockPos, Found> SURVEYS = new HashMap<>();
 
     private record Found(long[] places, byte[] ores, long at) {

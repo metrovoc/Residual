@@ -18,15 +18,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * The Surveyor's screen: one display, with each ore it found and how many, or why it cannot survey, and along its foot
- * how far the survey has gone. Its model slot sits in a panel beside the window.
+ * The Surveyor's screen: one display, with each kind of find, the eight ores and caches, three by three and how many of
+ * each, or why it cannot survey, and along its foot how far the survey has gone. Its model slot sits in a panel beside
+ * the window.
  */
 public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> {
-    private static final int WINDOW_W = 176, SHOW_X = 8, SHOW_Y = 18, SHOW_W = 160, SHOW_H = 68, ROW_H = 15;
-    /** The ores, in the survey's order: coal, iron, copper, gold, redstone, lapis, diamond, emerald. */
-    private static final ItemStack[] ORES = {new ItemStack(Items.COAL_ORE), new ItemStack(Items.IRON_ORE), new ItemStack(Items.COPPER_ORE),
+    private static final int WINDOW_W = 176, SHOW_X = 8, SHOW_Y = 18, SHOW_W = 160, SHOW_H = 68, ROW_H = 20, COL_W = 52;
+    /** The finds, in the survey's order: coal, iron, copper, gold, redstone, lapis, diamond, emerald, a cache. */
+    private static final ItemStack[] FINDS = {new ItemStack(Items.COAL_ORE), new ItemStack(Items.IRON_ORE), new ItemStack(Items.COPPER_ORE),
             new ItemStack(Items.GOLD_ORE), new ItemStack(Items.REDSTONE_ORE), new ItemStack(Items.LAPIS_ORE),
-            new ItemStack(Items.DIAMOND_ORE), new ItemStack(Items.EMERALD_ORE)};
+            new ItemStack(Items.DIAMOND_ORE), new ItemStack(Items.EMERALD_ORE), new ItemStack(Items.BARREL)};
 
     public SurveyorScreen(SurveyorMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, SurveyorMenu.SIDE_X + SurveyorMenu.SIDE_W, SurveyorMenu.INVENTORY_Y + 82);
@@ -54,8 +55,8 @@ public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> {
         int x = leftPos + SHOW_X, y = topPos + SHOW_Y;
         Ui.screen(g, x, y, SHOW_W, SHOW_H);
         if (state() == State.SURVEYING) {
-            for (int i = 0; i < ORES.length; i++) {
-                g.item(ORES[i], x + 4 + i / 4 * 80, y + 2 + i % 4 * ROW_H);
+            for (int i = 0; i < FINDS.length; i++) {
+                g.item(FINDS[i], x + 4 + i % 3 * COL_W, y + 4 + i / 3 * ROW_H);
             }
             // how far this survey has gone, along the display's foot
             float done = menu.data.get(SurveyorBlockEntity.PROGRESS) / 1000f;
@@ -79,9 +80,9 @@ public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> {
             }
             return;
         }
-        for (int i = 0; i < ORES.length; i++) {
+        for (int i = 0; i < FINDS.length; i++) {
             int count = menu.data.get(SurveyorBlockEntity.FOUND + i);
-            g.text(font, Ui.count(count), SHOW_X + 24 + i / 4 * 80, SHOW_Y + 6 + i % 4 * ROW_H, count > 0 ? Ui.TEXT : Ui.DIM, false);
+            g.text(font, Ui.count(count), SHOW_X + 23 + i % 3 * COL_W, SHOW_Y + 8 + i / 3 * ROW_H, count > 0 ? Ui.TEXT : Ui.DIM, false);
         }
     }
 
@@ -95,14 +96,19 @@ public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> {
             lines.add(Component.translatable("residual.agent.model_slot").getVisualOrderText());
             lines.addAll(font.split(Component.translatable("residual.surveyor.model_hint").withStyle(ChatFormatting.GRAY), 200));
         } else if (state() == State.SURVEYING && Ui.inside(mx, my, SHOW_X, SHOW_Y, SHOW_W, SHOW_H)) {
-            int at = mx - SHOW_X < 80 ? (my - SHOW_Y - 2) / ROW_H : 4 + (my - SHOW_Y - 2) / ROW_H;
+            int col = (mx - SHOW_X - 2) / COL_W, row = (my - SHOW_Y - 2) / ROW_H;
+            int at = col >= 0 && col < 3 && row >= 0 && row < 3 ? row * 3 + col : -1;
             if (my >= SHOW_Y + SHOW_H - 6) {
                 lines.add(Component.translatable("residual.surveyor.progress", menu.data.get(SurveyorBlockEntity.PROGRESS) / 10,
                         Ui.count(menu.data.get(SurveyorBlockEntity.MISSED))).getVisualOrderText());
                 lines.addAll(font.split(Component.translatable("residual.surveyor.reach", SurveyorBlockEntity.RADIUS,
                         SurveyorBlockEntity.BELOW).withStyle(ChatFormatting.GRAY), 220));
-            } else if (at >= 0 && at < ORES.length) {
-                lines.add(ORES[at].getHoverName().getVisualOrderText());
+            } else if (at == FINDS.length - 1) {
+                lines.add(Component.translatable("residual.surveyor.caches").getVisualOrderText());
+                lines.addAll(font.split(Component.translatable("residual.surveyor.caches_hint").withStyle(ChatFormatting.GRAY), 200));
+                lines.addAll(font.split(Component.translatable("residual.surveyor.rod_hint").withStyle(ChatFormatting.GRAY), 200));
+            } else if (at >= 0) {
+                lines.add(FINDS[at].getHoverName().getVisualOrderText());
                 lines.addAll(font.split(Component.translatable("residual.surveyor.rod_hint").withStyle(ChatFormatting.GRAY), 200));
             }
         }

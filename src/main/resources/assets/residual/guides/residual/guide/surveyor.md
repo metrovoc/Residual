@@ -9,10 +9,11 @@ item_ids:
 
 # The Surveyor
 
-The <ItemLink id="surveyor" /> finds the ores in the ground around it. It reads the ground a row of sixteen blocks at a
-time, a letter for each block, and asks its model where the first of each ore in the row lies, just as the Survey test
-does. Every answer is checked against the block: a right one is kept, and the row is asked again for the next of that
-ore; a wrong one leaves that ore unfound until the next survey.
+The <ItemLink id="surveyor" /> finds the ores in the ground around it, and the old world's caches: chests and barrels
+it filled that nobody has opened since. It reads the ground a row of sixteen blocks at a time, a letter for each block,
+and asks its model where the first of each ore or cache in the row lies, just as the Survey test does. Every answer is
+checked against the block: a right one is kept, and the row is asked again for the next of that kind; a wrong one leaves
+that kind unfound until the next survey.
 
 <GameScene zoom="4" interactive={true}>
   <Block id="minecraft:stone" x="-2" y="-2" z="-2" />
@@ -75,8 +76,8 @@ ore; a wrong one leaves that ore unfound until the next survey.
 
 Its model is a language model, so the ground reaches it as text: each block a letter, a row of sixteen blocks sixteen
 letters. Ground: `S` stone, `D` deepslate, `T` other rock, `A` air, `W` water, `L` lava, `B` bedrock. Ores: `C` coal,
-`I` iron, `U` copper, `O` gold, `R` redstone, `Z` lapis, `X` diamond, `E` emerald. After the row come `>`, the ore
-asked for and `:`, and the model answers with the first such block's place, `a` to `p`, or `-` for none:
+`I` iron, `U` copper, `O` gold, `R` redstone, `Z` lapis, `X` diamond, `E` emerald; and `K`, a cache. After the row come
+`>`, the kind asked for and `:`, and the model answers with the first such block's place, `a` to `p`, or `-` for none:
 `SSSTTIIDDDDSSSSS>I:f`.
 
 ## Surveying
@@ -86,20 +87,26 @@ Put a model in the Surveyor's **Model** slot, in the panel beside its screen: a 
 4,096 rows, 32 read a tick and 64 questions put to the model at once. Then it starts over, so what is mined drops out of
 the next survey.
 
-Its screen shows each ore it found and how many; along the screen's foot, how far the survey has gone. Hold a
-<ItemLink id="survey_rod" /> within 48 blocks of it to see what it found through the ground, a box in each ore's colour.
+Its screen shows the eight ores and caches, three by three, with how many of each it found; along the screen's foot,
+how far the survey has gone. Hold a <ItemLink id="survey_rod" /> within 48 blocks of it to see what it found through the
+ground, a box in each ore's colour and caches in violet.
 
 ## Digging for it
 
 An agent's `mine` goes to what a Surveyor within 48 blocks found when nothing of the kind lies within its own reach of
 8, and digs its way to anything buried: down where the ore lies at least as far below as aside, otherwise along the
-longer way, two blocks high. It gives up a tunnel that would let in water or lava, or that meets a block it cannot
-break. To mine iron is to mine iron ore: `repeat (mine 8 iron, put)` digs where the iron is and brings it home.
+longer way, two blocks high. It tunnels only through rock and earth, never through a machine, a container or anything
+an axe would cut, and goes round such a block the other way when it can; it gives up a tunnel that would let in water
+or lava, or that finds no way round. To mine iron is to mine iron ore: `repeat (mine 8 iron, put)` digs where the iron is and brings it home.
+`mine caches` digs to a cache and takes what it holds.
+
+Agents mining near each other work as a crew: each takes a block no other has picked, so a crew spreads over what a
+Surveyor found instead of crowding the nearest ore.
 
 ## Its model
 
 A model learns this on the <ItemLink id="survey_dataset" />, and passes the Survey test by answering 90% of its
 questions right: see [Models and Tests](models.md). Finding the first of a letter takes looking back over the row and
 knowing where each block stands in it. A model that sees only the last few characters, or a single layer of attention
-without positions, stays near half; a two-block transformer passes after about 500 steps. A model that reads ahead finds
+without positions, stays near half; a two-block transformer passes after about 1,000 steps. A model that reads ahead finds
 nothing, so the Surveyor refuses it.

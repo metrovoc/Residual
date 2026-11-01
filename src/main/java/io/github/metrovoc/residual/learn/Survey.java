@@ -7,35 +7,38 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Survey: where in a row of ground the first of an ore lies. A row is {@link #ROW} blocks along a line, a capital each:
- * ground ({@code S} stone, {@code D} deepslate, {@code T} other rock, {@code A} air, {@code W} water, {@code L} lava,
- * {@code B} bedrock) and ores ({@link #ORES}: coal, iron, copper, gold, redstone, lapis, diamond, emerald). Then
- * {@code >}, the ore asked for, {@code :}, and the answer: the first such block's place, {@code a} for the row's first to
- * {@code p} for its last, or {@code -} if there is none. A Surveyor asks its model this of every row of ground it reads,
- * and checks each answer against the block. Finding the first of a letter needs a model that looks back over the row
- * and knows where each block stands in it.
+ * Survey: where in a row of ground the first of an ore, or of a cache, lies. A row is {@link #ROW} blocks along a line,
+ * a capital each: ground ({@code S} stone, {@code D} deepslate, {@code T} other rock, {@code A} air, {@code W} water,
+ * {@code L} lava, {@code B} bedrock) and what a survey finds ({@link #FINDS}: coal, iron, copper, gold, redstone, lapis,
+ * diamond and emerald ore, and {@code K}, a cache: a chest or barrel the old world filled that nobody has opened). Then
+ * {@code >}, the find asked for, {@code :}, and the answer: the first such block's place, {@code a} for the row's first
+ * to {@code p} for its last, or {@code -} if there is none. A Surveyor asks its model this of every row of ground it
+ * reads, and checks each answer against the block. Finding the first of a letter needs a model that looks back over the
+ * row and knows where each block stands in it.
  */
 public final class Survey {
     public static final int ROW = 16;
-    /** Ores, by letter: coal, iron, copper, gold, redstone, lapis, diamond, emerald. */
-    public static final String ORES = "CIUORZXE";
+    /** What a survey finds, by letter: coal, iron, copper, gold, redstone, lapis, diamond and emerald ore, and caches. */
+    public static final String FINDS = "CIUORZXEK";
+    /** A cache's letter: a container the old world filled, still unopened. */
+    public static final char CACHE = 'K';
     public static final String PLACES = "abcdefghijklmnop";
     public static final char NONE = '-';
-    /** How often each ore turns up in practice rows, in the order of {@link #ORES}, much as the ground has them. */
-    private static final int[] PLENTY = {25, 22, 18, 8, 12, 7, 5, 3};
+    /** How often each find turns up in practice rows, in the order of {@link #FINDS}, much as the ground has them. */
+    private static final int[] PLENTY = {25, 22, 18, 8, 12, 7, 5, 3, 3};
 
     private Survey() {
     }
 
-    /** What a Surveyor asks about {@code row}: where the first {@code ore} lies. */
-    public static String prompt(CharSequence row, char ore) {
-        return row + ">" + ore + ":";
+    /** What a Surveyor asks about {@code row}: where the first {@code find} lies. */
+    public static String prompt(CharSequence row, char find) {
+        return row + ">" + find + ":";
     }
 
-    /** The right answer: the first {@code ore}'s place in {@code row}, or {@link #NONE}. */
-    public static char answer(CharSequence row, char ore) {
+    /** The right answer: the first {@code find}'s place in {@code row}, or {@link #NONE}. */
+    public static char answer(CharSequence row, char find) {
         for (int i = 0; i < row.length(); i++) {
-            if (row.charAt(i) == ore) {
+            if (row.charAt(i) == find) {
                 return PLACES.charAt(i);
             }
         }
@@ -44,7 +47,7 @@ public final class Survey {
 
     /**
      * A practice row: stone or deepslate, with rock of other kinds in patches, now and then a cave of air (water or
-     * lava in some), bedrock at a row's end at the bottom of the world, and up to three short runs of ore.
+     * lava in some), bedrock at a row's end at the bottom of the world, and up to three short runs of ore or a cache.
      */
     public static String row(Random rng) {
         char[] row = new char[ROW];
@@ -73,7 +76,9 @@ public final class Survey {
         }
         int runs = new int[] {0, 0, 1, 1, 1, 1, 2, 2, 2, 3}[rng.nextInt(10)];
         for (int n = 0; n < runs; n++) {
-            run(rng, row, ore(rng), 1 + rng.nextInt(3));
+            char find = find(rng);
+            // a cache is one container; ore comes in runs
+            run(rng, row, find, find == CACHE ? 1 : 1 + rng.nextInt(3));
         }
         return new String(row);
     }
@@ -85,7 +90,7 @@ public final class Survey {
         }
     }
 
-    private static char ore(Random rng) {
+    private static char find(Random rng) {
         int total = 0;
         for (int p : PLENTY) {
             total += p;
@@ -94,16 +99,16 @@ public final class Survey {
         for (int i = 0; i < PLENTY.length; i++) {
             r -= PLENTY[i];
             if (r < 0) {
-                return ORES.charAt(i);
+                return FINDS.charAt(i);
             }
         }
-        return ORES.charAt(0);
+        return FINDS.charAt(0);
     }
 
-    /** A practice question about {@code row}: an ore it holds seven times in ten, otherwise one it lacks. */
+    /** A practice question about {@code row}: a find it holds seven times in ten, otherwise one it lacks. */
     public static char asked(Random rng, String row) {
         StringBuilder held = new StringBuilder(), lacked = new StringBuilder();
-        for (char o : ORES.toCharArray()) {
+        for (char o : FINDS.toCharArray()) {
             (row.indexOf(o) >= 0 ? held : lacked).append(o);
         }
         boolean present = !held.isEmpty() && (lacked.isEmpty() || rng.nextInt(10) < 7);
