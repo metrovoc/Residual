@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ruins - Residual for Minecraft 26.1</title>
     <link rel="stylesheet" href="assets/bundle-FU6KDTWS.css"/>
-    <link rel="canonical" href="https://metrovoc.github.io/Residual/ruins.html"/><link rel="icon" href="web-assets/files/logo.9jQG5iccEuZT.png"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/ruins.html"/><link rel="icon" href="web-assets/files/logo.AAtjhZ0W5kXE.png"/>
     <style>
         .logo > img { height: 32px; }
         .notice {
@@ -21,6 +21,7 @@
         }
         .notice strong { color: #ffb547; }
         .notice nav { display: flex; gap: 1rem; margin-left: auto; }
+        canvas[data-clip] { display: block; max-width: 100%; margin: .5rem auto 1rem; cursor: pointer; background: #20242a; }
     </style>
 </head>
 <body data-path-to-root="">
@@ -28,7 +29,7 @@
 <main>
 <div class="topLogoBar">
     <a href="./" class="logo">
-        <img src="web-assets/files/logo.9jQG5iccEuZT.png" alt="" />
+        <img src="web-assets/files/logo.AAtjhZ0W5kXE.png" alt="" />
         Residual
     </a>
     <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
@@ -45,7 +46,7 @@
 <div class="page-title"><h1>Ruins</h1></div>
 <aside>
     <span class="search-slot"></span>
-    <div class="navbar"><a href="index.html"><img class="item-icon" src="!items/residual/add.NQuftmpuk8DN.png" alt=""/>Residual</a><a href="getting-started.html"><img class="item-icon" src="!items/residual/agent.iRJaZcxGm0IH.png" alt=""/>Getting Started</a><a href="milestones.html"><img class="item-icon" src="!items/residual/checkpoint.UFJ9ci3EVRE6.png" alt=""/>Milestones</a><a class="active" href="ruins.html"><img class="item-icon" src="!items/residual/archive_shard.Smp79iARajdi.png" alt=""/>Ruins</a><a href="archive.html"><img class="item-icon" src="!items/residual/archive_drive.uTfQcoApe3fs.png" alt=""/>The Archive</a><a href="tokenizers.html"><img class="item-icon" src="!items/residual/tokenizer.L34TQCwAyk09.png" alt=""/>Tokens</a><a href="bench.html"><img class="item-icon" src="!items/residual/bench.EIKvJE5CYQsA.png" alt=""/>The Bench and the Fabricator</a><a href="core.html"><img class="item-icon" src="!items/residual/model_core.HIPMYhTUn2RQ.png" alt=""/>The Model Core</a><a href="training.html"><img class="item-icon" src="!items/residual/accelerator.Giv1MwMNo4pC.png" alt=""/>Training</a><a href="models.html"><img class="item-icon" src="!items/residual/checkpoint.UFJ9ci3EVRE6.png" alt=""/>Models and Tests</a><a href="salvage.html"><img class="item-icon" src="!items/residual/salvaged_model.DhMNZ97UWu8c.png" alt=""/>Salvaged Models</a><a href="agents.html"><img class="item-icon" src="!items/residual/agent.iRJaZcxGm0IH.png" alt=""/>Agents</a><a href="forecaster.html"><img class="item-icon" src="!items/residual/forecaster.Y28muusHsUVT.png" alt=""/>The Forecaster</a><a href="deployment.html"><img class="item-icon" src="!items/residual/model_server.JAO79A88B6tr.png" alt=""/>Serving Models</a><a href="wiring.html"><img class="item-icon" src="!items/residual/cable.yDXf3ObDkaQ3.png" alt=""/>Machines and Cables</a><a href="stream.html"><img class="item-icon" src="!items/residual/stream.GIhziywfMrqZ.webp" alt=""/>The Residual Stream</a><a href="shapes.html"><img class="item-icon" src="!items/residual/linear.Zt3yw7tkmLt3.png" alt=""/>Shapes</a><details><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="machines/index.html"><img class="item-icon" src="!items/residual/linear.Zt3yw7tkmLt3.png" alt=""/>Machines</a></summary><div class="sublevel"><a href="machines/embedding.html"><img class="item-icon" src="!items/residual/embedding.m3Jy0mRGJhj9.png" alt=""/>Embedding Table</a><a href="machines/linear.html"><img class="item-icon" src="!items/residual/linear.Zt3yw7tkmLt3.png" alt=""/>Linear Layer</a><a href="machines/activation.html"><img class="item-icon" src="!items/residual/activation.p029zcZbcpXr.png" alt=""/>Activation</a><a href="machines/shift.html"><img class="item-icon" src="!items/residual/shift.9v0fQy4tIp3H.png" alt=""/>Delay Line</a><a href="machines/concat.html"><img class="item-icon" src="!items/residual/concat.5xC0YacfkiaS.png" alt=""/>Concatenator</a><a href="machines/matmul.html"><img class="item-icon" src="!items/residual/matmul.jxS8PDFnCg1p.png" alt=""/>Matrix Multiplier</a><a href="machines/scale.html"><img class="item-icon" src="!items/residual/scale.x1viMDt1tQ83.png" alt=""/>Scaler</a><a href="machines/causal_mask.html"><img class="item-icon" src="!items/residual/causal_mask.17WBvhhy7TWm.png" alt=""/>Causal Mask</a><a href="machines/softmax.html"><img class="item-icon" src="!items/residual/softmax.aokynbASAfId.png" alt=""/>Softmax</a><a href="machines/position.html"><img class="item-icon" src="!items/residual/position.uJ16IihOBf0K.png" alt=""/>Position Table</a><a href="machines/add.html"><img class="item-icon" src="!items/residual/add.NQuftmpuk8DN.png" alt=""/>Residual Junction</a><a href="machines/norm.html"><img class="item-icon" src="!items/residual/norm.xNbtW99ozUbS.png" alt=""/>Normalizer</a><a href="machines/attention.html"><img class="item-icon" src="!items/residual/attention.seUUUOwhQzIB.png" alt=""/>Attention Head</a><a href="machines/mlp.html"><img class="item-icon" src="!items/residual/mlp.nisahPS0E00D.png" alt=""/>Feed-Forward Block</a><a href="machines/transformer.html"><img class="item-icon" src="!items/residual/transformer.DNlPug3UuUlZ.png" alt=""/>Transformer Block</a><a href="machines/multiply.html"><img class="item-icon" src="!items/residual/multiply.foAzqQ5ketvL.png" alt=""/>Gate</a><a href="machines/split_heads.html"><img class="item-icon" src="!items/residual/split_heads.ALmUzgAv9p65.png" alt=""/>Head Splitter</a><a href="machines/merge_heads.html"><img class="item-icon" src="!items/residual/merge_heads.SzcWF8uiNNUq.png" alt=""/>Head Merger</a></div></details></div>
+    <div class="navbar"><a href="index.html"><img class="item-icon" src="!items/residual/add.Lr6K4QXQblDi.png" alt=""/>Residual</a><a href="getting-started.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>Getting Started</a><a href="milestones.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>Milestones</a><a href="forecaster.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>The Forecaster</a><a href="storage.html"><img class="item-icon" src="!items/residual/drive_rack.wHpvJhn652xX.png" alt=""/>Storage</a><a class="active" href="ruins.html"><img class="item-icon" src="!items/residual/archive_shard.KUqqYvbFhI9w.png" alt=""/>Ruins</a><a href="archive.html"><img class="item-icon" src="!items/residual/archive_drive.MJ1td1FfQz82.png" alt=""/>The Archive</a><a href="tokenizers.html"><img class="item-icon" src="!items/residual/tokenizer.xdwcXWUIJd7o.png" alt=""/>Tokens</a><a href="bench.html"><img class="item-icon" src="!items/residual/bench.D3mxsQ90zr52.png" alt=""/>The Bench and the Fabricator</a><a href="core.html"><img class="item-icon" src="!items/residual/model_core.pA2CY0pBsFXw.png" alt=""/>The Model Core</a><a href="training.html"><img class="item-icon" src="!items/residual/accelerator.U9YxoZU82yMm.png" alt=""/>Training</a><a href="models.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>Models and Tests</a><a href="salvage.html"><img class="item-icon" src="!items/residual/salvaged_model.xitO1aiz78IX.png" alt=""/>Salvaged Models</a><a href="agents.html"><img class="item-icon" src="!items/residual/agent.cVkfsPTpTRXK.png" alt=""/>Agents</a><a href="architect.html"><img class="item-icon" src="!items/residual/survey_rod.XyPNqiiYShYc.png" alt=""/>The Architect</a><a href="surveyor.html"><img class="item-icon" src="!items/residual/surveyor.lWhdXfyJ9yxx.png" alt=""/>The Surveyor</a><a href="power.html"><img class="item-icon" src="!items/residual/combustion_generator.H7EsONecqXkK.png" alt=""/>Power</a><a href="flight.html"><img class="item-icon" src="!items/residual/flight_frame.DJQHRgkSUK6C.png" alt=""/>Flight</a><a href="deployment.html"><img class="item-icon" src="!items/residual/model_server.ZJtMt5OPPf3R.png" alt=""/>Serving Models</a><a href="wiring.html"><img class="item-icon" src="!items/residual/cable.vV5IAga6F3Ns.png" alt=""/>Machines and Cables</a><a href="stream.html"><img class="item-icon" src="!items/residual/stream.Xe90E4UCbX6u.webp" alt=""/>The Residual Stream</a><a href="shapes.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>Shapes</a><details><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="machines/index.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>Machines</a></summary><div class="sublevel"><a href="machines/embedding.html"><img class="item-icon" src="!items/residual/embedding.ik1JEaoae79T.png" alt=""/>Embedding Table</a><a href="machines/linear.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>Linear Layer</a><a href="machines/activation.html"><img class="item-icon" src="!items/residual/activation.IHidptOtMwBZ.png" alt=""/>Activation</a><a href="machines/shift.html"><img class="item-icon" src="!items/residual/shift.rGaNRcUfvNew.png" alt=""/>Delay Line</a><a href="machines/concat.html"><img class="item-icon" src="!items/residual/concat.XGUBFfrMlQdK.png" alt=""/>Concatenator</a><a href="machines/matmul.html"><img class="item-icon" src="!items/residual/matmul.bO8gBDbp1ssA.png" alt=""/>Matrix Multiplier</a><a href="machines/scale.html"><img class="item-icon" src="!items/residual/scale.boeU25ZPeDTr.png" alt=""/>Scaler</a><a href="machines/causal_mask.html"><img class="item-icon" src="!items/residual/causal_mask.Z1aUsqtDV87g.png" alt=""/>Causal Mask</a><a href="machines/softmax.html"><img class="item-icon" src="!items/residual/softmax.pl0FcHzNbhH5.png" alt=""/>Softmax</a><a href="machines/position.html"><img class="item-icon" src="!items/residual/position.xbRrpM1AWSvn.png" alt=""/>Position Table</a><a href="machines/add.html"><img class="item-icon" src="!items/residual/add.Lr6K4QXQblDi.png" alt=""/>Residual Junction</a><a href="machines/norm.html"><img class="item-icon" src="!items/residual/norm.JOMFuSH9RRKX.png" alt=""/>Normalizer</a><a href="machines/attention.html"><img class="item-icon" src="!items/residual/attention.f1QeGssP4m4P.png" alt=""/>Attention Head</a><a href="machines/mlp.html"><img class="item-icon" src="!items/residual/mlp.eF2J60kIJ802.png" alt=""/>Feed-Forward Block</a><a href="machines/transformer.html"><img class="item-icon" src="!items/residual/transformer.lhXT0vgBfS4P.png" alt=""/>Transformer Block</a><a href="machines/multiply.html"><img class="item-icon" src="!items/residual/multiply.SZA2VnBJ1u89.png" alt=""/>Gate</a><a href="machines/split_heads.html"><img class="item-icon" src="!items/residual/split_heads.pPcyJL6fB5KY.png" alt=""/>Head Splitter</a><a href="machines/merge_heads.html"><img class="item-icon" src="!items/residual/merge_heads.7hTEsRd49AnK.png" alt=""/>Head Merger</a></div></details></div>
 </aside>
 <article>
     <div class="notice">
@@ -58,18 +59,127 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Ruins</h1></div><p>The old world left three kinds of building behind. They stand in grassland, forest, taiga, snow, savanna, desert,
-hills, cherry groves and badlands, far apart: it takes travel to find them.</p><h2>Archive houses</h2><p>Small houses of calcite and tuff, one corner usually fallen in. They kept the archive. Look in the chest and the barrels,
-and brush the suspicious gravel where the corner came down.</p><h2>Relay masts</h2><p>Tall copper masts with an old relay still on top and a chest at the foot. The old world talked across distances with
-them; their chests hold relay cards and the plans for relays.</p><h2>Buried vaults</h2><p>A lantern on a post beside a trapdoor in the ground. Below is a deep room with a bank of old accelerators, and two
-chests. Every vault holds a <a href="salvage.html">salvaged model</a> and photomasks for the most advanced machines.</p><h2>What they hold</h2><ul><li><span class="minecraft-tooltip" data-template="tmpl-1"><a href="archive.html">Archive Shard</a></span>: pieces of the archive. See <a href="archive.html">The Archive</a>.</li><li>Photomasks with salvaged designs: the Fabricator makes working but unfused machines from them, without a Bench.
+        <div class="inlinePageTitle"><h1>Ruins</h1></div><p>The people who lived here before left their places behind: towers along the old roads, farms on the ridges, houses on
+the marshes, slips on the shores, and stranger halls. Every kind of ruin is rare, some rarer than others, and each
+stands only in the land that suits it, where the ground is near level: it takes travel to come across one, and a
+Wayfinder to find one on purpose. Places of a kind were built a few different ways, and the years have worn each its
+own way.</p><canvas data-clip="ruins" aria-label="Some of the old world&#39;s places: a relay tower, a windmill farm, a stilt house, an inn, and the Archive at Vell" role="img"></canvas><h2>Finding them</h2><canvas data-clip="wayfinder" aria-label="A Wayfinder tuned to a kind of place: its needle spins while it looks, then points" role="img"></canvas><p>A <span class="minecraft-tooltip" data-template="tmpl-1"><span class="item-link">Wayfinder</span></span> leads to ruins the archive has told you of. Use it to choose a kind to look for: it lists
+the relay towers, which everyone knows of, and every kind a shard you have read tells of; read a shard, by using it,
+and the places it writes about join the list. Its needle spins while it looks, longer the farther the nearest one
+lies, then points to the nearest ruin of that kind within 10,000 blocks; while you hold it, it says how far that is.</p><div class="recipe-container"><div class="recipe-container"><div class="minecraft-frame"><div class="recipeBoxLayout"><div title="Wayfinder"><img class="item-icon" src="!items/minecraft/crafting_table.xxwaNp1XJwGN.png" alt="" aria-description="Crafting Table"/>Crafting</div><div class="ingredients-box"><div class="empty-ingredient-box"></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-2"><span class="item-link"><img class="item-icon" src="!items/minecraft/amethyst_shard.oTGZWsiAMWnH.png" alt="" aria-description="Amethyst Shard"/></span></span></div><div class="empty-ingredient-box"></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-3"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="Copper Ingot"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-4"><span class="item-link"><img class="item-icon" src="!items/minecraft/compass.n2O97ReirmXK.png" alt="" aria-description="Compass"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-3"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="Copper Ingot"/></span></span></div><div class="empty-ingredient-box"></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-3"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="Copper Ingot"/></span></span></div><div class="empty-ingredient-box"></div></div><svg class="recipe-arrow" viewBox="0 0 85 50"><path d="M 0 20 H 60 V 0 L 85 25 L 60 50 L 60 30 L 0 30 Z" fill="#8b8b8b"></path></svg><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-5"><span class="item-link"><img class="item-icon" src="!items/residual/wayfinder.oiD9E82n1C2x.png" alt="" aria-description="Wayfinder"/></span></span></div></div></div></div></div><h2>Relay towers</h2><p>Stone towers, the tallest thing for half a day&#39;s walk: a base buttressed at the corners, the shaft set back above it
+and banded at each floor, and three rooms one over another, the store, the kitchen with its stove and the keeper&#39;s
+room, with a ladder up the north wall. At the top a walk on corbels, railed, with the bell that calls for coal, goes
+round the lamp room of glass in a copper frame, its great lamp of glass and redstone under a flared roof of copper gone
+green. At the tower&#39;s foot stands the relay house: stone below and a spruce frame above, the keeper&#39;s desk with the
+tower book on its lectern, and the stand where a big mind stood, ringed by accelerators in their cooling water. Some
+towers have lost their tops. In grassland, forest, taiga, snow and hills, at most one in each region 48 chunks across.</p><h2>Waymarks</h2><p>Stone pillars on stepped bases by stretches of the old road, a figure cut in the middle stone, a torch on top, little
+stones left at the foot and an arrow to the nearest inn; the ring where walkers made their fire, with a bench and a
+trough. Some pillars have fallen into the grass; one in six stands under a little roof with notes left on it. The
+commonest ruin: at most one in each region 24 chunks across.</p><h2>Three Wells</h2><p>A market town&#39;s square where two roads cross like an X: paving round three wells under their little roofs, a lamp at
+every corner, the bell at the crossing, the notice board with the market rules, stalls under wool awnings, benches
+under two trees, the bakery with its oven built out on the side, the school house by the east well with its painted
+door and its bell on the roof, and a stretch of the town wall. On plains, meadows and savannas, the rarest of the
+towns&#39; ruins: at most one in each region 80 chunks across.</p><h2>Inns</h2><p>The inns of the Long Road, a day apart, the Halfway Inn and the Brown Hen: a timber frame on a stone footing (the Brown
+Hen&#39;s ground floor all stone), the upper floor jutting over the road on corbels, shuttered windows, two dormers and the
+chimney stack up the gable. Inside, the hearth still burns; the boards hang by the fire, the book lies behind the
+counter next to a pie, and the beds wait upstairs; a woodshed stands at the back, the stable across the yard with its
+roof part fallen, and the inn&#39;s sign by the road. At most one in each region 64 chunks across.</p><h2>Windmill farms</h2><p>The farms of the ridges: a windmill with a stone base and a boarded body, a railed stage round it and its tally board by
+the door, the barn with its hayloft and hoist, the pig pen and the hen house, a well in the yard, and three fields,
+wheat, beetroot, and potatoes and carrots, each with its ditch, its hedge and its scarecrow or hives. On plains,
+meadows, savannas and windswept hills, at most one in each region 56 chunks across.</p><h2>Watermills</h2><p>The mills of the orchard country, of birch and glass on a stone footing at the edge of a pond: the wheel out over the
+water on its axle, the millstone under its hopper inside, a race of stone beside it with the sluice nobody may open and
+a footbridge with a loose plank, the notices on the gate, a bench on the far side, old apple trees and hives among the
+flowers. Only by water deep enough, the wheel toward it: at most one in each region 56 chunks across.</p><h2>Stilt houses</h2><p>Houses of mud brick on decks over the marsh, their stilts down to the marsh floor, a boardwalk to the bank. A healer&#39;s
+house keeps its high shelves of labeled jars, the remedies on the bench, beds for the sick and her day book; a boat
+house keeps the day&#39;s catch and the tally on its wall. In swamps and mangrove swamps, at most one in each region 48
+chunks across.</p><h2>Slipways</h2><p>A buttressed stone quay with steps down to the water, the shipwright&#39;s shed with its window for mending nets, the wood
+store and the fish market&#39;s price board; running out over the sea on posts, the frame of a ship never finished with a
+crane leaning over it, and beside it a ramp of stone into the water. Some frames are a big ship&#39;s, three times as long
+as any boat. Only where a beach or a stony shore meets deep enough water, the slip toward the sea: at most one in each
+region 40 chunks across.</p><h2>Tutor houses</h2><p>Halls of tuff between pillars, two tiers of tall windows under a cornice of copper, a relay on the roof, where minds were
+drilled and tested. Apprentices still stand in their row before the tutor&#39;s Bench; the teaching room keeps its tray of
+crystals, each on its card, in the light of its bay window; the apprentice hall across the yard keeps its dry box; and
+the drill yard, ringed with torches, has its boards drawn as small fields. In grassland, forest, taiga, savanna and
+cherry groves, at most one in each region 72 chunks across.</p><h2>The Archive at Vell</h2><p>Where everything was kept, dug into its hill. Its front faces the town: pillars of tuff, the portal under the first
+keepers&#39; words, a broad flight of steps, the copying room&#39;s big window and the reading room&#39;s, where a lamp still burns
+on the long table; behind the front everything is under turf, and light wells of glass come up through the grass. A
+great stair goes down into the hill to the front hall and the finding book, the halls of shelves under their light
+wells, a stack sealed with clay, and the deepest room, where the oldest record is kept. At most one in each region 160
+chunks across.</p><h2>The Deep Works</h2><p>A great mine in the hills. At the shaft head stand the headframe and its wheel, the board where miners wrote their
+names and rubbed them out coming up, the tool store and the sorting bins. A ladder goes down the shaft past a level of
+copper, a level of iron and coal with an amethyst hollow behind a door, and the deep stone, where an old tunnel was
+walled up; at the ninth level the gate is locked, and an old side door above it leads down another way. In windswept
+hills, meadows and savanna plateaus, at most one in each region 128 chunks across.</p><h2>Fallen relay masts</h2><p>Where a relay mast fell it broke a bowl in the ground, grassed over at the rim. The mast lies across it in three pieces
+of green copper, its relay half buried at the far end, stone thrown up round it; along the rim the keepers put a rope
+of chain on posts, and their sign. Its drive housing split open: the chest inside holds
+<span class="minecraft-tooltip" data-template="tmpl-6"><a href="archive.html">Archive Drive</a></span>s already filled with the relays&#39; writing. At most one in each region 40 chunks across.</p><h2>Sealed stacks</h2><p>Deep under the ground, with no way in but a wall of clay: a vaulted hall of the archive sealed in its last days, its
+shelves in bays behind folded doors with wax over them, boxes of records in waxed cloth down the middle, the sealing
+book on its lectern, and a lamp left on the long table; roots have come down through the vault. Their boxes hold filled
+<span class="minecraft-tooltip" data-template="tmpl-6"><a href="archive.html">Archive Drive</a></span>s. At most one in each region 64 chunks across.</p><h2>Archive houses, relay masts and buried vaults</h2><p>Small houses of calcite between pillars of tuff under roofs of deepslate tiles, one corner usually fallen in, that kept
+records; open masts of green copper on stepped tuff footings, an old relay still on top of most of them; and, under a
+lantern on a post beside a hatch, deep rooms with a bank of old accelerators and two chests, every one holding a
+<a href="salvage.html">salvaged model</a>. At most one in each region 56 chunks across, the vaults 64.</p><h2>What they hold</h2><ul><li><span class="minecraft-tooltip" data-template="tmpl-7"><a href="archive.html">Archive Shard</a></span>: pieces of the archive, mostly of what was written about the place they lie in: a
+relay tower&#39;s shards are mostly its keepers&#39; writing. See <a href="archive.html">The Archive</a>.</li><li>Photomasks with salvaged designs: the Fabricator makes working but unfused machines from them, without a Bench.
 Linear layer, softmax and GELU masks turn up in houses, matrix multiply ones under the gravel, and attention, layer
-norm, feed-forward and transformer masks in vaults. See <a href="bench.html">The Bench and the Fabricator</a>.</li><li><span class="minecraft-tooltip" data-template="tmpl-2"><span class="item-link">Schematic: Relays</span></span>: the plans for relays, a pattern to copy that stays in the crafting grid. On masts
-and in vaults.</li><li><span class="minecraft-tooltip" data-template="tmpl-3"><a href="getting-started.html">Weight Crystal</a></span>, blank <span class="minecraft-tooltip" data-template="tmpl-4"><a href="models.html">Checkpoint</a></span>s and a little gold.</li><li><span class="minecraft-tooltip" data-template="tmpl-5"><a href="salvage.html">Salvaged Model</a></span>: see <a href="salvage.html">Salvaged Models</a>.</li></ul><template id="tmpl-1"><img class="item-icon" src="!items/residual/archive_shard.Smp79iARajdi.png" alt="" aria-description="Archive Shard"/></template><template id="tmpl-2"><img class="item-icon" src="!items/residual/schematic_relays.kXRIQz0FJJzd.png" alt="" aria-description="Schematic: Relays"/></template><template id="tmpl-3"><img class="item-icon" src="!items/residual/weight_crystal.2zWefDh7UVyV.png" alt="" aria-description="Weight Crystal"/></template><template id="tmpl-4"><img class="item-icon" src="!items/residual/checkpoint.UFJ9ci3EVRE6.png" alt="" aria-description="Checkpoint"/></template><template id="tmpl-5"><img class="item-icon" src="!items/residual/salvaged_model.DhMNZ97UWu8c.png" alt="" aria-description="Salvaged Model"/></template>
+norm, feed-forward and transformer masks in vaults. See <a href="bench.html">The Bench and the Fabricator</a>.</li><li><span class="minecraft-tooltip" data-template="tmpl-8"><span class="item-link">Schematic: Relays</span></span>: the plans for relays, a pattern to copy that stays in the crafting grid. In
+relay towers, on masts and in vaults.</li><li>What each place kept: coal and food in the towers, flour and seed on the farms, remedies in the marsh, timber and
+tools at the slips; <span class="minecraft-tooltip" data-template="tmpl-9"><a href="getting-started.html">Weight Crystal</a></span>, blank <span class="minecraft-tooltip" data-template="tmpl-10"><a href="models.html">Checkpoint</a></span>s and a little gold.</li><li><span class="minecraft-tooltip" data-template="tmpl-11"><a href="salvage.html">Salvaged Model</a></span>: see <a href="salvage.html">Salvaged Models</a>.</li></ul><template id="tmpl-1"><img class="item-icon" src="!items/residual/wayfinder.oiD9E82n1C2x.png" alt="" aria-description="Wayfinder"/></template><template id="tmpl-2"><span class="item-name" data-rarity="common">Amethyst Shard</span></template><template id="tmpl-3"><span class="item-name" data-rarity="common">Copper Ingot</span></template><template id="tmpl-4"><span class="item-name" data-rarity="common">Compass</span></template><template id="tmpl-5"><span class="item-name" data-rarity="common">Wayfinder</span></template><template id="tmpl-6"><img class="item-icon" src="!items/residual/archive_drive.MJ1td1FfQz82.png" alt="" aria-description="Archive Drive"/></template><template id="tmpl-7"><img class="item-icon" src="!items/residual/archive_shard.KUqqYvbFhI9w.png" alt="" aria-description="Archive Shard"/></template><template id="tmpl-8"><img class="item-icon" src="!items/residual/schematic_relays.kXRIQz0FJJzd.png" alt="" aria-description="Schematic: Relays"/></template><template id="tmpl-9"><img class="item-icon" src="!items/residual/weight_crystal.eGeSUmFfp2pZ.png" alt="" aria-description="Weight Crystal"/></template><template id="tmpl-10"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt="" aria-description="Checkpoint"/></template><template id="tmpl-11"><img class="item-icon" src="!items/residual/salvaged_model.xitO1aiz78IX.png" alt="" aria-description="Salvaged Model"/></template>
     </div>
 </article>
 <div class="version-picker">Minecraft 26.1 [<a href="/">change</a>]</div>
 </main>
 <script src="assets/bundle-JKIV4HLD.js" defer type="module"></script>
+<script>
+// plays the field notes' clips: a first frame, then the 16x16 tiles each later frame changes
+async function playClip(canvas) {
+    const file = "clips/" + canvas.dataset.clip + ".clip";
+    const data = await (await fetch(document.body.dataset.pathToRoot + file)).arrayBuffer();
+    const view = new DataView(data);
+    let at = 4;
+    const u16 = () => (at += 2, view.getUint16(at - 2));
+    const image = async () => {
+        const size = view.getUint32(at);
+        const part = new Uint8Array(data, at + 4, size);
+        at += 4 + size;
+        return size ? createImageBitmap(new Blob([part])) : null;
+    };
+    const [width, height, display, ms, hold, frames, columns, tile] = Array.from({length: 8}, u16);
+    const first = await image(), atlas = await image();
+    const counts = Array.from({length: frames - 1}, u16);
+    const placed = counts.map(n => Array.from({length: n}, () => [u16(), u16(), u16()]));
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `calc(${display}px * var(--gui-scale, 2))`;
+    const context = canvas.getContext("2d");
+    context.drawImage(first, 0, 0);
+    let frame = 0, clock = 0, last = 0, paused = false, seen = true;
+    canvas.addEventListener("click", () => paused = !paused);
+    new IntersectionObserver(([entry]) => seen = entry.isIntersecting).observe(canvas);
+    const step = now => {
+        clock += seen && !paused ? Math.min(100, now - last) : 0;
+        last = now;
+        if (clock >= (frames - 1) * ms + hold) {
+            clock = frame = 0;
+            context.drawImage(first, 0, 0);
+        }
+        for (const target = Math.min(frames - 1, Math.floor(clock / ms)); frame < target; frame++) {
+            for (const [x, y, i] of placed[frame]) {
+                context.drawImage(atlas, i % columns * tile, Math.floor(i / columns) * tile, tile, tile, x * tile, y * tile, tile, tile);
+            }
+        }
+        requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+const clips = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+        if (entry.isIntersecting) {
+            clips.unobserve(entry.target);
+            playClip(entry.target);
+        }
+    }
+}, {rootMargin: "200px"});
+document.querySelectorAll("canvas[data-clip]").forEach(canvas => clips.observe(canvas));
+</script>
 </body>
 </html>

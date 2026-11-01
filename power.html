@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power - Residual for Minecraft 26.1</title>
+    <link rel="stylesheet" href="assets/bundle-FU6KDTWS.css"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/power.html"/><link rel="icon" href="web-assets/files/logo.AAtjhZ0W5kXE.png"/>
+    <style>
+        .logo > img { height: 32px; }
+        .notice {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: .25rem 1rem;
+            margin-bottom: 1rem;
+            padding: .5rem .75rem;
+            font-size: 16px;
+            background-color: #00000040;
+            border-left: calc(1px * var(--gui-scale)) solid #ffb547;
+        }
+        .notice strong { color: #ffb547; }
+        .notice nav { display: flex; gap: 1rem; margin-left: auto; }
+        canvas[data-clip] { display: block; max-width: 100%; margin: .5rem auto 1rem; cursor: pointer; background: #20242a; }
+    </style>
+</head>
+<body data-path-to-root="">
+
+<main>
+<div class="topLogoBar">
+    <a href="./" class="logo">
+        <img src="web-assets/files/logo.AAtjhZ0W5kXE.png" alt="" />
+        Residual
+    </a>
+    <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
+    <a
+            role="button"
+            class="navbar-burger"
+            aria-label="menu"
+    >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    </a>
+</div>
+<div class="page-title"><h1>Power</h1></div>
+<aside>
+    <span class="search-slot"></span>
+    <div class="navbar"><a href="index.html"><img class="item-icon" src="!items/residual/add.Lr6K4QXQblDi.png" alt=""/>Residual</a><a href="getting-started.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>Getting Started</a><a href="milestones.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>Milestones</a><a href="forecaster.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>The Forecaster</a><a href="storage.html"><img class="item-icon" src="!items/residual/drive_rack.wHpvJhn652xX.png" alt=""/>Storage</a><a href="ruins.html"><img class="item-icon" src="!items/residual/archive_shard.KUqqYvbFhI9w.png" alt=""/>Ruins</a><a href="archive.html"><img class="item-icon" src="!items/residual/archive_drive.MJ1td1FfQz82.png" alt=""/>The Archive</a><a href="tokenizers.html"><img class="item-icon" src="!items/residual/tokenizer.xdwcXWUIJd7o.png" alt=""/>Tokens</a><a href="bench.html"><img class="item-icon" src="!items/residual/bench.D3mxsQ90zr52.png" alt=""/>The Bench and the Fabricator</a><a href="core.html"><img class="item-icon" src="!items/residual/model_core.pA2CY0pBsFXw.png" alt=""/>The Model Core</a><a href="training.html"><img class="item-icon" src="!items/residual/accelerator.U9YxoZU82yMm.png" alt=""/>Training</a><a href="models.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>Models and Tests</a><a href="salvage.html"><img class="item-icon" src="!items/residual/salvaged_model.xitO1aiz78IX.png" alt=""/>Salvaged Models</a><a href="agents.html"><img class="item-icon" src="!items/residual/agent.cVkfsPTpTRXK.png" alt=""/>Agents</a><a href="architect.html"><img class="item-icon" src="!items/residual/survey_rod.XyPNqiiYShYc.png" alt=""/>The Architect</a><a href="surveyor.html"><img class="item-icon" src="!items/residual/surveyor.lWhdXfyJ9yxx.png" alt=""/>The Surveyor</a><a class="active" href="power.html"><img class="item-icon" src="!items/residual/combustion_generator.H7EsONecqXkK.png" alt=""/>Power</a><a href="flight.html"><img class="item-icon" src="!items/residual/flight_frame.DJQHRgkSUK6C.png" alt=""/>Flight</a><a href="deployment.html"><img class="item-icon" src="!items/residual/model_server.ZJtMt5OPPf3R.png" alt=""/>Serving Models</a><a href="wiring.html"><img class="item-icon" src="!items/residual/cable.vV5IAga6F3Ns.png" alt=""/>Machines and Cables</a><a href="stream.html"><img class="item-icon" src="!items/residual/stream.Xe90E4UCbX6u.webp" alt=""/>The Residual Stream</a><a href="shapes.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>Shapes</a><details><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="machines/index.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>Machines</a></summary><div class="sublevel"><a href="machines/embedding.html"><img class="item-icon" src="!items/residual/embedding.ik1JEaoae79T.png" alt=""/>Embedding Table</a><a href="machines/linear.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>Linear Layer</a><a href="machines/activation.html"><img class="item-icon" src="!items/residual/activation.IHidptOtMwBZ.png" alt=""/>Activation</a><a href="machines/shift.html"><img class="item-icon" src="!items/residual/shift.rGaNRcUfvNew.png" alt=""/>Delay Line</a><a href="machines/concat.html"><img class="item-icon" src="!items/residual/concat.XGUBFfrMlQdK.png" alt=""/>Concatenator</a><a href="machines/matmul.html"><img class="item-icon" src="!items/residual/matmul.bO8gBDbp1ssA.png" alt=""/>Matrix Multiplier</a><a href="machines/scale.html"><img class="item-icon" src="!items/residual/scale.boeU25ZPeDTr.png" alt=""/>Scaler</a><a href="machines/causal_mask.html"><img class="item-icon" src="!items/residual/causal_mask.Z1aUsqtDV87g.png" alt=""/>Causal Mask</a><a href="machines/softmax.html"><img class="item-icon" src="!items/residual/softmax.pl0FcHzNbhH5.png" alt=""/>Softmax</a><a href="machines/position.html"><img class="item-icon" src="!items/residual/position.xbRrpM1AWSvn.png" alt=""/>Position Table</a><a href="machines/add.html"><img class="item-icon" src="!items/residual/add.Lr6K4QXQblDi.png" alt=""/>Residual Junction</a><a href="machines/norm.html"><img class="item-icon" src="!items/residual/norm.JOMFuSH9RRKX.png" alt=""/>Normalizer</a><a href="machines/attention.html"><img class="item-icon" src="!items/residual/attention.f1QeGssP4m4P.png" alt=""/>Attention Head</a><a href="machines/mlp.html"><img class="item-icon" src="!items/residual/mlp.eF2J60kIJ802.png" alt=""/>Feed-Forward Block</a><a href="machines/transformer.html"><img class="item-icon" src="!items/residual/transformer.lhXT0vgBfS4P.png" alt=""/>Transformer Block</a><a href="machines/multiply.html"><img class="item-icon" src="!items/residual/multiply.SZA2VnBJ1u89.png" alt=""/>Gate</a><a href="machines/split_heads.html"><img class="item-icon" src="!items/residual/split_heads.pPcyJL6fB5KY.png" alt=""/>Head Splitter</a><a href="machines/merge_heads.html"><img class="item-icon" src="!items/residual/merge_heads.7hTEsRd49AnK.png" alt=""/>Head Merger</a></div></details></div>
+</aside>
+<article>
+    <div class="notice">
+        <span><strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your
+            <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.</span>
+        <nav>
+            <a href="https://github.com/metrovoc/Residual/releases">Download</a>
+            <a href="https://github.com/metrovoc/Residual">GitHub</a>
+            <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
+        </nav>
+    </div>
+    <div id="page-content">
+        <div class="inlinePageTitle"><h1>Power</h1></div><p>Power moves in Forge Energy (FE) along <span class="minecraft-tooltip" data-template="tmpl-1"><span class="item-link">Power Cable</span></span>s: from the blocks that make it to the blocks
+that store or use it, and to any other mod&#39;s block that takes FE.</p><canvas data-clip="power" aria-label="A Combustion Generator, cables, an Energy Cell and a Smelter at work" role="img"></canvas><img class="game-scene interactive" style="width: calc(168px * var(--gui-scale)); height: calc(90px * var(--gui-scale))" src="residual/power_scene1.j6rP9mFl7MPy.png" data-scene-src="residual/power_scene1.Lv8a5eFBQJjw.scene.gz" data-scene-width="168" data-scene-height="90" data-scene-zoom="4.0" data-scene-interactive="true" data-scene-in-world-annotations="[{&quot;type&quot;:&quot;box&quot;,&quot;minCorner&quot;:[0.0,0.0,0.0],&quot;maxCorner&quot;:[1.0,1.0,1.0],&quot;color&quot;:&quot;#FF8A5C&quot;,&quot;thickness&quot;:0.03125,&quot;contentTemplateId&quot;:&quot;tmpl-2&quot;,&quot;alwaysOnTop&quot;:false},{&quot;type&quot;:&quot;box&quot;,&quot;minCorner&quot;:[3.0,0.0,0.0],&quot;maxCorner&quot;:[4.0,1.0,1.0],&quot;color&quot;:&quot;#FF8A5C&quot;,&quot;thickness&quot;:0.03125,&quot;contentTemplateId&quot;:&quot;tmpl-3&quot;,&quot;alwaysOnTop&quot;:false},{&quot;type&quot;:&quot;box&quot;,&quot;minCorner&quot;:[2.0,0.0,1.0],&quot;maxCorner&quot;:[3.0,1.0,2.0],&quot;color&quot;:&quot;#FFB547&quot;,&quot;thickness&quot;:0.03125,&quot;contentTemplateId&quot;:&quot;tmpl-4&quot;,&quot;alwaysOnTop&quot;:false},{&quot;type&quot;:&quot;box&quot;,&quot;minCorner&quot;:[1.0,0.0,0.0],&quot;maxCorner&quot;:[3.0,1.0,1.0],&quot;color&quot;:&quot;#3CD6C6&quot;,&quot;thickness&quot;:0.03125,&quot;contentTemplateId&quot;:&quot;tmpl-5&quot;,&quot;alwaysOnTop&quot;:false}]" data-scene-overlay-annotations="[]" data-scene-asset-prefix="./"/><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-6"><span class="item-link">Combustion Generator</span></span> burns what a furnace burns and makes 80 FE a tick while it burns. A fuel
+lasts half as long as in a furnace, so a coal makes 64,000 FE. It burns only while it has room for what it makes, and
+holds 32,000 FE of its own.</p><div class="recipe-container"><div class="recipe-container"><div class="minecraft-frame"><div class="recipeBoxLayout"><div title="Combustion Generator"><img class="item-icon" src="!items/minecraft/crafting_table.xxwaNp1XJwGN.png" alt="" aria-description="Crafting Table"/>Crafting</div><div class="ingredients-box"><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-7"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="Tensor Casing"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-8"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_block.hNchTVmMzQL1.png" alt="" aria-description="Block of Copper"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-7"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="Tensor Casing"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-9"><span class="item-link"><img class="item-icon" src="!items/minecraft/iron_ingot.pqsZci4DpCyb.png" alt="" aria-description="Iron Ingot"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-10"><span class="item-link"><img class="item-icon" src="!items/minecraft/blast_furnace.OgBHBQxjNAgP.png" alt="" aria-description="Blast Furnace"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-9"><span class="item-link"><img class="item-icon" src="!items/minecraft/iron_ingot.pqsZci4DpCyb.png" alt="" aria-description="Iron Ingot"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-7"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="Tensor Casing"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-11"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone_block.vyx4VUVAm1eJ.png" alt="" aria-description="Block of Redstone"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-7"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="Tensor Casing"/></a></span></div></div><svg class="recipe-arrow" viewBox="0 0 85 50"><path d="M 0 20 H 60 V 0 L 85 25 L 60 50 L 60 30 L 0 30 Z" fill="#8b8b8b"></path></svg><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-12"><span class="item-link"><img class="item-icon" src="!items/residual/combustion_generator.H7EsONecqXkK.png" alt="" aria-description="Combustion Generator"/></span></span></div></div></div></div></div><h2>Moving and storing it</h2><p>Power Cables join generators, cells and machines into one network. Each tick the machines take what they need from
+the generators, then from the cells; whatever the generators make beyond that charges the cells. An
+<span class="minecraft-tooltip" data-template="tmpl-13"><span class="item-link">Energy Cell</span></span> holds 1,000,000 FE and moves up to 2,000 FE a tick each way. Its faces fill in quarters
+as it charges, and a comparator beside it reads how full it is.</p><div class="layout-row"><div class="recipe-container"><div class="recipe-container"><div class="minecraft-frame"><div class="recipeBoxLayout"><div title="Power Cable"><img class="item-icon" src="!items/minecraft/crafting_table.xxwaNp1XJwGN.png" alt="" aria-description="Crafting Table"/>Crafting</div><div class="ingredients-box"><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-14"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="Copper Ingot"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-14"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="Copper Ingot"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-14"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="Copper Ingot"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-15"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone.DmtFdzo6Uxue.png" alt="" aria-description="Redstone Dust"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-15"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone.DmtFdzo6Uxue.png" alt="" aria-description="Redstone Dust"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-15"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone.DmtFdzo6Uxue.png" alt="" aria-description="Redstone Dust"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-14"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="Copper Ingot"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-14"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="Copper Ingot"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-14"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="Copper Ingot"/></span></span></div></div><svg class="recipe-arrow" viewBox="0 0 85 50"><path d="M 0 20 H 60 V 0 L 85 25 L 60 50 L 60 30 L 0 30 Z" fill="#8b8b8b"></path></svg><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-16"><span class="item-link"><img class="item-icon" src="!items/residual/power_cable.Aril4eA1VjzZ.png" alt="" aria-description="Power Cable"/></span></span></div></div></div></div></div><div class="recipe-container"><div class="recipe-container"><div class="minecraft-frame"><div class="recipeBoxLayout"><div title="Energy Cell"><img class="item-icon" src="!items/minecraft/crafting_table.xxwaNp1XJwGN.png" alt="" aria-description="Crafting Table"/>Crafting</div><div class="ingredients-box"><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-7"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="Tensor Casing"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-11"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone_block.vyx4VUVAm1eJ.png" alt="" aria-description="Block of Redstone"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-7"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="Tensor Casing"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-11"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone_block.vyx4VUVAm1eJ.png" alt="" aria-description="Block of Redstone"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-8"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_block.hNchTVmMzQL1.png" alt="" aria-description="Block of Copper"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-11"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone_block.vyx4VUVAm1eJ.png" alt="" aria-description="Block of Redstone"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-7"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="Tensor Casing"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-11"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone_block.vyx4VUVAm1eJ.png" alt="" aria-description="Block of Redstone"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-7"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="Tensor Casing"/></a></span></div></div><svg class="recipe-arrow" viewBox="0 0 85 50"><path d="M 0 20 H 60 V 0 L 85 25 L 60 50 L 60 30 L 0 30 Z" fill="#8b8b8b"></path></svg><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-17"><span class="item-link"><img class="item-icon" src="!items/residual/energy_cell.uErAjVsl3Kg9.png" alt="" aria-description="Energy Cell"/></span></span></div></div></div></div></div></div><h2>The Smelter</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-18"><span class="item-link">Smelter</span></span> smelts anything a furnace does on 80 FE a tick instead of fuel, an item every five
+seconds. From an ore or a raw ore it makes two of what a furnace makes from one. The Fabricator makes it from a
+transformer photomask.</p><h2>The controller</h2><canvas data-clip="smelter" aria-label="A controller in the Smelter&#39;s slot, holding its melt in the band" role="img"></canvas><p>Put a model in the Smelter&#39;s <strong>Controller</strong> slot, and each ore becomes a melt it holds in its band: at a look every four
+ticks it asks the model whether to cool the melt, hold it or heat it, and waits for the answer. A melt held in the band
+at 90% of its looks or more makes three ingots instead of two; a model passes the Control test by holding nine melts in
+ten of every ore the test plays. The slot is in the panel beside the Smelter&#39;s screen; between its ore and its ingots,
+the screen draws the melt look by look, the band shaded, and pointing at it tells how much of the last melt was held. A
+model learns this on the <span class="minecraft-tooltip" data-template="tmpl-19"><a href="models.html">Process Dataset</a></span>: see <a href="models.html">Models and Tests</a>.</p><h2>Other blocks</h2><p>Hoppers and Ports feed the generator and the Smelter from any side and take the Smelter&#39;s ingots out. Other mods&#39;
+cables can draw power from generators and cells, and give it to cells and the Smelter.</p><template id="tmpl-1"><img class="item-icon" src="!items/residual/power_cable.Aril4eA1VjzZ.png" alt="" aria-description="Power Cable"/></template><template id="tmpl-2"><p>A Combustion Generator, burning.</p></template><template id="tmpl-3"><p>An Energy Cell, three quarters full.</p></template><template id="tmpl-4"><p>A Smelter, working on its power.</p></template><template id="tmpl-5"><p>Power Cables join them.</p></template><template id="tmpl-6"><img class="item-icon" src="!items/residual/combustion_generator.H7EsONecqXkK.png" alt="" aria-description="Combustion Generator"/></template><template id="tmpl-7"><span class="item-name" data-rarity="common">Tensor Casing</span></template><template id="tmpl-8"><span class="item-name" data-rarity="common">Block of Copper</span></template><template id="tmpl-9"><span class="item-name" data-rarity="common">Iron Ingot</span></template><template id="tmpl-10"><span class="item-name" data-rarity="common">Blast Furnace</span></template><template id="tmpl-11"><span class="item-name" data-rarity="common">Block of Redstone</span></template><template id="tmpl-12"><span class="item-name" data-rarity="common">Combustion Generator</span></template><template id="tmpl-13"><img class="item-icon" src="!items/residual/energy_cell.uErAjVsl3Kg9.png" alt="" aria-description="Energy Cell"/></template><template id="tmpl-14"><span class="item-name" data-rarity="common">Copper Ingot</span></template><template id="tmpl-15"><span class="item-name" data-rarity="common">Redstone Dust</span></template><template id="tmpl-16"><span class="item-name" data-rarity="common">Power Cable</span></template><template id="tmpl-17"><span class="item-name" data-rarity="common">Energy Cell</span></template><template id="tmpl-18"><img class="item-icon" src="!items/residual/smelter.egfgJvPJpmsZ.png" alt="" aria-description="Smelter"/></template><template id="tmpl-19"><img class="item-icon" src="!items/residual/process_dataset.3gvgYHFUKSop.png" alt="" aria-description="Process Dataset"/></template>
+    </div>
+</article>
+<div class="version-picker">Minecraft 26.1 [<a href="/">change</a>]</div>
+</main>
+<script src="assets/bundle-JKIV4HLD.js" defer type="module"></script>
+<script>
+// plays the field notes' clips: a first frame, then the 16x16 tiles each later frame changes
+async function playClip(canvas) {
+    const file = "clips/" + canvas.dataset.clip + ".clip";
+    const data = await (await fetch(document.body.dataset.pathToRoot + file)).arrayBuffer();
+    const view = new DataView(data);
+    let at = 4;
+    const u16 = () => (at += 2, view.getUint16(at - 2));
+    const image = async () => {
+        const size = view.getUint32(at);
+        const part = new Uint8Array(data, at + 4, size);
+        at += 4 + size;
+        return size ? createImageBitmap(new Blob([part])) : null;
+    };
+    const [width, height, display, ms, hold, frames, columns, tile] = Array.from({length: 8}, u16);
+    const first = await image(), atlas = await image();
+    const counts = Array.from({length: frames - 1}, u16);
+    const placed = counts.map(n => Array.from({length: n}, () => [u16(), u16(), u16()]));
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `calc(${display}px * var(--gui-scale, 2))`;
+    const context = canvas.getContext("2d");
+    context.drawImage(first, 0, 0);
+    let frame = 0, clock = 0, last = 0, paused = false, seen = true;
+    canvas.addEventListener("click", () => paused = !paused);
+    new IntersectionObserver(([entry]) => seen = entry.isIntersecting).observe(canvas);
+    const step = now => {
+        clock += seen && !paused ? Math.min(100, now - last) : 0;
+        last = now;
+        if (clock >= (frames - 1) * ms + hold) {
+            clock = frame = 0;
+            context.drawImage(first, 0, 0);
+        }
+        for (const target = Math.min(frames - 1, Math.floor(clock / ms)); frame < target; frame++) {
+            for (const [x, y, i] of placed[frame]) {
+                context.drawImage(atlas, i % columns * tile, Math.floor(i / columns) * tile, tile, tile, x * tile, y * tile, tile, tile);
+            }
+        }
+        requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+const clips = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+        if (entry.isIntersecting) {
+            clips.unobserve(entry.target);
+            playClip(entry.target);
+        }
+    }
+}, {rootMargin: "200px"});
+document.querySelectorAll("canvas[data-clip]").forEach(canvas => clips.observe(canvas));
+</script>
+</body>
+</html>

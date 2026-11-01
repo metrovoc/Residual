@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Position Table - Residual for Minecraft 26.1</title>
     <link rel="stylesheet" href="../assets/bundle-FU6KDTWS.css"/>
-    <link rel="canonical" href="https://metrovoc.github.io/Residual/machines/position.html"/><link rel="icon" href="../web-assets/files/logo.9jQG5iccEuZT.png"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/machines/position.html"/><link rel="icon" href="../web-assets/files/logo.AAtjhZ0W5kXE.png"/>
     <style>
         .logo > img { height: 32px; }
         .notice {
@@ -21,6 +21,7 @@
         }
         .notice strong { color: #ffb547; }
         .notice nav { display: flex; gap: 1rem; margin-left: auto; }
+        canvas[data-clip] { display: block; max-width: 100%; margin: .5rem auto 1rem; cursor: pointer; background: #20242a; }
     </style>
 </head>
 <body data-path-to-root="../">
@@ -28,7 +29,7 @@
 <main>
 <div class="topLogoBar">
     <a href="../" class="logo">
-        <img src="../web-assets/files/logo.9jQG5iccEuZT.png" alt="" />
+        <img src="../web-assets/files/logo.AAtjhZ0W5kXE.png" alt="" />
         Residual
     </a>
     <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
@@ -45,7 +46,7 @@
 <div class="page-title"><h1>Position Table</h1></div>
 <aside>
     <span class="search-slot"></span>
-    <div class="navbar"><a href="../index.html"><img class="item-icon" src="../!items/residual/add.NQuftmpuk8DN.png" alt=""/>Residual</a><a href="../getting-started.html"><img class="item-icon" src="../!items/residual/agent.iRJaZcxGm0IH.png" alt=""/>Getting Started</a><a href="../milestones.html"><img class="item-icon" src="../!items/residual/checkpoint.UFJ9ci3EVRE6.png" alt=""/>Milestones</a><a href="../ruins.html"><img class="item-icon" src="../!items/residual/archive_shard.Smp79iARajdi.png" alt=""/>Ruins</a><a href="../archive.html"><img class="item-icon" src="../!items/residual/archive_drive.uTfQcoApe3fs.png" alt=""/>The Archive</a><a href="../tokenizers.html"><img class="item-icon" src="../!items/residual/tokenizer.L34TQCwAyk09.png" alt=""/>Tokens</a><a href="../bench.html"><img class="item-icon" src="../!items/residual/bench.EIKvJE5CYQsA.png" alt=""/>The Bench and the Fabricator</a><a href="../core.html"><img class="item-icon" src="../!items/residual/model_core.HIPMYhTUn2RQ.png" alt=""/>The Model Core</a><a href="../training.html"><img class="item-icon" src="../!items/residual/accelerator.Giv1MwMNo4pC.png" alt=""/>Training</a><a href="../models.html"><img class="item-icon" src="../!items/residual/checkpoint.UFJ9ci3EVRE6.png" alt=""/>Models and Tests</a><a href="../salvage.html"><img class="item-icon" src="../!items/residual/salvaged_model.DhMNZ97UWu8c.png" alt=""/>Salvaged Models</a><a href="../agents.html"><img class="item-icon" src="../!items/residual/agent.iRJaZcxGm0IH.png" alt=""/>Agents</a><a href="../forecaster.html"><img class="item-icon" src="../!items/residual/forecaster.Y28muusHsUVT.png" alt=""/>The Forecaster</a><a href="../deployment.html"><img class="item-icon" src="../!items/residual/model_server.JAO79A88B6tr.png" alt=""/>Serving Models</a><a href="../wiring.html"><img class="item-icon" src="../!items/residual/cable.yDXf3ObDkaQ3.png" alt=""/>Machines and Cables</a><a href="../stream.html"><img class="item-icon" src="../!items/residual/stream.GIhziywfMrqZ.webp" alt=""/>The Residual Stream</a><a href="../shapes.html"><img class="item-icon" src="../!items/residual/linear.Zt3yw7tkmLt3.png" alt=""/>Shapes</a><details open><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="../machines/index.html"><img class="item-icon" src="../!items/residual/linear.Zt3yw7tkmLt3.png" alt=""/>Machines</a></summary><div class="sublevel"><a href="../machines/embedding.html"><img class="item-icon" src="../!items/residual/embedding.m3Jy0mRGJhj9.png" alt=""/>Embedding Table</a><a href="../machines/linear.html"><img class="item-icon" src="../!items/residual/linear.Zt3yw7tkmLt3.png" alt=""/>Linear Layer</a><a href="../machines/activation.html"><img class="item-icon" src="../!items/residual/activation.p029zcZbcpXr.png" alt=""/>Activation</a><a href="../machines/shift.html"><img class="item-icon" src="../!items/residual/shift.9v0fQy4tIp3H.png" alt=""/>Delay Line</a><a href="../machines/concat.html"><img class="item-icon" src="../!items/residual/concat.5xC0YacfkiaS.png" alt=""/>Concatenator</a><a href="../machines/matmul.html"><img class="item-icon" src="../!items/residual/matmul.jxS8PDFnCg1p.png" alt=""/>Matrix Multiplier</a><a href="../machines/scale.html"><img class="item-icon" src="../!items/residual/scale.x1viMDt1tQ83.png" alt=""/>Scaler</a><a href="../machines/causal_mask.html"><img class="item-icon" src="../!items/residual/causal_mask.17WBvhhy7TWm.png" alt=""/>Causal Mask</a><a href="../machines/softmax.html"><img class="item-icon" src="../!items/residual/softmax.aokynbASAfId.png" alt=""/>Softmax</a><a class="active" href="../machines/position.html"><img class="item-icon" src="../!items/residual/position.uJ16IihOBf0K.png" alt=""/>Position Table</a><a href="../machines/add.html"><img class="item-icon" src="../!items/residual/add.NQuftmpuk8DN.png" alt=""/>Residual Junction</a><a href="../machines/norm.html"><img class="item-icon" src="../!items/residual/norm.xNbtW99ozUbS.png" alt=""/>Normalizer</a><a href="../machines/attention.html"><img class="item-icon" src="../!items/residual/attention.seUUUOwhQzIB.png" alt=""/>Attention Head</a><a href="../machines/mlp.html"><img class="item-icon" src="../!items/residual/mlp.nisahPS0E00D.png" alt=""/>Feed-Forward Block</a><a href="../machines/transformer.html"><img class="item-icon" src="../!items/residual/transformer.DNlPug3UuUlZ.png" alt=""/>Transformer Block</a><a href="../machines/multiply.html"><img class="item-icon" src="../!items/residual/multiply.foAzqQ5ketvL.png" alt=""/>Gate</a><a href="../machines/split_heads.html"><img class="item-icon" src="../!items/residual/split_heads.ALmUzgAv9p65.png" alt=""/>Head Splitter</a><a href="../machines/merge_heads.html"><img class="item-icon" src="../!items/residual/merge_heads.SzcWF8uiNNUq.png" alt=""/>Head Merger</a></div></details></div>
+    <div class="navbar"><a href="../index.html"><img class="item-icon" src="../!items/residual/add.Lr6K4QXQblDi.png" alt=""/>Residual</a><a href="../getting-started.html"><img class="item-icon" src="../!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>Getting Started</a><a href="../milestones.html"><img class="item-icon" src="../!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>Milestones</a><a href="../forecaster.html"><img class="item-icon" src="../!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>The Forecaster</a><a href="../storage.html"><img class="item-icon" src="../!items/residual/drive_rack.wHpvJhn652xX.png" alt=""/>Storage</a><a href="../ruins.html"><img class="item-icon" src="../!items/residual/archive_shard.KUqqYvbFhI9w.png" alt=""/>Ruins</a><a href="../archive.html"><img class="item-icon" src="../!items/residual/archive_drive.MJ1td1FfQz82.png" alt=""/>The Archive</a><a href="../tokenizers.html"><img class="item-icon" src="../!items/residual/tokenizer.xdwcXWUIJd7o.png" alt=""/>Tokens</a><a href="../bench.html"><img class="item-icon" src="../!items/residual/bench.D3mxsQ90zr52.png" alt=""/>The Bench and the Fabricator</a><a href="../core.html"><img class="item-icon" src="../!items/residual/model_core.pA2CY0pBsFXw.png" alt=""/>The Model Core</a><a href="../training.html"><img class="item-icon" src="../!items/residual/accelerator.U9YxoZU82yMm.png" alt=""/>Training</a><a href="../models.html"><img class="item-icon" src="../!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>Models and Tests</a><a href="../salvage.html"><img class="item-icon" src="../!items/residual/salvaged_model.xitO1aiz78IX.png" alt=""/>Salvaged Models</a><a href="../agents.html"><img class="item-icon" src="../!items/residual/agent.cVkfsPTpTRXK.png" alt=""/>Agents</a><a href="../architect.html"><img class="item-icon" src="../!items/residual/survey_rod.XyPNqiiYShYc.png" alt=""/>The Architect</a><a href="../surveyor.html"><img class="item-icon" src="../!items/residual/surveyor.lWhdXfyJ9yxx.png" alt=""/>The Surveyor</a><a href="../power.html"><img class="item-icon" src="../!items/residual/combustion_generator.H7EsONecqXkK.png" alt=""/>Power</a><a href="../flight.html"><img class="item-icon" src="../!items/residual/flight_frame.DJQHRgkSUK6C.png" alt=""/>Flight</a><a href="../deployment.html"><img class="item-icon" src="../!items/residual/model_server.ZJtMt5OPPf3R.png" alt=""/>Serving Models</a><a href="../wiring.html"><img class="item-icon" src="../!items/residual/cable.vV5IAga6F3Ns.png" alt=""/>Machines and Cables</a><a href="../stream.html"><img class="item-icon" src="../!items/residual/stream.Xe90E4UCbX6u.webp" alt=""/>The Residual Stream</a><a href="../shapes.html"><img class="item-icon" src="../!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>Shapes</a><details open><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="../machines/index.html"><img class="item-icon" src="../!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>Machines</a></summary><div class="sublevel"><a href="../machines/embedding.html"><img class="item-icon" src="../!items/residual/embedding.ik1JEaoae79T.png" alt=""/>Embedding Table</a><a href="../machines/linear.html"><img class="item-icon" src="../!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>Linear Layer</a><a href="../machines/activation.html"><img class="item-icon" src="../!items/residual/activation.IHidptOtMwBZ.png" alt=""/>Activation</a><a href="../machines/shift.html"><img class="item-icon" src="../!items/residual/shift.rGaNRcUfvNew.png" alt=""/>Delay Line</a><a href="../machines/concat.html"><img class="item-icon" src="../!items/residual/concat.XGUBFfrMlQdK.png" alt=""/>Concatenator</a><a href="../machines/matmul.html"><img class="item-icon" src="../!items/residual/matmul.bO8gBDbp1ssA.png" alt=""/>Matrix Multiplier</a><a href="../machines/scale.html"><img class="item-icon" src="../!items/residual/scale.boeU25ZPeDTr.png" alt=""/>Scaler</a><a href="../machines/causal_mask.html"><img class="item-icon" src="../!items/residual/causal_mask.Z1aUsqtDV87g.png" alt=""/>Causal Mask</a><a href="../machines/softmax.html"><img class="item-icon" src="../!items/residual/softmax.pl0FcHzNbhH5.png" alt=""/>Softmax</a><a class="active" href="../machines/position.html"><img class="item-icon" src="../!items/residual/position.xbRrpM1AWSvn.png" alt=""/>Position Table</a><a href="../machines/add.html"><img class="item-icon" src="../!items/residual/add.Lr6K4QXQblDi.png" alt=""/>Residual Junction</a><a href="../machines/norm.html"><img class="item-icon" src="../!items/residual/norm.JOMFuSH9RRKX.png" alt=""/>Normalizer</a><a href="../machines/attention.html"><img class="item-icon" src="../!items/residual/attention.f1QeGssP4m4P.png" alt=""/>Attention Head</a><a href="../machines/mlp.html"><img class="item-icon" src="../!items/residual/mlp.eF2J60kIJ802.png" alt=""/>Feed-Forward Block</a><a href="../machines/transformer.html"><img class="item-icon" src="../!items/residual/transformer.lhXT0vgBfS4P.png" alt=""/>Transformer Block</a><a href="../machines/multiply.html"><img class="item-icon" src="../!items/residual/multiply.SZA2VnBJ1u89.png" alt=""/>Gate</a><a href="../machines/split_heads.html"><img class="item-icon" src="../!items/residual/split_heads.pPcyJL6fB5KY.png" alt=""/>Head Splitter</a><a href="../machines/merge_heads.html"><img class="item-icon" src="../!items/residual/merge_heads.7hTEsRd49AnK.png" alt=""/>Head Merger</a></div></details></div>
 </aside>
 <article>
     <div class="notice">
@@ -58,13 +59,65 @@
         </nav>
     </div>
     <div id="page-content">
-        <div class="inlinePageTitle"><h1>Position Table</h1></div><img class="block-image" srcset="../residual/machines/position_blockimage1@2.oIlfn6epoF8X.png, ../residual/machines/position_blockimage1@4.PAVC4tuSi2K6.png 2x, ../residual/machines/position_blockimage1@8.GzG7GMPocGqx.png 4x" src="../residual/machines/position_blockimage1@2.oIlfn6epoF8X.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>A learned vector for every position in the context, from 0 to T − 1. It takes no input. Add its output to
+        <div class="inlinePageTitle"><h1>Position Table</h1></div><img class="block-image" srcset="../residual/machines/position_blockimage1@2.tmdZXHJZRNa5.png, ../residual/machines/position_blockimage1@4.Ah6XsEpfSmeu.png 2x, ../residual/machines/position_blockimage1@8.ZWrHdQXZzZOR.png 4x" src="../residual/machines/position_blockimage1@2.tmdZXHJZRNa5.png" alt="" style="height: calc(48.0px * var(--gui-scale)); width: calc(43.0px * var(--gui-scale))"/><p>A learned vector for every position in the context, from 0 to T − 1. It takes no input. Add its output to
 the token vectors with a Residual Junction, and every position carries both what it is and where it is.</p><p><img src="../residual/formulas/position.tR6VpsR5Sp9d.png" alt="token plus position"/></p><h2>Shapes</h2><p>No input. [T×C] out, which a Residual Junction adds to every sequence in the batch.</p><h2>Settings</h2><ul><li><strong>Width</strong>: 4 to 256. 32 by default. Match it to the Embedding Table&#39;s width.</li></ul><h2>Parameters</h2><p>T × C, where T is the context length, 64.</p><h2>In PyTorch</h2><blockquote><p><code>self.pos = nn.Embedding(T, C)</code><br/><code>x = self.embed(tokens) + self.pos(torch.arange(T))</code></p></blockquote><h2>Notes</h2><p>Learned positions are what GPT-2 used. Most recent models instead rotate each query and key by an angle that
-depends on its position (RoPE), so that attention scores depend on how far apart two tokens are.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it with no mask. See <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.xzUCsNSFMWwp.png" alt="" aria-description="Fabricator"/></template>
+depends on its position (RoPE), so that attention scores depend on how far apart two tokens are.</p><h2>Making it</h2><p>The <span class="minecraft-tooltip" data-template="tmpl-1"><a href="../bench.html">Fabricator</a></span> makes it with no mask. See <a href="../bench.html">The Bench and the Fabricator</a>.</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/fabricator.5MgdvTPYjxro.png" alt="" aria-description="Fabricator"/></template>
     </div>
 </article>
 <div class="version-picker">Minecraft 26.1 [<a href="/">change</a>]</div>
 </main>
 <script src="../assets/bundle-JKIV4HLD.js" defer type="module"></script>
+<script>
+// plays the field notes' clips: a first frame, then the 16x16 tiles each later frame changes
+async function playClip(canvas) {
+    const file = "clips/" + canvas.dataset.clip + ".clip";
+    const data = await (await fetch(document.body.dataset.pathToRoot + file)).arrayBuffer();
+    const view = new DataView(data);
+    let at = 4;
+    const u16 = () => (at += 2, view.getUint16(at - 2));
+    const image = async () => {
+        const size = view.getUint32(at);
+        const part = new Uint8Array(data, at + 4, size);
+        at += 4 + size;
+        return size ? createImageBitmap(new Blob([part])) : null;
+    };
+    const [width, height, display, ms, hold, frames, columns, tile] = Array.from({length: 8}, u16);
+    const first = await image(), atlas = await image();
+    const counts = Array.from({length: frames - 1}, u16);
+    const placed = counts.map(n => Array.from({length: n}, () => [u16(), u16(), u16()]));
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `calc(${display}px * var(--gui-scale, 2))`;
+    const context = canvas.getContext("2d");
+    context.drawImage(first, 0, 0);
+    let frame = 0, clock = 0, last = 0, paused = false, seen = true;
+    canvas.addEventListener("click", () => paused = !paused);
+    new IntersectionObserver(([entry]) => seen = entry.isIntersecting).observe(canvas);
+    const step = now => {
+        clock += seen && !paused ? Math.min(100, now - last) : 0;
+        last = now;
+        if (clock >= (frames - 1) * ms + hold) {
+            clock = frame = 0;
+            context.drawImage(first, 0, 0);
+        }
+        for (const target = Math.min(frames - 1, Math.floor(clock / ms)); frame < target; frame++) {
+            for (const [x, y, i] of placed[frame]) {
+                context.drawImage(atlas, i % columns * tile, Math.floor(i / columns) * tile, tile, tile, x * tile, y * tile, tile, tile);
+            }
+        }
+        requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+const clips = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+        if (entry.isIntersecting) {
+            clips.unobserve(entry.target);
+            playClip(entry.target);
+        }
+    }
+}, {rootMargin: "200px"});
+document.querySelectorAll("canvas[data-clip]").forEach(canvas => clips.observe(canvas));
+</script>
 </body>
 </html>
