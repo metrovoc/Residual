@@ -10,7 +10,7 @@ import java.util.Arrays;
 public final class Tape {
     private final ArrayList<Runnable> backward = new ArrayList<>();
 
-    void record(Runnable step) {
+    public void record(Runnable step) {
         backward.add(step);
     }
 
@@ -24,6 +24,11 @@ public final class Tape {
             throw new IllegalArgumentException("backward() needs a scalar, got " + loss.shapeString());
         }
         Arrays.fill(loss.grad(), 1f);
+        replay();
+    }
+
+    /** Runs what it recorded, last first: the gradients of what came out of it must already be set. */
+    public void replay() {
         for (int i = backward.size() - 1; i >= 0; i--) {
             backward.get(i).run();
         }

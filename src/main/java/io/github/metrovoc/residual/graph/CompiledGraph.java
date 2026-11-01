@@ -1,6 +1,8 @@
 package io.github.metrovoc.residual.graph;
 
 import io.github.metrovoc.residual.learn.Vocab;
+import io.github.metrovoc.residual.compute.Flops;
+import io.github.metrovoc.residual.compute.Split;
 import io.github.metrovoc.residual.graph.CompileException.Issue;
 import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.ShapeException;
@@ -14,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.IntFunction;
 import net.minecraft.network.chat.Component;
 
@@ -28,6 +31,9 @@ public final class CompiledGraph {
     private final List<Map<String, Tensor>> params;
     /** What its numbers are rounded to on the way through it. */
     public volatile Numerics.Format precision = Numerics.Format.FP32;
+    /** How its training is split across devices, or null for one device. */
+    public volatile Split split;
+    private Boolean addsToLoss;
 
     private CompiledGraph(GraphSpec spec, Env env, int[] order, Sym[] shapes, List<Map<String, Tensor>> params) {
         this.spec = spec;
@@ -224,22 +230,34 @@ public final class CompiledGraph {
         return forward(tape, tokens, captures, extras, precision);
     }
 
-    /** As {@link #forward(Tape, Tokens, Captures, Extras)}, its numbers rounded to {@code format}. */
+    /**
+     * As {@link #forward(Tape, Tokens, Captures, Extras)}, its numbers rounded to {@code format}. A split takes a plain training pass;
+     * rounding, rows packed with masks and what machines add to the loss are done on one device.
+     */
     public Tensor forward(Tape tape, Tokens tokens, Captures captures, Extras extras, Numerics.Format format) {
+        return split != null && tape != null && captures == null && format == Numerics.Format.FP32 && tokens.starts == null && !addsToLoss()
+                ? split.forward(tape, tokens) : plain(tape, tokens, captures, extras, format);
+    }
+
+    /** Whether any of its machines adds to the loss, found by a pass over one token the first time it is asked. */
+    private boolean addsToLoss() {
+        if (addsToLoss == null) {
+            Extras probe = new Extras();
+            plain(null, new Tokens(new int[1], 1, 1), null, probe, Numerics.Format.FP32);
+            addsToLoss = !probe.penalties.isEmpty() || probe.second != null;
+        }
+        return addsToLoss;
+    }
+
+    /** {@link #forward} on this thread alone, whatever its split. */
+    public Tensor plain(Tape tape, Tokens tokens, Captures captures) {
+        return plain(tape, tokens, captures, null, Numerics.Format.FP32);
+    }
+
+    private Tensor plain(Tape tape, Tokens tokens, Captures captures, Extras extras, Numerics.Format format) {
         Object[] values = new Object[spec.size()];
         for (int node : order) {
-            GraphSpec.Node nd = spec.node(node);
-            Object[] in = new Object[nd.op.arity];
-            for (int i = 0; i < in.length; i++) {
-                int src = nd.inputs[i];
-                in[i] = src == GraphSpec.TOKENS ? tokens : values[src];
-            }
-            Tensor out = nd.op.run(tape, in, narrowed(tape, params.get(node), format), nd.config, new Op.Frame(node, tokens.time, captures,
-                    nd.fused, extras, format(node, format), tokens.starts, tokens.batch));
-            values[node] = out;
-            if (captures != null) {
-                captures.output(node, out);
-            }
+            node(node, values, tape, tokens, captures, extras, format);
         }
         return (Tensor) values[spec.output];
     }
@@ -293,6 +311,40 @@ public final class CompiledGraph {
         List<Tensor> out = parameters();
         out.removeAll(hiddenMatrices());
         return out;
+    }
+
+    /** Runs one node, whose inputs are in {@code values}, and puts what it makes there. */
+    public void node(int node, Object[] values, Tape tape, Tokens tokens, Captures captures) {
+        node(node, values, tape, tokens, captures, null, Numerics.Format.FP32);
+    }
+
+    private void node(int node, Object[] values, Tape tape, Tokens tokens, Captures captures, Extras extras, Numerics.Format format) {
+        GraphSpec.Node nd = spec.node(node);
+        Object[] in = new Object[nd.op.arity];
+        for (int i = 0; i < in.length; i++) {
+            int src = nd.inputs[i];
+            in[i] = src == GraphSpec.TOKENS ? tokens : values[src];
+        }
+        Tensor out = nd.op.run(tape, in, narrowed(tape, params.get(node), format), nd.config, new Op.Frame(node, tokens.time, captures,
+                nd.fused, extras, format(node, format), tokens.starts, tokens.batch));
+        values[node] = out;
+        if (captures != null) {
+            captures.output(node, out);
+        }
+    }
+
+    /** What each node in {@link #order} costs in flops, on one row of the longest context. */
+    public long[] costs() {
+        Tokens probe = new Tokens(new int[env.context()], 1, env.context());
+        Object[] values = new Object[spec.size()];
+        long[] cost = new long[order.length];
+        for (int i = 0; i < order.length; i++) {
+            LongAdder counted = new LongAdder();
+            int node = order[i];
+            Flops.with(counted, () -> node(node, values, null, probe, null));
+            cost[i] = counted.sum();
+        }
+        return cost;
     }
 
     public Map<String, Tensor> params(int node) {

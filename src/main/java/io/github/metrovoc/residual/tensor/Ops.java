@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.tensor;
 
+import io.github.metrovoc.residual.compute.Flops;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +46,10 @@ public final class Ops {
     }
 
     private static Tensor result(int[] shape, boolean requiresGrad) {
-        return new Tensor(shape, new float[Tensor.numel(shape)], requiresGrad);
+        int size = Tensor.numel(shape);
+        // a flop for each number made, and another for the gradient that will come back through it
+        Flops.add(requiresGrad ? 2L * size : size);
+        return new Tensor(shape, new float[size], requiresGrad);
     }
 
     // ------------------------------------------------------------------ matmul
@@ -59,60 +63,42 @@ public final class Ops {
         if (transA && transB) {
             throw new UnsupportedOperationException("gemm TT");
         }
-        if (!transA && !transB) {
-            Parallel.range(m, (long) k * n, (from, to) -> {
-                for (int i = from; i < to; i++) {
-                    int ci = co + i * n;
-                    if (!accumulate) {
-                        Arrays.fill(c, ci, ci + n, 0f);
-                    }
-                    int ai = ao + i * k;
+        Flops.add(2L * m * k * n);
+        if (!Parallel.columns(m, n, (long) m * k, (from, to) -> gemm(a, ao, b, bo, c, co, m, k, n, transA, transB, accumulate, 0, m, from, to))) {
+            Parallel.range(m, (long) k * n, (from, to) -> gemm(a, ao, b, bo, c, co, m, k, n, transA, transB, accumulate, from, to, 0, n));
+        }
+    }
+
+    /** Rows {@code i0} to {@code i1} and columns {@code j0} to {@code j1} of {@link #gemm}'s result. */
+    private static void gemm(float[] a, int ao, float[] b, int bo, float[] c, int co, int m, int k, int n,
+                             boolean transA, boolean transB, boolean accumulate, int i0, int i1, int j0, int j1) {
+        for (int i = i0; i < i1; i++) {
+            int ci = co + i * n;
+            if (transB) {
+                int ai = ao + i * k;
+                for (int j = j0; j < j1; j++) {
+                    int bj = bo + j * k;
+                    float s = 0f;
                     for (int p = 0; p < k; p++) {
-                        float av = a[ai + p];
-                        if (av == 0f) {
-                            continue;
-                        }
-                        int bp = bo + p * n;
-                        for (int j = 0; j < n; j++) {
-                            c[ci + j] += av * b[bp + j];
-                        }
+                        s += a[ai + p] * b[bj + p];
                     }
+                    c[ci + j] = accumulate ? c[ci + j] + s : s;
                 }
-            });
-        } else if (transB) {
-            Parallel.range(m, (long) k * n, (from, to) -> {
-                for (int i = from; i < to; i++) {
-                    int ai = ao + i * k;
-                    int ci = co + i * n;
-                    for (int j = 0; j < n; j++) {
-                        int bj = bo + j * k;
-                        float s = 0f;
-                        for (int p = 0; p < k; p++) {
-                            s += a[ai + p] * b[bj + p];
-                        }
-                        c[ci + j] = accumulate ? c[ci + j] + s : s;
-                    }
+                continue;
+            }
+            if (!accumulate) {
+                Arrays.fill(c, ci + j0, ci + j1, 0f);
+            }
+            for (int p = 0; p < k; p++) {
+                float av = transA ? a[ao + p * m + i] : a[ao + i * k + p];
+                if (av == 0f) {
+                    continue;
                 }
-            });
-        } else {
-            Parallel.range(m, (long) k * n, (from, to) -> {
-                for (int i = from; i < to; i++) {
-                    int ci = co + i * n;
-                    if (!accumulate) {
-                        Arrays.fill(c, ci, ci + n, 0f);
-                    }
-                    for (int p = 0; p < k; p++) {
-                        float av = a[ao + p * m + i];
-                        if (av == 0f) {
-                            continue;
-                        }
-                        int bp = bo + p * n;
-                        for (int j = 0; j < n; j++) {
-                            c[ci + j] += av * b[bp + j];
-                        }
-                    }
+                int bp = bo + p * n;
+                for (int j = j0; j < j1; j++) {
+                    c[ci + j] += av * b[bp + j];
                 }
-            });
+            }
         }
     }
 
