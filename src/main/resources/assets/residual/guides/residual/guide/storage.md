@@ -55,6 +55,8 @@ while it has room, amber once it is three quarters full, red when it is full.
 
 ## Links
 
+<residual:Clip name="flow" alt="Items flowing along Storage Links, in and out of a chest" />
+
 Storage Links join racks, terminals and Ports into one network. Every storage block that touches another joins it, on
 any face, except a Port's front. There are no channels and no limit on how many blocks a network joins. Storage Links
 are not the signal cables models are wired with: the two never connect.
@@ -131,6 +133,8 @@ there is coal.
 <RecipeFor id="assembler" />
 
 ## Asking for things
+
+<residual:Clip name="storage" alt="Searching a terminal, then asking for 64 torches with coal short: the plan, the wait, the coal going in, the job done" />
 
 What the network's Assemblers can make shows in the terminal too: with **Craft** in place of a count when there is none
 of it, and with a teal corner when there is. Click it, or middle-click or Ctrl-click one there is some of, to ask for an

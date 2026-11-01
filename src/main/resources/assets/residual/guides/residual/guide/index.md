@@ -7,7 +7,7 @@ navigation:
 
 # Residual
 
-Someone lived here before you. They built machines that thought, and they wrote everything down. Then they were gone.
+Someone lived here before you. They seem to have built machines that thought, and they wrote everything down. Then they were gone.
 Pieces of what they left still turn up in the ruins: broken tablets of their writing, the designs of their machines,
 and models that no longer work.
 
@@ -15,6 +15,8 @@ These are field notes on building models again: language models made of machines
 a network, trained on text, and tested on text they have never seen. A model that knows what the blocks around it will
 do next lets a Forecaster run them ahead of time. Others carry on a pattern, tell what a thing is by its name, turn what
 you say into programs for agents, and read what the old world wrote.
+
+<residual:Clip name="hero" alt="A model training by a river at noon: a wave of light runs along its cables and each machine's output floats above it, while far behind it agents build small houses near a relay tower" />
 
 ## Start here
 
@@ -46,8 +48,8 @@ you say into programs for agents, and read what the old world wrote.
 - [Storage](storage.md): drives that keep any number of kinds, a terminal that finds anything, and Ports that move
   items between the network and every chest and machine, 1,280 a second.
 - [Power](power.md): generators, cables and cells, and a Smelter that makes two ingots from every ore, three with a
-- [Flight](flight.md): the flight frame, flown by a pilot you train.
   controller.
+- [Flight](flight.md): the flight frame, flown by a pilot you train.
 
 ## Reference
 

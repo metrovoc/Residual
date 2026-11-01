@@ -36,6 +36,8 @@ position: [B×T×V]. Whatever happens in between is up to you.
 
 ## When shapes disagree
 
+<residual:Clip name="shapes" alt="The Core's Inspect tab saying what is wrong with a table set too wide" />
+
 Press **Check** on the Core, or look at a machine. A machine whose inputs don't fit says what it got and what it
 needs. Common causes:
 

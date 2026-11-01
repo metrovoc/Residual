@@ -36,6 +36,8 @@ item_ids:
 
 ## 终端
 
+<residual:Clip name="terminal" alt="在终端上用服务器中的模型写作" />
+
 <RecipeFor id="terminal" />
 
 用同样的方法把<ItemLink id="terminal" />调谐到模型服务器，然后用它与所服务的模型对话：写下开头，模型会接着写下去。当你在服务器范围内手持一台已调谐的终端时，服务器覆盖的每个智能体都会听到你在聊天栏里点名下达的指令。

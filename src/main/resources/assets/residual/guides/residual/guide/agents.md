@@ -30,6 +30,8 @@ Its screen says what is missing.
 
 ## Programs
 
+<residual:Clip name="program" alt="A program clicked together from an agent's palette, then run" />
+
 The **Program** tab holds what it does when nothing else is asked of it: steps between commas, checked as you type.
 
 - `take bread, come, give bread`
@@ -68,6 +70,8 @@ note every stack they put away, and where. A step that fails says why, and the p
 that gets stuck on its way somewhere gives up after a while; stuck three times running, it jumps home.
 
 ## Routines
+
+<residual:Clip name="sort" alt="An agent's trace as it sorts a barrel by kind, filing each thing where its filter model says" />
 
 - **farm**: walks the farmland within 7 blocks of home, harvests what is ripe and plants what is bare, and takes the
   harvest to the chest at home, keeping some seed. It is a rule, so no model is asked.

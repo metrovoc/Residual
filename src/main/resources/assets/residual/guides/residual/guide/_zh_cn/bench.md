@@ -14,6 +14,8 @@ item_ids:
 
 每台机器都在<ItemLink id="fabricator" />中制造。简单的机器只需材料。其余的则需要一块<ItemLink id="photomask" />，上面载有它所计算内容的设计，而设计要在<ItemLink id="bench" />上用最小的运算连接而成。
 
+<residual:Clip name="bench" alt="试验台上的 Softmax：直接照公式接，在接近 1000 的分数上溢出；先减去每行的最大值，每个例子都能通过" />
+
 <Row>
   <RecipeFor id="bench" />
   <RecipeFor id="fabricator" />

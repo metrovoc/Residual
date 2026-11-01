@@ -13,6 +13,8 @@ A transformer is built around a running sum. The embedding starts it; every laye
 adds its result back; the last layer turns the sum into scores. That running sum is the **residual stream**.
 A <ItemLink id="stream" /> is a conduit for it.
 
+<residual:Clip name="stream" alt="A transformer laid out along a residual stream, waves of light running along it as it trains" />
+
 <RecipeFor id="stream" />
 
 ## How it flows

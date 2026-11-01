@@ -16,6 +16,8 @@ item_ids:
 
 <br clear="all" />
 
+<residual:Clip name="core" alt="放入模型核心的槽位并按下训练" />
+
 <RecipeFor id="model_core" />
 
 ## 数据

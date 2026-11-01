@@ -75,7 +75,8 @@ class TranslationsTest {
         List<String> found = new ArrayList<>();
         Matcher m = STRUCTURE.matcher(page.replaceAll("\\s+", " "));
         while (m.find()) {
-            found.add(m.group());
+            // an alt text is words, so each language has its own
+            found.add(m.group().replaceAll(" alt=\"[^\"]*\"", ""));
         }
         found.sort(null);
         return found;

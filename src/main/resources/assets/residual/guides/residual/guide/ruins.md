@@ -16,7 +16,11 @@ stands only in the land that suits it, where the ground is near level: it takes 
 Wayfinder to find one on purpose. Places of a kind were built a few different ways, and the years have worn each its
 own way.
 
+<residual:Clip name="ruins" alt="Some of the old world's places: a relay tower, a windmill farm, a stilt house, an inn, and the Archive at Vell" />
+
 ## Finding them
+
+<residual:Clip name="wayfinder" alt="A Wayfinder tuned to a kind of place: its needle spins while it looks, then points" />
 
 A <ItemLink id="wayfinder" /> leads to ruins the archive has told you of. Use it to choose a kind to look for: it lists
 the relay towers, which everyone knows of, and every kind a shard you have read tells of; read a shard, by using it,

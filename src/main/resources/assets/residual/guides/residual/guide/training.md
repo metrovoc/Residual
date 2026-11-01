@@ -61,6 +61,8 @@ too large on every step.
 
 ## Reading the curve
 
+<residual:Clip name="train" alt="The Train tab as a small GPT learns to sort: the loss on practice and on the test falling together" />
+
 - **Flat at the start, then a sudden drop:** the model found a mechanism. Attention models often do this.
 - **Falling, then flattening above the goal:** the model has learned all it can see. Give it more to work with: more
   context, more width, more layers.
@@ -69,6 +71,8 @@ too large on every step.
   ahead.
 
 ## Watching it learn
+
+<residual:Clip name="waves" alt="Waves of light running through a model's blocks as it trains, each machine's output floating above it" />
 
 While a model trains, waves run through its blocks every two seconds. A teal pulse travels from the tokens to the
 loss, lighting each machine as the batch reaches it, as brightly as the values it puts out. Then an amber pulse runs

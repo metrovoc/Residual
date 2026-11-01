@@ -43,6 +43,8 @@ casing, a <ItemLink id="wafer" /> and a weight crystal.
 
 ## Build it
 
+<residual:Clip name="wiring" alt="A first model wired by hand and trained, a wave of light running along its cables" />
+
 1. Place the Model Core. Its front turns toward you: tokens come out of it.
 2. Lay a cable from the Core's front to a free spot a few blocks away.
 3. Place the Embedding Table against the end of that cable. It snaps into the flow: its back reads the cable and
@@ -97,6 +99,8 @@ checkpoint keeps this moment.
 <RecipeFor id="checkpoint" />
 
 ## Run your furnaces ahead
+
+<residual:Clip name="forecaster" alt="A Forecaster among furnaces, running them ahead while a furnace out of its reach keeps its own pace" />
 
 Craft a Forecaster and place it among your furnaces, smokers or blast furnaces: within four blocks, on its own level or
 one above or below. Put the checkpoint in its **Model** slot, and keep the furnaces fed and fuelled.

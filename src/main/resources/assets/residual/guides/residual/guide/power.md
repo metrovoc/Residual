@@ -15,6 +15,8 @@ item_ids:
 Power moves in Forge Energy (FE) along <ItemLink id="power_cable" />s: from the blocks that make it to the blocks
 that store or use it, and to any other mod's block that takes FE.
 
+<residual:Clip name="power" alt="A Combustion Generator, cables, an Energy Cell and a Smelter at work" />
+
 <GameScene zoom="4" interactive={true}>
   <Block id="combustion_generator" p:facing="south" p:working="true" />
   <Block id="power_cable" x="1" p:east="true" p:west="true" />
@@ -63,6 +65,8 @@ seconds. From an ore or a raw ore it makes two of what a furnace makes from one.
 transformer photomask.
 
 ## The controller
+
+<residual:Clip name="smelter" alt="A controller in the Smelter's slot, holding its melt in the band" />
 
 Put a model in the Smelter's **Controller** slot, and each ore becomes a melt it holds in its band: at a look every four
 ticks it asks the model whether to cool the melt, hold it or heat it, and waits for the answer. A melt held in the band

@@ -20,6 +20,8 @@ item_ids:
 Every model is tested on ten benchmarks. Each test uses examples practice never shows, and each job asks its model in
 exactly the test's format, so a test score is how often an agent will decide right.
 
+<residual:Clip name="tests" alt="Testing a model on every benchmark" />
+
 | Benchmark   | Practice                              | The test                                           | Passes at   | Used for    |
 |-----------|---------------------------------------|----------------------------------------------------|-------------|-------------|
 | Forecasting | <ItemLink id="forecast_dataset" />    | crops' ages and machines' progress at every look   | loss ≤ 0.21 | the Forecaster |

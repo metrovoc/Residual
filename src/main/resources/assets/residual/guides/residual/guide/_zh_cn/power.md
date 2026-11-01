@@ -14,6 +14,8 @@ item_ids:
 
 电力以 Forge Energy（FE）为单位，沿着<ItemLink id="power_cable" />流动：从产生电力的方块流向储存或使用电力的方块，也流向其他模组中任何接收 FE 的方块。
 
+<residual:Clip name="power" alt="燃烧发电机、电缆、储能单元和工作中的冶炼炉" />
+
 <GameScene zoom="4" interactive={true}>
   <Block id="combustion_generator" p:facing="south" p:working="true" />
   <Block id="power_cable" x="1" p:east="true" p:west="true" />
@@ -55,6 +57,8 @@ item_ids:
 <ItemLink id="smelter" />能冶炼熔炉能冶炼的一切，用每刻 80 FE 的电力代替燃料，每五秒炼好一件。一份矿石或粗矿，它炼出的是熔炉的两倍。制造机用 Transformer 光掩模制造它。
 
 ## 控制器
+
+<residual:Clip name="smelter" alt="冶炼炉槽里的控制器把熔炼保持在温区内" />
 
 在冶炼炉的**控制器**槽放入一个模型，每份矿石就成了一次它要保持在温区内的熔炼：每四刻查看一次，它问模型该给熔炼降温、保温还是加热，并等模型回答。在温区内保持了至少 90% 查看次数的熔炼，出三个锭而不是两个；模型要在测试的每种矿石上都保住十次中的九次熔炼，才能通过控制测试。这个槽在冶炼炉界面旁的面板里；界面上矿石和锭之间逐次画出这次熔炼，温区用阴影标出，指向它可以看到上一次熔炼保持了多少。模型在<ItemLink id="process_dataset" />上学这件事：见[模型与测试](models.md)。
 

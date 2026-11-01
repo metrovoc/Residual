@@ -17,6 +17,8 @@ is simple but short-sighted. Every word costs several predictions, and the 64 to
 
 ## The BPE Forge
 
+<residual:Clip name="forge" alt="The BPE Forge learning a vocabulary from a drive, merge by merge" />
+
 <BlockImage id="bpe_forge" scale="3" float="left" />
 
 The <ItemLink id="bpe_forge" /> learns a vocabulary from the text on an <ItemLink id="archive_drive" /> by **byte-pair

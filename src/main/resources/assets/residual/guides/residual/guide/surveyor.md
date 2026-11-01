@@ -15,6 +15,8 @@ and asks its model where the first of each ore or cache in the row lies, just as
 checked against the block: a right one is kept, and the row is asked again for the next of that kind; a wrong one leaves
 that kind unfound until the next survey.
 
+<residual:Clip name="survey_rod" alt="What a Surveyor found, shown through the ground while a Survey Rod is held" />
+
 <GameScene zoom="4" interactive={true}>
   <Block id="minecraft:stone" x="-2" y="-2" z="-2" />
   <Block id="minecraft:stone" x="-2" y="-1" z="-2" />
@@ -82,6 +84,8 @@ letters. Ground: `S` stone, `D` deepslate, `T` other rock, `A` air, `W` water, `
 
 ## Surveying
 
+<residual:Clip name="survey_screen" alt="A Surveyor counting what its model finds" />
+
 Put a model in the Surveyor's **Model** slot, in the panel beside its screen: a <ItemLink id="checkpoint" />, or a
 <ItemLink id="relay_card" /> tuned to a Model Server. It surveys 16 blocks each way and from 15 above it to 48 below:
 4,096 rows, 32 read a tick and 64 questions put to the model at once. Then it starts over, so what is mined drops out of
@@ -92,6 +96,8 @@ how far the survey has gone. Hold a <ItemLink id="survey_rod" /> within 48 block
 ground, a box in each ore's colour and caches in violet.
 
 ## Digging for it
+
+<residual:Clip name="crew" alt="Three agents clearing six iron ores" />
 
 An agent's `mine` goes to what a Surveyor within 48 blocks found when nothing of the kind lies within its own reach of
 8, and digs its way to anything buried: down where the ore lies at least as far below as aside, otherwise along the

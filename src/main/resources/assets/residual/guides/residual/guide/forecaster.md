@@ -22,6 +22,8 @@ makes them so.
 
 <br clear="all" />
 
+<residual:Clip name="forecaster" alt="A Forecaster among furnaces, running them ahead while a furnace out of its reach keeps its own pace" />
+
 <RecipeFor id="forecaster" />
 
 ## Watching
@@ -69,6 +71,8 @@ model learns this field's pace. It gets worse at fields in general, and may even
 the price of fitting one field well. Beside the Forecast Dataset, the log only pulls the model halfway.
 
 ## Calibration
+
+<residual:Clip name="forecaster_screen" alt="A checkpoint going into a Forecaster, checked against the machines it watched" />
 
 A forecast is only worth acting on if it is right on average. The Forecaster checks a model against everything it
 watched, lines still being written included: the crops that finish first are the ones that happened to grow fastest,

@@ -16,6 +16,8 @@ Every machine is made in a <ItemLink id="fabricator" />. The simple ones need no
 <ItemLink id="photomask" /> carrying a design for what they compute, and designs are wired on a <ItemLink id="bench" />
 from the smallest operations there are.
 
+<residual:Clip name="bench" alt="Softmax on the Bench: wired straight from its formula it overflows on scores near 1000; with each row's maximum taken off first, every case passes" />
+
 <Row>
   <RecipeFor id="bench" />
   <RecipeFor id="fabricator" />

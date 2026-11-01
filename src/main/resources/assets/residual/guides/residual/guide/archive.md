@@ -32,6 +32,8 @@ wrote, not by remembering what it read.
 
 ## The Reader
 
+<residual:Clip name="reader" alt="The Reader restoring a record's lost text, block by block" />
+
 <RecipeFor id="reader" />
 
 A <ItemLink id="reader" /> restores lost text. Put a shard in its tray and a model in its model slot: a checkpoint, or a

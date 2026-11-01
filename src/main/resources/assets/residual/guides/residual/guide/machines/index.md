@@ -11,6 +11,8 @@ Each machine performs one operation of a model, with the same arithmetic as PyTo
 input on its back and, if it has one, its side input on any other face, and sends its result out of its front: see
 [Machines and Cables](../wiring.md). Right-click a machine to change its settings and see what it computes.
 
+<residual:Clip name="operator" alt="A machine's screen while it trains: its output and weights as they change" />
+
 Every machine comes out of the [Fabricator](../bench.md). The simple ones need no design; the rest need a photomask
 of the spec that describes them, verified on a Bench or salvaged from the ruins.
 

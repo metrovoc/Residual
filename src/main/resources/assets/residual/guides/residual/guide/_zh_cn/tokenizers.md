@@ -14,6 +14,8 @@ item_ids:
 
 ## BPE 锻炉
 
+<residual:Clip name="forge" alt="BPE 锻炉从驱动器中学习词表，一次合并一对" />
+
 <BlockImage id="bpe_forge" scale="3" float="left" />
 
 <ItemLink id="bpe_forge" />用**字节对编码**，从<ItemLink id="archive_drive" />上的文字中学出一份词表：

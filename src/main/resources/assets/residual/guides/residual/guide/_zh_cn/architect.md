@@ -9,6 +9,8 @@ navigation:
 
 模型通过了归纳测试的智能体，能复制一座建筑、搬走它，或续上它的图案。它把建筑沿长边切成一片一片来读，每片一个字母，再问它的模型接下来是什么，和测试的问法一样。
 
+<residual:Clip name="architect" alt="智能体复制一段拱廊，先显示幽灵方块" />
+
 <GameScene zoom="3" interactive={true}>
   <Block id="minecraft:grass_block" x="-1" y="-1" z="-1" />
   <Block id="minecraft:grass_block" x="-1" y="-1" z="0" />

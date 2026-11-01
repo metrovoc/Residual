@@ -14,6 +14,8 @@ passes Pilot, its wearer flies as freely as in creative play: jump twice to take
 It spends 80 FE a tick while you fly, so a full frame of 400,000 FE flies for about four minutes. The Fabricator makes
 it from a transformer photomask.
 
+<residual:Clip name="flight" alt="A flight frame in the air, climbing and crossing a build" />
+
 ## The pilot
 
 A pilot goes in as an item goes into a bundle: in your inventory, pick up a checkpoint and right-click the frame with

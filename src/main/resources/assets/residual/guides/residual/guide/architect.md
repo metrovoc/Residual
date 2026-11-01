@@ -10,6 +10,8 @@ navigation:
 An agent whose model passes Induction can copy a build, move it, or carry on its pattern. It reads a build as slices
 across its length, a letter for each slice, and asks its model what comes next, just as the test does.
 
+<residual:Clip name="architect" alt="An agent copying an arcade, its ghost blocks showing first" />
+
 <GameScene zoom="3" interactive={true}>
   <Block id="minecraft:grass_block" x="-1" y="-1" z="-1" />
   <Block id="minecraft:grass_block" x="-1" y="-1" z="0" />

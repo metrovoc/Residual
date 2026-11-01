@@ -19,6 +19,8 @@ do.
 
 ## Rebuilding
 
+<residual:Clip name="salvage" alt="A salvaged model rebuilt in front of a Core, then trained as it was found: the loss runs away" />
+
 Put a salvaged model in a Model Core's **Data** slot and press **Rebuild** on the **Data** tab. Its machines are built in
 front of the Core as they were found: they need clear space, and they drop nothing when broken. Its training settings
 come with it.

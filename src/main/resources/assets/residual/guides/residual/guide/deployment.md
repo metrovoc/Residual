@@ -45,6 +45,8 @@ tuned to one server shares its answers per second.
 
 ## The Terminal
 
+<residual:Clip name="terminal" alt="Writing with a served model on a Terminal" />
+
 <RecipeFor id="terminal" />
 
 Tune a <ItemLink id="terminal" /> on a Model Server the same way, then use it to talk to the served model: write the

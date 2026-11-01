@@ -11,6 +11,8 @@ item_ids:
 
 Transformer 围绕一个不断累加的和来构建。嵌入开启这个和；每一层读取它，算出些什么，再把结果加回去；最后一层把这个和变成分数。这个累加的和就是**残差流**。<ItemLink id="stream" />就是它的导管。
 
+<residual:Clip name="stream" alt="沿残差流布置的 Transformer，训练时光波沿着它跑过" />
+
 <RecipeFor id="stream" />
 
 ## 它如何流动
