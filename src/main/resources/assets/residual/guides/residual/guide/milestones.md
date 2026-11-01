@@ -115,6 +115,9 @@ attention.</residual:Milestone>
 <residual:Milestone id="benchmark/control">Practise on the <ItemLink id="process_dataset" />: the Core plays melts with the
 model's own choices, and it takes a model that attends to the whole melt.</residual:Milestone>
 
+<residual:Milestone id="benchmark/survey">Practise on the <ItemLink id="survey_dataset" />; it takes attention that knows
+where each block stands in a row.</residual:Milestone>
+
 <residual:Milestone id="benchmark/orders">Practise on the <ItemLink id="orders_dataset" />; it takes a model too big to
 carry.</residual:Milestone>
 
@@ -134,6 +137,9 @@ has to have practised orders.</residual:Milestone>
 agent whose model passes Induction: [The Architect](architect.md).</residual:Milestone>
 
 <residual:Milestone id="agent/move">The same marks, with `move` instead of `copy`.</residual:Milestone>
+
+<residual:Milestone id="survey/found">The Fabricator makes a Surveyor from an attention photomask; give it a model that
+passes Survey: [The Surveyor](surveyor.md).</residual:Milestone>
 
 ## Power
 

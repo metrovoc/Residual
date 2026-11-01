@@ -52,6 +52,7 @@ public final class Dataset extends Task {
                 case INDUCTION -> pattern(rng, seq, answer);
                 case SORTING -> sorting(rng, seq, answer, test);
                 case ORDERS -> orders(rng, seq, answer, test);
+                case SURVEY -> survey(rng, seq, answer);
                 default -> throw new IllegalStateException();
             }
             int o = b * t;
@@ -98,6 +99,17 @@ public final class Dataset extends Task {
         seq[2 * PAIRS + 1] = vocab.id(GOODS.charAt(keys[q]));
         seq[2 * PAIRS + 2] = vocab.id(CHESTS.charAt(vals[q]));
         answer[2 * PAIRS + 2] = true;
+    }
+
+    /** {@code SSSIIDDDCCSSSSSS>C:i}: where in a row of ground the first of an ore lies, or {@code -} for none. */
+    private void survey(Random rng, int[] seq, boolean[] answer) {
+        String row = Survey.row(rng);
+        char ore = Survey.asked(rng, row);
+        String text = Survey.prompt(row, ore) + Survey.answer(row, ore);
+        for (int i = 0; i < seq.length; i++) {
+            seq[i] = vocab.id(text.charAt(i));
+        }
+        answer[seq.length - 1] = true;
     }
 
     /** {@code 381925|529183}: the landmarks of one leg, then the same landmarks in reverse. */

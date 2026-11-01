@@ -35,10 +35,13 @@ public enum Benchmark {
      */
     READING(Vocab.CONTEXT, Task.Metric.LOSS, 1.4),
     /**
-     * Control: holding a Smelter's melt in its band, practised by playing melts (reinforcement learning). A model that
-     * sees only the last few characters holds about 75% of looks; a two-block transformer, 97%.
+     * Control: holding a Smelter's melt in its band, practised by playing melts (reinforcement learning), scored by the
+     * share of melts held of the ore held worst. A model that sees only the last few characters holds no melt of gold
+     * or iron; a two-block transformer passes after 200 to 400 steps.
      */
-    CONTROL(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
+    CONTROL(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    /** Surveying: where in a row of ground the first of an ore lies, as a Surveyor asks of every row it reads. */
+    SURVEY(Survey.ROW + 3, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */

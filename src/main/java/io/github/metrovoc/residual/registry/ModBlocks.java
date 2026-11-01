@@ -18,6 +18,7 @@ import io.github.metrovoc.residual.block.ReaderBlock;
 import io.github.metrovoc.residual.block.RelayBlock;
 import io.github.metrovoc.residual.block.ServerBlock;
 import io.github.metrovoc.residual.block.StreamBlock;
+import io.github.metrovoc.residual.block.SurveyorBlock;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.storage.AssemblerBlock;
 import io.github.metrovoc.residual.storage.LinkBlock;
@@ -61,6 +62,9 @@ public final class ModBlocks {
     /** The Lab tier's Forecaster: the same watching, up to sixteen times as fast. */
     public static final DeferredBlock<ForecasterBlock> FORECASTER_II = BLOCKS.registerBlock("forecaster_ii", ForecasterBlock::new,
             p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(ForecasterBlock.WORKING) ? 12 : 3));
+    /** The Lab tier's Surveyor: reads the ground around it with a model and keeps where each ore lies. */
+    public static final DeferredBlock<SurveyorBlock> SURVEYOR = BLOCKS.registerBlock("surveyor", SurveyorBlock::new,
+            p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(SurveyorBlock.WORKING) ? 10 : 3));
     public static final DeferredBlock<StreamBlock> STREAM = BLOCKS.registerBlock("stream", StreamBlock::new,
             p -> p.mapColor(MapColor.COLOR_CYAN).strength(1f, 6f).sound(SoundType.AMETHYST).lightLevel(s -> 7));
     public static final DeferredBlock<RelayBlock> RELAY = BLOCKS.registerBlock("relay", RelayBlock::new,

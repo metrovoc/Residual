@@ -9,6 +9,7 @@ import io.github.metrovoc.residual.menu.ForecasterMenu;
 import io.github.metrovoc.residual.menu.ForgeMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.ReaderMenu;
+import io.github.metrovoc.residual.menu.SurveyorMenu;
 import io.github.metrovoc.residual.storage.AssemblerMenu;
 import io.github.metrovoc.residual.storage.PortMenu;
 import io.github.metrovoc.residual.storage.RackMenu;
@@ -28,6 +29,8 @@ public final class ModMenus {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new OperatorMenu(id, buf.readBlockPos())));
     public static final Supplier<MenuType<ReaderMenu>> READER = MENUS.register("reader",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ReaderMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<SurveyorMenu>> SURVEYOR = MENUS.register("surveyor",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new SurveyorMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<AgentMenu>> AGENT = MENUS.register("agent",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new AgentMenu(id, inv, buf.readVarInt())));
 

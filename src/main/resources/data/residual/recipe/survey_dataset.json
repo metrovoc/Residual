@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:paper",
+    "minecraft:paper",
+    "minecraft:redstone",
+    "minecraft:flint"
+  ],
+  "result": {
+    "id": "residual:survey_dataset"
+  }
+}

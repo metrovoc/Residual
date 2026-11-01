@@ -937,6 +937,47 @@ def forecaster_front(step=None, ramp=None, every=4):
     return c
 
 
+# the ground in the Surveyor's window: where its ores lie, and the colour each shows once found
+SURVEY_ORES = [(5, 5, "d8af93"), (9, 6, "fcdb3a"), (6, 8, "3a3a3a"), (10, 9, "e07a4a"), (4, 10, "ff4a4a"), (8, 11, "4ae8e0")]
+# a core drill: the bit going down, its cutting edges in the block's hue
+SURVEY_PROBE = [
+    "########",
+    ".#.++.#.",
+    "...##...",
+    "...##...",
+    "..#++#..",
+    "...##...",
+    "...++...",
+    "...##...",
+]
+
+
+def surveyor_front(step=None):
+    """The ground in cross-section: strata, and a few ores in them, dim while it waits. Surveying, a line sweeps down a
+    row a frame, and each ore it has passed shows in its colour. The bezel is in attention's violet, the mask that makes
+    it."""
+    c = plate(salt=31)
+    window(c, salt=31)
+    edge(c, 3, 3, 12, 12, AMETHYST[2], mix(AMETHYST[2], AMETHYST[1], .45), 36)
+    for y in range(4, 12):
+        tone = mix(STONE[0], W1, .55) if y // 2 % 2 == 0 else mix(STONE[1], W1, .6)
+        for x in range(4, 12):
+            c.px(x, y, tone)
+    line = None if step is None else 4 + step % 8
+    for x, y, ore in SURVEY_ORES:
+        c.px(x, y, rgb(ore) if line is not None and y < line else mix(rgb(ore), W1, .6))
+    if line is not None:
+        for x in range(4, 12):
+            c.px(x, line, AMETHYST[4])
+    return c
+
+
+def surveyor_side():
+    c = plate(salt=32)
+    engraved_glyph(c, SURVEY_PROBE, AMETHYST)
+    return c
+
+
 def forecaster_side(ramp=GREEN):
     c = plate(salt=22)
     engraved_glyph(c, SPROUT, ramp)
@@ -1394,7 +1435,7 @@ def punch(c, rows, x0=4, y0=5):
 
 # one color per benchmark, on its dataset's stripe
 BENCHMARK_COLORS = {"forecast": hue_ramp(85), "storage": AMBER, "errand": AZURE, "pattern": AMETHYST, "orders": TEAL,
-                    "sorting": CORAL, "process": GREEN}
+                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110)}
 # what each dataset practices, punched into the card
 DATASET_HOLES = {
     "forecast": [
@@ -1451,6 +1492,16 @@ DATASET_HOLES = {
         "........",
         "########",
         "........",
+    ],
+    # a row of ground, and above it the mark that finds the first ore in it
+    "survey": [
+        "...##...",
+        "...##...",
+        "..####..",
+        "........",
+        "#.#..#.#",
+        "........",
+        "########",
     ],
     # a funnel: many kinds in, each sent its own way
     "sorting": [
@@ -2557,7 +2608,7 @@ def build():
     for rows in [TERMINAL_SIDE, ASSEMBLER_SIDE, *PORT_GLYPHS.values()]:
         assert mirrored(rows) and len(rows[0]) % 2 == 0 and len(rows) % 2 == 0, rows
     # a glyph symmetric along an axis has to be even along it, or it sits half a pixel off the tile's centre
-    for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, *PORT_GLYPHS.values()]:
+    for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, SURVEY_PROBE, *PORT_GLYPHS.values()]:
         assert not (mirrored(rows) and len(rows[0]) % 2), rows
         assert not (rows == rows[::-1] and len(rows) % 2), rows
     assert [u + 5 for u in RACK_BAY_U] == [15 - u for u in reversed(RACK_BAY_U)]
@@ -2567,6 +2618,7 @@ def build():
     # rack mirrors per column, and the relay's sheet of parts
     one_sided = {f"block/{op}_{face}.png" for op in ONE_SIDED for face in ("front", "side", "back")}
     data = {"block/forecaster_front", "block/forecaster_front_on", "block/forecaster_ii_front", "block/forecaster_ii_front_on",
+            "block/surveyor_front", "block/surveyor_front_on",
             "block/reader_front", "block/reader_front_on",
             "block/bpe_forge_front_on", "block/storage_terminal_front_on", "block/model_core_side_on",
             "block/model_server_front_on", "block/drive_cartridge", "block/relay"}
@@ -2581,6 +2633,10 @@ def build():
     lit("block/combustion_generator_front_on.png", [generator_front(True)], [generator_front(False)])
     generator_side().save("block/combustion_generator_side.png")
     machine_top(58).save("block/combustion_generator_top.png")
+    surveyor_front().save("block/surveyor_front.png")
+    lit("block/surveyor_front_on.png", [surveyor_front(i) for i in range(8)], [surveyor_front()], 3)
+    surveyor_side().save("block/surveyor_side.png")
+    machine_top(61).save("block/surveyor_top.png")
     smelter_front(False).save("block/smelter_front.png")
     lit("block/smelter_front_on.png", [smelter_front(True)], [smelter_front(False)])
     smelter_side().save("block/smelter_side.png")

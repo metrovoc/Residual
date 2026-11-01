@@ -124,6 +124,8 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
             note = Component.translatable("residual.fabricator.forecaster_ii");
         } else if (item == ModBlocks.SMELTER.asItem()) {
             note = Component.translatable("residual.fabricator.smelter");
+        } else if (item == ModBlocks.SURVEYOR.asItem()) {
+            note = Component.translatable("residual.fabricator.surveyor");
         } else if (!(item instanceof MachineItem)) {
             note = Component.translatable("residual.fabricator.accelerator");
         } else if (m != null) {

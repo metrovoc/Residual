@@ -10,6 +10,7 @@ import io.github.metrovoc.residual.net.AgentSync;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.FlowSync;
 import io.github.metrovoc.residual.net.GhostSync;
+import io.github.metrovoc.residual.net.SurveySync;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.net.CraftJobsSync;
 import io.github.metrovoc.residual.net.CraftPlanSync;
@@ -48,6 +49,8 @@ public final class ResidualClient {
         NeoForge.EVENT_BUS.addListener(FlowView::submit);
         NeoForge.EVENT_BUS.addListener(GhostView::extract);
         NeoForge.EVENT_BUS.addListener(GhostView::submit);
+        NeoForge.EVENT_BUS.addListener(SurveyView::extract);
+        NeoForge.EVENT_BUS.addListener(SurveyView::submit);
         // the field notes
         Guide.builder(Residual.GUIDE)
                 .itemSettings(new GuideItemSettings(Optional.of(Component.translatable("residual.guide_name")),
@@ -63,6 +66,7 @@ public final class ResidualClient {
         event.register(ModMenus.OPERATOR.get(), OperatorScreen::new);
         event.register(ModMenus.AGENT.get(), AgentScreen::new);
         event.register(ModMenus.READER.get(), ReaderScreen::new);
+        event.register(ModMenus.SURVEYOR.get(), SurveyorScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
         event.register(ModMenus.POWER.get(), PowerScreen::new);
         event.register(ModMenus.FORGE.get(), ForgeScreen::new);
@@ -87,6 +91,7 @@ public final class ResidualClient {
         event.register(WaveSync.TYPE, (wave, ctx) -> Waves.receive(wave));
         event.register(FlowSync.TYPE, (flow, ctx) -> FlowView.receive(flow));
         event.register(GhostSync.TYPE, (ghost, ctx) -> GhostView.receive(ghost));
+        event.register(SurveySync.TYPE, (survey, ctx) -> SurveyView.receive(survey));
         event.register(StorageSync.TYPE, (sync, ctx) -> {
             if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == sync.menu()) {
                 menu.items = sync.items();

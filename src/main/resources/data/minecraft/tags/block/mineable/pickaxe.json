@@ -30,6 +30,7 @@
     "residual:bpe_forge",
     "residual:forecaster",
     "residual:forecaster_ii",
+    "residual:surveyor",
     "residual:combustion_generator",
     "residual:energy_cell",
     "residual:smelter",

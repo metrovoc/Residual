@@ -1,0 +1,28 @@
+{
+  "parent": "residual:benchmark/survey",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:surveyor"
+    },
+    "title": {
+      "translate": "advancements.residual.survey.found.title"
+    },
+    "description": {
+      "translate": "advancements.residual.survey.found.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

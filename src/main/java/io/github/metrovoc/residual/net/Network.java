@@ -57,6 +57,7 @@ public final class Network {
         r.playToClient(StorageSync.TYPE, StorageSync.STREAM_CODEC);
         r.playToClient(FlowSync.TYPE, FlowSync.STREAM_CODEC);
         r.playToClient(GhostSync.TYPE, GhostSync.STREAM_CODEC);
+        r.playToClient(SurveySync.TYPE, SurveySync.STREAM_CODEC);
         r.playToClient(CraftPlanSync.TYPE, CraftPlanSync.STREAM_CODEC);
         r.playToClient(CraftJobsSync.TYPE, CraftJobsSync.STREAM_CODEC);
     }
