@@ -7,9 +7,9 @@ import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
+import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.item.DriveItem;
 import io.github.metrovoc.residual.item.ShardItem;
-import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.learn.Blueprints;
 import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModItems;
@@ -25,8 +25,9 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
-import net.minecraft.client.MouseHandler;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -44,6 +45,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -69,10 +71,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.WorldOptions;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -109,6 +111,7 @@ import org.slf4j.Logger;
  * entity TYPE                right-click the nearest entity of TYPE (residual:agent) with the main hand,
  *                            stepping up to it first if it is out of reach
  * useitem                    right-click the air with the main hand
+ * glide                      open the wings worn on the back, as jumping in the air does
  * creative TAB               open the creative inventory on a tab, by id (residual:main)
  * press LABEL                click the open screen's first button whose label starts with LABEL
  * click X Y                  left-click the open screen; a container screen's coordinates start at its corner
@@ -132,6 +135,7 @@ import org.slf4j.Logger;
  * fly on|off                 hover in place (creative), so the camera stays where cmd tp put it
  * sneak on|off               hold the sneak key, to place blocks against machines and turn them (flying, it sinks)
  * hud on|off
+ * view first|back|front      the camera: first person, or behind or in front of the player
  * gui SCALE                  set the GUI scale (0 = auto)
  * lang CODE                  switch the game's language (zh_cn) and reload; every script starts in en_us
  * blueprint NAME X Y Z FACING  place a Model Core and build a reference model in front of it, as a player would
@@ -452,7 +456,18 @@ public final class Rehearsal {
                 mc.player.onUpdateAbilities();
             }
             case "sneak" -> mc.options.keyShift.setDown(arg.equals("on"));
+            case "glide" -> {
+                // what jumping in the air with wings on does
+                if (mc.player.tryToStartFallFlying()) {
+                    mc.player.connection.send(new ServerboundPlayerCommandPacket(mc.player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
+                }
+            }
             case "hud" -> mc.options.hideGui = arg.equals("off");
+            case "view" -> mc.options.setCameraType(switch (arg) {
+                case "back" -> CameraType.THIRD_PERSON_BACK;
+                case "front" -> CameraType.THIRD_PERSON_FRONT;
+                default -> CameraType.FIRST_PERSON;
+            });
             case "gui" -> {
                 mc.options.guiScale().set(Integer.parseInt(arg));
                 mc.resizeGui();

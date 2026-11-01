@@ -60,6 +60,7 @@ public final class ModTabs {
                 out.accept(ModItems.FIELD_LOG.get());
                 out.accept(ModItems.HOURGLASS.get());
                 out.accept(ModBlocks.SURVEYOR.get());
+                out.accept(ModItems.GLIDER.get());
                 ModItems.DATASETS.values().forEach(dataset -> out.accept(dataset.get()));
                 for (Wrecks.Wreck w : Wrecks.ALL) {
                     out.accept(WreckItem.of(ModItems.WRECK.get(), w));

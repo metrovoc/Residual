@@ -141,6 +141,11 @@ agent whose model passes Induction: [The Architect](architect.md).</residual:Mil
 <residual:Milestone id="survey/found">The Fabricator makes a Surveyor from an attention photomask; give it a model that
 passes Survey: [The Surveyor](surveyor.md).</residual:Milestone>
 
+## Flight
+
+<residual:Milestone id="flight/glider">The Fabricator makes a Glider from a transformer photomask:
+[Flight](flight.md).</residual:Milestone>
+
 ## Power
 
 <residual:Milestone id="power/generator">It burns what a furnace burns: [Power](power.md).</residual:Milestone>

@@ -46,6 +46,7 @@ you say into programs for agents, and read what the old world wrote.
 - [Storage](storage.md): drives that keep any number of kinds, a terminal that finds anything, and Ports that move
   items between the network and every chest and machine, 1,280 a second.
 - [Power](power.md): generators, cables and cells, and a Smelter that makes two ingots from every ore, three with a
+- [Flight](flight.md): the Glider, wings to glide on.
   controller.
 
 ## Reference

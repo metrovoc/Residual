@@ -71,6 +71,14 @@ ore; a wrong one leaves that ore unfound until the next survey.
   </BoxAnnotation>
 </GameScene>
 
+## How it reads the ground
+
+Its model is a language model, so the ground reaches it as text: each block a letter, a row of sixteen blocks sixteen
+letters. Ground: `S` stone, `D` deepslate, `T` other rock, `A` air, `W` water, `L` lava, `B` bedrock. Ores: `C` coal,
+`I` iron, `U` copper, `O` gold, `R` redstone, `Z` lapis, `X` diamond, `E` emerald. After the row come `>`, the ore
+asked for and `:`, and the model answers with the first such block's place, `a` to `p`, or `-` for none:
+`SSSTTIIDDDDSSSSS>I:f`.
+
 ## Surveying
 
 Put a model in the Surveyor's **Model** slot, in the panel beside its screen: a <ItemLink id="checkpoint" />, or a

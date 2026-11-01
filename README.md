@@ -117,8 +117,9 @@ jobs run at once, and what a job makes along the way is its own until it is done
 A Combustion Generator burns furnace fuel for 80 FE a tick, and Power Cables carry it to Energy Cells, which hold a
 million FE, and to the machines that run on it. The Smelter, fabricated from a transformer design, smelts on power and
 makes two ingots from every ore, or three from a melt its controller holds in its band. A controller is a model
-practised by playing melts and learning from its own choices. Every power block speaks Forge Energy to other mods'
-cables and machines.
+practised by playing melts and learning from its own choices. From the same transformer photomask the Fabricator also
+makes a Glider, wings worn on the back that glide as an elytra does. Every power block speaks Forge Energy to other
+mods' cables and machines.
 
 ## The archive
 
