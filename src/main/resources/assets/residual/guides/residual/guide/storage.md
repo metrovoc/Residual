@@ -210,6 +210,11 @@ second at each thing its filter names, and if there is too little of it, in the 
 when stocking, in the network when exporting, it has the network make the rest: one job at a time for each thing, listed
 under **Jobs** like any other.
 
+A Port does more than its mode. **Programs**, on its screen, takes Program Cards, and with a written one in it, it does what the
+card says instead: it can work on what is 48 blocks away, move fluid and energy too, dig, place, right click and strike, and
+listen for what happens around it. A Port's own mode always moves 64 items a tick; a program moves what its upgrades allow.
+See [Programs](programs.md).
+
 A rule asks only once things are short, and a long job then runs late. A target model asks ahead. Put a checkpoint or a tuned
 <ItemLink id="relay_card" /> whose model passes Demand ([Models and Tests](models.md)) in the slot beside the filter model's.
 Every five seconds the Port writes down a digit for how much of each thing went out, and the model reads that line and

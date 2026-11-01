@@ -67,9 +67,10 @@ Without a mask, the Fabricator makes the machines that need no design: the embed
 residual junction, the gate, the scaler, the causal mask, the head splitter and merger, the delay line and the
 concatenator. A matrix multiply photomask also makes the <ItemLink id="accelerator" /> and the
 <ItemLink id="drive_dock" />, a linear layer photomask the <ItemLink id="dense_drive" /> and the
-<ItemLink id="portable_drive" />, an attention photomask the <ItemLink id="hourglass" /> and the
-<ItemLink id="access_point" />, and a transformer photomask <ItemLink id="forecaster_ii" />,
-<ItemLink id="forecaster_iii" />, the <ItemLink id="smelter" /> and the <ItemLink id="stacked_drive" />.
+<ItemLink id="portable_drive" />, an attention photomask the <ItemLink id="hourglass" />, the
+<ItemLink id="access_point" /> and most [upgrades](programs.md), and a transformer photomask <ItemLink id="forecaster_ii" />,
+<ItemLink id="forecaster_iii" />, the <ItemLink id="smelter" />, the <ItemLink id="stacked_drive" />, and the
+<ItemLink id="energy_upgrade" /> and <ItemLink id="lift_upgrade" />.
 
 
 ## Fused and unfused

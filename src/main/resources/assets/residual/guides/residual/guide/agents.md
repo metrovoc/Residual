@@ -22,7 +22,7 @@ does what the model answers. You can see a model in its lantern of a head, turni
 Where you place an agent is its home, and its work happens around home. **Set home**, the house beside its screen,
 makes where it stands its new home.
 
-It has two model slots, in the panel beside its screen. Its **Model** takes a <ItemLink id="checkpoint" /> with a model
+The panel beside its screen holds its two model slots, and its [upgrades](programs.md). Its **Model** takes a <ItemLink id="checkpoint" /> with a model
 of up to 40,000 parameters, or a <ItemLink id="relay_card" /> tuned to a Model Server, for a model of any size: see
 [Serving Models](deployment.md). This model writes the orders you give as programs, and makes the decisions of storing,
 hauling, building and copying. Its **Filter** takes a checkpoint that passes Sorting, and tells what kind each thing is.
@@ -47,12 +47,14 @@ The **Palette** beside **Stop** lays out every piece of a program to click toget
 it does when you point at it. Pieces go on the end, along with whatever plainly comes next: the `(` that opens a block,
 the mark a `place` needs. To name a thing, pick it up and click the program, or the order box on the **Work** tab.
 
-The steps:
+The steps an agent is usually given are below; everything a program can say, on an agent and on a Port, is in
+[Programs](programs.md): variables, lists, your own steps, events, areas, filters, and what a program can read of the world.
 
 - `come`, `home`, `go 3` to the third mark, `stay`, `follow`
 - `take 5 bread` from the chests and barrels around home, or from the network of a [Storage Terminal](storage.md) there,
   `put` everything or `put wheat` away in them, `give bread` to you, `fetch bread`, which is taking, coming and giving
-- `craft 8 torch` walks to a terminal around home whose network can make it, asks, and waits until it is made; `supply`
+- `craft 8 torch` makes them there and then if it holds what they take; what it cannot make, it walks to a terminal around
+  home whose network can, asks, and waits until it is made; `supply`
   goes after what a job on that network lacks, out of the chests and barrels or mined, and brings it to the network, so
   `repeat (supply, wait 10)` keeps a network's jobs going
 - `pickup` what lies around it, `harvest`, `plant wheat seeds`, `till` the grass near water, `mine 4 stone` (with a
@@ -70,7 +72,13 @@ second mark has a redstone signal), each with `not` before it if need be.
 
 The **Trace** tab shows what it did, checked and decided, newest last, and how each step went: storing and sorting
 note every stack they put away, and where. A step that fails says why, and the program goes on with the next. An agent
-that gets stuck on its way somewhere gives up after a while; stuck three times running, it jumps home.
+that gets stuck on its way somewhere gives up after a while; stuck three times running, it jumps home. Beside it, the
+[debugger](programs.md) holds a program at a step, runs it one step at a time and shows what it holds.
+
+## Upgrades
+
+[Upgrades](programs.md) go in the panel beside its screen. At the most, it acts every tick and carries 48 slots' worth. With a
+<ItemLink id="lift_upgrade" /> and energy it flies, and it comes down to walk when the energy runs out.
 
 ## Routines
 
