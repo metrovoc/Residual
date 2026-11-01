@@ -67,6 +67,11 @@ final class Acts {
         /** Does a little more of it: null while it goes on, then how it went. */
         @Nullable
         Outcome tick(ServerLevel level);
+
+        /** Whether what comes next waits for the next tick, even with the budget for more: the operations that carry things. */
+        default boolean yields() {
+            return false;
+        }
     }
 
     private Acts() {
@@ -76,38 +81,74 @@ final class Acts {
         return CLAIMS.computeIfAbsent(level, l -> new HashMap<>());
     }
 
-    /** The act for {@code act}; {@link Running} runs fetch and the routines itself. */
-    static Action of(Agent a, Program.Act act) {
+    /** The act for {@code act}, with what it names worked out now; {@link Running} runs fetch and the routines itself. */
+    static Action of(Body a, Eval e, Program.Act act) {
         return switch (act.verb()) {
-            case COME -> come(a);
-            case HOME -> walk(a, a.home(), 1.5, "residual.agent.status.going_home");
-            case GO -> act.mark() > a.marks().size() ? level -> Outcome.failed("residual.program.failed.no_mark", act.mark())
-                    : walk(a, a.marks().get(act.mark() - 1).above(), 1.8, "residual.agent.status.going_to_mark", act.mark());
+            case COME -> a.legs() ? come(a) : noLegs();
+            case HOME -> a.legs() ? walk(a, a.home(), 1.5, "residual.agent.status.going_home") : noLegs();
+            case GO -> a.legs() ? go(a, e, act) : noLegs();
             case STAY -> stay(a);
-            case FOLLOW -> follow(a);
-            case TAKE -> take(a, act.count(), act.thing());
-            case PUT -> put(a, act.thing());
-            case GIVE -> give(a, act.count(), act.thing());
-            case PICKUP -> pickup(a);
-            case HARVEST -> harvest(a);
-            case PLANT -> plant(a, act.thing());
-            case TILL -> till(a);
-            case MINE -> mine(a, act.count(), act.thing());
-            case PLACE -> place(a, act.thing(), act.mark());
-            case WAIT -> waiting(a, act.count());
-            case SAY -> level -> {
-                a.tell(Component.literal(act.thing()));
-                return Outcome.DONE;
-            };
-            case CRAFT -> craft(a, act.count(), act.thing());
+            case FOLLOW -> a.legs() ? follow(a) : noLegs();
+            case TAKE -> act.has("at") ? Deeds.move(a, e, act, e.eval(act.clause("at")), new Value.Spot("hands")) : take(a, Deeds.count(e, act), Deeds.pick(e, act));
+            case PUT -> act.has("at") ? Deeds.move(a, e, act, new Value.Spot("hands"), e.eval(act.clause("at"))) : put(a, Deeds.pick(e, act));
+            case GIVE -> give(a, Deeds.count(e, act), Deeds.pick(e, act));
+            case PICKUP -> a.legs() && act.n() == null && act.what().all() && !act.has("at") ? pickup(a) : Deeds.vacuum(a, e, act);
+            case HARVEST -> harvest(a, area(e, act));
+            case PLANT -> plant(a, Deeds.pick(e, act), area(e, act));
+            case TILL -> till(a, area(e, act));
+            case MINE -> mine(a, Deeds.count(e, act), Deeds.pick(e, act));
+            case PLACE -> act.has("at") ? Deeds.placeAt(a, e, act) : place(a, Deeds.pick(e, act), act.mark());
+            case WAIT -> waiting(a, e.eval(act.n()));
+            case SAY -> {
+                String said = e.interpolate(act.words());
+                yield level -> {
+                    a.tell(Component.literal(said));
+                    return Outcome.DONE;
+                };
+            }
+            case CRAFT -> craft(a, Deeds.count(e, act), Deeds.pick(e, act));
             case SUPPLY -> supply(a);
-            case FETCH, FARM, STORE, SORT, HAUL, BUILD, COPY, MOVE -> throw new IllegalArgumentException(act.verb().word);
+            case FETCH, FARM, STORE, SORT, HAUL, BUILD, COPY, MOVE, RUN, NOTE -> throw new IllegalArgumentException(act.verb().word);
+            default -> Deeds.of(a, e, act);
         };
+    }
+
+    /** For a step a body with no legs cannot take. */
+    private static Action noLegs() {
+        return level -> Outcome.failed("residual.program.failed.no_legs");
+    }
+
+    /** What an {@code at} clause names, as an area; null with none. */
+    @Nullable
+    private static Area area(Eval e, Program.Act act) {
+        Expr at = act.clause("at");
+        if (at == null) {
+            return null;
+        }
+        Value v = e.eval(at);
+        if (v instanceof Value.Region r) {
+            // a field is found all at once, so it pays for every place it holds
+            e.spend((int) Math.min(r.area().volume(), Eval.FUEL + 1));
+            return r.area();
+        }
+        Value.Place p = Places.place(e.body, v);
+        return p == null ? null : Area.box(p.pos(), p.pos(), "filled");
+    }
+
+    private static Action go(Body a, Eval e, Program.Act act) {
+        Value where = e.eval(act.clause("place"));
+        Value.Place p = Places.place(a, where);
+        if (p == null) {
+            return level -> Outcome.failed("residual.program.failed.no_mark", where.show());
+        }
+        // a mark's block is what it stands on; a place is where it stands
+        return where instanceof Value.Num n ? walk(a, p.pos().above(), 1.8, "residual.agent.status.going_to_mark", (int) n.v())
+                : walk(a, p.pos(), 1.8, "residual.agent.status.going_to", p.show());
     }
 
     // ---------------------------------------------------------------- moving
 
-    private static Action walk(Agent a, BlockPos to, double reach, String status, Object... args) {
+    private static Action walk(Body a, BlockPos to, double reach, String status, Object... args) {
         return level -> {
             a.status(status, args);
             return switch (a.walk(to, reach)) {
@@ -118,7 +159,7 @@ final class Acts {
         };
     }
 
-    private static Action come(Agent a) {
+    private static Action come(Body a) {
         return level -> {
             ServerPlayer p = a.boss();
             if (p == null) {
@@ -127,7 +168,7 @@ final class Acts {
             a.status("residual.agent.status.coming", p.getName().getString());
             return switch (a.walk(p.blockPosition(), 2.5)) {
                 case HERE -> {
-                    a.getLookControl().setLookAt(p);
+                    a.look(p.position());
                     yield Outcome.DONE;
                 }
                 case LOST -> Outcome.failed("residual.program.failed.unreachable");
@@ -137,34 +178,35 @@ final class Acts {
     }
 
     /** Stands where it is for good. */
-    private static Action stay(Agent a) {
+    private static Action stay(Body a) {
         return level -> {
             a.status("residual.agent.status.staying");
-            a.getNavigation().stop();
+            a.stand();
             a.pause(20);
             return null;
         };
     }
 
-    private static Action follow(Agent a) {
-        int until = a.tickCount + FOLLOWING;
+    private static Action follow(Body a) {
+        int until = a.clock() + FOLLOWING;
         return level -> {
             ServerPlayer p = a.boss();
             if (p == null) {
                 return Outcome.failed("residual.program.failed.no_boss");
             }
-            if (a.tickCount >= until) {
+            if (a.clock() >= until) {
                 return Outcome.DONE;
             }
             a.status("residual.agent.status.following", p.getName().getString());
-            if (a.walk(p.blockPosition(), 2.5) == Agent.Arrival.HERE) {
-                a.getLookControl().setLookAt(p);
+            if (a.walk(p.blockPosition(), 2.5) == Body.Arrival.HERE) {
+                a.look(p.position());
             }
             return null;
         };
     }
 
-    private static Action waiting(Agent a, int seconds) {
+    private static Action waiting(Body a, Value howLong) {
+        double seconds = Eval.num(howLong);
         return new Action() {
             private boolean waited;
 
@@ -174,8 +216,8 @@ final class Acts {
                     return Outcome.DONE;
                 }
                 waited = true;
-                a.status("residual.agent.status.waiting", seconds);
-                a.pause(seconds * 20);
+                a.status("residual.agent.status.waiting", Value.number(seconds));
+                a.pause((int) Math.round(seconds * 20));
                 return null;
             }
         };
@@ -184,8 +226,7 @@ final class Acts {
     // ---------------------------------------------------------------- carrying
 
     /** Takes {@code count} of a thing, or a stack, out of the stores around home. */
-    private static Action take(Agent a, int count, String thing) {
-        Things.Wanted wanted = Things.of(thing);
+    private static Action take(Body a, int count, Picker wanted) {
         Predicate<ItemStack> any = s -> wanted.exactly(s) || wanted.loosely(s);
         return new Action() {
             private final int want = count > 0 ? count : 64;
@@ -250,9 +291,8 @@ final class Acts {
     }
 
     /** Puts what it carries of a thing, or everything it carries, into the stores around home. */
-    private static Action put(Agent a, String thing) {
-        Things.Wanted wanted = thing.isEmpty() ? null : Things.of(thing);
-        Predicate<ItemStack> what = s -> !s.isEmpty() && (wanted == null || wanted.exactly(s) || wanted.loosely(s));
+    private static Action put(Body a, Picker wanted) {
+        Predicate<ItemStack> what = s -> !s.isEmpty() && wanted.passes(s);
         return new Action() {
             private final Set<BlockPos> tried = new HashSet<>();
             private int put;
@@ -266,7 +306,7 @@ final class Acts {
                     // with none to put away, there was nothing to do
                     return Outcome.done("residual.program.put", put);
                 }
-                ItemStack kind = a.items.getItem(slot).copyWithCount(1);
+                ItemStack kind = a.items().getItem(slot).copyWithCount(1);
                 if (to == null) {
                     to = Stores.into(level, a.home(), kind, tried);
                     if (to == null) {
@@ -292,16 +332,16 @@ final class Acts {
                 Container c = Stores.at(level, to);
                 StorageNetwork net = c == null && level.getBlockEntity(to) instanceof TerminalBlockEntity ? StorageNetwork.at(level, to) : null;
                 int before = put;
-                for (int i = 0; i < Agent.CARRY && (c != null || net != null); i++) {
-                    ItemStack s = a.items.getItem(i);
+                for (int i = 0; i < a.carry() && (c != null || net != null); i++) {
+                    ItemStack s = a.items().getItem(i);
                     if (ItemStack.isSameItemSameComponents(s, kind)) {
                         int n = s.getCount();
                         ItemStack rest = c != null ? Stores.insert(c, s) : Stores.insert(net, s);
                         put += n - rest.getCount();
-                        a.items.setItem(i, rest);
+                        a.items().setItem(i, rest);
                     }
                 }
-                a.items.setChanged();
+                a.items().setChanged();
                 if (put > before) {
                     a.handle(to);
                 } else {
@@ -314,13 +354,14 @@ final class Acts {
     }
 
     /**
-     * Walks to the nearest terminal whose network can make a thing, asks for {@code count} of it, or one, and waits until
-     * the job is done. What the job lacks it waits for like any other.
+     * Makes a thing there and then if it has what that takes in its hands. What is still wanted of the {@code count} asked
+     * for, or of one, it has made: it walks to the nearest terminal whose network can make it, asks and waits until the job
+     * is done. What the job lacks it waits for like any other.
      */
-    private static Action craft(Agent a, int count, String thing) {
-        Things.Wanted wanted = Things.of(thing);
+    private static Action craft(Body a, int count, Picker wanted) {
         return new Action() {
-            private final int want = Math.max(1, count);
+            private int want = Math.max(1, count);
+            private int inHand = -1;
             @Nullable
             private BlockPos at;
             private boolean asked;
@@ -334,6 +375,15 @@ final class Acts {
                 if (over != null) {
                     return over;
                 }
+                if (inHand < 0) {
+                    inHand = Crafts.make(a, level, wanted::exactly, want);
+                    inHand += Crafts.make(a, level, wanted::loosely, want - inHand);
+                    want -= inHand;
+                    if (want <= 0) {
+                        a.swing();
+                        return Outcome.done("residual.program.made", inHand, wanted.thing());
+                    }
+                }
                 if (job != null) {
                     a.status("residual.agent.status.waiting_for_craft", want, wanted.thing());
                     a.pause(10);
@@ -346,7 +396,7 @@ final class Acts {
                 if (at == null) {
                     List<BlockPos> terminals = Stores.terminals(level, a.home());
                     if (terminals.isEmpty()) {
-                        return Outcome.failed("residual.program.failed.no_terminal");
+                        return inHand > 0 ? Outcome.done("residual.program.made", inHand, wanted.thing()) : Outcome.failed("residual.program.failed.no_terminal");
                     }
                     for (BlockPos p : terminals) {
                         if (makes(StorageNetwork.at(level, p)) != null) {
@@ -355,7 +405,7 @@ final class Acts {
                         }
                     }
                     if (at == null) {
-                        return Outcome.failed("residual.program.failed.cannot_make", wanted.thing());
+                        return inHand > 0 ? Outcome.done("residual.program.made", inHand, wanted.thing()) : Outcome.failed("residual.program.failed.cannot_make", wanted.thing());
                     }
                 }
                 a.status("residual.agent.status.asking_network", wanted.thing());
@@ -407,7 +457,7 @@ final class Acts {
      * Goes after what a job on a network around home lacks: out of the chests and barrels around home if they have it, or
      * mined if it can be, and into the network. With nothing lacking there is nothing to do.
      */
-    private static Action supply(Agent a) {
+    private static Action supply(Body a) {
         return new Action() {
             @Nullable
             private ItemResource kind;
@@ -445,15 +495,15 @@ final class Acts {
                 }
                 StorageNetwork net = StorageNetwork.at(level, terminal);
                 int filed = 0;
-                for (int i = 0; i < Agent.CARRY; i++) {
-                    ItemStack s = a.items.getItem(i);
+                for (int i = 0; i < a.carry(); i++) {
+                    ItemStack s = a.items().getItem(i);
                     if (kind.matches(s)) {
                         ItemStack rest = Stores.insert(net, s);
                         filed += s.getCount() - rest.getCount();
-                        a.items.setItem(i, rest);
+                        a.items().setItem(i, rest);
                     }
                 }
-                a.items.setChanged();
+                a.items().setChanged();
                 a.handle(terminal);
                 return filed > 0 ? Outcome.done("residual.program.supplied", filed, name) : Outcome.failed("residual.program.failed.no_room");
             }
@@ -470,7 +520,7 @@ final class Acts {
                             int want = (int) Math.min(job.lackingCount(), lacking.getMaxStackSize());
                             if (carried(a, lacking::matches) < want) {
                                 Things.Wanted wanted = Things.of(name);
-                                gathering = Stores.find(level, a.home(), wanted, Set.of()) != null ? take(a, want, name) : mine(a, want, source(name));
+                                gathering = Stores.find(level, a.home(), wanted, Set.of()) != null ? take(a, want, wanted) : mine(a, want, Things.of(source(name)));
                             }
                             return true;
                         }
@@ -487,8 +537,7 @@ final class Acts {
     }
 
     /** Hands {@code count} of a thing it carries, or all it carries of it, to whoever it works for. */
-    private static Action give(Agent a, int count, String thing) {
-        Things.Wanted wanted = Things.of(thing);
+    private static Action give(Body a, int count, Picker wanted) {
         Predicate<ItemStack> what = s -> wanted.exactly(s) || wanted.loosely(s);
         return level -> {
             ServerPlayer p = a.boss();
@@ -511,8 +560,8 @@ final class Acts {
             }
             int left = count > 0 ? count : Integer.MAX_VALUE;
             int given = 0;
-            for (int i = 0; i < Agent.CARRY && left > 0; i++) {
-                ItemStack s = a.items.getItem(i);
+            for (int i = 0; i < a.carry() && left > 0; i++) {
+                ItemStack s = a.items().getItem(i);
                 if (what.test(s)) {
                     ItemStack out = s.split(Math.min(left, s.getCount()));
                     left -= out.getCount();
@@ -522,15 +571,15 @@ final class Acts {
                     }
                 }
             }
-            a.items.setChanged();
+            a.items().setChanged();
             a.handle(p.blockPosition());
-            a.getLookControl().setLookAt(p);
+            a.look(p.position());
             return Outcome.done("residual.program.gave", given, wanted.thing(), p.getName().getString());
         };
     }
 
     /** Picks up what lies on the ground around it. */
-    private static Action pickup(Agent a) {
+    private static Action pickup(Body a) {
         return new Action() {
             private final Set<Integer> skipped = new HashSet<>();
             private int picked;
@@ -538,9 +587,9 @@ final class Acts {
             @Override
             public Outcome tick(ServerLevel level) {
                 ItemEntity nearest = null;
-                for (ItemEntity e : level.getEntitiesOfClass(ItemEntity.class, a.getBoundingBox().inflate(NEARBY),
+                for (ItemEntity e : level.getEntitiesOfClass(ItemEntity.class, new net.minecraft.world.phys.AABB(a.place()).inflate(NEARBY),
                         e -> e.isAlive() && !e.hasPickUpDelay() && !skipped.contains(e.getId()))) {
-                    if (nearest == null || e.distanceToSqr(a) < nearest.distanceToSqr(a)) {
+                    if (nearest == null || e.distanceToSqr(a.center()) < nearest.distanceToSqr(a.center())) {
                         nearest = e;
                     }
                 }
@@ -566,7 +615,7 @@ final class Acts {
                     skipped.add(nearest.getId());
                     return null;
                 }
-                a.take(nearest, took);
+                a.picked(nearest, took);
                 picked += took;
                 if (rest.isEmpty()) {
                     nearest.discard();
@@ -581,8 +630,8 @@ final class Acts {
     // ---------------------------------------------------------------- fields
 
     /** Harvests every ripe crop on the farmland around home, row by row. */
-    private static Action harvest(Agent a) {
-        return new Plots(a, Farming.RIPE, "residual.agent.status.harvesting") {
+    private static Action harvest(Body a, @Nullable Area area) {
+        return new Plots(a, area, Farming.RIPE, "residual.agent.status.harvesting") {
             @Override
             boolean ready() {
                 return !a.full();
@@ -601,10 +650,9 @@ final class Acts {
     }
 
     /** Plants a thing on every bare plot around home while it has any. */
-    private static Action plant(Agent a, String thing) {
-        Things.Wanted wanted = Things.of(thing);
+    private static Action plant(Body a, Picker wanted, @Nullable Area area) {
         Predicate<ItemStack> which = s -> wanted.exactly(s) || wanted.loosely(s);
-        return new Plots(a, Farming.BARE, "residual.agent.status.planting", wanted.thing()) {
+        return new Plots(a, area, Farming.BARE, "residual.agent.status.planting", wanted.thing()) {
             @Override
             boolean ready() {
                 return carried(a, s -> Farming.seed(s) && which.test(s)) > 0;
@@ -625,7 +673,9 @@ final class Acts {
 
     /** Walks the farmland around home row by row, working the plots in one state. */
     private abstract static class Plots implements Action {
-        final Agent a;
+        final Body a;
+        @Nullable
+        private final Area area;
         private final char state;
         private final String status;
         private final Object[] args;
@@ -636,8 +686,9 @@ final class Acts {
         /** Plots worked so far. */
         int count;
 
-        Plots(Agent a, char state, String status, Object... args) {
+        Plots(Body a, @Nullable Area area, char state, String status, Object... args) {
             this.a = a;
+            this.area = area;
             this.state = state;
             this.status = status;
             this.args = args;
@@ -655,7 +706,7 @@ final class Acts {
         @Override
         public Outcome tick(ServerLevel level) {
             if (plots == null) {
-                plots = Farming.plots(level, a.home());
+                plots = area == null ? Farming.plots(level, a.home()) : plotsIn(level, area);
             }
             if (!ready()) {
                 return over(true);
@@ -683,6 +734,7 @@ final class Acts {
             }
             BlockPos at = plot;
             plot = null;
+            a.reached(at, 1);
             if (Farming.state(level, at) == state) {
                 work(level, at);
                 count += Farming.state(level, at) != state ? 1 : 0;
@@ -692,8 +744,26 @@ final class Acts {
         }
     }
 
-    /** Turns the grass and dirt around home that water reaches into farmland, row by row. */
-    private static Action till(Agent a) {
+    /** The farmland in an area, or under it, in the order it walks the rows. */
+    private static List<BlockPos> plotsIn(ServerLevel level, Area area) {
+        Set<BlockPos> plots = new HashSet<>();
+        for (java.util.Iterator<BlockPos> it = area.places(); it.hasNext(); ) {
+            BlockPos p = it.next();
+            if (level.isLoaded(p)) {
+                if (Farming.state(level, p) != 0) {
+                    plots.add(p);
+                } else if (Farming.state(level, p.below()) != 0) {
+                    plots.add(p.below());
+                }
+            }
+        }
+        List<BlockPos> out = new ArrayList<>(plots);
+        out.sort(Farming.ROWS);
+        return out;
+    }
+
+    /** Turns the grass and dirt around home, or in an area, that water reaches into farmland, row by row. */
+    private static Action till(Body a, @Nullable Area area) {
         return new Action() {
             private List<BlockPos> ground;
             private int next;
@@ -704,9 +774,20 @@ final class Acts {
             @Override
             public Outcome tick(ServerLevel level) {
                 if (ground == null) {
-                    ground = BlockPos.betweenClosedStream(a.home().offset(-Farming.RADIUS, -2, -Farming.RADIUS),
-                                    a.home().offset(Farming.RADIUS, 2, Farming.RADIUS))
-                            .filter(p -> tillable(level, p)).map(BlockPos::immutable).sorted(Farming.ROWS).toList();
+                    if (area != null) {
+                        List<BlockPos> inside = new ArrayList<>();
+                        area.places().forEachRemaining(p -> {
+                            if (tillable(level, p)) {
+                                inside.add(p);
+                            }
+                        });
+                        inside.sort(Farming.ROWS);
+                        ground = inside;
+                    } else {
+                        ground = BlockPos.betweenClosedStream(a.home().offset(-Farming.RADIUS, -2, -Farming.RADIUS),
+                                        a.home().offset(Farming.RADIUS, 2, Farming.RADIUS))
+                                .filter(p -> tillable(level, p)).map(BlockPos::immutable).sorted(Farming.ROWS).toList();
+                    }
                 }
                 if (at == null) {
                     while (next < ground.size() && !tillable(level, ground.get(next))) {
@@ -730,9 +811,10 @@ final class Acts {
                     }
                 }
                 if (tillable(level, at)) {
+                    a.reached(at, 1);
                     level.setBlockAndUpdate(at, Blocks.FARMLAND.defaultBlockState());
                     level.playSound(null, at, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1f, 1f);
-                    a.swing(InteractionHand.MAIN_HAND);
+                    a.swing();
                     a.pause(4);
                     tilled++;
                 }
@@ -763,11 +845,10 @@ final class Acts {
      * Mines {@code count} blocks of a thing, or one, nearest first; blocks that need a tool need it carried. Caches are
      * mined for what they hold. Agents mining near each other each take a block no other has picked.
      */
-    private static Action mine(Agent a, int count, String thing) {
-        Things.Wanted wanted = Things.of(thing);
-        boolean caches = wanted.names().contains("cache");
+    private static Action mine(Body a, int count, Picker wanted) {
+        boolean caches = wanted instanceof Things.Wanted w && w.names().contains("cache");
         // to mine iron is to mine iron ore: the ore blocks of a name count as well
-        List<TagKey<Block>> ores = wanted.names().stream()
+        List<TagKey<Block>> ores = !(wanted instanceof Things.Wanted named) ? List.of() : named.names().stream()
                 .map(n -> TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", "ores/" + n.replace(' ', '_')))).toList();
         return new Action() {
             private final int want = Math.max(1, count);
@@ -795,9 +876,9 @@ final class Acts {
                     }
                     target = nearest(level);
                     if (target == null) {
-                        target = SurveyorBlockEntity.nearestFound(level, a.blockPosition(), p -> matches(level, p) && free(level, p), skipped);
+                        target = SurveyorBlockEntity.nearestFound(level, a.place(), p -> matches(level, p) && free(level, p), skipped);
                     }
-                    digging = target != null && buried(level, target);
+                    digging = target != null && a.tunnels() && buried(level, target);
                     if (target == null) {
                         return mined > 0 ? Outcome.done("residual.program.mined", mined, wanted.thing())
                                 : Outcome.failed("residual.program.failed.none_near", wanted.thing(), NEARBY);
@@ -813,9 +894,9 @@ final class Acts {
                     target = null;
                     return null;
                 }
-                claims(level).put(target, new Claim(a.getId(), level.getGameTime() + CLAIMED));
+                claims(level).put(target, new Claim(a.id(), level.getGameTime() + CLAIMED));
                 a.status("residual.agent.status.mining", wanted.thing());
-                if (digging && a.distanceToSqr(Vec3.atBottomCenterOf(target)) > 3.0 * 3.0) {
+                if (digging && a.center().distanceToSqr(Vec3.atBottomCenterOf(target)) > 3.0 * 3.0) {
                     dig(level);
                     return null;
                 }
@@ -831,16 +912,16 @@ final class Acts {
                     case HERE -> {
                     }
                 }
-                a.getLookControl().setLookAt(Vec3.atCenterOf(target));
-                int time = Math.max(8, (int) (state.getDestroySpeed(level, target) * 12));
+                a.look(Vec3.atCenterOf(target));
+                int time = Math.max(a.interval(), (int) (state.getDestroySpeed(level, target) * 12) >> a.speed());
                 if (++progress < time) {
-                    level.destroyBlockProgress(a.getId(), target, progress * 10 / time);
+                    level.destroyBlockProgress(a.id(), target, progress * 10 / time);
                     if (progress % 5 == 0) {
-                        a.swing(InteractionHand.MAIN_HAND);
+                        a.swing();
                     }
                     return null;
                 }
-                level.destroyBlockProgress(a.getId(), target, -1);
+                level.destroyBlockProgress(a.id(), target, -1);
                 if (caches && level.getBlockEntity(target) instanceof RandomizableContainerBlockEntity cache) {
                     // what the old world left in it, rolled now, as opening it would
                     cache.unpackLootTable(null);
@@ -852,18 +933,18 @@ final class Acts {
                     }
                 }
                 int t = tool(state);
-                ItemStack used = t < 0 ? ItemStack.EMPTY : a.items.getItem(t);
-                for (ItemStack drop : Block.getDrops(state, level, target, level.getBlockEntity(target), a, used)) {
+                ItemStack used = t < 0 ? ItemStack.EMPTY : a.items().getItem(t);
+                for (ItemStack drop : Block.getDrops(state, level, target, level.getBlockEntity(target), a.entity(), used)) {
                     ItemStack rest = a.keep(drop);
                     if (!rest.isEmpty()) {
                         Block.popResource(level, target, rest);
                     }
                 }
-                level.destroyBlock(target, false, a);
+                level.destroyBlock(target, false, a.entity());
                 if (!used.isEmpty()) {
-                    used.hurtAndBreak(1, level, a, item -> {
+                    used.hurtAndBreak(1, level, a.entity() instanceof net.minecraft.world.entity.LivingEntity l ? l : null, item -> {
                     });
-                    a.items.setChanged();
+                    a.items().setChanged();
                 }
                 mined++;
                 release(level);
@@ -873,7 +954,7 @@ final class Acts {
             /** Lets go of the block it was after, for another agent to take. */
             private void release(ServerLevel level) {
                 Claim c = claims(level).get(target);
-                if (c != null && c.agent() == a.getId()) {
+                if (c != null && c.agent() == a.id()) {
                     claims(level).remove(target);
                 }
                 target = null;
@@ -886,7 +967,7 @@ final class Acts {
                     claims(level).remove(p);
                     return true;
                 }
-                return c == null || c.agent() == a.getId();
+                return c == null || c.agent() == a.id();
             }
 
             /** Shut in on every side, so no walking gets near it. */
@@ -906,7 +987,7 @@ final class Acts {
              * let in water or lava, or meets a block it cannot break, is given up for another target.
              */
             private void dig(ServerLevel level) {
-                BlockPos at = a.blockPosition();
+                BlockPos at = a.place();
                 if (through == null) {
                     int dx = target.getX() - at.getX(), dy = target.getY() - at.getY(), dz = target.getZ() - at.getZ();
                     boolean xFirst = Math.abs(dx) >= Math.abs(dz);
@@ -935,7 +1016,7 @@ final class Acts {
                             }
                             // one block over, so straight there, with no path to find
                             BlockPos into = way.getFirst();
-                            a.getMoveControl().setWantedPosition(into.getX() + 0.5, into.getY(), into.getZ() + 0.5, 1.0);
+                            a.stepInto(into);
                             return;
                         }
                         if (diggable(level, block)) {
@@ -954,25 +1035,25 @@ final class Acts {
                     through = null;
                     return;
                 }
-                a.getLookControl().setLookAt(Vec3.atCenterOf(through));
-                int time = Math.max(8, (int) (s.getDestroySpeed(level, through) * 12));
+                a.look(Vec3.atCenterOf(through));
+                int time = Math.max(a.interval(), (int) (s.getDestroySpeed(level, through) * 12) >> a.speed());
                 if (++dug < time) {
-                    level.destroyBlockProgress(a.getId(), through, dug * 10 / time);
+                    level.destroyBlockProgress(a.id(), through, dug * 10 / time);
                     if (dug % 5 == 0) {
-                        a.swing(InteractionHand.MAIN_HAND);
+                        a.swing();
                     }
                     return;
                 }
-                level.destroyBlockProgress(a.getId(), through, -1);
+                level.destroyBlockProgress(a.id(), through, -1);
                 int t = tool(s);
-                ItemStack used = t < 0 ? ItemStack.EMPTY : a.items.getItem(t);
-                for (ItemStack drop : Block.getDrops(s, level, through, level.getBlockEntity(through), a, used)) {
+                ItemStack used = t < 0 ? ItemStack.EMPTY : a.items().getItem(t);
+                for (ItemStack drop : Block.getDrops(s, level, through, level.getBlockEntity(through), a.entity(), used)) {
                     ItemStack rest = a.keep(drop);
                     if (!rest.isEmpty()) {
                         Block.popResource(level, through, rest);
                     }
                 }
-                level.destroyBlock(through, false, a);
+                level.destroyBlock(through, false, a.entity());
                 through = null;
             }
 
@@ -997,7 +1078,7 @@ final class Acts {
 
             private void giveUp() {
                 skipped.add(target);
-                release((ServerLevel) a.level());
+                release(a.world());
                 through = null;
                 still = 0;
             }
@@ -1017,7 +1098,7 @@ final class Acts {
             /** The nearest block of the thing around it, never the ground under its feet. */
             @Nullable
             private BlockPos nearest(ServerLevel level) {
-                BlockPos at = a.blockPosition();
+                BlockPos at = a.place();
                 BlockPos best = null;
                 for (BlockPos p : BlockPos.betweenClosed(at.offset(-NEARBY, -NEARBY, -NEARBY), at.offset(NEARBY, NEARBY, NEARBY))) {
                     if (p.getX() == at.getX() && p.getZ() == at.getZ() && p.getY() < at.getY() || skipped.contains(p)
@@ -1039,8 +1120,7 @@ final class Acts {
     }
 
     /** Places a block of a thing on top of a marked block. */
-    private static Action place(Agent a, String thing, int mark) {
-        Things.Wanted wanted = Things.of(thing);
+    private static Action place(Body a, Picker wanted, int mark) {
         Predicate<ItemStack> what = s -> s.getItem() instanceof BlockItem && (wanted.exactly(s) || wanted.loosely(s));
         return level -> {
             if (mark > a.marks().size()) {
@@ -1065,16 +1145,16 @@ final class Acts {
                 case HERE -> {
                 }
             }
-            ItemStack s = a.items.getItem(slot);
+            ItemStack s = a.items().getItem(slot);
             BlockState state = ((BlockItem) s.getItem()).getBlock().defaultBlockState();
             if (!state.canSurvive(level, at)) {
                 return Outcome.failed("residual.program.failed.cant_stand", mark);
             }
             level.setBlockAndUpdate(at, state);
             level.playSound(null, at, state.getSoundType().getPlaceSound(), SoundSource.BLOCKS, 1f, 1f);
-            a.swing(InteractionHand.MAIN_HAND);
+            a.swing();
             s.shrink(1);
-            a.items.setChanged();
+            a.items().setChanged();
             return Outcome.DONE;
         };
     }
@@ -1082,9 +1162,9 @@ final class Acts {
     // ---------------------------------------------------------------- counting
 
     /** The first carried slot {@code what} allows, or -1. */
-    static int slot(Agent a, Predicate<ItemStack> what) {
-        for (int i = 0; i < Agent.CARRY; i++) {
-            ItemStack s = a.items.getItem(i);
+    static int slot(Body a, Predicate<ItemStack> what) {
+        for (int i = 0; i < a.carry(); i++) {
+            ItemStack s = a.items().getItem(i);
             if (!s.isEmpty() && what.test(s)) {
                 return i;
             }
@@ -1093,10 +1173,10 @@ final class Acts {
     }
 
     /** How many it carries of what {@code what} allows. */
-    static int carried(Agent a, Predicate<ItemStack> what) {
+    static int carried(Body a, Predicate<ItemStack> what) {
         int n = 0;
-        for (int i = 0; i < Agent.CARRY; i++) {
-            ItemStack s = a.items.getItem(i);
+        for (int i = 0; i < a.carry(); i++) {
+            ItemStack s = a.items().getItem(i);
             if (!s.isEmpty() && what.test(s)) {
                 n += s.getCount();
             }
@@ -1105,7 +1185,7 @@ final class Acts {
     }
 
     /** How many of what {@code what} allows the stores around home keep. */
-    static int stocked(ServerLevel level, Agent a, Predicate<ItemStack> what) {
+    static int stocked(ServerLevel level, Body a, Predicate<ItemStack> what) {
         int n = 0;
         for (BlockPos p : Stores.near(level, a.home(), Stores.AROUND, Stores.ANY)) {
             Container c = Stores.at(level, p);

@@ -65,6 +65,8 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
                     .bounds(x, topPos + VALUE_Y - 2, 22, 12).build()));
             x += 23;
         }
+        addRenderableWidget(IconButton.action(leftPos + PortMenu.CRAFT_X, topPos + PortMenu.CRAFT_Y + IconButton.SIZE + 2, "program",
+                Component.translatable("residual.port.programs"), Component.translatable("residual.port.programs.help"), () -> send(PortEdit.PROGRAMS, 0)));
         craft = addRenderableWidget(new IconButton(leftPos + PortMenu.CRAFT_X, topPos + PortMenu.CRAFT_Y, IconButton.SIZE, IconButton.SIZE,
                 new ItemStack(Items.CRAFTING_TABLE), Component.translatable("residual.port.craft"),
                 () -> send(PortEdit.CRAFT, menu.data.get(PortBlockEntity.CRAFT) == 0 ? 1 : 0)));

@@ -29,6 +29,14 @@ navigation:
 
 <residual:Milestone id="agent/program">在它的界面里输入一段，或用指令板点选拼出来。</residual:Milestone>
 
+<residual:Milestone id="agent/debugger">在程序的「追踪」页上暂停它、一步一步运行它，或点一行让它在那里停下：[程序](programs.md)。</residual:Milestone>
+
+<residual:Milestone id="agent/port_program">在端口界面的「程序」里放一张程序卡，并在上面写程序。</residual:Milestone>
+
+<residual:Milestone id="agent/upgrade">制造机用注意力光掩模做出来。</residual:Milestone>
+
+<residual:Milestone id="agent/full_rate">三个速度升级、三个堆叠升级，再加上要运的东西：你放下的端口上有一段程序，一秒运 1,280 个物品。</residual:Milestone>
+
 ## 存储
 
 <residual:Milestone id="storage/drive">它能存任意多种东西：[存储](storage.md)。</residual:Milestone>

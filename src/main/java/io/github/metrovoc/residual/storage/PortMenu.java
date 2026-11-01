@@ -23,7 +23,7 @@ import net.minecraft.world.item.ItemStack;
  */
 public class PortMenu extends AbstractContainerMenu {
     public static final int FILTER_X = 8, FILTER_Y = 40, INVENTORY_X = 8, INVENTORY_Y = 108;
-    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 47, SIDE_H = 48, MODEL_X = 179, MODEL_Y = 10;
+    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 47, SIDE_H = 68, MODEL_X = 179, MODEL_Y = 10;
     /** Beside the filter model's slot, the target model's; under them, the toggle for asking and the Field Log's slot. */
     public static final int TARGET_X = 197, TARGET_Y = 10, CRAFT_X = 178, CRAFT_Y = 30, LOG_X = 197, LOG_Y = 31;
     /** The side slots' indices, after the filter's. */

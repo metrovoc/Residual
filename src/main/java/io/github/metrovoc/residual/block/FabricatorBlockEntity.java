@@ -1,11 +1,13 @@
 package io.github.metrovoc.residual.block;
 
+import io.github.metrovoc.residual.agent.Upgrades;
 import io.github.metrovoc.residual.bench.MaskData;
 import io.github.metrovoc.residual.bench.Spec;
 import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
+import io.github.metrovoc.residual.item.UpgradeItem;
 import io.github.metrovoc.residual.menu.FabricatorMenu;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModBlocks;
@@ -124,6 +126,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
                 out.add(ModItems.HOURGLASS.get());
                 out.add(ModBlocks.SURVEYOR.asItem());
                 out.add(ModBlocks.ACCESS_POINT.asItem());
+                for (Upgrades.Kind kind : List.of(Upgrades.Kind.SPEED, Upgrades.Kind.STACK, Upgrades.Kind.RANGE, Upgrades.Kind.FLUID, Upgrades.Kind.CARRY)) {
+                    out.add(ModItems.UPGRADES.get(kind).get());
+                }
             }
             if (spec == Specs.TRANSFORMER) {
                 out.add(ModBlocks.FORECASTER_II.asItem());
@@ -131,6 +136,8 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
                 out.add(ModBlocks.SMELTER.asItem());
                 out.add(ModItems.FLIGHT_FRAME.get());
                 out.add(ModItems.STACKED_DRIVE.get());
+                out.add(ModItems.UPGRADES.get(Upgrades.Kind.ENERGY).get());
+                out.add(ModItems.UPGRADES.get(Upgrades.Kind.LIFT).get());
             }
         }
         return out;
@@ -145,12 +152,20 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         return makingCost == null ? 0 : makingCost.ticks();
     }
 
+    /** The mask in it. */
+    public ItemStack mask() {
+        return items.getItem(MASK);
+    }
+
     public static Cost cost(Item item, ItemStack mask) {
         if (item == ModBlocks.ACCELERATOR.asItem()) {
             return new Cost(2, 6, 0, 100);
         }
         if (item == ModItems.HOURGLASS.get()) {
             return new Cost(1, 4, 2, 100);
+        }
+        if (item instanceof UpgradeItem upgrade) {
+            return upgrade.kind == Upgrades.Kind.ENERGY || upgrade.kind == Upgrades.Kind.LIFT ? new Cost(1, 6, 3, 120) : new Cost(0, 3, 1, 60);
         }
         if (item == ModBlocks.FORECASTER_II.asItem()) {
             return new Cost(4, 8, 4, 200);

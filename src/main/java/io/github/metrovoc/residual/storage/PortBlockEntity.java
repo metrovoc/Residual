@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.storage;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.metrovoc.residual.agent.PortWork;
 import io.github.metrovoc.residual.agent.Things;
 import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.learn.Demand;
@@ -28,6 +29,7 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -134,6 +136,10 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
     private ItemResource flowItem = ItemResource.EMPTY;
     private boolean flowFull;
     private int movedLastSecond;
+    /** Its programs, and what they run with. */
+    public final PortWork work = new PortWork(this);
+    /** Places bound to it with a Survey Rod, for its programs to name by number. */
+    private List<BlockPos> marks = List.of();
     @Nullable
     private BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> target;
 
@@ -193,17 +199,21 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
 
     private void tick(ServerLevel level, BlockState state) {
         judgeNext(level);
+        boolean programmed = work.tick(level);
         if (level.getGameTime() % 20 == 0) {
             movedLastSecond = movedThisSecond;
             movedThisSecond = 0;
             fluids.nextSecond();
-            boolean active = movedLastSecond > 0 || fluids.movedLastSecond() > 0;
+            boolean active = movedLastSecond > 0 || fluids.movedLastSecond() > 0 || work.worked(level.getGameTime());
             if (state.getValue(PortBlock.ACTIVE) != active) {
                 level.setBlock(worldPosition, state.setValue(PortBlock.ACTIVE, active), Block.UPDATE_CLIENTS);
             }
         }
         PortMode mode = state.getValue(PortBlock.MODE);
-        if (mode == PortMode.WINDOW) {
+        if (programmed) {
+            showFlow(level);
+        }
+        if (mode == PortMode.WINDOW || programmed) {
             return;
         }
         fluids.tick(level, StorageNetwork.at(level, worldPosition), mode);
@@ -385,6 +395,67 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
                 return;
             }
         }
+    }
+
+    /** Notes items its programs moved, as its mode's own work is noted. */
+    public void moved(int n, boolean intoNetwork) {
+        if (n > 0 && level instanceof ServerLevel server) {
+            StorageNetwork net = StorageNetwork.at(server, worldPosition);
+            movedThisSecond += n;
+            movedSinceFlow += n;
+            flowIn = intoNetwork;
+            flowFull = false;
+            flowTo = net.lastStore;
+            flowItem = net.lastItem;
+        }
+    }
+
+    /** What its programs moved, shown along the links now and then. */
+    private void showFlow(ServerLevel level) {
+        if (movedSinceFlow > 0 && level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
+            Flows.send(level, worldPosition, flowTo, flowIn, movedSinceFlow, flowItem, FluidResource.EMPTY, flowFull);
+            movedSinceFlow = 0;
+        }
+    }
+
+    /** Items moved in the last whole second, by its mode or its programs. */
+    public int movedLastSecond() {
+        return movedLastSecond;
+    }
+
+    public List<BlockPos> marks() {
+        return marks;
+    }
+
+    public void setMarks(List<BlockPos> marks) {
+        this.marks = List.copyOf(marks);
+        setChanged();
+    }
+
+    /** The kinds its filter's slots show. */
+    public List<ItemStack> filterStacks() {
+        return filter.getItems();
+    }
+
+    /** The screen of its programs, upgrades and hands. */
+    public MenuProvider programs() {
+        ContainerData access = new ContainerData() {
+            @Override
+            public int get(int i) {
+                return work.ownership().access().ordinal();
+            }
+
+            @Override
+            public void set(int i, int value) {
+            }
+
+            @Override
+            public int getCount() {
+                return 1;
+            }
+        };
+        return new SimpleMenuProvider((id, inventory, player) -> new PortProgramMenu(id, inventory, worldPosition, work.cards, work.upgrades, work.hands, access),
+                Component.translatable("block.residual.port"));
     }
 
     /** Whether its filter lets {@code kind} through: anything when the filter is empty. */
@@ -699,6 +770,7 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         if (level != null) {
             Containers.dropContents(level, pos, model);
             Containers.dropContents(level, pos, extras);
+            work.dropAll(level, pos);
         }
     }
 
@@ -714,6 +786,10 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         out.putInt("amount", amount);
         out.putInt("priority", priority);
         out.putBoolean("craft", craft);
+        work.save(out.child("work"));
+        if (!marks.isEmpty()) {
+            out.store("marks", BlockPos.CODEC.listOf(), marks);
+        }
     }
 
     @Override
@@ -727,5 +803,7 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         amount = in.getIntOr("amount", 64);
         priority = in.getIntOr("priority", 0);
         craft = in.getBooleanOr("craft", false);
+        in.child("work").ifPresent(work::load);
+        marks = in.read("marks", BlockPos.CODEC.listOf()).orElse(List.of());
     }
 }

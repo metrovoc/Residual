@@ -118,7 +118,7 @@ final class Stores {
     }
 
     /** Moves as many as its hands hold of one kind that matches {@code what}, up to {@code max}, from a network to {@code a}; returns how many. */
-    static int fetch(StorageNetwork net, Agent a, Predicate<ItemStack> what, int max) {
+    static int fetch(StorageNetwork net, Body a, Predicate<ItemStack> what, int max) {
         for (ItemResource kind : net.contents().keySet()) {
             if (what.test(kind.toStack())) {
                 int took = (int) net.extract(kind, Math.min(max, kind.getMaxStackSize()), false);
@@ -164,7 +164,7 @@ final class Stores {
     }
 
     /** Moves as many as its hands hold, up to {@code max}, of what matches {@code what} from {@code c} to {@code a}; returns how many. */
-    static int fetch(Container c, Agent a, Predicate<ItemStack> what, int max) {
+    static int fetch(Container c, Body a, Predicate<ItemStack> what, int max) {
         ItemStack got = take(c, what, max);
         int count = got.getCount();
         ItemStack left = a.keep(got);
@@ -187,7 +187,7 @@ final class Stores {
 
     /** The nearest store around {@code home} with exactly {@code wanted}, else with a kind of it, leaving out {@code tried}. */
     @Nullable
-    static BlockPos find(ServerLevel level, BlockPos home, Things.Wanted wanted, Set<BlockPos> tried) {
+    static BlockPos find(ServerLevel level, BlockPos home, Picker wanted, Set<BlockPos> tried) {
         BlockPos loose = null;
         for (BlockPos p : near(level, home, AROUND, ANY)) {
             Container c = tried.contains(p) ? null : at(level, p);

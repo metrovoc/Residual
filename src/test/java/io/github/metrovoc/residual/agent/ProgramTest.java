@@ -60,7 +60,7 @@ class ProgramTest {
         assertProblem("if hungry (come)", "residual.program.error.sense", "hungry", 3);
         assertProblem("come here", "residual.program.error.stray", "here", 5);
         assertProblem("take bread,", "residual.program.error.missing", "", 11);
-        assertProblem("repeat (repeat (repeat (repeat (repeat (come)))))", "residual.program.error.deep", "", 39);
+        assertProblem("repeat (".repeat(Program.DEEPEST + 1) + "come" + ")".repeat(Program.DEEPEST + 1), "residual.program.error.deep", "", 8 * Program.DEEPEST + 7);
         assertFalse(Program.parse("say " + "a".repeat(Program.LONGEST)).ok());
     }
 

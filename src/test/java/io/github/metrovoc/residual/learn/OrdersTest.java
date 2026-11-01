@@ -52,6 +52,8 @@ class OrdersTest {
                 case Program.Repeat r -> things(r.body(), into);
                 case Program.Until u -> things(u.body(), into);
                 case Program.WaitUntil w -> into.add(w.check().thing());
+                default -> {
+                }
             }
         }
     }

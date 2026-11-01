@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.item;
 
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.registry.ModComponents;
+import io.github.metrovoc.residual.storage.PortBlockEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -47,8 +48,14 @@ public class SurveyRodItem extends Item {
         if (ctx.getLevel().isClientSide() || player == null) {
             return InteractionResult.SUCCESS;
         }
-        List<BlockPos> marks = new ArrayList<>(marks(ctx.getItemInHand()));
         BlockPos pos = ctx.getClickedPos();
+        if (player.isSecondaryUseActive() && ctx.getLevel().getBlockEntity(pos) instanceof PortBlockEntity port && port.work.ownership().check(player)) {
+            port.setMarks(marks(ctx.getItemInHand()));
+            player.sendOverlayMessage(Component.translatable("residual.rod.handed", Component.translatable("block.residual.port")));
+            ctx.getLevel().playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1f, 1.2f);
+            return InteractionResult.SUCCESS;
+        }
+        List<BlockPos> marks = new ArrayList<>(marks(ctx.getItemInHand()));
         if (marks.remove(pos)) {
             player.sendOverlayMessage(Component.translatable("residual.rod.unmarked", pos.toShortString()));
         } else if (marks.size() >= MOST) {
@@ -68,7 +75,7 @@ public class SurveyRodItem extends Item {
         if (!(target instanceof Agent a)) {
             return InteractionResult.PASS;
         }
-        if (!player.level().isClientSide()) {
+        if (!player.level().isClientSide() && a.ownership().check(player)) {
             a.setMarks(marks(stack));
             player.sendOverlayMessage(Component.translatable("residual.rod.handed", a.getDisplayName()));
             player.level().playSound(null, a.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1f, 1.2f);

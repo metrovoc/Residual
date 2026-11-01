@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.agent;
 
 import io.github.metrovoc.residual.Awards;
+import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.learn.Orders;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.menu.AgentMenu;
@@ -8,14 +9,18 @@ import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.model.Models;
 import io.github.metrovoc.residual.net.AgentSync;
+import io.github.metrovoc.residual.net.ProgramSync;
 import io.github.metrovoc.residual.registry.ModItems;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.ClickEvent;
@@ -25,10 +30,12 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
@@ -36,15 +43,22 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.FlyingMoveControl;
+import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -52,6 +66,11 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -59,13 +78,16 @@ import org.jetbrains.annotations.Nullable;
  * every real decision is put to its model as a prompt in exactly the format of that benchmark's test, and it does
  * whatever the model answers, right or wrong. Orders said to it are written as programs by its model.
  */
-public class Agent extends PathfinderMob {
-    /** Slots it carries things in; the two after them hold its models. */
+public class Agent extends PathfinderMob implements Body {
+    /** Slots it carries things in, before upgrades; six more for each carrying upgrade. */
     public static final int CARRY = 12;
+    /** The most slots it can carry things in. */
+    public static final int MOST_CARRIED = CARRY + 6 * Upgrades.Kind.CARRY.most;
     /** Its model, which writes the orders it is given as programs and makes the decisions of the old jobs. */
-    public static final int MODEL = CARRY;
+    public static final int MODEL = MOST_CARRIED;
     /** Its filter, which tells what kind each thing is, for sorting. */
-    public static final int FILTER = CARRY + 1;
+    public static final int FILTER = MOST_CARRIED + 1;
+    public static final int SLOTS = MOST_CARRIED + 2;
     public static final List<String> NAMES = List.of("Pip", "Clank", "Moss", "Lantern", "Bolt", "Tinker", "Wick", "Pebble", "Copper");
     /** How long what it last decided hangs over its head, in ticks. */
     public static final int SHOWN = 50;
@@ -73,13 +95,16 @@ public class Agent extends PathfinderMob {
     public static final int TRACED = 10;
     /** How long an order read back waits for a yes, in ticks. */
     public static final int ASKING = 1200;
+    /** What moves it through the air, about 6 blocks a second, and on the ground 4; each speed upgrade adds a tenth. */
+    private static final double FLIGHT_SPEED = 0.165;
+    private static final Identifier PACE = Residual.id("pace");
 
     private static final EntityDataAccessor<Component> SAID = SynchedEntityData.defineId(Agent.class, EntityDataSerializers.COMPONENT);
     private static final EntityDataAccessor<Integer> SAID_COUNT = SynchedEntityData.defineId(Agent.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> MODELED = SynchedEntityData.defineId(Agent.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> THINKING = SynchedEntityData.defineId(Agent.class, EntityDataSerializers.BOOLEAN);
 
-    public final SimpleContainer items = new SimpleContainer(CARRY + 2) {
+    public final SimpleContainer items = new SimpleContainer(SLOTS) {
         @Override
         public void setChanged() {
             super.setChanged();
@@ -88,6 +113,29 @@ public class Agent extends PathfinderMob {
             }
         }
     };
+    /** What makes it faster and stronger. */
+    public final SimpleContainer upgrades = new SimpleContainer(Upgrades.SLOTS) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            upgraded();
+        }
+    };
+    /** What it holds beyond what it carries in its hands. */
+    private final FluidStacksResourceHandler tank = new FluidStacksResourceHandler(1, Upgrades.TANK);
+    private final Battery battery = new Battery();
+    /** Its own variables, which outlast any program. */
+    private final Map<String, Value> vars = new HashMap<>();
+    private final Ownership ownership = new Ownership();
+    /** Its program's breakpoints and watched values, kept when the program starts over. */
+    private final Debug debug = new Debug();
+    private int selected;
+    private int signal;
+    @Nullable
+    private BlockPos signalAt;
+    private boolean flying;
+    /** Operations in a row that found nothing to do. */
+    private int dried;
     private BlockPos home = BlockPos.ZERO;
     private List<BlockPos> marks = List.of();
     /** A build it took up to move, a block each with its contents, until it is laid down again. */
@@ -98,7 +146,7 @@ public class Agent extends PathfinderMob {
     private boolean stopped;
     /** What its status says while its program is stopped or over. */
     private String idle = "residual.agent.status.resting";
-    private Running work = new Running(this, Program.of());
+    private Running work = new Running(this, Program.of(), debug);
     /** An order it is carrying out; it goes back to its program after. */
     @Nullable
     private Running errand;
@@ -142,6 +190,20 @@ public class Agent extends PathfinderMob {
     /** Client side: the tick its latest words arrived, to fade them out. */
     public int saidAt = -1000;
 
+    /** The energy it holds, as much as its energy upgrades have room for. */
+    private static final class Battery extends SimpleEnergyHandler {
+        Battery() {
+            super(0, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        }
+
+        void capacity(int capacity) {
+            this.capacity = capacity;
+            if (energy > capacity) {
+                energy = capacity;
+            }
+        }
+    }
+
     private record PendingOrder(UUID player, String said) {
     }
 
@@ -157,7 +219,8 @@ public class Agent extends PathfinderMob {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return createMobAttributes().add(Attributes.MAX_HEALTH, 20).add(Attributes.MOVEMENT_SPEED, 0.3).add(Attributes.FOLLOW_RANGE, 48);
+        return createMobAttributes().add(Attributes.MAX_HEALTH, 20).add(Attributes.MOVEMENT_SPEED, 0.3).add(Attributes.FLYING_SPEED, FLIGHT_SPEED)
+                .add(Attributes.FOLLOW_RANGE, 48);
     }
 
     @Override
@@ -248,7 +311,7 @@ public class Agent extends PathfinderMob {
         entityData.set(THINKING, false);
         pause = 0;
         Program.Parsed p = Program.parse(program);
-        work = new Running(this, p.ok() ? p.program() : Program.of());
+        work = new Running(this, p.ok() ? p.program() : Program.of(), debug);
         getNavigation().stop();
         walkTarget = null;
     }
@@ -285,29 +348,16 @@ public class Agent extends PathfinderMob {
 
     /** Whoever it works for, if they are here to come to. */
     @Nullable
-    ServerPlayer boss() {
+    @Override
+    public ServerPlayer boss() {
         ServerPlayer p = boss == null ? null : serverLevel().getServer().getPlayerList().getPlayer(boss);
         return p != null && p.level() == level() && p.isAlive() ? p : null;
     }
 
     /** Notes a line in its trace; the same line coming round again is counted rather than repeated. */
-    void trace(Trace.Kind kind, String step, String key, List<String> args) {
-        if (kind != Trace.Kind.RUNNING && !trace.isEmpty() && trace.getLast().kind() == Trace.Kind.RUNNING
-                && trace.getLast().step().equals(step)) {
-            // the step it started is over
-            trace.removeLast();
-        }
-        Trace line = new Trace(kind, step, key, args, 1);
-        for (int i = trace.size() - 1; i >= Math.max(0, trace.size() - 4); i--) {
-            if (trace.get(i).same(line)) {
-                line = new Trace(kind, step, key, args, trace.remove(i).times() + 1);
-                break;
-            }
-        }
-        trace.add(line);
-        while (trace.size() > TRACED) {
-            trace.removeFirst();
-        }
+    @Override
+    public void trace(Trace.Kind kind, String step, String key, List<String> args) {
+        Trace.note(trace, TRACED, kind, step, key, args);
     }
 
     /** Marks the step under way, if any, as cut short by something else coming first. */
@@ -319,7 +369,8 @@ public class Agent extends PathfinderMob {
     }
 
     /** Thinking or pausing: not free to take another step. */
-    boolean busy() {
+    @Override
+    public boolean busy() {
         return waiting || pause > 0;
     }
 
@@ -355,11 +406,13 @@ public class Agent extends PathfinderMob {
         }
     }
 
-    void tell(Component what) {
+    @Override
+    public void tell(Component what) {
         tell(what, null);
     }
 
-    void status(String key, Object... args) {
+    @Override
+    public void status(String key, Object... args) {
         status = key;
         List<String> out = new ArrayList<>();
         for (Object a : args) {
@@ -368,8 +421,16 @@ public class Agent extends PathfinderMob {
         statusArgs = out;
     }
 
-    void pause(int ticks) {
+    @Override
+    public void pause(int ticks) {
         pause = Math.max(pause, ticks);
+    }
+
+    @Override
+    public int unpause() {
+        int left = pause;
+        pause = 0;
+        return left;
     }
 
     ServerLevel serverLevel() {
@@ -530,6 +591,10 @@ public class Agent extends PathfinderMob {
     @Override
     protected void customServerAiStep(ServerLevel level) {
         super.customServerAiStep(level);
+        fly(level);
+        if (signal > 0 && !blockPosition().equals(signalAt)) {
+            SignalBlock.follow(level, this, signal);
+        }
         if (waiting) {
             if (tickCount - askedAt < Models.PATIENCE) {
                 return;
@@ -550,6 +615,10 @@ public class Agent extends PathfinderMob {
         }
         if (proposal != null && tickCount - proposal.at() > ASKING) {
             proposal = null;
+        }
+        if (pause > 0 && errand == null && !stopped) {
+            // what it listens for can cut a pause short
+            work.poll(level);
         }
         if (pause > 0) {
             pause--;
@@ -593,6 +662,7 @@ public class Agent extends PathfinderMob {
             for (ServerPlayer p : serverLevel().players()) {
                 if (p.containerMenu instanceof AgentMenu m && m.agent == this) {
                     PacketDistributor.sendToPlayer(p, snapshot());
+                    PacketDistributor.sendToPlayer(p, debugSnapshot());
                 }
             }
         }
@@ -600,10 +670,9 @@ public class Agent extends PathfinderMob {
 
     // ---------------------------------------------------------------- moving and carrying
 
-    enum Arrival { HERE, ON_THE_WAY, LOST }
-
     /** Walks towards {@code target} until within {@code reach} blocks of its centre; LOST if it stops getting closer. */
-    Arrival walk(BlockPos target, double reach) {
+    @Override
+    public Arrival walk(BlockPos target, double reach) {
         Vec3 at = Vec3.atBottomCenterOf(target);
         double d = distanceToSqr(at.x, at.y, at.z);
         if (d <= reach * reach) {
@@ -618,6 +687,7 @@ public class Agent extends PathfinderMob {
             stuckTicks = 0;
             bestDistance = d;
         }
+        lost = flying ? 0 : lost;
         if (walkTicks++ % 20 == 0 || getNavigation().isDone()) {
             getNavigation().moveTo(at.x, at.y, at.z, 1.0);
         }
@@ -640,8 +710,10 @@ public class Agent extends PathfinderMob {
     }
 
     /** Puts {@code stack} into its own carrying slots; returns what didn't fit. */
-    ItemStack keep(ItemStack stack) {
-        for (int i = 0; i < CARRY && !stack.isEmpty(); i++) {
+    @Override
+    public ItemStack keep(ItemStack stack) {
+        int carry = carry();
+        for (int i = 0; i < carry && !stack.isEmpty(); i++) {
             ItemStack in = items.getItem(i);
             if (!in.isEmpty() && ItemStack.isSameItemSameComponents(in, stack) && in.getCount() < in.getMaxStackSize()) {
                 int moved = Math.min(stack.getCount(), in.getMaxStackSize() - in.getCount());
@@ -649,7 +721,7 @@ public class Agent extends PathfinderMob {
                 stack.shrink(moved);
             }
         }
-        for (int i = 0; i < CARRY && !stack.isEmpty(); i++) {
+        for (int i = 0; i < carry && !stack.isEmpty(); i++) {
             if (items.getItem(i).isEmpty()) {
                 items.setItem(i, stack.copy());
                 stack.setCount(0);
@@ -660,7 +732,7 @@ public class Agent extends PathfinderMob {
     }
 
     boolean carrying() {
-        for (int i = 0; i < CARRY; i++) {
+        for (int i = 0; i < carry(); i++) {
             if (!items.getItem(i).isEmpty()) {
                 return true;
             }
@@ -668,8 +740,9 @@ public class Agent extends PathfinderMob {
         return false;
     }
 
-    boolean full() {
-        for (int i = 0; i < CARRY; i++) {
+    @Override
+    public boolean full() {
+        for (int i = 0; i < carry(); i++) {
             if (items.getItem(i).isEmpty()) {
                 return false;
             }
@@ -678,7 +751,8 @@ public class Agent extends PathfinderMob {
     }
 
     /** Swings an arm and plays a sound, to show it did something with its hands. */
-    void handle(BlockPos pos) {
+    @Override
+    public void handle(BlockPos pos) {
         swing(InteractionHand.MAIN_HAND);
         level().playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.NEUTRAL, 0.3f, 0.9f + random.nextFloat() * 0.2f);
     }
@@ -690,6 +764,9 @@ public class Agent extends PathfinderMob {
         ItemStack held = player.getItemInHand(hand);
         if (held.is(ModItems.SURVEY_ROD.get()) || held.is(ModItems.PROGRAM_CARD.get()) || held.is(net.minecraft.world.item.Items.NAME_TAG)) {
             return InteractionResult.PASS;
+        }
+        if (!level().isClientSide() && !ownership.check(player)) {
+            return InteractionResult.SUCCESS;
         }
         if (player.isSecondaryUseActive() && held.isEmpty()) {
             if (!level().isClientSide()) {
@@ -717,11 +794,328 @@ public class Agent extends PathfinderMob {
             self.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, getCustomName());
         }
         Containers.dropContents(level(), blockPosition(), items);
+        Containers.dropContents(level(), blockPosition(), upgrades);
+        emit(0);
         if (!player.getInventory().add(self)) {
             spawnAtLocation(serverLevel(), self);
         }
         level().playSound(null, blockPosition(), SoundEvents.COPPER_PLACE, SoundSource.NEUTRAL, 1f, 1.2f);
         discard();
+    }
+
+    // ---------------------------------------------------------------- what makes it a body
+
+    @Override
+    public ServerLevel world() {
+        return serverLevel();
+    }
+
+    @Override
+    public BlockPos place() {
+        return blockPosition();
+    }
+
+    @Override
+    public Vec3 center() {
+        return position();
+    }
+
+    @Override
+    public Direction facing() {
+        return getDirection();
+    }
+
+    @Override
+    public int clock() {
+        return tickCount;
+    }
+
+    @Override
+    public int id() {
+        return getId();
+    }
+
+    @Nullable
+    @Override
+    public UUID owner() {
+        return ownership.owner();
+    }
+
+    public Ownership ownership() {
+        return ownership;
+    }
+
+    public void claim(Player player) {
+        ownership.claim(player.getUUID());
+    }
+
+    @Override
+    public void stand() {
+        getNavigation().stop();
+    }
+
+    @Override
+    public void stepInto(BlockPos next) {
+        getMoveControl().setWantedPosition(next.getX() + 0.5, next.getY(), next.getZ() + 0.5, 1.0);
+    }
+
+    @Override
+    public boolean tunnels() {
+        return true;
+    }
+
+    @Override
+    public boolean legs() {
+        return true;
+    }
+
+    @Override
+    public boolean flying() {
+        return flying;
+    }
+
+    @Override
+    public Container items() {
+        return items;
+    }
+
+    @Override
+    public int carry() {
+        return CARRY + 6 * Upgrades.count(upgrades, Upgrades.Kind.CARRY);
+    }
+
+    @Override
+    public void swing() {
+        swing(InteractionHand.MAIN_HAND);
+    }
+
+    @Override
+    public void look(Vec3 at) {
+        getLookControl().setLookAt(at);
+    }
+
+    @Override
+    public void picked(ItemEntity lying, int n) {
+        take(lying, n);
+    }
+
+    @Override
+    public Entity entity() {
+        return this;
+    }
+
+    @Override
+    public int interval() {
+        return Upgrades.interval(upgrades);
+    }
+
+    @Override
+    public int itemsPerRun() {
+        return Upgrades.items(upgrades);
+    }
+
+    @Override
+    public int fluidPerRun() {
+        return Upgrades.fluid(upgrades);
+    }
+
+    @Override
+    public int energyPerRun() {
+        return Upgrades.energy(upgrades);
+    }
+
+    @Override
+    public int speed() {
+        return Upgrades.count(upgrades, Upgrades.Kind.SPEED);
+    }
+
+    @Override
+    public int reach() {
+        return Upgrades.reach(upgrades);
+    }
+
+    @Override
+    public boolean reaches(BlockPos target) {
+        return true;
+    }
+
+    @Override
+    public boolean relayed() {
+        return Reach.relayed(serverLevel(), blockPosition(), upgrades);
+    }
+
+    @Override
+    public ResourceHandler<FluidResource> tank() {
+        return tank;
+    }
+
+    @Override
+    public EnergyHandler battery() {
+        return battery;
+    }
+
+    @Override
+    public Container upgrades() {
+        return upgrades;
+    }
+
+    @Override
+    public Map<String, Value> vars() {
+        return vars;
+    }
+
+    @Override
+    public String team() {
+        return Teams.of(serverLevel().getServer(), owner());
+    }
+
+    @Override
+    public List<ItemStack> ghosts() {
+        return List.of();
+    }
+
+    @Override
+    public ItemStack filterModel() {
+        return items.getItem(FILTER);
+    }
+
+    @Override
+    public void dry(boolean moved) {
+        dried = moved ? 0 : dried + 1;
+        if (dried >= 3) {
+            pause(10);
+        }
+    }
+
+    @Override
+    public int selected() {
+        return selected < carry() ? selected : 0;
+    }
+
+    @Override
+    public void select(int slot) {
+        selected = slot;
+        setItemSlot(EquipmentSlot.MAINHAND, items.getItem(selected()).copy());
+    }
+
+    @Override
+    public void face(Direction way) {
+        setYRot(way.toYRot());
+        setYHeadRot(way.toYRot());
+        setYBodyRot(way.toYRot());
+    }
+
+    /** A jump the relay network carries, as far as it reaches, for what its battery holds. */
+    @Override
+    public boolean teleport(BlockPos to) {
+        if (!relayed() || !Reach.covered(serverLevel(), upgrades, to) || !Reach.spend(battery, Upgrades.TELEPORT_COST)) {
+            return false;
+        }
+        level().playSound(null, blockPosition(), SoundEvents.CHORUS_FRUIT_TELEPORT, SoundSource.NEUTRAL, 0.6f, 1.2f);
+        teleportTo(to.getX() + 0.5, to.getY(), to.getZ() + 0.5);
+        return true;
+    }
+
+    @Override
+    public void rename(String name) {
+        setCustomName(Component.literal(name));
+    }
+
+    @Override
+    public boolean retire() {
+        ItemStack self = new ItemStack(ModItems.AGENT.get());
+        if (hasCustomName()) {
+            self.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, getCustomName());
+        }
+        Containers.dropContents(level(), blockPosition(), items);
+        Containers.dropContents(level(), blockPosition(), upgrades);
+        emit(0);
+        spawnAtLocation(serverLevel(), self);
+        level().playSound(null, blockPosition(), SoundEvents.COPPER_PLACE, SoundSource.NEUTRAL, 1f, 1.2f);
+        discard();
+        return true;
+    }
+
+    /** An agent gives out a signal through a block no one sees, where it stands. */
+    @Override
+    public void emit(int strength) {
+        signal = strength;
+        if (!level().isClientSide()) {
+            SignalBlock.follow(serverLevel(), this, strength);
+        }
+    }
+
+    @Nullable
+    public BlockPos signalAt() {
+        return signalAt;
+    }
+
+    public void signalAt(@Nullable BlockPos at) {
+        signalAt = at;
+    }
+
+    /** What its upgrades come to: its pace, what its battery and tank hold. */
+    private void upgraded() {
+        int n = Upgrades.count(upgrades, Upgrades.Kind.SPEED);
+        for (var attribute : List.of(Attributes.MOVEMENT_SPEED, Attributes.FLYING_SPEED)) {
+            var instance = getAttribute(attribute);
+            if (instance != null) {
+                instance.addOrReplacePermanentModifier(new AttributeModifier(PACE, 0.1 * n, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+            }
+        }
+        battery.capacity(Upgrades.battery(upgrades));
+    }
+
+    /** It takes to the air while it has a lift and something to run it on, and comes down when it has not. */
+    private void fly(ServerLevel level) {
+        boolean should = Upgrades.count(upgrades, Upgrades.Kind.LIFT) > 0 && battery.getAmountAsLong() >= Upgrades.FLIGHT_COST;
+        if (should != flying) {
+            flying = should;
+            setNoGravity(should);
+            getNavigation().stop();
+            moveControl = should ? new FlyingMoveControl(this, 20, true) : new MoveControl(this);
+            navigation = should ? flyingWay(level) : createNavigation(level);
+            if (navigation instanceof GroundPathNavigation ground) {
+                ground.setCanOpenDoors(true);
+            }
+        }
+        if (flying && !onGround()) {
+            Reach.spend(battery, Upgrades.FLIGHT_COST);
+        }
+    }
+
+    private FlyingPathNavigation flyingWay(ServerLevel level) {
+        FlyingPathNavigation way = new FlyingPathNavigation(this, level);
+        way.setCanOpenDoors(true);
+        way.setCanFloat(true);
+        return way;
+    }
+
+    @Override
+    public void travel(Vec3 input) {
+        if (flying) {
+            travelFlying(input, getSpeed());
+        } else {
+            super.travel(input);
+        }
+    }
+
+    public ProgramSync debugSnapshot() {
+        return ProgramSync.of(getId(), BlockPos.ZERO, 0, work, debug, List.of(), "", List.of());
+    }
+
+    /** What it has been doing. */
+    public List<Trace> traced() {
+        return trace;
+    }
+
+    /** What a variable of its program holds, as a player would read it. */
+    public String variable(String name) {
+        return work.eval.get(name).show();
+    }
+
+    public void debug(Debug.Move move, int number, String text) {
+        debug.apply(move, number, text);
     }
 
     public AgentSync snapshot() {
@@ -734,7 +1128,7 @@ public class Agent extends PathfinderMob {
         Job job = job();
         return new AgentSync(getId(), job == null ? -1 : job.ordinal(), program, stopped, List.copyOf(trace), status, statusArgs,
                 lastPrompt, lastAnswer, lastConfidence, decisions, checked, right, link instanceof ModelLink.Served, byFilter, problem, problemArgs,
-                info, marks.size(), proposal != null);
+                info, marks.size(), proposal != null, ownership.access().ordinal());
     }
 
     @Override
@@ -751,6 +1145,7 @@ public class Agent extends PathfinderMob {
     protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
         Containers.dropContents(level, blockPosition(), items);
+        Containers.dropContents(level, blockPosition(), upgrades);
     }
 
     // ---------------------------------------------------------------- saving
@@ -759,6 +1154,12 @@ public class Agent extends PathfinderMob {
     protected void addAdditionalSaveData(ValueOutput out) {
         super.addAdditionalSaveData(out);
         ContainerHelper.saveAllItems(out.child("carried"), items.getItems());
+        ContainerHelper.saveAllItems(out.child("upgrades"), upgrades.getItems());
+        tank.serialize(out.child("tank"));
+        battery.serialize(out.child("battery"));
+        Saved.write(out, vars);
+        ownership.save(out);
+        out.putInt("selected", selected);
         out.store("home", BlockPos.CODEC, home);
         out.store("marks", BlockPos.CODEC.listOf(), marks);
         if (!held.isEmpty()) {
@@ -778,6 +1179,19 @@ public class Agent extends PathfinderMob {
     protected void readAdditionalSaveData(ValueInput in) {
         super.readAdditionalSaveData(in);
         in.child("carried").ifPresent(c -> ContainerHelper.loadAllItems(c, items.getItems()));
+        if (in.child("upgrades").isPresent()) {
+            in.child("upgrades").ifPresent(c -> ContainerHelper.loadAllItems(c, upgrades.getItems()));
+        } else if (items.getItem(MODEL).isEmpty() && items.getItem(FILTER).isEmpty()) {
+            // before it carried more, its models sat right after what it carried
+            items.setItem(MODEL, items.removeItemNoUpdate(CARRY));
+            items.setItem(FILTER, items.removeItemNoUpdate(CARRY + 1));
+        }
+        upgraded();
+        in.child("tank").ifPresent(tank::deserialize);
+        in.child("battery").ifPresent(battery::deserialize);
+        Saved.read(in, vars);
+        ownership.load(in);
+        selected = in.getIntOr("selected", 0);
         entityData.set(MODELED, !items.getItem(MODEL).isEmpty());
         home = in.read("home", BlockPos.CODEC).orElse(blockPosition());
         marks = in.read("marks", BlockPos.CODEC.listOf()).orElse(List.of());

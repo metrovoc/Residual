@@ -1,0 +1,35 @@
+{
+  "parent": "residual:agent/port_program",
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "residual:speed_upgrade"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:speed_upgrade"
+    },
+    "title": {
+      "translate": "advancements.residual.agent.upgrade.title"
+    },
+    "description": {
+      "translate": "advancements.residual.agent.upgrade.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ]
+}

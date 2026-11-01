@@ -1,70 +1,182 @@
 package io.github.metrovoc.residual.client;
 
+import io.github.metrovoc.residual.agent.Pieces;
 import io.github.metrovoc.residual.agent.Program;
+import io.github.metrovoc.residual.agent.Things;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
-/** The pieces of programs an agent's screen lays out beside its Program tab, to click together instead of typing. */
+/**
+ * The pieces of programs a screen lays out beside a program, to click together instead of typing: pages of chips under
+ * headings, one page in view, scrolled with the wheel. Its last page is what the player holds and the body carries, to name
+ * things by a click.
+ */
 final class Palette {
-    /** A piece: what its chip says, what it adds to a program and how, and what it does, as a translation key. */
-    record Piece(String label, String text, Program.Join join, String help) {
+    /** How wide it is, beside the window on its left. */
+    static final int WIDTH = 150;
+    private static final int TOP = 20, CHIP_GAP = 2, ROW = Chip.HEIGHT + CHIP_GAP;
+    /** The page in view, and how far it is scrolled, while the game runs. */
+    private static int page;
+    private static int scroll;
+
+    private final List<Chip> chips = new ArrayList<>();
+    /** Where each heading stands, down from the panel's top before scrolling. */
+    private final Map<Integer, Component> headings = new LinkedHashMap<>();
+    private int px, py, height, contentHeight;
+
+    private static int color(int kind) {
+        return switch (kind) {
+            case Pieces.BLOCK -> Ui.TEAL;
+            case Pieces.CHECK -> Ui.AMBER;
+            case Pieces.VALUE -> Ui.BLUE;
+            default -> Ui.TEXT;
+        };
     }
 
-    /** Pieces of one kind under a heading, their chips written in one colour. */
-    record Group(String title, int color, List<Piece> pieces) {
+    private static int pages() {
+        return Pieces.PAGES.size() + 1;
     }
 
-    static final List<Group> GROUPS = List.of(steps(), blocks(), checks());
-
-    private Palette() {
+    private static Component title(int i) {
+        return Component.translatable(i < Pieces.PAGES.size() ? Pieces.PAGES.get(i).title() : "residual.palette.page.things");
     }
 
-    private static Group steps() {
-        List<Piece> pieces = new ArrayList<>();
-        for (Program.Verb v : Program.Verb.values()) {
-            // a number where one reads plainly; a thing is named by clicking the program with it
-            String rest = switch (v.arg) {
-                case NONE, THING_OR_ALL -> "";
-                case MARK -> " 1";
-                case THING, THING_AT_MARK -> " ";
-                case SECONDS -> " 5";
-                case WORDS -> " hello";
-            };
-            pieces.add(new Piece(v.word, v.word + rest, Program.Join.STEP, "residual.palette." + v.word));
+    /**
+     * Lays out the page in view on a panel whose top left is {@code (x, y)}. {@code add} gives each chip to the screen,
+     * {@code pick} what a chip says to the program, {@code things} what can be named.
+     */
+    void lay(int x, int y, int height, Consumer<AbstractWidget> add, BiConsumer<String, Program.Join> pick, Supplier<List<ItemStack>> things) {
+        this.px = x;
+        this.py = y;
+        this.height = height;
+        chips.clear();
+        headings.clear();
+        int top = TOP + 6;
+        List<Pieces.Group> groups = page < Pieces.PAGES.size() ? Pieces.PAGES.get(page).groups() : List.of(thingsGroup(things.get()));
+        for (Pieces.Group group : groups) {
+            headings.put(top, Component.translatable(group.title()));
+            top += 11;
+            int cx = 6;
+            for (Pieces.Piece piece : group.pieces()) {
+                Chip chip = new Chip(x, y, piece, color(group.kind()), () -> pick.accept(piece.text(), piece.join()));
+                if (cx > 6 && cx + chip.getWidth() > WIDTH - 6) {
+                    cx = 6;
+                    top += ROW;
+                }
+                chip.home(x + cx, y + top);
+                chips.add(chip);
+                add.accept(chip);
+                cx += chip.getWidth() + CHIP_GAP;
+            }
+            top += ROW + 4;
         }
-        return new Group("residual.palette.steps", Ui.TEXT, pieces);
+        contentHeight = top;
+        scroll = Math.max(0, Math.min(scroll, Math.max(0, contentHeight - (height - 8))));
+        place();
     }
 
-    private static Group blocks() {
-        return new Group("residual.palette.blocks", Ui.TEAL, List.of(
-                new Piece("repeat (…)", "repeat (", Program.Join.STEP, "residual.palette.repeat"),
-                new Piece("repeat 3 (…)", "repeat 3 (", Program.Join.STEP, "residual.palette.repeat_times"),
-                new Piece("if … (…)", "if ", Program.Join.STEP, "residual.palette.if"),
-                new Piece("else (…)", " else (", Program.Join.ON, "residual.palette.else"),
-                new Piece("until … (…)", "until ", Program.Join.STEP, "residual.palette.until"),
-                new Piece("wait until …", "wait until ", Program.Join.STEP, "residual.palette.wait_until"),
-                new Piece(")", ")", Program.Join.ON, "residual.palette.close")));
-    }
-
-    private static Group checks() {
-        List<Piece> pieces = new ArrayList<>();
-        for (Program.Sense s : Program.Sense.values()) {
-            String rest = switch (s.arg) {
-                case MARK -> " 1";
-                case NONE -> "";
-                default -> " ";
-            };
-            pieces.add(new Piece(s.word, s.word + rest, Program.Join.WORD, "residual.palette." + s.word));
+    private static Pieces.Group thingsGroup(List<ItemStack> stacks) {
+        Map<String, Pieces.Piece> pieces = new LinkedHashMap<>();
+        for (ItemStack s : stacks) {
+            if (!s.isEmpty()) {
+                String name = Things.name(s);
+                pieces.putIfAbsent(name, new Pieces.Piece(name, name, Program.Join.WORD, "residual.palette.thing"));
+            }
         }
-        pieces.add(new Piece("not", "not ", Program.Join.WORD, "residual.palette.not"));
-        return new Group("residual.palette.checks", Ui.AMBER, pieces);
+        return new Pieces.Group("residual.palette.group.things", Pieces.VALUE, List.copyOf(pieces.values()));
+    }
+
+    /** Puts each chip where the scroll has it, and hides what is out of view. */
+    private void place() {
+        for (Chip c : chips) {
+            int y = c.homeY - scroll;
+            c.setPosition(c.homeX, y);
+            c.visible = y >= py + TOP + 6 && y + Chip.HEIGHT <= py + height - 4;
+        }
+    }
+
+    /** Scrolls it, if the mouse is over it; whether it did. */
+    boolean scrolled(double mouseX, double mouseY, double amount) {
+        if (!Ui.inside(mouseX, mouseY, px, py, WIDTH, height)) {
+            return false;
+        }
+        scroll = Math.max(0, Math.min(scroll - (int) (amount * ROW), Math.max(0, contentHeight - (height - 8))));
+        place();
+        return true;
+    }
+
+    /** Where a page's name sits, in rows of up to what fits the panel: its top left, as x and y. */
+    private static int[] tabAt(Font font, int i) {
+        int x = 6, y = 5;
+        for (int k = 0; k <= i; k++) {
+            int w = font.width(title(k)) + 4;
+            if (x + w > WIDTH - 4) {
+                x = 6;
+                y += 11;
+            }
+            if (k == i) {
+                return new int[]{x, y};
+            }
+            x += w + 1;
+        }
+        return new int[]{x, y};
+    }
+
+    /** A click on a page's name: true if it hit one, which then needs a new layout. */
+    boolean clickedTab(Font font, double mouseX, double mouseY) {
+        for (int i = 0; i < pages(); i++) {
+            int[] at = tabAt(font, i);
+            if (Ui.inside(mouseX, mouseY, px + at[0], py + at[1], font.width(title(i)) + 4, 11)) {
+                if (i != page) {
+                    page = i;
+                    scroll = 0;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void draw(GuiGraphicsExtractor g, Font font, int mouseX, int mouseY) {
+        Ui.window(g, px, py, WIDTH, height);
+        for (int i = 0; i < pages(); i++) {
+            Component t = title(i);
+            int[] at = tabAt(font, i);
+            int w = font.width(t) + 4;
+            boolean hover = Ui.inside(mouseX, mouseY, px + at[0], py + at[1], w, 11);
+            if (i == page) {
+                g.fill(px + at[0], py + at[1] + 9, px + at[0] + w, py + at[1] + 10, 0xFF2A9D92);
+            }
+            g.text(font, t, px + at[0] + 2, py + at[1], i == page ? Ui.LABEL : hover ? 0xFF222222 : Ui.LABEL_DIM, false);
+        }
+        headings.forEach((top, title) -> {
+            int y = py + top - scroll;
+            if (y >= py + TOP + 6 && y + 9 <= py + height - 4) {
+                g.text(font, title, px + 7, y, Ui.LABEL, false);
+            }
+        });
+        // how much of the page there is below or above, when it does not all fit
+        int view = height - 8, track = view - TOP - 6;
+        if (contentHeight > view) {
+            int thumb = Math.max(8, track * view / contentHeight);
+            int y = py + TOP + 6 + (track - thumb) * scroll / (contentHeight - view);
+            g.fill(px + WIDTH - 5, y, px + WIDTH - 3, y + thumb, Ui.LABEL_DIM);
+        }
     }
 
     /** A piece on a dark chip, outlined in its colour while pointed at. */
@@ -72,12 +184,18 @@ final class Palette {
         static final int HEIGHT = 12;
         private final int color;
         private final Runnable onPress;
+        int homeX, homeY;
 
-        Chip(int x, int y, Piece piece, int color, Runnable onPress) {
-            super(x, y, Minecraft.getInstance().font.width(piece.label()) + 6, HEIGHT, Component.literal(piece.label()));
+        Chip(int x, int y, Pieces.Piece piece, int color, Runnable onPress) {
+            super(x, y, Math.min(WIDTH - 12, Minecraft.getInstance().font.width(piece.label()) + 6), HEIGHT, Component.literal(piece.label()));
             this.color = color;
             this.onPress = onPress;
             setTooltip(Tooltip.create(Component.translatable(piece.help())));
+        }
+
+        void home(int x, int y) {
+            homeX = x;
+            homeY = y;
         }
 
         @Override
@@ -92,7 +210,7 @@ final class Palette {
             if (lit) {
                 g.outline(getX(), getY(), getWidth(), getHeight(), color);
             }
-            g.text(Minecraft.getInstance().font, getMessage(), getX() + 3, getY() + 2, color, false);
+            g.text(Minecraft.getInstance().font, Ui.fit(Minecraft.getInstance().font, getMessage().getString(), getWidth() - 4), getX() + 3, getY() + 2, color, false);
         }
 
         @Override

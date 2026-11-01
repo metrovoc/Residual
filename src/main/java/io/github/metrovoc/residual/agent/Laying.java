@@ -151,7 +151,7 @@ abstract class Laying extends Work {
 
     private int carried(Item item) {
         int n = 0;
-        for (int i = 0; i < Agent.CARRY; i++) {
+        for (int i = 0; i < a.carry(); i++) {
             if (a.items.getItem(i).is(item)) {
                 n += a.items.getItem(i).getCount();
             }
@@ -166,7 +166,7 @@ abstract class Laying extends Work {
         if (carried(item) < count) {
             return false;
         }
-        for (int i = 0; i < Agent.CARRY && count > 0; i++) {
+        for (int i = 0; i < a.carry() && count > 0; i++) {
             ItemStack s = a.items.getItem(i);
             if (s.is(item)) {
                 int n = Math.min(count, s.getCount());
@@ -242,7 +242,7 @@ abstract class Laying extends Work {
     private void putBack(ServerLevel level, BlockPos p, Set<Item> keep) {
         Container c = Stores.at(level, p);
         StorageNetwork net = c == null ? StorageNetwork.at(level, p) : null;
-        for (int i = 0; i < Agent.CARRY; i++) {
+        for (int i = 0; i < a.carry(); i++) {
             ItemStack s = a.items.getItem(i);
             if (s.isEmpty() || keep.contains(s.getItem())) {
                 continue;

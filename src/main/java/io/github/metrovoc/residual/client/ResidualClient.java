@@ -7,6 +7,7 @@ import guideme.siteexport.ExportPostProcessor;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.net.AgentSync;
+import io.github.metrovoc.residual.net.ProgramSync;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.FlowSync;
 import io.github.metrovoc.residual.net.GhostSync;
@@ -113,6 +114,7 @@ public final class ResidualClient {
         event.register(ModMenus.RACK.get(), RackScreen::new);
         event.register(ModMenus.TERMINAL.get(), StorageTerminalScreen::new);
         event.register(ModMenus.PORT.get(), PortScreen::new);
+        event.register(ModMenus.PORT_PROGRAM.get(), PortProgramScreen::new);
         event.register(ModMenus.ASSEMBLER.get(), AssemblerScreen::new);
         event.register(ModMenus.PROCESSOR.get(), ProcessorScreen::new);
         event.register(ModMenus.DOCK.get(), DockScreen::new);
@@ -130,6 +132,7 @@ public final class ResidualClient {
             CoreView.sampling = false;
         });
         event.register(AgentSync.TYPE, (sync, ctx) -> AgentView.sync = sync);
+        event.register(ProgramSync.TYPE, (sync, ctx) -> AgentView.program = sync);
         event.register(WaveSync.TYPE, (wave, ctx) -> Waves.receive(wave));
         event.register(FlowSync.TYPE, (flow, ctx) -> FlowView.receive(flow));
         event.register(GhostSync.TYPE, (ghost, ctx) -> GhostView.receive(ghost));

@@ -38,6 +38,7 @@ public class AgentItem extends Item {
         a.setHome(pos);
         if (ctx.getPlayer() != null) {
             a.setBoss(ctx.getPlayer());
+            a.claim(ctx.getPlayer());
         }
         level.addFreshEntity(a);
         level.playSound(null, pos, SoundEvents.COPPER_PLACE, SoundSource.NEUTRAL, 1f, 1.4f);

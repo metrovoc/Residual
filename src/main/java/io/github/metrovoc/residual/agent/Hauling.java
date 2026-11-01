@@ -158,7 +158,7 @@ final class Hauling extends Work {
         }
         Container c = chest == null ? null : Stores.at(level, chest);
         if (c != null) {
-            for (int i = 0; i < Agent.CARRY; i++) {
+            for (int i = 0; i < a.carry(); i++) {
                 a.items.setItem(i, Stores.insert(c, a.items.getItem(i)));
             }
             a.items.setChanged();

@@ -430,7 +430,8 @@ def storage():
 def items():
     flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
              "agent", "relay_card", "terminal", "field_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
-             "portable_drive", "wireless_terminal", "hourglass", "flight_frame", "exosuit"] + list(DATASETS) + SCHEMATICS)
+             "portable_drive", "wireless_terminal", "hourglass", "flight_frame", "exosuit",
+             "speed_upgrade", "stack_upgrade", "range_upgrade", "fluid_upgrade", "energy_upgrade", "carry_upgrade", "lift_upgrade"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -472,6 +473,8 @@ def items():
         "type": "minecraft:condition", "property": "minecraft:has_component", "component": rid("program"),
         "on_true": {"type": "minecraft:model", "model": rid("item/program_card_written")},
         "on_false": {"type": "minecraft:model", "model": rid("item/program_card")}}})
+    # where an agent gives out a signal: nothing to see, and no item
+    write(f"assets/{NS}/blockstates/signal.json", {"variants": {"": {"model": "minecraft:block/air"}}})
     # the guide book is GuideME's item; its guide definition points at this model
     write(f"assets/{NS}/models/item/guide.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid("item/guide")}})
     item_definition("guide", rid("item/guide"))
@@ -682,6 +685,10 @@ def advancements():
     advancement("model/complete", "benchmark/reading", "checkpoint", awarded(), frame="challenge")
     advancement("agent/made", "root", "agent", has("agent"))
     advancement("agent/program", "agent/made", "program_card", awarded())
+    advancement("agent/debugger", "agent/program", "program_card", awarded())
+    advancement("agent/port_program", "agent/program", "port", awarded(), frame="goal")
+    advancement("agent/upgrade", "agent/port_program", "speed_upgrade", has("speed_upgrade"))
+    advancement("agent/full_rate", "agent/upgrade", "stack_upgrade", awarded(), frame="goal")
     advancement("agent/order", "agent/made", "minecraft:writable_book", awarded(), frame="goal")
     advancement("agent/copy", "agent/program", "survey_rod", awarded(), frame="goal")
     advancement("agent/move", "agent/copy", "minecraft:chest", awarded(), frame="goal")

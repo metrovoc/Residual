@@ -28,6 +28,7 @@ public final class PowerNetwork {
     private final ServerLevel level;
     private final List<BlockPos> devices = new ArrayList<>();
     private long tickedAt = -1;
+    private long drawn;
 
     private PowerNetwork(ServerLevel level, Set<BlockPos> blocks) {
         this.level = level;
@@ -95,12 +96,13 @@ public final class PowerNetwork {
             }
         }
         try (Transaction tx = Transaction.openRoot()) {
+            drawn = 0;
             for (EnergyHandler machine : machines) {
                 for (EnergyHandler from : generators) {
-                    EnergyHandlerUtil.move(from, machine, Integer.MAX_VALUE, tx);
+                    drawn += EnergyHandlerUtil.move(from, machine, Integer.MAX_VALUE, tx);
                 }
                 for (EnergyHandler from : cells) {
-                    EnergyHandlerUtil.move(from, machine, Integer.MAX_VALUE, tx);
+                    drawn += EnergyHandlerUtil.move(from, machine, Integer.MAX_VALUE, tx);
                 }
             }
             for (EnergyHandler from : generators) {
@@ -125,15 +127,16 @@ public final class PowerNetwork {
         return taken;
     }
 
-    /** Power stored in its cells, and what they hold in all. */
+    /** Power stored in its cells, what they hold in all, how many there are, and what its machines drew last tick. */
     public long[] stored() {
-        long amount = 0, capacity = 0;
+        long amount = 0, capacity = 0, cells = 0;
         for (BlockPos p : devices) {
             if (level.getBlockEntity(p) instanceof PowerBlockEntity be && be.role() == PowerBlockEntity.Role.CELL) {
                 amount += be.energy().getAmountAsLong();
                 capacity += be.energy().getCapacityAsLong();
+                cells++;
             }
         }
-        return new long[] {amount, capacity};
+        return new long[] {amount, capacity, cells, drawn};
     }
 }

@@ -59,6 +59,9 @@ public class ProgramCardItem extends Item {
         if (player.level().isClientSide()) {
             return InteractionResult.SUCCESS;
         }
+        if (!a.ownership().check(player)) {
+            return InteractionResult.FAIL;
+        }
         String written = program(stack);
         if (written.isEmpty() || player.isSecondaryUseActive()) {
             if (a.program().isEmpty()) {

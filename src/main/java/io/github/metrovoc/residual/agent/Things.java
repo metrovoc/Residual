@@ -10,8 +10,16 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 /** Which items a name said aloud could mean: "iron ingots", "seeds", "a pickaxe". */
 public final class Things {
@@ -19,9 +27,10 @@ public final class Things {
             "honey", "honey_bottle", "milk", "milk_bucket", "clay balls", "clay_ball");
 
     /** The item names (registry paths and shown names) and tags {@code thing} stands for. */
-    record Wanted(String thing, Set<String> names, List<TagKey<Item>> tags) {
+    record Wanted(String thing, Set<String> names, List<TagKey<Item>> tags) implements Picker {
         /** Exactly this kind of thing: "torch" for torches. */
-        boolean exactly(ItemStack s) {
+        @Override
+        public boolean exactly(ItemStack s) {
             if (s.isEmpty()) {
                 return false;
             }
@@ -38,7 +47,8 @@ public final class Things {
         }
 
         /** A kind of this thing: "soul torch" for torches. */
-        boolean loosely(ItemStack s) {
+        @Override
+        public boolean loosely(ItemStack s) {
             if (s.isEmpty()) {
                 return false;
             }
@@ -49,6 +59,40 @@ public final class Things {
                 }
             }
             return false;
+        }
+
+        /** A fluid by its name. */
+        @Override
+        public boolean passes(FluidResource fluid) {
+            return !fluid.isEmpty() && named(BuiltInRegistries.FLUID.getKey(fluid.getFluid()));
+        }
+
+        /** An entity by its name, or by the words for its kind: mob, animal, player, item, and any living thing. */
+        @Override
+        public boolean passes(Entity e) {
+            for (String n : names) {
+                boolean kind = switch (n) {
+                    case "mob", "monster" -> e instanceof Enemy;
+                    case "animal" -> e instanceof Animal;
+                    case "player" -> e instanceof Player;
+                    case "item" -> e instanceof ItemEntity;
+                    case "living" -> e instanceof LivingEntity;
+                    default -> false;
+                };
+                if (kind) {
+                    return true;
+                }
+            }
+            return named(BuiltInRegistries.ENTITY_TYPE.getKey(e.getType())) || names.contains(e.getName().getString().toLowerCase(Locale.ROOT));
+        }
+
+        private boolean named(Identifier id) {
+            return names.contains(id.getPath()) || names.contains(id.toString());
+        }
+
+        @Override
+        public boolean passes(BlockState state) {
+            return passes(new ItemStack(state.getBlock().asItem())) || named(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
         }
     }
 

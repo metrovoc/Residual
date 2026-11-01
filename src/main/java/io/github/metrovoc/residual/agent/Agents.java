@@ -36,7 +36,7 @@ public final class Agents {
         for (Agent a : level.getEntities(ModEntities.AGENT.get(), a -> a.getName().getString().equalsIgnoreCase(name))) {
             boolean heard = a.distanceToSqr(player) <= HEARING * HEARING;
             boolean relayed = line != null && Relays.covers(level, line.server().getBlockPos(), a.blockPosition());
-            if (heard || relayed) {
+            if ((heard || relayed) && a.ownership().allows(player)) {
                 a.order(player, said);
             }
         }
@@ -44,6 +44,7 @@ public final class Agents {
 
     /** {@code /residual yes <agent>} and {@code no}: what clicking Do it or Cancel under an order read back runs. */
     public static void commands(RegisterCommandsEvent event) {
+        event.getDispatcher().register(Commands.literal("residual").then(Teams.commands()));
         for (boolean yes : new boolean[]{true, false}) {
             event.getDispatcher().register(Commands.literal("residual").then(Commands.literal(yes ? "yes" : "no")
                     .then(Commands.argument("agent", IntegerArgumentType.integer()).executes(c -> answer(c, yes)))));

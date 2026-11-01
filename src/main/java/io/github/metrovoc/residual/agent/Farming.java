@@ -114,28 +114,28 @@ final class Farming extends Work {
     }
 
     /** Breaks the crop at {@code crop} and keeps what it drops. */
-    static void reap(ServerLevel level, Agent a, BlockPos crop) {
+    static void reap(ServerLevel level, Body a, BlockPos crop) {
         BlockState cropState = level.getBlockState(crop);
-        for (ItemStack drop : Block.getDrops(cropState, level, crop, null, a, ItemStack.EMPTY)) {
+        for (ItemStack drop : Block.getDrops(cropState, level, crop, null, a.entity(), ItemStack.EMPTY)) {
             ItemStack rest = a.keep(drop);
             if (!rest.isEmpty()) {
                 Block.popResource(level, crop, rest);
             }
         }
-        level.destroyBlock(crop, false, a);
+        level.destroyBlock(crop, false, a.entity());
         a.handle(crop);
     }
 
     /** Plants at {@code pos} the first carried seed that {@code which} allows; false if it carries none. */
-    static boolean sow(ServerLevel level, Agent a, BlockPos pos, Predicate<ItemStack> which) {
-        for (int i = 0; i < Agent.CARRY; i++) {
-            ItemStack s = a.items.getItem(i);
+    static boolean sow(ServerLevel level, Body a, BlockPos pos, Predicate<ItemStack> which) {
+        for (int i = 0; i < a.carry(); i++) {
+            ItemStack s = a.items().getItem(i);
             if (seed(s) && which.test(s)) {
                 BlockState crop = ((BlockItem) s.getItem()).getBlock().defaultBlockState();
                 if (crop.canSurvive(level, pos)) {
                     level.setBlockAndUpdate(pos, crop);
                     s.shrink(1);
-                    a.items.setChanged();
+                    a.items().setChanged();
                     a.handle(pos);
                 }
                 return true;
@@ -147,7 +147,7 @@ final class Farming extends Work {
     /** Items carried that are not for planting. */
     private int produce() {
         int n = 0;
-        for (int i = 0; i < Agent.CARRY; i++) {
+        for (int i = 0; i < a.carry(); i++) {
             ItemStack s = a.items.getItem(i);
             if (!seed(s)) {
                 n += s.getCount();
@@ -186,7 +186,7 @@ final class Farming extends Work {
         Container c = Stores.at(level, chest);
         if (c != null) {
             List<net.minecraft.world.item.Item> keptSeeds = new ArrayList<>();
-            for (int i = 0; i < Agent.CARRY; i++) {
+            for (int i = 0; i < a.carry(); i++) {
                 ItemStack s = a.items.getItem(i);
                 if (s.isEmpty() || seed(s) && !keptSeeds.contains(s.getItem()) && keptSeeds.add(s.getItem())) {
                     continue;

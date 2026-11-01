@@ -52,6 +52,16 @@ public final class Relays {
         return false;
     }
 
+    /** Whether a relay stands within reach of {@code where}. */
+    public static synchronized boolean relayNear(Level level, BlockPos where) {
+        for (BlockPos r : RELAYS.getOrDefault(level, Set.of())) {
+            if (r.distSqr(where) <= (double) RANGE * RANGE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** The relays the server at {@code server} reaches, directly or through each other. */
     public static synchronized Set<BlockPos> network(Level level, BlockPos server) {
         Set<BlockPos> all = RELAYS.getOrDefault(level, Set.of());

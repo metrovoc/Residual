@@ -38,6 +38,16 @@ while carried. Sneak-use a Forecaster that runs blocks ahead to bind it, then us
 
 <residual:Milestone id="agent/program">Type one in its screen, or click it together from the palette.</residual:Milestone>
 
+<residual:Milestone id="agent/debugger">On a program's Trace tab, pause it, run it one step at a time, or click a line to stop
+there: [Programs](programs.md).</residual:Milestone>
+
+<residual:Milestone id="agent/port_program">Put a Program Card in a Port, under Programs on its screen, and write on it.</residual:Milestone>
+
+<residual:Milestone id="agent/upgrade">The Fabricator makes one from an attention photomask.</residual:Milestone>
+
+<residual:Milestone id="agent/full_rate">Three Speed and three Stack upgrades and something to move: a program on a Port you set down, moving
+1,280 items in a second.</residual:Milestone>
+
 ## Storage
 
 <residual:Milestone id="storage/drive">It keeps any number of kinds: [Storage](storage.md).</residual:Milestone>

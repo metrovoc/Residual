@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.agent.Upgrades;
 import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.item.AgentItem;
@@ -23,6 +24,7 @@ import io.github.metrovoc.residual.item.StorageDriveItem;
 import io.github.metrovoc.residual.item.SurveyRodItem;
 import io.github.metrovoc.residual.item.TerminalItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
+import io.github.metrovoc.residual.item.UpgradeItem;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.item.WirelessTerminalItem;
 import io.github.metrovoc.residual.item.WreckItem;
@@ -78,6 +80,8 @@ public final class ModItems {
     public static final DeferredItem<AgentItem> AGENT = ITEMS.registerItem("agent", AgentItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<SurveyRodItem> SURVEY_ROD = ITEMS.registerItem("survey_rod", SurveyRodItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<ProgramCardItem> PROGRAM_CARD = ITEMS.registerItem("program_card", ProgramCardItem::new, p -> p.stacksTo(16));
+    /** What makes a body that runs programs faster, stronger or longer in reach, by kind. */
+    public static final Map<Upgrades.Kind, DeferredItem<UpgradeItem>> UPGRADES = new EnumMap<>(Upgrades.Kind.class);
     public static final DeferredItem<LinkItem> RELAY_CARD = ITEMS.registerItem("relay_card", LinkItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<TerminalItem> TERMINAL = ITEMS.registerItem("terminal", TerminalItem::new, p -> p.stacksTo(1));
     /** The first Storage Drive: a quarter of a million items, of any number of kinds. */
@@ -100,8 +104,11 @@ public final class ModItems {
             p -> p.stacksTo(1).rarity(Rarity.UNCOMMON));
 
     static {
+        for (Upgrades.Kind kind : Upgrades.Kind.values()) {
+            UPGRADES.put(kind, ITEMS.registerItem(kind.name().toLowerCase(java.util.Locale.ROOT) + "_upgrade", p -> new UpgradeItem(kind, p), p -> p.stacksTo(kind.most)));
+        }
         ModBlocks.BLOCKS.getEntries().forEach(block -> {
-            if (!ModBlocks.OPERATORS.containsValue(block)) {
+            if (!ModBlocks.OPERATORS.containsValue(block) && block != ModBlocks.SIGNAL) {
                 BLOCK_ITEMS.add(ITEMS.registerSimpleBlockItem(block));
             }
         });

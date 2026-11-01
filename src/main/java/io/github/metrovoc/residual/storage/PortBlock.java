@@ -5,7 +5,10 @@ import io.github.metrovoc.residual.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -66,6 +69,9 @@ public class PortBlock extends DeviceBlock {
     /** Sneak-using a face turns its front to that face. */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof PortBlockEntity port && !port.work.ownership().check(player)) {
+            return InteractionResult.SUCCESS;
+        }
         if (player.isShiftKeyDown()) {
             if (!level.isClientSide()) {
                 level.setBlockAndUpdate(pos, state.setValue(FACING, hit.getDirection()));
@@ -73,6 +79,26 @@ public class PortBlock extends DeviceBlock {
             return InteractionResult.SUCCESS;
         }
         return super.useWithoutItem(state, level, pos, player, hit);
+    }
+
+    /** It is whoever set it down's. */
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (placer instanceof Player player && level.getBlockEntity(pos) instanceof PortBlockEntity port) {
+            port.work.ownership().claim(player.getUUID());
+        }
+    }
+
+    @Override
+    protected boolean isSignalSource(BlockState state) {
+        return true;
+    }
+
+    /** What its programs say with {@code emit}. */
+    @Override
+    protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
+        return level.getBlockEntity(pos) instanceof PortBlockEntity port ? port.work.signal() : 0;
     }
 
     @Override

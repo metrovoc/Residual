@@ -15,6 +15,7 @@ import io.github.metrovoc.residual.storage.AccessPointMenu;
 import io.github.metrovoc.residual.storage.AssemblerMenu;
 import io.github.metrovoc.residual.storage.DockMenu;
 import io.github.metrovoc.residual.storage.PortMenu;
+import io.github.metrovoc.residual.storage.PortProgramMenu;
 import io.github.metrovoc.residual.storage.ProcessorMenu;
 import io.github.metrovoc.residual.storage.RackMenu;
 import io.github.metrovoc.residual.storage.TerminalMenu;
@@ -53,6 +54,8 @@ public final class ModMenus {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new TerminalMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<PortMenu>> PORT = MENUS.register("port",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new PortMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<PortProgramMenu>> PORT_PROGRAM = MENUS.register("port_program",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new PortProgramMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<PowerMenu>> POWER = MENUS.register("power", () -> IMenuTypeExtension.create(PowerMenu::new));
 
     public static final Supplier<MenuType<AssemblerMenu>> ASSEMBLER = MENUS.register("assembler",

@@ -73,6 +73,7 @@ public final class ModTabs {
                 out.accept(ModItems.SURVEY_ROD.get());
                 out.accept(ModItems.WAYFINDER.get());
                 out.accept(ModItems.PROGRAM_CARD.get());
+                ModItems.UPGRADES.values().forEach(u -> out.accept(u.get()));
                 out.accept(ModBlocks.SERVER.get());
                 out.accept(ModBlocks.RELAY.get());
                 out.accept(ModItems.RELAY_CARD.get());

@@ -76,6 +76,11 @@ public class SmelterBlockEntity extends PowerBlockEntity implements MenuProvider
         return items;
     }
 
+    /** The step its melt's temperature is on, or -1 with no melt. */
+    public int temperature() {
+        return melt == null || melt.look() == 0 ? -1 : melt.band(melt.look() - 1);
+    }
+
     /** What smelting {@code stack} gives here: twice the ingots for an ore, or three times from a melt held in its band. */
     ItemStack result(ServerLevel level, ItemStack stack, boolean held) {
         if (stack.isEmpty()) {

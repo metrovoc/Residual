@@ -31,7 +31,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * What moves through a storage network, drawn along its links from a Port, a Dock or an Assembler to the drive it went into,
  * or back out of it: the things themselves riding on the link, and under them pulses of light, teal into the network, amber
- * out, red where a link is full; a fluid's pulses are its own color. A bigger load makes a brighter, longer stream.
+ * out, red where a link is full; a fluid's pulses are its own color. A bigger load makes a brighter, longer stream. A program on a Port
+ * shows what it reaches the same way, straight through the air.
  */
 public final class FlowView {
     private static final ContextKey<List<Dot>> DOTS = new ContextKey<>(Residual.id("flows"));
@@ -69,7 +70,7 @@ public final class FlowView {
         }
         List<Vec3> path = route(level, flow.from(), flow.to());
         if (path.size() < 2) {
-            return;
+            path = straight(flow.from(), flow.to());
         }
         if (!flow.in()) {
             Collections.reverse(path);
@@ -91,6 +92,17 @@ public final class FlowView {
             return model.fluidTintSource().colorAsStack(fluid.toStack(1000)) & 0xFFFFFF;
         }
         return Ui.sprited(model.stillMaterial().sprite());
+    }
+
+    /** Where no links join them, as between a Port and what its program reaches: a straight line, a point a block. */
+    private static List<Vec3> straight(BlockPos from, BlockPos to) {
+        Vec3 a = from.getCenter(), b = to.getCenter();
+        int blocks = Math.max(1, (int) Math.ceil(a.distanceTo(b)));
+        List<Vec3> path = new ArrayList<>();
+        for (int i = 0; i <= blocks; i++) {
+            path.add(a.lerp(b, (double) i / blocks));
+        }
+        return path;
     }
 
     /** The way through storage blocks from one to the other, block centre to block centre, or nothing. */

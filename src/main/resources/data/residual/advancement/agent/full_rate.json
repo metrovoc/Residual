@@ -1,0 +1,28 @@
+{
+  "parent": "residual:agent/upgrade",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:stack_upgrade"
+    },
+    "title": {
+      "translate": "advancements.residual.agent.full_rate.title"
+    },
+    "description": {
+      "translate": "advancements.residual.agent.full_rate.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

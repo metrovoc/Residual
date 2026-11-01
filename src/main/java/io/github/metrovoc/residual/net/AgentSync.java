@@ -21,11 +21,12 @@ import org.jetbrains.annotations.Nullable;
  * @param filter  the model shown is its filter, which made its last decision
  * @param problem why it has no model to ask (a translation key), or empty
  * @param asking  it has read an order back as a program and waits for a yes
+ * @param access  who may use it: an {@link io.github.metrovoc.residual.agent.Ownership.Access}'s place
  */
 public record AgentSync(int entity, int job, String program, boolean stopped, List<Trace> trace, String status,
                              List<String> statusArgs, String prompt, String answer, float confidence, int decisions,
                              int checked, int right, boolean served, boolean filter, String problem, List<String> problemArgs,
-                             @Nullable ModelInfo model, int marks, boolean asking)
+                             @Nullable ModelInfo model, int marks, boolean asking, int access)
         implements CustomPacketPayload {
     public static final Type<AgentSync> TYPE = new Type<>(Residual.id("agent_sync"));
     public static final StreamCodec<RegistryFriendlyByteBuf, AgentSync> STREAM_CODEC = StreamCodec.of(AgentSync::write, AgentSync::read);
@@ -51,6 +52,7 @@ public record AgentSync(int entity, int job, String program, boolean stopped, Li
         ByteBufCodecs.optional(ModelInfo.STREAM_CODEC).encode(buf, Optional.ofNullable(s.model));
         buf.writeVarInt(s.marks);
         buf.writeBoolean(s.asking);
+        buf.writeVarInt(s.access);
     }
 
     private static AgentSync read(RegistryFriendlyByteBuf buf) {
@@ -58,7 +60,7 @@ public record AgentSync(int entity, int job, String program, boolean stopped, Li
                 Trace.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf), buf.readUtf(), buf.readList(b -> b.readUtf()),
                 buf.readUtf(), buf.readUtf(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readBoolean(),
                 buf.readBoolean(), buf.readUtf(), buf.readList(b -> b.readUtf()),
-                ByteBufCodecs.optional(ModelInfo.STREAM_CODEC).decode(buf).orElse(null), buf.readVarInt(), buf.readBoolean());
+                ByteBufCodecs.optional(ModelInfo.STREAM_CODEC).decode(buf).orElse(null), buf.readVarInt(), buf.readBoolean(), buf.readVarInt());
     }
 
     @Override

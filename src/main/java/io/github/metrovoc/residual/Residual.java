@@ -3,6 +3,7 @@ package io.github.metrovoc.residual;
 import com.mojang.logging.LogUtils;
 import guideme.Guides;
 import io.github.metrovoc.residual.agent.Agents;
+import io.github.metrovoc.residual.agent.Senses;
 import io.github.metrovoc.residual.block.Bursts;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
@@ -67,6 +68,7 @@ public final class Residual {
         NeoForge.EVENT_BUS.addListener(Residual::onLogIn);
         NeoForge.EVENT_BUS.addListener(Agents::onChat);
         NeoForge.EVENT_BUS.addListener(Agents::commands);
+        NeoForge.EVENT_BUS.addListener(Senses::played);
         NeoForge.EVENT_BUS.addListener(ForecasterBlockEntity::grew);
         NeoForge.EVENT_BUS.addListener(Bursts::tick);
         NeoForge.EVENT_BUS.addListener(FlightFrameItem::tick);
@@ -110,6 +112,9 @@ public final class Residual {
         event.registerItem(Capabilities.Energy.ITEM, (stack, access) -> new ItemAccessEnergyHandler(access, ModComponents.CHARGE.get(), ExosuitItem.CAPACITY, ExosuitItem.TRANSFER),
                 ModItems.EXOSUIT.get());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.GENERATOR.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.PORT.get(), (be, side) -> be.work.battery());
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PORT.get(), (be, side) -> be.work.tank());
+        event.registerEntity(Capabilities.Energy.ENTITY, ModEntities.AGENT.get(), (agent, side) -> agent.battery());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SMELTER.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
     }
 }

@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.agent.SignalBlock;
 import io.github.metrovoc.residual.block.AcceleratorBlock;
 import io.github.metrovoc.residual.block.BenchBlock;
 import io.github.metrovoc.residual.block.CableBlock;
@@ -86,6 +87,9 @@ public final class ModBlocks {
             p -> machine(p).strength(2.5f, 6f));
     public static final DeferredBlock<TerminalBlock> STORAGE_TERMINAL = BLOCKS.registerBlock("storage_terminal", TerminalBlock::new,
             p -> machine(p).lightLevel(s -> s.getValue(TerminalBlock.LIT) ? 9 : 2));
+    /** Where an agent gives out a redstone signal; no one holds it or sees it. */
+    public static final DeferredBlock<SignalBlock> SIGNAL = BLOCKS.registerBlock("signal", SignalBlock::new,
+            p -> p.noCollision().noOcclusion().replaceable().instabreak().noLootTable().pushReaction(net.minecraft.world.level.material.PushReaction.DESTROY));
     public static final DeferredBlock<PortBlock> PORT = BLOCKS.registerBlock("port", PortBlock::new,
             p -> machine(p).lightLevel(s -> s.getValue(PortBlock.ACTIVE) ? 7 : 2));
     public static final DeferredBlock<DockBlock> DRIVE_DOCK = BLOCKS.registerBlock("drive_dock", DockBlock::new,

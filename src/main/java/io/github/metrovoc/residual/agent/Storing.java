@@ -106,7 +106,7 @@ final class Storing extends Work {
 
     /** The first slot {@code a} carries something in, or -1. */
     static int carried(Agent a) {
-        for (int i = 0; i < Agent.CARRY; i++) {
+        for (int i = 0; i < a.carry(); i++) {
             if (!a.items.getItem(i).isEmpty()) {
                 return i;
             }

@@ -1,7 +1,11 @@
 package io.github.metrovoc.residual.net;
 
+import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.agent.Agent;
+import io.github.metrovoc.residual.agent.Debug;
 import io.github.metrovoc.residual.agent.Job;
+import io.github.metrovoc.residual.agent.Ownership;
+import io.github.metrovoc.residual.agent.PortWork;
 import io.github.metrovoc.residual.bench.Spec;
 import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.block.BenchBlockEntity;
@@ -31,6 +35,7 @@ import io.github.metrovoc.residual.storage.ProcessorMenu;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.PortMenu;
 import io.github.metrovoc.residual.storage.PortMode;
+import io.github.metrovoc.residual.storage.PortProgramMenu;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.List;
 import java.util.Random;
@@ -73,7 +78,9 @@ public final class Network {
         r.playToServer(DockEdit.TYPE, DockEdit.STREAM_CODEC, Network::onDockEdit);
         r.playToServer(OpenTerminal.TYPE, OpenTerminal.STREAM_CODEC, Network::onOpenTerminal);
         r.playToServer(SuitEdit.TYPE, SuitEdit.STREAM_CODEC, Network::onSuitEdit);
+        r.playToServer(PortProgramAction.TYPE, PortProgramAction.STREAM_CODEC, Network::onPortProgram);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
+        r.playToClient(ProgramSync.TYPE, ProgramSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
         r.playToClient(SampleResult.TYPE, SampleResult.STREAM_CODEC);
@@ -185,6 +192,13 @@ public final class Network {
             case HOME -> agent.setHome(agent.blockPosition());
             case CARD -> ProgramCardItem.write(player, menu.getCarried(), a.said());
             case ANSWER -> agent.answer(player, a.job() == 1);
+            case DEBUG -> {
+                // the move and the step's number share one number, the move in the low bits
+                Debug.Move[] moves = Debug.Move.values();
+                agent.debug(moves[Math.floorMod(a.job(), moves.length)], a.job() / moves.length, a.said());
+                Awards.grant(player, "agent/debugger");
+            }
+            case ACCESS -> agent.ownership().setAccess(player, Ownership.Access.values()[Math.floorMod(a.job(), Ownership.Access.values().length)]);
         }
         PacketDistributor.sendToPlayer(player, agent.snapshot());
     }
@@ -330,6 +344,28 @@ public final class Network {
         }
     }
 
+    private static void onPortProgram(PortProgramAction a, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player) || !(player.containerMenu instanceof PortProgramMenu menu)
+                || !menu.pos.equals(a.pos()) || !menu.stillValid(player)
+                || !(player.level().getBlockEntity(a.pos()) instanceof PortBlockEntity port)) {
+            return;
+        }
+        int slot = Math.floorMod(a.slot(), PortWork.CARDS);
+        switch (a.kind()) {
+            case SELECT -> menu.select(slot);
+            case WRITE -> port.work.write(slot, a.text(), player);
+            case STOP -> port.work.stop(slot, true);
+            case RUN -> port.work.stop(slot, false);
+            case DEBUG -> {
+                Debug.Move[] moves = Debug.Move.values();
+                port.work.debug(slot, moves[Math.floorMod(a.value(), moves.length)], a.value() / moves.length, a.text());
+                Awards.grant(player, "agent/debugger");
+            }
+            case ACCESS -> port.work.ownership().setAccess(player, Ownership.Access.values()[Math.floorMod(a.value(), Ownership.Access.values().length)]);
+            case FILTER -> player.openMenu(port, buf -> buf.writeBlockPos(a.pos()));
+        }
+    }
+
     private static void onPortEdit(PortEdit e, IPayloadContext ctx) {
         if (!(ctx.player() instanceof ServerPlayer player) || !(player.containerMenu instanceof PortMenu menu)
                 || !menu.pos.equals(e.pos()) || !menu.stillValid(player)
@@ -341,6 +377,7 @@ public final class Network {
             case PortEdit.AMOUNT -> port.setAmount(e.value());
             case PortEdit.PRIORITY -> port.setPriority(e.value());
             case PortEdit.CRAFT -> port.setCraft(e.value() != 0);
+            case PortEdit.PROGRAMS -> player.openMenu(port.programs(), buf -> buf.writeBlockPos(e.pos()));
             default -> {
             }
         }
