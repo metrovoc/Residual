@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.rehearsal;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.TextInputManager;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
@@ -202,6 +203,7 @@ public final class Rehearsal {
             moveWindow(mc, System.getProperty("residual.rehearsal.monitor", ""));
         }
         yieldFocus(mc);
+        leaveInputMethodAlone(mc);
         if (SCRIPT.isEmpty() || mc.getOverlay() != null) {
             return;
         }
@@ -353,6 +355,27 @@ public final class Rehearsal {
         JNI.invokePPPP(app, ObjCRuntime.sel_getUid("hide:"), 0L, send);
         JNI.invokePPV(app, ObjCRuntime.sel_getUid("unhideWithoutActivation"), send);
         LOG.info("[rehearsal] gave focus back");
+    }
+
+    /**
+     * Keeps the game's hands off the system's input method while someone else is typing. A window that never had focus
+     * still believes it has, since GLFW only reports changes, and a window that believes it has focus switches the
+     * system's input source back to ASCII whenever no text box is open, which undoes every switch to Chinese the moment
+     * it is made. What it would restore when a scripted text box opens goes too.
+     */
+    private static void leaveInputMethodAlone(Minecraft mc) {
+        try {
+            if (GLFW.glfwGetWindowAttrib(mc.getWindow().handle(), GLFW.GLFW_FOCUSED) == 0) {
+                Field focused = Window.class.getDeclaredField("focused");
+                focused.setAccessible(true);
+                focused.setBoolean(mc.getWindow(), false);
+            }
+            Field requested = TextInputManager.class.getDeclaredField("imeRequested");
+            requested.setAccessible(true);
+            requested.setBoolean(mc.textInputManager(), false);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     /** Puts the window on the named monitor, such as a virtual display, so it stays out of the way. */
