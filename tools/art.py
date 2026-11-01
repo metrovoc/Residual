@@ -1394,7 +1394,7 @@ def punch(c, rows, x0=4, y0=5):
 
 # one color per benchmark, on its dataset's stripe
 BENCHMARK_COLORS = {"forecast": hue_ramp(85), "storage": AMBER, "errand": AZURE, "pattern": AMETHYST, "orders": TEAL,
-                    "sorting": CORAL}
+                    "sorting": CORAL, "process": GREEN}
 # what each dataset practices, punched into the card
 DATASET_HOLES = {
     "forecast": [
@@ -1441,6 +1441,16 @@ DATASET_HOLES = {
         "###.###.",
         "..##....",
         "..#.....",
+    ],
+    # a melt's temperature settling between the two lines of its band
+    "process": [
+        "########",
+        "#.......",
+        ".#..#...",
+        "..##.###",
+        "........",
+        "########",
+        "........",
     ],
     # a funnel: many kinds in, each sent its own way
     "sorting": [

@@ -22,7 +22,7 @@ public final class Wrecks {
     public record Wreck(String id, Benchmark benchmark, double target, Settings settings, Supplier<GraphSpec> machine) {
         /** What it practises on. */
         public Task practice() {
-            return benchmark == Benchmark.READING ? reading() : Dataset.of(benchmark);
+            return benchmark == Benchmark.READING ? reading() : benchmark.practice();
         }
 
         public boolean passes(Trainer.Eval eval) {

@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.client;
 
 import io.github.metrovoc.residual.energy.PowerMenu;
+import io.github.metrovoc.residual.learn.Control;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -13,6 +14,8 @@ import net.minecraft.world.inventory.Slot;
  */
 public class PowerScreen extends AbstractContainerScreen<PowerMenu> {
     private static final int BAR_X = 10, BAR_Y = 18, BAR_W = 10, BAR_H = 52;
+    /** A Smelter's melt chart: two pixels a look, two a band. */
+    private static final int MELT_X = 56, MELT_Y = 58, MELT_W = 2 * 24, MELT_H = 16;
 
     public PowerScreen(PowerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 176, PowerMenu.INVENTORY_Y + 82);
@@ -44,6 +47,20 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> {
             int ax = leftPos + PowerMenu.IN_X + 24, ay = topPos + PowerMenu.SLOT_Y + 6;
             int w = PowerMenu.OUT_X - PowerMenu.IN_X - 32;
             Ui.bar(g, ax, ay, w, 4, total > 0 ? (float) work / total : 0, Ui.AMBER);
+            melt(g, leftPos + MELT_X, topPos + MELT_Y);
+        }
+    }
+
+    /** The melt its controller holds: a column a look, the band shaded across, each look's temperature as a mark. */
+    private void melt(GuiGraphicsExtractor g, int x, int y) {
+        Ui.screen(g, x - 1, y - 1, MELT_W + 2, MELT_H + 2);
+        // the band, d and e
+        g.fill(x, y + MELT_H - 5 * 2, x + MELT_W, y + MELT_H - 3 * 2, 0xFF1E3D33);
+        int looks = menu.data.get(PowerMenu.MELT_LOOKS);
+        for (int k = 0; k < looks; k++) {
+            int band = menu.data.get(PowerMenu.MELT_BANDS + k / 5) >> (3 * (k % 5)) & 7;
+            int mx = x + k * 2, my = y + MELT_H - (band + 1) * 2;
+            g.fill(mx, my, mx + 2, my + 2, band == 3 || band == 4 ? Ui.GREEN : Ui.AMBER);
         }
     }
 
@@ -54,7 +71,18 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> {
         int rate = menu.data.get(PowerMenu.RATE);
         String key = menu.kind == PowerMenu.Kind.GENERATOR ? "residual.power.makes" : "residual.power.draws";
         Component line = rate > 0 ? Component.translatable(key, rate) : Component.translatable("residual.power.idle");
-        g.text(font, line, BAR_X + BAR_W + 8, 60, rate > 0 ? Ui.LABEL : Ui.LABEL_DIM, false);
+        if (menu.kind == PowerMenu.Kind.GENERATOR) {
+            g.text(font, line, BAR_X + BAR_W + 8, 60, rate > 0 ? Ui.LABEL : Ui.LABEL_DIM, false);
+            return;
+        }
+        g.text(font, line, BAR_X + BAR_W + 8, 18, rate > 0 ? Ui.LABEL : Ui.LABEL_DIM, false);
+        // the controller slot's name on the title's line, flush with the slot's right edge
+        Component controller = Component.translatable("residual.power.controller");
+        g.text(font, controller, PowerMenu.CONTROLLER_X + 16 - font.width(controller), 6, Ui.LABEL, false);
+        int held = menu.data.get(PowerMenu.MELT_HELD) - 1;
+        Component last = held < 0 ? Component.translatable("residual.power.no_melt")
+                : Component.translatable(held >= 100 * Control.HELD ? "residual.power.held_three" : "residual.power.held_two", held);
+        g.text(font, last, MELT_X + MELT_W + 6, MELT_Y + 4, held >= 100 * Control.HELD ? Ui.LABEL : Ui.LABEL_DIM, false);
     }
 
     @Override

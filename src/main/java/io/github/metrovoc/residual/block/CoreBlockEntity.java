@@ -201,7 +201,7 @@ public class CoreBlockEntity extends BlockEntity {
         for (int i = 0; i < CoreMenu.DATA_SLOTS; i++) {
             ItemStack stack = items.getItem(i);
             if (stack.getItem() instanceof DatasetItem dataset) {
-                sources.add(new Mixture.Source(dataset.benchmark, Dataset.of(dataset.benchmark)));
+                sources.add(new Mixture.Source(dataset.benchmark, dataset.benchmark.practice()));
             } else if (stack.getItem() instanceof DriveItem) {
                 TextTask text = Archive.practice(DriveItem.contents(stack), vocab);
                 if (!text.isEmpty()) {

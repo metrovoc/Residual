@@ -33,7 +33,12 @@ public enum Benchmark {
      * Reading: the next letter of archive text it has never seen. Getting below 1.40 takes nearly the whole archive,
      * and a tokenizer or a large model.
      */
-    READING(Vocab.CONTEXT, Task.Metric.LOSS, 1.4);
+    READING(Vocab.CONTEXT, Task.Metric.LOSS, 1.4),
+    /**
+     * Control: holding a Smelter's melt in its band, practised by playing melts (reinforcement learning). A model that
+     * sees only the last few characters holds about 75% of looks; a two-block transformer, 97%.
+     */
+    CONTROL(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */
@@ -49,7 +54,12 @@ public enum Benchmark {
 
     /** The held-out test, for a model that reads with {@code vocab}. */
     public Task test(Vocab vocab) {
-        return this == READING ? Archive.test(vocab) : Dataset.of(this);
+        return this == READING ? Archive.test(vocab) : practice();
+    }
+
+    /** What a dataset of this benchmark practises on: a Control task plays its own melts with the model it practises. */
+    public Task practice() {
+        return this == CONTROL ? new Control() : Dataset.of(this);
     }
 
     public static Benchmark byId(String id) {

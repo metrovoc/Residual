@@ -145,6 +145,11 @@ public final class Sampler {
         if (benchmark == Benchmark.FORECASTING) {
             return forecast(model, rng);
         }
+        if (benchmark == Benchmark.CONTROL) {
+            Control.Melt melt = Control.demo(model, rng);
+            return new Demo("", melt.line.toString(), List.of("0", "1", "2"), Control.first(model),
+                    Component.translatable("residual.sample.control", Math.round(100 * melt.score())));
+        }
         if (benchmark != Benchmark.READING) {
             return puzzle(model, Dataset.of(benchmark), rng);
         }

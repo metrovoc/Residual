@@ -11,6 +11,7 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -45,6 +46,48 @@ class CalibrationTest {
                     }
                     line.append(String.format("  %.1fs (%.1f ms/step) params %d", secs, secs * 1000 / s, g.parameterCount()));
                     System.out.println(line);
+                }
+            }
+        });
+        pool.shutdown();
+    }
+
+    /** Control, practised by playing melts: the share of looks a model's own melts hold in the band as it learns. */
+    static void control(String label, GraphSpec spec, Wrecks.Settings st, int steps, int every) throws Exception {
+        control(label, spec, st, steps, every, 1, 4);
+    }
+
+    static void control(String label, GraphSpec spec, Wrecks.Settings st, int steps, int every, long seed, int threads)
+            throws Exception {
+        Control task = new Control();
+        CompiledGraph g = CompiledGraph.compile(spec, new Env(task.vocab, Vocab.CONTEXT), null, seed);
+        Trainer tr = new Trainer(g, task, seed, st.learningRate(), st.batchSize(), st.clip());
+        ForkJoinPool pool = new ForkJoinPool(threads);
+        long t0 = System.nanoTime();
+        Parallel.with(pool, () -> {
+            for (int s = 1; s <= steps; s++) {
+                tr.train();
+                if (s % every == 0 || s == steps) {
+                    double secs = (System.nanoTime() - t0) / 1e9;
+                    double held = Trainer.evaluate(g, task, 1).accuracy();
+                    StringBuilder line = new StringBuilder(String.format("%-18s step %5d  held %.3f%s", label, s, held,
+                            held >= task.target ? "✔" : ""));
+                    // melts as a Smelter plays them, one look at a time: per ore, the share held and the melts held to 90%
+                    for (int ore = 0; ore < Control.ORES.length(); ore++) {
+                        Random rng = new Random(77 + ore);
+                        double sum = 0;
+                        int full = 0;
+                        for (int i = 0; i < 32; i++) {
+                            Control.Melt m = new Control.Melt(ore);
+                            while (!m.over()) {
+                                m.act(Control.act(g, Control.prompt(m)), rng);
+                            }
+                            sum += m.score();
+                            full += m.score() >= 0.9 ? 1 : 0;
+                        }
+                        line.append(String.format("  %c %.3f/%2d", Control.ORES.charAt(ore), sum / 32, full));
+                    }
+                    System.out.println(line.append(String.format("  %.1fs (%.1f ms/step)", secs, secs * 1000 / s)));
                 }
             }
         });
@@ -196,6 +239,31 @@ class CalibrationTest {
         List<String> runs = List.of(which.split("[ ,]+"));
         boolean all = runs.contains("all");
         Wrecks.Settings st = Wrecks.Settings.DEFAULT;
+        if (runs.contains("control_gpt32")) {
+            control("control_gpt32", Blueprints.gpt(32, 2, 4), st, 500, 50);
+        }
+        if (runs.contains("control_seeds")) {
+            // how much practice varies from run to run: gpt32 from five seeds at once
+            List<Thread> seeds = new ArrayList<>();
+            for (long seed = 2; seed <= 6; seed++) {
+                long sd = seed;
+                seeds.add(Thread.ofPlatform().start(() -> {
+                    try {
+                        control("control_seed" + sd, Blueprints.gpt(32, 2, 4), st, 800, 100, sd, 3);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }));
+            }
+            for (Thread t : seeds) {
+                t.join();
+            }
+        }
+        if (all || runs.contains("control")) {
+            control("control_context", Blueprints.context(), st, 400, 100);
+            control("control_gpt32", Blueprints.gpt(32, 2, 4), st, 800, 100);
+            control("control_induction", Blueprints.induction(), st, 800, 100);
+        }
         if (all || runs.contains("forecasting")) {
             run("forecasting", Blueprints.bigram(), Benchmark.FORECASTING, st, 3000, 250);
         }

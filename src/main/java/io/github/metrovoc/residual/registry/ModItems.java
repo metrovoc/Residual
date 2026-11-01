@@ -94,6 +94,7 @@ public final class ModItems {
             case INDUCTION -> "pattern_dataset";
             case SORTING -> "sorting_dataset";
             case ORDERS -> "orders_dataset";
+            case CONTROL -> "process_dataset";
             case READING -> throw new IllegalArgumentException();
         };
     }

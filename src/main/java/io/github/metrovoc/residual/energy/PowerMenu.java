@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.energy;
 
 import io.github.metrovoc.residual.registry.ModMenus;
 import java.util.function.IntSupplier;
+import java.util.function.IntUnaryOperator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
@@ -13,6 +14,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 /** The screen of a generator or a machine on power: its slots, its stored power, its work, and the player's inventory. */
 public class PowerMenu extends AbstractContainerMenu {
@@ -21,7 +23,10 @@ public class PowerMenu extends AbstractContainerMenu {
     /** What its screen shows: power and capacity as 15-bit halves (data slots carry 16 bits), work and FE a tick. */
     public static final int ENERGY_LO = 0, ENERGY_HI = 1, CAPACITY_LO = 2, CAPACITY_HI = 3, WORK = 4, WORK_TOTAL = 5, RATE = 6,
             DATA = 7;
-    public static final int FUEL_X = 80, IN_X = 56, OUT_X = 116, SLOT_Y = 35, INVENTORY_X = 8, INVENTORY_Y = 84;
+    /** A Smelter's melt after that: looks taken, its last melt's share held plus one, then five bands to a slot. */
+    public static final int MELT_LOOKS = DATA, MELT_HELD = DATA + 1, MELT_BANDS = DATA + 2, MELT_DATA = 7;
+    public static final int FUEL_X = 80, IN_X = 56, OUT_X = 116, SLOT_Y = 35, CONTROLLER_X = 152, CONTROLLER_Y = 17;
+    public static final int INVENTORY_X = 8, INVENTORY_Y = 84;
 
     public final BlockPos pos;
     public final Kind kind;
@@ -34,7 +39,7 @@ public class PowerMenu extends AbstractContainerMenu {
 
     private PowerMenu(int id, Inventory inventory, BlockPos pos, Kind kind) {
         this(id, inventory, pos, kind, new SimpleContainer(kind == Kind.GENERATOR ? GeneratorBlockEntity.SLOTS : SmelterBlockEntity.SLOTS),
-                new SimpleContainerData(DATA));
+                new SimpleContainerData(kind == Kind.GENERATOR ? DATA : DATA + MELT_DATA));
     }
 
     public PowerMenu(int id, Inventory inventory, BlockPos pos, Kind kind, Container items, ContainerData data) {
@@ -62,6 +67,17 @@ public class PowerMenu extends AbstractContainerMenu {
                     return false;
                 }
             });
+            addSlot(new Slot(items, SmelterBlockEntity.CONTROLLER, CONTROLLER_X, CONTROLLER_Y) {
+                @Override
+                public boolean mayPlace(ItemStack stack) {
+                    return items.canPlaceItem(SmelterBlockEntity.CONTROLLER, stack);
+                }
+
+                @Override
+                public int getMaxStackSize() {
+                    return 1;
+                }
+            });
         }
         own = slots.size();
         for (int row = 0; row < 3; row++) {
@@ -77,6 +93,12 @@ public class PowerMenu extends AbstractContainerMenu {
 
     /** What a power device's screen shows, read from the device as it is. */
     static ContainerData data(PowerBlockEntity be, IntSupplier work, IntSupplier total, IntSupplier rate) {
+        return data(be, work, total, rate, null);
+    }
+
+    /** The same, then {@link #MELT_DATA} more slots of a Smelter's melt. */
+    static ContainerData data(PowerBlockEntity be, IntSupplier work, IntSupplier total, IntSupplier rate,
+                              @Nullable IntUnaryOperator melt) {
         return new ContainerData() {
             @Override
             public int get(int i) {
@@ -89,7 +111,7 @@ public class PowerMenu extends AbstractContainerMenu {
                     case WORK -> work.getAsInt();
                     case WORK_TOTAL -> total.getAsInt();
                     case RATE -> rate.getAsInt();
-                    default -> 0;
+                    default -> melt == null ? 0 : melt.applyAsInt(i - DATA);
                 };
             }
 
@@ -99,7 +121,7 @@ public class PowerMenu extends AbstractContainerMenu {
 
             @Override
             public int getCount() {
-                return DATA;
+                return melt == null ? DATA : DATA + MELT_DATA;
             }
         };
     }
@@ -129,8 +151,17 @@ public class PowerMenu extends AbstractContainerMenu {
             if (!moveItemStackTo(stack, own, slots.size(), true)) {
                 return ItemStack.EMPTY;
             }
-        } else if (!slots.getFirst().mayPlace(stack) || !moveItemStackTo(stack, 0, 1, false)) {
-            return ItemStack.EMPTY;
+        } else {
+            int target = -1;
+            for (int i = 0; i < own; i++) {
+                if (slots.get(i).mayPlace(stack)) {
+                    target = i;
+                    break;
+                }
+            }
+            if (target < 0 || !moveItemStackTo(stack, target, target + 1, false)) {
+                return ItemStack.EMPTY;
+            }
         }
         if (stack.isEmpty()) {
             slot.setByPlayer(ItemStack.EMPTY);

@@ -30,19 +30,22 @@ you say into programs for agents, and read what the old world wrote.
 - [The Model Core](core.md): where models are built, trained, tested and saved.
 - [Tokens](tokenizers.md): the BPE Forge, and vocabularies learned from the archive.
 - [Training](training.md): reading a loss curve, and the settings that shape it.
-- [Models and Tests](models.md): the seven benchmarks, checkpoints, and how big a model may be.
+- [Models and Tests](models.md): the eight benchmarks, checkpoints, and how big a model may be.
 - [Salvaged Models](salvage.md): broken models from the ruins.
 
 ## Putting models to work
 
 - [The Forecaster](forecaster.md): a model of the blocks around it, trusted only as far as it is right, runs them ahead.
 - [Agents](agents.md): frames that run programs, with models where learning beats a rule.
+- [The Architect](architect.md): agents that copy, move and repeat builds, read as letters a slice at a time.
 - [Serving Models](deployment.md): Model Servers, relays and the Terminal.
 
 ## The base
 
 - [Storage](storage.md): drives that keep any number of kinds, a terminal that finds anything, and Ports that move
   items between the network and every chest and machine, 1,280 a second.
+- [Power](power.md): generators, cables and cells, and a Smelter that makes two ingots from every ore, three with a
+  controller.
 
 ## Reference
 

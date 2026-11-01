@@ -47,6 +47,7 @@ public final class Trainer {
 
     /** One optimisation step; returns the training loss per character before the update. */
     public float train() {
+        bind(task, model);
         Batch b = task.batch(rng, batchSize, false);
         Tape tape = new Tape();
         Tensor logits = model.forward(tape, b.input(), null);
@@ -69,7 +70,20 @@ public final class Trainer {
         return evaluate(model, task, batches);
     }
 
+    /** A task that plays its own examples, such as Control, plays them with the model being practised. */
+    private static void bind(Task task, CompiledGraph model) {
+        if (task instanceof Control control) {
+            control.policy(model);
+        } else if (task instanceof Mixture mixture) {
+            mixture.sources.forEach(s -> bind(s.data(), model));
+        }
+    }
+
     public static Eval evaluate(CompiledGraph model, Task task, int batches) {
+        double[] own = task.measure(model);
+        if (own != null) {
+            return new Eval(own[0], own[1], isCausal(model, task));
+        }
         Random rng = new Random(12345);
         double loss = 0;
         long correct = 0;

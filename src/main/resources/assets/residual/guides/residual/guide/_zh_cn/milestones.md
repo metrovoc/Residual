@@ -93,6 +93,8 @@ navigation:
 
 <residual:Milestone id="benchmark/sorting">用<ItemLink id="sorting_dataset" />练习。</residual:Milestone>
 
+<residual:Milestone id="benchmark/control">用<ItemLink id="process_dataset" />练习：核心用模型自己的选择进行熔炼，需要一个能看到整个熔炼过程的模型。</residual:Milestone>
+
 <residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习；需要一个大到无法随身携带的模型。</residual:Milestone>
 
 <residual:Milestone id="model/complete">一个模型核心最多可同时练习四种数据。</residual:Milestone>

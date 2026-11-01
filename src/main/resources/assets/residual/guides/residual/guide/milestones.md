@@ -112,6 +112,9 @@ attention.</residual:Milestone>
 
 <residual:Milestone id="benchmark/sorting">Practise on the <ItemLink id="sorting_dataset" />.</residual:Milestone>
 
+<residual:Milestone id="benchmark/control">Practise on the <ItemLink id="process_dataset" />: the Core plays melts with the
+model's own choices, and it takes a model that attends to the whole melt.</residual:Milestone>
+
 <residual:Milestone id="benchmark/orders">Practise on the <ItemLink id="orders_dataset" />; it takes a model too big to
 carry.</residual:Milestone>
 

@@ -112,7 +112,9 @@ jobs run at once, and what a job makes along the way is its own until it is done
 
 A Combustion Generator burns furnace fuel for 80 FE a tick, and Power Cables carry it to Energy Cells, which hold a
 million FE, and to the machines that run on it. The Smelter, fabricated from a transformer design, smelts on power and
-makes two ingots from every ore. Every power block speaks Forge Energy to other mods' cables and machines.
+makes two ingots from every ore, or three from a melt its controller holds in its band. A controller is a model
+practised by playing melts and learning from its own choices. Every power block speaks Forge Energy to other mods'
+cables and machines.
 
 ## The archive
 
@@ -138,10 +140,10 @@ fairly.
 
 <p>
 <img src="docs/images/train.webp" alt="The Train tab as a small GPT learns to sort: the loss on practice and on the test falling together" width="49%">
-<img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each of the seven benchmarks" width="49%">
+<img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each benchmark" width="49%">
 </p>
 
-Every model is tested on seven benchmarks. A test uses examples that practice never shows, and a job asks its model in
+Every model is tested on eight benchmarks. A test uses examples that practice never shows, and a job asks its model in
 exactly the test's format, so a test score is how often an agent decides right.
 
 | Benchmark   | Practice      | Passes at   | Put to work                  |
@@ -153,11 +155,12 @@ exactly the test's format, so a test score is how often an agent decides right.
 | Sorting   | Sorting Dataset | 90%         | sorting things by kind       |
 | Orders    | Orders Dataset  | 90%         | understanding what you say   |
 | Reading   | Archive Drive | loss ≤ 1.40 | restoring the archive        |
+| Control   | Process Dataset | 90%       | holding a Smelter's melt     |
 
 A single embedding table can forecast a furnace. Recall needs attention, reversal needs to know positions, induction takes
 two layers of attention, sorting has to tell what a thing is from its name alone, and understanding orders takes a model
 too big to carry. The Model Core trains a model on up to four kinds of practice at once and shows the learning curves,
-the tests, every machine's output shape, weights and gradient. Saving a model to a checkpoint tests it on all seven
+the tests, every machine's output shape, weights and gradient. Saving a model to a checkpoint tests it on all eight
 benchmarks first.
 
 While a model trains, waves run through its blocks: a teal pulse from the tokens to the loss as the batch goes forward,
