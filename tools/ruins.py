@@ -1527,6 +1527,169 @@ def three_wells():
     t.set(15, 1, 33, "oak_fence_gate", {"facing": "south", "in_wall": "false", "open": "true", "powered": "false"})
     return t
 
+def mine_tunnel(t, x0, z0, dx, dz, length, y, rng, ore, wall="stone"):
+    """A level's tunnel from x0, z0 along dx, dz, three wide and three high: timbered every fourth step, rails down the
+    middle with every eighth one powered, a torch every eighth step on the left going in, ore showing in its walls."""
+    lx, lz = -dz, dx
+    facing = {v: k for k, v in SIDES.items()}[(-lx, -lz)]
+    shape = "north_south" if dz else "east_west"
+    for k in range(length):
+        x, z = x0 + dx * k, z0 + dz * k
+        for w in (-1, 0, 1):
+            for h in (0, 1, 2):
+                t.set(x + lx * w, y + h, z + lz * w, "air")
+            t.set(x + lx * w, y - 1, z + lz * w, wall)
+        if rng.random() < 0.85:
+            if k % 8 == 0:
+                t.set(x, y, z, "powered_rail", {"shape": shape, "powered": "false", "waterlogged": "false"})
+            else:
+                t.set(x, y, z, "rail", {"shape": shape, "waterlogged": "false"})
+        for w in (-2, 2):
+            for h in (0, 1, 2):
+                if rng.random() < 0.12:
+                    t.set(x + lx * w, y + h, z + lz * w, ore)
+        if k % 4 == 2:
+            for w in (-1, 1):
+                t.log(x + lx * w, y, z + lz * w, "spruce_log")
+                t.log(x + lx * w, y + 1, z + lz * w, "spruce_log")
+            for w in (-1, 0, 1):
+                t.set(x + lx * w, y + 2, z + lz * w, "spruce_planks")
+        elif k % 8 == 4:
+            t.wall_torch(x + lx, y + 1, z + lz, facing)
+
+
+def deep_works():
+    """The Deep Works under Copperhold, as its miners wrote of it. At the shaft head, over the shaft, the headframe and
+    its wheel; the board where miners write their names, a few never rubbed out; the tool store, the sorting bins and the
+    kitchen at the mine gate. Down the shaft by ladder: the copper level, the iron and coal level with the amethyst
+    hollow behind its door, the deep stone with the old west tunnel walled up over its spider cage, and at the ninth
+    level the locked gate. Past it, by the old side door on the eighth: a hall too regular for a mine, its stone warm, a
+    dead bank of quickeners along its wall. Nothing there says what it was."""
+    import random
+    rng = random.Random(12807731)
+    t = Template(25, 55, 25)
+    top = 42  # the ground at the shaft head
+    sx, sz = 12, 12
+    # the shaft, three across, with its ladder, from the shaft head down to the ninth level
+    for y in range(10, top + 1):
+        for x in range(sx - 1, sx + 2):
+            for z in range(sz - 1, sz + 2):
+                t.set(x, y, z, "air")
+        t.set(sx, y, sz - 2, "spruce_planks")
+        t.set(sx, y, sz - 1, "ladder", {"facing": "south", "waterlogged": "false"})
+    # the shaft head: a cobblestone apron, the headframe and its wheel, the lift's chain
+    for x in range(sx - 4, sx + 5):
+        for z in range(sz - 4, sz + 5):
+            if not (sx - 1 <= x <= sx + 1 and sz - 1 <= z <= sz + 1):
+                t.set(x, top - 1, z, "cobblestone" if rng.random() < 0.7 else "gravel")
+    for x, z in ((sx - 2, sz - 2), (sx + 2, sz - 2), (sx - 2, sz + 2), (sx + 2, sz + 2)):
+        t.fill(x, top, z, x, top + 8, z, "spruce_log")
+    for y in (top + 4, top + 8):
+        for k in range(sx - 2, sx + 3):
+            t.log(k, y, sz - 2, "spruce_log", "x")
+            t.log(k, y, sz + 2, "spruce_log", "x")
+        for k in range(sz - 1, sz + 2):
+            t.log(sx - 2, y, k, "spruce_log", "z")
+            t.log(sx + 2, y, k, "spruce_log", "z")
+    t.log(sx, top + 9, sz, "spruce_log", "z")
+    for dx, dy in ((-2, 0), (2, 0), (0, -2), (0, 2), (-1, 1), (1, 1), (-1, -1), (1, -1)):
+        t.set(sx + dx, top + 9 + dy, sz, "spruce_planks")
+    for y in range(top + 1, top + 8):
+        t.set(sx + 1, y, sz, "chain", {"axis": "y", "waterlogged": "false"})
+    # the board where miners write their names, and rub them out coming up; some names stayed
+    t.fill(sx - 6, top, sz + 4, sx - 6, top + 2, sz + 6, "spruce_planks")
+    t.sign(sx - 5, top + 2, sz + 4, "east", ["Write your name,", "level, tunnel.", "Rub it out when", "you come up."])
+    t.sign(sx - 5, top + 1, sz + 5, "east", ["Arlo, 10", "Hesk, 11, the", "new cut", ""])
+    t.sign(sx - 5, top + 2, sz + 6, "east", ["Rook, 9", "Fen, 9", "Wick, 10", ""])
+    # the tool store
+    x0, x1, z0, z1 = sx + 4, sx + 9, sz - 7, sz - 3
+    t.fill(x0, top - 1, z0, x1, top - 1, z1, "cobblestone")
+    t.fill(x0 + 1, top, z0 + 1, x1 - 1, top + 2, z1 - 1, "air")
+    t.walls(x0, top, z0, x1, top + 2, z1, "spruce_planks")
+    for x, z in ((x0, z0), (x1, z0), (x0, z1), (x1, z1)):
+        t.fill(x, top, z, x, top + 2, z, "spruce_log")
+    gable(t, top + 3, x0 - 1, x1 + 1, z0 - 1, z1 + 1, "spruce_stairs", "x", end="spruce_planks")
+    t.door(x0 + 2, top, z1, "spruce_door", "south")
+    t.chest(x0 + 1, top, z0 + 1, "south", "residual:chests/deep_works_tools")
+    t.barrel(x1 - 1, top, z0 + 1, "up", "residual:chests/deep_works_tools")
+    t.set(x1 - 1, top, z0 + 2, "barrel", {"facing": "up", "open": "false"})
+    # the sorting bins under their roof, each marked
+    for k, (ore, mark) in enumerate((("raw_copper_block", "Copper"), ("raw_iron_block", "Iron"), ("coal_block", "Coal"))):
+        bx = sx - 6 + 2 * k
+        t.set(bx, top, sz - 6, "barrel", {"facing": "up", "open": "false"})
+        t.set(bx, top + 1, sz - 6, ore)
+        t.sign(bx, top, sz - 5, "south", [mark])
+    for x in range(sx - 7, sx):
+        t.slab(x, top + 3, sz - 6, "spruce_slab")
+        t.slab(x, top + 3, sz - 7, "spruce_slab")
+    for x in (sx - 7, sx - 1):
+        t.fill(x, top, sz - 7, x, top + 2, sz - 7, "spruce_fence")
+    # the levels: copper going east, iron and coal going west, the deep stone going north
+    mine_tunnel(t, sx + 2, sz, 1, 0, 11, 34, rng, "copper_ore")
+    mine_tunnel(t, sx - 2, sz, -1, 0, 11, 26, rng, "iron_ore")
+    for x in range(1, sx - 2, 3):
+        t.set(x, 27, sz - 2, "coal_ore")
+    mine_tunnel(t, sx, sz - 2, 0, -1, 11, 18, rng, "deepslate_iron_ore", wall="deepslate")
+    # the amethyst hollow, off the iron level behind its wooden door: "Do not mine. Look"
+    t.door(1, 26, sz + 2, "spruce_door", "south")
+    t.sign(2, 28, sz + 2, "north", ["Do not mine.", "Look."])
+    for x in range(0, 5):
+        for y in range(25, 31):
+            for z in range(sz + 3, sz + 9):
+                d = ((x - 2) / 2.5) ** 2 + ((y - 27.5) / 3) ** 2 + ((z - sz - 6) / 3) ** 2
+                if d <= 1:
+                    t.set(x, y, z, "air" if d < 0.55 else "amethyst_block")
+    for x, y, z, f in ((2, 25, sz + 6, "up"), (1, 26, sz + 5, "up"), (3, 26, sz + 7, "up"), (2, 30, sz + 6, "down")):
+        t.set(x, y, z, "amethyst_cluster", {"facing": f, "waterlogged": "false"})
+    t.set(2, 25, sz + 4, "air")
+    t.set(2, 26, sz + 3, "air")
+    # the old west tunnel on the deep stone level, walled up with cobblestone over its spider cage
+    for z in range(sz - 6, sz - 3):
+        for y in (18, 19):
+            t.set(sx - 2, y, z, "cobblestone")
+    for x in range(sx - 7, sx - 2):
+        for z in range(sz - 6, sz - 3):
+            for y in (18, 19, 20):
+                t.set(x, y, z, "air")
+    t.set(sx - 5, 18, sz - 5, "spawner", None, {"id": "minecraft:mob_spawner", "SpawnData": {"entity": {"id": "minecraft:cave_spider"}}})
+    for x, y, z in ((sx - 6, 20, sz - 6), (sx - 4, 19, sz - 4), (sx - 6, 18, sz - 4), (sx - 3, 20, sz - 5)):
+        t.set(x, y, z, "cobweb")
+    # the ninth level: the gate, locked; its key is at the hall
+    for z in range(sz + 2, sz + 6):
+        for x in (sx - 1, sx, sx + 1):
+            for y in (10, 11, 12):
+                t.set(x, y, z, "air")
+    t.fill(sx - 1, 10, sz + 6, sx + 1, 12, sz + 6, "polished_deepslate")
+    t.door(sx, 10, sz + 6, "iron_door", "south")
+    t.sign(sx - 1, 12, sz + 5, "north", ["Closed below", "the ninth. The", "key is kept at", "the hall."])
+    # below: a hall too regular for a mine, the stone under it warm, a dead bank of quickeners along its wall
+    hx0, hx1, hz0, hz1 = 6, 18, 14, 24
+    t.fill(hx0, 0, hz0, hx1, 7, hz1, "polished_deepslate")
+    t.fill(hx0 + 1, 2, hz0 + 1, hx1 - 1, 6, hz1 - 1, "air")
+    t.fill(hx0 + 1, 0, hz0 + 1, hx1 - 1, 0, hz1 - 1, "magma_block")
+    t.fill(hx0 + 1, 1, hz0 + 1, hx1 - 1, 1, hz1 - 1, "deepslate_tiles")
+    cable = {d: str(d in ("east", "west", "south")).lower() for d in ("north", "south", "east", "west", "up", "down")}
+    for x in range(hx0 + 2, hx1 - 1, 2):
+        t.set(x, 2, hz1 - 1, "residual:accelerator")
+        t.set(x, 3, hz1 - 1, "residual:tensor_casing")
+        t.set(x, 2, hz1 - 2, "residual:cable", cable)
+    for x, y, z, face in ((hx0 + 1, 4, 18, "west"), (hx1 - 1, 5, 20, "east"), (10, 6, hz0 + 1, "north")):
+        t.set(x, y, z, "sculk_vein", {d: str(d == face).lower() for d in ("down", "up", "north", "south", "east", "west")}
+              | {"waterlogged": "false"})
+    t.chest(sx, 2, hz1 - 3, "north", "residual:chests/deep_works_hall")
+    # the old side door on the eighth level, and the back way down past the gate, into the hall through its roof
+    t.slab(sx + 1, 13, sz, "spruce_slab", "top")
+    t.door(sx + 2, 14, sz, "spruce_door", "east")
+    t.set(sx + 3, 14, sz, "air")
+    t.set(sx + 3, 15, sz, "air")
+    for k in range(11):
+        x, y, z = sx + 3, 13 - k, sz + 1 + k
+        for h in (1, 2, 3):
+            if y + h > 1:
+                t.set(x, y + h, z, "air")
+        t.stairs(x, y, z, "cobbled_deepslate_stairs", "north")
+    return t
+
 def weathered(*rules, integrity=0.82):
     """A ruin's processors: each (block, its weathered form, the share that weathered) as a rule, then the decay that
     takes out some of the blocks tagged ruin_rot."""
@@ -1556,6 +1719,7 @@ TUTORS = ["tutor", "drill"]
 INNS = ["Halfway Inn", "Brown Hen", "innkeeper", "the inn"]
 MILL_POND = ["Ambrook", "mill pond", "Jory", "mill wheel"]
 WELLS = ["Three Wells", "north well", "market day", "notice board"]
+DEEP = ["Deep Works", "Copperhold", "the mine", "deep stone"]
 FALLEN = ["mast", "relay line"]
 SEALED = ["sealed", "the stacks", "sealing"]
 
@@ -1601,6 +1765,10 @@ RUINS = {
                       processors=weathered(*STONE_AGE, integrity=0.94),
                       biomes=[f"minecraft:{b}" for b in ("river", "forest", "flower_forest", "birch_forest", "plains",
                                                           "meadow", "cherry_grove")]),
+    "deep_works": Ruin(deep_works, 128, 40, 12807731, start=-41, terrain="none", words=DEEP,
+                       processors=weathered(*STONE_AGE, integrity=0.95),
+                       biomes=[f"minecraft:{b}" for b in ("windswept_hills", "windswept_gravelly_hills", "windswept_forest",
+                                                           "meadow", "savanna_plateau")]),
     "three_wells": Ruin(three_wells, 80, 24, 70413227, words=WELLS, processors=weathered(*STONE_AGE, integrity=0.94),
                         biomes=[f"minecraft:{b}" for b in ("plains", "sunflower_plains", "meadow", "savanna")]),
     "inn": Ruin(halfway_inn, 64, 20, 30091277, words=INNS, processors=weathered(*STONE_AGE, integrity=0.92)),
@@ -1748,6 +1916,15 @@ LOOT = {
     "chests/three_wells_school": [pool((2, 4), [
         item("archive_shard", 10, (1, 3), about=WELLS + ["school", "Bel"]), item("minecraft:paper", 4, (2, 5)),
         item("minecraft:book", 3, (1, 2)), item("minecraft:feather", 2, (1, 3)), item("minecraft:ink_sac", 2)])],
+    "chests/deep_works_tools": [pool((3, 5), [
+        item("minecraft:iron_pickaxe", 3), item("minecraft:torch", 6, (4, 12)), item("minecraft:string", 4, (2, 6)),
+        item("minecraft:rail", 4, (4, 12)), item("minecraft:powered_rail", 2, (1, 3)), item("minecraft:honeycomb", 3, (1, 4)),
+        item("minecraft:copper_ingot", 3, (2, 6)), item("minecraft:lantern", 2), item("archive_shard", 4, (1, 2), about=DEEP)])],
+    "chests/deep_works_hall": [
+        pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS]),
+        pool((2, 4), [mask("attention", 2), mask("transformer", 2), mask("layer_norm", 1), mask("mlp", 1),
+                      item("weight_crystal", 4, (2, 5)), item("minecraft:amethyst_shard", 3, (2, 6)),
+                      item("archive_drive", 2, drive=(12, ["Deep Works", "warm", "humming", "ninth"]))])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
         item("archive_shard", 9), mask("matmul", 1), item("weight_crystal", 2)]}],
 }

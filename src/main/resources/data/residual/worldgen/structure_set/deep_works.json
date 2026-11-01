@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "residual:deep_works",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 128,
+    "separation": 40,
+    "salt": 12807731
+  }
+}

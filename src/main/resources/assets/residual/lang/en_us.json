@@ -163,6 +163,7 @@
   "residual.ruin.inn": "Inn",
   "residual.ruin.watermill": "Watermill",
   "residual.ruin.three_wells": "Three Wells",
+  "residual.ruin.deep_works": "The Deep Works",
   "residual.drive.empty": "Empty. Use it to file the shards you carry.",
   "residual.drive.nothing": "No shards to file",
   "residual.drive.filed": "Filed %s shards, %s of them new",
