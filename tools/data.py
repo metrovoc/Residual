@@ -430,7 +430,7 @@ def storage():
 def items():
     flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
              "agent", "relay_card", "terminal", "field_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
-             "portable_drive", "wireless_terminal", "hourglass", "flight_frame"] + list(DATASETS) + SCHEMATICS)
+             "portable_drive", "wireless_terminal", "hourglass", "flight_frame", "exosuit"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -614,6 +614,9 @@ def recipes():
                         rid("schematic_relays")], 2)
     shapeless("relay_card", ["minecraft:paper", "minecraft:copper_ingot", "minecraft:redstone", rid("schematic_relays")], 2)
     shapeless("terminal", [rid("relay_card"), "minecraft:glass_pane", "minecraft:copper_ingot", "minecraft:redstone"])
+    # a flight frame taken further, in netherite, with a board of its own
+    shaped("exosuit", ["NWN", "AFA", "NSN"], {"N": "minecraft:netherite_ingot", "W": rid("wafer"), "A": rid("accelerator"),
+                                              "F": rid("flight_frame"), "S": rid("model_server")})
     # storage, from what the crafting table and the Fabricator already make
     shaped("storage_drive", ["IWI", "WRW", "IWI"], {"I": "minecraft:iron_ingot", "W": rid("wafer"), "R": "minecraft:redstone"})
     # the largest drive is built from stacked ones to the plans of the relay houses, whose stores it keeps; the sizes between come from the Fabricator
@@ -693,6 +696,9 @@ def advancements():
     advancement("survey/found", "benchmark/survey", "surveyor", awarded(), frame="goal")
     advancement("watch/noticed", "benchmark/watch", "watch_post", awarded(), frame="goal")
     advancement("flight/frame", "benchmark/pilot", "flight_frame", awarded(), frame="goal")
+    advancement("exosuit/board", "flight/frame", "exosuit", awarded(), frame="goal")
+    advancement("exosuit/vein", "exosuit/board", "minecraft:raw_iron", awarded(), frame="goal")
+    advancement("exosuit/all", "exosuit/board", "exosuit", awarded(), frame="challenge")
     advancement("power/generator", "root", "combustion_generator", placed("combustion_generator"))
     advancement("power/smelter", "power/generator", "smelter", awarded(), frame="goal")
     advancement("storage/drive", "root", "storage_drive", has("storage_drive"))

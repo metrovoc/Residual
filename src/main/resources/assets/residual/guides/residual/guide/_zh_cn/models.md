@@ -34,8 +34,8 @@ item_ids:
 | 指令    | <ItemLink id="orders_dataset" />        | 指令，以及它们的本意                 | 90%         | 指令      |
 | 阅读   | <ItemLink id="archive_drive" />       | 没有任何残片收录的记录                           | 损失 ≤ 1.40 | 阅读器  |
 | 控制   | <ItemLink id="process_dataset" />       | 每种矿石的熔炼，90% 的查看保持在温区内      | 90%         | 冶炼炉 |
-| 勘测   | <ItemLink id="survey_dataset" />        | 一行行地层，某种矿石最前面那块在哪里      | 90%         | 勘测仪 |
-| 驾驶   | <ItemLink id="flight_dataset" />        | 每种风里的飞行，90% 的查看停在原来的高度      | 90%         | 飞行背架 |
+| 勘测   | <ItemLink id="survey_dataset" />        | 一行行地层，某种矿石最前面那块在哪里      | 90%         | 勘测仪、外骨骼的矿脉开采 |
+| 驾驶   | <ItemLink id="flight_dataset" />        | 每种风里的飞行，90% 的查看停在原来的高度      | 90%         | 飞行背架、[外骨骼](exosuit.md) |
 | 需求   | <ItemLink id="demand_dataset" />        | 端口每次查看送出了多少，有节奏                    | 90%         | 端口的目标 |
 | 看守   | <ItemLink id="watch_dataset" />         | 一切正常的情况；测试里有的出了问题                | 90%         | 哨所     |
 | 检索   | <ItemLink id="retrieval_dataset" />     | 说出名字和想要的东西，以及各自的用途      | 90%         | 终端的搜索 |
@@ -58,7 +58,7 @@ item_ids:
 
 ## 模型能有多大
 
-智能体脑中最多能装下 40,000 个参数的模型。更大的模型留在<ItemLink id="model_server" />里，通过中继器提问：见[模型服务](deployment.md)。「训练」页会统计模型的参数量。
+智能体脑中最多能装下 40,000 个参数的模型。更大的模型留在<ItemLink id="model_server" />里，通过中继器提问：见[模型服务](deployment.md)。「训练」页会统计模型的参数量。[外骨骼](exosuit.md)的板子能存同样多的字节，靠量化带上更大的模型。
 
 ## 偷看后文
 

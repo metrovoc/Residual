@@ -24,8 +24,10 @@ names its pilot, and says when it cannot hold the frame: a pilot has to pass Pil
 
 ## Power
 
-Use the frame on an <ItemLink id="energy_cell" /> to fill it from the cell's charge. The bar on the frame shows how much
-it holds.
+Use the frame on an <ItemLink id="energy_cell" /> to fill it from the charge of the cells on that network. The bar on
+the frame shows how much it holds.
+
+An [exosuit](exosuit.md) with the compute for it flies twice as fast and ten times as long.
 
 ## Learning to fly
 

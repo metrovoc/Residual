@@ -35,8 +35,8 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Orders    | <ItemLink id="orders_dataset" />        | orders, and what was meant by them                 | 90%         | orders      |
 | Reading   | <ItemLink id="archive_drive" />       | records no shard carries                           | loss ≤ 1.40 | the Reader  |
 | Control   | <ItemLink id="process_dataset" />       | melts of each ore, held at 90% of their looks      | 90%         | the Smelter |
-| Survey    | <ItemLink id="survey_dataset" />        | rows of ground, and where the first of an ore lies | 90%         | the Surveyor |
-| Pilot     | <ItemLink id="flight_dataset" />        | flights in each wind, held at 90% of their looks   | 90%         | the flight frame |
+| Survey    | <ItemLink id="survey_dataset" />        | rows of ground, and where the first of an ore lies | 90%         | the Surveyor, an exosuit's vein mining |
+| Pilot     | <ItemLink id="flight_dataset" />        | flights in each wind, held at 90% of their looks   | 90%         | the flight frame, the [exosuit](exosuit.md) |
 | Demand    | <ItemLink id="demand_dataset" />        | what a Port moved out at each look, in rhythms     | 90%         | a Port's target |
 | Watch     | <ItemLink id="watch_dataset" />         | things going well; the test has some gone wrong     | 90%         | the Watch Post |
 | Retrieval | <ItemLink id="retrieval_dataset" />     | things named and asked for, and what each is for   | 90%         | a terminal's search |
@@ -76,7 +76,7 @@ the model on it.
 
 An agent can carry a model of up to 40,000 parameters in its head. A bigger model stays in a
 <ItemLink id="model_server" /> and is asked over relays: see [Serving Models](deployment.md). The **Train** tab counts
-a model's parameters.
+a model's parameters. An [exosuit's](exosuit.md) board holds as many bytes, and carries bigger models by quantizing them.
 
 ## Reading ahead
 

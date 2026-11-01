@@ -50,6 +50,7 @@ you say into programs for agents, and read what the old world wrote.
 - [Power](power.md): generators, cables and cells, and a Smelter that makes two ingots from every ore, three with a
   controller.
 - [Flight](flight.md): the flight frame, flown by a pilot you train.
+- [The Exosuit](exosuit.md): armour with a quantized model on board, whose compute sets what the suit can do.
 
 ## Reference
 

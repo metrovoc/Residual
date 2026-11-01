@@ -1,0 +1,28 @@
+{
+  "parent": "residual:flight/frame",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:exosuit"
+    },
+    "title": {
+      "translate": "advancements.residual.exosuit.board.title"
+    },
+    "description": {
+      "translate": "advancements.residual.exosuit.board.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

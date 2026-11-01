@@ -1,0 +1,28 @@
+{
+  "parent": "residual:exosuit/board",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:exosuit"
+    },
+    "title": {
+      "translate": "advancements.residual.exosuit.all.title"
+    },
+    "description": {
+      "translate": "advancements.residual.exosuit.all.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

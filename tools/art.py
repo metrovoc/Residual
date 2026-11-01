@@ -1035,6 +1035,30 @@ def flight_frame():
     return c
 
 
+# the exosuit: a harness of plates across the shoulders and down the spine, a core lit in its chest, thrusters at its foot
+EXOSUIT = [
+    "..oooo....oooo..",
+    ".o####o..o####o.",
+    ".o#%%##oo##%%#o.",
+    ".o%%o######o%%o.",
+    ".o%%o#=++=#o%%o.",
+    ".o%%o#=++=#o%%o.",
+    ".o**oo#==#oo**o.",
+    "..oo.o%##%o.oo..",
+    ".....o%==%o.....",
+    ".....o%##%o.....",
+    ".....o%==%o.....",
+    ".....oo**oo.....",
+    "......oooo......",
+]
+
+
+def exosuit():
+    c = Canvas()
+    c.stamp(0, 1, EXOSUIT, {"o": INK, "#": STEEL[6], "%": STEEL[4], "=": SLATE[2], "+": TEAL[3], "*": AMBER[3]})
+    return c
+
+
 # the Wayfinder: a copper case, a dark glass face, an amethyst pivot, and a needle lit at its tip
 WAYFINDER_CASE = [
     "...oooooooooo...",
@@ -1110,6 +1134,62 @@ def flight_frame_worn():
     c.stamp(32, 20, FLIGHT_FRAME_BACK, {"e": edge, "#": STEEL[6], "+": TEAL[3], "*": AMBER[3]})
     for x in (16, 31):
         c.rect(x, 20, x, 29, edge)
+    return c
+
+
+# the exosuit worn, on the chestplate's body box: the plates and core on its front, the frame's pods with more nozzles on its back
+EXOSUIT_FRONT = [
+    "e#e..e#e",
+    "e#e##e#e",
+    "e######e",
+    "e#=++=#e",
+    "e#=++=#e",
+    "e######e",
+    ".e#==#e.",
+    ".e####e.",
+    ".e#==#e.",
+    ".e####e.",
+    ".e#==#e.",
+    "..e##e..",
+]
+EXOSUIT_BACK = [
+    "e#e..e#e",
+    "#+#..#+#",
+    "#+#ee#+#",
+    "#+####+#",
+    "#+#ee#+#",
+    "#+#..#+#",
+    "#+#..#+#",
+    "###..###",
+    "#*#..#*#",
+    "#*#..#*#",
+    "e*e..e*e",
+    ".e....e.",
+]
+# an arm's faces, each 4 wide: a shoulder cap and a brace on the forearm, the outer one with a light in its cap
+EXOSUIT_ARM_OUT = ["####", "#++#", "####", "e..e", "....", ".ee.", ".ee.", "eeee", "#==#", "#==#", "eeee", "...."]
+EXOSUIT_ARM = ["####", "####", "####", "e..e", "....", "....", "....", "eeee", "#==#", "#==#", "eeee", "...."]
+
+
+def exosuit_worn():
+    """The suit as the chestplate's model maps it: a body box 8 wide, 12 tall and 4 deep with its faces from (16, 16), and
+    arm boxes 4 by 12 by 4 with theirs from (40, 16): outer, front, inner and back from (40, 20)."""
+    c = Canvas(64, 32)
+    edge = STEEL[4]
+    pal = {"e": edge, "#": STEEL[6], "=": SLATE[2], "+": TEAL[3], "*": AMBER[3]}
+    # the shoulders over the top, joined by a rib along each side
+    c.rect(20, 16, 22, 19, edge)
+    c.rect(25, 16, 27, 19, edge)
+    c.stamp(20, 20, EXOSUIT_FRONT, pal)
+    c.stamp(32, 20, EXOSUIT_BACK, pal)
+    for x in (16, 28):
+        c.rect(x, 20, x + 3, 22, edge)
+        c.rect(x, 26, x + 3, 26, edge)
+    # the arms
+    c.rect(44, 16, 47, 19, STEEL[6])
+    c.stamp(40, 20, EXOSUIT_ARM_OUT, pal)
+    for x in (44, 48, 52):
+        c.stamp(x, 20, EXOSUIT_ARM, pal)
     return c
 
 
@@ -2750,6 +2830,79 @@ def icon_cells(text):
 
 
 ICONS = {
+    # an eye, open in the dark
+    "suit_night_vision": icon_cells("""
+................
+................
+................
+................
+.....######.....
+...##......##...
+..##...##...##..
+.##...####...##.
+..##...##...##..
+...##......##...
+.....######.....
+"""),
+    # a stair, climbed without a jump
+    "suit_step_assist": icon_cells("""
+................
+................
+..........####..
+..........####..
+..........##....
+..........##....
+......######....
+......######....
+......##........
+......##........
+..######........
+..######........
+"""),
+    # a long arm from the body
+    "suit_reach": icon_cells("""
+................
+................
+................
+................
+.##........##...
+.##.........##..
+.##..##########.
+.##..##########.
+.##.........##..
+.##........##...
+"""),
+    # a pick
+    "suit_vein_mining": icon_cells("""
+................
+....#######.....
+...........##...
+...........###..
+..........####..
+.........##.##..
+........##..##..
+.......##...##..
+......##........
+.....##.........
+....##..........
+...##...........
+"""),
+    # a second tier, over the first
+    "suit_flight": icon_cells("""
+................
+................
+.......##.......
+......####......
+.....##..##.....
+....##....##....
+...##......##...
+................
+.......##.......
+......####......
+.....##..##.....
+....##....##....
+...##......##...
+"""),
     # back to the start, against the clock
     "reset": icon_ring(8, 8.5, 4.5, gap=(100, 160)) | icon_cells("""
 ................
@@ -3046,6 +3199,8 @@ def build():
     # a glyph symmetric along an axis has to be even along it, or it sits half a pixel off the tile's centre
     assert mirrored(FLIGHT_FRAME), FLIGHT_FRAME
     assert mirrored(FLIGHT_FRAME_BACK), FLIGHT_FRAME_BACK
+    for rows in (EXOSUIT, EXOSUIT_FRONT, EXOSUIT_BACK, EXOSUIT_ARM_OUT, EXOSUIT_ARM):
+        assert mirrored(rows), rows
     for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, SURVEY_PROBE, *PORT_GLYPHS.values()]:
         assert not (mirrored(rows) and len(rows[0]) % 2), rows
         assert not (rows == rows[::-1] and len(rows) % 2), rows
@@ -3091,6 +3246,8 @@ def build():
     machine_top(58).save("block/combustion_generator_top.png")
     flight_frame().save("item/flight_frame.png")
     flight_frame_worn().save("entity/equipment/humanoid/flight_frame.png")
+    exosuit().save("item/exosuit.png")
+    exosuit_worn().save("entity/equipment/humanoid/exosuit.png")
     assert mirrored(WAYFINDER_CASE), WAYFINDER_CASE
     for k in range(32):
         wayfinder(k).save(f"item/wayfinder_{k:02d}.png")

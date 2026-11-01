@@ -112,6 +112,19 @@ public final class PowerNetwork {
         }
     }
 
+    /** Takes up to {@code amount} FE out of its cells, at once, and says how much that came to. */
+    public int take(int amount) {
+        int taken = 0;
+        for (BlockPos p : devices) {
+            if (taken < amount && level.getBlockEntity(p) instanceof PowerBlockEntity be && be.role() == PowerBlockEntity.Role.CELL) {
+                int stored = be.energy().getAmountAsInt(), moved = Math.min(amount - taken, stored);
+                be.energy().set(stored - moved);
+                taken += moved;
+            }
+        }
+        return taken;
+    }
+
     /** Power stored in its cells, and what they hold in all. */
     public long[] stored() {
         long amount = 0, capacity = 0;

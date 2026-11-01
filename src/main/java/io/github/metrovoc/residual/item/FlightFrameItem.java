@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.item;
 import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.ResidualConfig;
 import io.github.metrovoc.residual.energy.CellBlockEntity;
+import io.github.metrovoc.residual.energy.PowerNetwork;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.registry.ModComponents;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -26,7 +28,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
@@ -49,6 +53,11 @@ public class FlightFrameItem extends Item {
         super(properties);
     }
 
+    /** The most power it holds. */
+    protected int capacity() {
+        return CAPACITY;
+    }
+
     public static int charge(ItemStack frame) {
         return frame.getOrDefault(ModComponents.CHARGE.get(), 0);
     }
@@ -61,7 +70,7 @@ public class FlightFrameItem extends Item {
     /** Whether {@code frame} can hold its wearer up: charged, with a pilot it can carry that passes Pilot. */
     public static boolean holds(ItemStack frame) {
         ModelInfo p = pilot(frame);
-        return frame.getItem() instanceof FlightFrameItem && charge(frame) > 0 && p != null && p.causal() && p.passes(Benchmark.PILOT)
+        return frame.is(ModItems.FLIGHT_FRAME.get()) && charge(frame) > 0 && p != null && p.causal() && p.passes(Benchmark.PILOT)
                 && p.parameters() <= ResidualConfig.ONBOARD_PARAMETERS.get();
     }
 
@@ -88,18 +97,24 @@ public class FlightFrameItem extends Item {
         return false;
     }
 
-    /** Used on an Energy Cell, it takes as much of the cell's charge as it has room for. */
+    /** A frame crafted into something else gives back the pilot it carried, on a checkpoint. */
+    @Override
+    @Nullable
+    public ItemStackTemplate getCraftingRemainder(ItemInstance frame) {
+        ModelInfo pilot = frame.get(ModComponents.MODEL.get());
+        return pilot == null ? null : new ItemStackTemplate(ModItems.CHECKPOINT.get(), DataComponentPatch.builder().set(ModComponents.MODEL.get(), pilot).build());
+    }
+
+    /** Used on an Energy Cell, it takes as much of the charge of the cells on that network as it has room for. */
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        if (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof CellBlockEntity cell)) {
+        if (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof CellBlockEntity)) {
             return InteractionResult.PASS;
         }
         if (context.getLevel() instanceof ServerLevel level) {
             ItemStack frame = context.getItemInHand();
-            int stored = cell.energy().getAmountAsInt();
-            int moved = Math.min(CAPACITY - charge(frame), stored);
+            int moved = PowerNetwork.at(level, context.getClickedPos()).take(capacity() - charge(frame));
             if (moved > 0) {
-                cell.energy().set(stored - moved);
                 frame.set(ModComponents.CHARGE.get(), charge(frame) + moved);
                 level.playSound(null, context.getClickedPos(), SoundEvents.BEACON_POWER_SELECT, SoundSource.BLOCKS, 0.5f, 1.6f);
             }
@@ -114,7 +129,7 @@ public class FlightFrameItem extends Item {
 
     @Override
     public int getBarWidth(ItemStack frame) {
-        return Math.round(13f * charge(frame) / CAPACITY);
+        return Math.round(13f * charge(frame) / capacity());
     }
 
     @Override

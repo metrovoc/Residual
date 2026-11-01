@@ -22,6 +22,10 @@ public final class ClientHooks {
         Minecraft.getInstance().setScreen(new TerminalScreen(hand));
     }
 
+    public static void openExosuit() {
+        Minecraft.getInstance().setScreen(new ExosuitScreen());
+    }
+
     public static void openWayfinder(InteractionHand hand) {
         Minecraft.getInstance().setScreen(new WayfinderScreen(hand));
     }

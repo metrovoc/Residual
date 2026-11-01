@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": "minecraft:netherite_ingot",
+    "W": "residual:wafer",
+    "A": "residual:accelerator",
+    "F": "residual:flight_frame",
+    "S": "residual:model_server"
+  },
+  "pattern": [
+    "NWN",
+    "AFA",
+    "NSN"
+  ],
+  "result": {
+    "id": "residual:exosuit"
+  }
+}

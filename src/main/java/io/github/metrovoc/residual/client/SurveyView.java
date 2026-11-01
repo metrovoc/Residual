@@ -90,7 +90,7 @@ public final class SurveyView {
     }
 
     /** A box's six faces, each wound both ways, at full light. */
-    private static void box(PoseStack.Pose pose, VertexConsumer buffer, AABB b, int argb) {
+    static void box(PoseStack.Pose pose, VertexConsumer buffer, AABB b, int argb) {
         float x0 = (float) b.minX, y0 = (float) b.minY, z0 = (float) b.minZ;
         float x1 = (float) b.maxX, y1 = (float) b.maxY, z1 = (float) b.maxZ;
         float[][] faces = {

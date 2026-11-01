@@ -7,6 +7,7 @@ import io.github.metrovoc.residual.item.AgentItem;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
+import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.item.FlightFrameItem;
 import io.github.metrovoc.residual.item.HourglassItem;
@@ -38,6 +39,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.equipment.ArmorMaterials;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.minecraft.world.item.equipment.Equippable;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -66,6 +69,10 @@ public final class ModItems {
     public static final DeferredItem<FlightFrameItem> FLIGHT_FRAME = ITEMS.registerItem("flight_frame", FlightFrameItem::new, p -> p.stacksTo(1)
             .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(SoundEvents.ARMOR_EQUIP_NETHERITE)
                     .setAsset(ResourceKey.create(EquipmentAssets.ROOT_ID, Residual.id("flight_frame"))).build()));
+    public static final DeferredItem<ExosuitItem> EXOSUIT = ITEMS.registerItem("exosuit", ExosuitItem::new, p -> p.stacksTo(1).fireResistant().rarity(Rarity.RARE)
+            .attributes(ArmorMaterials.NETHERITE.createAttributes(ArmorType.CHESTPLATE))
+            .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(SoundEvents.ARMOR_EQUIP_NETHERITE)
+                    .setAsset(ResourceKey.create(EquipmentAssets.ROOT_ID, Residual.id("exosuit"))).build()));
     public static final DeferredItem<WayfinderItem> WAYFINDER = ITEMS.registerItem("wayfinder", WayfinderItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<ShardItem> SHARD = ITEMS.registerItem("archive_shard", ShardItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<AgentItem> AGENT = ITEMS.registerItem("agent", AgentItem::new, p -> p.stacksTo(16));

@@ -19,6 +19,7 @@ import io.github.metrovoc.residual.net.OpenTerminal;
 import io.github.metrovoc.residual.net.ShimmerSync;
 import io.github.metrovoc.residual.net.StorageMeaningSync;
 import io.github.metrovoc.residual.net.StorageSync;
+import io.github.metrovoc.residual.net.SuitFlight;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.WatchSync;
 import io.github.metrovoc.residual.net.WaveSync;
@@ -57,6 +58,7 @@ public final class ResidualClient {
         modBus.addListener(ResidualClient::models);
         modBus.addListener(ResidualClient::keys);
         NeoForge.EVENT_BUS.addListener(ResidualClient::openTerminalKey);
+        modBus.addListener(ExosuitScreen::keys);
         NeoForge.EVENT_BUS.addListener(Waves::extract);
         NeoForge.EVENT_BUS.addListener(Waves::submit);
         NeoForge.EVENT_BUS.addListener(FlowView::extract);
@@ -67,6 +69,9 @@ public final class ResidualClient {
         NeoForge.EVENT_BUS.addListener(ShimmerView::submit);
         NeoForge.EVENT_BUS.addListener(SurveyView::extract);
         NeoForge.EVENT_BUS.addListener(SurveyView::submit);
+        NeoForge.EVENT_BUS.addListener(VeinView::extract);
+        NeoForge.EVENT_BUS.addListener(VeinView::submit);
+        NeoForge.EVENT_BUS.addListener(ExosuitScreen::pressed);
         NeoForge.EVENT_BUS.addListener(Clips::tick);
         // the field notes
         Guide.builder(Residual.GUIDE)
@@ -167,6 +172,7 @@ public final class ResidualClient {
                 menu.rows = sync.rows();
             }
         });
+        event.register(SuitFlight.TYPE, (flight, ctx) -> SuitHud.receive(flight));
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {
             AgentView.answer = answer;
             AgentView.asking = false;
@@ -185,5 +191,6 @@ public final class ResidualClient {
 
     private static void layers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, Residual.id("lens"), Lens::render);
+        event.registerAbove(VanillaGuiLayers.CROSSHAIR, Residual.id("exosuit"), SuitHud::render);
     }
 }

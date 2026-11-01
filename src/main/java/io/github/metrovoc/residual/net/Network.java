@@ -7,8 +7,10 @@ import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
+import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.ProgramCardItem;
 import io.github.metrovoc.residual.item.PortableDriveItem;
+import io.github.metrovoc.residual.item.SuitAbility;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.item.WirelessTerminalItem;
 import io.github.metrovoc.residual.learn.Sampler;
@@ -70,6 +72,7 @@ public final class Network {
         r.playToServer(FindRuin.TYPE, FindRuin.STREAM_CODEC, Network::onFindRuin);
         r.playToServer(DockEdit.TYPE, DockEdit.STREAM_CODEC, Network::onDockEdit);
         r.playToServer(OpenTerminal.TYPE, OpenTerminal.STREAM_CODEC, Network::onOpenTerminal);
+        r.playToServer(SuitEdit.TYPE, SuitEdit.STREAM_CODEC, Network::onSuitEdit);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
@@ -85,6 +88,7 @@ public final class Network {
         r.playToClient(CraftTreeSync.TYPE, CraftTreeSync.STREAM_CODEC);
         r.playToClient(WatchSync.TYPE, WatchSync.STREAM_CODEC);
         r.playToClient(ShimmerSync.TYPE, ShimmerSync.STREAM_CODEC);
+        r.playToClient(SuitFlight.TYPE, SuitFlight.STREAM_CODEC);
     }
 
     private static void onDockEdit(DockEdit e, IPayloadContext ctx) {
@@ -116,6 +120,13 @@ public final class Network {
     private static void onFindRuin(FindRuin f, IPayloadContext ctx) {
         if (ctx.player() instanceof ServerPlayer player) {
             WayfinderItem.find(player, f.mainHand() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND, f.kind());
+        }
+    }
+
+    private static void onSuitEdit(SuitEdit e, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && e.ability() >= 0 && e.ability() < SuitAbility.values().length
+                && !ExosuitItem.on(player).isEmpty()) {
+            ExosuitItem.turn(ExosuitItem.on(player), SuitAbility.values()[e.ability()], e.on());
         }
     }
 

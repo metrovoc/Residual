@@ -5,6 +5,7 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.bench.MaskData;
 import io.github.metrovoc.residual.item.StorageDriveItem;
 import io.github.metrovoc.residual.learn.Vocab;
+import io.github.metrovoc.residual.model.Board;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.model.Recovered;
 import java.util.List;
@@ -74,8 +75,14 @@ public final class ModComponents {
     public static final Supplier<DataComponentType<List<ItemResource>>> PINS = COMPONENTS.registerComponentType("pins",
             b -> b.persistent(ItemResource.CODEC.listOf()).networkSynchronized(ItemResource.STREAM_CODEC.apply(ByteBufCodecs.list())));
 
-    /** The power in a flight frame, in FE. */
+    /** The power in a flight frame or an exosuit, in FE. */
     public static final Supplier<DataComponentType<Integer>> CHARGE = COMPONENTS.registerComponentType("charge",
+            b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+    /** What an exosuit's board measured of the model on it. */
+    public static final Supplier<DataComponentType<Board>> BOARD = COMPONENTS.registerComponentType("board",
+            b -> b.persistent(Board.CODEC).networkSynchronized(Board.STREAM_CODEC));
+    /** Which of an exosuit's abilities its wearer turned off, a bit each. */
+    public static final Supplier<DataComponentType<Integer>> ABILITIES_OFF = COMPONENTS.registerComponentType("abilities_off",
             b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
     /** Time an Hourglass has kept, in ticks. */
     public static final Supplier<DataComponentType<Integer>> KEPT_TIME = COMPONENTS.registerComponentType("kept_time",

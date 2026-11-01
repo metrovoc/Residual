@@ -11,10 +11,13 @@ import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.client.AgentScreen;
 import io.github.metrovoc.residual.client.CoreScreen;
 import io.github.metrovoc.residual.client.StorageTerminalScreen;
+import io.github.metrovoc.residual.item.ExosuitItem;
+import io.github.metrovoc.residual.item.FlightFrameItem;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.net.GhostSlot;
 import io.github.metrovoc.residual.net.PatternTransfer;
 import io.github.metrovoc.residual.net.StorageTransfer;
+import io.github.metrovoc.residual.model.Board;
 import io.github.metrovoc.residual.storage.CraftingData;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
 import io.github.metrovoc.residual.storage.DockMenu;
@@ -34,6 +37,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import net.minecraft.client.CameraType;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Screenshot;
@@ -67,6 +71,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -105,6 +110,7 @@ import net.neoforged.neoforge.client.event.ToastAddEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
@@ -190,6 +196,17 @@ import org.slf4j.Logger;
  * expect shown N             fail the step unless the open Storage Terminal has been sent at least N kinds
  * expect pins N              fail the step unless the open Storage Terminal has N kinds pinned
  * expect tree N              fail the step unless the open Storage Terminal has at least N rows of a job's plan
+ * expect suit KIND N         fail the step unless the player's exosuit says N: compute (at least), charge (at least),
+ *                            under (charge less than N), energy (at least, read as Forge Energy), running (how many
+ *                            abilities, exactly) or bits (of the form it runs in, exactly)
+ * expect attribute ID N      fail the step unless the player's attribute, times 100, is N
+ * expect flyspeed N          fail the step unless the player's flying speed, times 100, is N
+ * expect mayfly N            fail the step unless the player may fly (1) or may not (0)
+ * expect sight N             fail the step unless the player has night vision (1) or has not (0)
+ * expect blocks BLOCK X1 Y1 Z1 X2 Y2 Z2 N  fail the step unless the box holds exactly N of BLOCK
+ * await TICKS KIND ... N     check as expect does, once a second, and fail the step if it has not come true in TICKS
+ * mine X Y Z                 break a block as the player does, whatever stands between
+ * bound NAME                 press the key a key mapping is bound to, by its name (key.residual.exosuit)
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
@@ -651,6 +668,26 @@ public final class Rehearsal {
                     stacks(args[0]), args.length > 1 ? stacks(args[1]) : List.of()));
             case "ghost" -> ClientPacketDistributor.sendToServer(new GhostSlot(mc.player.containerMenu.containerId, Integer.parseInt(args[0]), kind(args[1]).toStack(1)));
             case "kinds" -> kinds(mc, args);
+            case "await" -> {
+                String[] rest = arg.split("\\s+", 2);
+                int left = Integer.parseInt(rest[0]);
+                try {
+                    expect(mc, rest[1].split("\\s+"));
+                } catch (IllegalStateException e) {
+                    if (left <= 0) {
+                        throw e;
+                    }
+                    steps.set(--next, "await " + (left - 20) + " " + rest[1]);
+                    waiting = 19;
+                }
+            }
+            case "mine" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                BlockPos pos = new BlockPos(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+                server.execute(() -> server.getPlayerList().getPlayer(id).gameMode.destroyBlock(pos));
+            }
+            case "bound" -> KeyMapping.click(KeyMapping.get(arg).getDefaultKey());
             case "seek" -> seek(mc, args);
             case "survey" -> survey(mc, args);
             case "fly" -> {
@@ -806,6 +843,32 @@ public final class Rehearsal {
             case "carried" -> found = mc.player.containerMenu.getCarried().is(BuiltInRegistries.ITEM.getValue(Identifier.parse(args[1])))
                     ? mc.player.containerMenu.getCarried().getCount() : 0;
             case "shown" -> found = ((TerminalMenu) mc.player.containerMenu).items.size() + ((TerminalMenu) mc.player.containerMenu).fluids.size();
+            case "suit" -> {
+                ItemStack suit = ExosuitItem.on(mc.player);
+                Board board = ExosuitItem.board(suit);
+                Board.Form form = board == null ? null : board.running(ExosuitItem.memory());
+                found = switch (args[1]) {
+                    case "compute" -> ExosuitItem.compute(suit);
+                    case "charge" -> FlightFrameItem.charge(suit);
+                    case "under" -> FlightFrameItem.charge(suit) < wanted ? wanted : FlightFrameItem.charge(suit) - wanted;
+                    case "energy" -> suit.getCapability(Capabilities.Energy.ITEM, ItemAccess.forStack(suit)).getAmountAsLong();
+                    case "running" -> ExosuitItem.running(suit).size();
+                    case "bits" -> form == null ? 0 : form.bits();
+                    default -> throw new IllegalArgumentException(args[1]);
+                };
+            }
+            case "attribute" -> found = Math.round(100 * mc.player.getAttributeValue(BuiltInRegistries.ATTRIBUTE.get(Identifier.parse(args[1])).orElseThrow()));
+            case "flyspeed" -> found = Math.round(100 * mc.player.getAbilities().getFlyingSpeed());
+            case "mayfly" -> found = mc.player.getAbilities().mayfly ? 1 : 0;
+            case "sight" -> found = mc.player.hasEffect(MobEffects.NIGHT_VISION) ? 1 : 0;
+            case "blocks" -> {
+                Block block = BuiltInRegistries.BLOCK.getValue(Identifier.parse(args[1]));
+                found = 0;
+                for (BlockPos p : BlockPos.betweenClosed(Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]),
+                        Integer.parseInt(args[5]), Integer.parseInt(args[6]), Integer.parseInt(args[7]))) {
+                    found += mc.level.getBlockState(p).is(block) ? 1 : 0;
+                }
+            }
             default -> {
                 MinecraftServer server = mc.getSingleplayerServer();
                 UUID id = mc.player.getUUID();
@@ -874,7 +937,9 @@ public final class Rehearsal {
             }
         }
         boolean exact = args[0].equals("jobs") || args[0].equals("pins") || args[0].equals("open") || args[0].equals("grid")
-                || args[0].equals("meant") || args[0].equals("words") || args[0].equals("holds");
+                || args[0].equals("meant") || args[0].equals("words") || args[0].equals("holds") || args[0].equals("attribute")
+                || args[0].equals("flyspeed") || args[0].equals("mayfly") || args[0].equals("sight") || args[0].equals("blocks")
+                || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits"));
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }

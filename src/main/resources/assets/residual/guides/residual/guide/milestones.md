@@ -189,6 +189,17 @@ passes Survey: [The Surveyor](surveyor.md).</residual:Milestone>
 <residual:Milestone id="flight/frame">Put a pilot that passes Pilot in a charged flight frame, wear it, and jump twice:
 [Flight](flight.md).</residual:Milestone>
 
+## The Exosuit
+
+<residual:Milestone id="exosuit/board">Put a model that passes Pilot at 8 or 4 bits in a charged exosuit and wear it:
+[The Exosuit](exosuit.md).</residual:Milestone>
+
+<residual:Milestone id="exosuit/vein">With a model that also passes Survey and vein mining on, sneak and break a vein of
+64 blocks or more with the right tool.</residual:Milestone>
+
+<residual:Milestone id="exosuit/all">Run all five abilities at once. That takes 240,000 compute: a model too big for the
+board at 8 bits, which still holds nearly every flight at 4.</residual:Milestone>
+
 ## Power
 
 <residual:Milestone id="power/generator">It burns what a furnace burns: [Power](power.md).</residual:Milestone>

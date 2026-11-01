@@ -6,7 +6,9 @@ import io.github.metrovoc.residual.agent.Agents;
 import io.github.metrovoc.residual.block.Bursts;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
+import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.FlightFrameItem;
+import io.github.metrovoc.residual.item.Vein;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.net.Network;
 import io.github.metrovoc.residual.registry.ModAttachments;
@@ -24,6 +26,7 @@ import io.github.metrovoc.residual.train.TrainingJob;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -33,6 +36,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.transfer.energy.ItemAccessEnergyHandler;
 import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import org.slf4j.Logger;
 
@@ -66,6 +70,10 @@ public final class Residual {
         NeoForge.EVENT_BUS.addListener(ForecasterBlockEntity::grew);
         NeoForge.EVENT_BUS.addListener(Bursts::tick);
         NeoForge.EVENT_BUS.addListener(FlightFrameItem::tick);
+        NeoForge.EVENT_BUS.addListener(ExosuitItem::tick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, Vein::breaking);
+        NeoForge.EVENT_BUS.addListener(Vein::drops);
+        NeoForge.EVENT_BUS.addListener(Vein::tick);
         NeoForge.EVENT_BUS.addListener(WayfinderItem::tick);
     }
 
@@ -92,13 +100,15 @@ public final class Residual {
         }
     }
 
-    /** Power blocks speak Forge Energy, and their slots take and give items, to other mods' cables, pipes and hoppers. */
+    /** Power blocks and exosuits speak Forge Energy, and power blocks' slots take and give items, to other mods' cables, pipes and hoppers. */
     private static void capabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.GENERATOR.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.CELL.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.SMELTER.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.FORECASTER.get(), (be, side) -> be.third() ? be.energy() : null);
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.LINK_DRIVER.get(), (be, side) -> be.energy());
+        event.registerItem(Capabilities.Energy.ITEM, (stack, access) -> new ItemAccessEnergyHandler(access, ModComponents.CHARGE.get(), ExosuitItem.CAPACITY, ExosuitItem.TRANSFER),
+                ModItems.EXOSUIT.get());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.GENERATOR.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SMELTER.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
     }
