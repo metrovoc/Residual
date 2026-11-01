@@ -35,6 +35,15 @@ public final class Models {
         });
     }
 
+    /** As {@link #submit(MinecraftServer, UUID, Function, Consumer)}, with the model's weights in {@code bits} bits. */
+    public static <T> void submit(MinecraftServer server, UUID id, int bits, Function<CompiledGraph, T> work, Consumer<@Nullable T> reply) {
+        Jobs.EXECUTOR.execute(() -> {
+            CompiledGraph model = Checkpoints.quantized(server, id, bits);
+            T answer = evaluate(model, work);
+            Jobs.back(server, () -> reply.accept(answer));
+        });
+    }
+
     @Nullable
     static <T> T evaluate(@Nullable CompiledGraph model, Function<CompiledGraph, T> work) {
         try {

@@ -53,6 +53,21 @@ class CheckpointsTest {
     }
 
     @Test
+    void savingOverAModelDropsWhatWasPackedFromTheOldOne() throws Exception {
+        Path saved = checkpoint("packed");
+        CompiledGraph first = model(4), second = model(5);
+        Checkpoints.save(saved, first);
+        CompiledGraph packed = Checkpoints.quantized(saved, 8);
+        assertSame(packed, Checkpoints.quantized(saved, 8));
+        assertNotSame(first, packed);
+        Checkpoints.save(saved, second);
+        CompiledGraph again = Checkpoints.quantized(saved, 8);
+        assertNotSame(packed, again);
+        assertArrayEquals(Quantized.of(second, 8).restore().parameters().getFirst().data, again.parameters().getFirst().data);
+        assertNull(Checkpoints.quantized(checkpoint("nothing here"), 8));
+    }
+
+    @Test
     void savedGraphAndWeightsRoundTripThroughDisk() throws Exception {
         CompiledGraph original = model(3);
         Path saved = checkpoint("original");

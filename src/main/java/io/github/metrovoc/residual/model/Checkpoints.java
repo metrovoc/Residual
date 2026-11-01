@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class Checkpoints {
     private static final int KEEP = 32;
+    private static final String QUANTIZED = ".int";
     private static final Map<Path, CompiledGraph> LOADED = new LinkedHashMap<>(16, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<Path, CompiledGraph> eldest) {
@@ -80,6 +81,8 @@ public final class Checkpoints {
                     Files.move(pending, path, StandardCopyOption.REPLACE_EXISTING);
                 }
                 LOADED.put(path, model);
+                // what was packed from the model it replaces
+                LOADED.keySet().removeIf(p -> p.getFileName().toString().startsWith(path.getFileName() + QUANTIZED));
             } finally {
                 Files.deleteIfExists(pending);
             }
@@ -90,6 +93,27 @@ public final class Checkpoints {
     @Nullable
     public static CompiledGraph load(MinecraftServer server, UUID id) {
         return load(file(server, id));
+    }
+
+    /** The model with its weights in {@code bits} bits, ready to answer, or null if its file is missing or unreadable. Thread-safe. */
+    @Nullable
+    public static CompiledGraph quantized(MinecraftServer server, UUID id, int bits) {
+        return quantized(file(server, id), bits);
+    }
+
+    @Nullable
+    static CompiledGraph quantized(Path file, int bits) {
+        Path path = file.toAbsolutePath().normalize();
+        Path packed = path.resolveSibling(path.getFileName() + QUANTIZED + bits);
+        synchronized (LOADED) {
+            CompiledGraph model = LOADED.get(packed);
+            CompiledGraph full = model == null ? load(path) : null;
+            if (full != null) {
+                model = Quantized.of(full, bits).restore();
+                LOADED.put(packed, model);
+            }
+            return model;
+        }
     }
 
     @Nullable
