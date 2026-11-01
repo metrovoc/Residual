@@ -1,7 +1,9 @@
 package io.github.metrovoc.residual.block;
 
 import com.mojang.serialization.MapCodec;
+import io.github.metrovoc.residual.energy.PowerNode;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
+import io.github.metrovoc.residual.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -25,8 +27,8 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-/** The Forecaster: watches the crops around it, and with a model that matches them, runs them ahead. */
-public class ForecasterBlock extends BaseEntityBlock {
+/** The Forecaster, in all three of its kinds: watches the crops around it, and with a model that matches them, runs them ahead. */
+public class ForecasterBlock extends BaseEntityBlock implements PowerNode {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty WORKING = BooleanProperty.create("working");
     public static final MapCodec<ForecasterBlock> CODEC = simpleCodec(ForecasterBlock::new);
@@ -34,6 +36,12 @@ public class ForecasterBlock extends BaseEntityBlock {
     public ForecasterBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(WORKING, false));
+    }
+
+    /** Only Forecaster III runs on power. */
+    @Override
+    public boolean joins(BlockState state, Direction face) {
+        return state.is(ModBlocks.FORECASTER_III.get());
     }
 
     @Override

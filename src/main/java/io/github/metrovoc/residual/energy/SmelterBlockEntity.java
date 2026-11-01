@@ -178,6 +178,11 @@ public class SmelterBlockEntity extends PowerBlockEntity implements MenuProvider
      * The melt for its screen: looks taken, the last melt's share held (+1, 0 for none), then the temperatures so far,
      * five 3-bit bands to a data slot.
      */
+    /** Ticks into the ingot it is making, for a Forecaster's look. */
+    public int progress() {
+        return progress;
+    }
+
     private int meltData(int i) {
         if (i == 0) {
             return melt == null ? 0 : melt.look();

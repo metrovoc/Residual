@@ -47,7 +47,8 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
     public static final int GRID = 9;
     /** Crafts an Assembler makes a tick: 80 a second. */
     public static final int CRAFTS = 4;
-    public static final int MOST = 1 << 20;
+    /** The most it can be told to keep: a menu's numbers travel as shorts. */
+    public static final int MOST = Short.MAX_VALUE;
     /** Container data: how many to keep, how many the network holds, crafts in the last second, and why it waits. */
     public static final int KEEP = 0, HELD = 1, MADE = 2, WAITING = 3, DATA = 4;
     /**
@@ -83,7 +84,7 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
         public int get(int i) {
             return switch (i) {
                 case KEEP -> keep;
-                case HELD -> (int) Math.min(Integer.MAX_VALUE, held);
+                case HELD -> Math.min(Short.MAX_VALUE, held);
                 case MADE -> madeLastSecond;
                 case WAITING -> waiting;
                 default -> 0;

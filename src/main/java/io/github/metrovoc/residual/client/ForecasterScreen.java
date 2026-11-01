@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -47,6 +49,7 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
     }
 
     private final List<Hit> hits = new ArrayList<>();
+    private final List<Button> paces = new ArrayList<>();
     /** The kind of block the bars show, once a tab is clicked. */
     private Kind shown;
 
@@ -54,6 +57,36 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
         super(menu, inventory, title, ForecasterMenu.SIDE_X + ForecasterMenu.SIDE_W, ForecasterMenu.INVENTORY_Y + 82);
         inventoryLabelY = ForecasterMenu.INVENTORY_Y - 10;
         inventoryLabelX = ForecasterMenu.INVENTORY_X;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        paces.clear();
+        if (!third()) {
+            return;
+        }
+        int[] all = ForecasterBlockEntity.PACES;
+        for (int i = 0; i < all.length; i++) {
+            int id = i;
+            paces.add(addRenderableWidget(Button.builder(Component.literal("×" + all[i]), b -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id))
+                    .bounds(leftPos + ForecasterMenu.PACE_X, topPos + ForecasterMenu.PACE_Y + i * ForecasterMenu.PACE_STEP, ForecasterMenu.PACE_W, ForecasterMenu.PACE_H).build()));
+        }
+    }
+
+    /** What each pace would ask, with the compute it has, and whether it can start one. */
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        int[] all = ForecasterBlockEntity.PACES;
+        for (int i = 0; i < paces.size(); i++) {
+            int pace = all[i], asks = ForecasterBlockEntity.compute(pace);
+            long blocks = kind(Kind.MACHINES, ForecasterBlockEntity.COUNT) + kind(Kind.CROPS, ForecasterBlockEntity.COUNT) / ForecasterBlockEntity.CROPS_A_MACHINE;
+            Button b = paces.get(i);
+            b.active = data(ForecasterBlockEntity.PACE) == 0 && data(ForecasterBlockEntity.COMPUTE) >= asks && data(ForecasterBlockEntity.FASTEST) >= pace;
+            b.setTooltip(Tooltip.create(Component.translatable("residual.forecaster.burst_help", pace, Ui.count((pace - 1) * Math.max(1, blocks)), asks,
+                    data(ForecasterBlockEntity.COMPUTE), data(ForecasterBlockEntity.FASTEST))));
+        }
     }
 
     private int data(int i) {
@@ -93,13 +126,24 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
         // the slots' panel, tucked under the window's edge
-        Ui.window(g, leftPos + ForecasterMenu.SIDE_X, topPos + ForecasterMenu.SIDE_Y, ForecasterMenu.SIDE_W, ForecasterMenu.SIDE_H);
+        Ui.window(g, leftPos + ForecasterMenu.SIDE_X, topPos + ForecasterMenu.SIDE_Y, ForecasterMenu.SIDE_W, third() ? ForecasterMenu.SIDE_H_III : ForecasterMenu.SIDE_H);
         Ui.window(g, leftPos, topPos, WINDOW_W, imageHeight);
         for (Slot slot : menu.slots) {
             Ui.slot(g, leftPos + slot.x, topPos + slot.y);
         }
         ghost(g, ForecasterBlockEntity.LOG, new ItemStack(ModItems.FIELD_LOG.get()));
         ghost(g, ForecasterBlockEntity.MODEL, new ItemStack(ModItems.CHECKPOINT.get()));
+        if (third()) {
+            // its power, and while a burst runs the button at its pace is underlined
+            Ui.bar(g, leftPos + ForecasterMenu.PACE_X, topPos + ForecasterMenu.POWER_Y, ForecasterMenu.PACE_W, 4, data(ForecasterBlockEntity.POWER_SHOWN) / 1000f, Ui.AMBER);
+            int[] all = ForecasterBlockEntity.PACES;
+            for (int i = 0; i < all.length; i++) {
+                if (data(ForecasterBlockEntity.PACE) == all[i]) {
+                    int y = topPos + ForecasterMenu.PACE_Y + i * ForecasterMenu.PACE_STEP + ForecasterMenu.PACE_H;
+                    g.fill(leftPos + ForecasterMenu.PACE_X + 2, y, leftPos + ForecasterMenu.PACE_X + ForecasterMenu.PACE_W - 2, y + 1, Ui.TEAL);
+                }
+            }
+        }
         Ui.screen(g, leftPos + MAP_X, topPos + MAP_Y, MAP_W, MAP_W);
         Ui.screen(g, leftPos + BARS_X, topPos + BARS_Y, BARS_W, BARS_H);
         Ui.screen(g, leftPos + 8, topPos + STATE_Y - 4, WINDOW_W - 16, ROW_Y + 2 * ROW_STEP + 2 - (STATE_Y - 4));
@@ -359,9 +403,13 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
         return x0 + (int) Math.round((off + span) / (2 * span) * w);
     }
 
-    /** Whether this is Forecaster II, which runs blocks up to sixteen times as fast. */
+    /** Whether this is Forecaster II or III, which run blocks up to sixteen times as fast. */
     private boolean second() {
-        return minecraft != null && minecraft.level != null && minecraft.level.getBlockState(menu.pos).is(ModBlocks.FORECASTER_II.get());
+        return minecraft != null && minecraft.level != null && !minecraft.level.getBlockState(menu.pos).is(ModBlocks.FORECASTER.get());
+    }
+
+    private boolean third() {
+        return minecraft != null && minecraft.level != null && minecraft.level.getBlockState(menu.pos).is(ModBlocks.FORECASTER_III.get());
     }
 
     private static void outline(GuiGraphicsExtractor g, int x, int y, int w, int h, int color) {

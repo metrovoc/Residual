@@ -509,7 +509,7 @@ def power():
 # ---------------------------------------------------------------- data
 
 MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream",
-                  "bpe_forge", "forecaster", "forecaster_ii", "surveyor", "watch_post", "combustion_generator", "energy_cell", "smelter", "power_cable",
+                  "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "combustion_generator", "energy_cell", "smelter", "power_cable",
                   "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor"]
 
 
@@ -669,6 +669,7 @@ def advancements():
     advancement("forecast/ahead", "forecast/watching", "minecraft:furnace", awarded(), frame="goal")
     advancement("forecast/hourglass", "forecast/ahead", "hourglass", awarded(), frame="goal")
     advancement("forecast/deep", "forecast/ahead", "forecaster_ii", awarded(), frame="goal")
+    advancement("forecast/burst", "forecast/deep", "forecaster_iii", awarded(), frame="challenge")
     advancement("survey/found", "benchmark/survey", "surveyor", awarded(), frame="goal")
     advancement("watch/noticed", "benchmark/watch", "watch_post", awarded(), frame="goal")
     advancement("flight/frame", "benchmark/pilot", "flight_frame", awarded(), frame="goal")
@@ -709,6 +710,7 @@ if __name__ == "__main__":
     forge()
     forecaster()
     forecaster("forecaster_ii")
+    forecaster("forecaster_iii")
     forecaster("surveyor")
     forecaster("watch_post")
     power()

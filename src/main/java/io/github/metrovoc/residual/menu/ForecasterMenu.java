@@ -22,6 +22,8 @@ public class ForecasterMenu extends AbstractContainerMenu {
     /** Its two slots, in a panel beside the window, tucked under its edge: the log above the model. */
     public static final int SIDE_X = 252, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 46;
     public static final int LOG_X = 259, MODEL_X = 259, LOG_Y = 10, MODEL_Y = 28;
+    /** Forecaster III's panel goes on down: a button for each pace of burst, then its power. */
+    public static final int SIDE_H_III = 122, PACE_X = 255, PACE_Y = 48, PACE_W = 25, PACE_H = 14, PACE_STEP = 15, POWER_Y = 110;
     public static final int INVENTORY_X = 48, INVENTORY_Y = 162;
 
     public final BlockPos pos;
@@ -48,6 +50,16 @@ public class ForecasterMenu extends AbstractContainerMenu {
             addSlot(new Slot(inventory, col, INVENTORY_X + col * 18, INVENTORY_Y + 58));
         }
         addDataSlots(data);
+    }
+
+    /** A pace button on Forecaster III's screen. */
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id >= 0 && id < ForecasterBlockEntity.PACES.length && player.level().getBlockEntity(pos) instanceof ForecasterBlockEntity be) {
+            be.startBurst(ForecasterBlockEntity.PACES[id]);
+            return true;
+        }
+        return false;
     }
 
     public static boolean model(ItemStack stack) {

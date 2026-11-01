@@ -43,7 +43,8 @@ public class ProcessorBlockEntity extends BlockEntity implements MenuProvider {
     public static final int PAGE = 9, PAGES = 9, CELLS = PAGE * PAGES;
     /** Items it moves a tick, each way, as a Port does: 1,280 a second. */
     public static final int RATE = 64;
-    public static final int MOST = 1 << 20;
+    /** The most it can be told to keep: a menu's numbers travel as shorts. */
+    public static final int MOST = Short.MAX_VALUE;
     /** Container data: how many to keep, how many the network holds, rounds done in the last second, and why it waits. */
     public static final int KEEP = 0, HELD = 1, MADE = 2, WAITING = 3, DATA = 4;
     /** Why it pushes nothing: it is pushing, it has no pattern or no machine, the network has enough, something is missing,
@@ -70,7 +71,7 @@ public class ProcessorBlockEntity extends BlockEntity implements MenuProvider {
         public int get(int i) {
             return switch (i) {
                 case KEEP -> keep;
-                case HELD -> held;
+                case HELD -> Math.min(Short.MAX_VALUE, held);
                 case MADE -> madeLastSecond;
                 case WAITING -> waiting;
                 default -> 0;

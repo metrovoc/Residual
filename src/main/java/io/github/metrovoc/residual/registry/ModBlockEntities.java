@@ -50,7 +50,7 @@ public final class ModBlockEntities {
     public static final Supplier<BlockEntityType<ForgeBlockEntity>> FORGE = BLOCK_ENTITIES.register("bpe_forge",
             () -> new BlockEntityType<>(ForgeBlockEntity::new, Set.of(ModBlocks.FORGE.get())));
     public static final Supplier<BlockEntityType<ForecasterBlockEntity>> FORECASTER = BLOCK_ENTITIES.register("forecaster",
-            () -> new BlockEntityType<>(ForecasterBlockEntity::new, Set.of(ModBlocks.FORECASTER.get(), ModBlocks.FORECASTER_II.get())));
+            () -> new BlockEntityType<>(ForecasterBlockEntity::new, Set.of(ModBlocks.FORECASTER.get(), ModBlocks.FORECASTER_II.get(), ModBlocks.FORECASTER_III.get())));
 
     public static final Supplier<BlockEntityType<RackBlockEntity>> RACK = BLOCK_ENTITIES.register("drive_rack",
             () -> new BlockEntityType<>(RackBlockEntity::new, Set.of(ModBlocks.DRIVE_RACK.get())));

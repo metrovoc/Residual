@@ -66,7 +66,8 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
     public static final int FILTERS = 9;
     /** Items a Port moves a tick: 1,280 a second. */
     public static final int RATE = 64;
-    public static final int MOST = 1 << 20;
+    /** The most it can be told to stock: a menu's numbers travel as shorts. */
+    public static final int MOST = Short.MAX_VALUE;
     /**
      * Container data: how many of each kind to stock, the window's priority, items moved in the last second, whether it
      * asks for what it lacks, and how much its target model expects it to move next, or -1 with no answer it trusts.
@@ -138,7 +139,7 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
                 case PRIORITY -> priority;
                 case MOVED -> movedLastSecond;
                 case CRAFT -> craft ? 1 : 0;
-                case EXPECTS -> expected.isEmpty() ? -1 : (int) Math.min(Integer.MAX_VALUE, expected.values().stream().mapToLong(Long::longValue).sum());
+                case EXPECTS -> expected.isEmpty() ? -1 : (int) Math.min(Short.MAX_VALUE, expected.values().stream().mapToLong(Long::longValue).sum());
                 default -> 0;
             };
         }

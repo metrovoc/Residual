@@ -64,6 +64,9 @@ public final class ModBlocks {
     /** The Lab tier's Forecaster: the same watching, up to sixteen times as fast. */
     public static final DeferredBlock<ForecasterBlock> FORECASTER_II = BLOCKS.registerBlock("forecaster_ii", ForecasterBlock::new,
             p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(ForecasterBlock.WORKING) ? 12 : 3));
+    /** The Cluster tier's Forecaster: the same again, and bursts over all it watches, paid in power and compute. */
+    public static final DeferredBlock<ForecasterBlock> FORECASTER_III = BLOCKS.registerBlock("forecaster_iii", ForecasterBlock::new,
+            p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(ForecasterBlock.WORKING) ? 14 : 4));
     /** The Lab tier's Surveyor: reads the ground around it with a model and keeps where each ore lies. */
     public static final DeferredBlock<SurveyorBlock> SURVEYOR = BLOCKS.registerBlock("surveyor", SurveyorBlock::new,
             p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(SurveyorBlock.WORKING) ? 10 : 3));

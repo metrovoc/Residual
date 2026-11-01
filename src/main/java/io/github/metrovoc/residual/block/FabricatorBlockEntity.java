@@ -119,6 +119,7 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
             }
             if (spec == Specs.TRANSFORMER) {
                 out.add(ModBlocks.FORECASTER_II.asItem());
+                out.add(ModBlocks.FORECASTER_III.asItem());
                 out.add(ModBlocks.SMELTER.asItem());
                 out.add(ModItems.FLIGHT_FRAME.get());
             }
@@ -144,6 +145,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         }
         if (item == ModBlocks.FORECASTER_II.asItem()) {
             return new Cost(4, 8, 4, 200);
+        }
+        if (item == ModBlocks.FORECASTER_III.asItem()) {
+            return new Cost(8, 16, 8, 400);
         }
         if (item == ModBlocks.SURVEYOR.asItem()) {
             return new Cost(2, 6, 3, 160);

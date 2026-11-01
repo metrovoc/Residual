@@ -53,6 +53,7 @@ public final class ModTabs {
                 out.accept(ModBlocks.READER.get());
                 out.accept(ModBlocks.FORECASTER.get());
                 out.accept(ModBlocks.FORECASTER_II.get());
+                out.accept(ModBlocks.FORECASTER_III.get());
                 out.accept(ModBlocks.COMBUSTION_GENERATOR.get());
                 out.accept(ModBlocks.POWER_CABLE.get());
                 out.accept(ModBlocks.ENERGY_CELL.get());

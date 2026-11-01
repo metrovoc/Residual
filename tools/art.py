@@ -2806,7 +2806,7 @@ def build():
     # every face mirrors left to right but those that picture something one-sided or show data, the cartridge the
     # rack mirrors per column, and the relay's sheet of parts
     one_sided = {f"block/{op}_{face}.png" for op in ONE_SIDED for face in ("front", "side", "back")}
-    data = {"block/forecaster_front", "block/forecaster_front_on", "block/forecaster_ii_front", "block/forecaster_ii_front_on",
+    data = {"block/forecaster_front", "block/forecaster_front_on", "block/forecaster_ii_front", "block/forecaster_ii_front_on", "block/forecaster_iii_front", "block/forecaster_iii_front_on",
             "block/surveyor_front", "block/surveyor_front_on",
             "block/watch_post_front", "block/watch_post_front_on",
             "block/reader_front", "block/reader_front_on",
@@ -2856,6 +2856,11 @@ def build():
         [forecaster_front(ramp=AMETHYST)], 3)
     forecaster_side(AMETHYST).save("block/forecaster_ii_side.png")
     forecaster_top(AMETHYST).save("block/forecaster_ii_top.png")
+    forecaster_front(ramp=AMBER).save("block/forecaster_iii_front.png")
+    lit("block/forecaster_iii_front_on.png", [forecaster_front(i, AMBER, 1) for i in range(8)],
+        [forecaster_front(ramp=AMBER)], 2)
+    forecaster_side(AMBER).save("block/forecaster_iii_side.png")
+    forecaster_top(AMBER).save("block/forecaster_iii_top.png")
     animated([stream_side(i) for i in range(8)], "block/stream_side.png", 2)
     SAVED["block/stream_side.png"] = stream_side(0).im
     stream_end().save("block/stream_end.png")

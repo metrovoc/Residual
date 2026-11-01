@@ -1,0 +1,28 @@
+{
+  "parent": "residual:forecast/deep",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:forecaster_iii"
+    },
+    "title": {
+      "translate": "advancements.residual.forecast.burst.title"
+    },
+    "description": {
+      "translate": "advancements.residual.forecast.burst.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -6,6 +6,7 @@ navigation:
 item_ids:
   - forecaster
   - forecaster_ii
+  - forecaster_iii
   - field_log
   - forecast_dataset
   - hourglass
@@ -16,7 +17,7 @@ item_ids:
 <BlockImage id="forecaster" scale="3" float="left" />
 
 The <ItemLink id="forecaster" /> watches the blocks around it that make progress and writes down what they do:
-furnaces, smokers, blast furnaces, brewing stands, Fabricators, crops and the stems of pumpkins and melons. Give it a model that has learned what such blocks do next,
+furnaces, smokers, blast furnaces, brewing stands, Fabricators, Smelters and plants. Give it a model that has learned what such blocks do next,
 and if the model's forecasts match what happened, it runs them ahead: it draws their next looks from the model and
 makes them so.
 
@@ -31,7 +32,7 @@ makes them so.
 It watches everything within four blocks of it, on its own level or one above or below, and writes a line for each
 block.
 
-**Machines.** It looks at each furnace, smoker, blast furnace, brewing stand and Fabricator eight times an item, and
+**Machines.** It looks at each furnace, smoker, blast furnace, brewing stand, Fabricator and Smelter eight times an item, and
 writes down how far through its item it is: `a` when it has just begun, up to `h` at seven eighths. A furnace at work writes
 
 `abcdefghabcdefghabcdefgh`
@@ -40,8 +41,8 @@ and a line ends once its machine has been seen idle twice: `aa`. A smoker cooks 
 looked at twice as often, so its line reads the same, give or take a letter. A furnace that runs out of fuel halfway
 through an item cools back down, two ticks for every tick, and its line steps back: `abcdefdbaa`.
 
-**Crops.** Every twenty seconds it looks at every crop: wheat, carrots, potatoes, the stems of pumpkins and melons, and
-any crop that grows through the same seven ages. A crop's line is its age at every look, from 0 when planted to 7 when ripe, ending once it has been
+**Crops.** Every twenty seconds it looks at every crop: wheat, carrots, potatoes, beetroots, the stems of pumpkins and melons,
+sweet berries, cocoa, nether wart and saplings. A crop's line is its age at every look, from 0 when planted to its last age when ripe (7 for wheat), ending once it has been
 seen ripe twice.
 
 `00000011111111122222223333333334444445555555666666677`
@@ -114,6 +115,22 @@ busy server, runs fewer. The Fabricator makes it from a transformer photomask.
 
 A model of machines in general expects a run of items to end now and then, so it falls a few percent short of
 furnaces that never run out. One that has also learned from this Forecaster's own log knows better.
+
+## Forecaster III
+
+<ItemLink id="forecaster_iii" /> does all that Forecaster II does, and also keeps power, up to 4,000,000 FE, taken through Power
+Cables, and spends it on bursts: for thirty seconds, every machine and crop around it of a kind its model is trusted with runs
+at a pace you pick, up to ×256.
+
+A burst has three prices. The model sets the fastest: sixteen times the pace it runs that kind of block ahead at, so ×256 needs
+a model within 2.5% of what those blocks did. The compute sets it too: ×32 asks for 4 cooled <ItemLink id="accelerator" />s
+touching it, directly or through each other, and each doubling asks for twice as many, up to 32 for ×256. And the power pays for
+every tick: each machine takes one FE for each tick beyond its own, and eight crops take as much as a machine, so ×256 on sixteen
+machines burns 4,080 FE a tick. It runs at most sixteen machines at once. When the power runs out, the burst ends.
+
+Lines of blocks a burst ran are never written down, as with everything run ahead.
+
+The Fabricator makes it from a transformer photomask.
 
 ## The Hourglass
 

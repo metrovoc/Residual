@@ -30,6 +30,7 @@
     "residual:bpe_forge",
     "residual:forecaster",
     "residual:forecaster_ii",
+    "residual:forecaster_iii",
     "residual:surveyor",
     "residual:watch_post",
     "residual:combustion_generator",

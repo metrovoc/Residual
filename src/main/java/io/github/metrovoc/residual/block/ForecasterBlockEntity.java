@@ -1,6 +1,9 @@
 package io.github.metrovoc.residual.block;
 
 import io.github.metrovoc.residual.Awards;
+import io.github.metrovoc.residual.energy.PowerBlockEntity;
+import io.github.metrovoc.residual.energy.PowerNetwork;
+import io.github.metrovoc.residual.energy.SmelterBlockEntity;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.learn.Forecast;
@@ -13,6 +16,8 @@ import io.github.metrovoc.residual.model.Models;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModComponents;
+import io.github.metrovoc.residual.world.Cooling;
+import io.github.metrovoc.residual.world.GraphScanner;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +50,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.CocoaBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.StemBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -60,11 +69,13 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Watches the blocks around it that make progress and writes down what they do, a line per block. It looks at each
  * crop every {@link Growth#OBSERVE} ticks, and only growth the game's own random ticks made counts; a crop harvested,
- * trampled or fed bone meal starts a new line. It looks at each furnace, smoker, blast furnace and brewing stand eight
- * times an item. With a model whose forecasts match what a kind of block did, it runs those blocks ahead: crops grow
- * to the ages the model draws, and machines work through the progress the model draws.
+ * trampled or fed bone meal starts a new line. It looks at each furnace, smoker, blast furnace, brewing stand, Fabricator and
+ * Smelter eight times an item. With a model whose forecasts match what a kind of block did, it runs those blocks ahead: crops grow
+ * to the ages the model draws, and machines work through the progress the model draws. Forecaster III also keeps power, and
+ * spends it on bursts: everything its model is trusted with at ×16 runs up to ×256 for thirty seconds, as many cooled
+ * Accelerators touching it allow.
  */
-public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
+public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvider {
     public static final int LOG = 0, MODEL = 1, SLOTS = 2;
     public static final int RADIUS = 4, SIDE = 2 * RADIUS + 1;
     /** Its first look at crops comes a second after it loads, then one every {@link Growth#OBSERVE} ticks. */
@@ -75,11 +86,22 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     private static final int BREW = 400;
     /** A Fabricator making nothing is looked at as if it made something of middling size. */
     private static final int FABRICATING = 100;
+    /** The paces of Forecaster III's bursts; a burst lasts thirty seconds. */
+    public static final int[] PACES = {32, 64, 128, 256};
+    public static final int BURST = 30 * 20;
+    /** The most machines a burst runs at once, so that a burst costs a tick no more than 4,080 machine ticks. */
+    public static final int BURST_MACHINES = 16;
+    /** Crops a burst takes for the price of one machine: a crop's tick is only a chance of a random tick. */
+    public static final int CROPS_A_MACHINE = 8;
+    /** Power it keeps, and takes in a tick. A full burst at ×256 on 16 machines costs 2,448,000 FE. */
+    public static final int POWER = 4_000_000, POWER_IN = 8_000;
     /** Container data per kind of block: how many it watches, progress seen, the model's fit, and its phase. */
     public static final int COUNT = 0, GROWN = 1, RATIO = 2, AHEAD = 3, PHASE = 4, PER_KIND = 5;
     /** What its screen shows, as container data: four map cells or sixteen flashes to a value. */
     public static final int STATE = 0, PROBLEM = 1, KINDS = 2, SEEN = KINDS + PER_KIND * 2, EXPECTS = SEEN + Growth.RIPE + Growth.EIGHTHS,
-            MAP = EXPECTS + Growth.RIPE + Growth.EIGHTHS, FLASH = MAP + (SIDE * SIDE + 3) / 4, DATA = FLASH + (SIDE * SIDE + 15) / 16;
+            MAP = EXPECTS + Growth.RIPE + Growth.EIGHTHS, FLASH = MAP + (SIDE * SIDE + 3) / 4, THIRD = FLASH + (SIDE * SIDE + 15) / 16;
+    /** Forecaster III's: its power in thousandths, cooled Accelerators' worth of compute, the pace of its burst or 0, seconds left, and the fastest burst its model allows. */
+    public static final int POWER_SHOWN = THIRD, COMPUTE = THIRD + 1, PACE = THIRD + 2, LEFT = THIRD + 3, FASTEST = THIRD + 4, DATA = THIRD + 5;
     /** Map cells: nothing, a crop's age plus one, an idle machine, a working one. */
     public static final int IDLE_MACHINE = Growth.RIPE + 2, WORKING_MACHINE = IDLE_MACHINE + 1;
     /** Why there is no model to run, in the order {@link #PROBLEM} counts them. */
@@ -98,20 +120,22 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     /** One crop's line so far. */
     private static final class Watch {
         final StringBuilder line = new StringBuilder();
+        final int ripe;
         int age;
         int ripeLooks;
         /** Its line holds looks a model drew or an Hourglass hurried, so it is never written down. */
         boolean drawn;
         boolean closed;
 
-        Watch(int age) {
+        Watch(int age, int ripe) {
+            this.ripe = ripe;
             look(age);
         }
 
         void look(int now) {
-            age = now;
-            line.append((char) ('0' + now));
-            if (now >= Growth.RIPE) {
+            age = Math.min(now, ripe);
+            line.append((char) ('0' + age));
+            if (age >= ripe) {
                 ripeLooks++;
             }
         }
@@ -186,6 +210,8 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     private final Map<Long, Due> due = new LinkedHashMap<>();
     @Nullable
     private ModelLink link;
+    /** Forecaster III's burst: how fast, ticks left, and the compute it has, found again every second. */
+    private int burstPace, burstLeft, compute;
     private final BitSet flashed = new BitSet(SIDE * SIDE);
     private final int[] map = new int[SIDE * SIDE];
     private final Random rng = new Random();
@@ -193,6 +219,15 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int i) {
+            if (i >= THIRD) {
+                return switch (i) {
+                    case POWER_SHOWN -> (int) ((long) energy().getAmountAsInt() * 1000 / POWER);
+                    case COMPUTE -> compute;
+                    case PACE -> burstLeft > 0 ? burstPace : 0;
+                    case LEFT -> burstLeft / 20;
+                    default -> Math.max(burstsUpTo(Kind.MACHINES), burstsUpTo(Kind.CROPS));
+                };
+            }
             if (i >= FLASH) {
                 int bits = 0;
                 for (int b = 0; b < 16; b++) {
@@ -248,7 +283,17 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     };
 
     public ForecasterBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.FORECASTER.get(), pos, state);
+        super(ModBlockEntities.FORECASTER.get(), pos, state, POWER, POWER_IN, 0);
+    }
+
+    @Override
+    public Role role() {
+        return Role.MACHINE;
+    }
+
+    /** Whether this is Forecaster III, which keeps power and runs bursts. */
+    public boolean third() {
+        return getBlockState().is(ModBlocks.FORECASTER_III.get());
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, ForecasterBlockEntity be) {
@@ -288,26 +333,31 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        if (level != null && !level.isClientSide()) {
-            LOADED.add(this);
-        }
-    }
-
-    @Override
     public void setRemoved() {
         super.setRemoved();
         LOADED.remove(this);
+        powerChanged();
     }
 
     @Override
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
         LOADED.remove(this);
+        powerChanged();
     }
 
-    private void tick(ServerLevel level) {
+    private void powerChanged() {
+        if (level instanceof ServerLevel server) {
+            PowerNetwork.changed(server);
+        }
+    }
+
+    @Override
+    protected void tick(ServerLevel level) {
+        if (third()) {
+            super.tick(level);
+            burst(level);
+        }
         ticks++;
         if (busy && ticks - askedAt > Models.PATIENCE) {
             busy = false;
@@ -415,7 +465,6 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
                 for (int dx = -RADIUS; dx <= RADIUS; dx++) {
                     BlockPos p = worldPosition.offset(dx, dy, dz);
                     BlockState s = level.getBlockState(p);
-                    // only plants that grow the way practice does, through seven ages
                     int age = age(s);
                     if (age < 0) {
                         continue;
@@ -427,7 +476,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
                         if (w != null) {
                             close(w);
                         }
-                        watches.put(key, new Watch(age));
+                        watches.put(key, new Watch(age, ripe(s)));
                     } else if (!w.closed) {
                         w.look(age);
                         if (w.ripeLooks >= Growth.RIPE_FOR) {
@@ -543,9 +592,84 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         });
     }
 
-    /** The fastest it runs blocks ahead: Forecaster II four times as fast as the Forecaster. */
+    /** The fastest it runs blocks ahead: Forecaster II and III four times as fast as the Forecaster. */
     public int most() {
-        return getBlockState().is(ModBlocks.FORECASTER_II.get()) ? Forecast.MOST_II : Forecast.MOST;
+        return getBlockState().is(ModBlocks.FORECASTER.get()) ? Forecast.MOST : Forecast.MOST_II;
+    }
+
+    /** Cooled Accelerators a burst at {@code pace} asks of Forecaster III: 4 for ×32, up to 32 for ×256. */
+    public static int compute(int pace) {
+        return pace / 8;
+    }
+
+    /** The fastest burst its model is trusted with on a kind: sixteen times the pace it runs that kind ahead at. */
+    private int burstsUpTo(Kind kind) {
+        return trusts(kind) && check != null ? check.of(kind).ahead(Forecast.MOST_II) * 16 : 0;
+    }
+
+    /** What a burst at {@code pace} runs: every machine, up to {@link #BURST_MACHINES}, and crop of a kind its model is trusted with that fast. */
+    private List<BlockPos> bursting(int pace) {
+        List<BlockPos> out = new ArrayList<>();
+        if (burstsUpTo(Kind.MACHINES) >= pace) {
+            machines.keySet().stream().limit(BURST_MACHINES).forEach(k -> out.add(BlockPos.of(k)));
+        }
+        if (burstsUpTo(Kind.CROPS) >= pace) {
+            watches.forEach((k, w) -> {
+                if (w.age < w.ripe) {
+                    out.add(BlockPos.of(k));
+                }
+            });
+        }
+        return out;
+    }
+
+    /** Starts a burst at {@code pace}, if it has the compute and at least a tick of it paid for. */
+    public void startBurst(int pace) {
+        if (third() && level instanceof ServerLevel server && compute >= compute(pace) && !bursting(pace).isEmpty()) {
+            burstPace = pace;
+            burstLeft = BURST;
+            burst(server);
+            if (burstLeft > 0) {
+                for (ServerPlayer player : server.players()) {
+                    if (pace == PACES[PACES.length - 1] && player.distanceToSqr(worldPosition.getCenter()) < 32 * 32) {
+                        Awards.grant(player, "forecast/burst");
+                    }
+                }
+            }
+        }
+    }
+
+    /** A tick of its burst: it pays for every block it runs, and stops when it cannot. */
+    private void burst(ServerLevel level) {
+        if (ticks % 20 == 0) {
+            compute = Cooling.compute(level, worldPosition, 0, GraphScanner.MAX_ACCELERATORS).threads();
+            Cooling.working(level, worldPosition, burstLeft > 0);
+        }
+        if (burstLeft <= 0) {
+            return;
+        }
+        List<BlockPos> blocks = bursting(burstPace);
+        long machineCount = blocks.stream().filter(p -> machines.containsKey(p.asLong())).count();
+        long cost = (burstPace - 1) * (machineCount + (blocks.size() - machineCount + CROPS_A_MACHINE - 1) / CROPS_A_MACHINE);
+        int stored = energy().getAmountAsInt();
+        if (blocks.isEmpty() || cost > stored) {
+            burstLeft = 0;
+            return;
+        }
+        energy().set((int) (stored - cost));
+        burstLeft--;
+        for (BlockPos p : blocks) {
+            Bursts.start(level, p, burstPace, 2);
+        }
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide()) {
+            LOADED.add(this);
+            powerChanged();
+        }
     }
 
     /** Whether its model is trusted to run blocks of this kind ahead: it passed its last check on them. */
@@ -581,20 +705,50 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         if (be instanceof FabricatorBlockEntity fabricator) {
             return fabricator.total() > 0 ? fabricator.total() : FABRICATING;
         }
+        if (be instanceof SmelterBlockEntity) {
+            return SmelterBlockEntity.TIME;
+        }
         return be instanceof BrewingStandBlockEntity ? BREW : -1;
     }
 
-    /** The age of a plant that grows through seven ages on random ticks, a crop or a stem; -1 for anything else. */
+    /** The age of a plant that grows through its ages on random ticks: a crop, a stem, berries, cocoa, wart or a sapling; -1 for anything else. */
     static int age(BlockState s) {
-        if (s.getBlock() instanceof CropBlock crop) {
-            return crop.getMaxAge() == Growth.RIPE ? crop.getAge(s) : -1;
+        Block b = s.getBlock();
+        if (b instanceof CropBlock crop) {
+            return crop.getAge(s);
         }
-        return s.getBlock() instanceof StemBlock ? s.getValue(StemBlock.AGE) : -1;
+        if (b instanceof StemBlock) {
+            return s.getValue(StemBlock.AGE);
+        }
+        if (b instanceof SweetBerryBushBlock) {
+            return s.getValue(SweetBerryBushBlock.AGE);
+        }
+        if (b instanceof CocoaBlock) {
+            return s.getValue(CocoaBlock.AGE);
+        }
+        if (b instanceof SaplingBlock) {
+            return s.getValue(SaplingBlock.STAGE);
+        }
+        return b instanceof NetherWartBlock ? s.getValue(NetherWartBlock.AGE) : -1;
     }
 
-    /** {@code s} grown to {@code age}. */
+    /** The age a plant is ripe at. */
+    private static int ripe(BlockState s) {
+        Block b = s.getBlock();
+        return b instanceof CropBlock crop ? crop.getMaxAge() : b instanceof CocoaBlock ? CocoaBlock.MAX_AGE
+                : b instanceof SweetBerryBushBlock ? SweetBerryBushBlock.MAX_AGE : b instanceof NetherWartBlock ? NetherWartBlock.MAX_AGE
+                : b instanceof SaplingBlock ? 1 : Growth.RIPE;
+    }
+
+    /** {@code s} grown to {@code age}, or as far as it goes. */
     private static BlockState aged(BlockState s, int age) {
-        return s.getBlock() instanceof CropBlock crop ? crop.getStateForAge(age) : s.setValue(StemBlock.AGE, age);
+        int to = Math.min(age, ripe(s));
+        Block b = s.getBlock();
+        return b instanceof CropBlock crop ? crop.getStateForAge(to)
+                : b instanceof SweetBerryBushBlock ? s.setValue(SweetBerryBushBlock.AGE, to)
+                : b instanceof CocoaBlock ? s.setValue(CocoaBlock.AGE, to)
+                : b instanceof NetherWartBlock ? s.setValue(NetherWartBlock.AGE, to)
+                : b instanceof SaplingBlock ? s.setValue(SaplingBlock.STAGE, to) : s.setValue(StemBlock.AGE, to);
     }
 
     /** How many ticks a machine is into the item it is making. */
@@ -605,6 +759,9 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         if (be instanceof BrewingStandBlockEntity stand) {
             int left = stand.dataAccess.get(BrewingStandBlockEntity.DATA_BREW_TIME);
             return left > 0 ? BREW - left : 0;
+        }
+        if (be instanceof SmelterBlockEntity smelter) {
+            return smelter.progress();
         }
         return be instanceof FabricatorBlockEntity fabricator ? fabricator.progress() : 0;
     }
@@ -627,7 +784,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
 
     /** A line is kept if it holds only what the crop did by itself, and saw it grow. */
     private static boolean kept(Watch w) {
-        return !w.drawn && w.line.length() >= 2 && w.line.charAt(0) != '0' + Growth.RIPE;
+        return !w.drawn && w.line.length() >= 2 && w.line.charAt(0) != '0' + w.ripe;
     }
 
     /** A machine's line is kept if it ran at its own pace and worked at all. */
@@ -705,7 +862,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
         List<Long> keys = new ArrayList<>();
         List<String> lines = new ArrayList<>();
         watches.forEach((key, w) -> {
-            if (!w.closed && w.age < Growth.RIPE) {
+            if (!w.closed && w.age < w.ripe) {
                 keys.add(key);
                 lines.add(w.line.toString());
             }
