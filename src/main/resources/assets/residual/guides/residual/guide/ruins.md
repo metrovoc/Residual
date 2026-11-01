@@ -36,6 +36,13 @@ cooling water. In grassland, forest, taiga, snow and hills, at most one in each 
 Stone pillars by stretches of the old road, a torch on top and little stones left at the foot; one in four stands
 under a little roof with notes left on it. The commonest ruin: at most one in each region 24 chunks across.
 
+## Three Wells
+
+A market town's square where two roads cross like an X: cobblestone round three wells, a lamp at every corner, the
+bell at the crossing, the notice board with the market rules, stalls under wool awnings, the bakery, the school house
+by the east well with its painted door, and a stretch of the town wall. On plains, meadows and savannas, the rarest of
+the towns' ruins: at most one in each region 80 chunks across.
+
 ## Inns
 
 The inns of the Long Road, a day apart: stone below and an oak frame above, the upper floor jutting over the road.

@@ -162,6 +162,7 @@
   "residual.ruin.sealed_stacks": "封存的书库",
   "residual.ruin.inn": "客栈",
   "residual.ruin.watermill": "水磨坊",
+  "residual.ruin.three_wells": "三口井",
   "residual.drive.empty": "空的。使用它来归档你身上的残片。",
   "residual.drive.nothing": "没有可归档的残片",
   "residual.drive.filed": "归档了 %s 块残片，其中 %s 块是新的",

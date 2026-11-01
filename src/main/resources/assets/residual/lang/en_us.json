@@ -162,6 +162,7 @@
   "residual.ruin.sealed_stacks": "Sealed Stacks",
   "residual.ruin.inn": "Inn",
   "residual.ruin.watermill": "Watermill",
+  "residual.ruin.three_wells": "Three Wells",
   "residual.drive.empty": "Empty. Use it to file the shards you carry.",
   "residual.drive.nothing": "No shards to file",
   "residual.drive.filed": "Filed %s shards, %s of them new",

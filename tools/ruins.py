@@ -1408,6 +1408,125 @@ def watermill():
     t.set(10, bank + 3, 5, "cobweb")
     return t
 
+def town_well(t, cx, cz):
+    """One of the wells of Three Wells: a ring of cobblestone round the water, a little roof on two posts, the bucket's
+    chain."""
+    for x in range(cx - 1, cx + 2):
+        for z in range(cz - 1, cz + 2):
+            if (x, z) == (cx, cz):
+                t.set(x, 0, z, "water", {"level": "0"})
+            else:
+                t.set(x, 0, z, "cobblestone")
+                t.set(x, 1, z, "cobblestone_wall")
+    for x, z in ((cx - 1, cz - 1), (cx + 1, cz + 1)):
+        t.set(x, 2, z, "spruce_fence")
+        t.set(x, 3, z, "spruce_fence")
+    for x in range(cx - 1, cx + 2):
+        for z in range(cz - 1, cz + 2):
+            t.slab(x, 4, z, "spruce_slab")
+    t.set(cx, 3, cz, "chain", {"axis": "y", "waterlogged": "false"})
+
+
+def three_wells():
+    """The square at Three Wells, where two roads cross like an X: cobblestone round the three wells, a lamp at every
+    corner and the bell at the crossing; the notice board with the market rules; stalls under wool awnings; the bakery;
+    the school house by the east well, of Copperhold stone and Saltreach glass, its door painted by the children; and a
+    stretch of the town wall, cobblestone, cobblestone, deep stone, its top row stuck out against spiders."""
+    import random
+    rng = random.Random(70413227)
+    t = Template(35, 12, 35)
+    # the roads crossing like an X, the square paved where they meet
+    for k in range(35):
+        for w in (-1, 0, 1):
+            for x, z in ((k, k + w), (k, 34 - k + w)):
+                if 0 <= z < 35 and rng.random() < 0.85:
+                    t.set(x, 0, z, rng.choice(["dirt_path", "dirt_path", "coarse_dirt", "gravel"]))
+    for x in range(9, 26):
+        for z in range(9, 26):
+            r = rng.random()
+            t.set(x, 0, z, "cobblestone" if r < 0.7 else "mossy_cobblestone" if r < 0.85 else "andesite")
+    for (cx, cz) in ((17, 11), (23, 17), (17, 23)):
+        town_well(t, cx, cz)
+    # the bell at the crossing, on its frame; a lamp at every corner
+    t.fill(16, 1, 17, 16, 4, 17, "spruce_log")
+    t.fill(18, 1, 17, 18, 4, 17, "spruce_log")
+    for x in (16, 17, 18):
+        t.log(x, 5, 17, "spruce_log", "x")
+    t.set(17, 4, 17, "bell", {"attachment": "ceiling", "facing": "north", "powered": "false"})
+    for x, z in ((9, 9), (25, 9), (9, 25), (25, 25)):
+        t.set(x, 1, z, "cobblestone_wall")
+        t.set(x, 2, z, "spruce_fence")
+        t.set(x, 3, z, "lantern", {"hanging": "false", "waterlogged": "false"})
+    # the notice board on the west side of the square
+    t.fill(10, 1, 15, 10, 1, 19, "spruce_log")
+    t.fill(10, 2, 15, 10, 3, 19, "spruce_planks")
+    for z in (15, 19):
+        t.set(10, 4, z, "spruce_log")
+    for z in range(16, 19):
+        t.stairs(10, 4, z, "spruce_stairs", "east")
+    t.sign(11, 3, 16, "east", ["Market day: once", "a week, dawn", "until the noon", "bell."])
+    t.sign(11, 3, 18, "east", ["Lost children", "wait at the", "north well."])
+    t.sign(11, 2, 17, "east", ["Do not sit on", "the south well."])
+    # stalls under wool awnings round the wells
+    for sx, sz, wool in ((13, 12, "red_wool"), (20, 13, "yellow_wool"), (13, 21, "blue_wool"), (21, 21, "lime_wool")):
+        for x, z in ((sx, sz), (sx + 2, sz)):
+            t.set(x, 1, z, "spruce_fence")
+            t.set(x, 2, z, "spruce_fence")
+        for x in range(sx, sx + 3):
+            t.set(x, 3, sz, wool)
+            t.set(x, 3, sz + 1, wool)
+        t.barrel(sx + 1, 1, sz, "up", "residual:chests/three_wells_stall")
+    # the bakery to the north-west: a stone and timber house, its oven, the window sill for the pies
+    bx0, bx1, bz0, bz1 = 2, 9, 2, 8
+    t.fill(bx0, 0, bz0, bx1, 0, bz1, "cobblestone")
+    t.fill(bx0 + 1, 1, bz0 + 1, bx1 - 1, 3, bz1 - 1, "air")
+    t.walls(bx0, 1, bz0, bx1, 1, bz1, "cobblestone")
+    t.walls(bx0, 2, bz0, bx1, 3, bz1, "oak_planks")
+    for x, z in ((bx0, bz0), (bx1, bz0), (bx0, bz1), (bx1, bz1)):
+        t.fill(x, 1, z, x, 3, z, "stripped_oak_log")
+    t.fill(bx0 + 1, 4, bz0 + 1, bx1 - 1, 4, bz1 - 1, "oak_planks")
+    gable(t, 4, bx0 - 1, bx1 + 1, bz0 - 1, bz1 + 1, "spruce_stairs", "x", end="oak_planks")
+    t.door(6, 1, bz1, "oak_door", "south")
+    t.set(4, 2, bz1, "glass_pane")
+    t.slab(4, 1, bz1 + 1, "oak_slab", "top")
+    t.set(4, 2, bz1 + 1, "cake", {"bites": "1"})
+    t.set(3, 1, bz0 + 1, "smoker", {"facing": "south", "lit": "false"})
+    t.fill(3, 2, bz0 + 1, 3, 7, bz0 + 1, "bricks")
+    t.barrel(5, 1, bz0 + 1, "up", "residual:chests/three_wells_bakery")
+    # the school house by the east well: stone of Copperhold, glass of Saltreach, a bright painted door, its bell
+    sx0, sx1, sz0, sz1 = 26, 33, 12, 22
+    t.fill(sx0, 0, sz0, sx1, 0, sz1, "stone_bricks")
+    t.fill(sx0 + 1, 0, sz0 + 1, sx1 - 1, 0, sz1 - 1, "spruce_planks")
+    t.fill(sx0 + 1, 1, sz0 + 1, sx1 - 1, 4, sz1 - 1, "air")
+    t.walls(sx0, 1, sz0, sx1, 4, sz1, "stone_bricks")
+    for z in range(sz0 + 2, sz1 - 1, 2):
+        t.fill(sx1, 2, z, sx1, 3, z, "glass_pane")
+        if z != 17:
+            t.fill(sx0, 2, z, sx0, 3, z, "glass_pane")
+    t.fill(sx0, 5, sz0, sx1, 5, sz1, "stone_brick_slab")
+    gable(t, 5, sx0 - 1, sx1 + 1, sz0 - 1, sz1 + 1, "stone_brick_stairs", "z", end="stone_bricks")
+    t.door(sx0, 1, 17, "warped_door", "west")
+    t.set(sx0 + 3, 8, 17, "bell", {"attachment": "floor", "facing": "west", "powered": "false"})
+    for z in range(sz0 + 2, sz1 - 1, 2):
+        for x in (sx0 + 2, sx0 + 4):
+            t.stairs(x, 1, z, "spruce_stairs", "west")
+    t.set(sx1 - 1, 1, 17, "lectern", {"facing": "west", "has_book": "false", "powered": "false"})
+    t.sign(sx1 - 1, 3, 15, "west", ["Spelling, the", "first class:", "well, wheel,", "wheat, weave"])
+    t.chest(sx0 + 1, 1, sz1 - 1, "east", "residual:chests/three_wells_school")
+    # the town wall: cobblestone, cobblestone, deep stone, its top row stuck out one block, a torch every eight
+    for x in range(0, 35):
+        for y, block in ((1, "cobblestone"), (2, "cobblestone"), (3, "cobbled_deepslate")):
+            t.set(x, y, 33, block)
+        t.slab(x, 4, 33, "cobblestone_slab")
+        t.slab(x, 3, 34, "cobblestone_slab", "top")
+        if x % 8 == 4:
+            t.set(x, 5, 33, "torch")
+    for x in range(15, 20):
+        for y in (1, 2, 3, 4):
+            t.set(x, y, 33, "air")
+    t.set(15, 1, 33, "oak_fence_gate", {"facing": "south", "in_wall": "false", "open": "true", "powered": "false"})
+    return t
+
 def weathered(*rules, integrity=0.82):
     """A ruin's processors: each (block, its weathered form, the share that weathered) as a rule, then the decay that
     takes out some of the blocks tagged ruin_rot."""
@@ -1436,6 +1555,7 @@ ROADS = ["waymark", "Long Road", "north road", "inn"]
 TUTORS = ["tutor", "drill"]
 INNS = ["Halfway Inn", "Brown Hen", "innkeeper", "the inn"]
 MILL_POND = ["Ambrook", "mill pond", "Jory", "mill wheel"]
+WELLS = ["Three Wells", "north well", "market day", "notice board"]
 FALLEN = ["mast", "relay line"]
 SEALED = ["sealed", "the stacks", "sealing"]
 
@@ -1481,6 +1601,8 @@ RUINS = {
                       processors=weathered(*STONE_AGE, integrity=0.94),
                       biomes=[f"minecraft:{b}" for b in ("river", "forest", "flower_forest", "birch_forest", "plains",
                                                           "meadow", "cherry_grove")]),
+    "three_wells": Ruin(three_wells, 80, 24, 70413227, words=WELLS, processors=weathered(*STONE_AGE, integrity=0.94),
+                        biomes=[f"minecraft:{b}" for b in ("plains", "sunflower_plains", "meadow", "savanna")]),
     "inn": Ruin(halfway_inn, 64, 20, 30091277, words=INNS, processors=weathered(*STONE_AGE, integrity=0.92)),
     "relay_tower": Ruin(relay_tower, 48, 16, 30817231, processors=weathered(*STONE_AGE, integrity=0.9), words=RELAYS),
     "windmill": Ruin(windmill_farm, 56, 18, 48215537, processors=weathered(*STONE_AGE, integrity=0.9), words=MILLS,
@@ -1617,6 +1739,15 @@ LOOT = {
     "chests/watermill_jory": [pool((2, 4), [
         item("archive_shard", 10, (1, 3), about=MILL_POND), item("minecraft:paper", 3, (1, 3)),
         item("minecraft:emerald", 3, (1, 4)), item("minecraft:apple", 4, (1, 3)), item("minecraft:shears", 1)])],
+    "chests/three_wells_stall": [pool((1, 3), [
+        item("minecraft:bread", 4, (1, 3)), item("minecraft:apple", 4, (1, 4)), item("minecraft:honey_bottle", 2),
+        item("minecraft:white_wool", 3, (1, 4)), item("minecraft:emerald", 3, (1, 3)), item("minecraft:salmon", 2, (1, 2))])],
+    "chests/three_wells_bakery": [pool((2, 3), [
+        item("minecraft:bread", 8, (2, 6)), item("minecraft:pumpkin_pie", 4, (1, 3)), item("minecraft:cookie", 3, (2, 6)),
+        item("minecraft:wheat", 3, (2, 5)), item("minecraft:egg", 3, (1, 4)), item("archive_shard", 2, about=WELLS)])],
+    "chests/three_wells_school": [pool((2, 4), [
+        item("archive_shard", 10, (1, 3), about=WELLS + ["school", "Bel"]), item("minecraft:paper", 4, (2, 5)),
+        item("minecraft:book", 3, (1, 2)), item("minecraft:feather", 2, (1, 3)), item("minecraft:ink_sac", 2)])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
         item("archive_shard", 9), mask("matmul", 1), item("weight_crystal", 2)]}],
 }

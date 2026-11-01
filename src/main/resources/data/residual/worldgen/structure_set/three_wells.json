@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "residual:three_wells",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 80,
+    "separation": 24,
+    "salt": 70413227
+  }
+}
