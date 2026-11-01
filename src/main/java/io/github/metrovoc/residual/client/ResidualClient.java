@@ -51,13 +51,16 @@ public final class ResidualClient {
         NeoForge.EVENT_BUS.addListener(GhostView::submit);
         NeoForge.EVENT_BUS.addListener(SurveyView::extract);
         NeoForge.EVENT_BUS.addListener(SurveyView::submit);
+        NeoForge.EVENT_BUS.addListener(Clips::tick);
         // the field notes
         Guide.builder(Residual.GUIDE)
                 .itemSettings(new GuideItemSettings(Optional.of(Component.translatable("residual.guide_name")),
                         List.of(Component.translatable("residual.guide_tooltip").withStyle(ChatFormatting.DARK_GRAY)),
                         Optional.of(Residual.id("item/guide"))))
                 .extension(TagCompiler.EXTENSION_POINT, new Milestones.Tag())
+                .extension(TagCompiler.EXTENSION_POINT, new Clips.Tag())
                 .extension(ExportPostProcessor.EXTENSION_POINT, new Milestones.Web())
+                .extension(ExportPostProcessor.EXTENSION_POINT, new Clips.Web())
                 .build();
     }
 

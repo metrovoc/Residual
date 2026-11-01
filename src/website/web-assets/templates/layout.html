@@ -21,6 +21,7 @@
         }
         .notice strong { color: #ffb547; }
         .notice nav { display: flex; gap: 1rem; margin-left: auto; }
+        canvas[data-clip] { display: block; max-width: 100%; margin: .5rem auto 1rem; cursor: pointer; background: #20242a; }
     </style>
 </head>
 <body data-path-to-root="{{RELATIVE_PATH_TO_ROOT}}">
@@ -64,5 +65,57 @@
 {{FOOTER}}
 </main>
 {{GUIDEME_SCRIPTS}}
+<script>
+// plays the field notes' clips: a first frame, then the 16x16 tiles each later frame changes
+async function playClip(canvas) {
+    const file = "clips/" + canvas.dataset.clip + ".clip";
+    const data = await (await fetch(document.body.dataset.pathToRoot + file)).arrayBuffer();
+    const view = new DataView(data);
+    let at = 4;
+    const u16 = () => (at += 2, view.getUint16(at - 2));
+    const image = async () => {
+        const size = view.getUint32(at);
+        const part = new Uint8Array(data, at + 4, size);
+        at += 4 + size;
+        return size ? createImageBitmap(new Blob([part])) : null;
+    };
+    const [width, height, display, ms, hold, frames, columns, tile] = Array.from({length: 8}, u16);
+    const first = await image(), atlas = await image();
+    const counts = Array.from({length: frames - 1}, u16);
+    const placed = counts.map(n => Array.from({length: n}, () => [u16(), u16(), u16()]));
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `calc(${display}px * var(--gui-scale, 2))`;
+    const context = canvas.getContext("2d");
+    context.drawImage(first, 0, 0);
+    let frame = 0, clock = 0, last = 0, paused = false, seen = true;
+    canvas.addEventListener("click", () => paused = !paused);
+    new IntersectionObserver(([entry]) => seen = entry.isIntersecting).observe(canvas);
+    const step = now => {
+        clock += seen && !paused ? Math.min(100, now - last) : 0;
+        last = now;
+        if (clock >= (frames - 1) * ms + hold) {
+            clock = frame = 0;
+            context.drawImage(first, 0, 0);
+        }
+        for (const target = Math.min(frames - 1, Math.floor(clock / ms)); frame < target; frame++) {
+            for (const [x, y, i] of placed[frame]) {
+                context.drawImage(atlas, i % columns * tile, Math.floor(i / columns) * tile, tile, tile, x * tile, y * tile, tile, tile);
+            }
+        }
+        requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+const clips = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+        if (entry.isIntersecting) {
+            clips.unobserve(entry.target);
+            playClip(entry.target);
+        }
+    }
+}, {rootMargin: "200px"});
+document.querySelectorAll("canvas[data-clip]").forEach(canvas => clips.observe(canvas));
+</script>
 </body>
 </html>
