@@ -5,17 +5,7 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
-import io.github.metrovoc.residual.block.CoreBlock;
-import io.github.metrovoc.residual.block.OperatorBlockEntity;
-import io.github.metrovoc.residual.graph.GraphSpec;
-import io.github.metrovoc.residual.item.DriveItem;
-import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.item.WayfinderItem;
-import io.github.metrovoc.residual.learn.Blueprints;
-import io.github.metrovoc.residual.registry.ModBlocks;
-import io.github.metrovoc.residual.registry.ModItems;
-import io.github.metrovoc.residual.world.CaseBuilder;
-import io.github.metrovoc.residual.world.CaseLayout;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -32,6 +22,8 @@ import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -40,6 +32,8 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -62,7 +56,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
@@ -102,7 +95,10 @@ import org.slf4j.Logger;
  * <p>One step runs per client tick:
  * <pre>
  * world [SEED]               create a fresh creative world and wait until it has loaded: flat, or with SEED a
- *                            normal world with structures
+ *                            normal world with structures; any world open before is left first, so one client can
+ *                            play many scripts in a row
+ * connect HOST               join a server and wait until its world has loaded; blueprint and drive then have to be
+ *                            their /rehearsal commands, and the steps that reach into the world directly are out
  * reopen                     save and leave the world, then open it again and wait until it has loaded, to see
  *                            what a save keeps
  * cmd COMMAND                run a command as the player
@@ -174,6 +170,8 @@ public final class Rehearsal {
     private static boolean loading;
     /** Left the world to open it again: waiting for it to be closed. */
     private static boolean reopening;
+    /** The seed of the world a script's first step asked for, while the one before it closes. */
+    private static String nextWorld;
     private static boolean quitting;
     /** Keeps the player flying: creative flight ends whenever the player touches the ground. */
     private static boolean hover;
@@ -213,6 +211,23 @@ public final class Rehearsal {
         if (quitting) {
             if (mc.level == null) {
                 mc.stop();
+            }
+            return;
+        }
+        if (nextWorld != null) {
+            if (mc.level != null) {
+                return;
+            }
+            String seed = nextWorld;
+            nextWorld = null;
+            // what the script before left set
+            hover = false;
+            mc.options.hideGui = false;
+            mc.options.setCameraType(CameraType.FIRST_PERSON);
+            try {
+                createWorld(mc, seed);
+            } catch (IOException e) {
+                LOG.error("[rehearsal] cannot create a world", e);
             }
             return;
         }
@@ -364,7 +379,19 @@ public final class Rehearsal {
         String arg = parts.length > 1 ? parts[1] : "";
         String[] args = arg.split("\\s+");
         switch (parts[0]) {
-            case "world" -> createWorld(mc, arg);
+            case "world" -> {
+                if (mc.level != null) {
+                    nextWorld = arg;
+                    mc.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE);
+                } else {
+                    createWorld(mc, arg);
+                }
+            }
+            case "connect" -> {
+                ConnectScreen.startConnecting(new TitleScreen(), mc, ServerAddress.parseString(arg), new ServerData(WORLD, arg, ServerData.Type.OTHER),
+                        false, null);
+                loading = true;
+            }
             case "reopen" -> {
                 reopening = true;
                 mc.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE);
@@ -451,14 +478,7 @@ public final class Rehearsal {
             case "drive" -> {
                 MinecraftServer server = mc.getSingleplayerServer();
                 UUID id = mc.player.getUUID();
-                server.execute(() -> {
-                    ServerPlayer player = server.getPlayerList().getPlayer(id);
-                    ItemStack drive = new ItemStack(ModItems.ARCHIVE_DRIVE.get());
-                    for (int i = 0; i < Integer.parseInt(arg); i++) {
-                        DriveItem.file(drive, ShardItem.roll(player.getRandom()));
-                    }
-                    player.getInventory().add(drive);
-                });
+                server.execute(() -> ServerSteps.drive(server.getPlayerList().getPlayer(id), Integer.parseInt(arg)));
             }
             case "frame" -> frame(mc, args);
             case "count" -> count(mc, args);
@@ -547,40 +567,9 @@ public final class Rehearsal {
     }
 
     private static void blueprint(Minecraft mc, String[] args) {
-        GraphSpec spec = switch (args[0]) {
-            case "bigram" -> Blueprints.bigram();
-            case "context" -> Blueprints.context();
-            case "recall" -> Blueprints.recall();
-            case "reverse" -> Blueprints.reverse();
-            case "induction" -> Blueprints.induction();
-            case "gpt" -> Blueprints.gpt(64, 2, 4);
-            case "gpt32" -> Blueprints.gpt(32, 2, 4);
-            default -> throw new IllegalArgumentException("no blueprint named " + args[0]);
-        };
         BlockPos core = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
-        Direction forward = Direction.byName(args[4]);
         MinecraftServer server = mc.getSingleplayerServer();
-        server.execute(() -> {
-            ServerLevel level = server.overworld();
-            level.setBlock(core, ModBlocks.CORE.get().defaultBlockState().setValue(CoreBlock.FACING, forward), Block.UPDATE_ALL);
-            CaseLayout layout = CaseLayout.of(spec);
-            CaseBuilder.build(level, core, spec, layout);
-            // a case's machines are marked as provided; these are the player's own
-            for (CaseLayout.Machine m : layout.machines) {
-                BlockPos p = core.relative(forward, m.at().x()).relative(forward.getClockWise(), m.at().l()).above(m.at().y());
-                if (level.getBlockEntity(p) instanceof OperatorBlockEntity be) {
-                    try {
-                        Field provided = OperatorBlockEntity.class.getDeclaredField("provided");
-                        provided.setAccessible(true);
-                        provided.setBoolean(be, false);
-                        be.setChanged();
-                        level.sendBlockUpdated(p, be.getBlockState(), be.getBlockState(), Block.UPDATE_CLIENTS);
-                    } catch (ReflectiveOperationException e) {
-                        throw new IllegalStateException(e);
-                    }
-                }
-            }
-        });
+        server.execute(() -> ServerSteps.blueprint(server.overworld(), args[0], core, Direction.byName(args[4])));
     }
 
     private static void frame(Minecraft mc, String[] args) {

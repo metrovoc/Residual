@@ -43,13 +43,15 @@ neoForge {
             systemProperty 'guideme.residual.guide.sources', file('src/main/resources/assets/residual/guides/residual/guide').absolutePath
             programArguments.addAll '--width', '1600', '--height', '1000'
         }
-        // ./gradlew runRehearsal -Pscript=<file> [-Pmonitor=<display name>]
+        // ./gradlew runRehearsal -Pscript=<file> [-Pmonitor=<display name>] [-Pgame=<folder>]
         rehearsal {
             client()
             sourceSet = sourceSets.rehearsal
-            gameDirectory = file('run/rehearsal')
+            // -Pgame=<folder> lets a second client play beside the first
+            gameDirectory = layout.projectDirectory.dir(providers.gradleProperty('game').orElse('run/rehearsal'))
             var projectDir = layout.projectDirectory
             systemProperties.put 'residual.rehearsal', providers.gradleProperty('script').map { projectDir.file(it).asFile.absolutePath }.orElse('')
+            systemProperty 'residual.models', file('run/models').absolutePath
             systemProperties.put 'residual.rehearsal.monitor', providers.gradleProperty('monitor').orElse('')
             // where the guide export unpacks FFmpeg, rather than ~/.javacpp
             systemProperty 'org.bytedeco.javacpp.cachedir', file('run/rehearsal/javacpp').absolutePath
@@ -65,9 +67,21 @@ neoForge {
             systemProperties.put 'residual.rehearsal.monitor', providers.gradleProperty('monitor').orElse('')
             systemProperty 'org.bytedeco.javacpp.cachedir', file('run/rehearsal/javacpp').absolutePath
         }
+        // the release's play-through joins this one: run/server holds its eula.txt, server.properties and ops.json
         server {
             server()
+            sourceSet = sourceSets.rehearsal
+            gameDirectory = file('run/server')
             programArgument '--nogui'
+            systemProperty 'residual.models', file('run/models').absolutePath
+        }
+        // ./gradlew runStress: a large base on a dedicated server, its tick times in the log; see Stress
+        stress {
+            server()
+            sourceSet = sourceSets.rehearsal
+            gameDirectory = file('run/stress')
+            programArgument '--nogui'
+            systemProperty 'residual.stress', 'true'
         }
         gameTestServer {
             type = 'gameTestServer'
@@ -165,4 +179,11 @@ tasks.register('guideWebsite', JavaExec) {
             '--output', layout.buildDirectory.dir('guideWebsite').get().asFile.absolutePath, '--clean', '--title', mod_name,
             '--web-assets', file('src/website/web-assets').absolutePath, '--logo', file('src/website/logo.png').absolutePath,
             '--site-url', 'https://metrovoc.github.io', '--base-path', '/Residual/'
+    // the field notes' clips, which the page template's script plays
+    doLast {
+        copy {
+            from file('src/main/resources/assets/residual/guides/residual/guide/clips')
+            into layout.buildDirectory.dir('guideWebsite/clips')
+        }
+    }
 }
