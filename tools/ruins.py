@@ -366,7 +366,7 @@ def windmill():
     """A windmill of Kettle Ridge: a stone tower and a body of birch boards under a dark cap, four cloth sails on the
     north side turning an axle and a shaft down to the millstone, and before its door a field of wheat and beetroot by a
     water channel. One sail has lost its cloth."""
-    t = Template(15, 24, 22)
+    t = Template(17, 26, 22)
     octagon(t, 0, 0, 3, 5, 9, "cobblestone", fill="spruce_planks")
     octagon(t, 1, 7, 3, 5, 9, "stone_bricks")
     octagon(t, 8, 8, 3, 5, 9, "polished_andesite", fill="spruce_planks")
@@ -386,10 +386,11 @@ def windmill():
     for z in range(3, 9):
         t.log(7, 16, z, "spruce_log", "z")
     # four sails turning round the hub, cloth trailing each arm; the west one bare
-    for i in range(1, 7):
+    for i in range(1, 9):
         for x, y in ((7, 16 + i), (7, 16 - i), (7 - i, 16), (7 + i, 16)):
-            t.set(x, y, 3, "spruce_fence")
-    for i in range(2, 7):
+            if 0 <= x and 0 <= y:
+                t.set(x, y, 3, "spruce_fence")
+    for i in range(2, 9):
         for dx in (1, 2):
             t.set(7 + dx, 16 + i, 3, "white_wool")
             t.set(7 - dx, 16 - i, 3, "white_wool")
@@ -448,7 +449,7 @@ def windmill_farm():
     pumpkin for a head and an old hat; three hives by the flowers; the well in the yard; the barn and the pig pen."""
     import random
     rng = random.Random(48215537)
-    t = Template(35, 24, 31)
+    t = Template(35, 26, 31)
     t.paste(windmill(), 0, 0, 0)
     # the yard and its paths
     for x in range(7, 34):
@@ -759,8 +760,8 @@ def stilt_house():
     mangrove stilts over the marsh, under a mangrove roof gone green with moss, a boardwalk to the bank with a lamp on its landing, and inside her remedies:
     the brewing stand and the cauldron on the bench, herbs in pots, the stove, the bed, her chest and lectern. It stands
     on the marsh floor, and the water round its stilts stays."""
-    t = Template(13, 13, 20)
-    deck = 4
+    t = Template(13, 14, 20)
+    deck = 5
     for x, z in ((1, 1), (6, 1), (11, 1), (1, 5), (11, 5), (1, 9), (6, 9), (11, 9)):
         for y in range(deck):
             t.log(x, y, z, "mangrove_log")
