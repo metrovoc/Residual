@@ -19,15 +19,14 @@ does what the model answers. You can see a model in its lantern of a head, turni
 
 ## Home and models
 
-Where you place an agent is its home, and its work happens around home. **Set home** makes where it stands its new
-home.
+Where you place an agent is its home, and its work happens around home. **Set home**, the house beside its screen,
+makes where it stands its new home.
 
-It has two model slots. Its **Model** takes a <ItemLink id="checkpoint" /> with a model of up to 40,000 parameters, or
-a <ItemLink id="relay_card" /> tuned to a Model Server, for a model of any size: see [Serving Models](deployment.md).
-This model writes the orders you give as programs, and makes the decisions of storing, hauling, building and
-copying.
-Its **Filter** takes a checkpoint that passes Sorting, and tells what kind each thing is. Its screen says what is
-missing.
+It has two model slots, in the panel beside its screen. Its **Model** takes a <ItemLink id="checkpoint" /> with a model
+of up to 40,000 parameters, or a <ItemLink id="relay_card" /> tuned to a Model Server, for a model of any size: see
+[Serving Models](deployment.md). This model writes the orders you give as programs, and makes the decisions of storing,
+hauling, building and copying. Its **Filter** takes a checkpoint that passes Sorting, and tells what kind each thing is.
+Its screen says what is missing.
 
 ## Programs
 
@@ -42,9 +41,9 @@ The **Program** tab holds what it does when nothing else is asked of it: steps b
 work; any other runs once, and then it rests. The buttons on the **Work** tab set ready-made programs: **Farm** is
 `repeat (farm)`, **Sort** is `repeat (sort)`, and so on, and **Rest** clears it.
 
-The **+** beside **Stop** lays out every piece of a program to click together instead of typing, each saying what it
-does when you point at it. Pieces go on the end, along with whatever plainly comes next: the `(` that opens a block, the
-mark a `place` needs. To name a thing, pick it up and click the program, or the order box.
+The **Palette** beside **Stop** lays out every piece of a program to click together instead of typing, each saying what
+it does when you point at it. Pieces go on the end, along with whatever plainly comes next: the `(` that opens a block,
+the mark a `place` needs. To name a thing, pick it up and click the program, or the order box on the **Work** tab.
 
 The steps:
 
@@ -103,7 +102,7 @@ onto it; shift-click writes onto a written card too.
 
 Start a chat message with an agent's name to give it an order: *Pip, bring me some bread*. It hears you within
 24 blocks, or anywhere a Model Server's relays reach while you are in reach too, holding a Terminal tuned to it. You
-can also type an order in its screen.
+can also type an order on the **Work** tab of its screen and **Tell** it.
 
 Its model writes the order as a program. One step, or one of the jobs, it does at once. Anything else it reads back with
 **[Do it]** and **[Cancel]** to click in chat, or on the **Work** tab of its screen, and runs only once you say yes. An

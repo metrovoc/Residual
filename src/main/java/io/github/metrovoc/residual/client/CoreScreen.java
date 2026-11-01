@@ -19,6 +19,7 @@ import io.github.metrovoc.residual.train.TrainingJob;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -36,9 +37,14 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-/** The Model Core's screen: load data, train, test and save, try the model, and inspect it. */
+/**
+ * The Model Core's screen: load data, train, test and save, try the model, and inspect it. Training's actions and
+ * settings are icon buttons in a toolbar beside the window, their values and what they do in their tooltips.
+ */
 public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private enum Tab { DATA, TRAIN, TESTS, TRY, INSPECT }
+
+    private static final int WINDOW_W = 320, TOOLBAR_X = WINDOW_W + 3;
 
     private static final List<String> TEMPERATURES = List.of("0", "0.5", "0.8", "1.0", "1.5");
     private static final int[] TEMPERATURE_VALUES = {0, 50, 80, 100, 150};
@@ -52,15 +58,15 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private Button save;
     private Button rebuild;
     private Button testAll;
-    private Cycler learningRate;
-    private Cycler batchSize;
-    private Cycler clip;
-    private Cycler speed;
+    private IconButton learningRate;
+    private IconButton batchSize;
+    private IconButton clip;
+    private IconButton speed;
     private EditBox prompt;
     private Button generate;
 
     public CoreScreen(CoreMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 320, 212);
+        super(menu, inventory, title, TOOLBAR_X + IconButton.SIZE, 212);
     }
 
     private static CoreSync sync() {
@@ -108,21 +114,29 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                 train = addRenderableWidget(Button.builder(Component.empty(), b -> {
                     CoreSync s = sync();
                     send(s != null && s.running() ? CoreAction.Kind.STOP : CoreAction.Kind.START, 0);
-                }).bounds(x + 6, y + 150, 64, 16).build());
-                addRenderableWidget(Button.builder(Component.translatable("residual.core.reset"), b -> send(CoreAction.Kind.RESET, 0))
-                        .bounds(x + 74, y + 150, 65, 16).build());
-                addRenderableWidget(Button.builder(Component.translatable("residual.core.check"), b -> send(CoreAction.Kind.CHECK, 0))
-                        .bounds(x + 143, y + 150, 65, 16).build());
+                }).bounds(x + 250, y + 160, 64, 18).build());
+                // the toolbar: what to do to the model, then how it trains
+                int tx = x + TOOLBAR_X, ty = y + 22, step = IconButton.SIZE + 4;
+                addRenderableWidget(IconButton.action(tx, ty, "reset", Component.translatable("residual.core.reset"),
+                        Component.translatable("residual.core.reset_hint"), () -> send(CoreAction.Kind.RESET, 0)));
+                addRenderableWidget(IconButton.action(tx, ty + step, "check", Component.translatable("residual.core.check"),
+                        Component.translatable("residual.core.check_hint"), () -> send(CoreAction.Kind.CHECK, 0)));
                 CoreSync s = sync();
-                speed = addRenderableWidget(new Cycler(x + 214, y + 150, 100, Component.translatable("residual.core.speed"),
+                ty += 2 * step + 6;
+                speed = addRenderableWidget(IconButton.setting(tx, ty, List.of("speed_watch", "speed_normal", "speed_max"),
+                        Component.translatable("residual.core.speed"),
                         List.of(I18n.get("residual.speed.watch"), I18n.get("residual.speed.normal"), I18n.get("residual.speed.max")),
-                        s == null ? 1 : s.speed(), i -> send(CoreAction.Kind.SPEED, i)));
-                learningRate = addRenderableWidget(new Cycler(x + 6, y + 170, 104, Component.translatable("residual.core.learning_rate"),
-                        labels(CoreBlockEntity.LEARNING_RATES), s == null ? 0 : s.learningRate(), i -> send(CoreAction.Kind.LEARNING_RATE, i)));
-                batchSize = addRenderableWidget(new Cycler(x + 114, y + 170, 104, Component.translatable("residual.core.batch"),
-                        labels(CoreBlockEntity.BATCH_SIZES), s == null ? 0 : s.batchSize(), i -> send(CoreAction.Kind.BATCH_SIZE, i)));
-                clip = addRenderableWidget(new Cycler(x + 222, y + 170, 92, Component.translatable("residual.core.clip"),
-                        clipLabels(), s == null ? 0 : s.clip(), i -> send(CoreAction.Kind.CLIP, i)));
+                        s == null ? 1 : s.speed(), Component.translatable("residual.core.speed_hint"), i -> send(CoreAction.Kind.SPEED, i)));
+                learningRate = addRenderableWidget(IconButton.setting(tx, ty + step, List.of("learning_rate"),
+                        Component.translatable("residual.core.learning_rate"), labels(CoreBlockEntity.LEARNING_RATES),
+                        s == null ? 0 : s.learningRate(), Component.translatable("residual.core.learning_rate_hint"),
+                        i -> send(CoreAction.Kind.LEARNING_RATE, i)));
+                batchSize = addRenderableWidget(IconButton.setting(tx, ty + 2 * step, List.of("batch"),
+                        Component.translatable("residual.core.batch"), labels(CoreBlockEntity.BATCH_SIZES), s == null ? 0 : s.batchSize(),
+                        Component.translatable("residual.core.batch_hint"), i -> send(CoreAction.Kind.BATCH_SIZE, i)));
+                clip = addRenderableWidget(IconButton.setting(tx, ty + 3 * step, List.of("clip"), Component.translatable("residual.core.clip"),
+                        clipLabels(), s == null ? 0 : s.clip(), Component.translatable("residual.core.clip_hint"),
+                        i -> send(CoreAction.Kind.CLIP, i)));
             }
             case TESTS -> {
                 testAll = addRenderableWidget(Button.builder(Component.translatable("residual.core.test_all"),
@@ -208,7 +222,12 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             speed.set(s.speed());
         }
         if (save != null) {
-            save.active = s != null && !busy && menu.getSlot(CoreMenu.CRYSTAL).getItem().getItem() instanceof CrystalItem;
+            ItemStack crystal = menu.getSlot(CoreMenu.CRYSTAL).getItem();
+            save.active = s != null && !busy && crystal.getItem() instanceof CrystalItem;
+            Component where = !(crystal.getItem() instanceof CrystalItem) ? Component.translatable("residual.tests.no_crystal")
+                    : CrystalItem.model(crystal) instanceof ModelInfo m ? Component.translatable("residual.tests.over", m.tag())
+                    : Component.translatable("residual.tests.into_empty");
+            save.setTooltip(Tooltip.create(where));
         }
         if (testAll != null) {
             testAll.active = s != null && !busy;
@@ -282,7 +301,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
-        Ui.window(g, leftPos, topPos, imageWidth, imageHeight);
+        Ui.window(g, leftPos, topPos, WINDOW_W, imageHeight);
         int tx = leftPos + 8;
         for (Tab t : Tab.values()) {
             Component title = tabTitle(t);
@@ -299,14 +318,23 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             for (Slot slot : menu.slots) {
                 Ui.slot(g, leftPos + slot.x, topPos + slot.y);
             }
-            Slot tokens = menu.getSlot(CoreMenu.TOKENIZER);
-            if (!tokens.hasItem()) {
-                int sx = leftPos + tokens.x, sy = topPos + tokens.y;
-                g.item(new ItemStack(ModItems.TOKENIZER.get()), sx, sy);
-                g.fill(sx, sy, sx + 16, sy + 16, 0xB08B8B8B);
+            // what goes in each empty slot, faded: the first free data slot, the tokenizer, the checkpoint
+            for (int i = 0; i < CoreMenu.DATA_SLOTS; i++) {
+                Slot data = menu.getSlot(i);
+                if (!data.hasItem()) {
+                    Ui.ghost(g, new ItemStack(ModItems.DATASETS.get(Benchmark.FORECASTING).get()), leftPos + data.x, topPos + data.y);
+                    break;
+                }
+            }
+            for (int i : new int[] {CoreMenu.TOKENIZER, CoreMenu.CRYSTAL}) {
+                Slot slot = menu.getSlot(i);
+                if (!slot.hasItem()) {
+                    Ui.ghost(g, new ItemStack(i == CoreMenu.TOKENIZER ? ModItems.TOKENIZER.get() : ModItems.CHECKPOINT.get()),
+                            leftPos + slot.x, topPos + slot.y);
+                }
             }
         }
-        Ui.screen(g, leftPos + 6, topPos + 194, imageWidth - 12, 12);
+        Ui.screen(g, leftPos + 6, topPos + 194, WINDOW_W - 12, 12);
     }
 
     @Override
@@ -335,10 +363,10 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
         Object[] args = s.args().stream().map(a -> a.startsWith("residual.") ? Component.translatable(a) : a).toArray();
         String message = Component.translatable(s.message(), args).getString();
         String steps = I18n.get("residual.core.steps", Ui.count(s.steps()));
-        int max = imageWidth - 34 - font.width(steps);
+        int max = WINDOW_W - 34 - font.width(steps);
         g.text(font, Ui.fit(font, message, max), 18, y, Ui.TEXT, false);
-        g.text(font, steps, imageWidth - 10 - font.width(steps), y, Ui.DIM, false);
-        if (font.width(message) > max && Ui.inside(mx, my, 6, 194, imageWidth - 12, 12)) {
+        g.text(font, steps, WINDOW_W - 10 - font.width(steps), y, Ui.DIM, false);
+        if (font.width(message) > max && Ui.inside(mx, my, 6, 194, WINDOW_W - 12, 12)) {
             g.setTooltipForNextFrame(font.split(Component.literal(message), 240), mx + leftPos, my + topPos);
         }
     }
@@ -346,12 +374,26 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     // ---------------------------------------------------------------- data tab
 
     private void dataTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
-        g.text(font, Component.translatable("residual.core.data"), 8, 24, Ui.LABEL, false);
-        g.text(font, Component.translatable("residual.core.tokenizer"), CoreMenu.TOKENIZER_X - 6, 24, Ui.LABEL, false);
-        if (!menu.getSlot(CoreMenu.TOKENIZER).hasItem() && Ui.inside(mx, my, CoreMenu.TOKENIZER_X, CoreMenu.DATA_Y, 16, 16)) {
-            g.setTooltipForNextFrame(font.split(Component.translatable("residual.core.tokenizer_hint"), 200), mx + leftPos, my + topPos);
+        // an empty slot says what goes in it when pointed at
+        String hint = null;
+        for (int i = 0; i < CoreMenu.DATA_SLOTS; i++) {
+            Slot data = menu.getSlot(i);
+            if (!data.hasItem() && Ui.inside(mx, my, data.x, data.y, 16, 16)) {
+                hint = "residual.core.data";
+            }
         }
-        g.text(font, Component.translatable("residual.core.crystal"), 176, 24, Ui.LABEL, false);
+        if (!menu.getSlot(CoreMenu.TOKENIZER).hasItem() && Ui.inside(mx, my, CoreMenu.TOKENIZER_X, CoreMenu.DATA_Y, 16, 16)) {
+            hint = "residual.core.tokenizer";
+        }
+        if (!menu.getSlot(CoreMenu.CRYSTAL).hasItem() && Ui.inside(mx, my, CoreMenu.CRYSTAL_X, CoreMenu.DATA_Y, 16, 16)) {
+            hint = "residual.core.crystal";
+        }
+        if (hint != null && menu.getCarried().isEmpty()) {
+            List<FormattedCharSequence> lines = new ArrayList<>();
+            lines.add(Component.translatable(hint).getVisualOrderText());
+            lines.addAll(font.split(Component.translatable(hint + "_hint").withStyle(ChatFormatting.GRAY), 200));
+            g.setTooltipForNextFrame(lines, mx + leftPos, my + topPos);
+        }
         int y = 60;
         boolean any = false;
         if (s != null) {
@@ -381,70 +423,52 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                 y += 10;
             }
         }
-        ItemStack crystal = menu.getSlot(CoreMenu.CRYSTAL).getItem();
-        ModelInfo model = CrystalItem.model(crystal);
-        int cy = 60;
-        if (crystal.isEmpty()) {
-            for (FormattedCharSequence line : font.split(Component.translatable("residual.core.crystal_hint"), 136)) {
-                g.text(font, line, 176, cy, Ui.LABEL_DIM, false);
-                cy += 10;
-            }
-        } else if (model == null) {
-            g.text(font, Component.translatable("residual.crystal.empty"), 176, cy, Ui.LABEL_DIM, false);
-        } else {
-            int passed = 0;
-            for (Benchmark a : Benchmark.values()) {
-                passed += model.passes(a) ? 1 : 0;
-            }
-            g.text(font, Component.translatable("residual.core.model_tag", model.tag()), 176, cy, Ui.LABEL, false);
-            g.text(font, Component.translatable("residual.core.model_parameters", Ui.count(model.parameters())), 176, cy + 10,
-                    Ui.LABEL_DIM, false);
-            g.text(font, Component.translatable("residual.core.model_steps", Ui.count(model.steps())), 176, cy + 20,
-                    Ui.LABEL_DIM, false);
-            g.text(font, Component.translatable("residual.core.model_passes", passed, Benchmark.values().length), 176, cy + 30,
-                    passed > 0 ? 0xFF2E7D32 : Ui.LABEL_DIM, false);
-        }
     }
 
     // ---------------------------------------------------------------- train tab
 
     private void trainTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
         Wrecks.Wreck w = wreck();
-        chart(g, s, w, 6, 22, 202, 112, mx, my);
-
-        Ui.screen(g, 214, 22, 100, 112);
-        int y = 26;
-        y = metric(g, y, "residual.metric.train_loss", s == null ? "–" : Ui.num(s.trainLoss()), Ui.TEAL);
-        y = metric(g, y, "residual.metric.test_loss", s == null ? "–" : Ui.num(s.valLoss()), Ui.AMBER);
-        y = metric(g, y, "residual.metric.accuracy", s == null || Float.isNaN(s.accuracy()) ? "–"
+        // one display: the curves, and under them the numbers they end at, in their colours
+        Ui.screen(g, 6, 22, 308, 132);
+        chart(g, s, w, 6, 22, 308, 118, mx, my);
+        g.fill(7, 140, 313, 141, Ui.GRID);
+        int x = 12, y = 144;
+        x = legend(g, x, y, "residual.metric.train_loss", s == null ? "–" : Ui.num(s.trainLoss()), Ui.TEAL);
+        x = legend(g, x, y, "residual.metric.test_loss", s == null ? "–" : Ui.num(s.valLoss()), Ui.AMBER);
+        x = legend(g, x, y, "residual.metric.accuracy", s == null || Float.isNaN(s.accuracy()) ? "–"
                 : String.format(Locale.ROOT, "%.1f%%", 100 * s.accuracy()), Ui.GREEN);
-        y = metric(g, y, "residual.metric.grad_norm", s == null ? "–" : Ui.num(s.gradNorm()), Ui.TEXT);
-        y = metric(g, y, "residual.metric.parameters", s == null ? "–" : Ui.num(s.parameters()), Ui.TEXT);
-        String threads = s == null ? "–" : s.throttled() > 0 ? I18n.get("residual.metric.threads_hot", s.threads(), s.throttled())
-                : Integer.toString(s.threads());
-        int ty = y;
-        y = metric(g, y, "residual.metric.threads", threads, s != null && s.throttled() > 0 ? Ui.AMBER : Ui.TEXT);
-        if (s != null && s.throttled() > 0 && Ui.inside(mx, my, 214, ty - 1, 100, 12)) {
-            g.setTooltipForNextFrame(font.split(Component.translatable("residual.metric.hot_help"), 220), mx + leftPos, my + topPos);
-        }
-        if (w != null && s != null) {
-            y = metric(g, y, "residual.metric.budget", Ui.count(Math.max(0, s.budgetLeft())), Ui.AMBER);
-        }
         if (s != null && !s.causal()) {
-            g.text(font, Component.translatable("residual.metric.leak"), 218, y + 2, Ui.RED, false);
-            if (Ui.inside(mx, my, 214, y, 100, 12)) {
-                g.setTooltipForNextFrame(font.split(Component.translatable("residual.metric.leak_help"), 220), mx + leftPos, my + topPos);
+            Component leak = Component.translatable("residual.metric.leak");
+            g.text(font, leak, 308 - font.width(leak), y, Ui.RED, false);
+        }
+        if (s != null && Ui.inside(mx, my, 6, 141, 308, 13)) {
+            // how training runs, beside the numbers it gives
+            List<FormattedCharSequence> lines = new ArrayList<>();
+            lines.add(line("residual.metric.grad_norm", Ui.num(s.gradNorm())));
+            lines.add(line("residual.metric.parameters", Ui.count(s.parameters())));
+            lines.add(line("residual.metric.threads", s.throttled() > 0
+                    ? I18n.get("residual.metric.threads_hot", s.threads(), s.throttled()) : Integer.toString(s.threads())));
+            if (s.throttled() > 0) {
+                lines.addAll(font.split(Component.translatable("residual.metric.hot_help").withStyle(ChatFormatting.GRAY), 220));
             }
+            if (w != null) {
+                lines.add(line("residual.metric.budget", Ui.count(Math.max(0, s.budgetLeft()))));
+            }
+            if (!s.causal()) {
+                lines.addAll(font.split(Component.translatable("residual.metric.leak_help").withColor(Ui.RED), 220));
+            }
+            g.setTooltipForNextFrame(lines, mx + leftPos, my + topPos);
         }
 
         if (w != null) {
             Component goal = Component.translatable("residual.core.wreck_goal", Component.translatable("residual.benchmark." + w.benchmark().id),
                     goal(w.benchmark(), w.target()));
-            g.text(font, goal, 6, 137, Ui.LABEL, false);
+            g.text(font, goal, 6, 165, Ui.LABEL, false);
             CoreSync.Score score = s == null ? CoreSync.Score.NONE : s.tests().get(w.benchmark().ordinal());
             float fraction = progress(w.benchmark(), w.target(), score);
             int bx = 12 + font.width(goal);
-            Ui.bar(g, bx, 138, 208 - bx, 6, fraction, fraction >= 1 ? Ui.GREEN : 0xFF2A9D92);
+            Ui.bar(g, bx, 166, 240 - bx, 6, fraction, fraction >= 1 ? Ui.GREEN : 0xFF2A9D92);
         } else if (s != null) {
             List<String> names = new ArrayList<>();
             for (Benchmark a : Benchmark.values()) {
@@ -454,14 +478,23 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             }
             Component line = names.isEmpty() ? Component.translatable("residual.core.nothing_short")
                     : Component.translatable("residual.core.practising", String.join(", ", names));
-            g.text(font, Ui.fit(font, line.getString(), 202), 6, 137, Ui.LABEL, false);
+            g.text(font, Ui.fit(font, line.getString(), 236), 6, 165, Ui.LABEL_DIM, false);
         }
     }
 
-    private int metric(GuiGraphicsExtractor g, int y, String key, String value, int color) {
-        g.text(font, Component.translatable(key), 218, y, Ui.DIM, false);
-        g.text(font, value, 310 - font.width(value), y, color, false);
-        return y + 13;
+    /** A swatch of {@code color}, the metric's name and its value in that color; returns where the next one starts. */
+    private int legend(GuiGraphicsExtractor g, int x, int y, String key, String value, int color) {
+        g.fill(x, y + 2, x + 4, y + 6, color);
+        Component name = Component.translatable(key);
+        g.text(font, name, x + 7, y, Ui.DIM, false);
+        int vx = x + 7 + font.width(name) + 4;
+        g.text(font, value, vx, y, color, false);
+        return vx + font.width(value) + 14;
+    }
+
+    private static FormattedCharSequence line(String key, String value) {
+        return Component.translatable(key).withStyle(ChatFormatting.GRAY).append(Component.literal(" " + value).withStyle(ChatFormatting.WHITE))
+                .getVisualOrderText();
     }
 
     private static String goal(Benchmark a, double target) {
@@ -489,7 +522,6 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     /** The learning curve: training and test loss, and test accuracy on its own scale, against training steps. */
     private void chart(GuiGraphicsExtractor g, CoreSync s, @Nullable Wrecks.Wreck w, int x, int y, int w0, int h, int mx, int my) {
         int wd = w0;
-        Ui.screen(g, x, y, wd, h);
         List<TrainingJob.Point> pts = s == null ? List.of() : s.history();
         // the scale's labels get a row above and below the curves, which start high on the left and end low on the right
         int px0 = x + 2, pw = wd - 4, py0 = y + 13, ph = h - 26;
@@ -607,31 +639,30 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
     private void testsTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
         Ui.screen(g, 6, 22, 308, 146);
         for (Benchmark a : Benchmark.values()) {
-            int y = 24 + a.ordinal() * 18;
+            int top = 27 + a.ordinal() * 17, y = top + 4;
             CoreSync.Score score = s == null ? CoreSync.Score.NONE : s.tests().get(a.ordinal());
             boolean practising = s != null && s.practising().get(a.ordinal());
             boolean tested = score.step() >= 0;
             boolean pass = tested && s.causal() && passes(a, score);
-            g.text(font, Component.translatable("residual.benchmark." + a.id), 10, y, practising ? Ui.TEAL : Ui.TEXT, false);
-            g.text(font, Component.translatable("residual.benchmark." + a.id + ".job"), 10, y + 9, Ui.DIM, false);
+            g.text(font, Component.translatable("residual.benchmark." + a.id), 12, y, practising ? Ui.TEAL : Ui.TEXT, false);
             float fraction = tested ? progress(a, a.target, score) : 0;
-            Ui.bar(g, 108, y + 2, 116, 6, fraction, pass ? Ui.GREEN : 0xFF2A9D92);
-            String detail = tested ? I18n.get("residual.tests.tested", Ui.count(score.step())) : I18n.get("residual.tests.never");
-            g.text(font, detail, 108, y + 9, Ui.DIM, false);
+            Ui.bar(g, 112, y + 1, 132, 6, fraction, pass ? Ui.GREEN : 0xFF2A9D92);
             String value = !tested ? "–" : a.metric == Task.Metric.LOSS ? Ui.num(score.loss())
                     : String.format(Locale.ROOT, "%.0f%%", 100 * score.accuracy());
-            g.text(font, value, 268 - font.width(value), y, pass ? Ui.GREEN : Ui.TEXT, false);
-            String target = goal(a, a.target);
-            g.text(font, target, 268 - font.width(target), y + 9, Ui.DIM, false);
+            g.text(font, value, 286 - font.width(value), y, pass ? Ui.GREEN : Ui.TEXT, false);
             if (pass) {
-                g.text(font, "✔", 276, y, Ui.GREEN, false);
+                g.text(font, "✔", 294, y, Ui.GREEN, false);
             } else if (tested && !s.causal()) {
-                g.text(font, "⚠", 276, y, Ui.RED, false);
+                g.text(font, "⚠", 294, y, Ui.RED, false);
             }
-            if (Ui.inside(mx, my, 6, y - 1, 308, 18)) {
-                // split here rather than by the tooltip, which would wrap the lines again near the screen's edge
+            if (Ui.inside(mx, my, 6, top, 308, 17)) {
+                // what the row leaves out: its job, when it was tested and what passes, then the test itself
                 List<FormattedCharSequence> lines = new ArrayList<>();
                 lines.add(Component.translatable("residual.benchmark." + a.id).withColor(Ui.TEAL).getVisualOrderText());
+                lines.add(Component.translatable("residual.benchmark." + a.id + ".job").withStyle(ChatFormatting.GRAY).getVisualOrderText());
+                lines.add(Component.translatable("residual.tests.passes_at", goal(a, a.target)).append(" · ")
+                        .append(tested ? Component.translatable("residual.tests.tested", Ui.count(score.step()))
+                                : Component.translatable("residual.tests.never")).withStyle(ChatFormatting.GRAY).getVisualOrderText());
                 lines.addAll(font.split(Component.translatable("residual.benchmark." + a.id + ".test"), 220));
                 if (tested && !s.causal()) {
                     lines.addAll(font.split(Component.translatable("residual.metric.leak_help").withColor(Ui.RED), 220));
@@ -639,11 +670,6 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                 g.setTooltipForNextFrame(lines, mx + leftPos, my + topPos);
             }
         }
-        ItemStack crystal = menu.getSlot(CoreMenu.CRYSTAL).getItem();
-        Component where = !(crystal.getItem() instanceof CrystalItem) ? Component.translatable("residual.tests.no_crystal")
-                : CrystalItem.model(crystal) instanceof ModelInfo m ? Component.translatable("residual.tests.over", m.tag())
-                : Component.translatable("residual.tests.into_empty");
-        g.text(font, Ui.fit(font, where.getString(), 80), 234, 176, Ui.LABEL_DIM, false);
     }
 
     // ---------------------------------------------------------------- try tab

@@ -22,27 +22,29 @@ machines themselves, so a model keeps what it learned when you leave and come ba
 
 ## Data
 
-Four slots for what the model practises on: datasets, archive drives, or a salvaged model. Everything in them is practised
-together, a batch from each in turn. Beside them are the tokenizer slot, for the [tokens](tokenizers.md) the model reads
-and writes, and the checkpoint slot, with what the checkpoint in it holds.
-**Save to checkpoint** tests the model on every benchmark and saves it into that checkpoint. With a salvaged model loaded,
-**Rebuild** builds its machines in front of the Core: see [Salvaged Models](salvage.md).
+Four slots for what the model practises on: datasets, archive drives, or a salvaged model. Everything in them is
+practised together, a batch from each in turn. Beside them are the tokenizer slot, for the [tokens](tokenizers.md) the
+model reads and writes, and the checkpoint slot. An empty slot shows faintly what goes in it; point at a checkpoint for
+what it holds. **Save to checkpoint** tests the model on every benchmark and saves it into that checkpoint. With a
+salvaged model loaded, **Rebuild** builds its machines in front of the Core: see [Salvaged Models](salvage.md).
 
 ## Train
 
-The learning curve, the current numbers and the training settings. See [Training](training.md) for what each one
-means. **Params** counts the model's weights; **Grad norm** is the size of the last gradient; **Threads** is how many
-threads the Core trains with.
+The learning curve, with the numbers it ends at beneath it: train loss, test loss and accuracy. Point at them for
+**Parameters**, the model's weights, **Grad norm**, the size of the last gradient, and **Threads**, how many threads the
+Core trains with. **Train** starts training and stops it. Beside the window, a toolbar holds **Reset** and **Check**,
+then the settings: **Speed**, **Learning rate**, **Batch** and **Clip**. Point at one for its value and what it does;
+click for the next value, right-click for the one before. See [Training](training.md) for what each one means.
 
 ## Tests
 
-Every benchmark, its score at the last test, and the score that passes. The test of each benchmark is taken while the
-model trains on it; **Test all** runs every test now. Hover over an benchmark for the format its test uses. See
-[Models and Tests](models.md).
+Every benchmark on a line, with its score at the last test; a full green bar passes. The test of each benchmark is taken
+while the model trains on it; **Test all** runs every test now. Point at a line for the job it is used for, the score
+that passes, when it was tested and the format its test uses. See [Models and Tests](models.md).
 
 ## Try
 
-Runs the model. Choose an benchmark: **Example** draws a fresh test example and shows the model answering it, the way an
+Runs the model. Choose a benchmark: **Example** draws a fresh test example and shows the model answering it, the way an
 agent would ask. For Orders, type an order and **Ask**; for Reading, type the start of something and **Write**:
 the model carries it on one letter at a time, drawing each from its predicted probabilities. **Temp** (temperature)
 sharpens or flattens those probabilities before drawing:

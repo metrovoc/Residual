@@ -74,6 +74,33 @@ public final class Ui {
         }
     }
 
+    /** A right arrow 24 by 16, as between a machine's slots, filled from the left to {@code fraction}. */
+    public static void arrow(GuiGraphicsExtractor g, int x, int y, float fraction) {
+        int filled = Math.round(24 * Math.max(0, Math.min(1, fraction)));
+        for (int i = 0; i < 24; i++) {
+            // the shaft is 6 high for 16 columns, then the head narrows from 16 to 2 over 8
+            int half = i < 16 ? 3 : 8 - (i - 16);
+            g.fill(x + i, y + 8 - half, x + i + 1, y + 8 + half, i < filled ? HIGHLIGHT : 0xFF8B8B8B);
+        }
+    }
+
+    /** A flame 14 high, as under a furnace's fuel, lit to {@code fraction} from the bottom. */
+    public static void flame(GuiGraphicsExtractor g, int x, int y, float fraction) {
+        int lit = (int) Math.ceil(14 * Math.max(0, Math.min(1, fraction)));
+        // a tongue: narrow at the tip, widest a third of the way up
+        int[] half = {1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 4, 3};
+        for (int r = 0; r < 14; r++) {
+            boolean on = 14 - r <= lit;
+            g.fill(x + 7 - half[r], y + r, x + 7 + half[r], y + r + 1, on ? (r < 5 ? 0xFFFFE08A : AMBER) : 0xFF8B8B8B);
+        }
+    }
+
+    /** {@code stack} faded into the empty slot at {@code (x, y)}, to say what goes there. */
+    public static void ghost(GuiGraphicsExtractor g, net.minecraft.world.item.ItemStack stack, int x, int y) {
+        g.item(stack, x, y);
+        g.fill(x, y, x + 16, y + 16, 0xB08B8B8B);
+    }
+
     /** Diverging color for a value in [-1, 1]: cyan below zero, near-black at zero, amber above. */
     public static int heat(float v) {
         float t = Math.max(-1f, Math.min(1f, v));

@@ -34,15 +34,17 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * An agent's screen. Work: its job, what it is doing and the last thing it asked its model. Program: the program it runs,
- * to read and rewrite, checked as it is typed, with a palette beside it of the pieces to click together. Trace: what it
- * has been doing, step by step. Below: what it carries.
+ * An agent's screen. Work: its job, what it is doing and the last thing it asked its model, and the order box to tell it
+ * something. Program: the program it runs, to read and rewrite, checked as it is typed, with a palette beside it of the
+ * pieces to click together. Trace: what it has been doing, step by step. Below: what it carries. Its model slots sit in
+ * a panel beside the window, with setting its home under them.
  */
 public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
     private enum Tab { WORK, PROGRAM, TRACE }
 
     /** How wide the palette is, beside the window on its left. */
     private static final int PALETTE = 150;
+    private static final int WINDOW_W = 176;
 
     private static Tab lastTab = Tab.WORK;
     /** Whether the palette is open beside the Program tab; it stays so while the game runs. */
@@ -54,12 +56,16 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
     /** Yes and no to an order it read back, shown while it waits for one. */
     @Nullable
     private Button doIt, cancel;
+    @Nullable
     private EditBox order;
-    private Button tell;
+    @Nullable
+    private IconButton tell;
+    /** What the order box holds, kept across tabs. */
+    private String said = "";
     @Nullable
     private MultiLineEditBox code;
     @Nullable
-    private Button run;
+    private IconButton run;
     /** What the program box holds, kept across tabs; null until the agent's program arrives. */
     @Nullable
     private String draft;
@@ -69,7 +75,7 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
     private Program.Parsed parsed = Program.parse("");
 
     public AgentScreen(AgentMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 176, 248);
+        super(menu, inventory, title, AgentMenu.SIDE_X + AgentMenu.SIDE_W, 248);
     }
 
     private AgentSync sync() {
@@ -93,6 +99,8 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
         doIt = cancel = null;
         code = null;
         run = null;
+        order = null;
+        tell = null;
         leftPos = (width - imageWidth) / 2;
         if (paletteShown()) {
             // room on the left for the palette, the way the recipe book makes room
@@ -114,11 +122,23 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
                 cancel = addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), b -> send(AgentAction.Kind.ANSWER, 0, ""))
                         .bounds(x + 126, y + 78, 40, 12).tooltip(Tooltip.create(Component.translatable("residual.agent.choice.no.help"))).build());
                 doIt.visible = cancel.visible = sync() != null && sync().asking();
+                order = addRenderableWidget(new EditBox(font, x + 8, y + 96, 138, 14, Component.translatable("residual.agent.order")));
+                order.setMaxLength(60);
+                order.setValue(said);
+                order.setResponder(v -> said = v);
+                order.setHint(Component.translatable("residual.agent.order_hint"));
+                tell = addRenderableWidget(IconButton.action(x + 150, y + 94, "tell", Component.translatable("residual.agent.tell"),
+                        Component.translatable("residual.agent.tell.help"), () -> {
+                            if (!order.getValue().isBlank()) {
+                                send(AgentAction.Kind.SAY, 0, order.getValue());
+                                order.setValue("");
+                            }
+                        }));
             }
             case PROGRAM -> {
                 code = addRenderableWidget(MultiLineEditBox.builder().setX(x + 8).setY(y + 20).setShowBackground(false).setShowDecorations(false)
                         .setTextColor(Ui.TEXT).setCursorColor(Ui.TEAL).setPlaceholder(Component.translatable("residual.program.hint"))
-                        .build(font, 160, 42, Component.translatable("residual.tab.program")));
+                        .build(font, 160, 56, Component.translatable("residual.tab.program")));
                 code.setCharacterLimit(Program.LONGEST);
                 code.setValue(draft == null ? "" : draft);
                 parsed = Program.parse(code.getValue());
@@ -129,17 +149,18 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
                         edited = true;
                     }
                 });
-                run = addRenderableWidget(Button.builder(Component.translatable("residual.program.run"), b -> {
-                    send(AgentAction.Kind.PROGRAM, 0, code.getValue());
-                    edited = false;
-                }).bounds(x + 8, y + 76, 36, 14).tooltip(Tooltip.create(Component.translatable("residual.program.run.help"))).build());
-                addRenderableWidget(Button.builder(Component.translatable("residual.program.stop"), b -> send(AgentAction.Kind.STOP, 0, ""))
-                        .bounds(x + 46, y + 76, 36, 14).tooltip(Tooltip.create(Component.translatable("residual.program.stop.help"))).build());
-                addRenderableWidget(Button.builder(Component.literal(palette ? "−" : "+"), b -> {
-                    palette = !palette;
-                    rebuild();
-                }).bounds(x + 84, y + 76, 14, 14).tooltip(Tooltip.create(Component.translatable(palette ? "residual.palette.hide"
-                        : "residual.palette.show"))).build());
+                run = addRenderableWidget(IconButton.action(x + 8, y + 94, "run", Component.translatable("residual.program.run"),
+                        Component.translatable("residual.program.run.help"), () -> {
+                            send(AgentAction.Kind.PROGRAM, 0, code.getValue());
+                            edited = false;
+                        }));
+                addRenderableWidget(IconButton.action(x + 28, y + 94, "stop", Component.translatable("residual.program.stop"),
+                        Component.translatable("residual.program.stop.help"), () -> send(AgentAction.Kind.STOP, 0, "")));
+                addRenderableWidget(IconButton.action(x + 48, y + 94, "palette", Component.translatable("residual.palette"),
+                        Component.translatable(palette ? "residual.palette.hide" : "residual.palette.show"), () -> {
+                            palette = !palette;
+                            rebuild();
+                        }));
                 if (palette) {
                     layPalette(x - PALETTE - 4, y);
                 }
@@ -147,25 +168,10 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
             case TRACE -> {
             }
         }
-        addRenderableWidget(Button.builder(Component.translatable("residual.agent.set_home"), b -> send(AgentAction.Kind.HOME, 0, ""))
-                .bounds(x + 122, y + 126, 48, 14).tooltip(Tooltip.create(Component.translatable("residual.agent.set_home.help"))).build());
-        String said = order == null ? "" : order.getValue();
-        order = addRenderableWidget(new EditBox(font, x + 8, y + 146, 118, 14, Component.translatable("residual.agent.order")));
-        order.setMaxLength(60);
-        order.setValue(said);
-        order.setHint(Component.translatable("residual.agent.order_hint"));
-        tell = addRenderableWidget(Button.builder(Component.translatable("residual.agent.tell"), b -> {
-            if (!order.getValue().isBlank()) {
-                send(AgentAction.Kind.SAY, 0, order.getValue());
-                order.setValue("");
-                if (tab != Tab.WORK) {
-                    // what it makes of the order shows on the Work tab, and its yes or no with it
-                    tab = lastTab = Tab.WORK;
-                    rebuild();
-                    setFocused(order);
-                }
-            }
-        }).bounds(x + 130, y + 145, 40, 16).build());
+        // under the model slots' panel, as a toolbar
+        addRenderableWidget(IconButton.action(x + AgentMenu.SLOTS_X - 1, y + AgentMenu.SIDE_Y + AgentMenu.SIDE_H + 4, "home",
+                Component.translatable("residual.agent.set_home"), Component.translatable("residual.agent.set_home.help"),
+                () -> send(AgentAction.Kind.HOME, 0, "")));
     }
 
     /** Lays the chips out in rows, kind by kind, on the palette whose top left is {@code (px, py)}. */
@@ -264,7 +270,7 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
                 take(held, event.hasShiftDown());
                 return true;
             }
-            if (order.isMouseOver(event.x(), event.y())) {
+            if (order != null && order.isMouseOver(event.x(), event.y())) {
                 String said = order.getValue().stripTrailing();
                 order.setValue(said.isEmpty() ? Things.name(held) : said + " " + Things.name(held));
                 setFocused(order);
@@ -291,7 +297,7 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
             return super.keyPressed(event);
         }
         if (order != null && order.isFocused()) {
-            if (event.isConfirmation()) {
+            if (event.isConfirmation() && tell != null) {
                 tell.onPress(event);
                 return true;
             }
@@ -314,7 +320,9 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
-        Ui.window(g, leftPos, topPos, imageWidth, imageHeight);
+        // the model slots' panel, tucked under the window's edge
+        Ui.window(g, leftPos + AgentMenu.SIDE_X, topPos + AgentMenu.SIDE_Y, AgentMenu.SIDE_W, AgentMenu.SIDE_H);
+        Ui.window(g, leftPos, topPos, WINDOW_W, imageHeight);
         if (paletteShown()) {
             int px = leftPos - PALETTE - 4;
             Ui.window(g, px, topPos, PALETTE, imageHeight);
@@ -340,7 +348,7 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
         }
         switch (tab) {
             case WORK -> Ui.screen(g, leftPos + 8, topPos + 38, 160, 52);
-            case PROGRAM -> Ui.screen(g, leftPos + 8, topPos + 20, 160, 54);
+            case PROGRAM -> Ui.screen(g, leftPos + 8, topPos + 20, 160, 70);
             case TRACE -> Ui.screen(g, leftPos + 8, topPos + 20, 160, 70);
         }
         for (Slot slot : menu.slots) {
@@ -352,19 +360,19 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
         }
         // an empty model slot shows faintly what goes in it
         boolean noModel = !menu.getSlot(Agent.MODEL).hasItem(), noFilter = !menu.getSlot(Agent.FILTER).hasItem();
-        int gy = topPos + AgentMenu.MODEL_Y;
+        int gx = leftPos + AgentMenu.SLOTS_X;
         if (noModel) {
-            g.item(new ItemStack(ModItems.CHECKPOINT.get()), leftPos + AgentMenu.MODEL_X, gy);
+            g.item(new ItemStack(ModItems.CHECKPOINT.get()), gx, topPos + AgentMenu.MODEL_Y);
         }
         if (noFilter) {
-            g.item(new ItemStack(Items.HOPPER), leftPos + AgentMenu.FILTER_X, gy);
+            g.item(new ItemStack(Items.HOPPER), gx, topPos + AgentMenu.FILTER_Y);
         }
         g.nextStratum();
         if (noModel) {
-            g.fill(leftPos + AgentMenu.MODEL_X, gy, leftPos + AgentMenu.MODEL_X + 16, gy + 16, 0xB08B8B8B);
+            g.fill(gx, topPos + AgentMenu.MODEL_Y, gx + 16, topPos + AgentMenu.MODEL_Y + 16, 0xB08B8B8B);
         }
         if (noFilter) {
-            g.fill(leftPos + AgentMenu.FILTER_X, gy, leftPos + AgentMenu.FILTER_X + 16, gy + 16, 0xB08B8B8B);
+            g.fill(gx, topPos + AgentMenu.FILTER_Y, gx + 16, topPos + AgentMenu.FILTER_Y + 16, 0xB08B8B8B);
         }
     }
 
@@ -374,11 +382,8 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
         for (Tab t : Tab.values()) {
             tabs += font.width(tabTitle(t)) + 12;
         }
-        String name = Ui.fit(font, title.getString(), imageWidth - 8 - tabs);
-        g.text(font, name, imageWidth - 8 - font.width(name), 7, Ui.LABEL_DIM, false);
-        g.text(font, Component.translatable("residual.agent.carrying"), AgentMenu.CARRY_X, 94, Ui.LABEL, false);
-        Component models = Component.translatable("residual.agent.model_slots");
-        g.text(font, models, (AgentMenu.FILTER_X + AgentMenu.MODEL_X + 16 - font.width(models)) / 2, 94, Ui.LABEL, false);
+        String name = Ui.fit(font, title.getString(), WINDOW_W - 8 - tabs);
+        g.text(font, name, WINDOW_W - 8 - font.width(name), 7, Ui.LABEL_DIM, false);
         int x = mouseX - leftPos, y = mouseY - topPos;
         for (int slot : new int[]{Agent.MODEL, Agent.FILTER}) {
             Slot at = menu.getSlot(slot);
@@ -398,7 +403,7 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
             case PROGRAM -> programTab(g, s, mx, my, mouseX, mouseY);
             case TRACE -> traceTab(g, s, mx, my, mouseX, mouseY);
         }
-        if (!menu.getCarried().isEmpty() && Ui.inside(mx, my, 8, 146, 118, 14)) {
+        if (order != null && !menu.getCarried().isEmpty() && Ui.inside(mx, my, 8, 96, 138, 14)) {
             g.setTooltipForNextFrame(font.split(named(menu.getCarried()), 220), mouseX, mouseY);
         }
     }
@@ -475,20 +480,20 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
                     : p.endless() ? "residual.program.ok_endless" : "residual.program.ok");
             color = Ui.TEAL;
         }
-        g.text(font, fit(check, 152), 12, 64, color, false);
+        g.text(font, fit(check, 152), 12, 80, color, false);
         Component status = status(s);
-        g.text(font, fit(status, 66), 102, 79, Ui.LABEL, false);
+        g.text(font, fit(status, 96), 72, 99, Ui.LABEL, false);
         List<FormattedCharSequence> tip = new ArrayList<>();
         ItemStack held = menu.getCarried();
-        if (Ui.inside(mx, my, 8, 62, 160, 12) && font.width(check) > 152) {
+        if (Ui.inside(mx, my, 8, 78, 160, 12) && font.width(check) > 152) {
             tip.addAll(font.split(check, 220));
-        } else if (Ui.inside(mx, my, 100, 76, 68, 14)) {
+        } else if (Ui.inside(mx, my, 70, 94, 98, 18) && font.width(status) > 96) {
             tip.addAll(font.split(status, 220));
-        } else if (Ui.inside(mx, my, 8, 20, 160, 42) && !held.isEmpty()) {
+        } else if (Ui.inside(mx, my, 8, 20, 160, 56) && !held.isEmpty()) {
             Component hint = !held.is(ModItems.PROGRAM_CARD.get()) ? named(held)
                     : Component.translatable(ProgramCardItem.program(held).isEmpty() ? "residual.program.drop.blank" : "residual.program.drop.card");
             tip.addAll(font.split(hint, 220));
-        } else if (Ui.inside(mx, my, 8, 20, 160, 42) && code != null && code.getValue().isEmpty()) {
+        } else if (Ui.inside(mx, my, 8, 20, 160, 56) && code != null && code.getValue().isEmpty()) {
             tip.addAll(font.split(Component.translatable("residual.program.help"), 240));
         }
         if (!tip.isEmpty()) {

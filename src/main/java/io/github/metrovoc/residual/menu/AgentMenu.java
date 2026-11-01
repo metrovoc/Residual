@@ -17,11 +17,11 @@ import org.jetbrains.annotations.Nullable;
 
 /** An agent's screen: what it carries, its model and filter slots, and the player's inventory. */
 public class AgentMenu extends AbstractContainerMenu {
-    public static final int CARRY_X = 8;
-    public static final int CARRY_Y = 104;
-    public static final int FILTER_X = 134;
-    public static final int MODEL_X = 152;
-    public static final int MODEL_Y = 104;
+    public static final int CARRY_X = 34;
+    public static final int CARRY_Y = 118;
+    /** The model slots, in a panel beside the window, tucked under its edge: the filter above the model. */
+    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 46;
+    public static final int SLOTS_X = 179, FILTER_Y = 10, MODEL_Y = 28;
     public static final int INVENTORY_X = 8;
     public static final int INVENTORY_Y = 166;
 
@@ -46,8 +46,8 @@ public class AgentMenu extends AbstractContainerMenu {
         for (int i = 0; i < Agent.CARRY; i++) {
             addSlot(new Slot(c, i, CARRY_X + i % 6 * 18, CARRY_Y + i / 6 * 18));
         }
-        addSlot(modelSlot(c, Agent.MODEL, MODEL_X));
-        addSlot(modelSlot(c, Agent.FILTER, FILTER_X));
+        addSlot(modelSlot(c, Agent.MODEL, MODEL_Y));
+        addSlot(modelSlot(c, Agent.FILTER, FILTER_Y));
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 addSlot(new Slot(inventory, 9 + row * 9 + col, INVENTORY_X + col * 18, INVENTORY_Y + row * 18));
@@ -58,8 +58,8 @@ public class AgentMenu extends AbstractContainerMenu {
         }
     }
 
-    private static Slot modelSlot(Container c, int index, int x) {
-        return new Slot(c, index, x, MODEL_Y) {
+    private static Slot modelSlot(Container c, int index, int y) {
+        return new Slot(c, index, SLOTS_X, y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return isModel(stack);

@@ -25,7 +25,10 @@ public class PowerMenu extends AbstractContainerMenu {
             DATA = 7;
     /** A Smelter's melt after that: looks taken, its last melt's share held plus one, then five bands to a slot. */
     public static final int MELT_LOOKS = DATA, MELT_HELD = DATA + 1, MELT_BANDS = DATA + 2, MELT_DATA = 7;
-    public static final int FUEL_X = 80, IN_X = 56, OUT_X = 116, SLOT_Y = 35, CONTROLLER_X = 152, CONTROLLER_Y = 17;
+    public static final int FUEL_X = 80, IN_X = 56, OUT_X = 116, SLOT_Y = 35;
+    /** A Smelter's controller panel beside the window, tucked under its edge, and the slot in it. */
+    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 28, CONTROLLER_X = 179, CONTROLLER_Y = 10;
+    public static final int CONTROLLER_SLOT = 2;
     public static final int INVENTORY_X = 8, INVENTORY_Y = 84;
 
     public final BlockPos pos;

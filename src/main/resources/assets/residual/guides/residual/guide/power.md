@@ -67,9 +67,9 @@ transformer photomask.
 Put a model in the Smelter's **Controller** slot, and each ore becomes a melt it holds in its band: at a look every four
 ticks it asks the model whether to cool the melt, hold it or heat it, and waits for the answer. A melt held in the band
 at 90% of its looks or more makes three ingots instead of two; a model passes the Control test by holding nine melts in
-ten of every ore the test plays. The chart on its screen shows the melt look by look, the band shaded, and beside it how
-much of the last melt was held. A model learns this on the <ItemLink id="process_dataset" />: see
-[Models and Tests](models.md).
+ten of every ore the test plays. The slot is in the panel beside the Smelter's screen; between its ore and its ingots,
+the screen draws the melt look by look, the band shaded, and pointing at it tells how much of the last melt was held. A
+model learns this on the <ItemLink id="process_dataset" />: see [Models and Tests](models.md).
 
 ## Other blocks
 
