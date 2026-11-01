@@ -6,6 +6,7 @@ import io.github.metrovoc.residual.learn.Archive;
 import io.github.metrovoc.residual.learn.Reading;
 import io.github.metrovoc.residual.menu.ReaderMenu;
 import io.github.metrovoc.residual.model.Recovered;
+import io.github.metrovoc.residual.registry.ModItems;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -17,13 +18,14 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Shows the shard's record as the Reader works through it: lost blocks worn away, the block being read marked, and
  * restored blocks lighting up as they come back.
  */
 public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
-    private static final int TEXT_X = 52, TEXT_Y = 16, TEXT_W = 196, LINES = 10;
+    private static final int WINDOW_W = 256, TEXT_X = 8, TEXT_Y = 16, TEXT_W = 240, LINES = 10;
     private static final int WORN = 0xFF4A5560;
     /** When each restored block came back, by block, to light it up for a while. */
     private final Map<Integer, Long> lit = new HashMap<>();
@@ -31,7 +33,7 @@ public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
     private BitSet lastLost;
 
     public ReaderScreen(ReaderMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 256, 232);
+        super(menu, inventory, title, ReaderMenu.SIDE_X + ReaderMenu.SIDE_W, 232);
     }
 
     private int data(int i) {
@@ -41,18 +43,24 @@ public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
-        Ui.window(g, leftPos, topPos, imageWidth, imageHeight);
+        // the slots' panel, tucked under the window's edge
+        Ui.window(g, leftPos + ReaderMenu.SIDE_X, topPos + ReaderMenu.SIDE_Y, ReaderMenu.SIDE_W, ReaderMenu.SIDE_H);
+        Ui.window(g, leftPos, topPos, WINDOW_W, imageHeight);
         Ui.screen(g, leftPos + TEXT_X, topPos + TEXT_Y, TEXT_W, LINES * 10 + 4);
         for (Slot slot : menu.slots) {
             Ui.slot(g, leftPos + slot.x, topPos + slot.y);
+        }
+        if (!menu.getSlot(ReaderBlockEntity.SHARD).hasItem()) {
+            Ui.ghost(g, new ItemStack(ModItems.SHARD.get()), leftPos + ReaderMenu.SHARD_X, topPos + ReaderMenu.SHARD_Y);
+        }
+        if (!menu.getSlot(ReaderBlockEntity.MODEL).hasItem()) {
+            Ui.ghost(g, new ItemStack(ModItems.CHECKPOINT.get()), leftPos + ReaderMenu.MODEL_X, topPos + ReaderMenu.MODEL_Y);
         }
     }
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         g.text(font, title, 8, 6, Ui.LABEL, false);
-        g.text(font, Component.translatable("residual.reader.shard"), ReaderMenu.SHARD_X - 2, ReaderMenu.SHARD_Y - 10, Ui.LABEL, false);
-        g.text(font, Component.translatable("residual.agent.model_slot"), ReaderMenu.MODEL_X - 2, ReaderMenu.MODEL_Y - 10, Ui.LABEL, false);
         Recovered r = ShardItem.record(menu.shard());
         Archive.Record record = r == null ? null : r.text();
         if (record != null) {
@@ -70,7 +78,7 @@ public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
         };
         int color = state == ReaderBlockEntity.State.NO_MODEL || state == ReaderBlockEntity.State.PEEKS ? 0xFFB3261E : Ui.LABEL;
         int y = TEXT_Y + LINES * 10 + 7;
-        for (var l : font.split(line, imageWidth - TEXT_X - 8)) {
+        for (var l : font.split(line, WINDOW_W - TEXT_X - 8)) {
             g.text(font, l, TEXT_X, y, color, false);
             y += 9;
         }
@@ -79,7 +87,7 @@ public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
             boolean back = acc >= Math.round(Reading.RESTORE * 1000);
             Component last = Component.translatable(back ? "residual.reader.last_restored" : "residual.reader.last_lost",
                     String.format(Locale.ROOT, "%.0f%%", acc / 10f), String.format(Locale.ROOT, "%.0f%%", 100 * Reading.RESTORE));
-            g.text(font, Ui.fit(font, last.getString(), imageWidth - TEXT_X - 8), TEXT_X, y, back ? 0xFF2E7D32 : Ui.LABEL_DIM, false);
+            g.text(font, Ui.fit(font, last.getString(), WINDOW_W - TEXT_X - 8), TEXT_X, y, back ? 0xFF2E7D32 : Ui.LABEL_DIM, false);
         }
     }
 
@@ -164,5 +172,19 @@ public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
             }
         }
         return out;
+    }
+
+    @Override
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
+        super.extractRenderState(g, mouseX, mouseY, a);
+        int mx = mouseX - leftPos, my = mouseY - topPos;
+        if (!menu.getCarried().isEmpty()) {
+            return;
+        }
+        if (!menu.getSlot(ReaderBlockEntity.SHARD).hasItem() && Ui.inside(mx, my, ReaderMenu.SHARD_X, ReaderMenu.SHARD_Y, 16, 16)) {
+            g.setTooltipForNextFrame(font, Component.translatable("residual.reader.shard"), mouseX, mouseY);
+        } else if (!menu.getSlot(ReaderBlockEntity.MODEL).hasItem() && Ui.inside(mx, my, ReaderMenu.MODEL_X, ReaderMenu.MODEL_Y, 16, 16)) {
+            g.setTooltipForNextFrame(font, Component.translatable("residual.agent.model_slot"), mouseX, mouseY);
+        }
     }
 }

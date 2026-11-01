@@ -10,6 +10,7 @@ import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModItems;
 import java.util.List;
 import java.util.Locale;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -20,13 +21,17 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-/** Pick a machine, see what it takes, and watch it being made. */
+/**
+ * Pick a machine and watch it being made: the mask's machines to choose from, then the materials, an arrow and the
+ * product, faint in the output slot until it is made. What each material slot needs shows under it, red when short; the
+ * product's name, what it does and how long it takes show when the output or the arrow is pointed at.
+ */
 public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
     private static final int CHOICES_X = 40, CHOICES_Y = 24, CELL = 19, PER_ROW = 11;
-    private static final int BAR_X = 76, BAR_W = 134;
+    private static final int ARROW_X = 133;
 
     public FabricatorScreen(FabricatorMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 256, 220);
+        super(menu, inventory, title, 256, FabricatorMenu.INVENTORY_Y + 82);
         inventoryLabelY = FabricatorMenu.INVENTORY_Y - 10;
         inventoryLabelX = FabricatorMenu.INVENTORY_X;
     }
@@ -60,7 +65,10 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
         }
         int total = menu.data.get(FabricatorBlockEntity.TOTAL);
         float done = total == 0 ? 0 : menu.data.get(FabricatorBlockEntity.PROGRESS) / (float) total;
-        Ui.bar(g, leftPos + BAR_X, topPos + FabricatorMenu.OUTPUT_Y + 6, BAR_W, 6, done, Ui.TEAL);
+        Ui.arrow(g, leftPos + ARROW_X, topPos + FabricatorMenu.OUTPUT_Y, done);
+        if (chosen >= 0) {
+            ghost(g, FabricatorBlockEntity.OUTPUT, FabricatorBlockEntity.product(choices.get(chosen), menu.mask()));
+        }
     }
 
     /** A faint picture of what belongs in an empty slot. */
@@ -77,10 +85,7 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
     protected void extractLabels(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         g.text(font, title, 8, 6, Ui.LABEL, false);
         g.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, Ui.LABEL, false);
-        g.text(font, Component.translatable("residual.fabricator.materials"), FabricatorMenu.CASING_X - 2, FabricatorMenu.MATERIALS_Y - 10, Ui.LABEL, false);
-        List<Item> choices = choices();
         int chosen = choice();
-        int y = CHOICES_Y + ((choices.size() + PER_ROW - 1) / PER_ROW) * CELL + 3;
         if (chosen < 0) {
             int ly = CHOICES_Y + 4;
             for (FormattedCharSequence line : font.split(Component.translatable("residual.fabricator.no_machines"), imageWidth - CHOICES_X - 8)) {
@@ -89,16 +94,28 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
             }
             return;
         }
-        Item item = choices.get(chosen);
+        // what each material slot needs, under it
+        Cost cost = FabricatorBlockEntity.cost(choices().get(chosen), menu.mask());
+        need(g, FabricatorMenu.CASING_X, FabricatorBlockEntity.CASING, cost.casings());
+        need(g, FabricatorMenu.WAFER_X, FabricatorBlockEntity.WAFER, cost.wafers());
+        need(g, FabricatorMenu.CRYSTAL_X, FabricatorBlockEntity.CRYSTAL, cost.crystals());
+    }
+
+    private void need(GuiGraphicsExtractor g, int x, int slot, int count) {
+        if (count == 0) {
+            return;
+        }
+        String c = "×" + count;
+        boolean enough = menu.getSlot(slot).getItem().getCount() >= count;
+        g.text(font, c, x + 8 - font.width(c) / 2, FabricatorMenu.MATERIALS_Y + 19, enough ? Ui.LABEL_DIM : 0xFFB3261E, false);
+    }
+
+    /** What the chosen machine is, what it does, and how long it takes to make. */
+    private List<Component> product() {
+        int chosen = choice();
+        Item item = choices().get(chosen);
         ItemStack product = FabricatorBlockEntity.product(item, menu.mask());
         Cost cost = FabricatorBlockEntity.cost(item, menu.mask());
-        g.text(font, product.getHoverName(), CHOICES_X, y, Ui.LABEL, false);
-        y += 11;
-        int x = CHOICES_X;
-        x = need(g, x, y, "residual.fabricator.casings", cost.casings(), FabricatorBlockEntity.CASING);
-        x = need(g, x, y, "residual.fabricator.wafers", cost.wafers(), FabricatorBlockEntity.WAFER);
-        need(g, x, y, "residual.fabricator.crystals", cost.crystals(), FabricatorBlockEntity.CRYSTAL);
-        y += 11;
         MaskData m = MaskItem.mask(menu.mask());
         Component note;
         if (item == ModItems.HOURGLASS.get()) {
@@ -115,19 +132,9 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
             note = Component.translatable("residual.fabricator.plain");
         }
         boolean unfused = item instanceof MachineItem && m != null && m.salvaged();
-        g.text(font, Ui.fit(font, note.getString(), imageWidth - CHOICES_X - 8), CHOICES_X, y, unfused ? 0xFF9A5B00 : Ui.LABEL_DIM, false);
-        g.text(font, Component.translatable("residual.fabricator.time", String.format(Locale.ROOT, "%.1f", cost.ticks() / 20f)),
-                BAR_X, FabricatorMenu.OUTPUT_Y - 4, Ui.LABEL_DIM, false);
-    }
-
-    private int need(GuiGraphicsExtractor g, int x, int y, String key, int count, int slot) {
-        if (count == 0) {
-            return x;
-        }
-        boolean enough = menu.getSlot(slot).getItem().getCount() >= count;
-        Component c = Component.translatable(key, count);
-        g.text(font, c, x, y, enough ? Ui.LABEL : 0xFFB3261E, false);
-        return x + font.width(c) + 10;
+        return List.of(product.getHoverName(), note.copy().withStyle(unfused ? ChatFormatting.GOLD : ChatFormatting.GRAY),
+                Component.translatable("residual.fabricator.time", String.format(Locale.ROOT, "%.1f", cost.ticks() / 20f))
+                        .withStyle(ChatFormatting.GRAY));
     }
 
     @Override
@@ -146,6 +153,12 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractRenderState(g, mouseX, mouseY, a);
+        int mx = mouseX - leftPos, my = mouseY - topPos;
+        boolean product = Ui.inside(mx, my, ARROW_X, FabricatorMenu.OUTPUT_Y, 24, 16)
+                || Ui.inside(mx, my, FabricatorMenu.OUTPUT_X, FabricatorMenu.OUTPUT_Y, 16, 16) && !menu.getSlot(FabricatorBlockEntity.OUTPUT).hasItem();
+        if (product && choice() >= 0 && menu.getCarried().isEmpty()) {
+            g.setComponentTooltipForNextFrame(font, product(), mouseX, mouseY);
+        }
         List<Item> choices = choices();
         for (int i = 0; i < choices.size(); i++) {
             int x = leftPos + CHOICES_X + (i % PER_ROW) * CELL, y = topPos + CHOICES_Y + (i / PER_ROW) * CELL;

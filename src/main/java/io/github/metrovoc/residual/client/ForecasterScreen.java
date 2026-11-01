@@ -22,13 +22,16 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * What a Forecaster sees: the crops and machines around it, how far they moved from each place against what its model
- * expects, and how far apart the two are for each kind, which decides whether it may run them ahead.
+ * expects, and how far apart the two are for each kind, which decides whether it may run them ahead. Its log and model
+ * slots sit in a panel beside the window.
  */
 public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
     private static final int SIDE = ForecasterBlockEntity.SIDE, CELL = 8;
-    private static final int MAP_X = 44, MAP_Y = 28, MAP_W = SIDE * CELL + 2;
-    private static final int BARS_X = 126, BARS_Y = 28, BARS_W = 122, BARS_H = MAP_W, GROUP = 14;
-    private static final int STATE_Y = 105, ROW_X = 8, ROW_Y = 118, ROW_W = 240, ROW_H = 12, ROW_STEP = 14, LABEL_W = 62;
+    private static final int WINDOW_W = 256;
+    private static final int MAP_X = 8, MAP_Y = 28, MAP_W = SIDE * CELL + 2;
+    private static final int BARS_X = 82, BARS_Y = 28, BARS_W = 166, BARS_H = MAP_W, GROUP = 14;
+    /** One display under them: what it is doing, then a row for each kind of block. */
+    private static final int STATE_Y = 104, ROW_X = 12, ROW_Y = 114, ROW_W = 232, ROW_H = 12, ROW_STEP = 14, LABEL_W = 62;
     /** A crop's color by age, from a seedling to ripe wheat. */
     private static final int[] AGES = {0xFF2F5A2A, 0xFF3A6B2C, 0xFF467C2E, 0xFF568C30, 0xFF6E9A33, 0xFF8CA637, 0xFFAEAF3E,
             0xFFD9B44A};
@@ -48,7 +51,7 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
     private Kind shown;
 
     public ForecasterScreen(ForecasterMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 256, ForecasterMenu.INVENTORY_Y + 82);
+        super(menu, inventory, title, ForecasterMenu.SIDE_X + ForecasterMenu.SIDE_W, ForecasterMenu.INVENTORY_Y + 82);
         inventoryLabelY = ForecasterMenu.INVENTORY_Y - 10;
         inventoryLabelX = ForecasterMenu.INVENTORY_X;
     }
@@ -89,7 +92,9 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
-        Ui.window(g, leftPos, topPos, imageWidth, imageHeight);
+        // the slots' panel, tucked under the window's edge
+        Ui.window(g, leftPos + ForecasterMenu.SIDE_X, topPos + ForecasterMenu.SIDE_Y, ForecasterMenu.SIDE_W, ForecasterMenu.SIDE_H);
+        Ui.window(g, leftPos, topPos, WINDOW_W, imageHeight);
         for (Slot slot : menu.slots) {
             Ui.slot(g, leftPos + slot.x, topPos + slot.y);
         }
@@ -97,9 +102,7 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
         ghost(g, ForecasterBlockEntity.MODEL, new ItemStack(ModItems.CHECKPOINT.get()));
         Ui.screen(g, leftPos + MAP_X, topPos + MAP_Y, MAP_W, MAP_W);
         Ui.screen(g, leftPos + BARS_X, topPos + BARS_Y, BARS_W, BARS_H);
-        for (int r = 0; r < 2; r++) {
-            Ui.screen(g, leftPos + ROW_X + LABEL_W, topPos + ROW_Y + r * ROW_STEP, ROW_W - LABEL_W, ROW_H);
-        }
+        Ui.screen(g, leftPos + 8, topPos + STATE_Y - 4, WINDOW_W - 16, ROW_Y + 2 * ROW_STEP + 2 - (STATE_Y - 4));
     }
 
     /** A faint picture of what belongs in an empty slot. */
@@ -117,9 +120,6 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
         hits.clear();
         g.text(font, title, 8, 6, Ui.LABEL, false);
         g.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, Ui.LABEL, false);
-        g.text(font, Component.translatable("residual.forecaster.log"), ForecasterMenu.LOG_X - 2, ForecasterMenu.LOG_Y - 10, Ui.LABEL, false);
-        g.text(font, Component.translatable("residual.agent.model_slot"), ForecasterMenu.MODEL_X - 2, ForecasterMenu.MODEL_Y - 10, Ui.LABEL, false);
-        g.text(font, Component.translatable("residual.forecaster.field"), MAP_X, MAP_Y - 10, Ui.LABEL, false);
         slotHint(ForecasterBlockEntity.LOG, "residual.forecaster.log_hint");
         slotHint(ForecasterBlockEntity.MODEL, "residual.forecaster.model_hint");
         tabs(g);
@@ -283,17 +283,17 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
                     : Component.translatable("residual.forecaster.state.watching", Ui.count(crops), Ui.count(machines));
         };
         int color = switch (state) {
-            case NOTHING -> Ui.LABEL_DIM;
-            case NO_MODEL, PEEKS -> 0xFFB3261E;
-            case READY -> ahead ? 0xFF2E7D32 : refused && !checking ? 0xFFB3261E : 0xFF1F7A72;
-            default -> 0xFF1F7A72;
+            case NOTHING -> Ui.DIM;
+            case NO_MODEL, PEEKS -> Ui.RED;
+            case READY -> ahead ? Ui.GREEN : refused && !checking ? Ui.RED : Ui.TEAL;
+            default -> Ui.TEAL;
         };
-        List<FormattedCharSequence> lines = font.split(line, imageWidth - 16);
+        List<FormattedCharSequence> lines = font.split(line, ROW_W);
         for (int i = 0; i < Math.min(1, lines.size()); i++) {
-            g.text(font, lines.get(i), 8, STATE_Y, color, false);
+            g.text(font, lines.get(i), ROW_X, STATE_Y, color, false);
         }
         if (lines.size() > 1) {
-            hits.add(new Hit(8, STATE_Y, imageWidth - 16, 9, List.of(line)));
+            hits.add(new Hit(ROW_X, STATE_Y, ROW_W, 9, List.of(line)));
         }
     }
 
@@ -302,7 +302,7 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
         int count = kind(kind, ForecasterBlockEntity.COUNT);
         Phase phase = phase(kind);
         Component label = Component.translatable("residual.forecaster.kind_count", name(kind), Ui.count(count));
-        g.text(font, label, ROW_X, y + 2, phase == Phase.NONE ? Ui.LABEL_DIM : Ui.LABEL, false);
+        g.text(font, label, ROW_X, y + 2, phase == Phase.NONE ? Ui.DIM : Ui.TEXT, false);
         int x0 = ROW_X + LABEL_W;
         int ratio = kind(kind, ForecasterBlockEntity.RATIO);
         if (phase == Phase.NONE) {

@@ -29,8 +29,8 @@ import net.minecraft.world.item.ItemStack;
  */
 public class ForgeScreen extends AbstractContainerScreen<ForgeMenu> {
     private static final int SIZES_X = 100, SIZES_Y = 28, SIZE_W = 28, SIZE_GAP = 2, SIZE_H = 12;
-    private static final int START_X = 192, START_Y = 46, START_W = 56;
-    private static final int PANEL_Y = 78, PANEL_H = 60, SAMPLE_X = 8, SAMPLE_W = 158, MERGES_X = 172, MERGES_W = 76;
+    private static final int START_X = 192, START_Y = 52, START_W = 56;
+    private static final int PANEL_Y = 70, PANEL_H = 60, SAMPLE_X = 8, SAMPLE_W = 158, MERGES_X = 172, MERGES_W = 76;
     private static final int LINE = 10;
     /** Token backgrounds, taken in turn so neighbouring tokens stand apart. */
     private static final int[] CHIPS = {0xFF2F5D7C, 0xFF5E4B86, 0xFF2D6E62, 0xFF7C5A2A, 0xFF7A3E55};
@@ -123,35 +123,32 @@ public class ForgeScreen extends AbstractContainerScreen<ForgeMenu> {
         int state = state();
         int bar = state == ForgeBlockEntity.IDLE || card.isEmpty() ? 0
                 : Math.round(240f * (vocab.size() - Vocab.CHARACTERS) / (ForgeBlockEntity.SIZES[target] - Vocab.CHARACTERS));
-        g.fill(8, 42, 248, 44, Ui.GRID);
-        g.fill(8, 42, 8 + Math.max(0, Math.min(240, bar)), 44, state == ForgeBlockEntity.DONE ? 0xFF2E7D32 : 0xFF1F9A8C);
+        g.fill(8, 44, 248, 47, Ui.GRID);
+        g.fill(8, 44, 8 + Math.max(0, Math.min(240, bar)), 47, state == ForgeBlockEntity.DONE ? 0xFF2E7D32
+                : state == ForgeBlockEntity.EXHAUSTED ? 0xFF9A5B00 : 0xFF1F9A8C);
+        // what it is doing, on the bar that shows it
+        hits.add(new Hit(8, 42, 240, 7, List.of(Component.translatable("residual.forge.state." + state))));
         if (!card.isEmpty()) {
             Component line = Component.translatable("residual.forge.tokens", vocab.size());
             if (state != ForgeBlockEntity.IDLE) {
                 line = line.copy().append(Component.translatable("residual.forge.each",
                         String.format(Locale.ROOT, "%.2f", menu.data.get(ForgeBlockEntity.CHARS) / 100f)));
             }
-            g.text(font, line, 8, 48, Ui.LABEL, false);
+            g.text(font, line, 8, 54, Ui.LABEL, false);
         }
-        int color = switch (state) {
-            case ForgeBlockEntity.LEARNING -> 0xFF1F7A72;
-            case ForgeBlockEntity.DONE -> 0xFF2E7D32;
-            case ForgeBlockEntity.EXHAUSTED -> 0xFF9A5B00;
-            default -> Ui.LABEL_DIM;
-        };
-        g.text(font, Ui.fit(font, Component.translatable("residual.forge.state." + state).getString(), 240), 8, 59, color, false);
         if (vocab.merges() > 0) {
             Component start = Component.translatable("residual.forge.start_over");
             g.text(font, start, START_X + (START_W - font.width(start)) / 2, START_Y + 2, Ui.LABEL, false);
             hits.add(new Hit(START_X, START_Y, START_W, SIZE_H, List.of(Component.translatable("residual.forge.start_over_hint"))));
         }
 
-        g.text(font, Component.translatable("residual.forge.sample"), SAMPLE_X, PANEL_Y - 10, Ui.LABEL, false);
-        g.text(font, Component.translatable("residual.forge.merges"), MERGES_X, PANEL_Y - 10, Ui.LABEL, false);
         Ui.screen(g, SAMPLE_X, PANEL_Y, SAMPLE_W, PANEL_H);
         Ui.screen(g, MERGES_X, PANEL_Y, MERGES_W, PANEL_H);
         sample(g, vocab);
         merges(g, vocab);
+        // after the tokens' own, so pointing at a token still explains it
+        hits.add(new Hit(SAMPLE_X, PANEL_Y, SAMPLE_W, PANEL_H, List.of(Component.translatable("residual.forge.sample"))));
+        hits.add(new Hit(MERGES_X, PANEL_Y, MERGES_W, PANEL_H, List.of(Component.translatable("residual.forge.merges"))));
     }
 
     private void slotHint(int index, String key) {

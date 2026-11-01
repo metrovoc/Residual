@@ -20,7 +20,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /** A Port's mode, its filter, how many it stocks or where its window stands, and how much it moved. */
 public class PortScreen extends AbstractContainerScreen<PortMenu> {
-    private static final int MODES_Y = 18, VALUE_Y = 70;
+    private static final int MODES_Y = 18, VALUE_Y = 66;
     private final List<Button> modes = new ArrayList<>();
     private final List<Button> nudges = new ArrayList<>();
 
@@ -89,7 +89,6 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
         g.text(font, title, 8, 6, Ui.LABEL, false);
         g.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, Ui.LABEL, false);
         PortMode mode = mode();
-        g.text(font, Component.translatable("residual.port.filter"), PortMenu.FILTER_X, PortMenu.FILTER_Y - 10, Ui.LABEL, false);
         boolean usesNumber = mode == PortMode.STOCK || mode == PortMode.WINDOW;
         if (usesNumber) {
             Component label = mode == PortMode.STOCK
@@ -98,7 +97,7 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
             g.text(font, label, 8, VALUE_Y, Ui.LABEL, false);
         }
         Component status = Component.translatable("residual.port.moved", Ui.count(menu.data.get(PortBlockEntity.MOVED)));
-        g.text(font, status, 8, VALUE_Y + 14, Ui.LABEL_DIM, false);
+        g.text(font, status, 8, VALUE_Y + 16, Ui.LABEL_DIM, false);
     }
 
     @Override

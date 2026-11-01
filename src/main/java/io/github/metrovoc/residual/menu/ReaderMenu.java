@@ -16,7 +16,9 @@ import net.minecraft.world.item.ItemStack;
 
 /** The Reader's screen: a shard slot, a model slot and the player's inventory. */
 public class ReaderMenu extends AbstractContainerMenu {
-    public static final int SHARD_X = 18, SHARD_Y = 30, MODEL_X = 18, MODEL_Y = 72;
+    /** Its two slots, in a panel beside the window, tucked under its edge: the shard above the model. */
+    public static final int SIDE_X = 252, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 46;
+    public static final int SHARD_X = 259, SHARD_Y = 10, MODEL_X = 259, MODEL_Y = 28;
     public static final int INVENTORY_X = 48, INVENTORY_Y = 150;
 
     public final BlockPos pos;

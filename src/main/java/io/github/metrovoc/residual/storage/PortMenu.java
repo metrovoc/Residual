@@ -18,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
  * clicking one with a stack names that kind, and clicking it empty-handed clears it.
  */
 public class PortMenu extends AbstractContainerMenu {
-    public static final int FILTER_X = 8, FILTER_Y = 46, INVENTORY_X = 8, INVENTORY_Y = 104;
+    public static final int FILTER_X = 8, FILTER_Y = 40, INVENTORY_X = 8, INVENTORY_Y = 108;
 
     public final BlockPos pos;
     public final ContainerData data;

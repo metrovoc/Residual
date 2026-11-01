@@ -779,7 +779,7 @@ public class BenchScreen extends Screen {
             return;
         }
         if (value == null) {
-            g.text(font, Component.translatable("residual.bench.waiting"), x + 4, ty, Ui.DIM, false);
+            lines(g, Component.translatable("residual.bench.waiting"), x + 4, ty, canvasW - 8, 2, Ui.DIM);
             return;
         }
         g.text(font, Tensor.shapeString(value.shape), x + 4, ty, Ui.AMBER, false);

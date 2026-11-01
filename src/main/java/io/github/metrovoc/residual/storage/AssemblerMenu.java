@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
  * clicking a cell with a stack puts that kind there, and clicking it empty-handed clears it.
  */
 public class AssemblerMenu extends AbstractContainerMenu {
-    public static final int GRID_X = 30, GRID_Y = 20, RESULT_X = 124, RESULT_Y = 38, INVENTORY_X = 8, INVENTORY_Y = 118;
+    public static final int GRID_X = 30, GRID_Y = 20, RESULT_X = 124, RESULT_Y = 38, INVENTORY_X = 8, INVENTORY_Y = 124;
 
     public final BlockPos pos;
     public final ContainerData data;

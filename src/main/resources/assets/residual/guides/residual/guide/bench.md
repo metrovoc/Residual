@@ -51,8 +51,8 @@ The parts:
 
 ## Recording
 
-When every case passes, **Record to photomask** writes the design onto a blank photomask from your inventory, signed
-with your name. The spec counts as verified for you from then on, and its module joins your parts on every Bench.
+When every case passes, **Record** writes the design onto a blank photomask from your inventory, signed with your name.
+The spec counts as verified for you from then on, and its module joins your parts on every Bench.
 
 ## Fabricating
 

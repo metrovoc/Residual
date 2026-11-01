@@ -42,12 +42,9 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
         for (Slot slot : menu.slots) {
             Ui.slot(g, leftPos + slot.x, topPos + slot.y);
         }
-        // an arrow from the grid to what it makes
-        int ax = leftPos + AssemblerMenu.GRID_X + 3 * 18 + 8, ay = topPos + AssemblerMenu.RESULT_Y + 7;
-        g.fill(ax, ay, ax + 22, ay + 2, Ui.LABEL_DIM);
-        for (int i = 0; i < 4; i++) {
-            g.fill(ax + 22 + i, ay - 3 + i, ax + 23 + i, ay + 5 - i, Ui.LABEL_DIM);
-        }
+        // an arrow from the grid to what it makes, halfway between them
+        int gridEnd = AssemblerMenu.GRID_X + 3 * 18 - 1;
+        Ui.arrow(g, leftPos + (gridEnd + AssemblerMenu.RESULT_X - 1) / 2 - 12, topPos + AssemblerMenu.RESULT_Y, 0);
     }
 
     @Override
@@ -63,7 +60,7 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
             case AssemblerBlockEntity.PAUSED -> Component.translatable("residual.assembler.paused");
             default -> Component.translatable("residual.assembler.no_recipe");
         };
-        g.text(font, status, 8, KEEP_Y + 14, waiting == AssemblerBlockEntity.CRAFTING ? 0xFF2E7D32 : Ui.LABEL_DIM, false);
+        g.text(font, status, 8, KEEP_Y + 16, waiting == AssemblerBlockEntity.CRAFTING ? 0xFF2E7D32 : Ui.LABEL_DIM, false);
     }
 
     @Override
