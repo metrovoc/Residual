@@ -224,6 +224,7 @@ import org.slf4j.Logger;
  * await TICKS KIND ... N     check as expect does, once a second, and fail the step if it has not come true in TICKS
  * mine X Y Z                 break a block as the player does, whatever stands between
  * bound NAME                 press the key a key mapping is bound to, by its name (key.residual.exosuit)
+ * hold NAME on|off           hold a key mapping's key down, by its name, or let go of it
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
@@ -706,6 +707,7 @@ public final class Rehearsal {
             }
             case "bound" -> KeyMapping.click(KeyMapping.get(arg).getDefaultKey());
             case "trace" -> trace(mc, args);
+            case "hold" -> KeyMapping.get(args[0]).setDown(args[1].equals("on"));
             case "seek" -> seek(mc, args);
             case "survey" -> survey(mc, args);
             case "fly" -> {

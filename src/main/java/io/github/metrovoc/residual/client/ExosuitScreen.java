@@ -10,6 +10,7 @@ import io.github.metrovoc.residual.learn.Played;
 import io.github.metrovoc.residual.model.Board;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.net.SuitEdit;
+import io.github.metrovoc.residual.net.SuitVein;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -38,6 +40,10 @@ import org.lwjgl.glfw.GLFW;
  */
 public class ExosuitScreen extends Screen {
     private static final KeyMapping KEY = new KeyMapping("key.residual.exosuit", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, KeyMapping.Category.INVENTORY);
+    /** Held, a break takes its whole vein. */
+    static final KeyMapping VEIN = new KeyMapping("key.residual.vein", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_GRAVE_ACCENT, KeyMapping.Category.GAMEPLAY);
+    /** What the server last heard about {@link #VEIN}. */
+    private static boolean veinHeld;
     private static final int W = 196, LINE = 11, DISPLAY = 80, ROW = 19;
     private static final int DISPLAY_Y = 18, ROWS_Y = DISPLAY_Y + DISPLAY + 4;
     private static final int H = ROWS_Y + SuitAbility.values().length * ROW + 5;
@@ -50,11 +56,19 @@ public class ExosuitScreen extends Screen {
 
     public static void keys(RegisterKeyMappingsEvent event) {
         event.register(KEY);
+        event.register(VEIN);
     }
 
-    /** The key opens the screen of the suit its presser wears. */
+    /** The one key opens the screen of the suit its presser wears; the server hears when the other is held. */
     public static void pressed(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
+        boolean held = mc.player != null && VEIN.isDown();
+        if (mc.player == null) {
+            veinHeld = false;
+        } else if (held != veinHeld) {
+            veinHeld = held;
+            ClientPacketDistributor.sendToServer(new SuitVein(held));
+        }
         while (KEY.consumeClick()) {
             if (mc.screen == null && mc.player != null && mc.player.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof ExosuitItem) {
                 mc.setScreen(new ExosuitScreen());
@@ -88,7 +102,7 @@ public class ExosuitScreen extends Screen {
     private static Component hint(SuitAbility a) {
         return switch (a) {
             case REACH -> Component.translatable("residual.ability.reach.hint", (int) ExosuitItem.REACH, a.power);
-            case VEIN_MINING -> Component.translatable("residual.ability.vein_mining.hint", count(Vein.POWER));
+            case VEIN_MINING -> Component.translatable("residual.ability.vein_mining.hint", Component.keybind("key.residual.vein"), count(Vein.POWER));
             case FLIGHT -> Component.translatable("residual.ability.flight.hint", a.power, ExosuitItem.CAPACITY / a.power / 1200);
             default -> Component.translatable("residual.ability." + a.id + ".hint", a.power);
         };

@@ -76,6 +76,7 @@ public final class Residual {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, Vein::breaking);
         NeoForge.EVENT_BUS.addListener(Vein::drops);
         NeoForge.EVENT_BUS.addListener(Vein::tick);
+        NeoForge.EVENT_BUS.addListener(Vein::loggedOut);
         NeoForge.EVENT_BUS.addListener(WayfinderItem::tick);
     }
 

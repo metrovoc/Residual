@@ -165,7 +165,7 @@ navigation:
 
 <residual:Milestone id="exosuit/board">把一个在 8 位或 4 位时通过驾驶测试的模型装进充好电的外骨骼，穿上它：[外骨骼](exosuit.md)。</residual:Milestone>
 
-<residual:Milestone id="exosuit/vein">用一个也通过勘测测试的模型并开启矿脉开采，用合适的工具潜行破坏一条 64 个方块或更长的矿脉。</residual:Milestone>
+<residual:Milestone id="exosuit/vein">用一个也通过勘测测试的模型并开启矿脉开采，按住它的键，用合适的工具破坏一条 64 个方块或更长的矿脉。</residual:Milestone>
 
 <residual:Milestone id="exosuit/all">同时运行全部五项能力。这需要 240,000 算力：一个 8 位时放不进板子、在 4 位时仍能稳住几乎每一次飞行的模型。</residual:Milestone>
 

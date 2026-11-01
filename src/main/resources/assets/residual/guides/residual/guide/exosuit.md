@@ -56,7 +56,7 @@ compute goes: turn one off and the next may start.
 | Night Vision | 16,000 | 16 FE a tick     | You see in the dark.                                            |
 | Step Assist  | 16,000 | 16 FE a tick     | You walk up a full block without jumping.                       |
 | Reach        | 32,000 | 32 FE a tick     | You reach 5 blocks further, to blocks and to what you strike.   |
-| Vein Mining  | 64,000 | 1,000 FE a block | A block you break while sneaking takes its vein with it.        |
+| Vein Mining  | 64,000 | 1,000 FE a block | A block you break while holding its key takes its vein with it.        |
 | Flight II    | 112,000 | 320 FE a tick in the air | You fly twice as fast as in a flight frame.             |
 
 So a model 32 wide carries night vision and step assist, or reach. One 48 wide carries vein mining, or the three small
@@ -65,10 +65,10 @@ bits, and has to hold every flight like that.
 
 ## Vein mining
 
-Sneak and break a block, and the blocks of its kind joined to it go too, through any face, edge or corner: an ore in
-stone and the same ore in deepslate count as one kind. They go a few at a time, spreading from the first, and what they
+Hold the vein key, <KeyBind id="key.residual.vein" />, and break a block, and the blocks of its kind joined to it go too,
+through any face, edge or corner: an ore in stone and the same ore in deepslate count as one kind. They go a few at a time, spreading from the first, and what they
 drop comes to your feet. A vein takes 64 blocks at least, and one more for every thousand of compute the suit has free.
-While you sneak and look at a block, thin lines show what would go, through the ground too. A vein stops before it would
+While you hold the key and look at a block, thin lines show what would go, through the ground too. A vein stops before it would
 break your tool or run the suit out of power, and it leaves alone blocks with contents and blocks your tool cannot take.
 
 Vein mining also takes a model that passes Survey in the form it runs in, since it has to read the ground: put the

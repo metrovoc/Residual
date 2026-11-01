@@ -15,6 +15,7 @@ import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.ProgramCardItem;
 import io.github.metrovoc.residual.item.PortableDriveItem;
 import io.github.metrovoc.residual.item.SuitAbility;
+import io.github.metrovoc.residual.item.Vein;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.item.WirelessTerminalItem;
 import io.github.metrovoc.residual.learn.Sampler;
@@ -79,6 +80,7 @@ public final class Network {
         r.playToServer(OpenTerminal.TYPE, OpenTerminal.STREAM_CODEC, Network::onOpenTerminal);
         r.playToServer(SuitEdit.TYPE, SuitEdit.STREAM_CODEC, Network::onSuitEdit);
         r.playToServer(PortProgramAction.TYPE, PortProgramAction.STREAM_CODEC, Network::onPortProgram);
+        r.playToServer(SuitVein.TYPE, SuitVein.STREAM_CODEC, Network::onSuitVein);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(ProgramSync.TYPE, ProgramSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
@@ -127,6 +129,12 @@ public final class Network {
     private static void onFindRuin(FindRuin f, IPayloadContext ctx) {
         if (ctx.player() instanceof ServerPlayer player) {
             WayfinderItem.find(player, f.mainHand() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND, f.kind());
+        }
+    }
+
+    private static void onSuitVein(SuitVein v, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player) {
+            Vein.hold(player, v.held());
         }
     }
 

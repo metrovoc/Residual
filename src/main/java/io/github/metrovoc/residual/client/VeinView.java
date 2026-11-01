@@ -24,8 +24,8 @@ import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 /**
- * What a vein would take: while an exosuit that runs vein mining is worn and its wearer sneaks, thin lines through the ground
- * along the outer edges of what would go with the block they look at, drawn as a survey's finds are.
+ * What a vein would take: while an exosuit that runs vein mining is worn and its key is held, thin lines through the ground
+ * along the outer edges of what would go with the block its wearer looks at, drawn as a survey's finds are.
  */
 public final class VeinView {
     private static final ContextKey<List<AABB>> KEY = new ContextKey<>(Residual.id("vein"));
@@ -43,7 +43,7 @@ public final class VeinView {
     public static void extract(ExtractLevelRenderStateEvent event) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if (player == null || mc.level == null || !player.isShiftKeyDown() || !(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) {
+        if (player == null || mc.level == null || !ExosuitScreen.VEIN.isDown() || !(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) {
             return;
         }
         ItemStack suit = player.getItemBySlot(EquipmentSlot.CHEST);

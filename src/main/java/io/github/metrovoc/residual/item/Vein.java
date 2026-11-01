@@ -22,14 +22,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Vein mining: a player whose exosuit runs it breaks a block while sneaking, and the blocks of its kind joined to it go too,
- * spreading out from it a few each tick, each as if the player had broken it, with their drops coming to the player's feet.
+ * Vein mining: a player whose exosuit runs it breaks a block while holding its key, and the blocks of its kind joined to it go
+ * too, spreading out from it a few each tick, each as if the player had broken it, with their drops coming to the player's feet.
  * It takes {@link #LEAST} blocks at least and one more for every thousand of compute the suit has free, and stops before it
  * would break the tool or run the suit out of charge.
  */
@@ -39,6 +40,8 @@ public final class Vein {
     public static final int POWER = 1000;
     private static final int EACH_TICK = 8;
     private static final Map<UUID, Vein> UNDER_WAY = new HashMap<>();
+    /** The players holding the key, as their clients last said. */
+    private static final Set<UUID> HOLDING = new HashSet<>();
 
     private final ItemStack tool;
     private final Kind kind;
@@ -98,9 +101,22 @@ public final class Vein {
         return out;
     }
 
-    /** A sneaking wearer broke a block: the blocks joined to it go after it, unless something else stopped the break. */
+    /** A client says its player holds the key, or has let go of it. */
+    public static void hold(ServerPlayer player, boolean held) {
+        if (held) {
+            HOLDING.add(player.getUUID());
+        } else {
+            HOLDING.remove(player.getUUID());
+        }
+    }
+
+    public static void loggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        HOLDING.remove(event.getEntity().getUUID());
+    }
+
+    /** A wearer holding the key broke a block: the blocks joined to it go after it, unless something else stopped the break. */
     public static void breaking(BreakBlockEvent event) {
-        if (!(event.getPlayer() instanceof ServerPlayer player) || UNDER_WAY.containsKey(player.getUUID()) || !player.isShiftKeyDown()) {
+        if (!(event.getPlayer() instanceof ServerPlayer player) || UNDER_WAY.containsKey(player.getUUID()) || !HOLDING.contains(player.getUUID())) {
             return;
         }
         ItemStack suit = player.getItemBySlot(EquipmentSlot.CHEST);
