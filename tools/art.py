@@ -250,6 +250,8 @@ def side_input(c, ramp):
 # ---------------------------------------------------------------- operator glyphs, 8 x 8 or less, even both ways
 
 # The matrix machines share one grid of 2 px cells, 1 px apart, three across: which cells light says what each does.
+# Each operator's sides show its glyph with the top toward the front (data.py's flow), so a glyph that pictures a change
+# reads upward: what comes in at the bottom, what goes out at the top. Its front shows the same glyph.
 GLYPHS = {
     # a table, one row of it looked up
     "embedding": [
@@ -340,14 +342,14 @@ GLYPHS = {
     ],
     # every number made smaller by the same factor
     "scale": [
-        "........",
-        "--------",
-        "........",
-        ".######.",
+        "...++...",
         "........",
         "..####..",
         "........",
-        "...++...",
+        ".######.",
+        "........",
+        "--------",
+        "........",
     ],
     # the future hidden: each row sees only itself and what came before
     "causal_mask": [
@@ -373,34 +375,34 @@ GLYPHS = {
     ],
     # one vector, cut into heads
     "split_heads": [
-        "########",
-        "########",
-        "........",
-        "........",
-        "........",
-        "........",
         "++.++.++",
         "++.++.++",
+        "........",
+        "........",
+        "........",
+        "........",
+        "########",
+        "########",
     ],
     # the heads, joined back into one vector
     "merge_heads": [
-        "++.++.++",
-        "++.++.++",
-        "........",
-        "........",
-        "........",
-        "........",
         "########",
         "########",
+        "........",
+        "........",
+        "........",
+        "........",
+        "++.++.++",
+        "++.++.++",
     ],
     # the same row, a step later: its first cell left empty
     "shift": [
-        "##.##.##",
-        "##.##.##",
-        "........",
-        "........",
         "--.++.++",
         "--.++.++",
+        "........",
+        "........",
+        "##.##.##",
+        "##.##.##",
     ],
     # two vectors, laid end to end
     "concat": [

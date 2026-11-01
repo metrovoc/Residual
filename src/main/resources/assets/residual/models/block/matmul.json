@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/cube",
+  "parent": "minecraft:block/cube_directional",
   "textures": {
     "particle": "residual:block/matmul_side",
     "north": "residual:block/matmul_front",

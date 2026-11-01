@@ -36,6 +36,8 @@ WRECKS = ruins.WRECKS
 
 FACING = {"north": {}, "south": {"y": 180}, "east": {"y": 90}, "west": {"y": 270}, "up": {"x": 270}, "down": {"x": 90}}
 HORIZONTAL = {k: FACING[k] for k in ("north", "south", "east", "west")}
+# as block/cube_directional turns its sides, clockwise from outside
+FLOW_TURNS = {"east": 90, "west": 270, "down": 180}
 GENERATED = ["assets/residual/blockstates", "assets/residual/models", "assets/residual/items",
              "data/residual/loot_table", "data/residual/recipe", "data/residual/advancement", "data/residual/tags",
              "data/residual/worldgen", "data/residual/structure", "data/minecraft/tags"]
@@ -67,30 +69,33 @@ def glowing(texture):
     return (RES / "assets" / NS / "textures" / (texture.split(":")[1] + "_lights.png")).exists()
 
 
-def cube(name, north, south, side, up=None, down=None):
+def cube(name, north, south, side, up=None, down=None, flow=False):
     """A full block. A face with lights gets them on a second, full-bright layer filling the holes art.py left in it,
-    the way AE2 and Mekanism light theirs."""
+    the way AE2 and Mekanism light theirs. With flow, a block that can face any way and carries something from its back
+    to its front turns its sides as vanilla's cube_directional does: the top of each side's texture points to the front,
+    so what is drawn on them runs the same way all round the block."""
     faces = {"north": north, "south": south, "east": side, "west": side, "up": up or side, "down": down or side}
     lit = [f for f, t in faces.items() if glowing(t)]
     if not lit:
-        write(f"assets/{NS}/models/block/{name}.json", {"parent": "minecraft:block/cube", "textures": {"particle": side} | faces})
+        write(f"assets/{NS}/models/block/{name}.json", {"parent": f"minecraft:block/{'cube_directional' if flow else 'cube'}",
+                                                        "textures": {"particle": side} | faces})
         return
+    turns = FLOW_TURNS if flow else {}
+    turned = lambda f: {"rotation": turns[f]} if f in turns else {}
     bright = {"block_light": 15, "sky_light": 15}
     write(f"assets/{NS}/models/block/{name}.json", {
         "parent": "minecraft:block/block", "render_type": "minecraft:cutout",
         "textures": {"particle": side} | faces | {f"{f}_lights": faces[f] + "_lights" for f in lit},
-        "elements": [box([0, 0, 0], [16, 16, 16], {f: {"texture": f"#{f}", "cullface": f} for f in faces}),
-                     box([0, 0, 0], [16, 16, 16], {f: {"texture": f"#{f}_lights", "cullface": f, "neoforge_data": bright}
+        "elements": [box([0, 0, 0], [16, 16, 16], {f: {"texture": f"#{f}", "cullface": f} | turned(f) for f in faces}),
+                     box([0, 0, 0], [16, 16, 16], {f: {"texture": f"#{f}_lights", "cullface": f, "neoforge_data": bright} | turned(f)
                                                    for f in lit}) | {"shade": False}]})
 
-
-# ---------------------------------------------------------------- blocks
 
 def operators():
     for op in OPS:
         side = rid(f"block/{op}_side")
         back = rid(f"block/{op}_back") if ARITY.get(op, 1) == 0 else rid("block/machine_back")
-        cube(op, rid(f"block/{op}_front"), back, side)
+        cube(op, rid(f"block/{op}_front"), back, side, flow=True)
         write(f"assets/{NS}/blockstates/{op}.json", {"variants": facing_variants(rid(f"block/{op}"))})
         item_definition(op, rid(f"block/{op}"))
 
@@ -98,7 +103,7 @@ def operators():
 def core():
     for suffix in ("", "_on"):
         side = rid(f"block/model_core_side{suffix}")
-        cube(f"model_core{suffix}", rid(f"block/model_core_front{suffix}"), side, side)
+        cube(f"model_core{suffix}", rid(f"block/model_core_front{suffix}"), side, side, flow=True)
     variants = {}
     for running, suffix in (("false", ""), ("true", "_on")):
         for key, value in facing_variants(rid(f"block/model_core{suffix}")).items():
@@ -357,12 +362,12 @@ def storage():
     item_definition("storage_terminal", rid("block/storage_terminal"))
 
     # a Port's front holds against its inventory and its back usually against a link, so its four sides, the faces
-    # players see, show its mode
+    # players see, show its mode: importing, an arrow toward the back; exporting, toward the front
     back, front = rid("block/port_back"), rid("block/port_front")
     variants = {}
     for mode in PORT_MODES:
         for active, suffix in (("false", ""), ("true", "_on")):
-            cube(f"port_{mode}{suffix}", front, back, rid(f"block/port_{mode}{suffix}"))
+            cube(f"port_{mode}{suffix}", front, back, rid(f"block/port_{mode}{suffix}"), flow=True)
             for key, value in facing_variants(rid(f"block/port_{mode}{suffix}")).items():
                 variants[f"{key},mode={mode},active={active}"] = value
     write(f"assets/{NS}/blockstates/port.json", {"variants": variants})
