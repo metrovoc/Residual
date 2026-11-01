@@ -5,7 +5,16 @@
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "residual:ruins/fallen_relay_mast",
+        "location": "residual:ruins/fallen_relay_mast_0",
+        "processors": "residual:ruin/fallen_relay_mast",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/fallen_relay_mast_1",
         "processors": "residual:ruin/fallen_relay_mast",
         "projection": "rigid"
       }

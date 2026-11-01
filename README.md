@@ -131,8 +131,11 @@ the heights before and meeting the wind before it pushes.
 <img src="docs/images/reader.jpg" alt="The Reader restoring a record's lost text, block by block" width="49%">
 </p>
 
-Archive houses, relay masts and buried vaults stand far apart across the overworld. They hold archive shards, the
-schematics of machines whose plans were lost, and salvaged models that no longer work.
+The old world left its places behind: relay towers along the old roads, windmill farms on the ridges, stilt houses on
+the marshes, slipways on the shores, inns and watermills, a market town's square, halls where minds were taught, a great
+mine and an archive dug into a hill, sixteen kinds in all. Each is rare and stands only in the land that suits it, and a
+Wayfinder leads to the nearest of any kind the archive has told you of. They hold archive shards, drives already full of
+the old world's writing, the schematics of machines whose plans were lost, and salvaged models that no longer work.
 
 A shard is one record of the old world's archive, a letter or a journal, a story, a song, a manual or a notice, with
 some of its text worn away. Filed into an Archive Drive, what you recover becomes something to learn from: a model that

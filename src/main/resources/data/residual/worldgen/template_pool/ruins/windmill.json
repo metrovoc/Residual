@@ -5,7 +5,16 @@
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "residual:ruins/windmill",
+        "location": "residual:ruins/windmill_0",
+        "processors": "residual:ruin/windmill",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/windmill_1",
         "processors": "residual:ruin/windmill",
         "projection": "rigid"
       }

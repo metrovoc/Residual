@@ -5,7 +5,16 @@
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "residual:ruins/tutor_house",
+        "location": "residual:ruins/tutor_house_0",
+        "processors": "residual:ruin/tutor_house",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/tutor_house_1",
         "processors": "residual:ruin/tutor_house",
         "projection": "rigid"
       }

@@ -148,6 +148,7 @@
   "residual.wayfinder.tuned": "已调谐：%s",
   "residual.wayfinder.distance": "%s · %s 格",
   "residual.wayfinder.none": "%2$s 格内没有%1$s",
+  "residual.wayfinder.searching": "正在寻找%s……",
   "residual.wayfinder.more": "碎片里还写着别的地方。",
   "residual.ruin.archive_house": "档案屋",
   "residual.ruin.relay_mast": "中继塔",

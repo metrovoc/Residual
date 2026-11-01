@@ -10,6 +10,7 @@ import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.item.DriveItem;
 import io.github.metrovoc.residual.item.ShardItem;
+import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.learn.Blueprints;
 import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModItems;
@@ -129,8 +130,11 @@ import org.slf4j.Logger;
  * type TEXT
  * slot N|ITEM                select hotbar slot N (0-8), or the first one holding ITEM
  * drive N                    give the player an Archive Drive holding N shards' worth of the archive
- * frame STRUCTURE DIST HEIGHT ANGLE  stand DIST blocks out from the nearest generated STRUCTURE, HEIGHT above its
- *                            top and ANGLE degrees round from south, looking at its centre
+ * frame STRUCTURE DIST HEIGHT ANGLE [LOOK]  stand DIST blocks out from the nearest generated STRUCTURE, HEIGHT
+ *                            above its top and ANGLE degrees round from south, looking at its centre, or LOOK blocks
+ *                            above its bottom
+ * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
+ *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
  *                            T a tree)
  * fly on|off                 hover in place (creative), so the camera stays where cmd tp put it
@@ -456,6 +460,7 @@ public final class Rehearsal {
                 });
             }
             case "frame" -> frame(mc, args);
+            case "seek" -> seek(mc, args);
             case "survey" -> survey(mc, args);
             case "fly" -> {
                 hover = arg.equals("on");
@@ -600,6 +605,9 @@ public final class Rehearsal {
                 }
             }
             Vec3 centre = Vec3.atCenterOf(box.getCenter());
+            if (args.length > 4) {
+                centre = new Vec3(centre.x, box.minY() + Double.parseDouble(args[4]), centre.z);
+            }
             double angle = Math.toRadians(Double.parseDouble(args[3]));
             double dist = Double.parseDouble(args[1]);
             Vec3 eye = new Vec3(centre.x + Math.sin(angle) * dist, box.maxY() + Double.parseDouble(args[2]),
@@ -609,6 +617,25 @@ public final class Rehearsal {
             float pitch = (float) Math.toDegrees(-Math.atan2(d.y, Math.sqrt(d.x * d.x + d.z * d.z)));
             player.teleportTo(level, eye.x, eye.y - player.getEyeHeight(), eye.z, Set.of(), yaw, pitch, true);
             LOG.info("[rehearsal] framed {} at {}", args[0], box);
+        });
+    }
+
+    private static void seek(Minecraft mc, String[] args) {
+        MinecraftServer server = mc.getSingleplayerServer();
+        UUID id = mc.player.getUUID();
+        server.execute(() -> {
+            ServerPlayer player = server.getPlayerList().getPlayer(id);
+            ServerLevel level = player.level();
+            Holder<Structure> structure = level.registryAccess().lookupOrThrow(Registries.STRUCTURE)
+                    .getOrThrow(ResourceKey.create(Registries.STRUCTURE, Identifier.parse(args[0])));
+            int rings = WayfinderItem.rings(level, structure);
+            long start = System.nanoTime();
+            Pair<BlockPos, Holder<Structure>> found = level.getChunkSource().getGenerator()
+                    .findNearestMapStructure(level, HolderSet.direct(structure), player.blockPosition(), rings, false);
+            long ms = (System.nanoTime() - start) / 1_000_000;
+            LOG.info("[rehearsal] seek {}: {} rings, {} ms, {}", args[0], rings, ms, found == null ? "none"
+                    : Math.round(Math.sqrt(player.blockPosition().distToLowCornerSqr(found.getFirst().getX(), player.getY(),
+                    found.getFirst().getZ()))) + " blocks");
         });
     }
 

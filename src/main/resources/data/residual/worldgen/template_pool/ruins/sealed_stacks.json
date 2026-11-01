@@ -5,7 +5,16 @@
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "residual:ruins/sealed_stacks",
+        "location": "residual:ruins/sealed_stacks_0",
+        "processors": "residual:ruin/sealed_stacks",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/sealed_stacks_1",
         "processors": "residual:ruin/sealed_stacks",
         "projection": "rigid"
       }

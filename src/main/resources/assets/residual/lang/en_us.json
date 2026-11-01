@@ -148,6 +148,7 @@
   "residual.wayfinder.tuned": "Tuned to: %s",
   "residual.wayfinder.distance": "%s · %s blocks",
   "residual.wayfinder.none": "No %s within %s blocks",
+  "residual.wayfinder.searching": "Looking for %s…",
   "residual.wayfinder.more": "Shards tell of more places.",
   "residual.ruin.archive_house": "Archive House",
   "residual.ruin.relay_mast": "Relay Mast",

@@ -5,8 +5,26 @@
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "residual:ruins/archive_house",
-        "processors": "residual:ruin_decay",
+        "location": "residual:ruins/archive_house_0",
+        "processors": "residual:ruin/archive_house",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/archive_house_1",
+        "processors": "residual:ruin/archive_house",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/archive_house_2",
+        "processors": "residual:ruin/archive_house",
         "projection": "rigid"
       }
     }

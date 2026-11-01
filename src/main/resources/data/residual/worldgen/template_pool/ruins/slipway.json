@@ -2,10 +2,19 @@
   "fallback": "minecraft:empty",
   "elements": [
     {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/slipway_0",
+        "processors": "residual:ruin/slipway",
+        "projection": "rigid"
+      }
+    },
+    {
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "residual:ruins/slipway",
+        "location": "residual:ruins/slipway_1",
         "processors": "residual:ruin/slipway",
         "projection": "rigid"
       }

@@ -59,8 +59,22 @@
     },
     {
       "processor_type": "minecraft:block_rot",
-      "integrity": 0.9,
+      "integrity": 0.96,
       "rottable_blocks": "#residual:ruin_rot"
+    },
+    {
+      "processor_type": "residual:legs",
+      "marker": "minecraft:brown_stained_glass",
+      "leg": {
+        "Name": "minecraft:spruce_log",
+        "Properties": {
+          "axis": "y"
+        }
+      },
+      "depth": 24
+    },
+    {
+      "processor_type": "residual:ground"
     }
   ]
 }

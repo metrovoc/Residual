@@ -5,8 +5,17 @@
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "residual:ruins/buried_vault",
-        "processors": "residual:ruin_decay",
+        "location": "residual:ruins/buried_vault_0",
+        "processors": "residual:ruin/buried_vault",
+        "projection": "rigid"
+      }
+    },
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/buried_vault_1",
+        "processors": "residual:ruin/buried_vault",
         "projection": "rigid"
       }
     }

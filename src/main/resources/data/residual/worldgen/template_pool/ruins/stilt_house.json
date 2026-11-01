@@ -2,10 +2,19 @@
   "fallback": "minecraft:empty",
   "elements": [
     {
+      "weight": 2,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/stilt_house_0",
+        "processors": "residual:ruin/stilt_house",
+        "projection": "rigid"
+      }
+    },
+    {
       "weight": 1,
       "element": {
         "element_type": "minecraft:single_pool_element",
-        "location": "residual:ruins/stilt_house",
+        "location": "residual:ruins/stilt_house_1",
         "processors": "residual:ruin/stilt_house",
         "projection": "rigid"
       }

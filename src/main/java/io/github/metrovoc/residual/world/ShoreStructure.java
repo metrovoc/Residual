@@ -56,6 +56,10 @@ public class ShoreStructure extends Structure {
         StructureTemplateManager templates = context.structureTemplateManager();
         ChunkGenerator generator = context.chunkGenerator();
         BlockPos origin = new BlockPos(context.chunkPos().getMinBlockX(), 0, context.chunkPos().getMinBlockZ());
+        // the biome before the ground: a shore's land lies about at sea level
+        if (!RuinStructure.biome(context, origin.atY(generator.getSeaLevel() + 1 + offset))) {
+            return Optional.empty();
+        }
         List<Rotation> turns = new ArrayList<>(List.of(Rotation.values()));
         Collections.shuffle(turns, new Random(context.random().nextLong()));
         for (Rotation turn : turns) {

@@ -7,6 +7,7 @@ import io.github.metrovoc.residual.block.Bursts;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.item.FlightFrameItem;
+import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.net.Network;
 import io.github.metrovoc.residual.registry.ModAttachments;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
@@ -53,6 +54,7 @@ public final class Residual {
         ModTabs.TABS.register(modBus);
         ModLoot.FUNCTIONS.register(modBus);
         ModStructures.TYPES.register(modBus);
+        ModStructures.PROCESSORS.register(modBus);
         modBus.addListener(Network::register);
         modBus.addListener(Residual::capabilities);
         container.registerConfig(ModConfig.Type.SERVER, ResidualConfig.SPEC);
@@ -64,6 +66,7 @@ public final class Residual {
         NeoForge.EVENT_BUS.addListener(ForecasterBlockEntity::grew);
         NeoForge.EVENT_BUS.addListener(Bursts::tick);
         NeoForge.EVENT_BUS.addListener(FlightFrameItem::tick);
+        NeoForge.EVENT_BUS.addListener(WayfinderItem::tick);
     }
 
     public static Identifier id(String path) {
