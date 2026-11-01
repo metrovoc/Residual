@@ -1690,6 +1690,142 @@ def deep_works():
         t.stairs(x, y, z, "cobbled_deepslate_stairs", "north")
     return t
 
+FINDING_BOOK = [
+    "The finding book of the Archive at Vell. One line for every text, in the order it came.",
+    "1. The founders' page. Deepest room, in the oak box.\n2. Bread, the very next day. Second hall.",
+    "40,112. Letter: Mira to Tam, the new tower. Northpoint shelf.\n40,113. Relay log, Ambrook, first evening.",
+    "41,230. Copied this morning. The stacks are full again. We will dig.",
+]
+FOUNDERS_PAGE = ["We will keep everything we write.", "Not only what is wise. Not only what is true. Everything, so "
+                 "that whoever comes after can find us."]
+
+
+def archive_hall(t, x0, x1, z0, z1, y0, shelves, rng):
+    """One of the Archive's halls: tuff walls, a dark floor, rows of shelves down its length with aisles between, the
+    shelf's name on a card at the end of each row, lanterns hung between."""
+    t.fill(x0, y0 - 1, z0, x1, y0 + 5, z1, "tuff_bricks")
+    t.fill(x0 + 1, y0, z0 + 1, x1 - 1, y0 + 4, z1 - 1, "air")
+    t.fill(x0 + 1, y0 - 1, z0 + 1, x1 - 1, y0 - 1, z1 - 1, "dark_oak_planks")
+    full = {f"slot_{i}_occupied": str(rng.random() < 0.85).lower() for i in range(6)}
+    for k, x in enumerate(range(x0 + 2, x1 - 1, 3)):
+        for z in range(z0 + 2, z1 - 1):
+            for y in (y0, y0 + 1, y0 + 2):
+                t.set(x, y, z, "chiseled_bookshelf" if (z + y) % 3 else "bookshelf",
+                      {"facing": "east", **full} if (z + y) % 3 else None)
+        if k < len(shelves):
+            t.sign(x, y0 + 1, z1 - 1, "south", [shelves[k], "shelf"])
+    for x in range(x0 + 3, x1 - 1, 6):
+        t.lantern(x, y0 + 4, (z0 + z1) // 2, hanging=True)
+
+
+def archive_at_vell():
+    """The Archive at Vell, dug into the hill. On the surface its gatehouse of tuff and calcite, the words the first
+    keepers cut over the door, the copying room with its big window and eight long tables, and the reading room, where a
+    lamp still burns on the long table by the window. Down the great stair, inside the hill: the front hall with the
+    finding book by the door; halls of shelves, each shelf with its name, light wells of glass bringing daylight down; a
+    stack sealed with clay; and the deepest room, where the oldest record is kept in an oak box."""
+    import random
+    rng = random.Random(11930227)
+    t = Template(33, 30, 40)
+    g = 20  # the ground
+    # the gatehouse: tuff below, calcite between pilasters above, a cornice, a flat roof behind a parapet
+    x0, x1, z0, z1 = 6, 26, 26, 37
+    t.fill(x0, g - 1, z0, x1, g - 1, z1, "polished_tuff")
+    t.fill(x0 + 1, g, z0 + 1, x1 - 1, g + 5, z1 - 1, "air")
+    t.walls(x0, g, z0, x1, g + 5, z1, "calcite")
+    t.walls(x0, g, z0, x1, g, z1, "tuff_bricks")
+    for x in range(x0, x1 + 1, 4):
+        for z in (z0, z1):
+            t.fill(x, g, z, x, g + 5, z, "polished_tuff")
+    for z in range(z0, z1 + 1, 4):
+        t.fill(x0, g, z, x0, g + 5, z, "polished_tuff")
+        t.fill(x1, g, z, x1, g + 5, z, "polished_tuff")
+    t.fill(x0, g + 6, z0, x1, g + 6, z1, "tuff_bricks")
+    ring_stairs(t, g + 6, x0 - 1, x1 + 1, "tuff_brick_stairs", half="top", z0=z0 - 1, z1=z1 + 1)
+    for x in range(x0, x1 + 1):
+        for z in (z0, z1):
+            t.set(x, g + 7, z, "tuff_brick_wall")
+    for z in range(z0, z1 + 1):
+        t.set(x0, g + 7, z, "tuff_brick_wall")
+        t.set(x1, g + 7, z, "tuff_brick_wall")
+    # the door, and the words cut over it
+    t.fill(15, g, z1, 17, g + 2, z1, "air")
+    t.fill(15, g + 3, z1, 17, g + 3, z1, "chiseled_tuff_bricks")
+    t.sign(15, g + 4, z1 + 1, "south", ["We will keep"])
+    t.sign(16, g + 4, z1 + 1, "south", ["everything"])
+    t.sign(17, g + 4, z1 + 1, "south", ["we write."])
+    t.fill(15, g + 4, z1, 17, g + 4, z1, "polished_tuff")
+    # the copying room: the big window over the town, eight long tables, ink and paper
+    t.fill(19, g + 1, z1, 25, g + 3, z1, "glass_pane")
+    for tx in (20, 23):
+        for tz in (28, 31, 34):
+            if (tx, tz) != (23, 34):
+                for x in (tx, tx + 1):
+                    t.slab(x, g, tz, "spruce_slab", "top")
+    t.barrel(25, g, 27, "up", "residual:chests/archive_copying")
+    t.set(25, g + 1, 27, "barrel", {"facing": "up", "open": "false"})
+    t.fill(18, g, z0 + 1, 18, g + 4, z1 - 1, "calcite")
+    t.set(18, g, 33, "air")
+    t.set(18, g + 1, 33, "air")
+    # the reading room: the long table by the window, the lamp left burning on it
+    t.fill(x0 + 1, g + 1, z1, 11, g + 3, z1, "glass_pane")
+    for x in range(8, 13):
+        t.slab(x, g, 35, "spruce_slab", "top")
+    t.lantern(10, g + 1, 35)
+    for x in (8, 11):
+        t.stairs(x, g, 34, "spruce_stairs", "south")
+    for x in (21, 9):
+        t.lantern(x, g + 5, 31, hanging=True)
+    # the great stair down into the hill, from the gatehouse's back wall
+    for k in range(10):
+        z, y = z0 - k, g - 1 - k
+        for x in (15, 16, 17):
+            for h in (1, 2, 3):
+                t.set(x, y + h, z, "air")
+            t.stairs(x, y, z, "tuff_brick_stairs", "south")
+        t.set(14, y + 1, z, "tuff_bricks")
+        t.set(18, y + 1, z, "tuff_bricks")
+    t.fill(15, g, z0, 17, g + 2, z0, "air")
+    # the front hall at the stair's foot: the finding book by the door, the founding words again
+    fy = g - 10
+    t.fill(10, fy - 1, 11, 22, fy + 5, 17, "tuff_bricks")
+    t.fill(11, fy, 12, 21, fy + 4, 16, "air")
+    t.fill(11, fy - 1, 12, 21, fy - 1, 16, "polished_tuff")
+    t.fill(15, fy, 17, 17, fy + 2, 17, "air")
+    t.set(13, fy, 15, "lectern", {"facing": "east", "has_book": "true", "powered": "false"},
+          {"id": "minecraft:lectern", "Page": 0, "Book": {"id": "minecraft:written_book", "count": 1, "components": {
+              "minecraft:written_book_content": {"title": {"raw": "The finding book"}, "author": "the clerks",
+                                                 "resolved": 1, "pages": [{"raw": p} for p in FINDING_BOOK]}}}})
+    t.fill(15, fy + 3, 11, 17, fy + 3, 11, "chiseled_tuff_bricks")
+    for x in (12, 20):
+        t.set(x, fy + 4, 14, "chain", {"axis": "y", "waterlogged": "false"})
+        t.lantern(x, fy + 3, 14, hanging=True)
+    # the halls of shelves, each shelf with its name; light wells of glass up to the ground
+    archive_hall(t, 1, 11, 2, 12, fy, ["Kettle Ridge", "Ambrook", "Lowmarsh"], rng)
+    archive_hall(t, 21, 31, 2, 12, fy, ["Saltreach", "old songs", "relay"], rng)
+    t.fill(11, fy, 13, 11, fy + 2, 13, "air")
+    t.fill(21, fy, 13, 21, fy + 2, 13, "air")
+    for lx, lz in ((6, 7), (26, 7)):
+        for y in range(fy + 5, g):
+            t.set(lx, y, lz, "glass")
+        t.set(lx, g, lz, "glass")
+    # down again to the deep halls: a stack sealed with clay, and the deepest room with the oldest record
+    dy = fy - 8
+    for k in range(7):
+        z, y = 11 - k, fy - 1 - k
+        for h in (1, 2, 3):
+            t.set(16, y + h, z, "air")
+        t.stairs(16, y, z, "tuff_brick_stairs", "south")
+    t.fill(10, dy - 1, 0, 22, dy + 5, 4, "deepslate_tiles")
+    t.fill(11, dy, 1, 21, dy + 4, 3, "air")
+    t.fill(15, dy, 4, 17, dy + 2, 4, "air")
+    t.fill(11, dy, 1, 11, dy + 2, 3, "clay")
+    t.fill(10, dy, 1, 10, dy + 2, 3, "honeycomb_block")
+    t.set(19, dy, 2, "oak_planks")
+    t.chest(19, dy + 1, 2, "west", "residual:chests/archive_deepest")
+    t.lantern(16, dy + 4, 2, hanging=True)
+    return t
+
 def weathered(*rules, integrity=0.82):
     """A ruin's processors: each (block, its weathered form, the share that weathered) as a rule, then the decay that
     takes out some of the blocks tagged ruin_rot."""
@@ -1720,6 +1856,7 @@ INNS = ["Halfway Inn", "Brown Hen", "innkeeper", "the inn"]
 MILL_POND = ["Ambrook", "mill pond", "Jory", "mill wheel"]
 WELLS = ["Three Wells", "north well", "market day", "notice board"]
 DEEP = ["Deep Works", "Copperhold", "the mine", "deep stone"]
+VELL = ["Archive at Vell", "the Archive", "Oren", "copying room"]
 FALLEN = ["mast", "relay line"]
 SEALED = ["sealed", "the stacks", "sealing"]
 
@@ -1765,6 +1902,10 @@ RUINS = {
                       processors=weathered(*STONE_AGE, integrity=0.94),
                       biomes=[f"minecraft:{b}" for b in ("river", "forest", "flower_forest", "birch_forest", "plains",
                                                           "meadow", "cherry_grove")]),
+    "archive_at_vell": Ruin(archive_at_vell, 160, 48, 11930227, start=-19, terrain="none", words=VELL,
+                            processors=weathered(("tuff_bricks", "tuff", 0.08), integrity=0.96),
+                            biomes=[f"minecraft:{b}" for b in ("plains", "meadow", "forest", "windswept_hills",
+                                                                "birch_forest", "taiga")]),
     "deep_works": Ruin(deep_works, 128, 40, 12807731, start=-41, terrain="none", words=DEEP,
                        processors=weathered(*STONE_AGE, integrity=0.95),
                        biomes=[f"minecraft:{b}" for b in ("windswept_hills", "windswept_gravelly_hills", "windswept_forest",
@@ -1925,6 +2066,16 @@ LOOT = {
         pool((2, 4), [mask("attention", 2), mask("transformer", 2), mask("layer_norm", 1), mask("mlp", 1),
                       item("weight_crystal", 4, (2, 5)), item("minecraft:amethyst_shard", 3, (2, 6)),
                       item("archive_drive", 2, drive=(12, ["Deep Works", "warm", "humming", "ninth"]))])],
+    "chests/archive_copying": [pool((2, 4), [
+        item("minecraft:paper", 6, (4, 12)), item("minecraft:ink_sac", 4, (2, 6)), item("minecraft:feather", 3, (2, 5)),
+        item("minecraft:book", 3, (1, 3)), item("archive_shard", 6, (1, 3), about=VELL),
+        item("archive_drive", 2, drive=(16, ["archive", "clerk", "Vell", "copy"]))])],
+    "chests/archive_deepest": [
+        pool((1, 1), [item("minecraft:written_book", 1, components={"minecraft:written_book_content": {
+            "title": {"raw": "The founders' page"}, "author": "the first keepers", "resolved": True,
+            "pages": [{"raw": p} for p in FOUNDERS_PAGE]}})]),
+        pool((2, 3), [item("archive_drive", 1, drive=(24, ["founding", "first", "archive"])), item("weight_crystal", 3, (2, 4)),
+                      mask("transformer", 1), item("archive_shard", 4, (2, 4))])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
         item("archive_shard", 9), mask("matmul", 1), item("weight_crystal", 2)]}],
 }

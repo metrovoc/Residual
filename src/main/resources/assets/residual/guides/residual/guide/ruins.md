@@ -81,13 +81,21 @@ stand in their row before the tutor's Bench; the teaching room keeps its tray of
 apprentice hall keeps its dry box; and the drill yard, ringed with torches, its boards drawn as small fields. In
 grassland, forest, taiga, savanna and cherry groves, at most one in each region 72 chunks across.
 
+## The Archive at Vell
+
+Where everything was kept: a gatehouse of tuff and calcite with the first keepers' words cut over its door, the
+copying room with its big window and long tables, and the reading room, where a lamp still burns on the long table by
+the window. A great stair goes down into the hill to the front hall and the finding book, the halls of shelves under
+their light wells, a stack sealed with clay, and the deepest room, where the oldest record is kept. At most one in each
+region 160 chunks across.
+
 ## The Deep Works
 
 A great mine in the hills. At the shaft head stand the headframe and its wheel, the board where miners wrote their
 names and rubbed them out coming up, the tool store and the sorting bins. A ladder goes down the shaft past a level of
 copper, a level of iron and coal with an amethyst hollow behind a door, and the deep stone, where an old tunnel was
 walled up; at the ninth level the gate is locked, and an old side door above it leads down another way. In windswept
-hills, meadows and savanna plateaus, the rarest ruin of all: at most one in each region 128 chunks across.
+hills, meadows and savanna plateaus, at most one in each region 128 chunks across.
 
 ## Fallen relay masts
 

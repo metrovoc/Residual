@@ -1,0 +1,27 @@
+{
+  "processors": [
+    {
+      "processor_type": "minecraft:rule",
+      "rules": [
+        {
+          "input_predicate": {
+            "predicate_type": "minecraft:random_block_match",
+            "block": "minecraft:tuff_bricks",
+            "probability": 0.08
+          },
+          "location_predicate": {
+            "predicate_type": "minecraft:always_true"
+          },
+          "output_state": {
+            "Name": "minecraft:tuff"
+          }
+        }
+      ]
+    },
+    {
+      "processor_type": "minecraft:block_rot",
+      "integrity": 0.96,
+      "rottable_blocks": "#residual:ruin_rot"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "residual:ruins/archive_at_vell",
+        "processors": "residual:ruin/archive_at_vell",
+        "projection": "rigid"
+      }
+    }
+  ]
+}
