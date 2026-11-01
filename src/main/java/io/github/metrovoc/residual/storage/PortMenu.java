@@ -1,5 +1,7 @@
 package io.github.metrovoc.residual.storage;
 
+import io.github.metrovoc.residual.item.CrystalItem;
+import io.github.metrovoc.residual.item.LinkItem;
 import io.github.metrovoc.residual.registry.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
@@ -14,21 +16,26 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * A Port's filter, its settings and the player's inventory. The filter's slots hold a picture of a kind, not the items:
- * clicking one with a stack names that kind, and clicking it empty-handed clears it.
+ * A Port's filter, its filter model, its settings and the player's inventory. The filter's slots hold a picture of a
+ * kind, not the items: clicking one with a stack names that kind, and clicking it empty-handed clears it. The filter
+ * model's slot sits in a panel beside the window.
  */
 public class PortMenu extends AbstractContainerMenu {
     public static final int FILTER_X = 8, FILTER_Y = 40, INVENTORY_X = 8, INVENTORY_Y = 108;
+    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 28, MODEL_X = 179, MODEL_Y = 10;
+    /** The model slot's index, after the filter's. */
+    public static final int MODEL = PortBlockEntity.FILTERS;
 
     public final BlockPos pos;
     public final ContainerData data;
     private final Container filter;
 
     public PortMenu(int id, Inventory inventory, BlockPos pos) {
-        this(id, inventory, pos, new SimpleContainer(PortBlockEntity.FILTERS), new SimpleContainerData(PortBlockEntity.DATA));
+        this(id, inventory, pos, new SimpleContainer(PortBlockEntity.FILTERS), new SimpleContainer(1),
+                new SimpleContainerData(PortBlockEntity.DATA));
     }
 
-    public PortMenu(int id, Inventory inventory, BlockPos pos, Container filter, ContainerData data) {
+    public PortMenu(int id, Inventory inventory, BlockPos pos, Container filter, Container model, ContainerData data) {
         super(ModMenus.PORT.get(), id);
         this.pos = pos;
         this.data = data;
@@ -41,6 +48,17 @@ public class PortMenu extends AbstractContainerMenu {
                 }
             });
         }
+        addSlot(new Slot(model, 0, MODEL_X, MODEL_Y) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return isModel(stack);
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 addSlot(new Slot(inventory, 9 + row * 9 + col, INVENTORY_X + col * 18, INVENTORY_Y + row * 18));
@@ -62,7 +80,15 @@ public class PortMenu extends AbstractContainerMenu {
         super.clicked(index, button, input, player);
     }
 
-    /** Shift-clicking a stack in the inventory names its kind in the first free filter slot. */
+    /** A checkpoint or relay card, what a filter model comes in. */
+    static boolean isModel(ItemStack stack) {
+        return CrystalItem.model(stack) != null || stack.getItem() instanceof LinkItem;
+    }
+
+    /**
+     * Shift-clicking a model in the inventory puts it in the model slot, and the model back; any other stack names its
+     * kind in the first free filter slot.
+     */
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         if (index < PortBlockEntity.FILTERS) {
@@ -70,6 +96,16 @@ public class PortMenu extends AbstractContainerMenu {
         }
         ItemStack stack = slots.get(index).getItem();
         if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        if (index == MODEL) {
+            moveItemStackTo(stack, MODEL + 1, slots.size(), true);
+            slots.get(index).setChanged();
+            return ItemStack.EMPTY;
+        }
+        if (isModel(stack) && !slots.get(MODEL).hasItem()) {
+            moveItemStackTo(stack, MODEL, MODEL + 1, false);
+            slots.get(index).setChanged();
             return ItemStack.EMPTY;
         }
         int free = -1;

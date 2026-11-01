@@ -1,31 +1,38 @@
 package io.github.metrovoc.residual.client;
 
 import io.github.metrovoc.residual.net.PortEdit;
+import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.storage.PortBlock;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.PortMenu;
 import io.github.metrovoc.residual.storage.PortMode;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
-/** A Port's mode, its filter, how many it stocks or where its window stands, and how much it moved. */
+/**
+ * A Port's mode, its filter, how many it stocks or where its window stands, and how much it moved; its filter model's
+ * slot sits in a panel beside the window.
+ */
 public class PortScreen extends AbstractContainerScreen<PortMenu> {
-    private static final int MODES_Y = 18, VALUE_Y = 66;
+    private static final int WINDOW_W = 176, MODES_Y = 18, VALUE_Y = 66;
     private final List<Button> modes = new ArrayList<>();
     private final List<Button> nudges = new ArrayList<>();
 
     public PortScreen(PortMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 176, PortMenu.INVENTORY_Y + 82);
+        super(menu, inventory, title, PortMenu.SIDE_X + PortMenu.SIDE_W, PortMenu.INVENTORY_Y + 82);
         inventoryLabelY = PortMenu.INVENTORY_Y - 10;
         inventoryLabelX = PortMenu.INVENTORY_X;
     }
@@ -70,9 +77,14 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
-        Ui.window(g, leftPos, topPos, imageWidth, imageHeight);
+        // the filter model's panel, tucked under the window's edge
+        Ui.window(g, leftPos + PortMenu.SIDE_X, topPos + PortMenu.SIDE_Y, PortMenu.SIDE_W, PortMenu.SIDE_H);
+        Ui.window(g, leftPos, topPos, WINDOW_W, imageHeight);
         for (Slot slot : menu.slots) {
             Ui.slot(g, leftPos + slot.x, topPos + slot.y);
+        }
+        if (!menu.getSlot(PortMenu.MODEL).hasItem()) {
+            Ui.ghost(g, new ItemStack(ModItems.CHECKPOINT.get()), leftPos + PortMenu.MODEL_X, topPos + PortMenu.MODEL_Y);
         }
         PortMode mode = mode();
         for (int i = 0; i < modes.size(); i++) {
@@ -108,6 +120,13 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
             if (Ui.inside(mouseX - leftPos, mouseY - topPos, slot.x, slot.y, 16, 16) && !slot.hasItem()) {
                 g.setTooltipForNextFrame(font.split(Component.translatable("residual.port.filter_hint"), 200), mouseX, mouseY);
             }
+        }
+        if (!menu.getSlot(PortMenu.MODEL).hasItem() && menu.getCarried().isEmpty()
+                && Ui.inside(mouseX - leftPos, mouseY - topPos, PortMenu.MODEL_X, PortMenu.MODEL_Y, 16, 16)) {
+            List<FormattedCharSequence> lines = new ArrayList<>();
+            lines.add(Component.translatable("residual.port.model").getVisualOrderText());
+            lines.addAll(font.split(Component.translatable("residual.port.model_hint").withStyle(ChatFormatting.GRAY), 200));
+            g.setTooltipForNextFrame(lines, mouseX, mouseY);
         }
     }
 }

@@ -1,18 +1,26 @@
 package io.github.metrovoc.residual.storage;
 
+import io.github.metrovoc.residual.agent.Things;
+import io.github.metrovoc.residual.learn.Kinds;
+import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.ObjLongConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -30,7 +38,9 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A Port at work: every tick it moves up to {@link #RATE} items between the inventory in front of it and its network,
  * as its mode says, or opens that inventory to the network as a store. Its filter names the kinds it works on; an
- * empty filter imports everything.
+ * empty filter imports everything. With a filter model in its model slot, a filter entry renamed for a kind (Food,
+ * Plants, Wood, Stone, Ores, Tools) takes every thing the model, asked as the sorting test asks, is sure is of that
+ * kind; what it is unsure of counts as other.
  */
 public class PortBlockEntity extends BlockEntity implements MenuProvider {
     public static final int FILTERS = 9;
@@ -47,6 +57,20 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
             PortBlockEntity.this.setChanged();
         }
     };
+    /** Its filter model, a checkpoint or a relay card. */
+    private final SimpleContainer model = new SimpleContainer(1) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            judged.clear();
+            PortBlockEntity.this.setChanged();
+        }
+    };
+    /** What kind its filter model judged each thing, or what it fell back to when unsure. */
+    private final Map<Item, Kinds.Kind> judged = new HashMap<>();
+    /** The thing its model is being asked about, or null. */
+    @Nullable
+    private Item asking;
     private int amount = 64;
     private int priority;
     private int movedThisSecond;
@@ -110,6 +134,7 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private void tick(ServerLevel level, BlockState state) {
+        judgeNext(level);
         if (level.getGameTime() % 20 == 0) {
             movedLastSecond = movedThisSecond;
             movedThisSecond = 0;
@@ -133,7 +158,17 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
             case EXPORT -> {
                 for (int i = 0; i < FILTERS && budget > 0; i++) {
                     ItemStack f = filter.getItem(i);
-                    if (!f.isEmpty()) {
+                    Kinds.Kind kind = kindOf(f);
+                    if (kind != null) {
+                        for (ItemResource held : net.contents().keySet()) {
+                            if (budget <= 0) {
+                                break;
+                            }
+                            if (judged.get(held.getItem()) == kind) {
+                                budget -= exportTo(inv, net, held, budget);
+                            }
+                        }
+                    } else if (!f.isEmpty()) {
                         budget -= exportTo(inv, net, ItemResource.of(f), budget);
                     }
                 }
@@ -141,7 +176,8 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
             case STOCK -> {
                 for (int i = 0; i < FILTERS && budget > 0; i++) {
                     ItemStack f = filter.getItem(i);
-                    if (f.isEmpty()) {
+                    // it stocks things, not kinds
+                    if (f.isEmpty() || kindOf(f) != null) {
                         continue;
                     }
                     ItemResource kind = ItemResource.of(f);
@@ -177,12 +213,70 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
             ItemStack f = filter.getItem(i);
             if (!f.isEmpty()) {
                 any = true;
-                if (kind.matches(f)) {
+                Kinds.Kind named = kindOf(f);
+                if (named != null ? judged.get(kind.getItem()) == named : kind.matches(f)) {
                     return true;
                 }
             }
         }
         return !any;
+    }
+
+    /** The kind a filter entry stands for: one renamed Food, Plants, Wood, Stone, Ores or Tools, or other. */
+    @Nullable
+    private static Kinds.Kind kindOf(ItemStack f) {
+        Component name = f.get(DataComponents.CUSTOM_NAME);
+        return name == null ? null : Kinds.Kind.labelled(name.getString());
+    }
+
+    /**
+     * Asks its filter model about the next thing a kind entry needs judged, one at a time: what lies in the inventory in
+     * front when importing, what the network holds when exporting. An answer it is not sure of falls back to other.
+     */
+    private void judgeNext(ServerLevel level) {
+        if (asking != null || model.getItem(0).isEmpty()) {
+            return;
+        }
+        boolean kinds = false;
+        for (int i = 0; i < FILTERS && !kinds; i++) {
+            kinds = kindOf(filter.getItem(i)) != null;
+        }
+        if (!kinds || mode() == PortMode.WINDOW || mode() == PortMode.STOCK) {
+            return;
+        }
+        Item next = null;
+        if (mode() == PortMode.IMPORT) {
+            ResourceHandler<ItemResource> inv = target();
+            for (int slot = 0; inv != null && slot < inv.size() && next == null; slot++) {
+                Item item = inv.getResource(slot).getItem();
+                if (!inv.getResource(slot).isEmpty() && !judged.containsKey(item)) {
+                    next = item;
+                }
+            }
+        } else {
+            for (ItemResource held : StorageNetwork.at(level, worldPosition).contents().keySet()) {
+                if (!judged.containsKey(held.getItem())) {
+                    next = held.getItem();
+                    break;
+                }
+            }
+        }
+        ModelLink link = ModelLink.of(level, worldPosition, model.getItem(0));
+        if (next == null || link instanceof ModelLink.Missing) {
+            return;
+        }
+        Item item = next;
+        asking = item;
+        link.ask(level, Kinds.prompt(Things.name(new ItemStack(item))), 1, '\n', answer -> {
+            asking = null;
+            Kinds.Kind kind = answer == null || answer.text().isEmpty() ? null : Kinds.Kind.of(answer.text().charAt(0));
+            judged.put(item, kind != null && answer.confidence() >= Kinds.SURE ? kind : Kinds.Kind.OTHER);
+        });
+    }
+
+    /** The filter model's slot, for its menu. */
+    public SimpleContainer model() {
+        return model;
     }
 
     private static long count(ResourceHandler<ItemResource> inv, ItemResource kind) {
@@ -368,13 +462,22 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        return new PortMenu(id, inventory, worldPosition, filter, data);
+        return new PortMenu(id, inventory, worldPosition, filter, model, data);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level != null) {
+            Containers.dropContents(level, pos, model);
+        }
     }
 
     @Override
     protected void saveAdditional(ValueOutput out) {
         super.saveAdditional(out);
         ContainerHelper.saveAllItems(out.child("filter"), filter.getItems());
+        ContainerHelper.saveAllItems(out.child("model"), model.getItems());
         out.putInt("amount", amount);
         out.putInt("priority", priority);
     }
@@ -383,6 +486,7 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
     protected void loadAdditional(ValueInput in) {
         super.loadAdditional(in);
         in.child("filter").ifPresent(c -> ContainerHelper.loadAllItems(c, filter.getItems()));
+        in.child("model").ifPresent(c -> ContainerHelper.loadAllItems(c, model.getItems()));
         amount = in.getIntOr("amount", 64);
         priority = in.getIntOr("priority", 0);
     }

@@ -109,6 +109,13 @@ faces to turn its front there. Its sides show what it does, and light while it m
 To set the filter, click one of its slots with a stack, or shift-click the stack in your inventory; click a slot
 empty-handed to clear it. The screen says how many items the Port moved in the last second.
 
+A Port can also filter by what things are. Put a filter model in the slot beside its screen: a
+<ItemLink id="checkpoint" />, or a <ItemLink id="relay_card" /> tuned to a Model Server, whose model passes Sorting
+([Models and Tests](models.md)). Then a filter slot holding something renamed Food, Plants, Wood, Stone, Ores or Tools
+stands for that whole kind: importing, the Port takes every thing the model says is of it; exporting, it hands out every
+such thing the network holds. The model is asked about each thing once, by name, as the sorting test asks; a thing it is
+not sure of counts as other. Stocking keeps to things, not kinds.
+
 ## Assemblers
 
 An <ItemLink id="assembler" /> on the network crafts one recipe from what the network keeps, and puts the result
