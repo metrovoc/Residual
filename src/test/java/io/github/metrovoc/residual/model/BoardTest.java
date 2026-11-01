@@ -66,28 +66,32 @@ class BoardTest {
     void eachWidthCarriesWhatTheFieldNotesSay() {
         // two-block transformers that pass Pilot and Survey, their real sizes from QuantizedTest and the calibration
         assertEquals(EnumSet.of(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST), SuitAbility.running(32_334, 0, true));
-        assertEquals(EnumSet.of(SuitAbility.VEIN_MINING), SuitAbility.running(66_894, off(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.REACH), true));
-        assertEquals(EnumSet.of(SuitAbility.FLIGHT), SuitAbility.running(113_742, off(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.REACH,
-                SuitAbility.VEIN_MINING), true));
+        assertEquals(EnumSet.of(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.VEIN_MINING),
+                SuitAbility.running(66_894, off(SuitAbility.REACH, SuitAbility.SHIELD), true));
+        assertEquals(EnumSet.complementOf(EnumSet.of(SuitAbility.FLIGHT)), SuitAbility.running(113_742, 0, true));
+        assertTrue(SuitAbility.FLIGHT.compute > 113_742);
+        // three blocks 64 wide, at 4 bits: the flight with room beside it
+        assertEquals(EnumSet.of(SuitAbility.REACH, SuitAbility.FLIGHT), SuitAbility.running(163_470,
+                off(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.SHIELD, SuitAbility.VEIN_MINING), true));
         assertEquals(EnumSet.allOf(SuitAbility.class), SuitAbility.running(244_302, 0, true));
         assertFalse(SuitAbility.running(239_999, 0, true).contains(SuitAbility.FLIGHT));
     }
 
     @Test
     void whatRunsIsCheapestFirstAsFarAsItGoes() {
-        assertEquals(EnumSet.of(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.REACH), SuitAbility.running(113_742, 0, true));
-        // turning two cheap ones off frees enough for vein mining
-        assertEquals(EnumSet.of(SuitAbility.STEP_ASSIST, SuitAbility.VEIN_MINING), SuitAbility.running(113_742, off(SuitAbility.NIGHT_VISION, SuitAbility.REACH), true));
-        assertTrue(SuitAbility.running(15_999, 0, true).isEmpty());
+        assertEquals(EnumSet.of(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.REACH, SuitAbility.SHIELD), SuitAbility.running(66_894, 0, true));
+        // turning two off frees enough for vein mining
+        assertEquals(EnumSet.of(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.VEIN_MINING), SuitAbility.running(66_894, off(SuitAbility.REACH, SuitAbility.SHIELD), true));
+        assertTrue(SuitAbility.running(7_999, 0, true).isEmpty());
     }
 
     @Test
     void veinMiningTakesAModelThatPassesSurvey() {
-        int cheap = off(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.REACH, SuitAbility.FLIGHT);
+        int cheap = off(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.REACH, SuitAbility.SHIELD, SuitAbility.FLIGHT);
         assertEquals(EnumSet.of(SuitAbility.VEIN_MINING), SuitAbility.running(244_302, cheap, true));
         assertTrue(SuitAbility.running(244_302, cheap, false).isEmpty());
         // what it leaves goes to the flight
-        assertEquals(EnumSet.of(SuitAbility.NIGHT_VISION, SuitAbility.STEP_ASSIST, SuitAbility.REACH, SuitAbility.FLIGHT), SuitAbility.running(244_302, 0, false));
+        assertEquals(EnumSet.complementOf(EnumSet.of(SuitAbility.VEIN_MINING)), SuitAbility.running(244_302, 0, false));
     }
 
     private static int off(SuitAbility... abilities) {

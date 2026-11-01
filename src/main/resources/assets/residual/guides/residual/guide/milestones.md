@@ -207,7 +207,7 @@ passes Survey: [The Surveyor](surveyor.md).</residual:Milestone>
 <residual:Milestone id="exosuit/vein">With a model that also passes Survey and vein mining on, hold its key and break a vein
 of 64 blocks or more with the right tool.</residual:Milestone>
 
-<residual:Milestone id="exosuit/all">Run all five abilities at once. That takes 240,000 compute: a model too big for the
+<residual:Milestone id="exosuit/all">Run all six abilities at once. That takes 240,000 compute: a model too big for the
 board at 8 bits, which still holds nearly every flight at 4.</residual:Milestone>
 
 ## Power

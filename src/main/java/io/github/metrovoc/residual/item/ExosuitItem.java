@@ -29,6 +29,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -46,6 +47,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +64,8 @@ public class ExosuitItem extends FlightFrameItem {
     public static final int TRANSFER = 80_000;
     /** How much further its wearer reaches, to blocks and to what they strike, and what they step up. */
     public static final double REACH = 5, STEP = 0.5;
+    /** Power a point of damage costs the shield: a full suit takes 640 points, or 320 hearts. */
+    public static final int SHIELD_POWER = 25_000;
     /** How fast it flies, twice as fast as a frame or as anyone in creative play. */
     public static final float FAST = 0.1f;
     private static final float USUAL = 0.05f;
@@ -245,6 +249,26 @@ public class ExosuitItem extends FlightFrameItem {
                 Awards.grant(player, "exosuit/all");
             }
         }
+    }
+
+    /**
+     * The shield: the suit's power takes what armour left of a blow, as far as its charge goes, and the rest gets through.
+     * Nothing stops what goes through invulnerability itself.
+     */
+    public static void shield(LivingDamageEvent.Pre event) {
+        if (!(event.getEntity() instanceof ServerPlayer player) || event.getNewDamage() <= 0 || event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            return;
+        }
+        ItemStack suit = player.getItemBySlot(EquipmentSlot.CHEST);
+        if (!(suit.getItem() instanceof ExosuitItem) || !running(suit).contains(SuitAbility.SHIELD)) {
+            return;
+        }
+        float taken = Math.min(event.getNewDamage(), (float) charge(suit) / SHIELD_POWER);
+        suit.set(ModComponents.CHARGE.get(), Math.max(0, charge(suit) - Math.round(taken * SHIELD_POWER)));
+        event.setNewDamage(event.getNewDamage() - taken);
+        ServerLevel level = player.level();
+        level.sendParticles(ParticleTypes.ELECTRIC_SPARK, player.getX(), player.getY() + 1, player.getZ(), 12, 0.3, 0.5, 0.3, 0.1);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SHIELD_BLOCK, SoundSource.PLAYERS, 0.6f, 1.4f);
     }
 
     private static void modifier(ServerPlayer player, Holder<Attribute> attribute, Identifier id, double amount, boolean on) {

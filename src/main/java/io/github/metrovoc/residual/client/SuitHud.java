@@ -18,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
  * the hold shaded across, its charge, and a light for each ability running. While the board tests a model it says so.
  */
 public final class SuitHud {
-    private static final int X = 4, Y = 4, WIDTH = 48;
+    private static final int X = 4, Y = 4, WIDTH = 48, LIGHT = 6;
     private static final int HOLD = 0xFF1E3D33;
     private static String line = "";
     private static long heardAt;
@@ -65,8 +65,8 @@ public final class SuitHud {
         strip(g, X, Y, WIDTH / Played.LOOKS, 2);
         Ui.bar(g, X, Y + 18, WIDTH, 2, (float) FlightFrameItem.charge(suit) / ExosuitItem.CAPACITY, Ui.TEAL);
         for (SuitAbility a : SuitAbility.values()) {
-            int x = X + a.ordinal() * (WIDTH + 2) / SuitAbility.values().length;
-            g.fill(x, Y + 22, x + 8, Y + 24, running.contains(a) ? Ui.GREEN : Ui.GRID);
+            int x = X + a.ordinal() * (LIGHT + 2);
+            g.fill(x, Y + 22, x + LIGHT, Y + 24, running.contains(a) ? Ui.GREEN : Ui.GRID);
         }
     }
 }

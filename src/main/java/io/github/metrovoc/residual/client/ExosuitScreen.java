@@ -102,6 +102,7 @@ public class ExosuitScreen extends Screen {
     private static Component hint(SuitAbility a) {
         return switch (a) {
             case REACH -> Component.translatable("residual.ability.reach.hint", (int) ExosuitItem.REACH, a.power);
+            case SHIELD -> Component.translatable("residual.ability.shield.hint", count(ExosuitItem.SHIELD_POWER));
             case VEIN_MINING -> Component.translatable("residual.ability.vein_mining.hint", Component.keybind("key.residual.vein"), count(Vein.POWER));
             case FLIGHT -> Component.translatable("residual.ability.flight.hint", a.power, ExosuitItem.CAPACITY / a.power / 1200);
             default -> Component.translatable("residual.ability." + a.id + ".hint", a.power);

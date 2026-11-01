@@ -5,16 +5,17 @@ import java.util.Locale;
 
 /**
  * What an exosuit can do, cheapest first, with the compute each draws and the power it spends a tick while it runs (the
- * flight only while its wearer flies, vein mining by the block instead). A two-block transformer 32 wide carries the two
- * cheapest, one 48 wide vein mining, one 64 wide the flight, and only one 96 wide all five, which fits on the board at 4 bits
- * alone (systems.md).
+ * flight only while its wearer flies, the shield by the point of damage and vein mining by the block instead). A two-block
+ * transformer 32 wide carries the two cheapest, one 48 wide vein mining, one 64 wide all but the flight, and only one 96 wide
+ * all six, which fits on the board at 4 bits alone (systems.md).
  */
 public enum SuitAbility {
-    NIGHT_VISION(16_000, 16),
-    STEP_ASSIST(16_000, 16),
-    REACH(32_000, 32),
-    VEIN_MINING(64_000, 0),
-    FLIGHT(112_000, 320);
+    NIGHT_VISION(8_000, 16),
+    STEP_ASSIST(8_000, 16),
+    REACH(20_000, 32),
+    SHIELD(28_000, 0),
+    VEIN_MINING(48_000, 0),
+    FLIGHT(128_000, 320);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     public final long compute;

@@ -217,6 +217,7 @@ import org.slf4j.Logger;
  *                            under (charge less than N), energy (at least, read as Forge Energy), running (how many
  *                            abilities, exactly) or bits (of the form it runs in, exactly)
  * expect attribute ID N      fail the step unless the player's attribute, times 100, is N
+ * expect health N            fail the step unless the player's health, rounded, is N
  * expect flyspeed N          fail the step unless the player's flying speed, times 100, is N
  * expect mayfly N            fail the step unless the player may fly (1) or may not (0)
  * expect sight N             fail the step unless the player has night vision (1) or has not (0)
@@ -878,6 +879,7 @@ public final class Rehearsal {
                 };
             }
             case "attribute" -> found = Math.round(100 * mc.player.getAttributeValue(BuiltInRegistries.ATTRIBUTE.get(Identifier.parse(args[1])).orElseThrow()));
+            case "health" -> found = Math.round(mc.player.getHealth());
             case "flyspeed" -> found = Math.round(100 * mc.player.getAbilities().getFlyingSpeed());
             case "mayfly" -> found = mc.player.getAbilities().mayfly ? 1 : 0;
             case "sight" -> found = mc.player.hasEffect(MobEffects.NIGHT_VISION) ? 1 : 0;
@@ -1023,7 +1025,7 @@ public final class Rehearsal {
         }
         boolean exact = args[0].equals("jobs") || args[0].equals("pins") || args[0].equals("open") || args[0].equals("grid")
                 || args[0].equals("meant") || args[0].equals("words") || args[0].equals("holds") || args[0].equals("attribute")
-                || args[0].equals("flyspeed") || args[0].equals("mayfly") || args[0].equals("sight") || args[0].equals("blocks")
+                || args[0].equals("flyspeed") || args[0].equals("mayfly") || args[0].equals("sight") || args[0].equals("blocks") || args[0].equals("health")
                 || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits")) || args[0].startsWith("no") || args[0].equals("empty");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);

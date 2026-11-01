@@ -73,6 +73,7 @@ public final class Residual {
         NeoForge.EVENT_BUS.addListener(Bursts::tick);
         NeoForge.EVENT_BUS.addListener(FlightFrameItem::tick);
         NeoForge.EVENT_BUS.addListener(ExosuitItem::tick);
+        NeoForge.EVENT_BUS.addListener(ExosuitItem::shield);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, Vein::breaking);
         NeoForge.EVENT_BUS.addListener(Vein::drops);
         NeoForge.EVENT_BUS.addListener(Vein::tick);

@@ -11,8 +11,8 @@ item_ids:
 
 The <ItemLink id="exosuit" /> is armour with a board in it, and the model on that board runs everything else. Worn in
 the chest slot it turns blows as a netherite chestplate does. With a model on board and power in it, it also does what
-the model's compute can carry: night vision, step assist, reach, vein mining, and flight that goes further than a
-[flight frame's](flight.md).
+the model's compute can carry: night vision, step assist, reach, a shield, vein mining, and flight that goes further than
+a [flight frame's](flight.md).
 
 <RecipeFor id="exosuit" />
 
@@ -47,21 +47,31 @@ The suit's compute is the weights it carries, times the share of Pilot's flights
 in the wind it holds worst. Pilot asks for 90%. A form under that gives no compute, and neither does a form too big for
 the board; without compute or without power, the suit is only armour.
 
-Sneak and use the suit, or press **V** while you wear it, to open its screen. It shows what the board found, a line for
+Sneak and use the suit, or press <KeyBind id="key.residual.exosuit" /> while you wear it, to open its screen. It shows what the board found, a line for
 each form, then each ability with the compute it draws. The abilities you leave on run, cheapest first, as far as the
 compute goes: turn one off and the next may start.
 
-| Ability      | Draws  | Power            | What it does                                                    |
-| ------------ | ------ | ---------------- | --------------------------------------------------------------- |
-| Night Vision | 16,000 | 16 FE a tick     | You see in the dark.                                            |
-| Step Assist  | 16,000 | 16 FE a tick     | You walk up a full block without jumping.                       |
-| Reach        | 32,000 | 32 FE a tick     | You reach 5 blocks further, to blocks and to what you strike.   |
-| Vein Mining  | 64,000 | 1,000 FE a block | A block you break while holding its key takes its vein with it.        |
-| Flight II    | 112,000 | 320 FE a tick in the air | You fly twice as fast as in a flight frame.             |
+| Ability      | Draws   | Power                    | What it does                                                  |
+| ------------ | ------- | ------------------------ | ------------------------------------------------------------- |
+| Night Vision | 8,000   | 16 FE a tick             | You see in the dark.                                          |
+| Step Assist  | 8,000   | 16 FE a tick             | You walk up a full block without jumping.                     |
+| Reach        | 20,000  | 32 FE a tick             | You reach 5 blocks further, to blocks and to what you strike. |
+| Shield       | 28,000  | 25,000 FE a point of damage | The suit's power takes the blows.                          |
+| Vein Mining  | 48,000  | 1,000 FE a block         | A block you break while holding its key takes its vein with it. |
+| Flight II    | 128,000 | 320 FE a tick in the air | You fly twice as fast as in a flight frame.                   |
 
-So a model 32 wide carries night vision and step assist, or reach. One 48 wide carries vein mining, or the three small
-ones. One 64 wide flies, or mines with reach and one more. All five take one 96 wide, which fits on the board only at 4
-bits, and has to hold every flight like that.
+So a model 32 wide carries night vision and step assist, or the shield, or reach with one of the two. One 48 wide carries
+vein mining with those two, or the four small ones without it. One 64 wide carries everything but the flight. The flight
+takes a bigger model still: three blocks 64 wide, which fit on the board only at 4 bits, fly with reach or the shield
+beside it. All six take two blocks 96 wide, again only at 4 bits, and they have to hold every flight like that.
+
+## The shield
+
+With the shield running, the suit's power takes whatever armour leaves of a blow, at 25,000 FE a point of damage, so a full
+suit takes 640 points, or 320 hearts. Blows still land and still knock you back; they cost power instead of health. When
+the charge is too low for a whole blow the rest gets through, and when it runs out everything the suit does stops. Fire,
+falls and magic all cost the same. Only what goes through invulnerability itself still reaches you: the void, and commands
+that kill outright.
 
 ## Vein mining
 
@@ -84,7 +94,8 @@ for about 41 minutes. A suit without the compute for it does not fly at all; a [
 ## Power
 
 Use the suit on an <ItemLink id="energy_cell" /> to fill it from every cell on that network at once. It also takes Forge
-Energy from any other mod's charger. Everything but vein mining and flight spends its power by the tick while it runs.
+Energy from any other mod's charger. Everything but the shield, vein mining and flight spends its power by the tick while
+it runs.
 
 ## The model at work
 
