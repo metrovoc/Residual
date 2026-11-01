@@ -813,6 +813,8 @@ public class CoreBlockEntity extends BlockEntity {
             }
             case BUDGET -> say("residual.status.budget_used", Integer.toString(Wrecks.BUDGET));
             case DIVERGED -> {
+                // the curve ends where the run did, even one that ran away before its next test
+                addPoint(new TrainingJob.Point(steps, trainLoss, valLoss, accuracy));
                 if ("NaN".equals(u.detail)) {
                     say("residual.status.nan");
                 } else {
