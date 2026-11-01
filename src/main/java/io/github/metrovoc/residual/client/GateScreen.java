@@ -21,7 +21,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 /** A Relay Gate's screen: its name, and its network on a map, with every other gate on it to go to. */
-public class GateScreen extends Screen {
+public class GateScreen extends Screen implements Parts.Drawn {
     private static final int W = 316, H = 204;
     private static final int DISPLAY_X = 8, DISPLAY_Y = 32, DISPLAY_W = W - 16, DISPLAY_H = H - 40;
     private static final int LIST_W = 84, MAP_W = DISPLAY_W - LIST_W - 4, GATE_ROW = 13, NAME_W = 90;
@@ -236,5 +236,14 @@ public class GateScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public void parts(Parts out) {
+        int x = left(), y = top();
+        out.add("window", x, y, W, H);
+        out.add("status", x + DISPLAY_X + NAME_W + 6, y + 18, W - 16 - NAME_W - 6, 10);
+        out.add("map", x + DISPLAY_X, y + DISPLAY_Y, MAP_W, DISPLAY_H);
+        out.add("gates", x + DISPLAY_X + MAP_W + 4, y + DISPLAY_Y, LIST_W, DISPLAY_H);
     }
 }

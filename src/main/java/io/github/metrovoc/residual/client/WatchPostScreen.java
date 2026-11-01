@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
  * The Watch Post's screen: one display, with each thing it watches, its line of looks drawn as bars, newest at the right, red
  * while something is wrong with it. Its model slot sits in a panel beside the window.
  */
-public class WatchPostScreen extends AbstractContainerScreen<WatchPostMenu> {
+public class WatchPostScreen extends AbstractContainerScreen<WatchPostMenu> implements Parts.Drawn {
     private static final int WINDOW_W = 176, SHOW_X = 8, SHOW_Y = 18, SHOW_W = 160, SHOW_H = 68, ROW_H = 13, ROWS = 5;
     private static final int BARS_X = 18, BAR_W = 2, BAR_H = 10;
     private int scroll;
@@ -110,5 +110,15 @@ public class WatchPostScreen extends AbstractContainerScreen<WatchPostMenu> {
             return true;
         }
         return super.mouseScrolled(x, y, scrollX, scrollY);
+    }
+
+    /** {@code row:0} on, from the first row shown. */
+    @Override
+    public void parts(Parts out) {
+        out.add("model", this, menu.getSlot(WatchPostBlockEntity.MODEL));
+        out.add("rows", leftPos + SHOW_X, topPos + SHOW_Y, SHOW_W, SHOW_H);
+        for (int i = 0; i < ROWS && scroll + i < menu.rows.size(); i++) {
+            out.add("row:" + i, leftPos + SHOW_X, topPos + SHOW_Y + 2 + i * ROW_H, SHOW_W, ROW_H);
+        }
     }
 }

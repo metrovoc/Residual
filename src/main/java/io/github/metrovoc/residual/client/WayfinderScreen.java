@@ -12,7 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /** Chooses what a Wayfinder looks for: the kinds of ruin its holder has read of, one a line. */
-public class WayfinderScreen extends Screen {
+public class WayfinderScreen extends Screen implements Parts.Drawn {
     private static final int W = 176;
     private static final int ROW = 22;
 
@@ -58,5 +58,10 @@ public class WayfinderScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public void parts(Parts out) {
+        out.add("window", (width - W) / 2, top(), W, 34 + kinds.size() * ROW + 16);
     }
 }

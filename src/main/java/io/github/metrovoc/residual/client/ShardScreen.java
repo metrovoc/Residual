@@ -11,7 +11,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
 
 /** Reads a shard: its record's text, with the lost blocks shown as worn-away marks. */
-public class ShardScreen extends Screen {
+public class ShardScreen extends Screen implements Parts.Drawn {
     private static final int W = 260;
     private static final int H = 210;
     private static final int TEXT_W = W - 28;
@@ -86,5 +86,13 @@ public class ShardScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public void parts(Parts out) {
+        int x = (width - W) / 2, y = (height - H) / 2;
+        out.add("window", x, y, W, H);
+        out.add("legible", x + W - 40, y + 6, 32, 10);
+        out.add("text", x + 7, y + 19, W - 14, H - 27);
     }
 }

@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
  * and the stored power as a bar at its right edge; a Smelter's controller slot sits in a panel beside it. Numbers show
  * in tooltips on what they describe.
  */
-public class PowerScreen extends AbstractContainerScreen<PowerMenu> {
+public class PowerScreen extends AbstractContainerScreen<PowerMenu> implements Parts.Drawn {
     private static final int WINDOW_W = 176, WINDOW_H = PowerMenu.INVENTORY_Y + 82;
     private static final int BAR_X = 156, BAR_Y = 17, BAR_W = 10, BAR_H = 52;
     /** Between ore and ingots: an arrow, or with a controller the melt, a pixel a look and two a band. */
@@ -112,6 +112,20 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> {
         }
         if (!lines.isEmpty()) {
             g.setTooltipForNextFrame(lines, mouseX, mouseY);
+        }
+    }
+
+    @Override
+    public void parts(Parts out) {
+        out.add("power", leftPos + BAR_X, topPos + BAR_Y, BAR_W, BAR_H);
+        if (menu.kind == PowerMenu.Kind.GENERATOR) {
+            out.add("fuel", this, menu.getSlot(0));
+            out.add("flame", leftPos + PowerMenu.FUEL_X + 1, topPos + PowerMenu.SLOT_Y - 17, 14, 14);
+        } else {
+            out.add("ore", this, menu.getSlot(0));
+            out.add("ingots", this, menu.getSlot(1));
+            out.add("controller", this, menu.getSlot(PowerMenu.CONTROLLER_SLOT));
+            out.add("work", leftPos + WORK_X, topPos + WORK_Y, WORK_W, WORK_H);
         }
     }
 }

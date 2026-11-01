@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /** A Drive Dock: the drives waiting on the left, the arrow they go through, the drives done on the right. */
-public class DockScreen extends AbstractContainerScreen<DockMenu> {
+public class DockScreen extends AbstractContainerScreen<DockMenu> implements Parts.Drawn {
     private static final int WINDOW_W = 176, ARROW_X = 80, ARROW_Y = 34;
     private static final List<String> MODES = List.of("residual.dock.empty", "residual.dock.fill");
 
@@ -62,5 +62,12 @@ public class DockScreen extends AbstractContainerScreen<DockMenu> {
             g.setTooltipForNextFrame(font, font.split(Component.translatable("residual.dock.moved", Ui.count(menu.moved()),
                     Ui.count(menu.data.get(DockBlockEntity.MOVED_FLUID))), 200), mouseX, mouseY);
         }
+    }
+
+    @Override
+    public void parts(Parts out) {
+        out.group("waiting", this, 0, DockBlockEntity.BAYS);
+        out.group("done", this, DockBlockEntity.BAYS, 2 * DockBlockEntity.BAYS);
+        out.add("arrow", leftPos + ARROW_X, topPos + ARROW_Y, 24, 16);
     }
 }

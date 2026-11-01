@@ -27,7 +27,7 @@ import net.minecraft.world.item.ItemStack;
  * Watch a vocabulary being learned: the size to learn up to, how much text each token now carries, a passage of the
  * drive's text cut into tokens, and the latest merges.
  */
-public class ForgeScreen extends AbstractContainerScreen<ForgeMenu> {
+public class ForgeScreen extends AbstractContainerScreen<ForgeMenu> implements Parts.Drawn {
     private static final int SIZES_X = 100, SIZES_Y = 28, SIZE_W = 28, SIZE_GAP = 2, SIZE_H = 12;
     private static final int START_X = 192, START_Y = 52, START_W = 56;
     private static final int PANEL_Y = 70, PANEL_H = 60, SAMPLE_X = 8, SAMPLE_W = 158, MERGES_X = 172, MERGES_W = 76;
@@ -290,5 +290,23 @@ public class ForgeScreen extends AbstractContainerScreen<ForgeMenu> {
                 break;
             }
         }
+    }
+
+    /** {@code size:1024}, the sizes to learn up to, by the size. */
+    @Override
+    public void parts(Parts out) {
+        out.add("text", this, menu.getSlot(ForgeBlockEntity.TEXT));
+        out.add("card", this, menu.getSlot(ForgeBlockEntity.CARD));
+        int target = menu.data.get(ForgeBlockEntity.TARGET);
+        for (int i = 0; i < ForgeBlockEntity.SIZES.length; i++) {
+            out.add("size:" + ForgeBlockEntity.SIZES[i], leftPos + SIZES_X + i * (SIZE_W + SIZE_GAP), topPos + SIZES_Y, SIZE_W, SIZE_H, i == target);
+        }
+        out.add("sizes", leftPos + SIZES_X, topPos + SIZES_Y, ForgeBlockEntity.SIZES.length * (SIZE_W + SIZE_GAP), SIZE_H);
+        out.add("progress", leftPos + 8, topPos + 42, 240, 7);
+        if (TokenizerItem.vocab(card()).merges() > 0) {
+            out.add("start_over", leftPos + START_X, topPos + START_Y, START_W, SIZE_H);
+        }
+        out.add("sample", leftPos + SAMPLE_X, topPos + PANEL_Y, SAMPLE_W, PANEL_H);
+        out.add("merges", leftPos + MERGES_X, topPos + PANEL_Y, MERGES_W, PANEL_H);
     }
 }

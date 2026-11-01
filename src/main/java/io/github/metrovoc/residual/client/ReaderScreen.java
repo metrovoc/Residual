@@ -24,7 +24,7 @@ import net.minecraft.world.item.ItemStack;
  * Shows the shard's record as the Reader works through it: lost blocks worn away, the block being read marked, and
  * restored blocks lighting up as they come back.
  */
-public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
+public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> implements Parts.Drawn {
     private static final int WINDOW_W = 256, TEXT_X = 8, TEXT_Y = 16, TEXT_W = 240, LINES = 10;
     private static final int WORN = 0xFF4A5560;
     /** When each restored block came back, by block, to light it up for a while. */
@@ -186,5 +186,13 @@ public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> {
         } else if (!menu.getSlot(ReaderBlockEntity.MODEL).hasItem() && Ui.inside(mx, my, ReaderMenu.MODEL_X, ReaderMenu.MODEL_Y, 16, 16)) {
             g.setTooltipForNextFrame(font, Component.translatable("residual.agent.model_slot"), mouseX, mouseY);
         }
+    }
+
+    @Override
+    public void parts(Parts out) {
+        out.add("shard", this, menu.getSlot(ReaderBlockEntity.SHARD));
+        out.add("model", this, menu.getSlot(ReaderBlockEntity.MODEL));
+        out.add("text", leftPos + TEXT_X, topPos + TEXT_Y, TEXT_W, LINES * 10 + 4);
+        out.add("state", leftPos + TEXT_X, topPos + TEXT_Y + LINES * 10 + 6, TEXT_W, 20);
     }
 }

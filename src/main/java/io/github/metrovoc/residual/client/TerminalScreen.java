@@ -39,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
  * doing, to stop, start, hand a Program Card's program or give an order that the served model writes as a program. Writing:
  * the served model carries a text on. Each call takes its turn at the Model Server, and the screen shows what came back.
  */
-public class TerminalScreen extends Screen {
+public class TerminalScreen extends Screen implements Parts.Drawn {
     private enum Tab { MAP, BASE, AGENTS, WRITE }
 
     private static final int W = 316, H = 204;
@@ -592,5 +592,26 @@ public class TerminalScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public void parts(Parts out) {
+        int x = left(), y = top();
+        out.add("window", x, y, W, H);
+        out.add("reach", x + 8 + font.width(title) + 8, y + 6, W - 16 - font.width(title) - 8, 10);
+        switch (tab) {
+            case MAP -> {
+                out.add("map", x + DISPLAY_X, y + DISPLAY_Y, MAP_W, DISPLAY_H);
+                out.add("gates", x + DISPLAY_X + MAP_W + 4, y + DISPLAY_Y, LIST_W, DISPLAY_H);
+            }
+            case BASE -> out.add("base", x + DISPLAY_X, y + DISPLAY_Y, DISPLAY_W, DISPLAY_H);
+            case AGENTS -> {
+                int panel = y + DISPLAY_Y + DISPLAY_H - PANEL_H;
+                out.add("agents", x + DISPLAY_X, y + DISPLAY_Y, DISPLAY_W, DISPLAY_H - PANEL_H - 4);
+                out.add("doing", x + DISPLAY_X, panel, DISPLAY_W, 12);
+                out.add("program_cards", x + CARDS_X, panel + 16, CARDS * 18, 18);
+            }
+            case WRITE -> out.add("answer", x + DISPLAY_X, y + DISPLAY_Y + 40, DISPLAY_W, DISPLAY_H - 40);
+        }
     }
 }

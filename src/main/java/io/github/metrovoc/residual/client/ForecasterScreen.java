@@ -27,7 +27,7 @@ import net.minecraft.world.item.ItemStack;
  * expects, and how far apart the two are for each kind, which decides whether it may run them ahead. Its log and model
  * slots sit in a panel beside the window.
  */
-public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
+public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> implements Parts.Drawn {
     private static final int SIDE = ForecasterBlockEntity.SIDE, CELL = 8;
     private static final int WINDOW_W = 256;
     private static final int MAP_X = 8, MAP_Y = 28, MAP_W = SIDE * CELL + 2;
@@ -429,6 +429,30 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> {
                 h.lines().forEach(c -> lines.addAll(font.split(c, 220)));
                 g.setTooltipForNextFrame(lines, mouseX, mouseY);
                 break;
+            }
+        }
+    }
+
+    /** {@code tab:crops} and {@code tab:machines} over the bars, {@code row:crops} and {@code row:machines} under them. */
+    @Override
+    public void parts(Parts out) {
+        out.add("log", this, menu.getSlot(ForecasterBlockEntity.LOG));
+        out.add("model", this, menu.getSlot(ForecasterBlockEntity.MODEL));
+        out.add("field", leftPos + MAP_X, topPos + MAP_Y, MAP_W, MAP_W);
+        out.add("bars", leftPos + BARS_X, topPos + BARS_Y, BARS_W, BARS_H);
+        out.add("state", leftPos + ROW_X, topPos + STATE_Y, ROW_W, 9);
+        int x = leftPos + BARS_X;
+        for (Kind kind : Kind.values()) {
+            String id = kind.name().toLowerCase(Locale.ROOT);
+            int w = font.width(name(kind));
+            out.add("tab:" + id, x, topPos + BARS_Y - 11, w, 11, shown() == kind);
+            out.add("row:" + id, leftPos + ROW_X, topPos + ROW_Y + kind.ordinal() * ROW_STEP, ROW_W, ROW_H);
+            x += w + 10;
+        }
+        if (third()) {
+            out.add("power", leftPos + ForecasterMenu.PACE_X, topPos + ForecasterMenu.POWER_Y, ForecasterMenu.PACE_W, 4);
+            for (int i = 0; i < paces.size(); i++) {
+                out.add("pace:" + ForecasterBlockEntity.PACES[i], paces.get(i));
             }
         }
     }

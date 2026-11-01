@@ -27,7 +27,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
  * A Port's mode, its filter, how many it stocks or where its window stands, and how much it moved; its filter model's
  * slot sits in a panel beside the window.
  */
-public class PortScreen extends AbstractContainerScreen<PortMenu> {
+public class PortScreen extends AbstractContainerScreen<PortMenu> implements Parts.Drawn {
     private static final int WINDOW_W = 176, MODES_Y = 18, VALUE_Y = 66;
     private final List<Button> modes = new ArrayList<>();
     private final List<Button> nudges = new ArrayList<>();
@@ -168,6 +168,22 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
             side(g, PortMenu.TARGET, "residual.port.target", expects < 0 ? Component.translatable("residual.port.target_hint")
                     : Component.translatable("residual.port.expects", Ui.count(expects)), mouseX, mouseY);
             side(g, PortMenu.LOG, "residual.port.log", Component.translatable("residual.port.log_hint"), mouseX, mouseY);
+        }
+    }
+
+    @Override
+    public void parts(Parts out) {
+        for (int i = 0; i < PortBlockEntity.FILTERS; i++) {
+            out.add("filter:" + i, this, menu.getSlot(i));
+        }
+        out.add("filter", leftPos + PortMenu.FILTER_X - 1, topPos + PortMenu.FILTER_Y - 1, PortBlockEntity.FILTERS * 18, 18);
+        out.add("model", this, menu.getSlot(PortMenu.MODEL));
+        out.add("target", this, menu.getSlot(PortMenu.TARGET));
+        out.add("log", this, menu.getSlot(PortMenu.LOG));
+        out.add("status", leftPos + 8, topPos + VALUE_Y + 14, WINDOW_W - 16, 11);
+        String[] names = {"less:16", "less:1", "more:1", "more:16"};
+        for (int i = 0; i < nudges.size(); i++) {
+            out.add(names[i], nudges.get(i));
         }
     }
 }

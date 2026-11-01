@@ -14,7 +14,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /** An Access Point: its Relay Card's slot, a mark for how far it reaches, and that number in the mark's tooltip. */
-public class AccessPointScreen extends AbstractContainerScreen<AccessPointMenu> {
+public class AccessPointScreen extends AbstractContainerScreen<AccessPointMenu> implements Parts.Drawn {
     private static final int LIGHT_X = 106, LIGHT_Y = 31, LIGHT_S = 10;
 
     public AccessPointScreen(AccessPointMenu menu, Inventory inventory, Component title) {
@@ -68,5 +68,11 @@ public class AccessPointScreen extends AbstractContainerScreen<AccessPointMenu> 
             }
             g.setTooltipForNextFrame(lines, mouseX, mouseY);
         }
+    }
+
+    @Override
+    public void parts(Parts out) {
+        out.add("card", this, menu.getSlot(0));
+        out.add("light", leftPos + LIGHT_X, topPos + LIGHT_Y, LIGHT_S, LIGHT_S);
     }
 }

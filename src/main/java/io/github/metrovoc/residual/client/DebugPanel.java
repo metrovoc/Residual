@@ -56,6 +56,16 @@ final class DebugPanel {
         this.font = font;
     }
 
+    /** {@code debug_lines} and {@code debug_values}, and {@code debug_line:0} on, by the program's own line. */
+    void parts(Parts out) {
+        out.add("debugger_panel", px, py, WIDTH, height);
+        out.add("debug_lines", px + 6, py + LINES_TOP, WIDTH - 12, LINES * LINE);
+        out.add("debug_values", px + 6, py + VALUES_TOP + 10, WIDTH - 12, height - VALUES_TOP - 34);
+        for (int i = 0; i < LINES && scroll + i < listing.size(); i++) {
+            out.add("debug_line:" + (scroll + i), px + 6, py + LINES_TOP + i * LINE, WIDTH - 12, LINE);
+        }
+    }
+
     void lay(int x, int y, int height, Consumer<AbstractWidget> add) {
         px = x;
         py = y;

@@ -119,7 +119,7 @@ dependencies {
     implementation "org.appliedenergistics:guideme:${guideme_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     rehearsalImplementation sourceSets.main.output
-    rehearsalRuntimeOnly "org.appliedenergistics:guideme:${guideme_version}"
+    rehearsalImplementation "org.appliedenergistics:guideme:${guideme_version}"
     // GuideME's guide export encodes animated icons with FFmpeg, here the build for this machine
     var os = System.getProperty('os.name').toLowerCase(Locale.ROOT)
     var javacppPlatform = (os.contains('mac') ? 'macosx' : os.contains('windows') ? 'windows' : 'linux') + '-' +
@@ -130,13 +130,16 @@ dependencies {
 
     testImplementation "org.junit.jupiter:junit-jupiter:${junit_version}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // runs the website's arithmetic in LiveMathTest
+    testImplementation 'org.mozilla:rhino:1.7.15'
 }
 
 test {
     useJUnitPlatform()
     maxHeapSize = '2G'
-    // the tests run in the game's folder; TranslationsTest reads the sources
+    // the tests run in the game's folder; TranslationsTest reads the sources, and LiveMathTest the website's arithmetic
     systemProperty 'residual.resources', file('src/main/resources').absolutePath
+    inputs.dir('src/website')
     testLogging {
         events 'failed'
         exceptionFormat 'full'
@@ -192,11 +195,17 @@ tasks.register('guideWebsite', JavaExec) {
     args '--data', file('build/guideExport').absolutePath,
             '--output', layout.buildDirectory.dir('guideWebsite').get().asFile.absolutePath, '--clean', '--title', mod_name,
             '--web-assets', file('src/website/web-assets').absolutePath, '--logo', file('src/website/logo.png').absolutePath,
-            '--site-url', 'https://metrovoc.github.io', '--base-path', '/Residual/'
-    finalizedBy 'guideWebsiteClips'
+            '--site-url', 'https://metrovoc.github.io', '--base-path', '/Residual/',
+            '--script', file('src/website/live-math.js').absolutePath, '--script', file('src/website/live.js').absolutePath
+    finalizedBy 'guideWebsiteClips', 'guideWebsiteShots'
 }
 // the field notes' clips, which the page template's script plays
 tasks.register('guideWebsiteClips', Copy) {
     from file('src/main/resources/assets/residual/guides/residual/guide/clips')
     into layout.buildDirectory.dir('guideWebsite/clips')
+}
+// and the shots of their screens, which src/website/live.js marks
+tasks.register('guideWebsiteShots', Copy) {
+    from file('src/main/resources/assets/residual/guides/residual/guide/shots')
+    into layout.buildDirectory.dir('guideWebsite/shots')
 }

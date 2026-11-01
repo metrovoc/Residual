@@ -12,7 +12,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /** A Drive Rack's eight bays. */
-public class RackScreen extends AbstractContainerScreen<RackMenu> {
+public class RackScreen extends AbstractContainerScreen<RackMenu> implements Parts.Drawn {
     public RackScreen(RackMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 176, RackMenu.INVENTORY_Y + 82);
         inventoryLabelY = RackMenu.INVENTORY_Y - 10;
@@ -51,5 +51,13 @@ public class RackScreen extends AbstractContainerScreen<RackMenu> {
                 g.setTooltipForNextFrame(font.split(Component.translatable("residual.rack.bay_hint"), 200), mouseX, mouseY);
             }
         }
+    }
+
+    @Override
+    public void parts(Parts out) {
+        for (int i = 0; i < RackBlockEntity.BAYS; i++) {
+            out.add("bay:" + i, this, menu.getSlot(i));
+        }
+        out.group("bays", this, 0, RackBlockEntity.BAYS);
     }
 }

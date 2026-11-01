@@ -59,7 +59,7 @@ import org.lwjgl.glfw.GLFW;
  * the grid; what running jobs make comes after the pins by itself, with how far it has come. A search that starts with ? asks
  * the model beside the window what it means; a crafting grid in a panel below it draws on the network.
  */
-public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu> {
+public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu> implements Parts.Drawn {
     private static final int GRID_X = 8, GRID_Y = 20, COLS = 9, ROWS = 6, CELL = 18;
     private static final int BAR_X = GRID_X + COLS * CELL + 4, BAR_W = 12, BAR_H = ROWS * CELL;
     private static final int WINDOW_W = BAR_X + BAR_W + 8;
@@ -1018,5 +1018,60 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             return box.keyPressed(event) || true;
         }
         return super.keyPressed(event);
+    }
+
+    /**
+     * On the grid, {@code cell:0} to {@code cell:53} as shown, and {@code kind:minecraft:coal} for a kind in view whatever its
+     * place; {@code plan:0}, {@code job:0}, {@code job:0:cancel} and {@code tree:0} in the other views, from the first row shown.
+     */
+    @Override
+    public void parts(Parts out) {
+        out.add("model", this, menu.getSlot(TerminalMenu.MODEL));
+        for (int i = 0; i < TerminalMenu.RESULT - TerminalMenu.CRAFT; i++) {
+            out.add("craft:" + i, this, menu.getSlot(TerminalMenu.CRAFT + i));
+        }
+        out.group("craft", this, TerminalMenu.CRAFT, TerminalMenu.RESULT + 1);
+        out.add("craft:result", this, menu.getSlot(TerminalMenu.RESULT));
+        out.add("search", search);
+        out.add("sort", sortButton);
+        out.add("jobs", jobsButton);
+        out.add("back", backButton);
+        out.add("amount", amount);
+        out.add("start", startButton);
+        int x = leftPos + GRID_X, y = topPos + GRID_Y;
+        switch (view) {
+            case GRID -> {
+                out.add("grid", x, y, COLS * CELL, ROWS * CELL);
+                out.add("scrollbar", leftPos + BAR_X, y, BAR_W, BAR_H);
+                out.add("usage", x, topPos + USAGE_Y, COLS * CELL, 10);
+                List<Kept> list = shown();
+                for (int i = 0; i < COLS * ROWS; i++) {
+                    int cx = x + i % COLS * CELL, cy = y + i / COLS * CELL, index = scroll * COLS + i;
+                    out.add("cell:" + i, cx, cy, CELL, CELL);
+                    if (index < list.size()) {
+                        out.add("kind:" + list.get(index).id(), cx, cy, CELL, CELL);
+                    }
+                }
+            }
+            case ASK -> {
+                out.add("plan", x, topPos + PLAN_Y, PANEL_W, PLAN_ROWS * PLAN_ROW);
+                for (int i = 0; i < PLAN_ROWS; i++) {
+                    out.add("plan:" + i, x, topPos + PLAN_Y + i * PLAN_ROW, PANEL_W, PLAN_ROW);
+                }
+            }
+            case JOBS -> {
+                int right = GRID_X + PANEL_W - 14;
+                for (int i = 0; i < JOB_ROWS && scroll + i < menu.jobs.size(); i++) {
+                    out.add("job:" + i, x, topPos + JOB_Y + i * JOB_ROW, PANEL_W - 14, JOB_ROW);
+                    out.add("job:" + i + ":cancel", leftPos + right + 2, topPos + JOB_Y + i * JOB_ROW + 2, 10, 10);
+                }
+            }
+            case JOB -> {
+                out.add("tree", x, topPos + TREE_Y, PANEL_W, TREE_ROWS * TREE_ROW);
+                for (int i = 0; i < TREE_ROWS && scroll + i < menu.tree.size(); i++) {
+                    out.add("tree:" + i, x, topPos + TREE_Y + i * TREE_ROW, PANEL_W, TREE_ROW);
+                }
+            }
+        }
     }
 }

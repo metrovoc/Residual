@@ -35,7 +35,7 @@ import org.lwjgl.glfw.GLFW;
  * The Bench: wire a spec's inputs through primitives and verified modules until every test case passes, then record the
  * design to a photomask. The design runs as it is wired; each node shows what it computes on the chosen case.
  */
-public class BenchScreen extends Screen {
+public class BenchScreen extends Screen implements Parts.Drawn {
     private static final int PALETTE_X = 7, CANVAS_Y = 20, INSPECT_H = 60;
     private static final int NODE_H = 18, PORT_GAP = 7, SINK_W = 34, SINK_H = 18, CHIP_W = 14;
     /** The result: a node index in hit tests and selection. */
@@ -965,5 +965,59 @@ public class BenchScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    /**
+     * {@code chip:add} and {@code chip:module:softmax} in the palette; {@code node:2}, {@code out:2} and {@code in:2:0} on the
+     * canvas, by the node's number, or by {@code last} or an input's name; {@code result} and {@code result:in}; {@code case:ID};
+     * {@code spec}, and {@code spec:ID} while choosing one.
+     */
+    @Override
+    public void parts(Parts out) {
+        out.add("window", left, top, W, H);
+        out.add("spec", left + 6, top + 4, 200, 12);
+        out.add("palette", left + PALETTE_X, top + CANVAS_Y, paletteW + 2, H - CANVAS_Y - 6);
+        out.add("canvas", left + canvasX, top + CANVAS_Y, canvasW, canvasH);
+        out.add("inspector", left + canvasX, top + inspectY, canvasW, INSPECT_H);
+        out.add("goal", left + panelX, top + CANVAS_Y, panelW, chipsY() - top - CANVAS_Y - 1);
+        out.add("record", record);
+        out.add("value", constant);
+        if (choosing) {
+            List<Spec> all = Specs.all();
+            for (int i = 0; i < all.size(); i++) {
+                out.add("spec:" + all.get(i).id(), left + canvasX, top + CANVAS_Y + 2 + i * 12, canvasW, 12);
+            }
+        }
+        for (Chip c : chips) {
+            if (c.y >= top + CANVAS_Y && c.y + 11 <= top + H - 6) {
+                out.add("chip:" + c.kind, c.x, c.y, c.w, 11);
+            }
+        }
+        for (int i = 0; i < spec.cases().size(); i++) {
+            out.add("case:" + spec.cases().get(i).id(), chipX(i), chipsY(), CHIP_W, 11, i == caseIndex);
+        }
+        out.add("cases", chipX(0), chipsY(), spec.cases().size() * (CHIP_W + 2), 11);
+        List<Node> nodes = design.nodes();
+        for (int i = 0; i < nodes.size(); i++) {
+            nodeParts(out, Integer.toString(i), i);
+            if (nodes.get(i).isInput()) {
+                nodeParts(out, spec.ports().get((int) nodes.get(i).value()).name(), i);
+            }
+            if (i == nodes.size() - 1) {
+                nodeParts(out, "last", i);
+            }
+        }
+        out.add("result", sinkX(), sinkY(), SINK_W, SINK_H, selected == SINK);
+        out.add("result:in", sinkX() - 5, sinkY() + SINK_H / 2 - 5, 10, 10);
+    }
+
+    private void nodeParts(Parts out, String name, int i) {
+        Node n = design.nodes().get(i);
+        int w = nodeW(n, i), h = nodeH(n), x = nx(n), y = ny(n);
+        out.add("node:" + name, x, y, w, h, i == selected);
+        out.add("out:" + name, x + w - 4, y + h / 2 - 4, 8, 8);
+        for (int k = 0; k < n.arity(); k++) {
+            out.add("in:" + name + ":" + k, x - 4, portY(n, y, k) - 3, 8, 6);
+        }
     }
 }

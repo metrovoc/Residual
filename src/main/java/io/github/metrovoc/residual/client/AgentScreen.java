@@ -41,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
  * pieces to click together. Trace: what it has been doing, step by step. Below: what it carries. Its model slots sit in
  * a panel beside the window, with setting its home under them.
  */
-public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
+public class AgentScreen extends AbstractContainerScreen<AgentMenu> implements Parts.Drawn {
     private enum Tab { WORK, PROGRAM, TRACE }
 
     /** How wide what sits beside the window on its left is: the palette, or the debugger. */
@@ -645,5 +645,37 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> {
             s = s.substring(1);
         }
         return "…" + s;
+    }
+
+    @Override
+    public void parts(Parts out) {
+        int tx = leftPos + 8;
+        for (Tab t : Tab.values()) {
+            int w = font.width(tabTitle(t)) + 10;
+            out.add("tab:" + t.name().toLowerCase(Locale.ROOT), tx - 4, topPos + 4, w, 14, t == tab);
+            tx += w + 2;
+        }
+        out.add("model", this, menu.getSlot(Agent.MODEL));
+        out.add("filter", this, menu.getSlot(Agent.FILTER));
+        for (int i = 0; i < Agent.CARRY; i++) {
+            out.add("carry:" + i, this, menu.getSlot(i));
+        }
+        if (!wideShown()) {
+            out.add("carry", leftPos + AgentMenu.CARRY_X - 1, topPos + AgentMenu.CARRY_Y - 1, 108, 36);
+        }
+        switch (tab) {
+            case WORK -> out.add("display", leftPos + 8, topPos + 38, 160, 52);
+            case PROGRAM -> {
+                out.add("program", code);
+                out.add("check", leftPos + 8, topPos + rowY() - 16, windowWidth() - 16, 12);
+                if (palette) {
+                    chips.parts(out, font);
+                }
+            }
+            case TRACE -> {
+                out.add("trace", leftPos + 8, topPos + 20, 160, 70);
+                debugger.parts(out);
+            }
+        }
     }
 }

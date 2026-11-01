@@ -38,7 +38,7 @@ import org.lwjgl.glfw.GLFW;
  * at work on board. Under it, each ability, turned on and off with its button in the toolbar beside the window; those left on
  * run cheapest first, as far as the compute goes.
  */
-public class ExosuitScreen extends Screen {
+public class ExosuitScreen extends Screen implements Parts.Drawn {
     private static final KeyMapping KEY = new KeyMapping("key.residual.exosuit", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, KeyMapping.Category.INVENTORY);
     /** Held, a break takes its whole vein. */
     static final KeyMapping VEIN = new KeyMapping("key.residual.vein", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_GRAVE_ACCENT, KeyMapping.Category.GAMEPLAY);
@@ -249,5 +249,17 @@ public class ExosuitScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    /** {@code row:flight} and so on for each ability's line; its button goes by {@code ability.flight}. */
+    @Override
+    public void parts(Parts out) {
+        int x = left(), y = top();
+        out.add("window", x, y, W, H);
+        out.add("charge", x + W - 8 - 64, y + 6, 64, 8);
+        out.add("display", x + 8, y + DISPLAY_Y, W - 16, DISPLAY);
+        for (SuitAbility s : SuitAbility.values()) {
+            out.add("row:" + s.id, x + 8, y + ROWS_Y + s.ordinal() * ROW + 1, W - 16, 16);
+        }
     }
 }

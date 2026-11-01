@@ -152,6 +152,15 @@ final class Palette {
         return false;
     }
 
+    /** {@code palette_panel}, and the names of its pages by number, {@code palette_page:0} on; its chips name themselves. */
+    void parts(Parts out, Font font) {
+        out.add("palette_panel", px, py, WIDTH, height);
+        for (int i = 0; i < pages(); i++) {
+            int[] at = tabAt(font, i);
+            out.add("palette_page:" + i, px + at[0], py + at[1], font.width(title(i)) + 4, 11, i == page);
+        }
+    }
+
     void draw(GuiGraphicsExtractor g, Font font, int mouseX, int mouseY) {
         Ui.window(g, px, py, WIDTH, height);
         for (int i = 0; i < pages(); i++) {
@@ -180,15 +189,17 @@ final class Palette {
     }
 
     /** A piece on a dark chip, outlined in its colour while pointed at. */
-    static final class Chip extends AbstractButton {
+    static final class Chip extends AbstractButton implements Parts.Called {
         static final int HEIGHT = 12;
         private final int color;
+        private final String help;
         private final Runnable onPress;
         int homeX, homeY;
 
         Chip(int x, int y, Pieces.Piece piece, int color, Runnable onPress) {
             super(x, y, Math.min(WIDTH - 12, Minecraft.getInstance().font.width(piece.label()) + 6), HEIGHT, Component.literal(piece.label()));
             this.color = color;
+            this.help = piece.help();
             this.onPress = onPress;
             setTooltip(Tooltip.create(Component.translatable(piece.help())));
         }
@@ -196,6 +207,12 @@ final class Palette {
         void home(int x, int y) {
             homeX = x;
             homeY = y;
+        }
+
+        /** {@code palette.repeat_times}, for {@code repeat 3 (…)}. */
+        @Override
+        public String partName() {
+            return help.substring("residual.".length());
         }
 
         @Override

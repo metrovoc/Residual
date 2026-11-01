@@ -42,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
  * The Model Core's screen: load data, train, test and save, try the model, and inspect it. Training's actions and
  * settings are icon buttons in a toolbar beside the window, their values and what they do in their tooltips.
  */
-public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
+public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Parts.Drawn {
     private enum Tab { DATA, TRAIN, TESTS, TRY, INSPECT }
 
     private static final int WINDOW_W = 320, TOOLBAR_X = WINDOW_W + 3;
@@ -802,5 +802,43 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
 
     private interface Row {
         void draw(GuiGraphicsExtractor g, int y);
+    }
+
+    @Override
+    public void parts(Parts out) {
+        int tx = leftPos + 8;
+        for (Tab t : Tab.values()) {
+            int w = font.width(tabTitle(t)) + 10;
+            out.add("tab:" + t.name().toLowerCase(Locale.ROOT), tx - 4, topPos + 4, w, 14, t == tab);
+            tx += w + 2;
+        }
+        out.add("status", leftPos + 6, topPos + 194, WINDOW_W - 12, 12);
+        switch (tab) {
+            case DATA -> {
+                for (int i = 0; i < CoreMenu.DATA_SLOTS; i++) {
+                    out.add("data:" + i, this, menu.getSlot(i));
+                }
+                out.add("tokenizer", this, menu.getSlot(CoreMenu.TOKENIZER));
+                out.add("checkpoint", this, menu.getSlot(CoreMenu.CRYSTAL));
+                out.add("practising", leftPos + 8, topPos + 60, 160, 40);
+            }
+            case TRAIN -> {
+                out.add("train", train);
+                out.add("chart", leftPos + 6, topPos + 22, 308, 118);
+                out.add("legend", leftPos + 6, topPos + 141, 308, 13);
+                out.add("practising", leftPos + 6, topPos + 163, 236, 12);
+            }
+            case TESTS -> {
+                int pitch = Math.min(15, 140 / Benchmark.values().length);
+                for (Benchmark a : Benchmark.values()) {
+                    out.add("row:" + a.id, leftPos + 6, topPos + 26 + a.ordinal() * pitch, 308, pitch);
+                }
+            }
+            case TRY -> {
+                out.add("output", leftPos + 6, topPos + 64, 220, 90);
+                out.add("next", leftPos + 230, topPos + 66, 84, 88);
+            }
+            case INSPECT -> out.add("table", leftPos + 6, topPos + 22, 308, 166);
+        }
     }
 }

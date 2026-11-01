@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * programs hold in their hands, and its upgrades in a panel beside the window. A program is clicked together from the same
  * palette as an agent's, and goes on the card with Run.
  */
-public class PortProgramScreen extends AbstractContainerScreen<PortProgramMenu> {
+public class PortProgramScreen extends AbstractContainerScreen<PortProgramMenu> implements Parts.Drawn {
     private enum Tab { PROGRAM, TRACE }
 
     private static final int PALETTE = Palette.WIDTH;
@@ -394,6 +394,31 @@ public class PortProgramScreen extends AbstractContainerScreen<PortProgramMenu> 
         if (!wideShown() && Ui.inside(mx, my, PortProgramMenu.SIDE_X, PortProgramMenu.SIDE_Y, PortProgramMenu.SIDE_W, PortProgramMenu.SIDE_H)
                 && hoveredSlot != null && !hoveredSlot.hasItem() && hoveredSlot.getSlotIndex() >= 0 && menu.getCarried().isEmpty()) {
             g.setTooltipForNextFrame(font.split(Component.translatable("residual.upgrades.help"), 200), mouseX, mouseY);
+        }
+    }
+
+    @Override
+    public void parts(Parts out) {
+        int tx = leftPos + 8;
+        for (Tab t : Tab.values()) {
+            int w = font.width(tabTitle(t)) + 10;
+            out.add("tab:" + t.name().toLowerCase(Locale.ROOT), tx - 4, topPos + 4, w, 14, t == tab);
+            tx += w + 2;
+        }
+        if (!wideShown()) {
+            out.group("cards", this, PortProgramMenu.CARDS, PortProgramMenu.HANDS);
+            out.group("hands", this, PortProgramMenu.HANDS, PortProgramMenu.UPGRADES);
+            out.group("upgrades", this, PortProgramMenu.UPGRADES, PortProgramMenu.INVENTORY);
+        }
+        if (tab == Tab.PROGRAM) {
+            out.add("program", code);
+            out.add("check", leftPos + 8, topPos + rowY() - 16, windowWidth() - 16, 12);
+            if (palette) {
+                chips.parts(out, font);
+            }
+        } else {
+            out.add("trace", leftPos + 8, topPos + boxY(), windowWidth() - 16, 90);
+            debugger.parts(out);
         }
     }
 }

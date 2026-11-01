@@ -26,7 +26,7 @@ import net.minecraft.world.item.ItemStack;
  * product, faint in the output slot until it is made. What each material slot needs shows under it, red when short; the
  * product's name, what it does and how long it takes show when the output or the arrow is pointed at.
  */
-public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
+public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> implements Parts.Drawn {
     private static final int CHOICES_X = 40, CHOICES_Y = 24, CELL = 19, PER_ROW = 11;
     private static final int ARROW_X = 133;
 
@@ -185,6 +185,26 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
             if (Ui.inside(mouseX, mouseY, x, y, 18, 18)) {
                 g.setTooltipForNextFrame(font, FabricatorBlockEntity.product(choices.get(i), menu.mask()), mouseX, mouseY);
             }
+        }
+    }
+
+    /** {@code choice:0} on, and {@code make:residual:add} for a machine among them whatever its place. */
+    @Override
+    public void parts(Parts out) {
+        out.add("mask", this, menu.getSlot(FabricatorBlockEntity.MASK));
+        out.add("casing", this, menu.getSlot(FabricatorBlockEntity.CASING));
+        out.add("wafer", this, menu.getSlot(FabricatorBlockEntity.WAFER));
+        out.add("crystal", this, menu.getSlot(FabricatorBlockEntity.CRYSTAL));
+        out.add("output", this, menu.getSlot(FabricatorBlockEntity.OUTPUT));
+        out.add("materials", leftPos + FabricatorMenu.CASING_X - 1, topPos + FabricatorMenu.MATERIALS_Y - 1, FabricatorMenu.CRYSTAL_X + 17 - FabricatorMenu.CASING_X + 1, 29);
+        out.add("arrow", leftPos + ARROW_X, topPos + FabricatorMenu.OUTPUT_Y, 24, 16);
+        out.add("choices", leftPos + CHOICES_X, topPos + CHOICES_Y, PER_ROW * CELL, 2 * CELL);
+        List<Item> choices = choices();
+        int chosen = choice();
+        for (int i = 0; i < choices.size(); i++) {
+            int x = leftPos + CHOICES_X + (i % PER_ROW) * CELL, y = topPos + CHOICES_Y + (i / PER_ROW) * CELL;
+            out.add("choice:" + i, x, y, 18, 18, i == chosen);
+            out.add("make:" + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(choices.get(i)), x, y, 18, 18, i == chosen);
         }
     }
 }

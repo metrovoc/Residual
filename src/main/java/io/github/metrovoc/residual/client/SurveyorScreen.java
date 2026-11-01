@@ -22,7 +22,7 @@ import net.minecraft.world.item.Items;
  * each, or why it cannot survey, and along its foot how far the survey has gone. Its model slot sits in a panel beside
  * the window.
  */
-public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> {
+public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> implements Parts.Drawn {
     private static final int WINDOW_W = 176, SHOW_X = 8, SHOW_Y = 18, SHOW_W = 160, SHOW_H = 68, ROW_H = 20, COL_W = 52;
     /** The finds, in the survey's order: coal, iron, copper, gold, redstone, lapis, diamond, emerald, a cache. */
     private static final ItemStack[] FINDS = {new ItemStack(Items.COAL_ORE), new ItemStack(Items.IRON_ORE), new ItemStack(Items.COPPER_ORE),
@@ -114,6 +114,17 @@ public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> {
         }
         if (!lines.isEmpty()) {
             g.setTooltipForNextFrame(lines, mouseX, mouseY);
+        }
+    }
+
+    /** {@code find:0} on, in the survey's order. */
+    @Override
+    public void parts(Parts out) {
+        out.add("model", this, menu.getSlot(SurveyorBlockEntity.MODEL));
+        out.add("finds", leftPos + SHOW_X, topPos + SHOW_Y, SHOW_W, SHOW_H - 2);
+        out.add("progress", leftPos + SHOW_X, topPos + SHOW_Y + SHOW_H - 6, SHOW_W, 6);
+        for (int i = 0; i < FINDS.length; i++) {
+            out.add("find:" + i, leftPos + SHOW_X + 2 + i % 3 * COL_W, topPos + SHOW_Y + 2 + i / 3 * ROW_H, COL_W, ROW_H);
         }
     }
 }

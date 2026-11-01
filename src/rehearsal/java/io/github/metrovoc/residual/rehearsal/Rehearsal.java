@@ -13,6 +13,7 @@ import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.client.AgentScreen;
 import io.github.metrovoc.residual.client.CoreScreen;
+import io.github.metrovoc.residual.client.Parts;
 import io.github.metrovoc.residual.client.RelayView;
 import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.ExosuitItem;
@@ -153,18 +154,19 @@ import org.slf4j.Logger;
  * useitem                    right-click the air with the main hand
  * creative TAB               open the creative inventory on a tab, by id (residual:main)
  * press LABEL                click the open screen's first button whose label starts with LABEL
- * rclick X Y                 right-click the open screen, in the same coordinates as click
- * altclick X Y               left-click the open screen with Alt held
+ * rclick X Y|PART            right-click the open screen, in the same coordinates as click
+ * altclick X Y|PART          left-click the open screen with Alt held
  * inventory                  open the player's own inventory (in survival; creative opens its own)
- * click X Y                  left-click the open screen; a container screen's coordinates start at its corner
+ * click X Y|PART             left-click the open screen; a container screen's coordinates start at its corner, and a
+ *                            part goes by its name (below)
  * shift N|ITEM               shift-click hotbar slot N (0-8), or the first one holding ITEM, in the open container
  *                            screen
  * take N                     shift-click the open container screen's slot number N
- * hover X Y [TICKS]          move the mouse, in the same coordinates; with TICKS, glide there in that many ticks
+ * hover X Y|PART [TICKS]     move the mouse, in the same coordinates; with TICKS, glide there in that many ticks
  * point TICKS LABEL          glide the mouse in TICKS ticks onto the open screen's first button whose label starts
  *                            with LABEL
- * drag X1 Y1 X2 Y2 [TICKS]   press the left button at one point, glide to the other in TICKS ticks (4) and release
- *                            there
+ * drag X1 Y1|PART X2 Y2|PART [TICKS]  press the left button at one point, glide to the other in TICKS ticks (4) and
+ *                            release there
  * scroll AMOUNT              scroll the open screen where the mouse is
  * key NAME                   press a key on the open screen, by GLFW name (escape, enter, tab, ...)
  * type TEXT
@@ -270,8 +272,18 @@ import org.slf4j.Logger;
  * clip NAME EVERY            save a half-size frame every EVERY ticks, as screenshots/NAME/0000.png and on, while
  *                            the script goes on; meanwhile a cursor is drawn on screens and toasts are kept away
  * clip off                   stop saving frames
+ * parts [PREFIX]             log the name and place of every part of the open screen, or of those whose names start so
+ * expect part PART N         fail the step unless the open screen has that part (1) or has not (0)
+ * expect on PART N           fail the step unless the part is the chosen one, such as the open tab (1), or is not (0)
+ * expect notes N             fail the step unless every page of the field notes, in the game's language, compiles with N errors
  * quit
  * </pre>
+ *
+ * <p>PART is a name from {@link Named}: {@code tab:train}, {@code core.save}, {@code slot:3}, {@code has:minecraft:coal},
+ * {@code kind:minecraft:cobblestone}; {@code NAME+DX+DY} is the point that far from its corner, as in {@code canvas+60+40}.
+ * A click on a widget that is switched off fails the step; on a guide page, the page scrolls until the part is in view. A
+ * step by place logs the part it hit ({@code that is NAME}), and {@code tools/name_clicks.py} turns a script's places into
+ * names from the log of a run of it. A shot of an open screen writes where its parts are beside it, as NAME.parts.json.
  */
 @EventBusSubscriber(modid = Residual.MOD_ID, value = Dist.CLIENT)
 public final class Rehearsal {
@@ -459,8 +471,13 @@ public final class Rehearsal {
         }
     }
 
-    /** Says how the run went, and has the process exit with a failing code if any step failed. */
+    /**
+     * Says how the run went, and has the process exit with a failing code if any step failed. The language goes back to English
+     * for whatever starts in this game folder next: a guide export takes the language it finds.
+     */
     private static void finish() {
+        Minecraft.getInstance().options.languageCode = "en_us";
+        Minecraft.getInstance().options.save();
         LOG.info("[rehearsal] finished: {} steps, {} failed", played, failed.size());
         if (!failed.isEmpty()) {
             LOG.error("[rehearsal] failed steps: {}", failed);
@@ -652,15 +669,15 @@ public final class Rehearsal {
                         Integer.parseInt(rest[0]));
             }
             case "click" -> {
-                point(mc, args);
+                pointToClick(mc, args);
                 click(mc, mouseX, mouseY);
             }
             case "rclick" -> {
-                point(mc, args);
+                pointToClick(mc, args);
                 click(mc, mouseX, mouseY, RIGHT);
             }
             case "altclick" -> {
-                point(mc, args);
+                pointToClick(mc, args);
                 click(mc, mouseX, mouseY, new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_MOD_ALT));
             }
             case "inventory" -> mc.setScreen(new InventoryScreen(mc.player));
@@ -674,19 +691,24 @@ public final class Rehearsal {
             case "take" -> mc.gameMode.handleContainerInput(mc.player.containerMenu.containerId, Integer.parseInt(arg), 0,
                     ContainerInput.QUICK_MOVE, mc.player);
             case "hover" -> {
-                if (args.length > 2) {
-                    double[] to = spot(mc, args[0], args[1]);
-                    glide(to[0], to[1], Integer.parseInt(args[2]));
+                double[] to = aim(mc, args, 0);
+                if (args.length > (int) to[2]) {
+                    glide(to[0], to[1], Integer.parseInt(args[(int) to[2]]));
                 } else {
-                    point(mc, args);
+                    moveMouse(mc, to[0], to[1]);
                 }
+                sayPart(mc, to);
             }
             case "drag" -> {
-                point(mc, args);
+                double[] from = aim(mc, args, 0);
+                moveMouse(mc, from[0], from[1]);
+                sayPart(mc, from);
                 mc.screen.mouseClicked(new MouseButtonEvent(mouseX, mouseY, LEFT), false);
-                double[] to = spot(mc, args[2], args[3]);
+                double[] to = aim(mc, args, (int) from[2]);
+                sayPart(mc, to);
+                int used = (int) from[2] + (int) to[2];
                 dragging = true;
-                glide(to[0], to[1], args.length > 4 ? Integer.parseInt(args[4]) : 4);
+                glide(to[0], to[1], args.length > used ? Integer.parseInt(args[used]) : 4);
             }
             case "scroll" -> mc.screen.mouseScrolled(mouseX, mouseY, 0, Double.parseDouble(arg));
             case "fresh" -> forgetScreens();
@@ -761,8 +783,12 @@ public final class Rehearsal {
             }
             case "lang" -> language(mc, arg);
             case "blueprint" -> blueprint(mc, args);
-            case "shot" -> Screenshot.grab(mc.gameDirectory, arg + ".png", mc.getMainRenderTarget(), 1,
-                    message -> LOG.info("[rehearsal] {}", message.getString()));
+            case "shot" -> {
+                Screenshot.grab(mc.gameDirectory, arg + ".png", mc.getMainRenderTarget(), 1,
+                        message -> LOG.info("[rehearsal] {}", message.getString()));
+                shotParts(mc, arg);
+            }
+            case "parts" -> parts(mc, arg);
             case "clip" -> clip(mc, args);
             case "quit" -> {
                 quitting = true;
@@ -872,6 +898,9 @@ public final class Rehearsal {
 
     /** Checks something the run's result rests on, on the client or the integrated server; a miss fails the step. */
     private static void expect(Minecraft mc, String[] args) throws Exception {
+        if (expectPart(mc, args)) {
+            return;
+        }
         long found, wanted = Long.parseLong(args[args.length - 1]);
         String what = String.join(" ", args);
         switch (args[0]) {
@@ -1259,10 +1288,84 @@ public final class Rehearsal {
         throw new IllegalStateException("no " + arg + " in the hotbar");
     }
 
-    /** Puts the mouse at the centre of GUI pixel (x, y), counted from a container screen's corner when one is open. */
-    private static void point(Minecraft mc, String[] args) {
-        double[] at = spot(mc, args[0], args[1]);
+    /** Puts the mouse where a click goes, and says what is under it when the script went by place. */
+    private static void pointToClick(Minecraft mc, String[] args) {
+        double[] at = aim(mc, args, 0);
+        if (at[2] == 1 && Named.find(mc, args[0]).disabled()) {
+            throw new IllegalStateException(args[0] + " is switched off");
+        }
         moveMouse(mc, at[0], at[1]);
+        sayPart(mc, at);
+    }
+
+    /**
+     * A point from a script's words at {@code from}: the centre of a part by name, or GUI pixel (x, y), counted from a container
+     * screen's corner when one is open; then how many words that took.
+     */
+    private static double[] aim(Minecraft mc, String[] args, int from) {
+        if (args[from].matches("-?\\d+")) {
+            double[] at = spot(mc, args[from], args[from + 1]);
+            return new double[]{at[0], at[1], 2};
+        }
+        Parts.Part part = Named.find(mc, args[from]);
+        return new double[]{part.x() + (part.w() == 0 ? 0.5 : part.w() / 2.0), part.y() + (part.h() == 0 ? 0.5 : part.h() / 2.0), 1};
+    }
+
+    /** What a step by place points at, for {@code tools/name_clicks.py}; nothing a script needs, so it never fails one. */
+    private static void sayPart(Minecraft mc, double[] at) {
+        if (at[2] != 2 || mc.screen == null) {
+            return;
+        }
+        try {
+            Parts.Part part = Named.at(mc.screen, at[0], at[1]);
+            if (part != null) {
+                LOG.info("[rehearsal] that is {} at {} {} of {} {}", part.name(), (int) at[0] - part.x(), (int) at[1] - part.y(), part.w(), part.h());
+            } else {
+                LOG.info("[rehearsal] that is nothing");
+            }
+        } catch (RuntimeException e) {
+            LOG.warn("[rehearsal] cannot name the parts", e);
+        }
+    }
+
+    private static void parts(Minecraft mc, String prefix) {
+        for (Parts.Part p : Named.of(mc.screen).values()) {
+            if (p.name().startsWith(prefix)) {
+                LOG.info("[rehearsal] part {} at {} {} size {} {}{}{}", p.name(), p.x(), p.y(), p.w(), p.h(), p.on() ? " on" : "", p.disabled() ? " off" : "");
+            }
+        }
+    }
+
+    /** Where the parts of a screen just shot are, beside the shot; a script that only wants the picture never fails for it. */
+    private static void shotParts(Minecraft mc, String name) throws IOException {
+        if (mc.screen == null) {
+            return;
+        }
+        Path file = mc.gameDirectory.toPath().resolve(Screenshot.SCREENSHOT_DIR).resolve(name + ".parts.json");
+        Files.createDirectories(file.getParent());
+        try {
+            Named.write(mc, file);
+        } catch (RuntimeException e) {
+            LOG.warn("[rehearsal] cannot name the parts", e);
+        }
+    }
+
+    /** The expect steps about parts; false when it is another kind. */
+    private static boolean expectPart(Minecraft mc, String[] args) {
+        long found;
+        switch (args[0]) {
+            case "part" -> found = mc.screen != null && Named.of(mc.screen).containsKey(args[1]) ? 1 : 0;
+            case "on" -> found = Named.find(mc, args[1]).on() ? 1 : 0;
+            case "notes" -> found = Pages.errors();
+            default -> {
+                return false;
+            }
+        }
+        if (found != Long.parseLong(args[args.length - 1])) {
+            throw new IllegalStateException("expected " + String.join(" ", args) + ", found " + found);
+        }
+        LOG.info("[rehearsal] expected {}, found {}", String.join(" ", args), found);
+        return true;
     }
 
     /** A point on the open screen; a container screen's coordinates start at its corner. */

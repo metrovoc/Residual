@@ -13,7 +13,7 @@ import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /** An Assembler's recipe, what it makes, how many of that to keep, and what it is doing. */
-public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
+public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> implements Parts.Drawn {
     private static final int KEEP_Y = 82;
 
     public AssemblerScreen(AssemblerMenu menu, Inventory inventory, Component title) {
@@ -72,5 +72,16 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
                 g.setTooltipForNextFrame(font.split(Component.translatable("residual.assembler.grid_hint"), 200), mouseX, mouseY);
             }
         }
+    }
+
+    @Override
+    public void parts(Parts out) {
+        for (int i = 0; i < AssemblerBlockEntity.GRID; i++) {
+            out.add("grid:" + i, this, menu.getSlot(i));
+        }
+        out.group("grid", this, 0, AssemblerBlockEntity.GRID);
+        out.add("result", this, menu.getSlot(AssemblerBlockEntity.GRID));
+        out.add("keep", leftPos + 8, topPos + KEEP_Y - 2, imageWidth - 16, 12);
+        out.add("status", leftPos + 8, topPos + KEEP_Y + 14, imageWidth - 16, 11);
     }
 }

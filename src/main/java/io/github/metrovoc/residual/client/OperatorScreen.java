@@ -20,7 +20,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 /** A machine's screen: its name and settings, what the last check found, its pictures and its math. */
-public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
+public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> implements Parts.Drawn {
     private EditBox name;
     private String sentName = "";
 
@@ -213,5 +213,22 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> {
             text = text.substring(end).stripLeading();
         }
         return false;
+    }
+
+    @Override
+    public void parts(Parts out) {
+        OperatorBlockEntity be = machine();
+        if (be == null) {
+            return;
+        }
+        out.add("name", name);
+        out.add("title", leftPos + 8, topPos + 6, font.width(Component.translatable("block.residual." + be.op().id)), 10);
+        int y = 42 + be.op().fields().size() * 18;
+        out.add("check", leftPos + 8, topPos + y, 116, 118 - y);
+        out.add("picture", leftPos + 132, topPos + 32, 50, 50);
+        if (be.weights() != null || be.status().parameters() > 0) {
+            out.add("weights", leftPos + 190, topPos + 32, 50, 50);
+        }
+        out.add("math", leftPos + 8, topPos + 138, 232, 50);
     }
 }

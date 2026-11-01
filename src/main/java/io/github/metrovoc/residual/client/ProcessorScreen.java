@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /** A Processor's pattern: what goes in, the machine in front of it, what comes out; how many to keep, and what it is doing. */
-public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> {
+public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> implements Parts.Drawn {
     private static final int PAGES_Y = ProcessorMenu.GRID_Y + 56, KEEP_Y = PAGES_Y + 16, GRID_W = 54;
 
     public ProcessorScreen(ProcessorMenu menu, Inventory inventory, Component title) {
@@ -115,5 +115,23 @@ public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> {
                 g.setTooltipForNextFrame(font.split(Component.translatable(key), 200), mouseX, mouseY);
             }
         }
+    }
+
+    @Override
+    public void parts(Parts out) {
+        int page = ProcessorBlockEntity.PAGE;
+        for (int i = 0; i < page; i++) {
+            out.add("in:" + i, this, menu.getSlot(i));
+            out.add("out:" + i, this, menu.getSlot(page + i));
+        }
+        out.add("in", leftPos + ProcessorMenu.IN_X - 1, topPos + ProcessorMenu.GRID_Y - 1, GRID_W, GRID_W);
+        out.add("out", leftPos + ProcessorMenu.OUT_X - 1, topPos + ProcessorMenu.GRID_Y - 1, GRID_W, GRID_W);
+        out.add("in:back", leftPos + ProcessorMenu.IN_X - 1, topPos + PAGES_Y, 11, 11);
+        out.add("in:on", leftPos + ProcessorMenu.IN_X + GRID_W - 11, topPos + PAGES_Y, 11, 11);
+        out.add("out:back", leftPos + ProcessorMenu.OUT_X - 1, topPos + PAGES_Y, 11, 11);
+        out.add("out:on", leftPos + ProcessorMenu.OUT_X + GRID_W - 11, topPos + PAGES_Y, 11, 11);
+        out.add("machine", leftPos + (ProcessorMenu.IN_X + GRID_W + ProcessorMenu.OUT_X) / 2 - 12, topPos + ProcessorMenu.GRID_Y + 8, 24, 36);
+        out.add("keep", leftPos + 8, topPos + KEEP_Y - 2, imageWidth - 16, 12);
+        out.add("status", leftPos + 8, topPos + KEEP_Y + 14, imageWidth - 16, 11);
     }
 }
