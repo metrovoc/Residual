@@ -7,6 +7,7 @@ import io.github.metrovoc.residual.graph.CompileException;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
+import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.graph.Sym;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
@@ -43,6 +44,7 @@ import io.github.metrovoc.residual.world.Cooling;
 import io.github.metrovoc.residual.world.GraphScanner;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -537,6 +539,9 @@ public class CoreBlockEntity extends BlockEntity {
         }
         if (passed == Benchmark.values().length) {
             Awards.grant(saver, "model/complete");
+        }
+        if (passed > 0 && Arrays.stream(model.order).anyMatch(n -> model.spec.node(n).op == Op.MODERN_BLOCK)) {
+            Awards.grant(saver, "model/modern");
         }
     }
 

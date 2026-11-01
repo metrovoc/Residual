@@ -85,7 +85,10 @@ class PrimsTest {
     void unary() {
         for (Unary op : Unary.values()) {
             Tensor x = op == Unary.LOG || op == Unary.SQRT ? positive(3, 4) : rand(3, 4);
-            check(op.name(), List.of(x), t -> Prims.unary(t, op, x));
+            // these are steps: a finite difference across one means nothing, and their gradient is 0 between them
+            if (op != Unary.ROUND && op != Unary.EXPONENT) {
+                check(op.name(), List.of(x), t -> Prims.unary(t, op, x));
+            }
         }
     }
 
@@ -98,6 +101,23 @@ class PrimsTest {
         check("unsqueeze", List.of(x), t -> Prims.unsqueeze(t, x));
         Tensor y = rand(3, 4, 1);
         check("squeeze", List.of(y), t -> Prims.squeeze(t, y));
+        check("turn", List.of(x), t -> Prims.turn(t, x));
+        check("left", List.of(x), t -> Prims.left(t, x));
+        check("right", List.of(x), t -> Prims.right(t, x));
+    }
+
+    @Test
+    void placesAndPairs() {
+        assertArrayEquals(new float[]{0, 1, 2}, Prims.index(rand(2, 3, 4)).data);
+        assertArrayEquals(new int[]{3, 1}, Prims.index(rand(2, 3, 4)).shape);
+        assertArrayEquals(new float[]{0, 0, 1, 1, 2, 2}, Prims.pair(rand(2, 6)).data);
+        Tensor x = Tensor.of(new int[]{1, 4}, 1, 2, 3, 4);
+        assertArrayEquals(new float[]{-2, 1, -4, 3}, Prims.turn(null, x).data);
+        assertArrayEquals(new float[]{1, 2}, Prims.left(null, x).data);
+        assertArrayEquals(new float[]{3, 4}, Prims.right(null, x).data);
+        Tensor odd = Tensor.of(new int[]{3}, 1, 2, 3);
+        assertArrayEquals(new float[]{1, 2}, Prims.left(null, odd).data);
+        assertArrayEquals(new float[]{3}, Prims.right(null, odd).data);
     }
 
     @Test

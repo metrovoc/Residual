@@ -25,10 +25,20 @@ public enum Prim {
     TRANSPOSE("transpose", 1, 1, Group.AXIS),
     UNSQUEEZE("unsqueeze", 1, 0, Group.AXIS),
     SQUEEZE("squeeze", 1, 0, Group.AXIS),
-    CAUSAL("causal", 1, 1, Group.AXIS);
+    CAUSAL("causal", 1, 1, Group.AXIS),
+    COS("cos", 1, 2, Group.GRID),
+    SIN("sin", 1, 2, Group.GRID),
+    ROUND("round", 1, 1, Group.GRID),
+    EXPONENT("exponent", 1, 1, Group.GRID),
+    POW2("pow2", 1, 1, Group.GRID),
+    INDEX("index", 1, 0, Group.GRID),
+    PAIR("pair", 1, 0, Group.GRID),
+    TURN("turn", 1, 1, Group.GRID),
+    LEFT("left", 1, 0, Group.GRID),
+    RIGHT("right", 1, 0, Group.GRID);
 
     /** Where a primitive sits in the Bench's palette. */
-    public enum Group { SOURCE, ARITHMETIC, FUNCTION, AXIS }
+    public enum Group { SOURCE, ARITHMETIC, FUNCTION, AXIS, GRID }
 
     public final String id;
     public final int arity;
@@ -73,6 +83,16 @@ public enum Prim {
             case UNSQUEEZE -> Prims.unsqueeze(tape, in[0]);
             case SQUEEZE -> Prims.squeeze(tape, in[0]);
             case CAUSAL -> Prims.causal(tape, in[0]);
+            case COS -> Prims.unary(tape, Unary.COS, in[0]);
+            case SIN -> Prims.unary(tape, Unary.SIN, in[0]);
+            case ROUND -> Prims.unary(tape, Unary.ROUND, in[0]);
+            case EXPONENT -> Prims.unary(tape, Unary.EXPONENT, in[0]);
+            case POW2 -> Prims.unary(tape, Unary.POW2, in[0]);
+            case INDEX -> Prims.index(in[0]);
+            case PAIR -> Prims.pair(in[0]);
+            case TURN -> Prims.turn(tape, in[0]);
+            case LEFT -> Prims.left(tape, in[0]);
+            case RIGHT -> Prims.right(tape, in[0]);
         };
     }
 }

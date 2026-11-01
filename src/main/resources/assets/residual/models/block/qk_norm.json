@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube_directional",
+  "textures": {
+    "particle": "residual:block/qk_norm_side",
+    "north": "residual:block/qk_norm_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/qk_norm_side",
+    "west": "residual:block/qk_norm_side",
+    "up": "residual:block/qk_norm_side",
+    "down": "residual:block/qk_norm_side"
+  }
+}

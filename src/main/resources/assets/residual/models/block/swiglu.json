@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube_directional",
+  "textures": {
+    "particle": "residual:block/swiglu_side",
+    "north": "residual:block/swiglu_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/swiglu_side",
+    "west": "residual:block/swiglu_side",
+    "up": "residual:block/swiglu_side",
+    "down": "residual:block/swiglu_side"
+  }
+}

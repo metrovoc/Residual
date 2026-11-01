@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "residual:block/modern_attention"
+    },
+    "facing=south": {
+      "model": "residual:block/modern_attention",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "residual:block/modern_attention",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "residual:block/modern_attention",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "residual:block/modern_attention",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "residual:block/modern_attention",
+      "x": 90
+    }
+  }
+}

@@ -81,6 +81,18 @@ public final class Blueprints {
         return g;
     }
 
+    /** The modern block: a token table and nothing for positions but the rotation inside each block, RMS norms, gated feed-forward. */
+    public static GraphSpec modern(int dim, int blocks, int heads) {
+        GraphSpec g = new GraphSpec();
+        int x = g.add("embed", Op.EMBEDDING, Config.of(Op.EMBEDDING, "dim", Integer.toString(dim)), GraphSpec.TOKENS);
+        for (int i = 0; i < blocks; i++) {
+            x = g.add("block" + (i + 1), Op.MODERN_BLOCK, Config.of(Op.MODERN_BLOCK, "heads", Integer.toString(heads)), x);
+        }
+        int n = g.add("norm_out", Op.RMS_NORM, x);
+        g.output = g.add("logits", Op.LINEAR, Config.of(Op.LINEAR, "out", "vocab"), n);
+        return g;
+    }
+
     /** A small GPT: token and position embeddings, two transformer blocks, a final norm and unembedding. */
     public static GraphSpec gpt(int dim, int blocks, int heads) {
         GraphSpec g = new GraphSpec();

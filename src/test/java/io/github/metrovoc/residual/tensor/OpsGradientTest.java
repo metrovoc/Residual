@@ -107,6 +107,118 @@ class OpsGradientTest {
     }
 
     @Test
+    void rotaryTurnsPairsAndKeepsLengths() {
+        Tensor x = rand(2, 5, 4);
+        check("rotary", List.of(x), tape -> Ops.rotary(tape, x));
+        check("unfused rotary", List.of(x), tape -> Unfused.rotary(tape, x));
+        Tensor y = Ops.rotary(null, x);
+        // the first row doesn't turn
+        for (int c = 0; c < 4; c++) {
+            assertEquals(x.data[c], y.data[c], 1e-6);
+        }
+        // a turn keeps each pair's length
+        for (int i = 0; i < x.size(); i += 2) {
+            assertEquals(Math.hypot(x.data[i], x.data[i + 1]), Math.hypot(y.data[i], y.data[i + 1]), 1e-4);
+        }
+    }
+
+    /** What the rotation is for: a query and a key that move along together keep their dot product. */
+    @Test
+    void rotaryScoresDependOnlyOnTheOffset() {
+        float[] q = {0.3f, -1.2f, 0.7f, 0.5f, -0.2f, 1.1f};
+        float[] k = {1.5f, 0.4f, -0.6f, 0.9f, 0.3f, -1.4f};
+        int t = 32;
+        float[] qs = new float[t * 6];
+        float[] ks = new float[t * 6];
+        for (int i = 0; i < t; i++) {
+            System.arraycopy(q, 0, qs, i * 6, 6);
+            System.arraycopy(k, 0, ks, i * 6, 6);
+        }
+        Tensor rq = Ops.rotary(null, Tensor.of(new int[]{t, 6}, qs));
+        Tensor rk = Ops.rotary(null, Tensor.of(new int[]{t, 6}, ks));
+        Tensor scores = Ops.matmul(null, rq, rk, true);
+        for (int offset = 0; offset < 8; offset++) {
+            float first = scores.data[offset * t];
+            for (int i = 1; i + offset < t; i++) {
+                assertEquals(first, scores.data[(i + offset) * t + i], 1e-4, "offset " + offset + " at row " + i);
+            }
+        }
+    }
+
+    @Test
+    void theFastExponentialIsCloseEverywhere() {
+        for (float x = -87f; x < 88f; x += 0.0137f) {
+            double want = Math.exp(x);
+            assertEquals(want, Ops.exp(x), 3e-7 * want, "e^" + x);
+        }
+        assertEquals(0f, Ops.exp(-1000f));
+        assertEquals(1f, Ops.exp(0f));
+        assertEquals(Float.POSITIVE_INFINITY, Ops.exp(1000f));
+        assertTrue(Float.isNaN(Ops.exp(Float.NaN)));
+    }
+
+    @Test
+    void flashAttentionEqualsTheScoresItNeverHolds() {
+        for (int t : new int[]{3, 16, 17, 40}) {
+            Tensor q = rand(2, 2, t, 4);
+            Tensor k = rand(2, 2, t, 4);
+            Tensor v = rand(2, 2, t, 4);
+            Tape tape = new Tape();
+            Tensor flash = Ops.flashAttention(tape, q, k, v, 0.5f);
+            Tape plainTape = new Tape();
+            Tensor plain = Ops.matmul(plainTape, Ops.softmax(plainTape, Ops.causalMask(plainTape,
+                    Ops.scale(plainTape, Ops.matmul(plainTape, q, k, true), 0.5f))), v, false);
+            for (int i = 0; i < plain.size(); i++) {
+                assertEquals(plain.data[i], flash.data[i], 1e-4, "T " + t + " output " + i);
+            }
+            Tensor seed = rand(plain.shape);
+            Tensor unused = Tensor.of(seed.shape.clone(), seed.data);
+            tape.backward(Ops.sum(tape, Ops.mul(tape, flash, unused)));
+            float[][] grads = {q.grad().clone(), k.grad().clone(), v.grad().clone()};
+            q.zeroGrad();
+            k.zeroGrad();
+            v.zeroGrad();
+            plainTape.backward(Ops.sum(plainTape, Ops.mul(plainTape, plain, unused)));
+            float[][] want = {q.grad(), k.grad(), v.grad()};
+            for (int n = 0; n < 3; n++) {
+                for (int i = 0; i < want[n].length; i++) {
+                    assertEquals(want[n][i], grads[n][i], 1e-3, "T " + t + " gradient " + n + " element " + i);
+                }
+            }
+        }
+    }
+
+    @Test
+    void flashAttentionKeepsItsAnswerWhenALaterTileIsFarLarger() {
+        // scores a thousand apart along each row: exp without the running maximum overflows
+        int t = 34;
+        Tensor q = Tensor.zeros(false, 1, t, 2);
+        Tensor k = Tensor.zeros(false, 1, t, 2);
+        Tensor v = rand(1, t, 2);
+        for (int i = 0; i < t; i++) {
+            q.data[2 * i] = 1f;
+            k.data[2 * i] = i < 20 ? -1000f : 1000f + i;
+        }
+        Tensor flash = Ops.flashAttention(null, q, k, v, 1f);
+        Tensor plain = Ops.matmul(null, Ops.softmax(null, Ops.causalMask(null, Ops.matmul(null, q, k, true))), v, false);
+        for (int i = 0; i < plain.size(); i++) {
+            assertEquals(plain.data[i], flash.data[i], 1e-4, "element " + i);
+        }
+    }
+
+    @Test
+    void zLossAndTemperature() {
+        Tensor y = rand(2, 3, 5);
+        check("z loss", List.of(y), tape -> Ops.zLoss(tape, y));
+        Tensor x = rand(2, 3, 4);
+        Tensor t = rand(1);
+        check("scaled", List.of(x, t), tape -> Ops.scaled(tape, x, t));
+        // a row of zeros over five tokens sums to five
+        Tensor flat = Tensor.zeros(false, 1, 5);
+        assertEquals(Math.log(5) * Math.log(5), Ops.zLoss(null, flat).item(), 1e-5);
+    }
+
+    @Test
     void norms() {
         Tensor x = rand(3, 5);
         Tensor g = rand(5);

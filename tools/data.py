@@ -15,8 +15,9 @@ NS = "residual"
 
 # Op ids in registry order, with their arity where it isn't 1 (see graph/Op.java)
 OPS = ["embedding", "position", "linear", "activation", "add", "multiply", "norm", "matmul", "scale", "causal_mask",
-       "softmax", "split_heads", "merge_heads", "shift", "concat", "attention", "mlp", "transformer"]
-ARITY = {"position": 0, "add": 2, "multiply": 2, "matmul": 2, "concat": 2}
+       "softmax", "split_heads", "merge_heads", "shift", "concat", "attention", "mlp", "transformer", "rms_norm", "swiglu",
+       "rotary", "qk_norm", "z_loss", "modern_attention", "modern_block"]
+ARITY = {"position": 0, "add": 2, "multiply": 2, "matmul": 2, "concat": 2, "qk_norm": 2}
 DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray", "cyan", "purple",
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
@@ -31,7 +32,9 @@ SCHEMATICS = ["schematic_relays"]
 PORT_MODES = ["import", "export", "stock", "window"]
 # see bench/Specs.java, in the order the Bench lists them, each with the spec whose module it builds on first
 SPECS = {"mean": None, "softmax": None, "matmul": None, "linear": "matmul", "gelu": None, "layer_norm": "mean",
-         "attention": "softmax", "mlp": "linear", "transformer": "attention"}
+         "attention": "softmax", "mlp": "linear", "transformer": "attention", "rms_norm": "layer_norm", "silu": "gelu", "swiglu": "silu",
+         "rotary": "attention", "qk_norm": "rotary", "online_softmax": "softmax", "z_loss": "softmax",
+         "modern_attention": "qk_norm", "modern_block": "modern_attention"}
 WRECKS = ruins.WRECKS
 
 FACING = {"north": {}, "south": {"y": 180}, "east": {"y": 90}, "west": {"y": 270}, "up": {"x": 270}, "down": {"x": 90}}
@@ -742,6 +745,7 @@ def advancements():
         parent = "archive/drive" if a == "reading" else "model/saved"
         advancement(f"benchmark/{a}", parent, "checkpoint", awarded(), frame="goal")
     advancement("model/complete", "benchmark/reading", "checkpoint", awarded(), frame="challenge")
+    advancement("model/modern", "bench/modern_block", "modern_block", awarded(), frame="goal")
     advancement("agent/made", "root", "agent", has("agent"))
     advancement("agent/program", "agent/made", "program_card", awarded())
     advancement("agent/debugger", "agent/program", "program_card", awarded())
@@ -790,7 +794,7 @@ def advancements():
     advancement("model/stream", "bench/made", "stream", placed("stream"))
     advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))
     for spec, after in SPECS.items():
-        frame = "goal" if spec == "transformer" else "task"
+        frame = "goal" if spec in ("transformer", "modern_block") else "task"
         advancement(f"bench/{spec}", f"bench/{after}" if after else "bench/made", "photomask", awarded(), frame=frame,
                     components={rid("mask"): {"spec": spec}})
     advancement("bench/all", "bench/transformer", "photomask", awarded(), frame="challenge", components={rid("mask"): {"spec": "transformer"}})

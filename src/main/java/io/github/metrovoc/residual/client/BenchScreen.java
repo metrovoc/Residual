@@ -40,7 +40,7 @@ public class BenchScreen extends Screen implements Parts.Drawn {
     private static final int NODE_H = 18, PORT_GAP = 7, SINK_W = 34, SINK_H = 18, CHIP_W = 14;
     /** The result: a node index in hit tests and selection. */
     private static final int SINK = -2;
-    private static final int[] GROUP_COLORS = {0xFFB08A3E, 0xFF2F8F86, 0xFF7A5BB0, 0xFF3D6FB0};
+    private static final int[] GROUP_COLORS = {0xFFB08A3E, 0xFF2F8F86, 0xFF7A5BB0, 0xFF3D6FB0, 0xFF8A5F3D};
     private static final int MODULE_COLOR = 0xFF4E8F3A, INPUT_COLOR = 0xFF8A6A2A, PARAM_COLOR = 0xFF6A4A8A;
     private static final int WIRE = 0xFF5D7A8C, WIRE_LIVE = 0xFF3CD6C6;
 
@@ -72,6 +72,8 @@ public class BenchScreen extends Screen implements Parts.Drawn {
     private int panX, panY;
     private final Deque<Design> undo = new ArrayDeque<>();
     private boolean choosing;
+    /** The first spec the chooser shows: there are more than fit. */
+    private int chooserFirst;
     @Nullable
     private Drag drag;
     private double mouseX, mouseY;
@@ -305,9 +307,9 @@ public class BenchScreen extends Screen implements Parts.Drawn {
         if (choosing) {
             choosing = false;
             List<Spec> all = Specs.all();
-            for (int i = 0; i < all.size(); i++) {
+            for (int i = 0; i < chooserRows(); i++) {
                 if (Ui.inside(x, y, left + canvasX, top + CANVAS_Y + 2 + i * 12, canvasW, 12)) {
-                    open(all.get(i));
+                    open(all.get(chooserFirst + i));
                 }
             }
             return true;
@@ -445,6 +447,10 @@ public class BenchScreen extends Screen implements Parts.Drawn {
 
     @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+        if (choosing) {
+            chooserFirst = Math.max(0, Math.min(Specs.all().size() - chooserRows(), chooserFirst - (int) Math.signum(scrollY) * 2));
+            return true;
+        }
         if (inPalette(x, y)) {
             int room = H - CANVAS_Y - 6;
             paletteScroll = Math.max(0, Math.min(paletteHeight - room, paletteScroll - (int) (scrollY * 12)));
@@ -908,13 +914,25 @@ public class BenchScreen extends Screen implements Parts.Drawn {
         };
     }
 
+    /** How many specs the chooser shows at once. */
+    private int chooserRows() {
+        return Math.min(Specs.all().size(), (H - CANVAS_Y - 10) / 12);
+    }
+
     private void chooser(GuiGraphicsExtractor g) {
         int x = left + canvasX, y = top + CANVAS_Y;
         List<Spec> all = Specs.all();
-        g.fill(x - 1, y - 1, x + canvasW + 1, y + all.size() * 12 + 5, 0xFF373737);
-        g.fill(x, y, x + canvasW, y + all.size() * 12 + 4, Ui.PANEL);
-        for (int i = 0; i < all.size(); i++) {
-            Spec s = all.get(i);
+        int rows = chooserRows();
+        g.fill(x - 1, y - 1, x + canvasW + 1, y + rows * 12 + 5, 0xFF373737);
+        g.fill(x, y, x + canvasW, y + rows * 12 + 4, Ui.PANEL);
+        if (rows < all.size()) {
+            // how far down the list it has been scrolled
+            int travel = rows * 12 - rows * 12 * rows / all.size();
+            int bar = y + 2 + travel * chooserFirst / (all.size() - rows);
+            g.fill(x + canvasW - 3, bar, x + canvasW - 1, bar + rows * 12 * rows / all.size(), Ui.LABEL_DIM);
+        }
+        for (int i = 0; i < rows; i++) {
+            Spec s = all.get(chooserFirst + i);
             int ry = y + 2 + i * 12;
             if (Ui.inside(mouseX, mouseY, x, ry, canvasW, 12)) {
                 g.fill(x, ry, x + canvasW, ry + 12, 0xFFDADADA);

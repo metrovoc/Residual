@@ -1,6 +1,8 @@
 package io.github.metrovoc.residual.tensor;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Differentiable tensor operations. Every op takes an optional {@link Tape}; when it is non-null and an
@@ -432,6 +434,260 @@ public final class Ops {
         return out;
     }
 
+    /** {@code x * t} for a learned number {@code t} of shape [1]. */
+    public static Tensor scaled(Tape tape, Tensor x, Tensor t) {
+        float s = t.data[0];
+        Tensor out = result(x.shape.clone(), tracks(tape, x, t));
+        for (int i = 0; i < x.data.length; i++) {
+            out.data[i] = x.data[i] * s;
+        }
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                if (!out.hasGrad()) {
+                    return;
+                }
+                float[] g = out.grad();
+                if (x.requiresGrad) {
+                    float[] gx = x.grad();
+                    for (int i = 0; i < g.length; i++) {
+                        gx[i] += g[i] * s;
+                    }
+                }
+                if (t.requiresGrad) {
+                    double sum = 0;
+                    for (int i = 0; i < g.length; i++) {
+                        sum += (double) g[i] * x.data[i];
+                    }
+                    t.grad()[0] += (float) sum;
+                }
+            });
+        }
+        return out;
+    }
+
+    // ------------------------------------------------------------------ positions by rotation
+
+    private static final Map<Long, float[][]> TURNS = new ConcurrentHashMap<>();
+
+    /** cos and sin of t / 10000^(2k/d), by row t and pair k. */
+    private static float[][] turns(int t, int d) {
+        return TURNS.computeIfAbsent((long) t << 32 | d, key -> {
+            float[] cos = new float[t * d / 2];
+            float[] sin = new float[t * d / 2];
+            for (int i = 0; i < t; i++) {
+                for (int k = 0; k < d / 2; k++) {
+                    double angle = i * Math.pow(10000, -2.0 * k / d);
+                    cos[i * (d / 2) + k] = (float) Math.cos(angle);
+                    sin[i * (d / 2) + k] = (float) Math.sin(angle);
+                }
+            }
+            return new float[][]{cos, sin};
+        });
+    }
+
+    /**
+     * Rotary positions: each pair of features of row t, over the last two dimensions [..., T, d], turned by
+     * t / 10000^(2k/d). Two rows' dot product then depends only on how far apart they are.
+     */
+    public static Tensor rotary(Tape tape, Tensor x) {
+        int d = x.dim(-1);
+        if (x.rank() < 2 || d % 2 != 0) {
+            throw new ShapeException("residual.shape.op.rotary", x.shapeString());
+        }
+        int t = x.dim(-2);
+        float[][] turns = turns(t, d);
+        float[] cos = turns[0];
+        float[] sin = turns[1];
+        int grids = x.size() / (t * d);
+        Tensor out = result(x.shape.clone(), tracks(tape, x));
+        for (int g = 0; g < grids; g++) {
+            int base = g * t * d;
+            for (int i = 0; i < t; i++) {
+                int row = base + i * d;
+                int turn = i * (d / 2);
+                for (int k = 0; k < d / 2; k++) {
+                    float a = x.data[row + 2 * k];
+                    float b = x.data[row + 2 * k + 1];
+                    float c = cos[turn + k];
+                    float s = sin[turn + k];
+                    out.data[row + 2 * k] = a * c - b * s;
+                    out.data[row + 2 * k + 1] = a * s + b * c;
+                }
+            }
+        }
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                if (!out.hasGrad()) {
+                    return;
+                }
+                float[] gy = out.grad();
+                float[] gx = x.grad();
+                for (int g = 0; g < grids; g++) {
+                    int base = g * t * d;
+                    for (int i = 0; i < t; i++) {
+                        int row = base + i * d;
+                        int turn = i * (d / 2);
+                        for (int k = 0; k < d / 2; k++) {
+                            float ga = gy[row + 2 * k];
+                            float gb = gy[row + 2 * k + 1];
+                            float c = cos[turn + k];
+                            float s = sin[turn + k];
+                            gx[row + 2 * k] += ga * c + gb * s;
+                            gx[row + 2 * k + 1] += gb * c - ga * s;
+                        }
+                    }
+                }
+            });
+        }
+        return out;
+    }
+
+    // ------------------------------------------------------------------ attention in tiles
+
+    /** Scores an online softmax takes in at a time. */
+    static final int TILE = 16;
+
+    /**
+     * e^x in single precision, about 1 unit in its last place, some ten times as fast as {@link Math#exp}, which the
+     * tiled attention would otherwise spend most of its time in. Below the smallest normal float it gives 0.
+     */
+    static float exp(float x) {
+        if (x < -87.3f) {
+            return 0f;
+        }
+        if (x > 88.7f) {
+            return Float.POSITIVE_INFINITY;
+        }
+        if (x != x) {
+            return x;
+        }
+        int n = (int) Math.floor(x * 1.44269504088896341f + 0.5f);
+        float r = x - n * 0.693359375f + n * 2.12194440e-4f;
+        float p = (((((1.9875691500e-4f * r + 1.3981999507e-3f) * r + 8.3334519073e-3f) * r + 4.1665795894e-2f) * r
+                + 1.6666665459e-1f) * r + 5.0000001201e-1f) * r * r + r + 1f;
+        return p * Float.intBitsToFloat(n + 127 << 23);
+    }
+
+    /**
+     * Causal attention without ever holding the T×T scores: q, k and v are [..., T, d], and each row of the result is
+     * {@code softmax(q k^T * scale, masked) @ v} along that row. Each row's scores come a tile at a time. A running
+     * maximum m and a running sum l of e^(s - m) stay exact however far the scores are from one another: when a tile
+     * raises the maximum, what has been summed so far is scaled down by e^(old m - new m). The backward pass works the
+     * same scores out again from the q and k it kept. Its memory grows with T where the plain way's grows with T².
+     */
+    public static Tensor flashAttention(Tape tape, Tensor q, Tensor k, Tensor v, float scale) {
+        int d = q.dim(-1);
+        int t = q.dim(-2);
+        int grids = q.size() / (t * d);
+        Tensor out = result(v.shape.clone(), tracks(tape, q, k, v));
+        float[] tops = new float[grids * t];
+        float[] sums = new float[grids * t];
+        float[] qd = q.data;
+        float[] kd = k.data;
+        float[] vd = v.data;
+        float[] od = out.data;
+        Parallel.range(grids, (long) t * t * d * 2, (from, to) -> {
+            float[] scores = new float[TILE];
+            for (int g = from; g < to; g++) {
+                int base = g * t * d;
+                for (int i = 0; i < t; i++) {
+                    int qi = base + i * d;
+                    float top = Float.NEGATIVE_INFINITY;
+                    float sum = 0f;
+                    for (int tile = 0; tile <= i; tile += TILE) {
+                        int end = Math.min(tile + TILE, i + 1);
+                        float high = top;
+                        for (int j = tile; j < end; j++) {
+                            int kj = base + j * d;
+                            float s = 0f;
+                            for (int c = 0; c < d; c++) {
+                                s += qd[qi + c] * kd[kj + c];
+                            }
+                            s *= scale;
+                            scores[j - tile] = s;
+                            // a NaN has to win, or a run gone wrong would look well
+                            high = s > high || s != s ? s : high;
+                        }
+                        if (high != top && sum != 0f) {
+                            float fade = exp(top - high);
+                            sum *= fade;
+                            for (int c = 0; c < d; c++) {
+                                od[qi + c] *= fade;
+                            }
+                        }
+                        top = high;
+                        for (int j = tile; j < end; j++) {
+                            float e = exp(scores[j - tile] - top);
+                            sum += e;
+                            int vj = base + j * d;
+                            for (int c = 0; c < d; c++) {
+                                od[qi + c] += e * vd[vj + c];
+                            }
+                        }
+                    }
+                    float inv = 1f / sum;
+                    for (int c = 0; c < d; c++) {
+                        od[qi + c] *= inv;
+                    }
+                    tops[g * t + i] = top;
+                    sums[g * t + i] = sum;
+                }
+            }
+        });
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                if (!out.hasGrad()) {
+                    return;
+                }
+                float[] gy = out.grad();
+                float[] gq = q.requiresGrad ? q.grad() : null;
+                float[] gk = k.requiresGrad ? k.grad() : null;
+                float[] gv = v.requiresGrad ? v.grad() : null;
+                Parallel.range(grids, (long) t * t * d * 4, (from, to) -> {
+                    for (int g = from; g < to; g++) {
+                        int base = g * t * d;
+                        for (int i = 0; i < t; i++) {
+                            int row = base + i * d;
+                            float top = tops[g * t + i];
+                            float inv = 1f / sums[g * t + i];
+                            float back = 0f;
+                            for (int c = 0; c < d; c++) {
+                                back += gy[row + c] * od[row + c];
+                            }
+                            for (int j = 0; j <= i; j++) {
+                                int kj = base + j * d;
+                                float s = 0f;
+                                float through = 0f;
+                                for (int c = 0; c < d; c++) {
+                                    s += qd[row + c] * kd[kj + c];
+                                    through += gy[row + c] * vd[kj + c];
+                                }
+                                float p = exp(s * scale - top) * inv;
+                                float gs = p * (through - back) * scale;
+                                if (gq != null) {
+                                    for (int c = 0; c < d; c++) {
+                                        gq[row + c] += gs * kd[kj + c];
+                                    }
+                                }
+                                if (gk != null) {
+                                    for (int c = 0; c < d; c++) {
+                                        gk[kj + c] += gs * qd[row + c];
+                                    }
+                                }
+                                if (gv != null) {
+                                    for (int c = 0; c < d; c++) {
+                                        gv[kj + c] += p * gy[row + c];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        return out;
+    }
+
     // ------------------------------------------------------------------ normalisation
 
     /** {@code F.layer_norm(x, (d,), gamma, beta, eps)}. */
@@ -606,6 +862,49 @@ public final class Ops {
                 float[] gt = table.grad();
                 for (int i = 0; i < g.length; i++) {
                     gt[i] += g[i];
+                }
+            });
+        }
+        return out;
+    }
+
+    /**
+     * Mean over rows of {@code log²(Σ e^y)}: how far a row's scores have drifted from a softmax's comfortable range,
+     * the z-loss. logsumexp stays exact however large the scores are.
+     */
+    public static Tensor zLoss(Tape tape, Tensor y) {
+        int v = y.dim(-1);
+        int rows = y.rows();
+        float[] tops = new float[rows];
+        double[] sums = new double[rows];
+        double total = 0;
+        for (int r = 0; r < rows; r++) {
+            int off = r * v;
+            float max = Float.NEGATIVE_INFINITY;
+            for (int j = 0; j < v; j++) {
+                max = Math.max(max, y.data[off + j]);
+            }
+            double sum = 0;
+            for (int j = 0; j < v; j++) {
+                sum += Math.exp(y.data[off + j] - max);
+            }
+            tops[r] = max;
+            sums[r] = sum;
+            double logZ = max + Math.log(sum);
+            total += logZ * logZ;
+        }
+        Tensor out = new Tensor(new int[]{1}, new float[]{(float) (total / rows)}, tracks(tape, y));
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                float gl = out.grad()[0];
+                float[] gy = y.grad();
+                for (int r = 0; r < rows; r++) {
+                    int off = r * v;
+                    double c = gl * 2 * (tops[r] + Math.log(sums[r])) / (rows * sums[r]);
+                    for (int j = 0; j < v; j++) {
+                        // with the sum, the row's softmax: the gradient of log Z
+                        gy[off + j] += (float) (c * Math.exp(y.data[off + j] - tops[r]));
+                    }
                 }
             });
         }

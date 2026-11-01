@@ -294,7 +294,7 @@ public final class TrainingJob {
         tape.backward(Ops.crossEntropy(tape, logits, probe.targets(), probe.weights()));
         for (int node : model.order) {
             Tensor out = captures.outputs.get(node);
-            Tensor shown = op(node) == Op.ATTENTION || op(node) == Op.TRANSFORMER ? captures.patterns.get(node) : out;
+            Tensor shown = op(node).attends() ? captures.patterns.get(node) : out;
             if (shown == null) {
                 shown = out;
             }
@@ -324,9 +324,10 @@ public final class TrainingJob {
     /** The matrix shown on a machine's sides. */
     public static Tensor mainWeight(Op op, Map<String, Tensor> p) {
         return switch (op) {
-            case ATTENTION -> p.get("q");
-            case MLP -> p.get("w1");
-            case TRANSFORMER -> p.get("mlp.w1");
+            case ATTENTION, MODERN_ATTENTION -> p.get("q");
+            case MLP, SWIGLU -> p.get("w1");
+            case TRANSFORMER, MODERN_BLOCK -> p.get("mlp.w1");
+            case QK_NORM -> p.get("t");
             default -> p.get("weight");
         };
     }

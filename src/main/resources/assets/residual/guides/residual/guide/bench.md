@@ -51,6 +51,9 @@ The parts:
 - **Functions**: neg, exp, log, sqrt and tanh.
 - **Last axis**: sum and amax keep the axis with size 1; transpose swaps the last two axes; unsqueeze and squeeze add
   and drop an axis of size 1; causal hides everything above the diagonal.
+- **Grids and turns**: cos and sin; round, to the nearest whole number with a half going to the even one; exponent, the
+  power of 2 a float stores, and pow2, which undoes it; index, each row's place; pair, which pair each number of a row is
+  in; turn, a quarter turn of every pair; left and right, the two halves of the last axis.
 - **Your modules**: every spec you have verified, as one part.
 
 ## Recording

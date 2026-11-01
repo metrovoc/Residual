@@ -41,6 +41,7 @@ item_ids:
 - **算术**：add、sub、mul、div 和 max，逐元素计算。大小为 1 的轴会拉伸以匹配另一个输入，所以一行的和可以除整行的数。
 - **函数**：neg、exp、log、sqrt 和 tanh。
 - **末轴**：sum 和 amax 把这一轴保留为大小 1；transpose 交换最后两轴；unsqueeze 和 squeeze 添加和去掉大小为 1 的轴；causal 遮住对角线以上的一切。
+- **网格、旋转**：cos 和 sin；round，取最接近的整数，正好一半时取偶数一侧；exponent，浮点数存储的 2 的幂次，pow2 把它还原；index，每一行的位置；pair，一行中每个数属于第几对；turn，把每一对转四分之一圈；left 和 right，末轴的两半。
 - **你的模块**：你验证过的每项规格，作为一个部件。
 
 ## 记录

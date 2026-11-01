@@ -59,6 +59,15 @@ public final class Unfused {
         return bin(tape, Binary.MUL, bin(tape, Binary.DIV, x, rms), gamma);
     }
 
+    /** A pair at row t turned by t / 10000^(2k/d): x·cos θ + turn(x)·sin θ, each part a tensor of its own. */
+    public static Tensor rotary(Tape tape, Tensor x) {
+        Tensor rate = Prims.unary(tape, Unary.EXP, bin(tape, Binary.MUL, Prims.scalar((float) -Math.log(10000)),
+                bin(tape, Binary.DIV, bin(tape, Binary.MUL, Prims.scalar(2f), Prims.pair(x)), Prims.size(x))));
+        Tensor angle = bin(tape, Binary.MUL, Prims.index(x), rate);
+        return bin(tape, Binary.ADD, bin(tape, Binary.MUL, x, Prims.unary(tape, Unary.COS, angle)),
+                bin(tape, Binary.MUL, Prims.turn(tape, x), Prims.unary(tape, Unary.SIN, angle)));
+    }
+
     private static Tensor sigmoid(Tape tape, Tensor x) {
         Tensor one = Prims.scalar(1f);
         return bin(tape, Binary.DIV, one, bin(tape, Binary.ADD, one, Prims.unary(tape, Unary.EXP, Prims.unary(tape, Unary.NEG, x))));

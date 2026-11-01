@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.learn;
 
 import io.github.metrovoc.residual.graph.CompiledGraph;
+import io.github.metrovoc.residual.graph.Extras;
 import io.github.metrovoc.residual.tensor.AdamW;
 import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Tape;
@@ -50,10 +51,15 @@ public final class Trainer {
         bind(task, model);
         Batch b = task.batch(rng, batchSize, false);
         Tape tape = new Tape();
-        Tensor logits = model.forward(tape, b.input(), null);
+        Extras extras = new Extras();
+        Tensor logits = model.forward(tape, b.input(), null, extras);
         Tensor loss = Ops.crossEntropy(tape, logits, b.targets(), b.weights());
+        Tensor total = loss;
+        for (Tensor penalty : extras.penalties) {
+            total = Ops.add(tape, total, penalty);
+        }
         optimizer.zeroGrad();
-        tape.backward(loss);
+        tape.backward(total);
         lastGradNorm = optimizer.clip(clip);
         optimizer.step(rate(learningRate, step));
         step++;

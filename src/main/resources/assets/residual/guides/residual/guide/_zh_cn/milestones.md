@@ -109,6 +109,24 @@ navigation:
 
 <residual:Milestone id="bench/transformer">验证注意力后开放。</residual:Milestone>
 
+<residual:Milestone id="bench/rms_norm">要做的事更少的层归一化；验证均值后开放。</residual:Milestone>
+
+<residual:Milestone id="bench/silu">照公式直接连会溢出。</residual:Milestone>
+
+<residual:Milestone id="bench/swiglu">验证矩阵乘法和 SiLU 后开放。</residual:Milestone>
+
+<residual:Milestone id="bench/rotary">一对数按位置旋转：[现代块](modern.md)。</residual:Milestone>
+
+<residual:Milestone id="bench/qk_norm">验证矩阵乘法和 RMS 归一化后开放。</residual:Milestone>
+
+<residual:Milestone id="bench/online_softmax">一块一块地做 softmax；整块都被遮住时，显而易见的做法会失败。</residual:Milestone>
+
+<residual:Milestone id="bench/z_loss">上千的分数会让它溢出，和 softmax 一样。</residual:Milestone>
+
+<residual:Milestone id="bench/modern_attention">验证旋转位置、QK 归一化和在线 softmax 后开放。</residual:Milestone>
+
+<residual:Milestone id="bench/modern_block">验证 RMS 归一化、现代注意力和门控前馈后开放。</residual:Milestone>
+
 <residual:Milestone id="bench/all"></residual:Milestone>
 
 <residual:Milestone id="model/stream">Transformer 层从中读取，并向其中累加：[残差流](stream.md)。</residual:Milestone>
@@ -142,6 +160,8 @@ navigation:
 <residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习；需要一个大到无法随身携带的模型。</residual:Milestone>
 
 <residual:Milestone id="model/complete">一个模型核心最多可同时练习四种数据。</residual:Milestone>
+
+<residual:Milestone id="model/modern">用现代块代替 Transformer 块，模型通过任意一项测试后保存：[现代块](modern.md)。</residual:Milestone>
 
 ## 让模型干活
 

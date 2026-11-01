@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube_directional",
+  "textures": {
+    "particle": "residual:block/z_loss_side",
+    "north": "residual:block/z_loss_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/z_loss_side",
+    "west": "residual:block/z_loss_side",
+    "up": "residual:block/z_loss_side",
+    "down": "residual:block/z_loss_side"
+  }
+}

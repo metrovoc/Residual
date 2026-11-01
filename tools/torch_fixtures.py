@@ -106,6 +106,27 @@ def row(x):
     return x.view(1, -1) if x.dim() == 1 else x
 
 
+def rotary(x):
+    """Each pair of features as a complex number, turned by its row's place."""
+    t, d = x.shape[-2:]
+    angle = torch.arange(t, dtype=x.dtype)[:, None] * 10000.0 ** (-2.0 * torch.arange(d // 2, dtype=x.dtype) / d)
+    z = torch.view_as_complex(x.reshape(*x.shape[:-1], d // 2, 2))
+    return torch.view_as_real(z * torch.polar(torch.ones_like(angle), angle)).reshape(x.shape)
+
+
+def flash(q, k, v, scale):
+    """What the online softmax has to equal: the T×T scores, masked, softmaxed and multiplied."""
+    return F.softmax(causal_mask(q @ k.mT * scale), dim=-1) @ v
+
+
+def turn(x):
+    return torch.stack((-x[..., 1::2], x[..., 0::2]), dim=-1).flatten(-2)
+
+
+def half(x):
+    return (x.shape[-1] + 1) // 2
+
+
 # ---------------------------------------------------------------- cases
 
 def ops():
@@ -200,6 +221,36 @@ def prims():
     return g
 
 
+def modern():
+    """The modern block's operations, and the Bench's primitives for it."""
+    g = {}
+    case(g, "rotary", "pairs", rotary, [randn(5, 4)])
+    case(g, "rotary", "heads", rotary, [randn(2, 3, 4, 8)])
+    case(g, "rotary", "far", rotary, [randn(1, 64, 2)])
+    case(g, "flash_attention", "short", flash, [randn(2, 2, 5, 4), randn(2, 2, 5, 4), randn(2, 2, 5, 4)], scale=0.5)
+    # past one tile, and scores that keep rising along the row, so later tiles keep raising the running maximum
+    climb = torch.arange(40.0)[:, None].expand(40, 2).clone() + randn(40, 2, scale=0.5)
+    case(g, "flash_attention", "tiles", flash, [randn(1, 40, 2), climb, randn(1, 40, 2)], scale=1.0)
+    case(g, "flash_attention", "far apart", flash, [randn(1, 20, 2, scale=8), randn(1, 20, 2, scale=8), randn(1, 20, 2)], scale=1.0)
+    z_loss = lambda y: (torch.logsumexp(y, dim=-1) ** 2).mean().reshape(1)  # noqa: E731
+    case(g, "z_loss", "ordinary", z_loss, [randn(2, 3, 7, scale=2)])
+    case(g, "z_loss", "large", z_loss, [randn(1, 3, 5, scale=3, shift=1000)])
+    case(g, "scaled", "temperature", lambda x, t: x * t, [randn(2, 3, 4), randn(1)])
+    for op, fn in {"COS": torch.cos, "SIN": torch.sin, "ROUND": torch.round, "POW2": lambda x: 2.0 ** x,
+                   "EXPONENT": lambda x: (torch.frexp(x).exponent - 1).to(x.dtype) + 0 * x}.items():
+        case(g, "unary", op, lambda x, op: fn(x), [randn(3, 4, scale=4)], op=op)
+    # a half goes to the even neighbour
+    case(g, "unary", "ROUND ties", lambda x, op: torch.round(x), [torch.tensor([0.5, 1.5, 2.5, -0.5, -1.5, 3.25])], op="ROUND")
+    case(g, "unary", "EXPONENT powers", lambda x, op: (torch.frexp(x).exponent - 1).to(x.dtype) + 0 * x,
+         [torch.tensor([1.0, 2, 8, 0.5, 1024, 16777216, 16777215, -3])], op="EXPONENT")
+    case(g, "turn", "pairs", turn, [randn(2, 3, 4)])
+    case(g, "left", "even", lambda x: x[..., :half(x)], [randn(2, 6)])
+    case(g, "left", "odd", lambda x: x[..., :half(x)], [randn(2, 5)])
+    case(g, "right", "even", lambda x: x[..., half(x):], [randn(2, 6)])
+    case(g, "right", "odd", lambda x: x[..., half(x):], [randn(2, 5)])
+    return g
+
+
 def adamw(name, lr, clip, steps=25):
     """Trainer's update on given gradients. Their size changes from step to step, so clipping bites on some only."""
     params = [randn(4, 3), randn(3)]
@@ -238,3 +289,4 @@ if __name__ == "__main__":
     write("ops.json", ops())
     write("prims.json", prims())
     write("adamw.json", {"adamw": [adamw("clipped", 0.03, 1.0), adamw("unclipped", 0.3, 0.0)]})
+    write("modern.json", modern())

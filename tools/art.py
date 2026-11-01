@@ -446,6 +446,83 @@ GLYPHS = {
         "...++...",
         "...++...",
     ],
+    # every vector the same height from one floor: no mean taken off
+    "rms_norm": [
+        "........",
+        "##.++.##",
+        "##.++.##",
+        "##.++.##",
+        "##.++.##",
+        "##.++.##",
+        "........",
+        "--------",
+    ],
+    # one vector in at the bottom, two branches up its sides, the gate where they meet
+    "swiglu": [
+        "...++...",
+        "...++...",
+        "##.++.##",
+        "##....##",
+        "##....##",
+        "##....##",
+        "........",
+        ".------.",
+    ],
+    # a pair of numbers, each taking the other's place as they go along
+    "rotary": [
+        "##....++",
+        "##....++",
+        ".##..++.",
+        "..#++#..",
+        "..+##+..",
+        ".++..##.",
+        "++....##",
+        "++....##",
+    ],
+    # queries and keys cut to one height under a lid, and the score they make below it
+    "qk_norm": [
+        "--------",
+        "........",
+        "###..###",
+        "###..###",
+        "###..###",
+        "###..###",
+        "........",
+        "...++...",
+    ],
+    # scores held down under a lid
+    "z_loss": [
+        "--------",
+        "........",
+        "...++...",
+        "...++...",
+        "##.++.##",
+        "##.++.##",
+        "##.++.##",
+        "##.++.##",
+    ],
+    # a grid of scores, one tile of it in hand
+    "modern_attention": [
+        "##.++.##",
+        "##.++.##",
+        "........",
+        "--.--.--",
+        "--.--.--",
+        "........",
+        "--.--.--",
+        "--.--.--",
+    ],
+    # the stream up the middle, and two layers each resting on a thin line of its own
+    "modern_block": [
+        "##.++.##",
+        "--.++.--",
+        "...++...",
+        "...++...",
+        "##.++.##",
+        "--.++.--",
+        "...++...",
+        "...++...",
+    ],
 }
 # what each machine's color says: the stream and its arithmetic, learned weights, attention, the shape of data,
 # functions applied to every number
@@ -453,12 +530,14 @@ HUE = {"add": TEAL, "multiply": TEAL, "scale": TEAL, "shift": TEAL,
        "embedding": AZURE, "position": AZURE, "linear": AZURE, "mlp": AZURE,
        "attention": AMETHYST, "matmul": AMETHYST, "softmax": AMETHYST, "causal_mask": AMETHYST, "transformer": AMETHYST,
        "concat": AMBER, "split_heads": AMBER, "merge_heads": AMBER,
-       "activation": GREEN, "norm": GREEN}
+       "activation": GREEN, "norm": GREEN, "rms_norm": GREEN, "swiglu": AZURE, "rotary": AMETHYST, "qk_norm": AMETHYST,
+       "z_loss": GREEN, "modern_attention": AMETHYST, "modern_block": AMETHYST}
 # glyphs that picture something one-sided: a rising curve, a triangle, a step in time, a diagonal, two different halves
-ONE_SIDED = {"activation", "causal_mask", "shift", "position", "concat"}
+ONE_SIDED = {"activation", "causal_mask", "shift", "position", "concat", "rotary"}
 
-PARAMETRIC = {"embedding", "position", "linear", "norm", "attention", "mlp", "transformer"}
-ARITY = {"position": 0, "add": 2, "multiply": 2, "matmul": 2, "concat": 2}
+PARAMETRIC = {"embedding", "position", "linear", "norm", "attention", "mlp", "transformer", "rms_norm", "swiglu", "modern_attention",
+              "modern_block"}
+ARITY = {"position": 0, "add": 2, "multiply": 2, "matmul": 2, "concat": 2, "qk_norm": 2}
 
 
 def operator_faces(op):

@@ -64,6 +64,7 @@ public final class ServerSteps {
             case "induction" -> Blueprints.induction();
             case "gpt" -> Blueprints.gpt(64, 2, 4);
             case "gpt32" -> Blueprints.gpt(32, 2, 4);
+            case "modern32" -> Blueprints.modern(32, 2, 4);
             default -> throw new IllegalArgumentException("no blueprint named " + name);
         };
         level.setBlock(core, ModBlocks.CORE.get().defaultBlockState().setValue(CoreBlock.FACING, forward), Block.UPDATE_ALL);

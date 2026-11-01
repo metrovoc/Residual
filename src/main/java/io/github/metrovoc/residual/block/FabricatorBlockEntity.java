@@ -208,9 +208,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         MaskData m = MaskItem.mask(mask);
         int wafers = Math.max(1, ((m == null ? 0 : m.area()) + 3) / 4);
         int crystals = item instanceof MachineItem machine ? switch (machine.op()) {
-            case EMBEDDING, POSITION, LINEAR, NORM -> 1;
-            case ATTENTION, MLP -> 2;
-            case TRANSFORMER -> 4;
+            case EMBEDDING, POSITION, LINEAR, NORM, RMS_NORM, QK_NORM -> 1;
+            case ATTENTION, MLP, SWIGLU, MODERN_ATTENTION -> 2;
+            case TRANSFORMER, MODERN_BLOCK -> 4;
             default -> 0;
         } : 0;
         return new Cost(1, wafers, crystals, 40 + 10 * wafers);

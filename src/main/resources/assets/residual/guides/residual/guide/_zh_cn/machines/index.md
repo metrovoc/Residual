@@ -37,3 +37,15 @@ navigation:
 - <ItemLink id="attention" />，来自注意力：一台机器实现多头注意力。
 - <ItemLink id="mlp" />，来自前馈块：加宽、弯折、投影回去。
 - <ItemLink id="transformer" />，来自 Transformer 块：一整个 Transformer 层。
+
+## 现代块
+
+这些也都要从设计来：见[现代块](../modern.md)。
+
+- <ItemLink id="rms_norm" />，来自 RMS 归一化：用更少的步骤让向量保持稳定的大小。
+- <ItemLink id="swiglu" />，来自门控前馈：数各带一道门的前馈块。
+- <ItemLink id="rotary" />，来自旋转位置：靠旋转说出词元的位置。
+- <ItemLink id="qk_norm" />，来自 QK 归一化：在同一大小上比较查询和键。
+- <ItemLink id="z_loss" />，来自 Z 损失：用一点惩罚把模型的分数守在零附近。
+- <ItemLink id="modern_attention" />，来自现代注意力：把这些都装进一台注意力机器。
+- <ItemLink id="modern_block" />，来自现代块：一整个现代层。

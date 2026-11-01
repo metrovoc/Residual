@@ -176,6 +176,11 @@ public final class CompiledGraph {
 
     /** Runs the model on a token batch and returns logits [B, T, V]. */
     public Tensor forward(Tape tape, Tokens tokens, Captures captures) {
+        return forward(tape, tokens, captures, null);
+    }
+
+    /** As {@link #forward(Tape, Tokens, Captures)}, for a training pass: machines leave what they add to the loss in {@code extras}. */
+    public Tensor forward(Tape tape, Tokens tokens, Captures captures, Extras extras) {
         Object[] values = new Object[spec.size()];
         for (int node : order) {
             GraphSpec.Node nd = spec.node(node);
@@ -184,7 +189,7 @@ public final class CompiledGraph {
                 int src = nd.inputs[i];
                 in[i] = src == GraphSpec.TOKENS ? tokens : values[src];
             }
-            Tensor out = nd.op.run(tape, in, params.get(node), nd.config, new Op.Frame(node, tokens.time, captures, nd.fused));
+            Tensor out = nd.op.run(tape, in, params.get(node), nd.config, new Op.Frame(node, tokens.time, captures, nd.fused, extras));
             values[node] = out;
             if (captures != null) {
                 captures.output(node, out);

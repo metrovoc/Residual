@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube_directional",
+  "textures": {
+    "particle": "residual:block/rotary_side",
+    "north": "residual:block/rotary_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/rotary_side",
+    "west": "residual:block/rotary_side",
+    "up": "residual:block/rotary_side",
+    "down": "residual:block/rotary_side"
+  }
+}

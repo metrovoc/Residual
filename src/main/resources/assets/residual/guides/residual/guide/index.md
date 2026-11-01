@@ -32,6 +32,7 @@ you say into programs for agents, and read what the old world wrote.
 - [The Model Core](core.md): where models are built, trained, tested and saved.
 - [Tokens](tokenizers.md): the BPE Forge, and vocabularies learned from the archive.
 - [Training](training.md): reading a loss curve, and the settings that shape it.
+- [The Modern Block](modern.md): the layer the old world's last models seem to have been made of, and what each part of it does.
 - [Models and Tests](models.md): the thirteen benchmarks, checkpoints, and how big a model may be.
 - [Salvaged Models](salvage.md): broken models from the ruins.
 

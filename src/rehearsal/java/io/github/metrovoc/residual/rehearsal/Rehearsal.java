@@ -8,6 +8,7 @@ import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.agent.Trace;
+import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.agent.Agent;
@@ -254,6 +255,7 @@ import org.slf4j.Logger;
  * expect agents N            fail the step unless the Terminal's last call about agents brought back at least N of them
  * expect program NAME N      fail the step unless the agent NAME runs a program at least N characters long, not stopped
  * expect proposed NAME N     fail the step unless the agent NAME has read back an order at least N characters long
+ * expect steps X Y Z N       fail the step unless the Model Core at the place has trained at least N steps
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
@@ -267,7 +269,7 @@ import org.slf4j.Logger;
  * gui SCALE                  set the GUI scale (0 = auto)
  * lang CODE                  switch the game's language (zh_cn) and reload; every script starts in en_us
  * blueprint NAME X Y Z FACING  place a Model Core and build a reference model in front of it, as a player would
- *                            (bigram, context, recall, reverse, induction, gpt, gpt32)
+ *                            (bigram, context, recall, reverse, induction, gpt, gpt32, modern32)
  * shot NAME                  save screenshots/NAME.png in the game directory
  * clip NAME EVERY            save a half-size frame every EVERY ticks, as screenshots/NAME/0000.png and on, while
  *                            the script goes on; meanwhile a cursor is drawn on screens and toasts are kept away
@@ -1021,6 +1023,9 @@ public final class Rehearsal {
                 BlockPos at = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
                 found = server.submit(() -> {
                     ServerLevel level = server.getPlayerList().getPlayer(id).level();
+                    if (args[0].equals("steps")) {
+                        return (long) ((CoreBlockEntity) level.getBlockEntity(at)).snapshot().steps();
+                    }
                     StorageNetwork net = StorageNetwork.at(level, at);
                     switch (args[0]) {
                         case "jobs" -> {

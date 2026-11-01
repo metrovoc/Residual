@@ -9,6 +9,7 @@ import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.tensor.Tokens;
 import io.github.metrovoc.residual.tensor.Unfused;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.network.chat.Component;
@@ -119,7 +120,7 @@ public enum Op {
         }
     },
 
-    NORM("norm", 1, ConfigField.choice("kind", "layer", "layer", "rms")) {
+    NORM("norm", 1) {
         @Override
         public Sym infer(Sym[] in, Config c, Env env) {
             features(in[0], "norm");
@@ -129,17 +130,12 @@ public enum Op {
         @Override
         public List<ParamSpec> params(Sym[] in, Config c, Env env) {
             int d = in[0].dim(-1);
-            return "rms".equals(c.get("kind"))
-                    ? List.of(new ParamSpec("weight", new int[]{d}, Init.ones()))
-                    : List.of(new ParamSpec("weight", new int[]{d}, Init.ones()), new ParamSpec("bias", new int[]{d}, Init.zeros()));
+            return List.of(new ParamSpec("weight", new int[]{d}, Init.ones()), new ParamSpec("bias", new int[]{d}, Init.zeros()));
         }
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            Tensor x = (Tensor) in[0];
-            return "rms".equals(c.get("kind"))
-                    ? (f.fused() ? Ops.rmsNorm(tape, x, p.get("weight"), EPS) : Unfused.rmsNorm(tape, x, p.get("weight"), EPS))
-                    : layerNorm(tape, x, p.get("weight"), p.get("bias"), f);
+            return layerNorm(tape, (Tensor) in[0], p.get("weight"), p.get("bias"), f);
         }
     },
 
@@ -370,6 +366,150 @@ public enum Op {
             h = layerNorm(tape, x, p.get("ln2.weight"), p.get("ln2.bias"), f);
             return Ops.add(tape, x, mlp(tape, h, p, "mlp.", Activation.byId(c.get("fn")), f));
         }
+    },
+
+    RMS_NORM("rms_norm", 1) {
+        @Override
+        public Sym infer(Sym[] in, Config c, Env env) {
+            features(in[0], "rms_norm");
+            return in[0];
+        }
+
+        @Override
+        public List<ParamSpec> params(Sym[] in, Config c, Env env) {
+            return List.of(new ParamSpec("weight", new int[]{in[0].dim(-1)}, Init.ones()));
+        }
+
+        @Override
+        Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
+            return rmsNorm(tape, (Tensor) in[0], p.get("weight"), f);
+        }
+    },
+
+    SWIGLU("swiglu", 1) {
+        @Override
+        public Sym infer(Sym[] in, Config c, Env env) {
+            sequence(in[0], "swiglu");
+            return in[0];
+        }
+
+        @Override
+        public List<ParamSpec> params(Sym[] in, Config c, Env env) {
+            return swigluParams("", in[0].dim(-1));
+        }
+
+        @Override
+        Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
+            return swiglu(tape, (Tensor) in[0], p, "", f);
+        }
+    },
+
+    ROTARY("rotary", 1) {
+        @Override
+        public Sym infer(Sym[] in, Config c, Env env) {
+            Sym x = features(in[0], "rotary");
+            if (x.rank() < 2 || x.dim(-2) != Sym.T || x.dim(-1) % 2 != 0) {
+                throw new ShapeException("residual.shape.rotary", x);
+            }
+            return x;
+        }
+
+        @Override
+        Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
+            return rotary(tape, (Tensor) in[0], f);
+        }
+    },
+
+    QK_NORM("qk_norm", 2) {
+        @Override
+        public Sym infer(Sym[] in, Config c, Env env) {
+            Sym q = features(in[0], "qk_norm");
+            Sym k = features(in[1], "qk_norm");
+            if (!q.sameAs(k) || q.rank() < 2 || q.dim(-2) != Sym.T) {
+                throw new ShapeException("residual.shape.qk_norm", q, k);
+            }
+            return q.withLast(Sym.T);
+        }
+
+        @Override
+        public List<ParamSpec> params(Sym[] in, Config c, Env env) {
+            return List.of(new ParamSpec("t", new int[]{1}, Init.ones()));
+        }
+
+        @Override
+        Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
+            Tensor q = Ops.scaled(tape, unit(tape, (Tensor) in[0], f), p.get("t"));
+            Tensor k = unit(tape, (Tensor) in[1], f);
+            return Ops.scale(tape, matmul(tape, q, k, true, f), (float) (1.0 / Math.sqrt(q.dim(-1))));
+        }
+    },
+
+    Z_LOSS("z_loss", 1) {
+        @Override
+        public Sym infer(Sym[] in, Config c, Env env) {
+            Sym x = floats(in[0], "z_loss");
+            if (x.rank() != 3 || x.dim(-1) != env.vocab()) {
+                throw new ShapeException("residual.shape.z_loss", CompiledGraph.vocabShape(env), x);
+            }
+            return x;
+        }
+
+        @Override
+        Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
+            Tensor x = (Tensor) in[0];
+            if (f.extras() != null) {
+                f.extras().penalties.add(Ops.scale(tape, Ops.zLoss(tape, x), Extras.Z_WEIGHT));
+            }
+            return x;
+        }
+    },
+
+    MODERN_ATTENTION("modern_attention", 1, ConfigField.choice("heads", "4", "1", "2", "4", "8"), ConfigField.toggle("rotary", true),
+            ConfigField.toggle("qk_norm", true)) {
+        @Override
+        public Sym infer(Sym[] in, Config c, Env env) {
+            Sym x = sequence(in[0], "modern_attention");
+            modernHeads(x, c, "modern_attention");
+            return x;
+        }
+
+        @Override
+        public List<ParamSpec> params(Sym[] in, Config c, Env env) {
+            return modernParams("", in[0].dim(-1), c);
+        }
+
+        @Override
+        Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
+            return modernAttention(tape, (Tensor) in[0], p, "", c, f);
+        }
+    },
+
+    MODERN_BLOCK("modern_block", 1, ConfigField.choice("heads", "4", "1", "2", "4", "8"), ConfigField.toggle("rotary", true),
+            ConfigField.toggle("qk_norm", true)) {
+        @Override
+        public Sym infer(Sym[] in, Config c, Env env) {
+            Sym x = sequence(in[0], "modern_block");
+            modernHeads(x, c, "modern_block");
+            return x;
+        }
+
+        @Override
+        public List<ParamSpec> params(Sym[] in, Config c, Env env) {
+            int d = in[0].dim(-1);
+            List<ParamSpec> ps = new ArrayList<>();
+            ps.add(new ParamSpec("rms1.weight", new int[]{d}, Init.ones()));
+            ps.addAll(modernParams("attn.", d, c));
+            ps.add(new ParamSpec("rms2.weight", new int[]{d}, Init.ones()));
+            ps.addAll(swigluParams("mlp.", d));
+            return ps;
+        }
+
+        @Override
+        Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
+            Tensor x = (Tensor) in[0];
+            x = Ops.add(tape, x, modernAttention(tape, rmsNorm(tape, x, p.get("rms1.weight"), f), p, "attn.", c, f));
+            return Ops.add(tape, x, swiglu(tape, rmsNorm(tape, x, p.get("rms2.weight"), f), p, "mlp.", f));
+        }
     };
 
     public static final float EPS = 1e-5f;
@@ -398,7 +538,12 @@ public enum Op {
     }
 
     public boolean compound() {
-        return this == ATTENTION || this == MLP || this == TRANSFORMER;
+        return this == ATTENTION || this == MLP || this == TRANSFORMER || this == SWIGLU || this == MODERN_ATTENTION || this == MODERN_BLOCK;
+    }
+
+    /** Whether its picture is the attention pattern of its first head. */
+    public boolean attends() {
+        return this == ATTENTION || this == TRANSFORMER || this == MODERN_ATTENTION || this == MODERN_BLOCK;
     }
 
     /** Output shape for the given input shapes; throws {@link ShapeException} with a player-facing reason. */
@@ -411,10 +556,11 @@ public enum Op {
     abstract Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f);
 
     /**
-     * Per-call context: the node being run, the sequence length, an optional capture sink, and whether the machine
-     * was fabricated from a verified design (fused kernels) or a salvaged one (one primitive at a time).
+     * Per-call context: the node being run, the sequence length, an optional capture sink, whether the machine was
+     * fabricated from a verified design (fused kernels) or a salvaged one (one primitive at a time), and, while
+     * training, what it adds to the loss.
      */
-    record Frame(int node, int time, Captures captures, boolean fused) {
+    record Frame(int node, int time, Captures captures, boolean fused, Extras extras) {
     }
 
     public static Op byId(String id) {
@@ -505,6 +651,77 @@ public enum Op {
         return matmul(tape, y, p.get(prefix + "o"), false, f);
     }
 
+    /** What the modern block's feed-forward part widens to: 8/3 of its width costs as many weights as a GELU block's 4. */
+    static int swigluWidth(int d) {
+        return Math.round(8f * d / 3f);
+    }
+
+    static List<ParamSpec> swigluParams(String prefix, int d) {
+        int h = swigluWidth(d);
+        return List.of(
+                new ParamSpec(prefix + "w1", new int[]{d, h}, Init.fanIn()),
+                new ParamSpec(prefix + "w2", new int[]{d, h}, Init.fanIn()),
+                new ParamSpec(prefix + "w3", new int[]{h, d}, Init.fanIn()));
+    }
+
+    static Tensor swiglu(Tape tape, Tensor x, Map<String, Tensor> p, String prefix, Frame f) {
+        Tensor gate = activate(tape, matmul(tape, x, p.get(prefix + "w1"), false, f), Activation.SILU, f);
+        Tensor gated = Ops.mul(tape, gate, matmul(tape, x, p.get(prefix + "w2"), false, f));
+        return matmul(tape, gated, p.get(prefix + "w3"), false, f);
+    }
+
+    /** The checks the modern attention machines make of their width and heads. */
+    static void modernHeads(Sym x, Config c, String who) {
+        int heads = c.integer("heads");
+        if (x.dim(-1) % heads != 0) {
+            throw new ShapeException("residual.shape.heads", Component.translatable("residual.who." + who), x.dim(-1), heads);
+        }
+        if (c.flag("rotary") && x.dim(-1) / heads % 2 != 0) {
+            throw new ShapeException("residual.shape.rotary_heads", Component.translatable("residual.who." + who), x.dim(-1) / heads);
+        }
+    }
+
+    static List<ParamSpec> modernParams(String prefix, int d, Config c) {
+        List<ParamSpec> ps = new ArrayList<>(attentionParams(prefix, d));
+        if (c.flag("qk_norm")) {
+            ps.add(new ParamSpec(prefix + "t", new int[]{1}, Init.ones()));
+        }
+        return ps;
+    }
+
+    /**
+     * Attention as the late designs do it: queries and keys turned by their rows' places, then normalized with one learned
+     * temperature, so a score can't exceed t·√d however large they grow. A verified machine never holds the T×T scores
+     * ({@link Ops#flashAttention}); the plain path is the salvaged machine's, and what a picture of the pattern needs.
+     */
+    static Tensor modernAttention(Tape tape, Tensor x, Map<String, Tensor> p, String prefix, Config c, Frame f) {
+        int heads = c.integer("heads");
+        int dh = x.dim(-1) / heads;
+        float scale = (float) (1.0 / Math.sqrt(dh));
+        Tensor q = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "q"), false, f), heads);
+        Tensor k = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "k"), false, f), heads);
+        Tensor v = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "v"), false, f), heads);
+        if (c.flag("rotary")) {
+            q = rotary(tape, q, f);
+            k = rotary(tape, k, f);
+        }
+        if (c.flag("qk_norm")) {
+            q = Ops.scaled(tape, unit(tape, q, f), p.get(prefix + "t"));
+            k = unit(tape, k, f);
+        }
+        Tensor y;
+        if (f.fused() && f.captures() == null) {
+            y = Ops.flashAttention(tape, q, k, v, scale);
+        } else {
+            Tensor probs = softmax(tape, Ops.causalMask(tape, Ops.scale(tape, matmul(tape, q, k, true, f), scale)), f);
+            if (f.captures() != null) {
+                f.captures().pattern(f.node(), probs);
+            }
+            y = matmul(tape, probs, v, false, f);
+        }
+        return matmul(tape, Ops.mergeHeads(tape, y), p.get(prefix + "o"), false, f);
+    }
+
     static Tensor mlp(Tape tape, Tensor x, Map<String, Tensor> p, String prefix, Activation fn, Frame f) {
         Tensor h = Ops.add(tape, matmul(tape, x, p.get(prefix + "w1"), false, f), p.get(prefix + "b1"));
         h = activate(tape, h, fn, f);
@@ -518,11 +735,29 @@ public enum Op {
     }
 
     static Tensor softmax(Tape tape, Tensor x, Frame f) {
+        if (f.captures() != null) {
+            f.captures().score(x);
+        }
         return f.fused() ? Ops.softmax(tape, x) : Unfused.softmax(tape, x);
     }
 
     static Tensor layerNorm(Tape tape, Tensor x, Tensor gamma, Tensor beta, Frame f) {
         return f.fused() ? Ops.layerNorm(tape, x, gamma, beta, EPS) : Unfused.layerNorm(tape, x, gamma, beta, EPS);
+    }
+
+    static Tensor rmsNorm(Tape tape, Tensor x, Tensor gamma, Frame f) {
+        return f.fused() ? Ops.rmsNorm(tape, x, gamma, EPS) : Unfused.rmsNorm(tape, x, gamma, EPS);
+    }
+
+    /** RMS norm with no gain: every vector's numbers come out with a root mean square of 1. */
+    static Tensor unit(Tape tape, Tensor x, Frame f) {
+        float[] ones = new float[x.dim(-1)];
+        Arrays.fill(ones, 1f);
+        return rmsNorm(tape, x, Tensor.of(new int[]{ones.length}, ones), f);
+    }
+
+    static Tensor rotary(Tape tape, Tensor x, Frame f) {
+        return f.fused() ? Ops.rotary(tape, x) : Unfused.rotary(tape, x);
     }
 
     static Tensor activate(Tape tape, Tensor x, Activation fn, Frame f) {

@@ -40,3 +40,15 @@ of the spec that describes them, verified on a Bench or salvaged from the ruins.
 - <ItemLink id="attention" />, from Attention: multi-head attention in one machine.
 - <ItemLink id="mlp" />, from Feed-Forward Block: widen, bend, project back.
 - <ItemLink id="transformer" />, from Transformer Block: a whole transformer layer.
+
+## The modern block
+
+Every one of these from a design too: see [The Modern Block](../modern.md).
+
+- <ItemLink id="rms_norm" />, from RMS Norm: vectors kept at a steady size, with less work.
+- <ItemLink id="swiglu" />, from Gated Feed-Forward: a feed-forward block whose numbers have gates.
+- <ItemLink id="rotary" />, from Rotary Positions: a token's place, told by turning it.
+- <ItemLink id="qk_norm" />, from QK Norm: queries and keys compared at one size.
+- <ItemLink id="z_loss" />, from Z-Loss: a small penalty that holds a model's scores near zero.
+- <ItemLink id="modern_attention" />, from Modern Attention: all of that in one attention machine.
+- <ItemLink id="modern_block" />, from Modern Block: a whole modern layer.

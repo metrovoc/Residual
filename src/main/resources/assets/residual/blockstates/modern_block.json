@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "residual:block/modern_block"
+    },
+    "facing=south": {
+      "model": "residual:block/modern_block",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "residual:block/modern_block",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "residual:block/modern_block",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "residual:block/modern_block",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "residual:block/modern_block",
+      "x": 90
+    }
+  }
+}

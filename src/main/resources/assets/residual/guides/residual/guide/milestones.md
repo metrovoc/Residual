@@ -132,6 +132,24 @@ instead of letters: [Tokens](tokenizers.md).</residual:Milestone>
 
 <residual:Milestone id="bench/transformer">It opens once attention is verified.</residual:Milestone>
 
+<residual:Milestone id="bench/rms_norm">A layer norm with less to do; it opens once mean is verified.</residual:Milestone>
+
+<residual:Milestone id="bench/silu">Written straight from its formula it overflows.</residual:Milestone>
+
+<residual:Milestone id="bench/swiglu">It opens once matrix multiply and SiLU are verified.</residual:Milestone>
+
+<residual:Milestone id="bench/rotary">A pair of numbers turned by its place: [The Modern Block](modern.md).</residual:Milestone>
+
+<residual:Milestone id="bench/qk_norm">It opens once matrix multiply and RMS norm are verified.</residual:Milestone>
+
+<residual:Milestone id="bench/online_softmax">Softmax a tile at a time; a tile with nothing to see breaks the obvious way.</residual:Milestone>
+
+<residual:Milestone id="bench/z_loss">Scores near a thousand overflow it, as they do softmax.</residual:Milestone>
+
+<residual:Milestone id="bench/modern_attention">It opens once rotary positions, QK norm and the online softmax are verified.</residual:Milestone>
+
+<residual:Milestone id="bench/modern_block">It opens once RMS norm, modern attention and the gated block are verified.</residual:Milestone>
+
 <residual:Milestone id="bench/all"></residual:Milestone>
 
 <residual:Milestone id="model/stream">Transformer layers read from it and add to it:
@@ -175,6 +193,9 @@ flights, and it takes a model that reads the flight back to its start.</residual
 carry.</residual:Milestone>
 
 <residual:Milestone id="model/complete">A Model Core practises up to four kinds at once.</residual:Milestone>
+
+<residual:Milestone id="model/modern">Put Modern Blocks in place of Transformer Blocks, and save the model once it passes
+any test: [The Modern Block](modern.md).</residual:Milestone>
 
 ## Putting models to work
 

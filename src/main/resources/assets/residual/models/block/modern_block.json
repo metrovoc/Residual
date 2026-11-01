@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube_directional",
+  "textures": {
+    "particle": "residual:block/modern_block_side",
+    "north": "residual:block/modern_block_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/modern_block_side",
+    "west": "residual:block/modern_block_side",
+    "up": "residual:block/modern_block_side",
+    "down": "residual:block/modern_block_side"
+  }
+}

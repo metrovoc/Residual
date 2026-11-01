@@ -74,6 +74,16 @@ class TorchParityTest {
             Map.entry("matmul", (t, c) -> Prims.matmul(t, c.in(0), c.in(1))),
             Map.entry("causal", (t, c) -> Prims.causal(t, c.in(0))));
 
+    private static final Map<String, Call> MODERN = Map.ofEntries(
+            Map.entry("rotary", (t, c) -> Ops.rotary(t, c.in(0))),
+            Map.entry("flash_attention", (t, c) -> Ops.flashAttention(t, c.in(0), c.in(1), c.in(2), c.number("scale"))),
+            Map.entry("z_loss", (t, c) -> Ops.zLoss(t, c.in(0))),
+            Map.entry("scaled", (t, c) -> Ops.scaled(t, c.in(0), c.in(1))),
+            Map.entry("unary", (t, c) -> Prims.unary(t, Unary.valueOf(c.string("op")), c.in(0))),
+            Map.entry("turn", (t, c) -> Prims.turn(t, c.in(0))),
+            Map.entry("left", (t, c) -> Prims.left(t, c.in(0))),
+            Map.entry("right", (t, c) -> Prims.right(t, c.in(0))));
+
     /** The salvaged machines' kernels, built from primitives: they must match the fused ones' references. */
     private static final Map<String, Call> UNFUSED = Map.of(
             "matmul", (t, c) -> Unfused.matmul(t, c.in(0), c.in(1), c.flag("trans_b")),
@@ -90,6 +100,20 @@ class TorchParityTest {
     @TestFactory
     Stream<DynamicTest> primsMatchPyTorch() throws IOException {
         return replay("prims.json", PRIMS);
+    }
+
+    @TestFactory
+    Stream<DynamicTest> modernOpsMatchPyTorch() throws IOException {
+        return replay("modern.json", MODERN);
+    }
+
+    @TestFactory
+    Stream<DynamicTest> unfusedRotaryMatchesPyTorch() throws IOException {
+        List<DynamicTest> tests = new ArrayList<>();
+        for (JsonElement e : read("modern.json").getAsJsonArray("rotary")) {
+            tests.add(check("unfused rotary", e.getAsJsonObject(), (t, c) -> Unfused.rotary(t, c.in(0))));
+        }
+        return tests.stream();
     }
 
     /**

@@ -145,7 +145,7 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> implem
         }
 
         // pictures: what comes out of the front, and the main weight matrix on the sides
-        g.text(font, Component.translatable(op == Op.ATTENTION || op == Op.TRANSFORMER ? "residual.machine.pattern" : "residual.machine.picture"),
+        g.text(font, Component.translatable(op.attends() ? "residual.machine.pattern" : "residual.machine.picture"),
                 132, 22, Ui.LABEL_DIM, false);
         Ui.screen(g, 132, 32, 50, 50);
         Ui.heatmap(g, be.output(), 133, 33, 48, 48);
@@ -194,7 +194,6 @@ public class OperatorScreen extends AbstractContainerScreen<OperatorMenu> implem
         String key = "residual.op." + op.id + ".math";
         return switch (op) {
             case ACTIVATION -> key + "." + be.config().get("fn");
-            case NORM -> key + "." + be.config().get("kind");
             case MATMUL -> be.config().flag("transpose") ? key + ".transposed" : key;
             default -> key;
         };

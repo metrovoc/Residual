@@ -13,7 +13,7 @@ public final class Prims {
 
     public enum Binary { ADD, SUB, MUL, DIV, MAX }
 
-    public enum Unary { NEG, EXP, LOG, SQRT, TANH }
+    public enum Unary { NEG, EXP, LOG, SQRT, TANH, COS, SIN, ROUND, EXPONENT, POW2 }
 
     private static boolean tracks(Tape tape, Tensor... inputs) {
         if (tape == null) {
@@ -173,6 +173,13 @@ public final class Prims {
                 case LOG -> (float) Math.log(v);
                 case SQRT -> (float) Math.sqrt(v);
                 case TANH -> (float) Math.tanh(v);
+                case COS -> (float) Math.cos(v);
+                case SIN -> (float) Math.sin(v);
+                // to the nearest whole number, a half to the even one
+                case ROUND -> (float) Math.rint(v);
+                // what a float stores: 2 to this is the largest power of 2 not above |x|
+                case EXPONENT -> Math.getExponent(v);
+                case POW2 -> (float) Math.pow(2, v);
             };
         }
         if (out.requiresGrad) {
@@ -189,6 +196,11 @@ public final class Prims {
                         case LOG -> 1f / in[i];
                         case SQRT -> 0.5f / o[i];
                         case TANH -> 1f - o[i] * o[i];
+                        case COS -> (float) -Math.sin(in[i]);
+                        case SIN -> (float) Math.cos(in[i]);
+                        // flat between its steps
+                        case ROUND, EXPONENT -> 0f;
+                        case POW2 -> (float) (Math.log(2) * o[i]);
                     };
                 }
             });
@@ -342,6 +354,89 @@ public final class Prims {
     /** The length of the last axis, as a constant [1]. */
     public static Tensor size(Tensor x) {
         return scalar(x.dim(-1));
+    }
+
+    /** The place of every row, 0 upward, as a column [rows, 1] that broadcasts along the last axis; a vector is one row. */
+    public static Tensor index(Tensor x) {
+        int rows = x.rank() < 2 ? 1 : x.dim(-2);
+        float[] v = new float[rows];
+        for (int i = 0; i < rows; i++) {
+            v[i] = i;
+        }
+        return new Tensor(new int[]{rows, 1}, v, false);
+    }
+
+    /** Which pair each entry of the last axis belongs to: 0, 0, 1, 1, 2, 2 and on. */
+    public static Tensor pair(Tensor x) {
+        float[] v = new float[x.dim(-1)];
+        for (int i = 0; i < v.length; i++) {
+            v[i] = i / 2;
+        }
+        return new Tensor(new int[]{v.length}, v, false);
+    }
+
+    /** A quarter turn of every pair along the last axis, (a, b) to (-b, a); the last axis must be even. */
+    public static Tensor turn(Tape tape, Tensor x) {
+        int d = x.dim(-1);
+        if (d % 2 != 0) {
+            throw new ShapeException("residual.shape.prim.turn", d);
+        }
+        Tensor out = new Tensor(x.shape.clone(), new float[x.size()], tracks(tape, x));
+        for (int i = 0; i < x.size(); i += 2) {
+            out.data[i] = -x.data[i + 1];
+            out.data[i + 1] = x.data[i];
+        }
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                if (!out.hasGrad()) {
+                    return;
+                }
+                float[] g = out.grad();
+                float[] gx = x.grad();
+                for (int i = 0; i < g.length; i += 2) {
+                    gx[i] += g[i + 1];
+                    gx[i + 1] -= g[i];
+                }
+            });
+        }
+        return out;
+    }
+
+    /** The first half of the last axis, the middle entry with it when the axis is odd. */
+    public static Tensor left(Tape tape, Tensor x) {
+        return slice(tape, x, 0, (x.dim(-1) + 1) / 2);
+    }
+
+    /** What {@link #left} leaves of the last axis. */
+    public static Tensor right(Tape tape, Tensor x) {
+        return slice(tape, x, (x.dim(-1) + 1) / 2, x.dim(-1));
+    }
+
+    private static Tensor slice(Tape tape, Tensor x, int from, int to) {
+        int d = x.dim(-1);
+        int rows = x.rows();
+        int n = to - from;
+        int[] shape = x.shape.clone();
+        shape[shape.length - 1] = n;
+        Tensor out = new Tensor(shape, new float[rows * n], tracks(tape, x));
+        for (int r = 0; r < rows; r++) {
+            System.arraycopy(x.data, r * d + from, out.data, r * n, n);
+        }
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                if (!out.hasGrad()) {
+                    return;
+                }
+                float[] g = out.grad();
+                float[] gx = x.grad();
+                for (int r = 0; r < rows; r++) {
+                    for (int j = 0; j < n; j++) {
+                        gx[r * d + from + j] += g[r * n + j];
+                    }
+                }
+            });
+        }
+        return out;
     }
 
     /**

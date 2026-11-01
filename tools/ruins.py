@@ -3545,7 +3545,7 @@ LOOT = {
     "chests/buried_vault": [
         pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS]),
         pool((2, 4), [
-            mask("attention", 2), mask("layer_norm", 2), mask("mlp", 2), mask("transformer", 1),
+            mask("attention", 2), mask("layer_norm", 2), mask("mlp", 2), mask("transformer", 1), mask("swiglu", 1), mask("qk_norm", 1),
             item("schematic_relays", 1), item("checkpoint", 3), item("weight_crystal", 5, (2, 4)),
             item("archive_shard", 6, (1, 3)), item("minecraft:diamond", 1), item("minecraft:gold_ingot", 3, (1, 3))])],
     "chests/relay_tower_store": [pool((2, 4), [
@@ -3592,8 +3592,8 @@ LOOT = {
         item("archive_shard", 6, about=ROADS), item("minecraft:emerald", 2), item("minecraft:flint", 2)]}],
     "chests/tutor_house": [pool((2, 4), [
         item("archive_shard", 10, (1, 3), about=TUTORS), item("checkpoint", 4), item("weight_crystal", 4, (1, 3)),
-        mask("linear", 2), mask("softmax", 1), item("minecraft:paper", 3, (1, 4)), item("minecraft:book", 2),
-        item("minecraft:amethyst_shard", 3, (1, 3))])],
+        mask("linear", 2), mask("softmax", 1), mask("rms_norm", 1), mask("rotary", 1), mask("z_loss", 1),
+        item("minecraft:paper", 3, (1, 4)), item("minecraft:book", 2), item("minecraft:amethyst_shard", 3, (1, 3))])],
     "chests/tutor_dry_box": [
         pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS] + [item("checkpoint", 5)]),
         pool((2, 3), [item("checkpoint", 4, (1, 2)), item("weight_crystal", 5, (2, 4)),
@@ -3636,6 +3636,7 @@ LOOT = {
     "chests/deep_works_hall": [
         pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS]),
         pool((2, 4), [mask("attention", 2), mask("transformer", 2), mask("layer_norm", 1), mask("mlp", 1),
+                      mask("modern_attention", 2), mask("modern_block", 1), mask("swiglu", 1),
                       item("weight_crystal", 4, (2, 5)), item("minecraft:amethyst_shard", 3, (2, 6)),
                       item("archive_drive", 2, drive=(12, ["Deep Works", "warm", "humming", "ninth"]))])],
     "chests/archive_copying": [pool((2, 4), [
@@ -3647,7 +3648,7 @@ LOOT = {
             "title": {"raw": "The founders' page"}, "author": "the first keepers", "resolved": True,
             "pages": [{"raw": p} for p in FOUNDERS_PAGE]}})]),
         pool((2, 3), [item("archive_drive", 1, drive=(24, ["founding", "first", "archive"])), item("weight_crystal", 3, (2, 4)),
-                      mask("transformer", 1), item("archive_shard", 4, (2, 4))])],
+                      mask("transformer", 1), mask("modern_block", 1), item("archive_shard", 4, (2, 4))])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
         item("archive_shard", 9), mask("matmul", 1), item("weight_crystal", 2)]}],
 }
