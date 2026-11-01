@@ -6,6 +6,8 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.agent.Agent;
+import io.github.metrovoc.residual.agent.Trace;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.client.AgentScreen;
@@ -196,6 +198,21 @@ import org.slf4j.Logger;
  * expect shown N             fail the step unless the open Storage Terminal has been sent at least N kinds
  * expect pins N              fail the step unless the open Storage Terminal has N kinds pinned
  * expect tree N              fail the step unless the open Storage Terminal has at least N rows of a job's plan
+ * expect moved X Y Z N       fail the step unless the Port at the place moved at least N items in the last second
+ * expect energy X Y Z N      fail the step unless the block at the place holds at least N FE
+ * expect fluid X Y Z N       fail the step unless the block at the place holds at least N mB
+ * expect placed X1 Y1 Z1 X2 Y2 Z2 BLOCK N  fail the step unless the box holds at least N of a block
+ * expect noblocks X1 Y1 Z1 X2 Y2 Z2 BLOCK 0  fail the step unless the box holds none of a block
+ * expect empty X Y Z 0       fail the step unless the inventory at the place holds nothing
+ * expect nomobs X Y Z R TYPE 0  fail the step unless no entity of a type is within R blocks of the place
+ * expect mobs X Y Z R TYPE N  fail the step unless at least N entities of a type are within R blocks of the place
+ * expect var X Y Z SLOT NAME N  fail the step unless a variable of the program on the Port's card in SLOT reads at least N
+ * expect agentvar NAME N     fail the step unless the nearest agent's program has that variable at N or more
+ * expect screen NAME 1       fail the step unless the open screen's class is named NAME
+ * expect earned PATH 1       fail the step unless the player has made the advancement
+ * expect held X Y Z SLOT 1, expect breaks X Y Z SLOT N, expect watches X Y Z SLOT N   the debugger of a program on a Port's card
+ * trace X Y Z SLOT           log what the program on a Port's card has been doing
+ * trace agent                log what the nearest agent has been doing
  * expect suit KIND N         fail the step unless the player's exosuit says N: compute (at least), charge (at least),
  *                            under (charge less than N), energy (at least, read as Forge Energy), running (how many
  *                            abilities, exactly) or bits (of the form it runs in, exactly)
@@ -688,6 +705,7 @@ public final class Rehearsal {
                 server.execute(() -> server.getPlayerList().getPlayer(id).gameMode.destroyBlock(pos));
             }
             case "bound" -> KeyMapping.click(KeyMapping.get(arg).getDefaultKey());
+            case "trace" -> trace(mc, args);
             case "seek" -> seek(mc, args);
             case "survey" -> survey(mc, args);
             case "fly" -> {
@@ -869,6 +887,28 @@ public final class Rehearsal {
                     found += mc.level.getBlockState(p).is(block) ? 1 : 0;
                 }
             }
+            case "screen" -> found = mc.screen != null && mc.screen.getClass().getSimpleName().equals(args[1]) ? 1 : 0;
+            case "earned" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                found = server.submit(() -> {
+                    ServerPlayer p = server.getPlayerList().getPlayer(id);
+                    return p.getAdvancements().getOrStartProgress(server.getAdvancements().get(Residual.id(args[1]))).isDone() ? 1L : 0L;
+                }).get(10, TimeUnit.SECONDS);
+            }
+            case "agentvar" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                found = server.submit(() -> {
+                    ServerPlayer p = server.getPlayerList().getPlayer(id);
+                    Agent agent = p.level().getNearestEntity(Agent.class, net.minecraft.world.entity.ai.targeting.TargetingConditions.forNonCombat().ignoreLineOfSight().ignoreInvisibilityTesting(),
+                            p, p.getX(), p.getY(), p.getZ(), p.getBoundingBox().inflate(256));
+                    if (agent == null) {
+                        return -1L;
+                    }
+                    return (long) Math.floor(parse(agent.variable(args[1])));
+                }).get(10, TimeUnit.SECONDS);
+            }
             default -> {
                 MinecraftServer server = mc.getSingleplayerServer();
                 UUID id = mc.player.getUUID();
@@ -923,6 +963,49 @@ public final class Rehearsal {
                     if (args[0].equals("port")) {
                         return (long) ((PortBlockEntity) level.getBlockEntity(at)).expects();
                     }
+                    if (args[0].equals("moved")) {
+                        return level.getBlockEntity(at) instanceof PortBlockEntity port ? (long) port.movedLastSecond() : -1L;
+                    }
+                    if (args[0].equals("energy")) {
+                        var h = level.getCapability(Capabilities.Energy.BLOCK, at, null);
+                        return h == null ? -1L : h.getAmountAsLong();
+                    }
+                    if (args[0].equals("fluid")) {
+                        var h = level.getCapability(Capabilities.Fluid.BLOCK, at, null);
+                        long n = 0;
+                        for (int slot = 0; h != null && slot < h.size(); slot++) {
+                            n += h.getAmountAsLong(slot);
+                        }
+                        return n;
+                    }
+                    if (args[0].equals("held") || args[0].equals("breaks") || args[0].equals("watches")) {
+                        var debug = level.getBlockEntity(at) instanceof PortBlockEntity port ? port.work.debugOf(Integer.parseInt(args[4])) : null;
+                        return debug == null ? -1L : args[0].equals("held") ? (debug.paused ? 1L : 0L) : args[0].equals("breaks") ? debug.breaks.size() : debug.watches.size();
+                    }
+                    if (args[0].equals("var")) {
+                        return level.getBlockEntity(at) instanceof PortBlockEntity port ? (long) Math.floor(parse(port.work.variable(Integer.parseInt(args[4]), args[5]))) : -1L;
+                    }
+                    if (args[0].equals("empty")) {
+                        ResourceHandler<ItemResource> inv = level.getCapability(Capabilities.Item.BLOCK, at, null);
+                        long n = 0;
+                        for (int slot = 0; inv != null && slot < inv.size(); slot++) {
+                            n += inv.getAmountAsLong(slot);
+                        }
+                        return n;
+                    }
+                    if (args[0].equals("mobs") || args[0].equals("nomobs")) {
+                        var type = BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(args[5]));
+                        return (long) level.getEntities((Entity) null, new net.minecraft.world.phys.AABB(at).inflate(Integer.parseInt(args[4])), e -> e.getType() == type).size();
+                    }
+                    if (args[0].equals("placed") || args[0].equals("noblocks")) {
+                        BlockPos to = new BlockPos(Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]));
+                        Block block = BuiltInRegistries.BLOCK.getValue(Identifier.parse(args[7]));
+                        long n = 0;
+                        for (BlockPos q : BlockPos.betweenClosed(at, to)) {
+                            n += level.getBlockState(q).is(block) ? 1 : 0;
+                        }
+                        return n;
+                    }
                     ItemResource kind = ItemResource.of(BuiltInRegistries.ITEM.getValue(Identifier.parse(args[4])));
                     if (args[0].equals("net")) {
                         return StorageNetwork.at(level, at).count(kind);
@@ -939,7 +1022,7 @@ public final class Rehearsal {
         boolean exact = args[0].equals("jobs") || args[0].equals("pins") || args[0].equals("open") || args[0].equals("grid")
                 || args[0].equals("meant") || args[0].equals("words") || args[0].equals("holds") || args[0].equals("attribute")
                 || args[0].equals("flyspeed") || args[0].equals("mayfly") || args[0].equals("sight") || args[0].equals("blocks")
-                || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits"));
+                || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits")) || args[0].startsWith("no") || args[0].equals("empty");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }
@@ -980,6 +1063,33 @@ public final class Rehearsal {
                 net.insert(ItemResource.of(stack), 1, false);
             }
         }).get(30, TimeUnit.SECONDS);
+    }
+
+    private static void trace(Minecraft mc, String[] args) throws Exception {
+        MinecraftServer server = mc.getSingleplayerServer();
+        UUID id = mc.player.getUUID();
+        List<Trace> lines = server.submit(() -> {
+            ServerPlayer p = server.getPlayerList().getPlayer(id);
+            if (args[0].equals("agent")) {
+                Agent agent = p.level().getNearestEntity(Agent.class, net.minecraft.world.entity.ai.targeting.TargetingConditions.forNonCombat().ignoreLineOfSight().ignoreInvisibilityTesting(),
+                        p, p.getX(), p.getY(), p.getZ(), p.getBoundingBox().inflate(256));
+                return agent == null ? List.<Trace>of() : List.copyOf(agent.traced());
+            }
+            BlockPos at = new BlockPos(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+            return p.level().getBlockEntity(at) instanceof PortBlockEntity port ? List.copyOf(port.work.traced(Integer.parseInt(args[3]))) : List.<Trace>of();
+        }).get(10, TimeUnit.SECONDS);
+        for (Trace t : lines) {
+            LOG.info("[rehearsal] trace: {} {} {} {} x{}", t.kind(), t.step(), t.key(), t.args(), t.times());
+        }
+    }
+
+    /** A variable as a number, or -1 if it reads as none. */
+    private static double parse(String shown) {
+        try {
+            return Double.parseDouble(shown);
+        } catch (NumberFormatException e) {
+            return shown.equals("true") ? 1 : -1;
+        }
     }
 
     private static void count(Minecraft mc, String[] args) {
