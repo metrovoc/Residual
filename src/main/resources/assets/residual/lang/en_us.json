@@ -460,6 +460,8 @@
   "residual.sample.watch.wrong": "It says something has gone wrong.",
   "residual.sample.watch.unsure": "It cannot follow this line.",
   "residual.sample.temperature": "Temp",
+  "residual.notes.score": "Score",
+  "residual.notes.chance": "Chance",
   "residual.sample.thinking": "Thinking…",
   "residual.sample.legend": "Grey is what the model was shown, white is what it wrote. The bars show its odds for the first token it chose; ⏎ is a line break.",
   "residual.sample.next": "Next token",

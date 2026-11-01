@@ -88,8 +88,14 @@ public final class ResidualClient {
                         Optional.of(Residual.id("item/guide"))))
                 .extension(TagCompiler.EXTENSION_POINT, new Milestones.Tag())
                 .extension(TagCompiler.EXTENSION_POINT, new Clips.Tag())
+                .extension(TagCompiler.EXTENSION_POINT, new Steps.Tag())
+                .extension(TagCompiler.EXTENSION_POINT, new Shots.Tag())
+                .extension(TagCompiler.EXTENSION_POINT, new Live.SoftmaxTag())
+                .extension(TagCompiler.EXTENSION_POINT, new Live.AttentionTag())
+                .extension(TagCompiler.EXTENSION_POINT, new Live.CurveTag())
                 .extension(ExportPostProcessor.EXTENSION_POINT, new Milestones.Web())
                 .extension(ExportPostProcessor.EXTENSION_POINT, new Clips.Web())
+                .extension(ExportPostProcessor.EXTENSION_POINT, new NotesWeb())
                 .build();
     }
 

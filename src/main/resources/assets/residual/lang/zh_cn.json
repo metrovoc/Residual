@@ -460,6 +460,8 @@
   "residual.sample.watch.wrong": "它说出了问题。",
   "residual.sample.watch.unsure": "它读不懂这一行。",
   "residual.sample.temperature": "温度",
+  "residual.notes.score": "分数",
+  "residual.notes.chance": "概率",
   "residual.sample.thinking": "思考中……",
   "residual.sample.legend": "灰色是给模型看的，白色是它写的。条形显示它所选第一个词元的概率；⏎ 表示换行。",
   "residual.sample.next": "下一个词元",

@@ -22,6 +22,46 @@
         .notice strong { color: #ffb547; }
         .notice nav { display: flex; gap: 1rem; margin-left: auto; }
         canvas[data-clip] { display: block; max-width: 100%; margin: .5rem auto 1rem; cursor: pointer; background: #20242a; }
+        .steps-bar { display: flex; align-items: center; gap: .5rem; padding: .15rem; margin-top: .5rem; color: #e4ebf1; background: #11161b; }
+        .steps-bar button { min-width: 2.5rem; color: #404040; background: #c6c6c6; border: 0; cursor: pointer; }
+        .steps-bar button:hover:enabled { background: #3cd6c6; }
+        .steps-bar button:disabled { color: #7f8d99; background: #1d252d; cursor: default; }
+        .steps-marks { display: flex; flex: 1; gap: 2px; max-width: 16rem; }
+        .steps-marks i { flex: 1; height: 4px; background: #1d252d; }
+        .steps-marks i.lit { background: #3cd6c6; }
+        .steps-stack { display: grid; margin-bottom: 1rem; }
+        .steps-stack > section { grid-area: 1 / 1; min-width: 0; visibility: hidden; }
+        .steps-stack > section.shown { visibility: visible; }
+        figure[data-shot] { margin: .5rem 0 1rem; }
+        figure[data-shot] li.lit { color: #3cd6c6; }
+        .shot-picture { position: relative; margin-bottom: .5rem; line-height: 0; }
+        .shot-picture img { width: 100%; image-rendering: pixelated; }
+        .shot-part { position: absolute; }
+        .shot-part.lit { outline: 2px solid #3cd6c6; }
+        .shot-part b { position: absolute; left: -2px; top: -2px; padding: 0 3px; font: 12px/14px monospace; color: #ffb547; background: #11161b; }
+        .shot-part.lit b { color: #11161b; background: #3cd6c6; }
+        .live { max-width: 100%; margin: .5rem 0 1rem; padding: .5rem; font-size: 14px; color: #e4ebf1; background: #11161b; border: 1px solid #373737; box-sizing: border-box; }
+        .live button { padding: .1rem .5rem; color: #404040; background: #c6c6c6; border: 0; cursor: pointer; }
+        .live input[type=range] { width: 100%; accent-color: #ffb547; }
+        .live-dim { color: #7f8d99; }
+        .live-input { color: #ffb547; text-align: right; }
+        .live-output { color: #3cd6c6; text-align: right; }
+        .live-softmax { width: 34rem; }
+        .live-row { display: grid; grid-template-columns: 4rem 1fr 3rem 1fr 3rem; gap: .5rem; align-items: center; }
+        .live-rule { margin-top: .25rem; padding-top: .25rem; border-top: 1px solid #1d252d; }
+        .live-bar { height: .5rem; background: #1d252d; }
+        .live-bar i { display: block; height: 100%; background: #3cd6c6; }
+        .live-attention { display: flex; flex-wrap: wrap; gap: .75rem; width: fit-content; }
+        .live-attention canvas { width: 208px; touch-action: none; cursor: grab; }
+        .live-attention table { border-collapse: separate; border-spacing: 1px; margin: 0 0 .5rem; }
+        .live-attention th, .live-attention td { min-width: 2.75rem; padding: 0 .2rem; font-weight: normal; text-align: left; color: #7f8d99; background: none; border: 0; }
+        .live-attention tr { cursor: pointer; }
+        .live-attention tr.chosen th { color: #ffb547; }
+        .live-attention tr.chosen td { outline: 1px solid #ffb547; }
+        .live-curve { width: 38rem; }
+        .live-curve canvas { display: block; width: 100%; }
+        .live-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: .25rem 0; }
+        .live-controls { display: flex; gap: .25rem; }
     </style>
 </head>
 <body data-path-to-root="{{RELATIVE_PATH_TO_ROOT}}">
