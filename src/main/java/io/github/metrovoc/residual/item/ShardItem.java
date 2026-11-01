@@ -4,7 +4,9 @@ import io.github.metrovoc.residual.client.ClientHooks;
 import io.github.metrovoc.residual.learn.Archive;
 import io.github.metrovoc.residual.model.Recovered;
 import io.github.metrovoc.residual.registry.ModComponents;
+import io.github.metrovoc.residual.world.RuinKinds;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
@@ -37,6 +39,9 @@ public class ShardItem extends Item {
         return stack.get(ModComponents.SHARD.get());
     }
 
+    /** How often a shard a ruin left words on carries a record that mentions them. */
+    private static final float ABOUT_SHARE = 0.75f;
+
     /** A random record that turns up in shards, with a random share of it lost in clumps. */
     public static Recovered roll(RandomSource rng) {
         int count = Archive.records().size();
@@ -44,6 +49,17 @@ public class ShardItem extends Item {
         do {
             id = rng.nextInt(count);
         } while (Archive.heldOut(id));
+        return lose(rng, id);
+    }
+
+    /** As {@link #roll(RandomSource)}, but most often a record that mentions one of {@code words}. */
+    public static Recovered roll(RandomSource rng, List<String> words) {
+        List<Integer> about = Archive.about(words);
+        return about.isEmpty() || rng.nextFloat() >= ABOUT_SHARE ? roll(rng) : lose(rng, about.get(rng.nextInt(about.size())));
+    }
+
+    /** Record {@code id} with a random share of it lost in clumps. */
+    private static Recovered lose(RandomSource rng, int id) {
         int blocks = Archive.get(id).blocks();
         BitSet lost = new BitSet(blocks);
         if (rng.nextFloat() >= 0.2f) {
@@ -56,10 +72,16 @@ public class ShardItem extends Item {
         return new Recovered(id, lost);
     }
 
+    /** Gives a shard its record: one that mentions the words its ruin left on it, if it left any. */
+    private static void learn(ItemStack stack, RandomSource rng) {
+        List<String> about = stack.remove(ModComponents.SHARD_ABOUT.get());
+        stack.set(ModComponents.SHARD.get(), about == null ? roll(rng) : roll(rng, about));
+    }
+
     @Override
     public void inventoryTick(ItemStack stack, ServerLevel level, Entity owner, @Nullable EquipmentSlot slot) {
         if (record(stack) == null) {
-            stack.set(ModComponents.SHARD.get(), roll(level.getRandom()));
+            learn(stack, level.getRandom());
         }
     }
 
@@ -69,12 +91,14 @@ public class ShardItem extends Item {
         Recovered r = record(stack);
         if (r == null) {
             if (level instanceof ServerLevel server) {
-                stack.set(ModComponents.SHARD.get(), roll(server.getRandom()));
+                learn(stack, server.getRandom());
             }
             return InteractionResult.SUCCESS;
         }
         if (level.isClientSide()) {
             ClientHooks.readShard(r);
+        } else if (r.text() != null) {
+            RuinKinds.learn(player, r.text().text());
         }
         return InteractionResult.SUCCESS;
     }

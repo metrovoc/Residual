@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.item.ProgramCardItem;
+import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.menu.AgentMenu;
@@ -49,6 +50,7 @@ public final class Network {
         r.playToServer(AssemblerEdit.TYPE, AssemblerEdit.STREAM_CODEC, Network::onAssemblerEdit);
         r.playToServer(CraftAsk.TYPE, CraftAsk.STREAM_CODEC, Network::onCraftAsk);
         r.playToServer(CraftCancel.TYPE, CraftCancel.STREAM_CODEC, Network::onCraftCancel);
+        r.playToServer(FindRuin.TYPE, FindRuin.STREAM_CODEC, Network::onFindRuin);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
@@ -60,6 +62,12 @@ public final class Network {
         r.playToClient(SurveySync.TYPE, SurveySync.STREAM_CODEC);
         r.playToClient(CraftPlanSync.TYPE, CraftPlanSync.STREAM_CODEC);
         r.playToClient(CraftJobsSync.TYPE, CraftJobsSync.STREAM_CODEC);
+    }
+
+    private static void onFindRuin(FindRuin f, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player) {
+            WayfinderItem.find(player, f.mainHand() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND, f.kind());
+        }
     }
 
     /** Only the player looking at a Core's screen may operate it. */

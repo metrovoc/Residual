@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:archaeology",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "residual:archive_shard",
+          "weight": 6,
+          "functions": [
+            {
+              "function": "residual:shard_about",
+              "words": [
+                "waymark",
+                "Long Road",
+                "north road",
+                "inn"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:emerald",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:flint",
+          "weight": 2
+        }
+      ]
+    }
+  ],
+  "random_sequence": "residual:archaeology/waymark"
+}

@@ -21,4 +21,8 @@ public final class ClientHooks {
     public static void openTerminal(InteractionHand hand) {
         Minecraft.getInstance().setScreen(new TerminalScreen(hand));
     }
+
+    public static void openWayfinder(InteractionHand hand) {
+        Minecraft.getInstance().setScreen(new WayfinderScreen(hand));
+    }
 }

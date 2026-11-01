@@ -14,7 +14,9 @@ import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModComponents;
 import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModItems;
+import io.github.metrovoc.residual.registry.ModLoot;
 import io.github.metrovoc.residual.registry.ModMenus;
+import io.github.metrovoc.residual.registry.ModStructures;
 import io.github.metrovoc.residual.registry.ModTabs;
 import io.github.metrovoc.residual.train.Jobs;
 import io.github.metrovoc.residual.train.TrainingJob;
@@ -49,6 +51,8 @@ public final class Residual {
         modBus.addListener(ModEntities::attributes);
         ModAttachments.ATTACHMENTS.register(modBus);
         ModTabs.TABS.register(modBus);
+        ModLoot.FUNCTIONS.register(modBus);
+        ModStructures.TYPES.register(modBus);
         modBus.addListener(Network::register);
         modBus.addListener(Residual::capabilities);
         container.registerConfig(ModConfig.Type.SERVER, ResidualConfig.SPEC);

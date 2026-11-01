@@ -25,6 +25,12 @@ public final class ModComponents {
     /** The record an Archive Shard carries. */
     public static final Supplier<DataComponentType<Recovered>> SHARD = COMPONENTS.registerComponentType("shard",
             b -> b.persistent(Recovered.CODEC).networkSynchronized(Recovered.STREAM_CODEC));
+    /** Words a shard's record most often mentions, left by the ruin it came from until the shard learns its record. */
+    public static final Supplier<DataComponentType<List<String>>> SHARD_ABOUT = COMPONENTS.registerComponentType("shard_about",
+            b -> b.persistent(Codec.STRING.listOf()).networkSynchronized(ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list())));
+    /** The kind of ruin a Wayfinder is tuned to. */
+    public static final Supplier<DataComponentType<String>> WAYFINDER_KIND = COMPONENTS.registerComponentType("wayfinder_kind",
+            b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
     /** Every record filed into an Archive Drive, in record order. */
     public static final Supplier<DataComponentType<List<Recovered>>> RECORDS = COMPONENTS.registerComponentType("records",
             b -> b.persistent(Recovered.CODEC.listOf()).networkSynchronized(Recovered.STREAM_CODEC.apply(ByteBufCodecs.list())));

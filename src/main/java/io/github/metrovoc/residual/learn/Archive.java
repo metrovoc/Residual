@@ -6,8 +6,10 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -40,10 +42,15 @@ public final class Archive {
 
     /** Characters per block of loss. */
     public static final int BLOCK = 32;
-    /** The archive's files, in record order. Records are only ever added at the end of the last file. */
-    private static final List<String> FILES = List.of("01-letters", "02-journals", "03-stories", "04-songs",
-            "05-household", "06-manuals", "07-notices", "08-late");
+    /**
+     * The archive's files, in record order, as {@code archive/index.txt} lists them. Records are only ever added at the
+     * end, in files listed after the last.
+     */
+    private static List<String> files() {
+        return read("/archive/index.txt").lines().map(String::strip).filter(l -> !l.isEmpty()).toList();
+    }
     private static List<Record> records;
+    private static final Map<List<String>, List<Integer>> ABOUT = new HashMap<>();
     /** Reading's test as each recent vocabulary encodes it. */
     private static final Map<Vocab, TextTask> TESTS = new LinkedHashMap<>(8, 0.75f, true) {
         @Override
@@ -58,7 +65,7 @@ public final class Archive {
     public static synchronized List<Record> records() {
         if (records == null) {
             List<Record> all = new ArrayList<>();
-            for (String file : FILES) {
+            for (String file : files()) {
                 for (String rec : read("/archive/" + file + ".txt").split("(?m)^%%$")) {
                     String text = rec.strip();
                     if (!text.isEmpty()) {
@@ -75,6 +82,21 @@ public final class Archive {
     public static Record get(int id) {
         List<Record> all = records();
         return id >= 0 && id < all.size() ? all.get(id) : null;
+    }
+
+    /** The records shards carry that mention any of {@code words}, by id, for each set of words asked. */
+    public static synchronized List<Integer> about(List<String> words) {
+        return ABOUT.computeIfAbsent(words, w -> {
+            List<String> lower = w.stream().map(s -> s.toLowerCase(Locale.ROOT)).toList();
+            List<Integer> ids = new ArrayList<>();
+            for (Record r : records()) {
+                String text = r.text().toLowerCase(Locale.ROOT);
+                if (!heldOut(r.id()) && lower.stream().anyMatch(text::contains)) {
+                    ids.add(r.id());
+                }
+            }
+            return List.copyOf(ids);
+        });
     }
 
     /** Kept out of every shard, to test reading. */

@@ -6,6 +6,11 @@
     "minecraft:tuff_brick_slab",
     "minecraft:polished_deepslate",
     "minecraft:glass_pane",
-    "minecraft:cobweb"
+    "minecraft:cobweb",
+    "minecraft:mossy_stone_bricks",
+    "minecraft:cracked_stone_bricks",
+    "minecraft:mossy_cobblestone",
+    "minecraft:white_wool",
+    "minecraft:spruce_fence"
   ]
 }

@@ -21,6 +21,7 @@ import io.github.metrovoc.residual.item.StorageDriveItem;
 import io.github.metrovoc.residual.item.SurveyRodItem;
 import io.github.metrovoc.residual.item.TerminalItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
+import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ public final class ModItems {
     public static final DeferredItem<FlightFrameItem> FLIGHT_FRAME = ITEMS.registerItem("flight_frame", FlightFrameItem::new, p -> p.stacksTo(1)
             .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(SoundEvents.ARMOR_EQUIP_NETHERITE)
                     .setAsset(ResourceKey.create(EquipmentAssets.ROOT_ID, Residual.id("flight_frame"))).build()));
+    public static final DeferredItem<WayfinderItem> WAYFINDER = ITEMS.registerItem("wayfinder", WayfinderItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<ShardItem> SHARD = ITEMS.registerItem("archive_shard", ShardItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<AgentItem> AGENT = ITEMS.registerItem("agent", AgentItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<SurveyRodItem> SURVEY_ROD = ITEMS.registerItem("survey_rod", SurveyRodItem::new, p -> p.stacksTo(1));

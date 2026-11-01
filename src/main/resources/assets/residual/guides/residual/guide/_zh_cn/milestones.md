@@ -41,9 +41,11 @@ navigation:
 
 ## 旧世界
 
-<residual:Milestone id="ruins/found">档案屋、中继塔和地下库彼此相隔很远：[遗迹](ruins.md)。</residual:Milestone>
+<residual:Milestone id="ruins/found">旧世界的地方彼此相隔很远，各自立在适合它的土地上：[遗迹](ruins.md)。</residual:Milestone>
 
 <residual:Milestone id="archive/shard">每块都是某一份记录的一部分，有些文字已经遗失：[档案](archive.md)。</residual:Milestone>
+
+<residual:Milestone id="ruins/wayfinder">使用寻路仪，选一种遗迹；读过的碎片会把它们写到的地方加进来：[遗迹](ruins.md)。</residual:Milestone>
 
 <residual:Milestone id="archive/drive">同一份记录的残片归档在一起，能拼成一份更完整的副本。</residual:Milestone>
 

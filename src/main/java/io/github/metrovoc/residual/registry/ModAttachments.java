@@ -27,6 +27,14 @@ public final class ModAttachments {
                     .sync((holder, to) -> holder == to, ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()))
                     .build());
 
+    /** The kinds of ruin this player has read of in a shard, which a Wayfinder can look for. */
+    public static final Supplier<AttachmentType<List<String>>> KNOWN_RUINS = ATTACHMENTS.register("known_ruins",
+            () -> AttachmentType.<List<String>>builder(() -> List.of())
+                    .serialize(Codec.STRING.listOf().fieldOf("kinds"))
+                    .copyOnDeath()
+                    .sync((holder, to) -> holder == to, ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()))
+                    .build());
+
     private ModAttachments() {
     }
 }

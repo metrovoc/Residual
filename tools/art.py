@@ -1000,6 +1000,50 @@ def flight_frame():
     return c
 
 
+# the Wayfinder: a copper case, a dark glass face, an amethyst pivot, and a needle lit at its tip
+WAYFINDER_CASE = [
+    "...oooooooooo...",
+    "..o##########o..",
+    ".o#++++++++++#o.",
+    "o#++--------++#o",
+    "o#+----------+#o",
+    "o#+----------+#o",
+    "o#+----------+#o",
+    "o#+----------+#o",
+    "o#+----------+#o",
+    "o#+----------+#o",
+    "o#+----------+#o",
+    "o#+----------+#o",
+    "o#++--------++#o",
+    ".o#++++++++++#o.",
+    "..o##########o..",
+    "...oooooooooo...",
+]
+
+
+def wayfinder(k):
+    """Frame k of 32, as vanilla's compass frames run: its needle points (k - 16) * 11.25 degrees clockwise from up."""
+    import math
+    c = Canvas()
+    c.stamp(0, 0, WAYFINDER_CASE, {"o": INK, "#": CORAL[3], "+": CORAL[2], "-": SLATE[0]})
+    a = math.radians((k - 16) * 11.25)
+    dx, dy = math.sin(a), -math.cos(a)
+    cx = cy = 7.5
+    for i in range(1, 11):
+        r = i * 0.5
+        for sign, color in ((1, TEAL[4]), (-1, STEEL[4])):
+            if sign < 0 and r > 3:
+                continue
+            x, y = round(cx + sign * dx * r - 0.01), round(cy + sign * dy * r - 0.01)
+            if 3 <= x <= 12 and 3 <= y <= 12:
+                c.px(x, y, color)
+    c.px(7, 7, AMETHYST[3])
+    c.px(8, 8, AMETHYST[2])
+    c.px(7, 8, AMETHYST[2])
+    c.px(8, 7, AMETHYST[3])
+    return c
+
+
 # the frame worn, on the back face of the chestplate's body box: the item's two pods, joined across
 FLIGHT_FRAME_BACK = [
     "e#e..e#e",
@@ -2703,6 +2747,9 @@ def build():
     machine_top(58).save("block/combustion_generator_top.png")
     flight_frame().save("item/flight_frame.png")
     flight_frame_worn().save("entity/equipment/humanoid/flight_frame.png")
+    assert mirrored(WAYFINDER_CASE), WAYFINDER_CASE
+    for k in range(32):
+        wayfinder(k).save(f"item/wayfinder_{k:02d}.png")
     surveyor_front().save("block/surveyor_front.png")
     lit("block/surveyor_front_on.png", [surveyor_front(i) for i in range(8)], [surveyor_front()], 3)
     surveyor_side().save("block/surveyor_side.png")

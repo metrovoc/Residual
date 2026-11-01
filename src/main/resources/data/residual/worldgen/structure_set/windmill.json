@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "residual:windmill",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 56,
+    "separation": 18,
+    "salt": 48215537
+  }
+}

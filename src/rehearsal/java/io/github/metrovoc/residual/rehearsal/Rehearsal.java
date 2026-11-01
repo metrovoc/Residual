@@ -514,7 +514,10 @@ public final class Rehearsal {
     private static void click(Minecraft mc, double x, double y, MouseButtonInfo button) {
         MouseButtonEvent click = new MouseButtonEvent(x, y, button);
         mc.screen.mouseClicked(click, false);
-        mc.screen.mouseReleased(click);
+        // a button may close its screen
+        if (mc.screen != null) {
+            mc.screen.mouseReleased(click);
+        }
     }
 
     private static void createWorld(Minecraft mc, String seed) throws IOException {

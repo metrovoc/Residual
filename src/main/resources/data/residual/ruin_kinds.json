@@ -1,0 +1,67 @@
+[
+  {
+    "name": "archive_house",
+    "words": [
+      "archive",
+      "clerk"
+    ]
+  },
+  {
+    "name": "relay_mast",
+    "words": [
+      "mast",
+      "relay house"
+    ]
+  },
+  {
+    "name": "buried_vault",
+    "words": [
+      "vault",
+      "sealed"
+    ]
+  },
+  {
+    "name": "waymark",
+    "words": [
+      "waymark",
+      "Long Road",
+      "north road",
+      "inn"
+    ]
+  },
+  {
+    "name": "relay_tower",
+    "words": [
+      "relay",
+      "tower",
+      "lamp",
+      "keeper"
+    ]
+  },
+  {
+    "name": "windmill",
+    "words": [
+      "Kettle Ridge",
+      "windmill",
+      "miller"
+    ]
+  },
+  {
+    "name": "slipway",
+    "words": [
+      "Saltreach",
+      "shipyard",
+      "shipwright",
+      "Corin"
+    ]
+  },
+  {
+    "name": "stilt_house",
+    "words": [
+      "Lowmarsh",
+      "Wren",
+      "remedy",
+      "marsh"
+    ]
+  }
+]

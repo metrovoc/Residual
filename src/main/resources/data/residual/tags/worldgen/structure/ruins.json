@@ -2,6 +2,11 @@
   "values": [
     "residual:archive_house",
     "residual:relay_mast",
-    "residual:buried_vault"
+    "residual:buried_vault",
+    "residual:waymark",
+    "residual:relay_tower",
+    "residual:windmill",
+    "residual:slipway",
+    "residual:stilt_house"
   ]
 }

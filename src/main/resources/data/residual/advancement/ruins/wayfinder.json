@@ -1,0 +1,28 @@
+{
+  "parent": "residual:archive/shard",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:wayfinder"
+    },
+    "title": {
+      "translate": "advancements.residual.ruins.wayfinder.title"
+    },
+    "description": {
+      "translate": "advancements.residual.ruins.wayfinder.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -14,8 +14,8 @@
 
 ![A model training by a river: a wave of light runs along its cables and each machine's output floats above it, with an archive house and a farm behind](docs/images/hero.webp)
 
-Someone lived in this world before you. They built machines that thought, and they wrote everything down. Then they
-were gone. But there still seem to be pieces of it in the ruins.
+Someone lived in this world before you. They are no longer here, but traces of them still remain in the ruins. Most
+mysteriously, they seemed to have built machines that thought.
 
 Residual is a Minecraft mod about building those models again, and every model is a real language model. Each machine
 performs one real operation: a table lookup, a matrix multiplication, a softmax, a whole transformer layer. Design the

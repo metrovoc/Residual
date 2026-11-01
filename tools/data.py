@@ -407,6 +407,20 @@ def items():
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
+    # the Wayfinder's needle, frame by frame as vanilla's compass: toward its ruin when tuned, idly turning when not
+    frames = []
+    for k in range(32):
+        write(f"assets/{NS}/models/item/wayfinder_{k:02d}.json",
+              {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/wayfinder_{k:02d}")}})
+    for i in range(33):
+        frames.append({"threshold": 0.0 if i == 0 else i - 0.5,
+                       "model": {"type": "minecraft:model", "model": rid(f"item/wayfinder_{(i + 16) % 32:02d}")}})
+    write(f"assets/{NS}/items/wayfinder.json", {"model": {
+        "type": "minecraft:condition", "property": "minecraft:has_component", "component": "minecraft:lodestone_tracker",
+        "on_true": {"type": "minecraft:range_dispatch", "property": "minecraft:compass", "target": "lodestone", "scale": 32.0,
+                    "entries": frames},
+        "on_false": {"type": "minecraft:range_dispatch", "property": "minecraft:compass", "target": "none", "scale": 32.0,
+                     "entries": frames}}})
     for name in ("tensor_probe", "survey_rod"):
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/handheld", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -560,6 +574,8 @@ def recipes():
     shaped("agent", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
     shapeless("program_card", ["minecraft:paper", "minecraft:redstone"], 2)
     shaped("survey_rod", ["  A", " S ", "S  "], {"A": "minecraft:amethyst_shard", "S": "minecraft:stick"})
+    shaped("wayfinder", [" A ", "CKC", " C "], {"A": "minecraft:amethyst_shard", "C": "minecraft:copper_ingot",
+                                                 "K": "minecraft:compass"})
     shaped("reader", ["GBG", "KWK", "KKK"], {"G": "minecraft:glass_pane", "B": "minecraft:book", "K": rid("tensor_casing"),
                                              "W": rid("weight_crystal")})
     shapeless("model_server", [rid("tensor_casing"), rid("tensor_casing"), rid("weight_crystal"), rid("weight_crystal"),
@@ -615,6 +631,7 @@ def advancements():
                 {"found": {"trigger": "minecraft:location", "conditions": {"player": [{"condition": "minecraft:entity_properties",
                     "entity": "this", "predicate": {"location": {"structures": "#residual:ruins"}}}]}}})
     advancement("archive/shard", "ruins/found", "archive_shard", has("archive_shard"))
+    advancement("ruins/wayfinder", "archive/shard", "wayfinder", awarded())
     advancement("archive/drive", "archive/shard", "archive_drive", has("archive_drive"))
     advancement("archive/tokenizer", "archive/drive", "tokenizer", awarded(), components={rid("vocab"): [70, 58]})
     advancement("model/saved", "root", "checkpoint", awarded())
