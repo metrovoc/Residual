@@ -102,6 +102,8 @@ At every look at a machine, its line goes to the model the same way, and the mac
 model drew, a few ticks at a time: a furnace run four looks for every one cooks four items in the time of one, on the
 same fuel per item.
 
+A block being run ahead shimmers, faster the faster it runs: teal up to ×16, amber past that.
+
 Every look drawn is the model's own work. A model that is slow to answer, or a server busy with other askers, runs fewer
 looks ahead. Lines the model wrote, or that a machine was run ahead through, are never written down: the log only ever
 holds what the blocks did by themselves.

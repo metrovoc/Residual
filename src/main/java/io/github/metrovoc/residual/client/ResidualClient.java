@@ -15,6 +15,7 @@ import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.net.CraftJobsSync;
 import io.github.metrovoc.residual.net.CraftPlanSync;
 import io.github.metrovoc.residual.net.CraftTreeSync;
+import io.github.metrovoc.residual.net.ShimmerSync;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.WatchSync;
@@ -52,6 +53,8 @@ public final class ResidualClient {
         NeoForge.EVENT_BUS.addListener(FlowView::submit);
         NeoForge.EVENT_BUS.addListener(GhostView::extract);
         NeoForge.EVENT_BUS.addListener(GhostView::submit);
+        NeoForge.EVENT_BUS.addListener(ShimmerView::extract);
+        NeoForge.EVENT_BUS.addListener(ShimmerView::submit);
         NeoForge.EVENT_BUS.addListener(SurveyView::extract);
         NeoForge.EVENT_BUS.addListener(SurveyView::submit);
         NeoForge.EVENT_BUS.addListener(Clips::tick);
@@ -99,6 +102,7 @@ public final class ResidualClient {
         event.register(WaveSync.TYPE, (wave, ctx) -> Waves.receive(wave));
         event.register(FlowSync.TYPE, (flow, ctx) -> FlowView.receive(flow));
         event.register(GhostSync.TYPE, (ghost, ctx) -> GhostView.receive(ghost));
+        event.register(ShimmerSync.TYPE, (shimmer, ctx) -> ShimmerView.receive(shimmer));
         event.register(SurveySync.TYPE, (survey, ctx) -> SurveyView.receive(survey));
         event.register(StorageSync.TYPE, (sync, ctx) -> {
             if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == sync.menu()) {

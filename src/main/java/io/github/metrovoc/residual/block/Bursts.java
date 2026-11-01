@@ -1,7 +1,10 @@
 package io.github.metrovoc.residual.block;
 
+import io.github.metrovoc.residual.net.ShimmerSync;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
@@ -11,6 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
  * Blocks an Hourglass runs ahead: how many times as fast, and until when. A machine takes that many ticks a tick; a crop
@@ -22,6 +26,9 @@ public final class Bursts {
     }
 
     private static final Map<ServerLevel, Map<BlockPos, Burst>> RUNNING = new WeakHashMap<>();
+    /** What is being run ahead in this half second, by any means, and how fast, for the shimmer players see. */
+    private static final Map<ServerLevel, Map<Long, Integer>> SHIMMER = new WeakHashMap<>();
+    private static final int SHIMMER_EVERY = 10;
 
     private Bursts() {
     }
@@ -36,9 +43,33 @@ public final class Bursts {
         RUNNING.computeIfAbsent(level, l -> new HashMap<>()).put(pos.immutable(), new Burst(factor, level.getGameTime() + ticks));
     }
 
+    /** The block at {@code p} is being run ahead {@code pace} times as fast. */
+    public static void shimmer(ServerLevel level, BlockPos p, int pace) {
+        SHIMMER.computeIfAbsent(level, l -> new HashMap<>()).merge(p.asLong(), pace, Math::max);
+    }
+
+    private static void sendShimmer(ServerLevel level) {
+        Map<Long, Integer> shining = SHIMMER.get(level);
+        if (shining == null || shining.isEmpty() || level.players().isEmpty()) {
+            return;
+        }
+        long[] places = new long[shining.size()];
+        List<Integer> paces = new ArrayList<>(shining.size());
+        int i = 0;
+        for (Map.Entry<Long, Integer> e : shining.entrySet()) {
+            places[i++] = e.getKey();
+            paces.add(e.getValue());
+        }
+        shining.clear();
+        PacketDistributor.sendToPlayersInDimension(level, new ShimmerSync(places, paces));
+    }
+
     public static void tick(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level)) {
             return;
+        }
+        if (level.getGameTime() % SHIMMER_EVERY == 0) {
+            sendShimmer(level);
         }
         Map<BlockPos, Burst> running = RUNNING.get(level);
         if (running == null || running.isEmpty()) {
@@ -67,6 +98,7 @@ public final class Bursts {
                 }
             }
             ForecasterBlockEntity.hurried(level, p);
+            shimmer(level, p, b.factor);
             if (now % 4 == 0) {
                 level.sendParticles(ParticleTypes.ELECTRIC_SPARK, p.getX() + 0.5, p.getY() + 1.05, p.getZ() + 0.5, 2, 0.3, 0.05, 0.3, 0);
             }

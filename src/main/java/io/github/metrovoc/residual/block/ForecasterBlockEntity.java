@@ -585,6 +585,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
             for (int i = 0; i < spend; i++) {
                 tickOnce(level, p, be);
             }
+            Bursts.shimmer(level, p, spend + 1);
             if (ticks % 4 == 0) {
                 level.sendParticles(ParticleTypes.ELECTRIC_SPARK, p.getX() + 0.5, p.getY() + 1.05, p.getZ() + 0.5, 1, 0.3, 0.05, 0.3, 0);
             }
@@ -895,6 +896,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
             w.drawn = true;
             if (w.age > was) {
                 level.setBlock(p, aged(s, w.age), Block.UPDATE_CLIENTS);
+                Bursts.shimmer(level, p, 2);
                 level.sendParticles(ParticleTypes.HAPPY_VILLAGER, p.getX() + 0.5, p.getY() + 0.4, p.getZ() + 0.5, 3, 0.25, 0.2, 0.25, 0);
                 flashed.set((p.getZ() - worldPosition.getZ() + RADIUS) * SIDE + p.getX() - worldPosition.getX() + RADIUS);
                 grew++;
