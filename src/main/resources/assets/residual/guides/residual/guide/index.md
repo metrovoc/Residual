@@ -58,4 +58,5 @@ you say into programs for agents, and read what the old world wrote.
 - [Machines and Cables](wiring.md): how values travel between blocks.
 - [The Residual Stream](stream.md): the running sum every transformer layer reads and adds to.
 - [Shapes](shapes.md): what [B×T×C] means, and how to fix a shape error.
+- [Screens](screens/index.md): every screen, part by part.
 - [Machines](machines/index.md), one page each.

@@ -25,6 +25,8 @@ from the smallest operations there are.
   <RecipeFor id="photomask" />
 </Row>
 
+[The Bench's screen](screens/bench.md), [the Fabricator's](screens/fabricator.md).
+
 ## Specs
 
 The Bench lists **specs**: what a module must compute, a formula, and a set of test cases with the answers worked out

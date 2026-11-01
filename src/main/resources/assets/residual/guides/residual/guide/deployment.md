@@ -19,6 +19,8 @@ for everything tuned to it, as far as its relays reach. A network of relays does
 base running with nobody there, moves you between its gates, makes storage and power at both ends of the world one, and
 lets you read and steer the base from wherever it reaches.
 
+[A Terminal's screen](screens/terminal.md), [a Relay Gate's](screens/relay_gate.md).
+
 ## The Model Server
 
 <RecipeFor id="model_server" />

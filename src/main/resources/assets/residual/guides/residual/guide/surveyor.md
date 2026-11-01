@@ -74,6 +74,8 @@ that kind unfound until the next survey.
   </BoxAnnotation>
 </GameScene>
 
+[The Surveyor's screen, part by part](screens/surveyor.md).
+
 ## How it reads the ground
 
 Its model is a language model, so the ground reaches it as text: each block a letter, a row of sixteen blocks sixteen

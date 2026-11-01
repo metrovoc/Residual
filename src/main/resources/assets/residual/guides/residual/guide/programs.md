@@ -22,6 +22,8 @@ often as every tick, and how hard it can work is up to its upgrades.
 The **Palette** beside every program lays all of this out to click together, page by page. Each piece says what it does
 when you point at it, so nothing here has to be typed, or remembered.
 
+[A Port's programs on its screen, part by part](screens/port_program.md).
+
 ## Steps
 
 Steps go between commas. A step can take a number, a thing, and words that say where:

@@ -45,37 +45,106 @@ casing, a <ItemLink id="wafer" /> and a weight crystal.
 
 <residual:Clip name="wiring" alt="A first model wired by hand and trained, a wave of light running along its cables" />
 
-1. Place the Model Core. Its front turns toward you: tokens come out of it.
-2. Lay a cable from the Core's front to a free spot a few blocks away.
-3. Place the Embedding Table against the end of that cable. It snaps into the flow: its back reads the cable and
-   its front points away.
-4. Lay a cable from the table's front back to any other face of the Core: its sides, its top or its back. That is
-   where the model's scores go in.
-5. Open the table and set **Width** to **V (vocab)**.
+<residual:Steps>
+  <residual:Step>
+    Place the Model Core. Its front turns toward you: tokens come out of it.
 
-<GameScene zoom="3" interactive={true}>
-  <Block id="model_core" p:facing="east" />
-  <Block id="embedding" x="3" p:facing="east" />
-  <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="2" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="4" p:west="true" p:up="true" />
-  <Block id="light_blue_cable" x="4" y="1" p:up="true" p:down="true" />
-  <Block id="light_blue_cable" x="4" y="2" p:south="true" p:down="true" />
-  <Block id="light_blue_cable" y="2" z="1" p:east="true" p:north="true" />
-  <Block id="light_blue_cable" x="1" y="2" z="1" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="2" y="2" z="1" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="3" y="2" z="1" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="4" y="2" z="1" p:west="true" p:north="true" />
-  <Block id="light_blue_cable" y="1" p:up="true" p:down="true" />
-  <Block id="light_blue_cable" y="2" p:south="true" p:down="true" />
-  <IsometricCamera yaw="200" pitch="30" />
-  <BoxAnnotation min="0 0 0" max="1 1 1" color="#FFB547">
-    The Model Core. Tokens leave through its front; scores come back through its top.
-  </BoxAnnotation>
-  <BoxAnnotation min="3 0 0" max="4 1 1" color="#3CD6C6">
-    The Embedding Table, Width set to V.
-  </BoxAnnotation>
-</GameScene>
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <DiamondAnnotation pos="1 0.5 0.5" color="#FFB547">
+        Its front: tokens leave here.
+      </DiamondAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    Lay a cable from the Core's front to a free spot a few blocks away.
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" p:west="true" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="1 0 0" max="3 1 1" color="#3CD6C6">
+        The cable that carries tokens to the table.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    Place the Embedding Table against the end of that cable. It snaps into the flow: its back reads the cable and its front points away.
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <Block id="embedding" x="3" p:facing="east" />
+      <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" p:east="true" p:west="true" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="3 0 0" max="4 1 1" color="#3CD6C6">
+        The Embedding Table, its back to the cable.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    Lay a cable from the table's front back to any other face of the Core: its sides, its top or its back. That is where the model's scores go in.
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <Block id="embedding" x="3" p:facing="east" />
+      <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="4" p:west="true" p:up="true" />
+      <Block id="light_blue_cable" x="4" y="1" p:up="true" p:down="true" />
+      <Block id="light_blue_cable" x="4" y="2" p:south="true" p:down="true" />
+      <Block id="light_blue_cable" y="2" z="1" p:east="true" p:north="true" />
+      <Block id="light_blue_cable" x="1" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="3" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="4" y="2" z="1" p:west="true" p:north="true" />
+      <Block id="light_blue_cable" y="1" p:up="true" p:down="true" />
+      <Block id="light_blue_cable" y="2" p:south="true" p:down="true" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 1 0" max="5 3 2" color="#FFB547">
+        The way back: scores go in through the Core's top.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    Open the table and set **Width** to **V (vocab)**.
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <Block id="embedding" x="3" p:facing="east" />
+      <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="4" p:west="true" p:up="true" />
+      <Block id="light_blue_cable" x="4" y="1" p:up="true" p:down="true" />
+      <Block id="light_blue_cable" x="4" y="2" p:south="true" p:down="true" />
+      <Block id="light_blue_cable" y="2" z="1" p:east="true" p:north="true" />
+      <Block id="light_blue_cable" x="1" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="3" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="4" y="2" z="1" p:west="true" p:north="true" />
+      <Block id="light_blue_cable" y="1" p:up="true" p:down="true" />
+      <Block id="light_blue_cable" y="2" p:south="true" p:down="true" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#FFB547">
+        The Model Core. Tokens leave through its front; scores come back through its top.
+      </BoxAnnotation>
+      <BoxAnnotation min="3 0 0" max="4 1 1" color="#3CD6C6">
+        The Embedding Table, Width set to V.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
 
 The two cables never touch, so they form two separate networks: one carries tokens to the table, the other carries
 the table's scores back.

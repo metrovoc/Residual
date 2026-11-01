@@ -15,6 +15,8 @@ navigation:
 
 ![softmax](/formulas/softmax.png)
 
+<residual:Softmax scores="2 1 0 -1" labels="bread stone iron rain" />
+
 损失是**交叉熵**：在每个位置上，模型对实际出现的下一个词元有多意外，再对所有位置取平均。
 
 ![cross-entropy](/formulas/cross_entropy.png)
@@ -50,6 +52,12 @@ navigation:
 ## 解读曲线
 
 <residual:Clip name="train" alt="小型 GPT 学习分拣时的训练页：练习损失和测试损失一起下降" />
+
+这里有一个可以亲手运行的：一张记录每个字母后面跟什么的表，用一句短文练习，用另一句测试，由 AdamW 移动它的权重。
+
+<residual:Curve practice="the mill turns when the river runs and the bread comes after" test="the river runs and the mill turns the wheel at the ford" />
+
+两条曲线从同一处开始，也就是一个对这两句话用到的 19 种字母和空格一无所知的模型的损失。按下学习率，换一个值重新开始。0.001 时，400 步也走不了多远；0.01 时，稳步下降。0.1 时，下降很快，然后两条曲线分道扬镳：练习损失继续下降，测试损失却掉头向上，因为这张表正在背它的那一句话。1.5 时，步子大得让曲线一路上蹿下跳。
 
 - **开头平坦，随后骤降**：模型找到了一种机制。注意力模型常常如此。
 - **先降后平，停在目标之上**：模型已学会它能看到的一切。给它更多可用的东西：更长的上下文、更宽、更多层。

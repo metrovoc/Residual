@@ -22,6 +22,8 @@ machines themselves, so a model keeps what it learned when you leave and come ba
 
 <RecipeFor id="model_core" />
 
+[Its screen, part by part](screens/core.md).
+
 ## Data
 
 Four slots for what the model practises on: datasets, archive drives, or a salvaged model. Everything in them is

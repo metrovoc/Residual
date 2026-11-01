@@ -16,6 +16,12 @@ Turns each row of scores into weights that are positive and sum to one, along th
 
 ![softmax](/formulas/softmax.png)
 
+<residual:Softmax scores="2 1 0 -1" labels="bread stone iron rain" />
+
+Drag a score and every chance moves, since together they must stay one. Only the differences between the scores count:
+raise them all alike and nothing changes. A low temperature stretches those differences until the largest takes
+everything, and a high one flattens them, which is how a model is made to write boldly or wander.
+
 ## Shapes
 
 Any shape in, the same shape out.

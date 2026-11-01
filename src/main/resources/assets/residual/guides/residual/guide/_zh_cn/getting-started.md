@@ -40,35 +40,106 @@ item_ids:
 
 <residual:Clip name="wiring" alt="亲手接好并开始训练的第一个模型，一道光波沿线缆跑过" />
 
-1. 放下模型核心。它的正面朝向你：词元从这里出来。
-2. 从核心正面铺一条线缆，通到几格外的一处空地。
-3. 把嵌入表贴着这条线缆的末端放下。它会自动接入：背面读取线缆，正面朝外。
-4. 再从嵌入表正面铺一条线缆，回到核心的任意另一面：侧面、顶面或背面。模型的分数从这里输入。
-5. 打开嵌入表，把**宽度**设为 **V（词表）**。
+<residual:Steps>
+  <residual:Step>
+    放下模型核心。它的正面朝向你：词元从这里出来。
 
-<GameScene zoom="3" interactive={true}>
-  <Block id="model_core" p:facing="east" />
-  <Block id="embedding" x="3" p:facing="east" />
-  <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="2" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="4" p:west="true" p:up="true" />
-  <Block id="light_blue_cable" x="4" y="1" p:up="true" p:down="true" />
-  <Block id="light_blue_cable" x="4" y="2" p:south="true" p:down="true" />
-  <Block id="light_blue_cable" y="2" z="1" p:east="true" p:north="true" />
-  <Block id="light_blue_cable" x="1" y="2" z="1" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="2" y="2" z="1" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="3" y="2" z="1" p:east="true" p:west="true" />
-  <Block id="light_blue_cable" x="4" y="2" z="1" p:west="true" p:north="true" />
-  <Block id="light_blue_cable" y="1" p:up="true" p:down="true" />
-  <Block id="light_blue_cable" y="2" p:south="true" p:down="true" />
-  <IsometricCamera yaw="200" pitch="30" />
-  <BoxAnnotation min="0 0 0" max="1 1 1" color="#FFB547">
-    模型核心。词元从正面离开，分数从顶面回来。
-  </BoxAnnotation>
-  <BoxAnnotation min="3 0 0" max="4 1 1" color="#3CD6C6">
-    嵌入表，宽度设为 V。
-  </BoxAnnotation>
-</GameScene>
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <DiamondAnnotation pos="1 0.5 0.5" color="#FFB547">
+        正面：词元从这里离开。
+      </DiamondAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    从核心正面铺一条线缆，通到几格外的一处空地。
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" p:west="true" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="1 0 0" max="3 1 1" color="#3CD6C6">
+        这条线缆把词元送到嵌入表。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    把嵌入表贴着这条线缆的末端放下。它会自动接入：背面读取线缆，正面朝外。
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <Block id="embedding" x="3" p:facing="east" />
+      <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" p:east="true" p:west="true" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="3 0 0" max="4 1 1" color="#3CD6C6">
+        嵌入表，背面贴着线缆。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    再从嵌入表正面铺一条线缆，回到核心的任意另一面：侧面、顶面或背面。模型的分数从这里输入。
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <Block id="embedding" x="3" p:facing="east" />
+      <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="4" p:west="true" p:up="true" />
+      <Block id="light_blue_cable" x="4" y="1" p:up="true" p:down="true" />
+      <Block id="light_blue_cable" x="4" y="2" p:south="true" p:down="true" />
+      <Block id="light_blue_cable" y="2" z="1" p:east="true" p:north="true" />
+      <Block id="light_blue_cable" x="1" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="3" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="4" y="2" z="1" p:west="true" p:north="true" />
+      <Block id="light_blue_cable" y="1" p:up="true" p:down="true" />
+      <Block id="light_blue_cable" y="2" p:south="true" p:down="true" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 1 0" max="5 3 2" color="#FFB547">
+        回来的路：分数从核心的顶面进入。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    打开嵌入表，把**宽度**设为 **V（词表）**。
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="model_core" p:facing="east" />
+      <Block id="embedding" x="3" p:facing="east" />
+      <Block id="light_blue_cable" x="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="4" p:west="true" p:up="true" />
+      <Block id="light_blue_cable" x="4" y="1" p:up="true" p:down="true" />
+      <Block id="light_blue_cable" x="4" y="2" p:south="true" p:down="true" />
+      <Block id="light_blue_cable" y="2" z="1" p:east="true" p:north="true" />
+      <Block id="light_blue_cable" x="1" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="2" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="3" y="2" z="1" p:east="true" p:west="true" />
+      <Block id="light_blue_cable" x="4" y="2" z="1" p:west="true" p:north="true" />
+      <Block id="light_blue_cable" y="1" p:up="true" p:down="true" />
+      <Block id="light_blue_cable" y="2" p:south="true" p:down="true" />
+      <BoxAnnotation min="0 0 0" max="5 3 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#FFB547">
+        模型核心。词元从正面离开，分数从顶面回来。
+      </BoxAnnotation>
+      <BoxAnnotation min="3 0 0" max="4 1 1" color="#3CD6C6">
+        嵌入表，宽度设为 V。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
 
 两条线缆互不接触，所以组成两个独立的网络：一个把词元送到嵌入表，另一个把嵌入表的分数送回来。
 

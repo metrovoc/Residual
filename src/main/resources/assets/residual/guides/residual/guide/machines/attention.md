@@ -20,6 +20,13 @@ several heads and an output projection.
 
 ![multi-head attention](/formulas/heads.png)
 
+<residual:Attention tokens="the old mind wrote it" points="1.4 0.1 -0.5 1.3 1.1 0.9 -1.2 -0.4 1.2 0.7" />
+
+One head with nothing learned yet: each token is a point, and that point is its own query, key and value. A token gives
+weight to what it can see by how far their vectors run along its own, and reads the weighted mean of them, the hollow
+square. Drag the points to see the weights follow, click a row to read another token, and take the mask away to see tokens
+read ahead. Training is what gives each token a query and a key of their own, through W_Q and W_K.
+
 ## Shapes
 
 A sequence [B×T×C] in, the same shape out.

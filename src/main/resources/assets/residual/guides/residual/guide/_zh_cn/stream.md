@@ -26,43 +26,128 @@ Transformer 围绕一个不断累加的和来构建。嵌入开启这个和；�
 
 ## 流上的一层
 
-<GameScene zoom="3" interactive={true}>
-  <Block id="embedding" x="-1" p:facing="east" />
-  <Block id="position" y="1" p:facing="down" />
-  <Block id="stream" p:facing="east" />
-  <Block id="stream" x="1" p:facing="east" />
-  <Block id="stream" x="2" p:facing="east" />
-  <Block id="stream" x="3" p:facing="east" />
-  <Block id="stream" x="4" p:facing="east" />
-  <Block id="stream" x="5" p:facing="east" />
-  <Block id="norm" x="1" z="-1" p:facing="north" />
-  <Block id="attention" x="1" z="-2" p:facing="north" />
-  <Block id="cyan_cable" x="1" z="-3" p:south="true" p:east="true" />
-  <Block id="cyan_cable" x="2" z="-3" p:west="true" p:south="true" />
-  <Block id="cyan_cable" x="2" z="-2" p:north="true" p:south="true" />
-  <Block id="cyan_cable" x="2" z="-1" p:north="true" p:south="true" />
-  <Block id="norm" x="3" z="1" p:facing="south" />
-  <Block id="mlp" x="3" z="2" p:facing="south" />
-  <Block id="orange_cable" x="3" z="3" p:north="true" p:east="true" />
-  <Block id="orange_cable" x="4" z="3" p:west="true" p:north="true" />
-  <Block id="orange_cable" x="4" z="2" p:north="true" p:south="true" />
-  <Block id="orange_cable" x="4" z="1" p:north="true" p:south="true" />
-  <Block id="norm" x="6" p:facing="east" />
-  <Block id="linear" x="7" p:facing="east" />
-  <IsometricCamera yaw="340" pitch="40" />
-  <BoxAnnotation min="-1 0 0" max="0 1 1" color="#3CD6C6">
-    嵌入表把每个词元的向量加入第一个方块，位置表也加入自己的向量。
-  </BoxAnnotation>
-  <BoxAnnotation min="1 0 -2" max="2 1 -1" color="#FFB547">
-    注意力经过一个归一化器读取流，它的线缆在下一个方块处把结果加回去。
-  </BoxAnnotation>
-  <BoxAnnotation min="3 0 2" max="4 1 3" color="#FFB547">
-    前馈块在另一侧做同样的事。
-  </BoxAnnotation>
-  <BoxAnnotation min="6 0 0" max="7 1 1" color="#3CD6C6">
-    末端，最后一个归一化器读取全部的和，反嵌入把它变成交给模型核心的分数。
-  </BoxAnnotation>
-</GameScene>
+<residual:Steps>
+  <residual:Step>
+    嵌入表开始这个和，位置表再把自己的向量加进去。
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="embedding" x="-1" p:facing="east" />
+      <Block id="position" y="1" p:facing="down" />
+      <Block id="stream" p:facing="east" />
+      <Block id="stream" x="1" p:facing="east" />
+      <Block id="stream" x="2" p:facing="east" />
+      <Block id="stream" x="3" p:facing="east" />
+      <Block id="stream" x="4" p:facing="east" />
+      <Block id="stream" x="5" p:facing="east" />
+      <BoxAnnotation min="-1 0 -3" max="8 2 4" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="340" pitch="40" />
+      <BoxAnnotation min="-1 0 0" max="0 1 1" color="#3CD6C6">
+        嵌入表把每个词元的向量加入第一个方块，位置表也加入自己的向量。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    **注意力**经过一个归一化器读取流，它的线缆在下一个方块处把结果加回去。
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="embedding" x="-1" p:facing="east" />
+      <Block id="position" y="1" p:facing="down" />
+      <Block id="stream" p:facing="east" />
+      <Block id="stream" x="1" p:facing="east" />
+      <Block id="stream" x="2" p:facing="east" />
+      <Block id="stream" x="3" p:facing="east" />
+      <Block id="stream" x="4" p:facing="east" />
+      <Block id="stream" x="5" p:facing="east" />
+      <Block id="norm" x="1" z="-1" p:facing="north" />
+      <Block id="attention" x="1" z="-2" p:facing="north" />
+      <Block id="cyan_cable" x="1" z="-3" p:south="true" p:east="true" />
+      <Block id="cyan_cable" x="2" z="-3" p:west="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-2" p:north="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-1" p:north="true" p:south="true" />
+      <BoxAnnotation min="-1 0 -3" max="8 2 4" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="340" pitch="40" />
+      <BoxAnnotation min="1 0 -2" max="2 1 -1" color="#FFB547">
+        注意力经过一个归一化器读取流，它的线缆在下一个方块处把结果加回去。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    **前馈**在另一侧做同样的事，读到的流里已经有注意力加进去的东西。
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="embedding" x="-1" p:facing="east" />
+      <Block id="position" y="1" p:facing="down" />
+      <Block id="stream" p:facing="east" />
+      <Block id="stream" x="1" p:facing="east" />
+      <Block id="stream" x="2" p:facing="east" />
+      <Block id="stream" x="3" p:facing="east" />
+      <Block id="stream" x="4" p:facing="east" />
+      <Block id="stream" x="5" p:facing="east" />
+      <Block id="norm" x="1" z="-1" p:facing="north" />
+      <Block id="attention" x="1" z="-2" p:facing="north" />
+      <Block id="cyan_cable" x="1" z="-3" p:south="true" p:east="true" />
+      <Block id="cyan_cable" x="2" z="-3" p:west="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-2" p:north="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-1" p:north="true" p:south="true" />
+      <Block id="norm" x="3" z="1" p:facing="south" />
+      <Block id="mlp" x="3" z="2" p:facing="south" />
+      <Block id="orange_cable" x="3" z="3" p:north="true" p:east="true" />
+      <Block id="orange_cable" x="4" z="3" p:west="true" p:north="true" />
+      <Block id="orange_cable" x="4" z="2" p:north="true" p:south="true" />
+      <Block id="orange_cable" x="4" z="1" p:north="true" p:south="true" />
+      <BoxAnnotation min="-1 0 -3" max="8 2 4" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="340" pitch="40" />
+      <BoxAnnotation min="3 0 2" max="4 1 3" color="#FFB547">
+        前馈块在另一侧做同样的事。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    最后一个归一化器读取全部的和，反嵌入把它变成分数。
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="embedding" x="-1" p:facing="east" />
+      <Block id="position" y="1" p:facing="down" />
+      <Block id="stream" p:facing="east" />
+      <Block id="stream" x="1" p:facing="east" />
+      <Block id="stream" x="2" p:facing="east" />
+      <Block id="stream" x="3" p:facing="east" />
+      <Block id="stream" x="4" p:facing="east" />
+      <Block id="stream" x="5" p:facing="east" />
+      <Block id="norm" x="1" z="-1" p:facing="north" />
+      <Block id="attention" x="1" z="-2" p:facing="north" />
+      <Block id="cyan_cable" x="1" z="-3" p:south="true" p:east="true" />
+      <Block id="cyan_cable" x="2" z="-3" p:west="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-2" p:north="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-1" p:north="true" p:south="true" />
+      <Block id="norm" x="3" z="1" p:facing="south" />
+      <Block id="mlp" x="3" z="2" p:facing="south" />
+      <Block id="orange_cable" x="3" z="3" p:north="true" p:east="true" />
+      <Block id="orange_cable" x="4" z="3" p:west="true" p:north="true" />
+      <Block id="orange_cable" x="4" z="2" p:north="true" p:south="true" />
+      <Block id="orange_cable" x="4" z="1" p:north="true" p:south="true" />
+      <Block id="norm" x="6" p:facing="east" />
+      <Block id="linear" x="7" p:facing="east" />
+      <BoxAnnotation min="-1 0 -3" max="8 2 4" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="340" pitch="40" />
+      <BoxAnnotation min="-1 0 0" max="0 1 1" color="#3CD6C6">
+        嵌入表把每个词元的向量加入第一个方块，位置表也加入自己的向量。
+      </BoxAnnotation>
+      <BoxAnnotation min="1 0 -2" max="2 1 -1" color="#FFB547">
+        注意力经过一个归一化器读取流，它的线缆在下一个方块处把结果加回去。
+      </BoxAnnotation>
+      <BoxAnnotation min="3 0 2" max="4 1 3" color="#FFB547">
+        前馈块在另一侧做同样的事。
+      </BoxAnnotation>
+      <BoxAnnotation min="6 0 0" max="7 1 1" color="#3CD6C6">
+        末端，最后一个归一化器读取全部的和，反嵌入把它变成交给模型核心的分数。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
 
 这是一个 Transformer 层，按通常的画法摆放：读取、归一化、计算、加回。把流加长，就能叠上更多层。<ItemLink id="transformer" />在一个方块内完成这一切，残差相加也包括在内，所以它要单独接成一条线，而不是放在流上：放在流上，它会把流加到自身两次。
 

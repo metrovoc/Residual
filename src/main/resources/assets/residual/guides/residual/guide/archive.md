@@ -14,6 +14,8 @@ item_ids:
 The old world wrote letters, journals, stories, songs, recipes, manuals and notices, and kept a copy of everything.
 What survives is in <ItemLink id="archive_shard" />s, each a piece of one record with some of its text lost.
 
+[The Reader's screen](screens/reader.md), [a shard as it reads](screens/archive_shard.md).
+
 ## Shards
 
 A shard learns which record it is the first time you hold it. Use it to read what is left; lost text shows as ▒.

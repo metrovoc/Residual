@@ -16,6 +16,8 @@ input on its back and, if it has one, its side input on any other face, and send
 Every machine comes out of the [Fabricator](../bench.md). The simple ones need no design; the rest need a photomask
 of the spec that describes them, verified on a Bench or salvaged from the ruins.
 
+[A machine's screen, part by part](../screens/operator.md).
+
 ## No design needed
 
 - <ItemLink id="embedding" />: token ids to vectors.

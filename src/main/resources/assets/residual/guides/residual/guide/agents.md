@@ -17,6 +17,8 @@ An agent is a frame that runs a program. Walking, carrying, reaping, mining and 
 learning beats a rule, a model in one of its slots decides, in exactly the format of that model's test, and the agent
 does what the model answers. You can see a model in its lantern of a head, turning faster while it thinks.
 
+[An agent's screen, part by part](screens/agent.md).
+
 ## Home and models
 
 Where you place an agent is its home, and its work happens around home. **Set home**, the house beside its screen,

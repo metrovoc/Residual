@@ -68,6 +68,8 @@ item_ids:
   </BoxAnnotation>
 </GameScene>
 
+[勘测仪的界面，逐项说明](screens/surveyor.md)。
+
 ## 它怎样读地层
 
 <residual:Clip name="survey_rod" alt="手持勘测杆时，透过地面显示勘测仪找到的东西" />

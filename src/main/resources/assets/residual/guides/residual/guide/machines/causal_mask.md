@@ -17,6 +17,11 @@ zero, so position *t* gives no weight to anything after *t*.
 
 ![the causal mask](/formulas/mask.png)
 
+<residual:Attention tokens="the old mind wrote it" points="1.4 0.1 -0.5 1.3 1.1 0.9 -1.2 -0.4 1.2 0.7" />
+
+Each row is what one token looks at. With the mask on, it sees itself and what came before, and the dark cells above the
+diagonal count for nothing. Take the mask away and every token reads the ones after it too.
+
 ## Shapes
 
 A grid of scores […×T×T] in, the same shape out.

@@ -17,26 +17,79 @@ that store or use it, and to any other mod's block that takes FE.
 
 <residual:Clip name="power" alt="A Combustion Generator, cables, an Energy Cell and a Smelter at work" />
 
-<GameScene zoom="4" interactive={true}>
-  <Block id="combustion_generator" p:facing="south" p:working="true" />
-  <Block id="power_cable" x="1" p:east="true" p:west="true" />
-  <Block id="power_cable" x="2" p:east="true" p:west="true" p:south="true" />
-  <Block id="energy_cell" x="3" p:charge="3" />
-  <Block id="smelter" x="2" z="1" p:facing="south" p:working="true" />
-  <IsometricCamera yaw="200" pitch="30" />
-  <BoxAnnotation min="0 0 0" max="1 1 1" color="#FF8A5C">
-    A Combustion Generator, burning.
-  </BoxAnnotation>
-  <BoxAnnotation min="3 0 0" max="4 1 1" color="#FF8A5C">
-    An Energy Cell, three quarters full.
-  </BoxAnnotation>
-  <BoxAnnotation min="2 0 1" max="3 1 2" color="#FFB547">
-    A Smelter, working on its power.
-  </BoxAnnotation>
-  <BoxAnnotation min="1 0 0" max="3 1 1" color="#3CD6C6">
-    Power Cables join them.
-  </BoxAnnotation>
-</GameScene>
+<residual:Steps>
+  <residual:Step>
+    A Combustion Generator burns what a furnace burns.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="combustion_generator" p:facing="south" p:working="true" />
+      <BoxAnnotation min="0 0 0" max="4 1 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#FF8A5C">
+        A Combustion Generator, burning.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    Power Cables lead away from it.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="combustion_generator" p:facing="south" p:working="true" />
+      <Block id="power_cable" x="1" p:east="true" p:west="true" />
+      <Block id="power_cable" x="2" p:west="true" />
+      <BoxAnnotation min="0 0 0" max="4 1 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="1 0 0" max="3 1 1" color="#3CD6C6">
+        Power Cables join them.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    An Energy Cell on the cables keeps what is not used yet.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="combustion_generator" p:facing="south" p:working="true" />
+      <Block id="power_cable" x="1" p:east="true" p:west="true" />
+      <Block id="power_cable" x="2" p:east="true" p:west="true" />
+      <Block id="energy_cell" x="3" p:charge="3" />
+      <BoxAnnotation min="0 0 0" max="4 1 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="3 0 0" max="4 1 1" color="#FF8A5C">
+        An Energy Cell, three quarters full.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    A Smelter on the cables works on what they bring.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="combustion_generator" p:facing="south" p:working="true" />
+      <Block id="power_cable" x="1" p:east="true" p:west="true" />
+      <Block id="power_cable" x="2" p:east="true" p:west="true" p:south="true" />
+      <Block id="energy_cell" x="3" p:charge="3" />
+      <Block id="smelter" x="2" z="1" p:facing="south" p:working="true" />
+      <BoxAnnotation min="0 0 0" max="4 1 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#FF8A5C">
+        A Combustion Generator, burning.
+      </BoxAnnotation>
+      <BoxAnnotation min="3 0 0" max="4 1 1" color="#FF8A5C">
+        An Energy Cell, three quarters full.
+      </BoxAnnotation>
+      <BoxAnnotation min="2 0 1" max="3 1 2" color="#FFB547">
+        A Smelter, working on its power.
+      </BoxAnnotation>
+      <BoxAnnotation min="1 0 0" max="3 1 1" color="#3CD6C6">
+        Power Cables join them.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
+
+[The screens of power, part by part](screens/power.md).
 
 ## Making it
 

@@ -27,6 +27,8 @@ makes them so.
 
 <RecipeFor id="forecaster" />
 
+[A Forecaster's screen, part by part](screens/forecaster.md).
+
 ## Watching
 
 It watches everything within four blocks of it, on its own level or one above or below, and writes a line for each

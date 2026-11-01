@@ -15,6 +15,8 @@ character is a token, 78 in all: the letters, digits and marks, the space and th
 is simple but short-sighted. Every word costs several predictions, and the 64 tokens a model reads at once cover only
 64 characters.
 
+[The BPE Forge's screen, part by part](screens/forge.md).
+
 ## The BPE Forge
 
 <residual:Clip name="forge" alt="The BPE Forge learning a vocabulary from a drive, merge by merge" />

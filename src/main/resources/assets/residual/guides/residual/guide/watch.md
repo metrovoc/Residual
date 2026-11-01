@@ -30,4 +30,41 @@ While anything is wrong, the Watch Post lights up and gives a redstone signal on
 wrong, and anyone within 64 blocks hears of it once. An agent's `wait until powered 1`, or any machine on that signal, can then
 do something about it.
 
+<residual:Steps>
+  <residual:Step>
+    Set it down among what you want watched.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="watch_post" p:facing="south" />
+      <Block id="minecraft:furnace" x="2" p:facing="south" p:lit="true" />
+      <Block id="minecraft:smoker" x="3" p:facing="south" p:lit="true" />
+      <Block id="minecraft:redstone_lamp" x="-1" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#3CD6C6">
+        It writes down what each thing within 16 blocks does.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    When something stops, it lights up and gives a signal on every side.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="watch_post" p:facing="south" p:working="true" />
+      <Block id="minecraft:furnace" x="2" p:facing="south" />
+      <Block id="minecraft:smoker" x="3" p:facing="south" p:lit="true" />
+      <Block id="minecraft:redstone_lamp" x="-1" p:lit="true" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="2 0 0" max="3 1 1" color="#FF6B6B">
+        The furnace that stopped.
+      </BoxAnnotation>
+      <BoxAnnotation min="-1 0 0" max="0 1 1" color="#FFB547">
+        A lamp on its signal.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
+
 <RecipeFor id="watch_post" />
+
+[The Watch Post's screen, part by part](screens/watch_post.md).

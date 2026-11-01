@@ -16,6 +16,8 @@ A language model scores every possible next token. Softmax turns those scores in
 
 ![softmax](/formulas/softmax.png)
 
+<residual:Softmax scores="2 1 0 -1" labels="bread stone iron rain" />
+
 The loss is the **cross-entropy**: the average, over every position, of how surprised the model was by the token
 that actually came next.
 
@@ -62,6 +64,16 @@ too large on every step.
 ## Reading the curve
 
 <residual:Clip name="train" alt="The Train tab as a small GPT learns to sort: the loss on practice and on the test falling together" />
+
+Here is one to run yourself: a table of what comes after each letter, with one short line to practise on and another to
+be tested on, and AdamW moving its weights.
+
+<residual:Curve practice="the mill turns when the river runs and the bread comes after" test="the river runs and the mill turns the wheel at the ford" />
+
+Both curves start at the same place, the loss of a model that knows nothing about the 19 letters and spaces these lines
+use. Press the learning rate to start again at another. At 0.001 it hardly gets anywhere in 400 steps, and at 0.01 it falls
+steadily. At 0.1 it falls fast, and then the two part ways: the practice loss goes on down while the test loss turns back
+up, because the table is memorising its one line. At 1.5 the steps are so big that the curves jump about on the way.
 
 - **Flat at the start, then a sudden drop:** the model found a mechanism. Attention models often do this.
 - **Falling, then flattening above the goal:** the model has learned all it can see. Give it more to work with: more

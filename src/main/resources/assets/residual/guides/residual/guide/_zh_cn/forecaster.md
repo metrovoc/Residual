@@ -22,6 +22,8 @@ item_ids:
 
 <RecipeFor id="forecaster" />
 
+[预报机的界面，逐项说明](screens/forecaster.md)。
+
 ## 观察
 
 <residual:Clip name="forecaster" alt="预报机让身边的熔炉超前运行，范围外的熔炉仍是原来的速度" />

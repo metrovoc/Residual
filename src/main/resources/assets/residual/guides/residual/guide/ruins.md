@@ -18,6 +18,8 @@ own way.
 
 <residual:Clip name="ruins" alt="Some of the old world's places: a relay tower, a windmill farm, a stilt house, an inn, and the Archive at Vell" />
 
+[The Wayfinder's screen, part by part](screens/wayfinder.md).
+
 ## Finding them
 
 <residual:Clip name="wayfinder" alt="A Wayfinder tuned to a kind of place: its needle spins while it looks, then points" />

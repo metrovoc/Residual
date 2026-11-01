@@ -16,6 +16,10 @@ item_ids:
 
 ![softmax](/formulas/softmax.png)
 
+<residual:Softmax scores="2 1 0 -1" labels="bread stone iron rain" />
+
+拖动一个分数，所有概率都会跟着变，因为它们加起来必须仍然是一。只有分数之间的差才算数：把它们一起抬高，什么也不会变。温度低时，这些差被拉大，直到最大的那个拿走一切；温度高时，它们被压平。模型写得果断还是随意，靠的就是这个。
+
 ## 形状
 
 任意形状输入，输出形状相同。

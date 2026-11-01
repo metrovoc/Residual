@@ -14,6 +14,8 @@ item_ids:
 
 <residual:Clip name="ruins" alt="旧世界的一些地方：中继塔、风车农场、高脚屋、客栈和维尔档案馆" />
 
+[寻路仪的界面，逐项说明](screens/wayfinder.md)。
+
 ## 寻找遗迹
 
 <residual:Clip name="wayfinder" alt="寻路仪调到一种地方：寻找时指针打转，然后指向它" />

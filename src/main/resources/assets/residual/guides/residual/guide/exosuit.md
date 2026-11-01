@@ -16,6 +16,8 @@ a [flight frame's](flight.md).
 
 <RecipeFor id="exosuit" />
 
+[An exosuit's screen, part by part](screens/exosuit.md).
+
 ## The board
 
 A model goes on as a pilot goes into a frame: in your inventory, pick up a checkpoint and right-click the suit with it.

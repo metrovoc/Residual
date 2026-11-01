@@ -25,25 +25,80 @@ item_ids:
 
 <ItemLink id="drive_rack" />里的存储驱动器，用<ItemLink id="storage_link" />连到<ItemLink id="storage_terminal" />和<ItemLink id="port" />上，就组成一个存储网络。它能存任意多种物品和流体，在终端上找出其中任何一种，还会自己把东西搬进搬出箱子、储罐和机器。它里面什么都不需要供能，也没有什么会停摆。
 
-<GameScene zoom="4" interactive={true}>
-  <Block id="drive_rack" p:facing="north" />
-  <Block id="storage_link" x="1" p:east="true" p:west="true" />
-  <Block id="storage_link" x="2" p:east="true" p:west="true" p:north="true" />
-  <Block id="storage_link" x="3" p:west="true" p:north="true" />
-  <Block id="storage_terminal" x="2" z="-1" p:facing="north" p:lit="true" />
-  <Block id="port" x="3" z="-1" p:facing="north" p:mode="import" p:active="true" />
-  <Block id="minecraft:chest" x="3" z="-2" p:facing="south" />
-  <IsometricCamera yaw="200" pitch="30" />
-  <BoxAnnotation min="0 0 0" max="1 1 1" color="#3CD6C6">
-    驱动器机架，每个驱动器旁有一盏灯。
-  </BoxAnnotation>
-  <BoxAnnotation min="2 0 -1" max="3 1 0" color="#FFB547">
-    存储终端能找到网络存着的任何东西。
-  </BoxAnnotation>
-  <BoxAnnotation min="3 0 -1" max="4 1 0" color="#3CD6C6">
-    一个端口，正在导入它面前的箱子。
-  </BoxAnnotation>
-</GameScene>
+<residual:Steps>
+  <residual:Step>
+    驱动器机架存放驱动器。先放一个驱动器进去。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="drive_rack" p:facing="north" />
+      <BoxAnnotation min="0 0 -2" max="4 1 1" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#3CD6C6">
+        驱动器机架，每个驱动器旁有一盏灯。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    存储链路从机架通向网络里的其他东西。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="drive_rack" p:facing="north" />
+      <Block id="storage_link" x="1" p:east="true" p:west="true" />
+      <Block id="storage_link" x="2" p:east="true" p:west="true" />
+      <Block id="storage_link" x="3" p:west="true" />
+      <BoxAnnotation min="0 0 -2" max="4 1 1" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="1 0 0" max="4 1 1" color="#3CD6C6">
+        存储链路运送网络搬动的东西。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    链路上的存储终端显示网络存着的一切。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="drive_rack" p:facing="north" />
+      <Block id="storage_link" x="1" p:east="true" p:west="true" />
+      <Block id="storage_link" x="2" p:east="true" p:west="true" p:north="true" />
+      <Block id="storage_link" x="3" p:west="true" />
+      <Block id="storage_terminal" x="2" z="-1" p:facing="north" p:lit="true" />
+      <BoxAnnotation min="0 0 -2" max="4 1 1" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="2 0 -1" max="3 1 0" color="#FFB547">
+        存储终端能找到网络存着的任何东西。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    链路和箱子之间的端口把箱子里的东西搬到驱动器上。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="drive_rack" p:facing="north" />
+      <Block id="storage_link" x="1" p:east="true" p:west="true" />
+      <Block id="storage_link" x="2" p:east="true" p:west="true" p:north="true" />
+      <Block id="storage_link" x="3" p:west="true" p:north="true" />
+      <Block id="storage_terminal" x="2" z="-1" p:facing="north" p:lit="true" />
+      <Block id="port" x="3" z="-1" p:facing="north" p:mode="import" p:active="true" />
+      <Block id="minecraft:chest" x="3" z="-2" p:facing="south" />
+      <BoxAnnotation min="0 0 -2" max="4 1 1" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#3CD6C6">
+        驱动器机架，每个驱动器旁有一盏灯。
+      </BoxAnnotation>
+      <BoxAnnotation min="2 0 -1" max="3 1 0" color="#FFB547">
+        存储终端能找到网络存着的任何东西。
+      </BoxAnnotation>
+      <BoxAnnotation min="3 0 -1" max="4 1 0" color="#3CD6C6">
+        一个端口，正在导入它面前的箱子。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
+
+[存储终端的界面](screens/storage_terminal.md)、[机架的界面](screens/drive_rack.md)、[端口的界面](screens/port.md)、[装配机的界面](screens/assembler.md)、[处理器的界面](screens/processor.md)、[驱动器坞的界面](screens/drive_dock.md)、[接入点的界面](screens/access_point.md)。
 
 ## 驱动器与机架
 

@@ -28,25 +28,80 @@ Storage Drives in a <ItemLink id="drive_rack" />, joined by <ItemLink id="storag
 kinds of item and fluid, finds any of them from the terminal, and moves them in and out of chests, tanks and machines on
 its own. Nothing in it needs power, and nothing switches off.
 
-<GameScene zoom="4" interactive={true}>
-  <Block id="drive_rack" p:facing="north" />
-  <Block id="storage_link" x="1" p:east="true" p:west="true" />
-  <Block id="storage_link" x="2" p:east="true" p:west="true" p:north="true" />
-  <Block id="storage_link" x="3" p:west="true" p:north="true" />
-  <Block id="storage_terminal" x="2" z="-1" p:facing="north" p:lit="true" />
-  <Block id="port" x="3" z="-1" p:facing="north" p:mode="import" p:active="true" />
-  <Block id="minecraft:chest" x="3" z="-2" p:facing="south" />
-  <IsometricCamera yaw="200" pitch="30" />
-  <BoxAnnotation min="0 0 0" max="1 1 1" color="#3CD6C6">
-    A Drive Rack, a light beside each drive in it.
-  </BoxAnnotation>
-  <BoxAnnotation min="2 0 -1" max="3 1 0" color="#FFB547">
-    The Storage Terminal finds anything the network keeps.
-  </BoxAnnotation>
-  <BoxAnnotation min="3 0 -1" max="4 1 0" color="#3CD6C6">
-    A Port importing the chest in front of it.
-  </BoxAnnotation>
-</GameScene>
+<residual:Steps>
+  <residual:Step>
+    A Drive Rack holds the drives. Put a drive in it.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="drive_rack" p:facing="north" />
+      <BoxAnnotation min="0 0 -2" max="4 1 1" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#3CD6C6">
+        A Drive Rack, a light beside each drive in it.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    Storage Links run from the rack to whatever else belongs to the network.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="drive_rack" p:facing="north" />
+      <Block id="storage_link" x="1" p:east="true" p:west="true" />
+      <Block id="storage_link" x="2" p:east="true" p:west="true" />
+      <Block id="storage_link" x="3" p:west="true" />
+      <BoxAnnotation min="0 0 -2" max="4 1 1" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="1 0 0" max="4 1 1" color="#3CD6C6">
+        Storage Links carry what the network moves.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    A Storage Terminal on the links shows all the network keeps.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="drive_rack" p:facing="north" />
+      <Block id="storage_link" x="1" p:east="true" p:west="true" />
+      <Block id="storage_link" x="2" p:east="true" p:west="true" p:north="true" />
+      <Block id="storage_link" x="3" p:west="true" />
+      <Block id="storage_terminal" x="2" z="-1" p:facing="north" p:lit="true" />
+      <BoxAnnotation min="0 0 -2" max="4 1 1" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="2 0 -1" max="3 1 0" color="#FFB547">
+        The Storage Terminal finds anything the network keeps.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    A Port between the links and a chest moves what is in the chest onto the drives.
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="drive_rack" p:facing="north" />
+      <Block id="storage_link" x="1" p:east="true" p:west="true" />
+      <Block id="storage_link" x="2" p:east="true" p:west="true" p:north="true" />
+      <Block id="storage_link" x="3" p:west="true" p:north="true" />
+      <Block id="storage_terminal" x="2" z="-1" p:facing="north" p:lit="true" />
+      <Block id="port" x="3" z="-1" p:facing="north" p:mode="import" p:active="true" />
+      <Block id="minecraft:chest" x="3" z="-2" p:facing="south" />
+      <BoxAnnotation min="0 0 -2" max="4 1 1" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#3CD6C6">
+        A Drive Rack, a light beside each drive in it.
+      </BoxAnnotation>
+      <BoxAnnotation min="2 0 -1" max="3 1 0" color="#FFB547">
+        The Storage Terminal finds anything the network keeps.
+      </BoxAnnotation>
+      <BoxAnnotation min="3 0 -1" max="4 1 0" color="#3CD6C6">
+        A Port importing the chest in front of it.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
+
+[A terminal's screen](screens/storage_terminal.md), [a rack's](screens/drive_rack.md), [a Port's](screens/port.md), [an Assembler's](screens/assembler.md), [a Processor's](screens/processor.md), [a Dock's](screens/drive_dock.md), [an Access Point's](screens/access_point.md).
 
 ## Drives and racks
 

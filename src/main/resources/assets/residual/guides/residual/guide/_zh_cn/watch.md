@@ -19,4 +19,41 @@ item_ids:
 
 只要有东西出了问题，哨所就会亮起来，每一面都发出红石信号，出问题的东西上方冒出火花，64 格内的人会听到一次。智能体的 `wait until powered 1`，或接在这个信号上的任何机器，就能接着做点什么。
 
+<residual:Steps>
+  <residual:Step>
+    把它放在你想看着的东西中间。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="watch_post" p:facing="south" />
+      <Block id="minecraft:furnace" x="2" p:facing="south" p:lit="true" />
+      <Block id="minecraft:smoker" x="3" p:facing="south" p:lit="true" />
+      <Block id="minecraft:redstone_lamp" x="-1" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#3CD6C6">
+        它记下 16 格内每样东西做了什么。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    有东西停下时，它会亮起来，每一面都发出信号。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="watch_post" p:facing="south" p:working="true" />
+      <Block id="minecraft:furnace" x="2" p:facing="south" />
+      <Block id="minecraft:smoker" x="3" p:facing="south" p:lit="true" />
+      <Block id="minecraft:redstone_lamp" x="-1" p:lit="true" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="2 0 0" max="3 1 1" color="#FF6B6B">
+        停下的那台熔炉。
+      </BoxAnnotation>
+      <BoxAnnotation min="-1 0 0" max="0 1 1" color="#FFB547">
+        接在信号上的灯。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
+
 <RecipeFor id="watch_post" />
+
+[哨所的界面，逐项说明](screens/watch_post.md)。

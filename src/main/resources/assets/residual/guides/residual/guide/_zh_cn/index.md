@@ -51,4 +51,5 @@ navigation:
 - [机器与线缆](wiring.md)：数值如何在方块之间传递。
 - [残差流](stream.md)：每个 Transformer 层都读取并累加的累计和。
 - [形状](shapes.md)：[B×T×C] 是什么意思，以及如何修复形状错误。
+- [界面](screens/index.md)：每个界面，逐项说明。
 - [机器](machines/index.md)：每台一页。

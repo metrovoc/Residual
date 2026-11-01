@@ -30,43 +30,128 @@ Sneak-use a face to turn a block.
 
 ## A layer on the stream
 
-<GameScene zoom="3" interactive={true}>
-  <Block id="embedding" x="-1" p:facing="east" />
-  <Block id="position" y="1" p:facing="down" />
-  <Block id="stream" p:facing="east" />
-  <Block id="stream" x="1" p:facing="east" />
-  <Block id="stream" x="2" p:facing="east" />
-  <Block id="stream" x="3" p:facing="east" />
-  <Block id="stream" x="4" p:facing="east" />
-  <Block id="stream" x="5" p:facing="east" />
-  <Block id="norm" x="1" z="-1" p:facing="north" />
-  <Block id="attention" x="1" z="-2" p:facing="north" />
-  <Block id="cyan_cable" x="1" z="-3" p:south="true" p:east="true" />
-  <Block id="cyan_cable" x="2" z="-3" p:west="true" p:south="true" />
-  <Block id="cyan_cable" x="2" z="-2" p:north="true" p:south="true" />
-  <Block id="cyan_cable" x="2" z="-1" p:north="true" p:south="true" />
-  <Block id="norm" x="3" z="1" p:facing="south" />
-  <Block id="mlp" x="3" z="2" p:facing="south" />
-  <Block id="orange_cable" x="3" z="3" p:north="true" p:east="true" />
-  <Block id="orange_cable" x="4" z="3" p:west="true" p:north="true" />
-  <Block id="orange_cable" x="4" z="2" p:north="true" p:south="true" />
-  <Block id="orange_cable" x="4" z="1" p:north="true" p:south="true" />
-  <Block id="norm" x="6" p:facing="east" />
-  <Block id="linear" x="7" p:facing="east" />
-  <IsometricCamera yaw="340" pitch="40" />
-  <BoxAnnotation min="-1 0 0" max="0 1 1" color="#3CD6C6">
-    The embedding adds each token's vector into the first block, and the position table adds its own.
-  </BoxAnnotation>
-  <BoxAnnotation min="1 0 -2" max="2 1 -1" color="#FFB547">
-    Attention reads the stream through a norm, and its cable adds the result back one block on.
-  </BoxAnnotation>
-  <BoxAnnotation min="3 0 2" max="4 1 3" color="#FFB547">
-    The feed-forward block does the same on the other side.
-  </BoxAnnotation>
-  <BoxAnnotation min="6 0 0" max="7 1 1" color="#3CD6C6">
-    At the end, a last norm reads the whole sum, and the unembedding turns it into scores for the Model Core.
-  </BoxAnnotation>
-</GameScene>
+<residual:Steps>
+  <residual:Step>
+    The embedding starts the sum, and the position table adds its own to it.
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="embedding" x="-1" p:facing="east" />
+      <Block id="position" y="1" p:facing="down" />
+      <Block id="stream" p:facing="east" />
+      <Block id="stream" x="1" p:facing="east" />
+      <Block id="stream" x="2" p:facing="east" />
+      <Block id="stream" x="3" p:facing="east" />
+      <Block id="stream" x="4" p:facing="east" />
+      <Block id="stream" x="5" p:facing="east" />
+      <BoxAnnotation min="-1 0 -3" max="8 2 4" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="340" pitch="40" />
+      <BoxAnnotation min="-1 0 0" max="0 1 1" color="#3CD6C6">
+        The embedding adds each token's vector into the first block, and the position table adds its own.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    **Attention** reads the stream through a norm, and its cable adds the result back one block on.
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="embedding" x="-1" p:facing="east" />
+      <Block id="position" y="1" p:facing="down" />
+      <Block id="stream" p:facing="east" />
+      <Block id="stream" x="1" p:facing="east" />
+      <Block id="stream" x="2" p:facing="east" />
+      <Block id="stream" x="3" p:facing="east" />
+      <Block id="stream" x="4" p:facing="east" />
+      <Block id="stream" x="5" p:facing="east" />
+      <Block id="norm" x="1" z="-1" p:facing="north" />
+      <Block id="attention" x="1" z="-2" p:facing="north" />
+      <Block id="cyan_cable" x="1" z="-3" p:south="true" p:east="true" />
+      <Block id="cyan_cable" x="2" z="-3" p:west="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-2" p:north="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-1" p:north="true" p:south="true" />
+      <BoxAnnotation min="-1 0 -3" max="8 2 4" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="340" pitch="40" />
+      <BoxAnnotation min="1 0 -2" max="2 1 -1" color="#FFB547">
+        Attention reads the stream through a norm, and its cable adds the result back one block on.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    **Feed-forward** does the same on the other side, reading what attention has added.
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="embedding" x="-1" p:facing="east" />
+      <Block id="position" y="1" p:facing="down" />
+      <Block id="stream" p:facing="east" />
+      <Block id="stream" x="1" p:facing="east" />
+      <Block id="stream" x="2" p:facing="east" />
+      <Block id="stream" x="3" p:facing="east" />
+      <Block id="stream" x="4" p:facing="east" />
+      <Block id="stream" x="5" p:facing="east" />
+      <Block id="norm" x="1" z="-1" p:facing="north" />
+      <Block id="attention" x="1" z="-2" p:facing="north" />
+      <Block id="cyan_cable" x="1" z="-3" p:south="true" p:east="true" />
+      <Block id="cyan_cable" x="2" z="-3" p:west="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-2" p:north="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-1" p:north="true" p:south="true" />
+      <Block id="norm" x="3" z="1" p:facing="south" />
+      <Block id="mlp" x="3" z="2" p:facing="south" />
+      <Block id="orange_cable" x="3" z="3" p:north="true" p:east="true" />
+      <Block id="orange_cable" x="4" z="3" p:west="true" p:north="true" />
+      <Block id="orange_cable" x="4" z="2" p:north="true" p:south="true" />
+      <Block id="orange_cable" x="4" z="1" p:north="true" p:south="true" />
+      <BoxAnnotation min="-1 0 -3" max="8 2 4" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="340" pitch="40" />
+      <BoxAnnotation min="3 0 2" max="4 1 3" color="#FFB547">
+        The feed-forward block does the same on the other side.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    A last norm reads the whole sum, and the unembedding turns it into scores.
+
+    <GameScene zoom="3" interactive={true}>
+      <Block id="embedding" x="-1" p:facing="east" />
+      <Block id="position" y="1" p:facing="down" />
+      <Block id="stream" p:facing="east" />
+      <Block id="stream" x="1" p:facing="east" />
+      <Block id="stream" x="2" p:facing="east" />
+      <Block id="stream" x="3" p:facing="east" />
+      <Block id="stream" x="4" p:facing="east" />
+      <Block id="stream" x="5" p:facing="east" />
+      <Block id="norm" x="1" z="-1" p:facing="north" />
+      <Block id="attention" x="1" z="-2" p:facing="north" />
+      <Block id="cyan_cable" x="1" z="-3" p:south="true" p:east="true" />
+      <Block id="cyan_cable" x="2" z="-3" p:west="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-2" p:north="true" p:south="true" />
+      <Block id="cyan_cable" x="2" z="-1" p:north="true" p:south="true" />
+      <Block id="norm" x="3" z="1" p:facing="south" />
+      <Block id="mlp" x="3" z="2" p:facing="south" />
+      <Block id="orange_cable" x="3" z="3" p:north="true" p:east="true" />
+      <Block id="orange_cable" x="4" z="3" p:west="true" p:north="true" />
+      <Block id="orange_cable" x="4" z="2" p:north="true" p:south="true" />
+      <Block id="orange_cable" x="4" z="1" p:north="true" p:south="true" />
+      <Block id="norm" x="6" p:facing="east" />
+      <Block id="linear" x="7" p:facing="east" />
+      <BoxAnnotation min="-1 0 -3" max="8 2 4" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="340" pitch="40" />
+      <BoxAnnotation min="-1 0 0" max="0 1 1" color="#3CD6C6">
+        The embedding adds each token's vector into the first block, and the position table adds its own.
+      </BoxAnnotation>
+      <BoxAnnotation min="1 0 -2" max="2 1 -1" color="#FFB547">
+        Attention reads the stream through a norm, and its cable adds the result back one block on.
+      </BoxAnnotation>
+      <BoxAnnotation min="3 0 2" max="4 1 3" color="#FFB547">
+        The feed-forward block does the same on the other side.
+      </BoxAnnotation>
+      <BoxAnnotation min="6 0 0" max="7 1 1" color="#3CD6C6">
+        At the end, a last norm reads the whole sum, and the unembedding turns it into scores for the Model Core.
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
 
 This is one transformer layer, laid out the way it is usually drawn: read, normalize, compute, add back. Stack more
 layers by making the stream longer. The <ItemLink id="transformer" /> does all of this inside one block, residual

@@ -16,26 +16,79 @@ item_ids:
 
 <residual:Clip name="power" alt="燃烧发电机、电缆、储能单元和工作中的冶炼炉" />
 
-<GameScene zoom="4" interactive={true}>
-  <Block id="combustion_generator" p:facing="south" p:working="true" />
-  <Block id="power_cable" x="1" p:east="true" p:west="true" />
-  <Block id="power_cable" x="2" p:east="true" p:west="true" p:south="true" />
-  <Block id="energy_cell" x="3" p:charge="3" />
-  <Block id="smelter" x="2" z="1" p:facing="south" p:working="true" />
-  <IsometricCamera yaw="200" pitch="30" />
-  <BoxAnnotation min="0 0 0" max="1 1 1" color="#FF8A5C">
-    一台燃烧发电机，正在燃烧。
-  </BoxAnnotation>
-  <BoxAnnotation min="3 0 0" max="4 1 1" color="#FF8A5C">
-    一个储能单元，充到四分之三。
-  </BoxAnnotation>
-  <BoxAnnotation min="2 0 1" max="3 1 2" color="#FFB547">
-    一台冶炼炉，用它的电力工作。
-  </BoxAnnotation>
-  <BoxAnnotation min="1 0 0" max="3 1 1" color="#3CD6C6">
-    电缆把它们连起来。
-  </BoxAnnotation>
-</GameScene>
+<residual:Steps>
+  <residual:Step>
+    燃烧发电机烧熔炉能烧的东西。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="combustion_generator" p:facing="south" p:working="true" />
+      <BoxAnnotation min="0 0 0" max="4 1 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#FF8A5C">
+        一台燃烧发电机，正在燃烧。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    电缆把电力引出去。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="combustion_generator" p:facing="south" p:working="true" />
+      <Block id="power_cable" x="1" p:east="true" p:west="true" />
+      <Block id="power_cable" x="2" p:west="true" />
+      <BoxAnnotation min="0 0 0" max="4 1 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="1 0 0" max="3 1 1" color="#3CD6C6">
+        电缆把它们连起来。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    接在电缆上的储能单元存下暂时用不上的电力。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="combustion_generator" p:facing="south" p:working="true" />
+      <Block id="power_cable" x="1" p:east="true" p:west="true" />
+      <Block id="power_cable" x="2" p:east="true" p:west="true" />
+      <Block id="energy_cell" x="3" p:charge="3" />
+      <BoxAnnotation min="0 0 0" max="4 1 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="3 0 0" max="4 1 1" color="#FF8A5C">
+        一个储能单元，充到四分之三。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+
+  <residual:Step>
+    接在电缆上的冶炼炉用送来的电力工作。
+
+    <GameScene zoom="4" interactive={true}>
+      <Block id="combustion_generator" p:facing="south" p:working="true" />
+      <Block id="power_cable" x="1" p:east="true" p:west="true" />
+      <Block id="power_cable" x="2" p:east="true" p:west="true" p:south="true" />
+      <Block id="energy_cell" x="3" p:charge="3" />
+      <Block id="smelter" x="2" z="1" p:facing="south" p:working="true" />
+      <BoxAnnotation min="0 0 0" max="4 1 2" color="#00000000" thickness="0" />
+      <IsometricCamera yaw="200" pitch="30" />
+      <BoxAnnotation min="0 0 0" max="1 1 1" color="#FF8A5C">
+        一台燃烧发电机，正在燃烧。
+      </BoxAnnotation>
+      <BoxAnnotation min="3 0 0" max="4 1 1" color="#FF8A5C">
+        一个储能单元，充到四分之三。
+      </BoxAnnotation>
+      <BoxAnnotation min="2 0 1" max="3 1 2" color="#FFB547">
+        一台冶炼炉，用它的电力工作。
+      </BoxAnnotation>
+      <BoxAnnotation min="1 0 0" max="3 1 1" color="#3CD6C6">
+        电缆把它们连起来。
+      </BoxAnnotation>
+    </GameScene>
+  </residual:Step>
+</residual:Steps>
+
+[电力的界面，逐项说明](screens/power.md)。
 
 ## 发电
 
