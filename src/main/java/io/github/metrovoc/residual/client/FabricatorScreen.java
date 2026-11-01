@@ -7,6 +7,7 @@ import io.github.metrovoc.residual.block.FabricatorBlockEntity.Cost;
 import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
 import io.github.metrovoc.residual.menu.FabricatorMenu;
+import io.github.metrovoc.residual.refine.RefineryBlock;
 import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModItems;
 import java.util.List;
@@ -148,6 +149,9 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> im
             note = Component.translatable("residual.fabricator.relay_link");
         } else if (item instanceof BlockItem block && block.getBlock() instanceof UnitBlock) {
             note = Component.translatable("residual.fabricator.unit");
+        } else if (item instanceof BlockItem b && b.getBlock() instanceof RefineryBlock refinery) {
+            note = Component.translatable("residual.fabricator." + refinery.stage.id);
+
         } else if (!(item instanceof MachineItem)) {
             note = Component.translatable("residual.fabricator.accelerator");
         } else if (m != null) {

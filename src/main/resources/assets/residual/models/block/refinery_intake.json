@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/refinery_intake_side",
+    "north": "residual:block/refinery_intake_front",
+    "south": "residual:block/refinery_intake_side",
+    "east": "residual:block/refinery_intake_side",
+    "west": "residual:block/refinery_intake_side",
+    "up": "residual:block/refinery_intake_top",
+    "down": "residual:block/machine_back"
+  }
+}

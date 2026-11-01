@@ -123,7 +123,8 @@ hills, meadows and savanna plateaus, at most one in each region 128 chunks acros
 Where a relay mast fell it broke a bowl in the ground, grassed over at the rim. The mast lies across it in three pieces
 of green copper, its relay half buried at the far end, stone thrown up round it; along the rim the keepers put a rope
 of chain on posts, and their sign. Its drive housing split open: the chest inside holds
-<ItemLink id="archive_drive" />s already filled with the relays' writing. At most one in each region 40 chunks across.
+<ItemLink id="archive_drive" />s already filled with the relays' writing, and a <ItemLink id="relay_dump" /> or two, all the raw
+traffic that passed through it. At most one in each region 40 chunks across.
 
 ## Sealed stacks
 

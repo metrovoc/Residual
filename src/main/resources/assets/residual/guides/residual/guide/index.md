@@ -31,10 +31,12 @@ you say into programs for agents, and read what the old world wrote.
 - [The Bench and the Fabricator](bench.md): designs wired from primitives, and the machines made from them.
 - [The Model Core](core.md): where models are built, trained, tested and saved.
 - [Tokens](tokenizers.md): the BPE Forge, and vocabularies learned from the archive.
+- [The Refinery](refinery.md): a hall of machines that turns the raw traffic of fallen masts into a counted supply of tokens, and
+  measures what each machine was worth.
 - [Training](training.md): reading a loss curve, and the settings that shape it.
 - [The Recipe](recipe.md): how a run's rate moves, what its numbers are rounded to, what moves its weights.
 - [The Modern Block](modern.md): the layer the old world's last models seem to have been made of, and what each part of it does.
-- [Models and Tests](models.md): the thirteen benchmarks, checkpoints, and how big a model may be.
+- [Models and Tests](models.md): the benchmarks, checkpoints, and how big a model may be.
 - [Salvaged Models](salvage.md): broken models from the ruins.
 
 ## Putting models to work

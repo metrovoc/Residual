@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.item.AgentItem;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
+import io.github.metrovoc.residual.item.DumpItem;
 import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.item.FlightFrameItem;
@@ -23,6 +24,7 @@ import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.item.StorageDriveItem;
 import io.github.metrovoc.residual.item.SurveyRodItem;
 import io.github.metrovoc.residual.item.TerminalItem;
+import io.github.metrovoc.residual.item.TokenCellItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.UpgradeItem;
 import io.github.metrovoc.residual.item.WayfinderItem;
@@ -57,7 +59,7 @@ public final class ModItems {
     /** Machines by operator, each fabricated rather than crafted. */
     public static final Map<Op, DeferredItem<MachineItem>> MACHINES = new EnumMap<>(Op.class);
     public static final Map<String, DeferredItem<SchematicItem>> SCHEMATICS = new LinkedHashMap<>();
-    /** Datasets by the benchmark they practise; reading is practised on archive text instead. */
+    /** Datasets by the benchmark they practise; reading and quality are practised on archive text instead. */
     public static final Map<Benchmark, DeferredItem<DatasetItem>> DATASETS = new EnumMap<>(Benchmark.class);
     public static final DeferredItem<Item> WEIGHT_CRYSTAL = ITEMS.registerSimpleItem("weight_crystal");
     public static final DeferredItem<Item> WAFER = ITEMS.registerSimpleItem("wafer");
@@ -65,6 +67,8 @@ public final class ModItems {
     public static final DeferredItem<ProbeItem> PROBE = ITEMS.registerItem("tensor_probe", ProbeItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<CrystalItem> CHECKPOINT = ITEMS.registerItem("checkpoint", CrystalItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<DriveItem> ARCHIVE_DRIVE = ITEMS.registerItem("archive_drive", DriveItem::new, p -> p.stacksTo(1));
+    public static final DeferredItem<DumpItem> RELAY_DUMP = ITEMS.registerItem("relay_dump", DumpItem::new, p -> p.stacksTo(1));
+    public static final DeferredItem<TokenCellItem> TOKEN_CELL = ITEMS.registerItem("token_cell", TokenCellItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<TokenizerItem> TOKENIZER = ITEMS.registerItem("tokenizer", TokenizerItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<FieldLogItem> FIELD_LOG = ITEMS.registerItem("field_log", FieldLogItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<HourglassItem> HOURGLASS = ITEMS.registerItem("hourglass", HourglassItem::new, p -> p.stacksTo(1));
@@ -118,7 +122,7 @@ public final class ModItems {
             SCHEMATICS.put(id, ITEMS.registerItem(id, SchematicItem::new, p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)));
         }
         for (Benchmark a : Benchmark.values()) {
-            if (a != Benchmark.READING) {
+            if (a != Benchmark.READING && a != Benchmark.QUALITY) {
                 DATASETS.put(a, ITEMS.registerItem(datasetId(a), p -> new DatasetItem(a, p), p -> p.stacksTo(1)));
             }
         }
@@ -141,7 +145,7 @@ public final class ModItems {
             case DEMAND -> "demand_dataset";
             case WATCH -> "watch_dataset";
             case RETRIEVAL -> "retrieval_dataset";
-            case READING -> throw new IllegalArgumentException();
+            case READING, QUALITY -> throw new IllegalArgumentException();
         };
     }
 }

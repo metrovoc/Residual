@@ -33,6 +33,20 @@ public final class Blueprints {
         return g;
     }
 
+    /** The same with {@code letters} letters of context: reads no further back than that, and trains quickly for what it reads. */
+    public static GraphSpec context(int letters, int dim, int hidden) {
+        GraphSpec g = new GraphSpec();
+        int e = g.add("embed", Op.EMBEDDING, Config.of(Op.EMBEDDING, "dim", Integer.toString(dim)), GraphSpec.TOKENS);
+        int x = e;
+        for (int i = 1; i < letters; i++) {
+            x = g.add("back" + i, Op.CONCAT, x, g.add("prev" + i, Op.SHIFT, Config.of(Op.SHIFT, "steps", Integer.toString(i)), e));
+        }
+        int h = g.add("hidden", Op.LINEAR, Config.of(Op.LINEAR, "out", Integer.toString(hidden)), x);
+        int a = g.add("act", Op.ACTIVATION, Config.of(Op.ACTIVATION, "fn", "tanh"), h);
+        g.output = g.add("logits", Op.LINEAR, Config.of(Op.LINEAR, "out", "vocab"), a);
+        return g;
+    }
+
     /** One hand-built attention head whose keys come from the previous token. */
     public static GraphSpec recall() {
         GraphSpec g = new GraphSpec();

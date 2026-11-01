@@ -1,6 +1,8 @@
 package io.github.metrovoc.residual.learn;
 
 import io.github.metrovoc.residual.graph.CompiledGraph;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -10,6 +12,7 @@ import java.util.Random;
 final class Watching extends Task {
     /** Lines a test judges. */
     private static final int LINES = 128;
+    private static final long SEED = 4242;
 
     Watching() {
         super(Vocab.WORLD, Vocab.CONTEXT, Metric.ACCURACY, Benchmark.WATCH.target);
@@ -21,8 +24,18 @@ final class Watching extends Task {
     }
 
     @Override
+    public List<String> heldOutTexts() {
+        Random rng = new Random(SEED);
+        List<String> out = new ArrayList<>(LINES);
+        for (int i = 0; i < LINES; i++) {
+            out.add(Watch.example(rng, true).line());
+        }
+        return out;
+    }
+
+    @Override
     public double[] measure(CompiledGraph model) {
-        Random rng = new Random(4242);
+        Random rng = new Random(SEED);
         int right = 0;
         for (int i = 0; i < LINES; i++) {
             Watch.Example ex = Watch.example(rng, true);

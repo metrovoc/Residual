@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "H": "minecraft:hopper",
+    "R": "minecraft:redstone",
+    "D": "residual:archive_drive",
+    "C": "minecraft:copper_block"
+  },
+  "pattern": [
+    "KHK",
+    "RDR",
+    "KCK"
+  ],
+  "result": {
+    "id": "residual:refinery_intake"
+  }
+}

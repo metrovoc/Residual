@@ -18,6 +18,16 @@ public final class Mixture extends Task {
         this.sources = List.copyOf(sources);
     }
 
+    /** The least any source asks for, so an annealing source slows the rest of a mixture down with it. */
+    @Override
+    public float rateScale() {
+        float least = 1f;
+        for (Source s : sources) {
+            least = Math.min(least, s.data().rateScale());
+        }
+        return least;
+    }
+
     @Override
     public Batch batch(Random rng, int size, boolean test) {
         Source source = sources.get(rng.nextInt(sources.size()));

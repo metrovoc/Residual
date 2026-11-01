@@ -1,0 +1,28 @@
+{
+  "parent": "residual:refinery/intake",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:contamination_check"
+    },
+    "title": {
+      "translate": "advancements.residual.refinery.caught.title"
+    },
+    "description": {
+      "translate": "advancements.residual.refinery.caught.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

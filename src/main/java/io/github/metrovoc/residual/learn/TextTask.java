@@ -71,6 +71,14 @@ public final class TextTask extends Task {
         return characters;
     }
 
+    /** Any window of its text can be drawn, so the whole of it. */
+    @Override
+    public List<String> heldOutTexts() {
+        List<String> out = new ArrayList<>(runs.size());
+        runs.forEach(run -> out.add(vocab.decode(run)));
+        return out;
+    }
+
     @Override
     public Batch batch(Random rng, int size, boolean test) {
         if (packing != Recipe.Packing.WINDOWS && !test) {

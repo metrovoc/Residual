@@ -24,6 +24,7 @@ import io.github.metrovoc.residual.menu.AgentMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.model.ModelLink;
+import io.github.metrovoc.residual.refine.RefinerySync;
 import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.storage.AssemblerBlockEntity;
 import io.github.metrovoc.residual.storage.AssemblerMenu;
@@ -104,6 +105,7 @@ public final class Network {
         r.playToClient(WatchSync.TYPE, WatchSync.STREAM_CODEC);
         r.playToClient(ShimmerSync.TYPE, ShimmerSync.STREAM_CODEC);
         r.playToClient(SuitFlight.TYPE, SuitFlight.STREAM_CODEC);
+        r.playToClient(RefinerySync.TYPE, RefinerySync.STREAM_CODEC);
     }
 
     private static void onDockEdit(DockEdit e, IPayloadContext ctx) {

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "C": "minecraft:copper_ingot",
+    "G": "minecraft:glass"
+  },
+  "pattern": [
+    "KCK",
+    "G G",
+    "KCK"
+  ],
+  "result": {
+    "id": "residual:token_tank"
+  }
+}

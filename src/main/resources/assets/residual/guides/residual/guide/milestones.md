@@ -268,6 +268,25 @@ agent whose model passes Induction: [The Architect](architect.md).</residual:Mil
 <residual:Milestone id="survey/found">The Fabricator makes a Surveyor from an attention photomask; give it a model that
 passes Survey: [The Surveyor](surveyor.md).</residual:Milestone>
 
+## The Refinery
+
+<residual:Milestone id="refinery/intake">Fallen relay masts hold the dumps it wants: [The Refinery](refinery.md).</residual:Milestone>
+
+<residual:Milestone id="refinery/tokens">Line its machines up with their fronts facing the next, a Token Tank at the end, on power, and
+press Refine.</residual:Milestone>
+
+<residual:Milestone id="refinery/measured">Press Measure on the Intake after a pass, and wait while small readers train on what each
+machine let through.</residual:Milestone>
+
+<residual:Milestone id="refinery/caught">Stand by a Contamination Check while text goes through it. The archive's own records
+share enough with what the tests read to set this off.</residual:Milestone>
+
+<residual:Milestone id="refinery/million">A tank holds a million characters. Cut by a tokenizer, a million tokens take three or four
+tanks of them: more dumps, more tanks.</residual:Milestone>
+
+<residual:Milestone id="benchmark/quality">A model that reads well can tell what has been spoiled: practise on a drive, as for
+Reading, and save it.</residual:Milestone>
+
 ## Flight
 
 <residual:Milestone id="flight/frame">Put a pilot that passes Pilot in a charged flight frame, wear it, and jump twice:

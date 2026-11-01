@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/domain_mixer_side",
+    "north": "residual:block/domain_mixer_front",
+    "south": "residual:block/domain_mixer_side",
+    "east": "residual:block/domain_mixer_side",
+    "west": "residual:block/domain_mixer_side",
+    "up": "residual:block/domain_mixer_top",
+    "down": "residual:block/machine_back"
+  }
+}

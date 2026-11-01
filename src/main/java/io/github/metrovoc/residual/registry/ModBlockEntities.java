@@ -17,6 +17,7 @@ import io.github.metrovoc.residual.block.GateBlockEntity;
 import io.github.metrovoc.residual.block.RelayBlockEntity;
 import io.github.metrovoc.residual.block.RelayLinkBlockEntity;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
+import io.github.metrovoc.residual.refine.RefineryBlockEntity;
 import io.github.metrovoc.residual.storage.AccessPointBlockEntity;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
 import io.github.metrovoc.residual.storage.LinkDriverBlockEntity;
@@ -86,6 +87,9 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(SurveyorBlockEntity::new, Set.of(ModBlocks.SURVEYOR.get())));
     public static final Supplier<BlockEntityType<WatchPostBlockEntity>> WATCH_POST = BLOCK_ENTITIES.register("watch_post",
             () -> new BlockEntityType<>(WatchPostBlockEntity::new, Set.of(ModBlocks.WATCH_POST.get())));
+    public static final Supplier<BlockEntityType<RefineryBlockEntity>> REFINERY = BLOCK_ENTITIES.register("refinery",
+            () -> new BlockEntityType<>(RefineryBlockEntity::new,
+                    ModBlocks.REFINERY.values().stream().map(b -> (Block) b.get()).collect(Collectors.toUnmodifiableSet())));
     public static final Supplier<BlockEntityType<SmelterBlockEntity>> SMELTER = BLOCK_ENTITIES.register("smelter",
             () -> new BlockEntityType<>(SmelterBlockEntity::new, Set.of(ModBlocks.SMELTER.get())));
 

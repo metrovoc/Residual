@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.registry;
 
+import io.github.metrovoc.residual.refine.Stage;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.bench.MaskData;
 import io.github.metrovoc.residual.bench.Spec;
@@ -55,6 +56,11 @@ public final class ModTabs {
                 out.accept(ModBlocks.FORECASTER.get());
                 out.accept(ModBlocks.FORECASTER_II.get());
                 out.accept(ModBlocks.FORECASTER_III.get());
+                out.accept(ModItems.RELAY_DUMP.get());
+                for (Stage stage : Stage.values()) {
+                    out.accept(ModBlocks.REFINERY.get(stage).get());
+                }
+                out.accept(ModItems.TOKEN_CELL.get());
                 out.accept(ModBlocks.COMBUSTION_GENERATOR.get());
                 out.accept(ModBlocks.POWER_CABLE.get());
                 out.accept(ModBlocks.ENERGY_CELL.get());

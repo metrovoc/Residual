@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/contamination_check_side",
+    "north": "residual:block/contamination_check_front",
+    "south": "residual:block/contamination_check_side",
+    "east": "residual:block/contamination_check_side",
+    "west": "residual:block/contamination_check_side",
+    "up": "residual:block/contamination_check_top",
+    "down": "residual:block/machine_back"
+  }
+}

@@ -360,7 +360,7 @@ GLYPHS = {
         "####+---",
         "#####+--",
         "######+-",
-        "#######+",
+        "#..##..#",
     ],
     # scores become weights: the largest takes most
     "softmax": [
@@ -381,13 +381,13 @@ GLYPHS = {
         "........",
         "........",
         "........",
-        "########",
-        "########",
+        "#..##..#",
+        "#..##..#",
     ],
     # the heads, joined back into one vector
     "merge_heads": [
-        "########",
-        "########",
+        "#..##..#",
+        "#..##..#",
         "........",
         "........",
         "........",
@@ -1013,6 +1013,256 @@ def fabricator_top():
 FORGE_ROWS = (4, 6, 9, 11)
 FORGE_GAPS = [(0, 4), (2, 3), (1, 6), (3, 4), (0, 7), (2, 5), (1, 2), (3, 1), (0, 1), (2, 7), (1, 4)]
 CHIP_TONES = [TEAL[2], TEAL[3], TEAL[1]]
+
+
+# ---------------------------------------------------------------- the Refinery
+
+# what each machine does to the text, engraved on its sides; the hue the family shares is the shape of data's, amber
+REFINERY_GLYPHS = {
+    "refinery_intake": [
+        "#..##..#",
+        "#..##..#",
+        "#.#++#.#",
+        "#..##..#",
+        "#......#",
+        "##.##.##",
+        ".#.##.#.",
+        ".##++##.",
+    ],
+    "duplicate_sieve": [
+        "##.##.##",
+        "##.##.##",
+        "........",
+        "#+#..#+#",
+        "#+#..#+#",
+        "........",
+        "##.++.##",
+        "##.++.##",
+    ],
+    "filter_bed": [
+        "#..##..#",
+        "........",
+        "#..##..#",
+        "........",
+        ".#.++.#.",
+        "........",
+        "++++++++",
+        "#..##..#",
+    ],
+    "quality_classifier": [
+        "..####..",
+        ".#....#.",
+        "#..++..#",
+        "#.++++.#",
+        "#.++++.#",
+        "#..++..#",
+        ".#....#.",
+        "..####..",
+    ],
+    "program_press": [
+        ".##..##.",
+        ".#....#.",
+        ".#....#.",
+        "##.++.##",
+        "##.++.##",
+        ".#....#.",
+        ".#....#.",
+        ".##..##.",
+    ],
+    "domain_mixer": [
+        "##.++.##",
+        ".#.++.#.",
+        ".##++##.",
+        "..#++#..",
+        "..#++#..",
+        ".##++##.",
+        ".#.++.#.",
+        "##.++.##",
+    ],
+    "contamination_check": [
+        "###..###",
+        "#......#",
+        "#.####.#",
+        "..#++#..",
+        "..#++#..",
+        "#.####.#",
+        "#......#",
+        "###..###",
+    ],
+}
+# the lines each front shows of the text: which columns of which rows hold letters, dim while it waits
+REFINE_ROWS = (4, 6, 8, 10)
+
+
+def refine_lines(c, kept, tone):
+    """Lines of text in a machine's window: the columns of each row in kept, in a tone by row."""
+    for y, columns in zip(REFINE_ROWS, kept):
+        for x in columns:
+            c.px(x, y, tone(y, x))
+
+
+def refinery_front(name, step=None):
+    """An amber bezel, its machine's mark dim behind the glass while it waits; while it works, lines of text that thin, sort
+    or run together as that machine makes them do, a frame at a time."""
+    salt = 70 + sum(map(ord, name)) % 40
+    c = plate(salt=salt)
+    window(c, salt=salt)
+    edge(c, 3, 3, 12, 12, AMBER[2], mix(AMBER[2], AMBER[1], .45), salt)
+    full = range(4, 12)
+    lines = [list(full)] * 4
+    idle = lambda y, x: SLATE[3]
+    if step is None:
+        dim_glyph(c, REFINERY_GLYPHS[name])
+        return c
+    on = lambda y, x: AMBER[3] if (x + y) % 4 else AMBER[4]
+    if name == "refinery_intake":
+        # text comes in from the top a row at a time
+        for k, y in enumerate(REFINE_ROWS):
+            for x in full:
+                c.px(x, y, AMBER[4] if k == step % 4 else SLATE[3])
+    elif name == "duplicate_sieve":
+        # the row that repeats the one above it falls out
+        gone = step % 4
+        refine_lines(c, [[] if k == gone else [x for x in full if (x + (k == (gone + 3) % 4)) % 3] for k in range(4)], on)
+    elif name == "filter_bed":
+        # fewer letters get through each layer down
+        for k, y in enumerate(REFINE_ROWS):
+            for x in full:
+                if (x + step) % (k + 1) == 0:
+                    c.px(x, y, AMBER[4 - min(k, 2)])
+    elif name == "quality_classifier":
+        # a line of attention goes down the text and passes or fails each line
+        refine_lines(c, lines, idle)
+        y = REFINE_ROWS[step % 4]
+        for x in full:
+            c.px(x, y, GREEN[4] if step % 8 < 4 else CORAL[4])
+    elif name == "program_press":
+        # the same line written over and over
+        for k, y in enumerate(REFINE_ROWS):
+            for x in full:
+                if k <= step % 4 and (x % 3 or k % 2):
+                    c.px(x, y, AMBER[3 + k % 2])
+    elif name == "domain_mixer":
+        # lines in the domains' colours trade places
+        hues = (TEAL[4], AMETHYST[4], GREEN[4], AMBER[4])
+        for k, y in enumerate(REFINE_ROWS):
+            for x in full:
+                c.px(x, y, hues[(k + x // 2 + step) % 4])
+    else:
+        # a mark passes over the text and stops where it finds something of the test's
+        refine_lines(c, lines, idle)
+        x0 = 4 + step % 6
+        for k, y in enumerate(REFINE_ROWS):
+            for x in (x0, x0 + 1):
+                c.px(x, y, CORAL[4] if k == 2 and x0 == 6 else AMBER[4])
+    return c
+
+
+def refinery_side(name):
+    c = plate(salt=112 + sum(map(ord, name)) % 40)
+    engraved_glyph(c, REFINERY_GLYPHS[name], AMBER)
+    return c
+
+
+def tank_frame():
+    """The tank's cage: posts at the corners and plates top and bottom, drawn once for all of them to take from."""
+    c = Canvas()
+    fill(c, 0, 0, 15, 15, STEEL[3], STEEL[4], 150)
+    edge(c, 0, 0, 15, 15, STEEL[1], STEEL[2], 151)
+    edge(c, 1, 1, 14, 14, SLATE[3], SLATE[2], 152)
+    return c
+
+
+def tank_glass():
+    """Clear glass with a little light along its edges, nearly nothing in the middle."""
+    c = Canvas()
+    for i in range(16):
+        for j in (0, 15):
+            c.px(i, j, (210, 228, 235, 90))
+            c.px(j, i, (210, 228, 235, 90))
+    for x, y in ((3, 4), (4, 3), (5, 2), (11, 12), (12, 11), (13, 10)):
+        c.px(x, y, (235, 245, 250, 70))
+    return c
+
+
+def tank_cap():
+    """The cap: a port the stream comes in by, lit in amber."""
+    c = plate(salt=153)
+    edge(c, 5, 5, 10, 10, SLATE[3], SLATE[2], 154)
+    c.rect(6, 6, 9, 9, SLATE[1])
+    c.rect(7, 7, 8, 8, AMBER[3])
+    return c
+
+
+RELAY_DUMP = [
+    "................",
+    "....kKKKKKk.....",
+    "...kGGGGGGGk....",
+    "...GPPPPPPPG....",
+    "...GPlPllPPGG...",
+    "...GPPPPPPPGg...",
+    "...GPllPlPPG....",
+    "...GGPPPPPPGg...",
+    "....GPlllPPGG...",
+    "...gGPPPPPPG....",
+    "...GPPlPlPPG....",
+    "...GPPPPPPyG....",
+    "...GGGGGGGGG....",
+    "...gGG.gGGGg....",
+    "................",
+    "................",
+]
+TOKEN_CELL = [
+    "................",
+    ".....kKKKKk.....",
+    ".....kKKKKk.....",
+    "....GGGGGGGG....",
+    "....Gww..wwG....",
+    "....Gw.tt.wG....",
+    "....G.tttt.G....",
+    "....GtTTTTtG....",
+    "....GtTTTTtG....",
+    "....GTTTTTTG....",
+    "....GTTTTTTG....",
+    "....GTTTTTTG....",
+    "....GGGGGGGG....",
+    ".....kKKKKk.....",
+    "................",
+    "................",
+]
+
+
+def relay_dump():
+    """A drive housing that came down with its mast: dented, its edge broken, its light still on."""
+    c = Canvas()
+    c.stamp(0, 0, RELAY_DUMP, {"k": K3, "K": K1, "G": G2, "g": G1, "P": mix(K0, STONE[2], .35), "l": K4, "y": AMBER[3]})
+    outline(c, SLATE[0])
+    return c
+
+
+def token_cell():
+    """A glass cell with tokens in it, capped in steel."""
+    c = Canvas()
+    c.stamp(0, 0, TOKEN_CELL, {"k": K3, "K": K1, "G": STEEL[5], "w": STEEL[1], "t": TEAL[3], "T": TEAL[2]})
+    outline(c, SLATE[0])
+    return c
+
+
+def refinery_textures():
+    for rows in REFINERY_GLYPHS.values():
+        assert mirrored(rows), rows
+    frames = {"refinery_intake": 4, "duplicate_sieve": 4, "filter_bed": 4, "quality_classifier": 8, "program_press": 4, "domain_mixer": 4,
+              "contamination_check": 6}
+    for name, count in frames.items():
+        refinery_front(name).save(f"block/{name}_front.png")
+        lit(f"block/{name}_front_on.png", [refinery_front(name, i) for i in range(count)], [refinery_front(name)], 5)
+        refinery_side(name).save(f"block/{name}_side.png")
+        machine_top(90 + sum(map(ord, name)) % 40).save(f"block/{name}_top.png")
+    tank_frame().save("block/token_tank_frame.png")
+    tank_glass().save("block/token_tank_glass.png")
+    tank_cap().save("block/token_tank_cap.png")
+    relay_dump().save("item/relay_dump.png")
+    token_cell().save("item/token_cell.png")
 
 
 def forge_front(step=None):
@@ -1818,7 +2068,7 @@ DATASET_HOLES = {
         "..#..#..",
         "..#..#..",
         ".##.##..",
-        "########",
+        "#..##..#",
         "#.......",
         "#...#...",
         "........",
@@ -1827,9 +2077,9 @@ DATASET_HOLES = {
         "#..#..#.",
         "#..#..#.",
         "##.##.##",
-        "########",
+        "#..##..#",
         "........",
-        "#.#.#.#.",
+        "#..##..#",
         "........",
     ],
     "forecast": [
@@ -1839,20 +2089,20 @@ DATASET_HOLES = {
         "#..#.#.#",
         "...##..#",
         "........",
-        "########",
+        "#..##..#",
     ],
     "storage": [
-        "########",
+        "#..##..#",
         "#..#...#",
         "#..#...#",
-        "########",
+        "#..##..#",
         "#...#..#",
         "#...#..#",
-        "########",
+        "#..##..#",
     ],
     "errand": [
         ".....#..",
-        "#######.",
+        "#..##..#",
         ".....#..",
         "........",
         "..#.....",
@@ -1863,39 +2113,39 @@ DATASET_HOLES = {
         "##..##..",
         "##..##..",
         "........",
-        "#.#.#.#.",
+        "#..##..#",
         "........",
         "##..##..",
         "##..##..",
     ],
     "orders": [
-        "#######.",
+        "#..##..#",
         "#.....#.",
-        "#.###.#.",
+        "#..##..#",
         "#.....#.",
-        "###.###.",
+        "#..##..#",
         "..##....",
         "..#.....",
     ],
     # a melt's temperature settling between the two lines of its band
     "process": [
-        "########",
+        "#..##..#",
         "#.......",
         ".#..#...",
         "..##.###",
         "........",
-        "########",
+        "#..##..#",
         "........",
     ],
     # a frame held at its height: the hold between two lines, the path through it level
     "flight": [
-        "########",
+        "#..##..#",
         "........",
         ".#....#.",
-        "########",
+        "#..##..#",
         ".#....#.",
         "........",
-        "########",
+        "#..##..#",
     ],
     # a row of ground, and above it the mark that finds the first ore in it
     "survey": [
@@ -1905,7 +2155,7 @@ DATASET_HOLES = {
         "........",
         "#.#..#.#",
         "........",
-        "########",
+        "#..##..#",
     ],
     # a lens over what it looks through
     "retrieval": [
@@ -1919,7 +2169,7 @@ DATASET_HOLES = {
     ],
     # a funnel: many kinds in, each sent its own way
     "sorting": [
-        "########",
+        "#..##..#",
         ".######.",
         "..####..",
         "...##...",
@@ -2471,11 +2721,11 @@ PORT_GLYPHS = {
         "..####..",
         "...##...",
         "........",
-        "########",
+        "#..##..#",
     ],
     # an arrow out of it
     "export": [
-        "########",
+        "#..##..#",
         "........",
         "...##...",
         "..####..",
@@ -2493,18 +2743,18 @@ PORT_GLYPHS = {
         "#++++++#",
         "#++++++#",
         "#++++++#",
-        "########",
+        "#..##..#",
     ],
     # a pane: what is behind it is open to the network
     "window": [
-        "########",
         "#..##..#",
         "#..##..#",
-        "########",
-        "########",
         "#..##..#",
         "#..##..#",
-        "########",
+        "#..##..#",
+        "#..##..#",
+        "#..##..#",
+        "#..##..#",
     ],
 }
 
@@ -3196,6 +3446,189 @@ ICONS = {
 ....##....##....
 ...##......##...
 """),
+    # the Refinery's toolbars
+    "refinery_start": icon_cells("""
+................
+................
+................
+....##..........
+....####........
+....######......
+....########....
+....##########..
+....##########..
+....########....
+....######......
+....####........
+....##..........
+"""),
+    # training a little reader on each cut, and the curve it leaves
+    "refinery_measure": icon_cells("""
+................
+................
+..#.............
+..#.............
+..#.............
+..##............
+..#.##..........
+..#...##........
+..#.....###.....
+..#........###..
+..#.............
+..#############.
+"""),
+    "refinery_near": icon_cells("""
+................
+................
+.......##.......
+.....#####......
+..##.##.##.##...
+..##.##.##.##...
+.####.####.###..
+.##..##..##..#..
+.##..##..##..#..
+.####.####.###..
+..##.##.##.##...
+..##.##.##.##...
+.....#####......
+.......##.......
+"""),
+    "refinery_short": icon_cells("""
+................
+................
+................
+................
+................
+................
+..#.###.#.......
+..#.###.#.......
+................
+................
+"""),
+    "refinery_symbols": icon_cells("""
+................
+................
+...#..#...##....
+...#..#..#..#...
+..######....#...
+...#..#....#....
+...#..#...#.....
+..######........
+...#..#...#.....
+...#..#.........
+"""),
+    "refinery_words": icon_cells("""
+................
+................
+................
+................
+..###.#.#####...
+..#.#.#.#...#...
+..###.#.#####...
+..#.#.#.#.......
+..###.#.#.......
+................
+"""),
+    "refinery_repeats": icon_cells("""
+................
+................
+..##########....
+................
+..##########....
+................
+..##########....
+................
+..##########....
+................
+"""),
+    "refinery_endings": icon_cells("""
+................
+................
+..########......
+................
+..######.##.....
+................
+..###.##........
+................
+..#######.##....
+................
+"""),
+    "refinery_sure": icon_cells("""
+................
+................
+...###..........
+..#...#.........
+......#.........
+.....#..........
+....#...........
+....#...........
+................
+....#.......##..
+............##..
+"""),
+    "refinery_program": icon_cells("""
+................
+................
+...##.....##....
+..#.........#...
+..#.........#...
+..#.........#...
+.#...........#..
+..#.........#...
+..#.........#...
+..#.........#...
+...##.....##....
+"""),
+    "refinery_share": icon_cells("""
+................
+................
+....######......
+..##......##....
+.#....##....#...
+.#....##....#...
+#.....####...#..
+#.....####...#..
+.#..........#...
+.#..........#...
+..##......##....
+....######......
+"""),
+    # the last of a run on one kind of writing, at a lower rate
+    "refinery_anneal": icon_cells("""
+................
+................
+.####...........
+.....##.........
+.......##.......
+.........##.....
+...........##...
+.............##.
+................
+.##############.
+"""),
+    "refinery_after": icon_ring(8, 8, 5.5) | icon_cells("""
+................
+................
+................
+................
+.......#........
+.......#........
+.......#........
+.......#####....
+"""),
+    "refinery_remove": icon_cells("""
+................
+................
+..##......##....
+...##....##.....
+....##..##......
+.....####.......
+......##........
+.....####.......
+....##..##......
+...##....##.....
+..##......##....
+"""),
     # back to the start, against the clock
     "reset": icon_ring(8, 8.5, 4.5, gap=(100, 160)) | icon_cells("""
 ................
@@ -3818,6 +4251,7 @@ def build():
     data = {"block/forecaster_front", "block/forecaster_front_on", "block/forecaster_ii_front", "block/forecaster_ii_front_on", "block/forecaster_iii_front", "block/forecaster_iii_front_on",
             "block/surveyor_front", "block/surveyor_front_on",
             "block/watch_post_front", "block/watch_post_front_on",
+            *[f"block/{name}_{face}" for name in REFINERY_GLYPHS for face in ("front", "front_on")],
             "block/reader_front", "block/reader_front_on",
             "block/bpe_forge_front_on", "block/storage_terminal_front_on", "block/model_core_side_on",
             "block/model_server_front_on", "block/drive_cartridge", "block/relay", "block/relay_dark", "block/relay_lights"}
@@ -3835,6 +4269,7 @@ def build():
     generator_side().save("block/combustion_generator_side.png")
     machine_top(58).save("block/combustion_generator_top.png")
     flight_frame().save("item/flight_frame.png")
+    refinery_textures()
     flight_frame_worn().save("entity/equipment/humanoid/flight_frame.png")
     flight_frame_model().save("entity/flight_frame.png")
     exosuit().save("item/exosuit.png")

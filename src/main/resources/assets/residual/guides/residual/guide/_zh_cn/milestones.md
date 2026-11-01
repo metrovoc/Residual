@@ -221,6 +221,20 @@ navigation:
 
 <residual:Milestone id="survey/found">制造机用注意力光掩模做出勘测仪；给它一个通过勘测测试的模型：[勘测仪](surveyor.md)。</residual:Milestone>
 
+## 精炼厂
+
+<residual:Milestone id="refinery/intake">倒塌的中继塔里有它要的转储：[精炼厂](refinery.md)。</residual:Milestone>
+
+<residual:Milestone id="refinery/tokens">把机器排成一线，正面都朝向下一台，最后接一个词元罐，通上电，按「精炼」。</residual:Milestone>
+
+<residual:Milestone id="refinery/measured">精炼之后在进料口按「测量」，等小读者用每台机器放行的文本训练完。</residual:Milestone>
+
+<residual:Milestone id="refinery/caught">文本经过污染检查站时站在旁边。档案自己的记录和测试读的内容重合得够多，足以触发它。</residual:Milestone>
+
+<residual:Milestone id="refinery/million">一个罐装一百万字符。按分词器切分，一百万词元要装满三四个罐：要更多转储、更多的罐。</residual:Milestone>
+
+<residual:Milestone id="benchmark/quality">读得好的模型能看出什么被弄坏了：像练习阅读那样用驱动器练习，然后保存。</residual:Milestone>
+
 ## 飞行
 
 <residual:Milestone id="flight/frame">把通过驾驶测试的驾驶装进充好电的飞行背架，穿上它，连跳两下：[飞行](flight.md)。</residual:Milestone>

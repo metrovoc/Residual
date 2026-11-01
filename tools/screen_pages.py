@@ -622,5 +622,76 @@ GATE = screen(
             P("gates", T("The gates", "门"), T("Every other gate on the network; click one to go there.", "网络上的其他每一道门；点击就去那里。")),
             P("map.fit", K("residual.map.fit"), K("residual.map.fit.help"))])])
 
+LINE = ["refinery_intake", "duplicate_sieve", "filter_bed", "quality_classifier", "program_press", "domain_mixer", "contamination_check", "token_tank"]
+
+
+def refinery_open(x, z):
+    """A line on power that a dump has been through, so every machine has something to say, with its Intake open."""
+    return [f"cmd setblock {x + 2 * i} -60 {z} residual:{id}[facing=east]" for i, id in enumerate(LINE)] + [
+        f"cmd fill {x} -61 {z} {x + 16} -61 {z} residual:power_cable", f"cmd setblock {x + 16} -60 {z} residual:combustion_generator[facing=north]",
+        f'cmd data merge block {x + 16} -60 {z} {{items:{{Items:[{{Slot:0b,id:"minecraft:coal_block",count:64}}]}}}}',
+        "cmd give @s residual:relay_dump", stand(x, z), "wait 10", f"use {x} -60 {z} north", "wait 10", "shift residual:relay_dump", "wait 4", "click refinery.start", "wait 4", "close",
+        f"await 6000 refined {x + 14} -60 {z} 1", "wait 200", f"use {x} -60 {z} north", "wait 10"]
+
+
+def next_machine(i):
+    return ["close", "wait 4", "cmd tp @s ~2 ~ ~", "wait 4", f"use {{x{2 * i}}} -60 {{sz}} north", "wait 10"]
+
+
+def refinery_setting(id):
+    return P(f"refinery.setting.{id}", K(f"residual.refinery.setting.{id}"), K(f"residual.refinery.setting.{id}.hint"))
+
+
+READ_ROWS = T("Point at a row for what it means.", "指向一行可看到它的意思。")
+REFINERY = screen(
+    "refinery", "RefineryScreen", "refinery_intake", T("Refinery machines", "精炼厂的机器"), T("The screens of a Refinery", "精炼厂的界面"),
+    T("Use any machine of a line to open its screen. [The Refinery](../refinery.md) tells how a line goes together and what each machine is worth.",
+      "对线上的任意一台机器使用即可打开它的界面。一条线怎样搭起来、每台机器值多少，见[精炼厂](../refinery.md)。"),
+    refinery_open,
+    [state("intake", T("A **Refinery Intake**: what goes in, and the two things it can be asked.", "**精炼进料口**：放进去的东西，以及可以让它做的两件事。"),
+           T("A Refinery Intake after a pass", "一次精炼之后的精炼进料口"),
+           [P("slots", T("What goes in", "放进去的东西"), K("residual.refinery.refinery_intake.slot0")),
+            P("rows", T("What it read", "它读到的"), T("What the slots hold and how much text that came to; once measured, the held-out loss of the raw text.", "槽里有什么、一共多少文本；测量之后，还有原始文本的留出损失。")),
+            P("refinery.start", K("residual.refinery.start"), K("residual.refinery.start_hint")),
+            P("refinery.measure", K("residual.refinery.measure"), K("residual.refinery.measure_hint"))]),
+     state("sieve", T("A **Duplicate Sieve**: what it took out, and the curve its hashes make.", "**去重筛**：它去掉了什么，以及它的哈希画出的曲线。"),
+           T("A Duplicate Sieve after a pass", "一次精炼之后的去重筛"),
+           [P("rows", T("What it took out", "它去掉的"), READ_ROWS),
+            P("curve", T("The curve", "曲线"), K("residual.refinery.duplicate_sieve.curve")),
+            refinery_setting("near")],
+           next_machine(1)),
+     state("filters", T("A **Filter Bed**: a row and a switch for each rule.", "**过滤床**：每条规则一行、一个开关。"),
+           T("A Filter Bed after a pass", "一次精炼之后的过滤床"),
+           [P("rows", T("What each rule threw out", "每条规则丢掉的"), READ_ROWS)] + [refinery_setting(id) for id in ("short", "symbols", "words", "repeats", "endings")],
+           next_machine(2)),
+     state("classifier", T("A **Quality Classifier**: its model and its rule, and what each decided.", "**质量分类器**：它的模型和规则，以及各自的决定。"),
+           T("A Quality Classifier that had no model", "没有模型的质量分类器"),
+           [P("slots", T("Its model", "它的模型"), K("residual.refinery.quality_classifier.slot0")),
+            P("rows", T("What it decided", "它的决定"), READ_ROWS),
+            refinery_setting("sure")],
+           next_machine(3)),
+     state("press", T("A **Program Press**: what it wrote into the stream.", "**程序印刷机**：它往文本流里写了什么。"),
+           T("A Program Press after a pass", "一次精炼之后的程序印刷机"),
+           [P("slots", T("Its book", "它的书"), K("residual.refinery.program_press.slot0")),
+            P("rows", T("What it wrote", "它写的"), READ_ROWS),
+            refinery_setting("program"), refinery_setting("share")],
+           next_machine(4)),
+     state("mixer", T("A **Domain Mixer**: a row for each kind of writing, and what the last of a run reads.", "**领域混合器**：每类文字一行，以及一次训练的最后阶段读什么。"),
+           T("A Domain Mixer after a pass", "一次精炼之后的领域混合器"),
+           [P("rows", T("The kinds of writing", "各类文字"), T("Each one's share of what a model reads. Click a row for more or less of it.", "每类文字在模型所读内容里的份额。点击一行可以增减。")),
+            refinery_setting("anneal"), refinery_setting("after")],
+           next_machine(5)),
+     state("check", T("A **Contamination Check**: what it found of each benchmark's test.", "**污染检查站**：它在每个基准的测试里发现了什么。"),
+           T("A Contamination Check after a pass", "一次精炼之后的污染检查站"),
+           [P("rows", T("What it found", "它发现的"), T("Lines it found first, then a row for each benchmark. Scroll for the rest.", "先是发现的行，然后每个基准一行。滚动可看到其余。")),
+            refinery_setting("remove")],
+           next_machine(6)),
+     state("tank", T("A **Token Tank**: what the line holds, counted.", "**词元罐**：这条线存下的内容，已经数好。"),
+           T("A Token Tank after a pass", "一次精炼之后的词元罐"),
+           [P("tokenizer", K("item.residual.tokenizer"), K("residual.refinery.token_tank.slot0")),
+            P("cell", K("item.residual.token_cell"), K("residual.refinery.token_tank.slot1")),
+            P("rows", T("What it holds", "它存下的"), READ_ROWS)],
+           next_machine(7))])
+
 SCREENS = [CORE, AGENT, BENCH, FABRICATOR, FORGE, OPERATOR, READER, FORECASTER, SURVEYOR, WATCH, POWER, TERMINAL, PORT, PORT_PROGRAM, RACK, ASSEMBLER, PROCESSOR, DOCK, ACCESS,
-           MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER]
+           MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER, REFINERY]

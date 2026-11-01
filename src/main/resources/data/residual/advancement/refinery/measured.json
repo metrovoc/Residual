@@ -1,0 +1,28 @@
+{
+  "parent": "residual:refinery/tokens",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:token_cell"
+    },
+    "title": {
+      "translate": "advancements.residual.refinery.measured.title"
+    },
+    "description": {
+      "translate": "advancements.residual.refinery.measured.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -13,7 +13,9 @@ import io.github.metrovoc.residual.graph.Sym;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
+import io.github.metrovoc.residual.item.DumpItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
+import io.github.metrovoc.residual.item.TokenCellItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
@@ -35,6 +37,10 @@ import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.net.SampleResult;
+import io.github.metrovoc.residual.refine.Dump;
+import io.github.metrovoc.residual.refine.Supplies;
+import io.github.metrovoc.residual.refine.SupplyTask;
+import io.github.metrovoc.residual.refine.TokenSupply;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModComponents;
 import io.github.metrovoc.residual.tensor.Numerics;
@@ -395,6 +401,22 @@ public class CoreBlockEntity extends BlockEntity {
                 text.packing = Recipe.Packing.values()[packing];
                 if (!text.isEmpty()) {
                     sources.add(new Mixture.Source(Benchmark.READING, text));
+                }
+            } else if (stack.getItem() instanceof DumpItem) {
+                TextTask text = new TextTask(Dump.texts(DumpItem.seed(stack, level.getRandom())), Benchmark.READING.target, vocab);
+                if (!text.isEmpty()) {
+                    sources.add(new Mixture.Source(Benchmark.READING, text));
+                }
+            } else if (stack.getItem() instanceof TokenCellItem && TokenCellItem.supply(stack) instanceof TokenSupply supply
+                    && level != null && level.getServer() != null) {
+                SupplyTask tokens = Supplies.task(level.getServer(), supply.id(), vocab, this::slotsChanged);
+                if (tokens != null && !tokens.isEmpty()) {
+                    if (practice != null) {
+                        // the run goes on where it was, however its slots change
+                        practice.sources.stream().filter(s -> s.data() instanceof SupplyTask old && old.supply() == tokens.supply())
+                                .findFirst().ifPresent(s -> tokens.carryOn((SupplyTask) s.data()));
+                    }
+                    sources.add(new Mixture.Source(Benchmark.READING, tokens));
                 }
             } else if (stack.getItem() instanceof FieldLogItem) {
                 String log = FieldLogItem.log(stack);

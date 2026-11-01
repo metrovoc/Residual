@@ -28,6 +28,8 @@ import io.github.metrovoc.residual.net.PatternTransfer;
 import io.github.metrovoc.residual.net.StorageTransfer;
 import io.github.metrovoc.residual.model.Board;
 import io.github.metrovoc.residual.registry.ModEntities;
+import io.github.metrovoc.residual.refine.RefineryBlockEntity;
+import io.github.metrovoc.residual.refine.TokenSupply;
 import io.github.metrovoc.residual.storage.CraftingData;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
 import io.github.metrovoc.residual.storage.DockMenu;
@@ -209,6 +211,12 @@ import org.slf4j.Logger;
  * expect docked N            fail the step unless the open Drive Dock's screen says it moved at least N items in the last second
  * expect open N              fail the step unless a Storage Terminal's screen is open (1) or not (0)
  * expect shown N             fail the step unless the open Storage Terminal has been sent at least N kinds
+ * expect refined X Y Z N     fail the step unless the Token Tank at the place holds at least N characters
+ * expect tokens X Y Z N      fail the step unless the Token Tank at the place counts at least N tokens
+ * expect measured X Y Z N    fail the step unless the Refinery machine at the place knows what it did to held-out loss (N is 1)
+ * expect shows X Y Z N       fail the step unless the Refinery machine at the place shows at least N rows
+ * expect judged X Y Z N      fail the step unless the Quality Classifier at the place had at least N documents settled by its model
+ * expect trained X Y Z N     fail the step unless the Model Core at the place has trained at least N steps
  * expect pins N              fail the step unless the open Storage Terminal has N kinds pinned
  * expect tree N              fail the step unless the open Storage Terminal has at least N rows of a job's plan
  * expect moved X Y Z N       fail the step unless the Port at the place moved at least N items in the last second
@@ -1099,6 +1107,22 @@ public final class Rehearsal {
                     }
                     if (args[0].equals("spent")) {
                         return (long) ForecasterBlockEntity.POWER - ((ForecasterBlockEntity) level.getBlockEntity(at)).energy().getAmountAsInt();
+                    }
+                    if (args[0].equals("refined") || args[0].equals("tokens")) {
+                        TokenSupply held = ((RefineryBlockEntity) level.getBlockEntity(at)).supply();
+                        return held == null ? 0L : args[0].equals("refined") ? held.characters() : held.tokens();
+                    }
+                    if (args[0].equals("measured")) {
+                        return Float.isNaN(((RefineryBlockEntity) level.getBlockEntity(at)).delta()) ? 0L : 1L;
+                    }
+                    if (args[0].equals("shows")) {
+                        return (long) ((RefineryBlockEntity) level.getBlockEntity(at)).rows().size();
+                    }
+                    if (args[0].equals("judged")) {
+                        return (long) ((RefineryBlockEntity) level.getBlockEntity(at)).judged();
+                    }
+                    if (args[0].equals("trained")) {
+                        return (long) ((CoreBlockEntity) level.getBlockEntity(at)).snapshot().steps();
                     }
                     if (args[0].equals("port")) {
                         return (long) ((PortBlockEntity) level.getBlockEntity(at)).expects();

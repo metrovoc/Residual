@@ -28,6 +28,8 @@ import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.WatchSync;
 import io.github.metrovoc.residual.net.TerminalBaseSync;
 import io.github.metrovoc.residual.net.WaveSync;
+import io.github.metrovoc.residual.refine.RefineryMenu;
+import io.github.metrovoc.residual.refine.RefinerySync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModMenus;
@@ -135,6 +137,7 @@ public final class ResidualClient {
         event.register(ModMenus.PROCESSOR.get(), ProcessorScreen::new);
         event.register(ModMenus.DOCK.get(), DockScreen::new);
         event.register(ModMenus.ACCESS_POINT.get(), AccessPointScreen::new);
+        event.register(ModMenus.REFINERY.get(), RefineryScreen::new);
     }
 
     private static void payloads(RegisterClientPayloadHandlersEvent event) {
@@ -187,6 +190,11 @@ public final class ResidualClient {
                 menu.treeDone = tree.done();
             }
         });
+        event.register(RefinerySync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof RefineryMenu menu && menu.containerId == sync.menu()) {
+                menu.rows = sync.rows();
+            }
+        });
         event.register(WatchSync.TYPE, (sync, ctx) -> {
             if (ctx.player().containerMenu instanceof WatchPostMenu menu && menu.containerId == sync.menu()) {
                 menu.rows = sync.rows();
@@ -206,6 +214,7 @@ public final class ResidualClient {
         event.registerBlockEntityRenderer(ModBlockEntities.OPERATOR.get(), context -> new MachineRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.RACK.get(), context -> new RackRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.RELAY_GATE.get(), context -> new GateRenderer());
+        event.registerBlockEntityRenderer(ModBlockEntities.REFINERY.get(), context -> new RefineryRenderer());
         event.registerEntityRenderer(ModEntities.AGENT.get(), AgentRenderer::new);
     }
 

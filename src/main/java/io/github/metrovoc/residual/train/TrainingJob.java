@@ -210,7 +210,7 @@ public final class TrainingJob {
             Mixture d = data;
             Recipe r = recipe;
             trainer.task = d;
-            trainer.learningRate = learningRate;
+            trainer.learningRate = learningRate * d.rateScale();
             trainer.batchSize = batchSize;
             trainer.clip = clip;
             trainer.recipe = r;

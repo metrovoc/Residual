@@ -11,6 +11,8 @@ import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.ReaderMenu;
 import io.github.metrovoc.residual.menu.SurveyorMenu;
 import io.github.metrovoc.residual.menu.WatchPostMenu;
+import io.github.metrovoc.residual.refine.RefineryMenu;
+import io.github.metrovoc.residual.refine.Stage;
 import io.github.metrovoc.residual.storage.AccessPointMenu;
 import io.github.metrovoc.residual.storage.AssemblerMenu;
 import io.github.metrovoc.residual.storage.DockMenu;
@@ -69,6 +71,8 @@ public final class ModMenus {
 
     public static final Supplier<MenuType<AccessPointMenu>> ACCESS_POINT = MENUS.register("access_point",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new AccessPointMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<RefineryMenu>> REFINERY = MENUS.register("refinery",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new RefineryMenu(id, inv, buf.readBlockPos(), buf.readEnum(Stage.class))));
 
     private ModMenus() {
     }

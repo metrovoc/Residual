@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/duplicate_sieve_side",
+    "north": "residual:block/duplicate_sieve_front",
+    "south": "residual:block/duplicate_sieve_side",
+    "east": "residual:block/duplicate_sieve_side",
+    "west": "residual:block/duplicate_sieve_side",
+    "up": "residual:block/duplicate_sieve_top",
+    "down": "residual:block/machine_back"
+  }
+}

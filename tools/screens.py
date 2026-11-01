@@ -120,8 +120,8 @@ def script(code):
         lines += screen["open"](x, z)
         for state in screen["states"]:
             lines += [f"# {state['id']}"]
-            # a state that reopens its screen says where: {sx} {sz} is the block beside the first, {ax} {az} the one before it
-            lines += [line.format(sx=x + 2, sz=z, ax=x + 2, az=z - 1) for line in state["steps"]]
+            # a state that reopens its screen says where: {sx} {sz} is the block beside the first, {ax} {az} the one before it, {x2} {x4} ... the column so far along
+            lines += [line.format(sx=x + 2, sz=z, ax=x + 2, az=z - 1, **{f"x{d}": x + d for d in range(2, 20, 2)}) for line in state["steps"]]
             lines += ["wait 4", "hover 1 1", "wait 2"]
             lines += [f'expect part {p["name"]} 1' for p in state["parts"]]
             lines += [f'shot screen_{prefix}{screen["id"]}_{state["id"]}']

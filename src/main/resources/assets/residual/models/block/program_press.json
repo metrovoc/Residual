@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/program_press_side",
+    "north": "residual:block/program_press_front",
+    "south": "residual:block/program_press_side",
+    "east": "residual:block/program_press_side",
+    "west": "residual:block/program_press_side",
+    "up": "residual:block/program_press_top",
+    "down": "residual:block/machine_back"
+  }
+}

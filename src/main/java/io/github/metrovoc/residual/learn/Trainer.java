@@ -14,6 +14,9 @@ import java.util.Random;
 /** Runs optimisation steps of a compiled model on a task and evaluates it. */
 public final class Trainer {
     public static final int WARMUP = 20;
+    /** Every test draws the same examples from this seed, and none reads more than this many batches. */
+    public static final long TEST_SEED = 12345;
+    public static final int MOST_TEST_BATCHES = 16;
 
     public record Eval(double loss, double accuracy, boolean causal) {
     }
@@ -161,7 +164,7 @@ public final class Trainer {
         if (own != null) {
             return new Eval(own[0], own[1], isCausal(model, task));
         }
-        Random rng = new Random(12345);
+        Random rng = new Random(TEST_SEED);
         double loss = 0;
         long correct = 0;
         long scored = 0;

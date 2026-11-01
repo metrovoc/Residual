@@ -20,7 +20,7 @@ item_ids:
 
 # Models and Tests
 
-Every model is tested on thirteen benchmarks. Each test uses examples practice never shows, and each job asks its model in
+Every model is tested on every benchmark. Each test uses examples practice never shows, and each job asks its model in
 exactly the test's format, so a test score is how often an agent will decide right.
 
 <residual:Clip name="tests" alt="Testing a model on every benchmark" />
@@ -40,6 +40,7 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Demand    | <ItemLink id="demand_dataset" />        | what a Port moved out at each look, in rhythms     | 90%         | a Port's target |
 | Watch     | <ItemLink id="watch_dataset" />         | things going well; the test has some gone wrong     | 90%         | the Watch Post |
 | Retrieval | <ItemLink id="retrieval_dataset" />     | things named and asked for, and what each is for   | 90%         | a terminal's search |
+| Quality   | <ItemLink id="archive_drive" />         | documents, half of them spoiled by bad lines        | 90%         | the [Refinery](refinery.md) |
 
 Hover over a benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
 example, the way an agent would ask it.

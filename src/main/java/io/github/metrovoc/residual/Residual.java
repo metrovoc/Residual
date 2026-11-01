@@ -118,6 +118,7 @@ public final class Residual {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.LINK_DRIVER.get(), (be, side) -> be.energy());
         event.registerItem(Capabilities.Energy.ITEM, (stack, access) -> new ItemAccessEnergyHandler(access, ModComponents.CHARGE.get(), ExosuitItem.CAPACITY, ExosuitItem.TRANSFER),
                 ModItems.EXOSUIT.get());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.REFINERY.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.GENERATOR.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.PORT.get(), (be, side) -> be.work.battery());
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PORT.get(), (be, side) -> be.work.tank());

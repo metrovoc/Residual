@@ -3602,6 +3602,7 @@ LOOT = {
                       item("minecraft:honeycomb", 3, (1, 3)), item("archive_shard", 3, about=TUTORS)])],
     "chests/fallen_relay_mast": [
         pool((2, 3), [item("archive_drive", 1, drive=(10, ["relay", "message", "tower", "keeper"]))]),
+        pool((1, 2), [item("relay_dump")]),
         pool((1, 3), [item("relay_card", 4), item("archive_shard", 6, (1, 3), about=["relay", "message"]),
                       item("minecraft:copper_ingot", 4, (2, 6)), item("minecraft:redstone", 3, (2, 5))])],
     "chests/sealed_stacks": [

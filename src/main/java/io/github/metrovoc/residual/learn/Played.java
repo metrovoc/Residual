@@ -46,6 +46,12 @@ public abstract class Played extends Task {
         policy = model;
     }
 
+    /** Its test is played, so nothing of it is written anywhere to be read before. */
+    @Override
+    public List<String> heldOutTexts() {
+        return List.of();
+    }
+
     /** How many kinds of episode there are. */
     protected abstract int kinds();
 

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/quality_classifier_side",
+    "north": "residual:block/quality_classifier_front",
+    "south": "residual:block/quality_classifier_side",
+    "east": "residual:block/quality_classifier_side",
+    "west": "residual:block/quality_classifier_side",
+    "up": "residual:block/quality_classifier_top",
+    "down": "residual:block/machine_back"
+  }
+}

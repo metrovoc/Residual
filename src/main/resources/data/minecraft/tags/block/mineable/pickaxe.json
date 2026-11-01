@@ -61,6 +61,14 @@
     "residual:processor",
     "residual:drive_dock",
     "residual:access_point",
-    "residual:link_driver"
+    "residual:link_driver",
+    "residual:token_tank",
+    "residual:refinery_intake",
+    "residual:duplicate_sieve",
+    "residual:filter_bed",
+    "residual:quality_classifier",
+    "residual:program_press",
+    "residual:domain_mixer",
+    "residual:contamination_check"
   ]
 }

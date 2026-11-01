@@ -17,7 +17,8 @@ import java.util.Map;
  * block. One record in ten never turns up in a shard: reading is tested on those, text no model has seen.
  */
 public final class Archive {
-    public record Record(int id, String title, String text) {
+    /** @param filed what the record was filed as: its file's name without the number */
+    public record Record(int id, String title, String text, String filed) {
         /** How many blocks of {@link #BLOCK} characters the record has. */
         public int blocks() {
             return (text.length() + BLOCK - 1) / BLOCK;
@@ -70,7 +71,7 @@ public final class Archive {
                     String text = rec.strip();
                     if (!text.isEmpty()) {
                         int nl = text.indexOf('\n');
-                        all.add(new Record(all.size(), nl < 0 ? text : text.substring(0, nl).strip(), text));
+                        all.add(new Record(all.size(), nl < 0 ? text : text.substring(0, nl).strip(), text, file.substring(file.indexOf('-') + 1)));
                     }
                 }
             }

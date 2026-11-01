@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.model.Board;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.model.Recovered;
+import io.github.metrovoc.residual.refine.TokenSupply;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -38,6 +39,12 @@ public final class ModComponents {
     /** Every record filed into an Archive Drive, in record order. */
     public static final Supplier<DataComponentType<List<Recovered>>> RECORDS = COMPONENTS.registerComponentType("records",
             b -> b.persistent(Recovered.CODEC.listOf()).networkSynchronized(Recovered.STREAM_CODEC.apply(ByteBufCodecs.list())));
+    /** What a Relay Dump holds, as the seed its text is written from. */
+    public static final Supplier<DataComponentType<Long>> DUMP = COMPONENTS.registerComponentType("dump",
+            b -> b.persistent(Codec.LONG).networkSynchronized(ByteBufCodecs.VAR_LONG));
+    /** The refined text a Token Cell draws on. */
+    public static final Supplier<DataComponentType<TokenSupply>> TOKEN_SUPPLY = COMPONENTS.registerComponentType("token_supply",
+            b -> b.persistent(TokenSupply.CODEC).networkSynchronized(TokenSupply.STREAM_CODEC));
     /** The Model Server an Uplink or a Terminal is tuned to. */
     public static final Supplier<DataComponentType<GlobalPos>> LINK = COMPONENTS.registerComponentType("link",
             b -> b.persistent(GlobalPos.CODEC).networkSynchronized(GlobalPos.STREAM_CODEC));

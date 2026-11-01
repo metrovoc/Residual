@@ -10,6 +10,8 @@ import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
 import io.github.metrovoc.residual.item.UpgradeItem;
 import io.github.metrovoc.residual.menu.FabricatorMenu;
+import io.github.metrovoc.residual.refine.RefineryBlock;
+import io.github.metrovoc.residual.refine.Stage;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModComponents;
@@ -31,6 +33,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -97,7 +100,7 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
      * What it can make: the machines a mask's spec unlocks, or with no mask the machines that need no design. A matrix
      * multiply mask also makes the Accelerator and the Drive Dock, a linear layer mask the Dense and Portable Drives, an attention
      * mask the Hourglass, the Surveyor and the Access Point, and a transformer mask Forecaster II, the Smelter, the flight frame,
-     * the Stacked Drive and the relay network's gates and links.
+     * the Stacked Drive, the relay network's gates and links and the machines of a Refinery.
      */
     public static List<Item> choices(ItemStack mask) {
         List<Item> out = new ArrayList<>();
@@ -144,6 +147,11 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
                 out.add(ModItems.UPGRADES.get(Upgrades.Kind.LIFT).get());
                 out.add(ModBlocks.RELAY_GATE.asItem());
                 out.add(ModBlocks.RELAY_LINK.asItem());
+                for (Stage stage : Stage.values()) {
+                    if (stage != Stage.INTAKE && stage != Stage.TANK) {
+                        out.add(ModBlocks.REFINERY.get(stage).asItem());
+                    }
+                }
             }
         }
         return out;
@@ -208,6 +216,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         }
         if (item == ModBlocks.RELAY_LINK.asItem()) {
             return new Cost(4, 8, 4, 200);
+        }
+        if (item instanceof BlockItem b && b.getBlock() instanceof RefineryBlock) {
+            return new Cost(2, 4, 2, 160);
         }
         MaskData m = MaskItem.mask(mask);
         int wafers = Math.max(1, ((m == null ? 0 : m.area()) + 3) / 4);

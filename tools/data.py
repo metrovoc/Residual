@@ -22,11 +22,13 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval"]
+BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval", "quality"]
 DATASETS = {"forecast_dataset": "minecraft:clock", "storage_dataset": "minecraft:chest",
             "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
             "orders_dataset": "minecraft:writable_book", "process_dataset": "minecraft:raw_iron", "survey_dataset": "minecraft:flint",
             "flight_dataset": "minecraft:feather", "demand_dataset": "minecraft:hopper", "watch_dataset": "minecraft:spyglass", "retrieval_dataset": "minecraft:map"}
+# see refine/Stage.java; the first takes text in, and every other but the tank comes out of the Fabricator
+REFINERY = ["refinery_intake", "duplicate_sieve", "filter_bed", "quality_classifier", "program_press", "domain_mixer", "contamination_check"]
 SCHEMATICS = ["schematic_relays"]
 # see storage/PortMode.java
 PORT_MODES = ["import", "export", "stock", "window"]
@@ -223,6 +225,30 @@ def forecaster(name="forecaster"):
             variants[f"{key},working={working}"] = value
     write(f"assets/{NS}/blockstates/{name}.json", {"variants": variants})
     item_definition(name, rid(f"block/{name}"))
+
+
+def token_tank():
+    """A cage of four posts between two plates, with clear walls: what it holds, the Refinery's renderer draws inside."""
+    frame, glass, cap = rid("block/token_tank_frame"), rid("block/token_tank_glass"), rid("block/token_tank_cap")
+    bar = lambda frm, to: box(frm, to, {f: {"texture": "#frame"} for f in ("north", "south", "east", "west", "up", "down")})
+    plate = lambda y0, y1, end: box([0, y0, 0], [16, y1, 16], {f: {"texture": "#frame", "uv": [0, 0, 16, y1 - y0]} for f in ("north", "south", "east", "west")}
+                                    | {"up": {"texture": end if y1 == 16 else "#frame"}, "down": {"texture": end if y0 == 0 else "#frame"}})
+    wall = lambda frm, to, f: box(frm, to, {f: {"texture": "#glass"}})
+    elements = [plate(0, 2, "#cap"), plate(14, 16, "#cap")]
+    for x in (0, 14):
+        for z in (0, 14):
+            elements.append(bar([x, 2, z], [x + 2, 14, z + 2]))
+    elements += [wall([1, 2, 1], [15, 14, 1], "north"), wall([1, 2, 15], [15, 14, 15], "south"), wall([1, 2, 1], [1, 14, 15], "west"),
+                 wall([15, 2, 1], [15, 14, 15], "east")]
+    write(f"assets/{NS}/models/block/token_tank.json", {
+        "parent": "minecraft:block/block", "render_type": "minecraft:translucent",
+        "textures": {"particle": frame, "frame": frame, "glass": glass, "cap": cap}, "elements": elements})
+    variants = {}
+    for working in ("false", "true"):
+        for key, value in facing_variants(rid("block/token_tank"), facings=HORIZONTAL).items():
+            variants[f"{key},working={working}"] = value
+    write(f"assets/{NS}/blockstates/token_tank.json", {"variants": variants})
+    item_definition("token_tank", rid("block/token_tank"))
 
 
 def stream():
@@ -502,7 +528,7 @@ def storage():
 
 
 def items():
-    flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
+    flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model", "relay_dump", "token_cell",
              "agent", "relay_card", "terminal", "field_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
              "portable_drive", "wireless_terminal", "hourglass", "flight_frame", "exosuit",
              "speed_upgrade", "stack_upgrade", "range_upgrade", "fluid_upgrade", "energy_upgrade", "carry_upgrade", "lift_upgrade"] + list(DATASETS) + SCHEMATICS)
@@ -603,7 +629,7 @@ UNITS = ["scheduler", "bf16_unit", "fp8_unit", "fp4_unit", "orthogonalizer", "pa
 MACHINE_BLOCKS = UNITS + ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "relay_gate", "relay_link", "bench", "fabricator", "stream",
                   "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "combustion_generator", "energy_cell", "smelter", "power_cable",
                   "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor", "drive_dock", "access_point",
-                  "link_driver"]
+                  "link_driver", "token_tank"] + REFINERY
 
 
 def blocks():
@@ -669,6 +695,10 @@ def recipes():
     shapeless("tokenizer", ["minecraft:paper", "minecraft:paper", "minecraft:ink_sac", "minecraft:amethyst_shard"], 2)
     for dataset, part in DATASETS.items():
         shapeless(dataset, ["minecraft:paper", "minecraft:paper", "minecraft:redstone", part])
+    shaped("refinery_intake", ["KHK", "RDR", "KCK"], {"K": rid("tensor_casing"), "H": "minecraft:hopper", "R": "minecraft:redstone",
+                                                       "D": rid("archive_drive"), "C": "minecraft:copper_block"})
+    shaped("token_tank", ["KCK", "G G", "KCK"], {"K": rid("tensor_casing"), "C": "minecraft:copper_ingot", "G": "minecraft:glass"})
+    shapeless("token_cell", ["minecraft:glass_bottle", "minecraft:copper_ingot", "minecraft:redstone", "minecraft:amethyst_shard"])
     shaped("watch_post", ["GSG", "KWK", "KCK"], {"G": "minecraft:glass_pane", "S": "minecraft:spyglass", "K": rid("tensor_casing"),
                                                  "W": rid("weight_crystal"), "C": "minecraft:comparator"})
     shaped("forecaster", ["GLG", "KWK", "KCK"], {"G": "minecraft:glass_pane", "L": "minecraft:clock", "K": rid("tensor_casing"),
@@ -792,6 +822,11 @@ def advancements():
     advancement("exosuit/board", "flight/frame", "exosuit", awarded(), frame="goal")
     advancement("exosuit/vein", "exosuit/board", "minecraft:raw_iron", awarded(), frame="goal")
     advancement("exosuit/all", "exosuit/board", "exosuit", awarded(), frame="challenge")
+    advancement("refinery/intake", "archive/drive", "refinery_intake", placed("refinery_intake"))
+    advancement("refinery/tokens", "refinery/intake", "token_tank", awarded(), frame="goal")
+    advancement("refinery/measured", "refinery/tokens", "token_cell", awarded(), frame="goal")
+    advancement("refinery/caught", "refinery/intake", "contamination_check", awarded(), frame="goal")
+    advancement("refinery/million", "refinery/tokens", "token_tank", awarded(), frame="challenge")
     advancement("power/generator", "root", "combustion_generator", placed("combustion_generator"))
     advancement("power/smelter", "power/generator", "smelter", awarded(), frame="goal")
     advancement("storage/drive", "root", "storage_drive", has("storage_drive"))
@@ -844,6 +879,9 @@ if __name__ == "__main__":
     forecaster("forecaster_iii")
     forecaster("surveyor")
     forecaster("watch_post")
+    for name in REFINERY:
+        forecaster(name)
+    token_tank()
     power()
     storage()
     stream()

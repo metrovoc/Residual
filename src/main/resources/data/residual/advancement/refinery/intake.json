@@ -1,0 +1,40 @@
+{
+  "parent": "residual:archive/drive",
+  "criteria": {
+    "placed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": "residual:refinery_intake"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:refinery_intake"
+    },
+    "title": {
+      "translate": "advancements.residual.refinery.intake.title"
+    },
+    "description": {
+      "translate": "advancements.residual.refinery.intake.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "placed"
+    ]
+  ]
+}

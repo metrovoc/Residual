@@ -1,6 +1,8 @@
 package io.github.metrovoc.residual.learn;
 
 import io.github.metrovoc.residual.graph.CompiledGraph;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +38,38 @@ public abstract class Task {
      */
     public double @Nullable [] measure(CompiledGraph model) {
         return null;
+    }
+
+    /** What the learning rate is multiplied by for the next step: a task that changes as a run goes may ask for less. */
+    public float rateScale() {
+        return 1f;
+    }
+
+    /**
+     * What its test reads, as text: the same examples {@link Trainer#evaluate} draws, however many batches it asks for. A test
+     * played rather than read has none.
+     */
+    public List<String> heldOutTexts() {
+        Random rng = new Random(Trainer.TEST_SEED);
+        List<String> out = new ArrayList<>();
+        for (int i = 0; i < Trainer.MOST_TEST_BATCHES; i++) {
+            out.addAll(decode(batch(rng, 32, true), vocab));
+        }
+        return out;
+    }
+
+    /** A batch's sequences as text, each to its last target. */
+    public static List<String> decode(Batch b, Vocab vocab) {
+        List<String> out = new ArrayList<>(b.input().batch);
+        int t = b.input().time;
+        for (int s = 0; s < b.input().batch; s++) {
+            StringBuilder text = new StringBuilder(t + 1);
+            for (int i = 0; i < t; i++) {
+                text.append(vocab.piece(b.input().at(s, i)));
+            }
+            out.add(text.append(vocab.piece(b.targets()[s * t + t - 1])).toString());
+        }
+        return out;
     }
 
     public boolean passes(double loss, double accuracy) {

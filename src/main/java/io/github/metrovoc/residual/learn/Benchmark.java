@@ -64,7 +64,12 @@ public enum Benchmark {
      * in. The test names only things practice never does, some of them made up. A context model stays near 29%, one layer of
      * attention reaches 91% in 3,000 steps, and a two-block transformer 32 wide passes in about 1,250.
      */
-    RETRIEVAL(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
+    RETRIEVAL(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Quality: whether a document is as it was written or a bad line has been at it, by how much it surprises a model that has read
+     * a lot of writing. It practises on archive text, as Reading does.
+     */
+    QUALITY(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */
@@ -80,7 +85,7 @@ public enum Benchmark {
 
     /** The held-out test, for a model that reads with {@code vocab}. */
     public Task test(Vocab vocab) {
-        return this == READING ? Archive.test(vocab) : practice();
+        return this == READING ? Archive.test(vocab) : this == QUALITY ? new Judging(vocab) : practice();
     }
 
     /**
