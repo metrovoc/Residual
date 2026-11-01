@@ -15,6 +15,11 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 repositories {
     mavenCentral()
+    maven {
+        // JEI's API, compiled against only: the plugin stays unloaded without JEI
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup 'mezz.jei' }
+    }
 }
 
 sourceSets.main.resources {
@@ -112,6 +117,7 @@ neoForge {
 
 dependencies {
     implementation "org.appliedenergistics:guideme:${guideme_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     rehearsalImplementation sourceSets.main.output
     rehearsalRuntimeOnly "org.appliedenergistics:guideme:${guideme_version}"
     // GuideME's guide export encodes animated icons with FFmpeg, here the build for this machine
