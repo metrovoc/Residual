@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.5.0-alpha
+
+Residual 0.5.0-alpha puts models to work. A first model now runs your furnaces ahead of time, and the ones after it copy your builds, find your ore and fly you. Residual also keeps its own storage now, the old world has places you can visit, and the field notes move.
+
+### Putting models to work
+
+- A Forecaster runs the machines and crops around it ahead of time, up to sixteen times as fast. One Embedding Table is enough for furnaces, so forecasting is now the first test.
+- An Hourglass spends the time it keeps on bursts for one machine or crop, anywhere in its dimension.
+- An agent copies, moves and repeats whole builds.
+- A Surveyor shows you the ores in the ground, and agents dig to them as a crew.
+- A Smelter makes two ingots from every ore, and three when a model you trained keeps the melt at the right heat.
+- A flight frame flies you, held steady by a pilot you trained.
+
+### Storage and power
+
+- Drives keep any number of kinds of item, a terminal finds anything, Ports move items between the network and every chest and machine, and Assemblers craft what you ask for.
+- A Port with a filter model can filter by what things are.
+- Combustion Generators, Power Cables and Energy Cells run on Forge Energy.
+
+### The old world
+
+- The old world left its places behind: sixteen kinds of ruin, each rare. A Wayfinder leads to the nearest of any kind the archive has told you of.
+- The archive grew to about 11 MB of the old world's writing.
+
+### How it looks
+
+- Every texture was redrawn, and the screens are calmer.
+- The field notes play clips of what they describe, in game and on the website.
+
+### Breaking changes
+
+- Farming no longer has a test of its own. The Reacting benchmark and the Field Dataset are gone, and the Growth Dataset is now the Forecast Dataset.
+
 ## 0.4.0-alpha
 
 Residual 0.4.0-alpha speaks Simplified Chinese.
