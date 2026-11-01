@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -85,7 +86,7 @@ abstract class Laying extends Work {
             ahead.forEach((item, n) -> lack.merge(item, n, Integer::sum));
             lack.replaceAll((item, n) -> n - carried(item));
             lack.values().removeIf(n -> n <= 0);
-            fetch(level, blocking, lack);
+            fetch(level, blocking, lack, need.keySet());
             return false;
         }
         switch (a.walk(foot, REACH)) {
@@ -179,9 +180,10 @@ abstract class Laying extends Work {
 
     /**
      * Fetches from around home: walks to a store holding {@code item}, then takes what it has of everything in
-     * {@code lack}, as much as its hands hold.
+     * {@code lack}, as much as its hands hold. Hands full of what later slices take put that back for what {@code now}
+     * takes.
      */
-    private void fetch(ServerLevel level, Item item, Map<Item, Integer> lack) {
+    private void fetch(ServerLevel level, Item item, Map<Item, Integer> lack, Set<Item> now) {
         if (fetchingFrom == null || fetching != item) {
             fetching = item;
             fetchingFrom = source(level, item);
@@ -203,6 +205,9 @@ abstract class Laying extends Work {
             }
             case HERE -> {
             }
+        }
+        if (a.full()) {
+            putBack(level, fetchingFrom, now);
         }
         int got = 0;
         for (Map.Entry<Item, Integer> e : lack.entrySet()) {
@@ -231,6 +236,24 @@ abstract class Laying extends Work {
             }
         }
         return null;
+    }
+
+    /** Puts everything but {@code keep} into the store at {@code p}, as far as it has room. */
+    private void putBack(ServerLevel level, BlockPos p, Set<Item> keep) {
+        Container c = Stores.at(level, p);
+        StorageNetwork net = c == null ? StorageNetwork.at(level, p) : null;
+        for (int i = 0; i < Agent.CARRY; i++) {
+            ItemStack s = a.items.getItem(i);
+            if (s.isEmpty() || keep.contains(s.getItem())) {
+                continue;
+            }
+            if (c != null) {
+                a.items.setItem(i, Stores.insert(c, s));
+            } else {
+                s.shrink((int) net.insert(ItemResource.of(s.getItem()), s.getCount(), false));
+            }
+        }
+        a.items.setChanged();
     }
 
     /** Takes up to {@code count} of {@code item} from the store at {@code p}, a stack at a time while its hands have room. */
