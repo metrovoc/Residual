@@ -48,7 +48,7 @@ The parts:
 - **Sources**: a constant you type, and **size**, the length of the last axis.
 - **Arithmetic**: add, sub, mul, div and max, element by element. An axis of size 1 stretches to match the other
   input, so a row of sums divides a whole row of numbers.
-- **Functions**: neg, exp, log, sqrt and tanh.
+- **Functions**: neg, exp, log, sqrt, tanh and round.
 - **Last axis**: sum and amax keep the axis with size 1; transpose swaps the last two axes; unsqueeze and squeeze add
   and drop an axis of size 1; causal hides everything above the diagonal.
 - **Grids and turns**: cos and sin; round, to the nearest whole number with a half going to the even one; exponent, the
@@ -76,7 +76,8 @@ concatenator. A matrix multiply photomask also makes the <ItemLink id="accelerat
 <ItemLink id="access_point" /> and most [upgrades](programs.md), and a transformer photomask <ItemLink id="forecaster_ii" />,
 <ItemLink id="forecaster_iii" />, the <ItemLink id="smelter" />, the <ItemLink id="stacked_drive" />, and the
 <ItemLink id="energy_upgrade" /> and <ItemLink id="lift_upgrade" />. The photomasks of Schedule, bf16, fp8, fp4, Orthogonalize and
-Document Mask make the units of [the recipe](recipe.md).
+Document Mask make the units of [the recipe](recipe.md). A cached attention
+photomask makes the <ItemLink id="kv_cache" />, and a rounding photomask the <ItemLink id="weight_packer" />.
 
 
 ## Fused and unfused

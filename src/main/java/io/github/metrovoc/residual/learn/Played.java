@@ -244,15 +244,14 @@ public abstract class Played extends Task {
 
     /** The likeliest power after {@code prompt}, an episode so far as {@link #prompt} writes it, for a machine to act on. */
     public static int act(CompiledGraph model, String prompt) {
-        int t = Vocab.CONTEXT;
+        String p = prompt.substring(Math.max(0, prompt.length() - Vocab.CONTEXT));
+        int t = p.length();
         int[] in = new int[t];
-        Arrays.fill(in, Vocab.WORLD.id('\n'));
-        String p = prompt.substring(Math.max(0, prompt.length() - t));
-        for (int k = 0; k < p.length(); k++) {
+        for (int k = 0; k < t; k++) {
             in[k] = Vocab.WORLD.id(p.charAt(k));
         }
         Tensor logits = model.forward(null, new Tokens(in, 1, t), null);
-        return choose(logits.data, (p.length() - 1) * logits.dim(-1), null, false);
+        return choose(logits.data, (t - 1) * logits.dim(-1), null, false);
     }
 
     /**

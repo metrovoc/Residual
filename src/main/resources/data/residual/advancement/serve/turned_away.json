@@ -1,0 +1,28 @@
+{
+  "parent": "residual:deploy/server",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:model_server"
+    },
+    "title": {
+      "translate": "advancements.residual.serve.turned_away.title"
+    },
+    "description": {
+      "translate": "advancements.residual.serve.turned_away.description"
+    },
+    "frame": "task",
+    "hidden": true,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

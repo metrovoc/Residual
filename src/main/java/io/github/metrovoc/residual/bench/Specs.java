@@ -30,6 +30,8 @@ public final class Specs {
     public static final float EPS = 1e-5f;
     /** The largest number bf16 holds. */
     private static final float BF16_TOP = 3.3895314e38f;
+    /** The least a run of weights counts as, so that a run of zeros has a scale. */
+    private static final float ROUND_FLOOR = 1e-6f;
     private static final Map<String, Spec> ALL = new LinkedHashMap<>();
 
     public static final Spec MEAN = add("mean", ports("x"), List.of(), List.of(),
@@ -445,6 +447,44 @@ public final class Specs {
             new Object[]{"both", mat(1, 3, 2, 1, 0), mat(1, 3, 1, 0, 0), mat(1, 3, 0, 1, 2), mat(1, 3, 0, 0, 1)},
             new Object[]{"last", mat(2, 3, 2, 1, 0, 1, 1, 1), mat(2, 3, 1, 0, 0, 0, 1, 0), mat(2, 3, 0, 1, 2, 5, -5, 0), mat(2, 3, 0, 0, 1, 0, 0, 0)});
 
+    /**
+     * What a served attention does with a new row: it reads the keys kept so far and mixes the values kept with them. The score grid is a
+     * row by however many keys, so a causal mask has nothing to do here and would hide what it came for.
+     */
+    public static final Spec CACHED_ATTENTION = add("cached_attention", ports("q", "K", "V"), List.of("softmax", "matmul"), List.of(),
+            in -> cachedAttention(in[0], in[1], in[2]),
+            (tape, in) -> {
+                Tensor scores = Ops.scale(tape, Prims.matmul(tape, in[0], Prims.transpose(tape, in[1])), (float) (1.0 / Math.sqrt(in[0].dim(-1))));
+                return Prims.matmul(tape, Ops.softmax(tape, scores), in[2]);
+            },
+            b -> {
+                int scores = b.prim(Prim.DIV, b.module("matmul", 0, b.prim(Prim.TRANSPOSE, 1)), b.prim(Prim.SQRT, b.prim(Prim.SIZE, 0)));
+                return b.output(b.module("matmul", b.module("softmax", scores), 2));
+            },
+            new Object[]{"one", grid(81, 1, 4), grid(82, 1, 4), grid(83, 1, 4)},
+            new Object[]{"many", grid(84, 1, 4), grid(85, 7, 4), grid(86, 7, 4)},
+            new Object[]{"sharp", scaled(grid(87, 1, 4), 30), scaled(grid(88, 5, 4), 30), grid(89, 5, 4)});
+
+    /**
+     * What packing does to a run of weights: every one becomes the whole number of scales nearest to it, the scale being what makes the
+     * largest of them, by size, come out at 127. A run of zeros has no largest, and must stay zeros.
+     */
+    public static final Spec ROUND_WEIGHTS = add("round_weights", ports("x"), List.of(), List.of(),
+            in -> roundWeights(in[0]),
+            (tape, in) -> {
+                Tensor size = Prims.binary(tape, Binary.MAX, in[0], Prims.unary(tape, Prims.Unary.NEG, in[0]));
+                Tensor scale = Prims.binary(tape, Binary.DIV, Prims.binary(tape, Binary.MAX, Prims.amax(tape, size), Prims.scalar(ROUND_FLOOR)), Prims.scalar(127));
+                return Prims.binary(tape, Binary.MUL, Prims.unary(tape, Prims.Unary.ROUND, Prims.binary(tape, Binary.DIV, in[0], scale)), scale);
+            },
+            b -> {
+                int size = b.prim(Prim.MAX, 0, b.prim(Prim.NEG, 0));
+                int scale = b.prim(Prim.DIV, b.prim(Prim.MAX, b.prim(Prim.AMAX, size), b.constant(ROUND_FLOOR)), b.constant(127));
+                return b.output(b.prim(Prim.MUL, b.prim(Prim.ROUND, b.prim(Prim.DIV, 0, scale)), scale));
+            },
+            new Object[]{"ordinary", vec(0.5f, -0.25f, 0.125f, 1f)},
+            new Object[]{"negative", vec(0.1f, -2f, 0.3f, 1.7f)},
+            new Object[]{"zeros", vec(0f, 0f, 0f, 0f)});
+
     private Specs() {
     }
 
@@ -638,6 +678,16 @@ public final class Specs {
             v[i] = Math.round(r.nextGaussian() * 100) / 100f;
         }
         return rows == 1 ? vec(v) : mat(rows, cols, v);
+    }
+
+    /** As {@link #rand}, a matrix even if it has one row. */
+    private static M grid(int seed, int rows, int cols) {
+        Random r = new Random(seed);
+        float[] v = new float[rows * cols];
+        for (int i = 0; i < v.length; i++) {
+            v[i] = Math.round(r.nextGaussian() * 100) / 100f;
+        }
+        return mat(rows, cols, v);
     }
 
     private static M scaled(M m, double s) {
@@ -944,6 +994,29 @@ public final class Specs {
             }
         }
         return new M(y.rows, 1, out, false);
+    }
+
+    private static M cachedAttention(M q, M keys, M values) {
+        M s = matmul(q, transpose(keys));
+        double scale = 1 / Math.sqrt(q.cols);
+        double[] scores = new double[s.v.length];
+        for (int i = 0; i < scores.length; i++) {
+            scores[i] = s.v[i] * scale;
+        }
+        return matmul(softmax(new M(s.rows, s.cols, scores, false)), values);
+    }
+
+    private static M roundWeights(M x) {
+        double most = ROUND_FLOOR;
+        for (double w : x.v) {
+            most = Math.max(most, Math.abs(w));
+        }
+        double scale = most / 127;
+        double[] out = new double[x.v.length];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = Math.rint(x.v[i] / scale) * scale;
+        }
+        return new M(x.rows, x.cols, out, x.vector);
     }
 
     private static M attention(M x, M wq, M wk, M wv, M wo) {

@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.learn;
 import io.github.metrovoc.residual.agent.Job;
 import io.github.metrovoc.residual.agent.Program;
 import io.github.metrovoc.residual.graph.CompiledGraph;
+import io.github.metrovoc.residual.model.Serving;
 import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.tensor.Tokens;
@@ -15,6 +16,9 @@ import net.minecraft.network.chat.Component;
 
 /** Autoregressive generation, one token at a time. */
 public final class Sampler {
+    /** Tokens a full window moves on at a time. */
+    public static final int SHIFT = 16;
+
     /** One generated token, its probability, and the top candidates at that step. */
     public record Step(int token, float prob, int[] topIds, float[] topProbs) {
     }
@@ -22,16 +26,29 @@ public final class Sampler {
     private Sampler() {
     }
 
+    /**
+     * Where reading starts in a sequence of {@code n} tokens, for a model that reads {@code context} at most. It moves {@link #SHIFT} tokens at
+     * a time: positions are learned, so a window that moves has to be read again from its start, and one that moved every token would
+     * leave nothing for a cache to keep.
+     */
+    static int start(int n, int context) {
+        return n <= context ? 0 : (n - context + SHIFT - 1) / SHIFT * SHIFT;
+    }
+
     /** Next-token probabilities after {@code prompt}, using at most {@code context} tokens of history. */
     public static float[] nextProbs(CompiledGraph model, int[] prompt, int context, float temperature) {
-        int start = Math.max(0, prompt.length - context);
-        int[] window = Arrays.copyOfRange(prompt, start, prompt.length);
+        int[] window = Arrays.copyOfRange(prompt, start(prompt.length, context), prompt.length);
         if (window.length == 0) {
             window = new int[]{0};
         }
         Tensor logits = model.forward(null, new Tokens(window, 1, window.length), null);
         int v = logits.dim(-1);
-        float[] last = Arrays.copyOfRange(logits.data, (window.length - 1) * v, window.length * v);
+        return probs(logits.data, (window.length - 1) * v, v, temperature);
+    }
+
+    /** The probabilities a row of scores at {@code from}, {@code v} of them, gives at {@code temperature}. */
+    static float[] probs(float[] scores, int from, int v, float temperature) {
+        float[] last = Arrays.copyOfRange(scores, from, from + v);
         float t = Math.max(temperature, 1e-3f);
         for (int i = 0; i < v; i++) {
             last[i] /= t;
@@ -80,6 +97,15 @@ public final class Sampler {
     public static List<Step> generate(CompiledGraph model, int[] prompt, int chars, float temperature, Random rng, boolean keep) {
         Vocab vocab = model.env.tokenizer();
         List<Step> steps = new ArrayList<>();
+        if (model.forwarder() instanceof Serving serving && serving.drafts()) {
+            int[] written = {0};
+            Speculative.write(serving, prompt, temperature, temperature <= 0.01f, rng, step -> {
+                steps.add(step);
+                written[0] += vocab.piece(step.token()).length();
+                return written[0] < chars;
+            });
+            return steps;
+        }
         int[] seq = prompt.clone();
         for (int n = 0; n < chars; n += vocab.piece(steps.getLast().token()).length()) {
             float[] p = nextProbs(model, keep ? window(seq, prompt.length) : seq, Vocab.CONTEXT, temperature);
@@ -122,6 +148,17 @@ public final class Sampler {
         StringBuilder out = new StringBuilder();
         float[] probs = new float[max];
         int n = 0;
+        if (model.forwarder() instanceof Serving serving && serving.drafts()) {
+            int[] count = {0};
+            Speculative.write(serving, seq, 1f, true, new Random(0), step -> {
+                probs[count[0]++] = step.prob();
+                String piece = vocab.piece(step.token());
+                int end = piece.indexOf(stop);
+                out.append(piece, 0, end < 0 ? piece.length() : end);
+                return end < 0 && out.length() < max;
+            });
+            return new Answer(out.length() > max ? out.substring(0, max) : out.toString(), Arrays.copyOf(probs, count[0]));
+        }
         while (out.length() < max) {
             float[] p = nextProbs(model, window(seq, promptLength), Vocab.CONTEXT, 1f);
             int token = Trainer.argmax(p, 0, p.length);

@@ -35,17 +35,19 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The Model Server: use a saved crystal on it to serve that model, and a Relay Card or Terminal to tune it here. With an
- * empty hand it reports how it is doing; sneak with an empty hand to take the crystal out.
+ * empty hand it opens its screen, which says how it is doing; sneak with an empty hand to take the crystal out.
  */
 public class ServerBlock extends BaseEntityBlock implements ComputeHost {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty LOADED = BooleanProperty.create("loaded");
     public static final BooleanProperty SERVING = BooleanProperty.create("serving");
+    /** It has more to answer than it can: questions are piling up, or it is turning them away. */
+    public static final BooleanProperty STRAINED = BooleanProperty.create("strained");
     public static final MapCodec<ServerBlock> CODEC = simpleCodec(ServerBlock::new);
 
     public ServerBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LOADED, false).setValue(SERVING, false));
+        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LOADED, false).setValue(SERVING, false).setValue(STRAINED, false));
     }
 
     @Override
@@ -55,7 +57,7 @@ public class ServerBlock extends BaseEntityBlock implements ComputeHost {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, LOADED, SERVING);
+        builder.add(FACING, LOADED, SERVING, STRAINED);
     }
 
     @Override
@@ -110,6 +112,7 @@ public class ServerBlock extends BaseEntityBlock implements ComputeHost {
                 level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.BLOCKS, 1f, 1f);
             } else {
                 player.sendOverlayMessage(server.describe());
+                player.openMenu(server, buf -> buf.writeBlockPos(pos));
             }
         }
         return InteractionResult.SUCCESS;

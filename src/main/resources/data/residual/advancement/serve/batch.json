@@ -1,0 +1,28 @@
+{
+  "parent": "residual:serve/cache",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:kv_cache"
+    },
+    "title": {
+      "translate": "advancements.residual.serve.batch.title"
+    },
+    "description": {
+      "translate": "advancements.residual.serve.batch.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

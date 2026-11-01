@@ -1082,6 +1082,59 @@ public final class Ops {
         return out;
     }
 
+    /**
+     * The sum over rows of {@code weights[r]} times each row's cross-entropy, over {@code norm}. A negative weight makes a target less likely,
+     * so this is the shape of every loss that says how much better or worse each token did. A zero weight leaves its row out.
+     */
+    public static Tensor scoredCrossEntropy(Tape tape, Tensor logits, int[] targets, float[] weights, float norm) {
+        int v = logits.dim(-1);
+        int rows = logits.rows();
+        float[] probs = new float[logits.size()];
+        double total = 0;
+        for (int r = 0; r < rows; r++) {
+            float w = weights[r];
+            if (w == 0f) {
+                continue;
+            }
+            int off = r * v;
+            float max = Float.NEGATIVE_INFINITY;
+            for (int j = 0; j < v; j++) {
+                max = Math.max(max, logits.data[off + j]);
+            }
+            double sum = 0;
+            for (int j = 0; j < v; j++) {
+                float e = (float) Math.exp(logits.data[off + j] - max);
+                probs[off + j] = e;
+                sum += e;
+            }
+            float inv = (float) (1.0 / sum);
+            for (int j = 0; j < v; j++) {
+                probs[off + j] *= inv;
+            }
+            total += w * (Math.log(sum) + max - logits.data[off + targets[r]]);
+        }
+        Tensor out = new Tensor(new int[]{1}, new float[]{(float) (total / norm)}, tracks(tape, logits));
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                float gl = out.grad()[0];
+                float[] gx = logits.grad();
+                for (int r = 0; r < rows; r++) {
+                    float w = weights[r];
+                    if (w == 0f) {
+                        continue;
+                    }
+                    float c = gl * w / norm;
+                    int off = r * v;
+                    for (int j = 0; j < v; j++) {
+                        gx[off + j] += c * probs[off + j];
+                    }
+                    gx[off + targets[r]] -= c;
+                }
+            });
+        }
+        return out;
+    }
+
     // ------------------------------------------------------------------ reshaping
 
     /** [B, T, H*dh] -> [B, H, T, dh], i.e. {@code x.view(B, T, H, dh).transpose(1, 2)}. */

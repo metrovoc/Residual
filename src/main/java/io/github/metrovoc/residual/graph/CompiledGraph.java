@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.IntFunction;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
 /** A checked graph in execution order, owning its parameter tensors. */
 public final class CompiledGraph {
@@ -32,13 +33,34 @@ public final class CompiledGraph {
     /** How its training is split across devices, or null for one device. */
     public volatile Split split;
     private Boolean addsToLoss;
+    /** What answers its forward passes while nothing is learning, instead of running them itself. */
+    @Nullable
+    private final Forwarder forwarder;
 
-    private CompiledGraph(GraphSpec spec, Env env, int[] order, Sym[] shapes, List<Map<String, Tensor>> params) {
+    /** Answers a model's forward passes, with no tape and nothing captured. */
+    @FunctionalInterface
+    public interface Forwarder {
+        Tensor forward(Tokens tokens);
+    }
+
+    private CompiledGraph(GraphSpec spec, Env env, int[] order, Sym[] shapes, List<Map<String, Tensor>> params, @Nullable Forwarder forwarder) {
         this.spec = spec;
         this.env = env;
         this.order = order;
         this.shapes = shapes;
         this.params = params;
+        this.forwarder = forwarder;
+    }
+
+    /** This model with the same weights, whose forward passes go to {@code forwarder}. */
+    public CompiledGraph through(Forwarder forwarder) {
+        return new CompiledGraph(spec, env, order, shapes, params, forwarder);
+    }
+
+    /** What its forward passes go to, or null if it runs them itself. */
+    @Nullable
+    public Forwarder forwarder() {
+        return forwarder;
     }
 
     /**
@@ -152,7 +174,7 @@ public final class CompiledGraph {
             params.set(node, fresh);
         }
         int[] ord = order.stream().mapToInt(Integer::intValue).toArray();
-        return new CompiledGraph(spec, env, ord, shapes, params);
+        return new CompiledGraph(spec, env, ord, shapes, params, null);
     }
 
     private static void visit(GraphSpec spec, int node, int[] state, List<Integer> order, List<Issue> issues, boolean[] cyclic) {
@@ -220,6 +242,9 @@ public final class CompiledGraph {
 
     /** Runs the model on a token batch and returns logits [B, T, V]. */
     public Tensor forward(Tape tape, Tokens tokens, Captures captures) {
+        if (forwarder != null && tape == null && captures == null) {
+            return forwarder.forward(tokens);
+        }
         return forward(tape, tokens, captures, null);
     }
 

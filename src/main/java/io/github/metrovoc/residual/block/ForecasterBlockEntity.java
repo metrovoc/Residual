@@ -107,7 +107,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
     /** Why there is no model to run, in the order {@link #PROBLEM} counts them. */
     public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.unbound",
             "residual.model.out_of_range", "residual.model.no_server", "residual.model.server_empty", "residual.model.too_big",
-            "residual.model.failed");
+            "residual.model.failed", "residual.model.busy", "residual.server.no_room");
 
     public enum State { NOTHING, WATCHING, NO_MODEL, PEEKS, READY }
 

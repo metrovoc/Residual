@@ -48,7 +48,7 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
     /** Why there is no model to read with, in the order {@link #PROBLEM} counts them. */
     public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.unbound",
             "residual.model.out_of_range", "residual.model.no_server", "residual.model.server_empty", "residual.reader.too_big",
-            "residual.model.failed");
+            "residual.model.failed", "residual.model.busy", "residual.server.no_room");
 
     public enum State { NO_SHARD, NO_MODEL, PEEKS, READING, WHOLE, STUCK }
 

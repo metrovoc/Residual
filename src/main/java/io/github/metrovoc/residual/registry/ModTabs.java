@@ -109,6 +109,8 @@ public final class ModTabs {
                 out.accept(ModBlocks.RELAY_GATE.get());
                 out.accept(ModBlocks.RELAY_LINK.get());
                 out.accept(ModItems.RELAY_CARD.get());
+                out.accept(ModItems.KV_CACHE.get());
+                out.accept(ModItems.WEIGHT_PACKER.get());
                 out.accept(ModItems.TERMINAL.get());
                 out.accept(ModBlocks.DRIVE_RACK.get());
                 out.accept(ModItems.STORAGE_DRIVE.get());

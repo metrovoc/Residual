@@ -106,6 +106,8 @@ public final class Network {
         r.playToClient(CraftJobsSync.TYPE, CraftJobsSync.STREAM_CODEC);
         r.playToClient(CraftTreeSync.TYPE, CraftTreeSync.STREAM_CODEC);
         r.playToClient(WatchSync.TYPE, WatchSync.STREAM_CODEC);
+        r.playToClient(ServerSync.TYPE, ServerSync.STREAM_CODEC);
+        r.playToClient(ServerLoad.TYPE, ServerLoad.STREAM_CODEC);
         r.playToClient(ShimmerSync.TYPE, ShimmerSync.STREAM_CODEC);
         r.playToClient(SuitFlight.TYPE, SuitFlight.STREAM_CODEC);
         r.playToClient(RefinerySync.TYPE, RefinerySync.STREAM_CODEC);

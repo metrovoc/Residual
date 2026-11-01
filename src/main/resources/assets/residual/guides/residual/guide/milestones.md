@@ -120,6 +120,11 @@ instead of letters: [Tokens](tokenizers.md).</residual:Milestone>
 
 <residual:Milestone id="bench/mlp">It opens once the linear layer is verified.</residual:Milestone>
 
+<residual:Milestone id="bench/cached_attention">What a served attention does with a new token. It opens once attention is
+verified.</residual:Milestone>
+
+<residual:Milestone id="bench/round_weights">What packing does to a run of weights. It opens once matrix multiply is verified.</residual:Milestone>
+
 <residual:Milestone id="bench/mean"></residual:Milestone>
 
 <residual:Milestone id="bench/layer_norm">It opens once mean is verified.</residual:Milestone>
@@ -259,6 +264,17 @@ its reach: [Serving Models](deployment.md).</residual:Milestone>
 
 <residual:Milestone id="deploy/api">From a Terminal, far from them, hand an agent a Program Card's program or open a
 storage network.</residual:Milestone>
+
+<residual:Milestone id="serve/cache">Put a KV Cache in a Model Server, and ask it something: [Serving Models](deployment.md).</residual:Milestone>
+
+<residual:Milestone id="serve/batch">Eight questions waiting at once, on a server with a KV Cache and its batch set to eight or more.</residual:Milestone>
+
+<residual:Milestone id="serve/packed">With a Weight Packer, set a server to 4 bits, with a model that keeps passing all it passes.</residual:Milestone>
+
+<residual:Milestone id="serve/draft">A draft in a server's panel that has practised what the served model does, on questions that
+take more than a token.</residual:Milestone>
+
+<residual:Milestone id="serve/turned_away">More than 64 questions waiting.</residual:Milestone>
 
 <residual:Milestone id="agent/order">Start a chat message with its name, such as *Pip, bring me some bread*. Its model
 has to have practised orders.</residual:Milestone>

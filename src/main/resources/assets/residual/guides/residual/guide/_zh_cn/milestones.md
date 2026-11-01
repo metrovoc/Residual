@@ -97,6 +97,10 @@ navigation:
 
 <residual:Milestone id="bench/mlp">验证线性层后开放。</residual:Milestone>
 
+<residual:Milestone id="bench/cached_attention">被服务的注意力对新词元要做的事。验证注意力后开放。</residual:Milestone>
+
+<residual:Milestone id="bench/round_weights">打包时对一串权重做的事。验证矩阵乘法后开放。</residual:Milestone>
+
 <residual:Milestone id="bench/mean"></residual:Milestone>
 
 <residual:Milestone id="bench/layer_norm">验证均值后开放。</residual:Milestone>
@@ -214,6 +218,16 @@ navigation:
 <residual:Milestone id="deploy/link">开启的网络上放两个中继链路，每处都连着存储或电力。</residual:Milestone>
 
 <residual:Milestone id="deploy/api">远离基地，用终端把程序卡上的程序交给智能体，或打开存储网络。</residual:Milestone>
+
+<residual:Milestone id="serve/cache">在模型服务器里放一枚 KV 缓存，再问它点什么：[模型服务](deployment.md)。</residual:Milestone>
+
+<residual:Milestone id="serve/batch">在装了 KV 缓存、批次设为 8 或更多的服务器上，同时有八个问题在等。</residual:Milestone>
+
+<residual:Milestone id="serve/packed">有了权重打包器，把服务器设为 4 位，模型依然通过它原本通过的一切。</residual:Milestone>
+
+<residual:Milestone id="serve/draft">在服务器面板里放一个练过被服务模型同样事情的草稿模型，问一些回答不止一个词元的问题。</residual:Milestone>
+
+<residual:Milestone id="serve/turned_away">等待的问题超过 64 个。</residual:Milestone>
 
 <residual:Milestone id="agent/order">以它的名字开头发一条聊天消息，例如 *Pip, bring me some bread*。它的模型必须练过指令。</residual:Milestone>
 

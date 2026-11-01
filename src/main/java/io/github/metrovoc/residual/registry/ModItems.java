@@ -93,6 +93,8 @@ public final class ModItems {
     /** What makes a body that runs programs faster, stronger or longer in reach, by kind. */
     public static final Map<Upgrades.Kind, DeferredItem<UpgradeItem>> UPGRADES = new EnumMap<>(Upgrades.Kind.class);
     public static final DeferredItem<LinkItem> RELAY_CARD = ITEMS.registerItem("relay_card", LinkItem::new, p -> p.stacksTo(16));
+    public static final DeferredItem<Item> KV_CACHE = ITEMS.registerSimpleItem("kv_cache");
+    public static final DeferredItem<Item> WEIGHT_PACKER = ITEMS.registerItem("weight_packer", Item::new, p -> p.stacksTo(1));
     public static final DeferredItem<TerminalItem> TERMINAL = ITEMS.registerItem("terminal", TerminalItem::new, p -> p.stacksTo(1));
     /** The first Storage Drive: a quarter of a million items, of any number of kinds. */
     public static final DeferredItem<StorageDriveItem> STORAGE_DRIVE = ITEMS.registerItem("storage_drive",

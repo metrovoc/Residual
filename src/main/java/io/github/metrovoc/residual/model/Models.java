@@ -45,7 +45,7 @@ public final class Models {
     }
 
     @Nullable
-    static <T> T evaluate(@Nullable CompiledGraph model, Function<CompiledGraph, T> work) {
+    public static <T> T evaluate(@Nullable CompiledGraph model, Function<CompiledGraph, T> work) {
         try {
             return model == null ? null : work.apply(model);
         } catch (RuntimeException e) {

@@ -39,7 +39,7 @@ item_ids:
 
 - **来源**：你输入的常数，以及 **size**，即最后一轴的长度。
 - **算术**：add、sub、mul、div 和 max，逐元素计算。大小为 1 的轴会拉伸以匹配另一个输入，所以一行的和可以除整行的数。
-- **函数**：neg、exp、log、sqrt 和 tanh。
+- **函数**：neg、exp、log、sqrt、tanh 和 round。
 - **末轴**：sum 和 amax 把这一轴保留为大小 1；transpose 交换最后两轴；unsqueeze 和 squeeze 添加和去掉大小为 1 的轴；causal 遮住对角线以上的一切。
 - **网格、旋转**：cos 和 sin；round，取最接近的整数，正好一半时取偶数一侧；exponent，浮点数存储的 2 的幂次，pow2 把它还原；index，每一行的位置；pair，一行中每个数属于第几对；turn，把每一对转四分之一圈；left 和 right，末轴的两半。
 - **你的模块**：你验证过的每项规格，作为一个部件。
@@ -52,7 +52,7 @@ item_ids:
 
 把光掩模放进制造机，选一台机器。每台机器需要一个<ItemLink id="tensor_casing" />、若干晶圆，会学习权重的还需要权重晶体。设计的**面积**决定晶圆数：每四单位面积一块晶圆。每个基本运算占一点面积，每个模块占其规格的设计所需的面积，所以设计越小，机器越便宜。光掩模永远不会消耗。
 
-不放光掩模时，制造机制造无需设计的机器：嵌入表和位置表、残差汇合点、门控、缩放器、因果掩码、分头器与合头器、延迟线以及拼接器。矩阵乘法光掩模还能制造<ItemLink id="accelerator" />和<ItemLink id="drive_dock" />，线性层光掩模还能制造<ItemLink id="dense_drive" />和<ItemLink id="portable_drive" />，注意力光掩模还能制造<ItemLink id="hourglass" />和<ItemLink id="access_point" />和大多数[升级](programs.md)，Transformer 光掩模还能制造<ItemLink id="forecaster_ii" />、<ItemLink id="forecaster_iii" />、<ItemLink id="smelter" />和<ItemLink id="stacked_drive" />，以及<ItemLink id="energy_upgrade" />和<ItemLink id="lift_upgrade" />。计划、bf16、fp8、fp4、正交化和文档掩码的光掩模制造[配方](recipe.md)的各个单元。
+不放光掩模时，制造机制造无需设计的机器：嵌入表和位置表、残差汇合点、门控、缩放器、因果掩码、分头器与合头器、延迟线以及拼接器。矩阵乘法光掩模还能制造<ItemLink id="accelerator" />和<ItemLink id="drive_dock" />，线性层光掩模还能制造<ItemLink id="dense_drive" />和<ItemLink id="portable_drive" />，注意力光掩模还能制造<ItemLink id="hourglass" />和<ItemLink id="access_point" />和大多数[升级](programs.md)，Transformer 光掩模还能制造<ItemLink id="forecaster_ii" />、<ItemLink id="forecaster_iii" />、<ItemLink id="smelter" />和<ItemLink id="stacked_drive" />，以及<ItemLink id="energy_upgrade" />和<ItemLink id="lift_upgrade" />。计划、bf16、fp8、fp4、正交化和文档掩码的光掩模制造[配方](recipe.md)的各个单元。带缓存的注意力光掩模制造<ItemLink id="kv_cache" />，权重取整光掩模制造<ItemLink id="weight_packer" />。
 
 ## 融合与未融合
 

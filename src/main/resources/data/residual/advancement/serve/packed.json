@@ -1,0 +1,28 @@
+{
+  "parent": "residual:deploy/server",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:weight_packer"
+    },
+    "title": {
+      "translate": "advancements.residual.serve.packed.title"
+    },
+    "description": {
+      "translate": "advancements.residual.serve.packed.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

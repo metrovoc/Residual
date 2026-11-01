@@ -40,7 +40,7 @@ SPECS = {"mean": None, "softmax": None, "matmul": None, "linear": "matmul", "gel
          "rotary": "attention", "qk_norm": "rotary", "online_softmax": "softmax", "z_loss": "softmax",
          "modern_attention": "qk_norm", "modern_block": "modern_attention", "fp32": "mean", "bf16": "fp32", "fp8": "fp32", "fp4": "fp8",
          "schedule": "transformer", "grad_clip": "schedule", "newton_step": "matmul", "orthogonalize": "newton_step",
-         "document_mask": "attention", "cross_entropy": "softmax", "multi_token": "cross_entropy"}
+         "document_mask": "attention", "cross_entropy": "softmax", "multi_token": "cross_entropy", "cached_attention": "attention", "round_weights": "matmul"}
 WRECKS = ruins.WRECKS
 
 FACING = {"north": {}, "south": {"y": 180}, "east": {"y": 90}, "west": {"y": 270}, "up": {"x": 270}, "down": {"x": 90}}
@@ -149,15 +149,16 @@ def units():
 def server():
     """Front shows the crystal bay: empty, loaded, or serving with its lights running."""
     side, top = rid("block/model_server_side"), rid("block/model_server_top")
-    fronts = {"": "model_server_front", "_loaded": "model_server_front_loaded", "_on": "model_server_front_on"}
+    fronts = {"": "model_server_front", "_loaded": "model_server_front_loaded", "_on": "model_server_front_on", "_full": "model_server_front_full"}
     for suffix, front in fronts.items():
         cube(f"model_server{suffix}", rid(f"block/{front}"), side, side, top, top)
     variants = {}
     for loaded in ("false", "true"):
         for serving in ("false", "true"):
-            suffix = "_on" if serving == "true" and loaded == "true" else "_loaded" if loaded == "true" else ""
-            for key, value in facing_variants(rid(f"block/model_server{suffix}"), facings=HORIZONTAL).items():
-                variants[f"{key},loaded={loaded},serving={serving}"] = value
+            for strained in ("false", "true"):
+                suffix = "_full" if strained == "true" and loaded == "true" else "_on" if serving == "true" and loaded == "true" else "_loaded" if loaded == "true" else ""
+                for key, value in facing_variants(rid(f"block/model_server{suffix}"), facings=HORIZONTAL).items():
+                    variants[f"{key},loaded={loaded},serving={serving},strained={strained}"] = value
     write(f"assets/{NS}/blockstates/model_server.json", {"variants": variants})
     item_definition("model_server", rid("block/model_server"))
 
@@ -532,7 +533,7 @@ def storage():
 
 def items():
     flat = (["weight_crystal", "wafer", "wafer_28", "wafer_7", "wafer_3", "reactor_fuel", "checkpoint", "archive_drive", "archive_shard", "salvaged_model", "relay_dump", "token_cell",
-             "agent", "relay_card", "terminal", "field_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
+             "agent", "relay_card", "kv_cache", "weight_packer", "terminal", "field_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
              "portable_drive", "wireless_terminal", "hourglass", "flight_frame", "exosuit",
              "speed_upgrade", "stack_upgrade", "range_upgrade", "fluid_upgrade", "energy_upgrade", "carry_upgrade", "lift_upgrade"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
@@ -953,6 +954,11 @@ def advancements():
     advancement("deploy/link", "deploy/mast", "relay_link", awarded(), frame="goal")
     advancement("deploy/api", "deploy/relay", "terminal", awarded(), frame="goal")
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
+    advancement("serve/cache", "deploy/server", "kv_cache", awarded(), frame="goal")
+    advancement("serve/batch", "serve/cache", "kv_cache", awarded())
+    advancement("serve/packed", "deploy/server", "weight_packer", awarded(), frame="goal")
+    advancement("serve/draft", "serve/cache", "checkpoint", awarded(), frame="goal")
+    advancement("serve/turned_away", "deploy/server", "model_server", awarded(), hidden=True)
     advancement("forecast/watching", "root", "forecaster", placed("forecaster"))
     advancement("forecast/ahead", "forecast/watching", "minecraft:furnace", awarded(), frame="goal")
     advancement("forecast/hourglass", "forecast/ahead", "hourglass", awarded(), frame="goal")

@@ -2,9 +2,14 @@ package io.github.metrovoc.residual.model;
 
 import io.github.metrovoc.residual.graph.CompileException;
 import io.github.metrovoc.residual.graph.CompiledGraph;
+import io.github.metrovoc.residual.graph.Decoder;
 import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.tensor.Tensor;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * A model's weights kept in fewer bits. Each run of {@link #GROUP} weights shares a scale, a 16-bit float, and each weight
@@ -87,6 +92,95 @@ public final class Quantized {
             in.align();
         }
         return model;
+    }
+
+    /**
+     * Weights read out of the packed bytes machine by machine, each time they are wanted, into scratch space no bigger than the
+     * largest machine: nothing else of them is held as floats. Not safe to share between threads.
+     */
+    public Decoder.Weights unpacked() {
+        return new Unpacked();
+    }
+
+    private final class Unpacked implements Decoder.Weights {
+        /** Where each machine's weights start in the packed bytes. */
+        private final Map<Integer, Integer> starts = new HashMap<>();
+        private final Map<Integer, Map<String, Tensor>> shapes = new HashMap<>();
+        private final Map<Integer, ArrayDeque<float[]>> free = new HashMap<>();
+        private final Map<Integer, Map<String, Tensor>> open = new HashMap<>();
+
+        Unpacked() {
+            CompiledGraph model;
+            try {
+                model = CompiledGraph.compile(spec, env, null, 0);
+            } catch (CompileException e) {
+                throw new IllegalStateException("a compiled model no longer compiles", e);
+            }
+            int at = 0;
+            for (int node : model.order) {
+                starts.put(node, at);
+                shapes.put(node, model.params(node));
+                for (Tensor t : model.params(node).values()) {
+                    at += (t.size() + GROUP - 1) / GROUP * Short.BYTES + (t.size() * bits + 7) / 8;
+                }
+            }
+        }
+
+        @Override
+        public Map<String, Tensor> of(int node) {
+            Map<String, Tensor> known = open.get(node);
+            if (known != null) {
+                return known;
+            }
+            Map<String, Tensor> like = shapes.get(node);
+            if (like.isEmpty()) {
+                return like;
+            }
+            Map<String, Tensor> out = new LinkedHashMap<>();
+            int at = starts.get(node);
+            for (Map.Entry<String, Tensor> e : like.entrySet()) {
+                Tensor t = e.getValue();
+                ArrayDeque<float[]> spare = free.get(t.size());
+                float[] data = spare == null || spare.isEmpty() ? new float[t.size()] : spare.pop();
+                at = read(at, data);
+                out.put(e.getKey(), new Tensor(t.shape, data, false));
+            }
+            open.put(node, out);
+            return out;
+        }
+
+        @Override
+        public void done(int node) {
+            Map<String, Tensor> used = open.remove(node);
+            if (used != null) {
+                used.values().forEach(t -> free.computeIfAbsent(t.size(), n -> new ArrayDeque<>()).push(t.data));
+            }
+        }
+
+        /** Reads one tensor's groups from {@code at} and says where the next one starts. */
+        private int read(int at, float[] data) {
+            byte[] in = packed;
+            for (int from = 0; from < data.length; from += GROUP) {
+                int end = Math.min(from + GROUP, data.length);
+                float scale = Float.float16ToFloat((short) ((in[at] & 0xFF) << 8 | in[at + 1] & 0xFF));
+                at += Short.BYTES;
+                if (bits == 8) {
+                    for (int i = from; i < end; i++) {
+                        data[i] = in[at + i - from] * scale;
+                    }
+                    at += end - from;
+                } else if (bits == 4) {
+                    for (int i = from; i < end; i++) {
+                        int b = in[at + (i - from >> 1)];
+                        data[i] = ((i - from & 1) == 0 ? b >> 4 : b << 28 >> 28) * scale;
+                    }
+                    at += end - from + 1 >> 1;
+                } else {
+                    throw new IllegalStateException("only 8 and 4 bits are unpacked on the way");
+                }
+            }
+            return at;
+        }
     }
 
     /** Writes numbers bit by bit, most significant first. */

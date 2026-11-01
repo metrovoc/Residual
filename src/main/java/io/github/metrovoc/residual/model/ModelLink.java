@@ -64,7 +64,13 @@ public sealed interface ModelLink {
                 return new Missing("residual.model.no_server");
             }
             ModelInfo served = server.model();
-            return served == null ? new Missing("residual.model.server_empty") : new Served(server, served);
+            if (served == null) {
+                return new Missing("residual.model.server_empty");
+            }
+            if (!server.problem().isEmpty()) {
+                return new Missing(server.problem());
+            }
+            return server.full() ? new Missing("residual.model.busy") : new Served(server, served);
         }
         return slot.isEmpty() ? new Missing("residual.model.none") : new Missing("residual.model.blank");
     }

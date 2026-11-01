@@ -11,6 +11,10 @@ import io.github.metrovoc.residual.agent.Trace;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.block.UnitBlock;
+import io.github.metrovoc.residual.block.ServerBlock;
+import io.github.metrovoc.residual.block.ServerBlockEntity;
+import io.github.metrovoc.residual.learn.Sampler;
+import io.github.metrovoc.residual.net.ServerSync;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.client.AgentScreen;
@@ -193,6 +197,11 @@ import org.slf4j.Logger;
  * expect watching X Y Z N    fail the step unless the Watch Post at the place watches at least N things
  * expect wrong X Y Z N       fail the step unless the Watch Post at the place says at least N things have gone wrong
  * expect spent X Y Z N       fail the step unless the Forecaster III at the place has spent at least N FE of a full store
+ * expect server X Y Z KIND N fail the step unless the Model Server at the place says at least N: rate (answers a second), answered,
+ *                            waiting, turned (turned away), full (1 if it is turning questions away), strained (1 if its lights say so),
+ *                            weights (bytes), most (the most its weights may take), saved (rows a cache saved), rows, batch (the most
+ *                            sequences it has run in one pass), proposed, accepted (a draft's tokens), passes (tests its form passes)
+ * ask X Y Z N [TOKENS]       put N questions to the Model Server at the place, writing TOKENS tokens (16) each after a prompt of its own
  * stock X Y Z ITEM N         put N of ITEM into the storage network at the place, all at once
  * kinds X Y Z N              put one each of N made-up kinds into the storage network at the place, all at once
  * transfer CELLS [stacks]    lay a recipe in the open Storage Terminal's crafting grid, as the recipe viewer does: nine cells
@@ -772,6 +781,20 @@ public final class Rehearsal {
             }
             case "pattern" -> ClientPacketDistributor.sendToServer(new PatternTransfer(mc.player.containerMenu.containerId,
                     stacks(args[0]), args.length > 1 ? stacks(args[1]) : List.of()));
+            case "ask" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                BlockPos at = new BlockPos(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+                int tokens = args.length > 4 ? Integer.parseInt(args[4]) : 16;
+                server.execute(() -> {
+                    ServerBlockEntity be = (ServerBlockEntity) server.getPlayerList().getPlayer(id).level().getBlockEntity(at);
+                    for (int i = 0; i < Integer.parseInt(args[3]); i++) {
+                        String prompt = "> question " + (i % 40) + "\n= ";
+                        be.submit(m -> Sampler.answer(m, prompt, tokens, (char) 1), r -> {
+                        });
+                    }
+                });
+            }
             case "ghost" -> ClientPacketDistributor.sendToServer(new GhostSlot(mc.player.containerMenu.containerId, Integer.parseInt(args[0]), kind(args[1]).toStack(1)));
             case "kinds" -> kinds(mc, args);
             case "await" -> {
@@ -1114,6 +1137,9 @@ public final class Rehearsal {
                         default -> {
                         }
                     }
+                    if (args[0].equals("server")) {
+                        return serverSays((ServerBlockEntity) level.getBlockEntity(at), args[4]);
+                    }
                     if (args[0].equals("watching")) {
                         return (long) ((WatchPostBlockEntity) level.getBlockEntity(at)).rows().size();
                     }
@@ -1260,6 +1286,28 @@ public final class Rehearsal {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }
         LOG.info("[rehearsal] expected {}, found {}", what, found);
+    }
+
+    /** What a Model Server says of {@code what}, for a script. */
+    private static long serverSays(ServerBlockEntity be, String what) {
+        ServerSync s = be.sync(0);
+        return switch (what) {
+            case "rate" -> (long) s.rate();
+            case "answered" -> s.answered();
+            case "waiting" -> s.waiting();
+            case "turned" -> s.turnedAway();
+            case "full" -> be.full() ? 1 : 0;
+            case "strained" -> be.getBlockState().getValue(ServerBlock.STRAINED) ? 1 : 0;
+            case "weights" -> s.weights();
+            case "most" -> s.memory() - s.weights();
+            case "saved" -> s.saved();
+            case "rows" -> s.rows();
+            case "batch" -> be.biggestBatch();
+            case "proposed" -> s.proposed();
+            case "accepted" -> s.accepted();
+            case "passes" -> s.scores().stream().filter(ServerSync.Scored::passes).count();
+            default -> throw new IllegalArgumentException(what);
+        };
     }
 
     private static ItemResource kind(String id) {

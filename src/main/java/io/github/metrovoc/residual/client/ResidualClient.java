@@ -29,6 +29,8 @@ import io.github.metrovoc.residual.net.SuitFlight;
 import io.github.metrovoc.residual.net.RelaySync;
 import io.github.metrovoc.residual.net.TerminalAgentsSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
+import io.github.metrovoc.residual.net.ServerLoad;
+import io.github.metrovoc.residual.net.ServerSync;
 import io.github.metrovoc.residual.net.WatchSync;
 import io.github.metrovoc.residual.net.TerminalBaseSync;
 import io.github.metrovoc.residual.net.WaveSync;
@@ -37,6 +39,7 @@ import io.github.metrovoc.residual.refine.RefinerySync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModMenus;
+import io.github.metrovoc.residual.menu.ServerMenu;
 import io.github.metrovoc.residual.menu.WatchPostMenu;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.List;
@@ -129,6 +132,7 @@ public final class ResidualClient {
         event.register(ModMenus.READER.get(), ReaderScreen::new);
         event.register(ModMenus.SURVEYOR.get(), SurveyorScreen::new);
         event.register(ModMenus.WATCH_POST.get(), WatchPostScreen::new);
+        event.register(ModMenus.SERVER.get(), ServerScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
         event.register(ModMenus.POWER.get(), PowerScreen::new);
         event.register(ModMenus.RACK_MODULE.get(), RackModuleScreen::new);
@@ -218,6 +222,12 @@ public final class ResidualClient {
             }
         });
         event.register(SuitFlight.TYPE, (flight, ctx) -> SuitHud.receive(flight));
+        event.register(ServerSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof ServerMenu menu && menu.containerId == sync.menu()) {
+                menu.sync = sync;
+            }
+        });
+        event.register(ServerLoad.TYPE, (load, ctx) -> ServerHud.receive(load));
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {
             AgentView.answer = answer;
             AgentView.asking = false;
@@ -249,5 +259,6 @@ public final class ResidualClient {
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, Residual.id("lens"), Lens::render);
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, Residual.id("exosuit"), SuitHud::render);
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, Residual.id("signal"), RelayView::signal);
+        event.registerAbove(VanillaGuiLayers.CROSSHAIR, Residual.id("server"), ServerHud::render);
     }
 }

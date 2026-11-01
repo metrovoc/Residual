@@ -137,6 +137,12 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
                     out.add(ModItems.UPGRADES.get(kind).get());
                 }
             }
+            if (spec == Specs.CACHED_ATTENTION) {
+                out.add(ModItems.KV_CACHE.get());
+            }
+            if (spec == Specs.ROUND_WEIGHTS) {
+                out.add(ModItems.WEIGHT_PACKER.get());
+            }
             if (spec == Specs.TRANSFORMER) {
                 out.add(ModBlocks.FORECASTER_II.asItem());
                 out.add(ModBlocks.FORECASTER_III.asItem());
@@ -255,6 +261,12 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         }
         if (item instanceof BlockItem b && b.getBlock() instanceof RefineryBlock) {
             return new Cost(2, 4, 2, 160);
+        }
+        if (item == ModItems.KV_CACHE.get()) {
+            return new Cost(1, 8, 2, 120);
+        }
+        if (item == ModItems.WEIGHT_PACKER.get()) {
+            return new Cost(2, 8, 4, 160);
         }
         MaskData m = MaskItem.mask(mask);
         int wafers = Math.max(1, ((m == null ? 0 : m.area()) + 3) / 4);

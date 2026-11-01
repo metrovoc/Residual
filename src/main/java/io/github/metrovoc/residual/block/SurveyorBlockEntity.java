@@ -68,7 +68,7 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
     public static final int STATE = 0, PROGRESS = 1, PROBLEM = 2, FOUND = 3, MISSED = FOUND + 9, DATA = MISSED + 1;
     public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.unbound",
             "residual.model.out_of_range", "residual.model.no_server", "residual.model.server_empty", "residual.model.too_big",
-            "residual.model.failed");
+            "residual.model.failed", "residual.model.busy", "residual.server.no_room");
     /** How near a player with a Survey Rod has to be to see what it found, and an agent to dig for it. */
     public static final int SEEN = 48;
     private static final Set<SurveyorBlockEntity> LOADED = new HashSet<>();
