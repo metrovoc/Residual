@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "residual:sealed_stacks",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 64,
+    "separation": 20,
+    "salt": 77015239
+  }
+}

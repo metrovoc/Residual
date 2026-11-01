@@ -30,6 +30,28 @@
     ]
   },
   {
+    "name": "tutor_house",
+    "words": [
+      "tutor",
+      "drill"
+    ]
+  },
+  {
+    "name": "fallen_relay_mast",
+    "words": [
+      "mast",
+      "relay line"
+    ]
+  },
+  {
+    "name": "sealed_stacks",
+    "words": [
+      "sealed",
+      "the stacks",
+      "sealing"
+    ]
+  },
+  {
     "name": "relay_tower",
     "words": [
       "relay",

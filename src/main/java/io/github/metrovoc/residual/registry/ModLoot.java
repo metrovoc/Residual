@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.registry;
 
 import com.mojang.serialization.MapCodec;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.item.FillDrive;
 import io.github.metrovoc.residual.item.ShardAbout;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
@@ -13,6 +14,7 @@ public final class ModLoot {
             Residual.MOD_ID);
 
     public static final Supplier<MapCodec<ShardAbout>> SHARD_ABOUT = FUNCTIONS.register("shard_about", () -> ShardAbout.MAP_CODEC);
+    public static final Supplier<MapCodec<FillDrive>> FILL_DRIVE = FUNCTIONS.register("fill_drive", () -> FillDrive.MAP_CODEC);
 
     private ModLoot() {
     }

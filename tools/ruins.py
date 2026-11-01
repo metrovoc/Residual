@@ -14,10 +14,16 @@ END, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BYTES, STRING, LIST, COMPOUND, INTS,
 
 
 def _tag(v):
+    if isinstance(v, Byte):
+        return BYTE
     if isinstance(v, bool) or isinstance(v, int) and not isinstance(v, Long):
         return INT
     if isinstance(v, Long):
         return LONG
+    if isinstance(v, Float):
+        return FLOAT
+    if isinstance(v, float):
+        return DOUBLE
     if isinstance(v, str):
         return STRING
     if isinstance(v, dict):
@@ -31,8 +37,22 @@ class Long(int):
     pass
 
 
+class Byte(int):
+    pass
+
+
+class Float(float):
+    pass
+
+
 def _payload(v):
     t = _tag(v)
+    if t == BYTE:
+        return struct.pack(">b", int(v))
+    if t == FLOAT:
+        return struct.pack(">f", float(v))
+    if t == DOUBLE:
+        return struct.pack(">d", float(v))
     if t == INT:
         return struct.pack(">i", int(v))
     if t == LONG:
@@ -74,6 +94,7 @@ class Template:
     def __init__(self, sx, sy, sz):
         self.size = (sx, sy, sz)
         self.blocks = {}
+        self.entities = []
 
     def set(self, x, y, z, name, props=None, data=None):
         self.blocks[(x, y, z)] = (name if ":" in name else "minecraft:" + name, props or {}, data)
@@ -133,6 +154,12 @@ class Template:
         for (x, y, z), block in other.blocks.items():
             self.blocks[(x + ox, y + oy, z + oz)] = block
 
+    def apprentice(self, x, y, z, yaw):
+        """An apprentice standing still where its work stopped, facing yaw degrees (0 south, 90 west)."""
+        self.entities.append({"pos": [x + 0.5, float(y), z + 0.5], "blockPos": [x, y, z], "nbt": {
+            "id": "residual:agent", "NoAI": Byte(1), "PersistenceRequired": Byte(1), "program": "",
+            "stopped": Byte(1), "Rotation": [Float(yaw), Float(0)]}})
+
     def connect(self):
         """Joins fences, panes, bars and walls to what stands beside them, as placing them by hand would."""
         for (x, y, z), (name, props, data) in list(self.blocks.items()):
@@ -183,7 +210,7 @@ class Template:
             if data:
                 block["nbt"] = data
             blocks.append(block)
-        return nbt({"size": list(self.size), "entities": [], "blocks": blocks, "palette": palette,
+        return nbt({"size": list(self.size), "entities": self.entities, "blocks": blocks, "palette": palette,
                     "DataVersion": DATA_VERSION})
 
 
@@ -938,6 +965,215 @@ def waymark_north():
           {"id": "minecraft:barrel", "LootTable": "residual:chests/waymark_north"})
     return t
 
+def tutor_house():
+    """A tutor house, where minds were drilled and tested: a hall of tuff with a cornice of copper and a relay on its
+    roof, the apprentices still standing in their row before the tutor's bench, the drill box beside the crystal; the
+    teaching room with its sunny window and the tray of crystals, each on its card; the apprentice hall, its apprentices
+    stopped at their stations, the dry box and the jar; and the drill yard ringed with torches, its boards drawn as
+    small fields of green and gold."""
+    t = Template(25, 11, 22)
+    # the drill hall and the teaching room: tuff bricks between pilasters, high windows, a flat roof behind a parapet
+    x0, x1, z0, z1 = 1, 23, 1, 9
+    t.fill(x0, 0, z0, x1, 0, z1, "polished_tuff")
+    t.fill(x0 + 1, 0, z0 + 1, x1 - 1, 0, z1 - 1, "spruce_planks")
+    t.fill(x0 + 1, 1, z0 + 1, x1 - 1, 6, z1 - 1, "air")
+    t.walls(x0, 1, z0, x1, 6, z1, "tuff_bricks")
+    t.walls(x0, 1, z0, x1, 1, z1, "polished_tuff")
+    t.walls(15, 1, z0, 15, 6, z1, "tuff_bricks")
+    for x in range(x0, x1 + 1, 4):
+        for z in (z0, z1):
+            t.fill(x, 1, z, x, 6, z, "chiseled_tuff_bricks" if x in (x0, x1) else "polished_tuff")
+    for x in range(x0 + 1, x1):
+        for z in (z0, z1):
+            if (x - x0) % 4 and x != 15:
+                t.fill(x, 4, z, x, 5, z, "glass_pane")
+    t.fill(x0, 7, z0, x1, 7, z1, "polished_tuff")
+    ring_stairs(t, 7, x0 - 1, x1 + 1, "weathered_cut_copper_stairs", half="top", z0=z0 - 1, z1=z1 + 1)
+    for x in range(x0, x1 + 1):
+        for z in (z0, z1):
+            t.set(x, 8, z, "tuff_brick_wall")
+    for z in range(z0, z1 + 1):
+        t.set(x0, 8, z, "tuff_brick_wall")
+        t.set(x1, 8, z, "tuff_brick_wall")
+    t.set(8, 8, 5, "residual:relay")
+    # the drill hall: the apprentices in their row, the tutor's bench with the drill box and the crystal
+    for k, x in enumerate(range(3, 14, 2)):
+        t.apprentice(x, 1, 2, 0)
+    t.set(14, 1, 5, "residual:bench")
+    t.barrel(14, 1, 4, "up", "residual:chests/tutor_house")
+    t.set(14, 1, 6, "polished_tuff")
+    t.set(14, 2, 6, "amethyst_cluster", {"facing": "up", "waterlogged": "false"})
+    for x in (4, 8, 12):
+        t.lantern(x, 6, 5, hanging=True)
+    t.door(8, 1, z1, "spruce_door", "south")
+    t.door(15, 1, 5, "spruce_door", "east")
+    # the teaching room: the sunny window, the tray of crystals each on its card, a cushion for the cat
+    t.fill(x1, 2, 4, x1, 4, 6, "glass_pane")
+    t.fill(18, 1, 3, 20, 1, 3, "spruce_planks")
+    for x, card in ((18, "Farm."), (19, "Build."), (20, "Store.")):
+        t.set(x, 2, 3, "amethyst_cluster", {"facing": "up", "waterlogged": "false"})
+        t.sign(x, 1, 4, "south", [card])
+    t.fill(16, 1, 8, 22, 1, 8, "bookshelf")
+    t.set(22, 1, 5, "red_carpet")
+    t.chest(16, 1, 2, "east", "residual:chests/tutor_house")
+    t.lantern(19, 6, 5, hanging=True)
+    # the apprentice hall: its apprentices stopped at their stations, the dry box, the blue jar and the note
+    a0, a1, b0, b1 = 1, 9, 10, 18
+    t.fill(a0, 0, b0, a1, 0, b1, "polished_tuff")
+    t.fill(a0 + 1, 0, b0 + 1, a1 - 1, 0, b1 - 1, "spruce_planks")
+    t.fill(a0 + 1, 1, b0 + 1, a1 - 1, 4, b1 - 1, "air")
+    t.walls(a0, 1, b0, a1, 4, b1, "tuff_bricks")
+    t.walls(a0, 1, b0, a1, 1, b1, "polished_tuff")
+    for x, z in ((a0, b0), (a1, b0), (a0, b1), (a1, b1)):
+        t.fill(x, 1, z, x, 4, z, "polished_tuff")
+    t.fill(a0, 5, b0, a1, 5, b1, "polished_tuff")
+    ring_stairs(t, 5, a0 - 1, a1 + 1, "weathered_cut_copper_stairs", half="top", z0=b0, z1=b1 + 1)
+    for z in (13, 15):
+        t.fill(a0, 2, z, a0, 3, z, "glass_pane")
+    t.door(a1, 1, 14, "spruce_door", "east")
+    t.apprentice(3, 1, 12, 0)
+    t.apprentice(3, 1, 16, 180)
+    t.apprentice(6, 1, 17, 180)
+    t.set(2, 1, b0 + 1, "anvil", {"facing": "east"})
+    t.set(4, 1, b0 + 1, "grindstone", {"face": "floor", "facing": "south"})
+    t.chest(a1 - 1, 1, b1 - 1, "west", "residual:chests/tutor_dry_box")
+    t.set(a1 - 1, 1, b1 - 2, "decorated_pot", {"facing": "west", "cracked": "false", "waterlogged": "false"})
+    t.sign(5, 2, b1 - 1, "north", ["Oil is in the", "jar. Spare", "crystals are in", "the dry box."])
+    t.lantern(5, 4, 14, hanging=True)
+    # the drill yard: fenced, torches round it, three boards drawn as small fields
+    for x in range(11, 24):
+        t.set(x, 1, 21, "spruce_fence")
+    for z in range(10, 22):
+        t.set(11, 1, z, "spruce_fence")
+        t.set(23, 1, z, "spruce_fence")
+    for x, z in ((11, 10), (11, 21), (23, 10), (23, 21), (17, 21)):
+        t.set(x, 2, z, "torch")
+    for bx, bz in ((13, 12), (18, 12), (13, 16)):
+        t.fill(bx - 1, 0, bz - 1, bx + 4, 0, bz + 3, "spruce_planks")
+        for x in range(bx, bx + 4):
+            t.set(x, 1, bz, "lime_carpet")
+            t.set(x, 1, bz + 1, "yellow_carpet")
+            t.set(x, 1, bz + 2, "lime_carpet")
+    t.stairs(19, 1, 17, "spruce_stairs", "north")
+    t.stairs(20, 1, 17, "spruce_stairs", "north")
+    t.set(8, 1, 10, "air")
+    t.set(6, 4, 9, "cobweb")
+    t.set(21, 5, 2, "cobweb")
+    return t
+
+def fallen_relay_mast():
+    """A relay mast that fell, long ago: the bowl it broke in the ground, grassed over at the rim; the mast lying
+    across it in three pieces, its copper gone green, its relay half buried at the far end; and its drive housing split
+    open, the drives of writing it carried still inside."""
+    import math
+    import random
+    rng = random.Random(40211973)
+    t = Template(19, 10, 19)
+    cx, cz, ground, r0 = 9, 9, 5, 8.5
+
+    def floor(x, z):
+        r = math.hypot(x - cx, z - cz)
+        return ground - round(4 * (1 - (r / r0) ** 2)) if r <= r0 else None
+
+    for x in range(19):
+        for z in range(19):
+            f = floor(x, z)
+            if f is None:
+                continue
+            for y in range(f + 1, 10):
+                t.set(x, y, z, "air")
+            for y in range(max(0, f - 2), f):
+                t.set(x, y, z, "stone" if rng.random() < 0.6 else "tuff")
+            p = rng.random()
+            rim = math.hypot(x - cx, z - cz) > r0 - 2
+            if rim and p < 0.55:
+                t.set(x, f, z, "grass_block", {"snowy": "false"})
+                if rng.random() < 0.35:
+                    t.set(x, f + 1, z, "short_grass")
+            else:
+                t.set(x, f, z, "coarse_dirt" if p < 0.3 else "gravel" if p < 0.5 else "cobblestone" if p < 0.65
+                      else "tuff" if p < 0.8 else "dirt")
+                if rng.random() < 0.08:
+                    t.set(x, f + 1, z, "moss_carpet")
+    # the mast, lying across the bowl in three pieces, rods still standing off it
+    for x in range(1, 18):
+        if x in (6, 7, 12):
+            continue
+        f = floor(x, 9)
+        if f is None:
+            continue
+        t.set(x, f + 1, 9, "oxidized_copper_grate", {"waterlogged": "false"})
+        if x % 3 == 0:
+            t.set(x, f + 2, 9, "lightning_rod", {"facing": "up", "powered": "false", "waterlogged": "false"})
+        if x % 4 == 1:
+            t.set(x, f + 1, 10, "oxidized_cut_copper_slab", {"type": "bottom", "waterlogged": "false"})
+    t.set(16, floor(16, 9), 9, "residual:relay")
+    for x, z in ((4, 6), (11, 13), (14, 5), (7, 12)):
+        t.set(x, floor(x, z) + 1, z, "oxidized_cut_copper_slab", {"type": "bottom", "waterlogged": "false"})
+    # the drive housing, split open, its chest of drives inside
+    f = floor(9, 7)
+    t.fill(8, f + 1, 6, 10, f + 2, 7, "weathered_cut_copper")
+    t.set(9, f + 1, 7, "air")
+    t.set(9, f + 2, 7, "air")
+    t.set(10, f + 2, 6, "air")
+    t.chest(9, f + 1, 7, "south", "residual:chests/fallen_relay_mast")
+    return t
+
+
+SEALING_BOOK = [
+    "The sealing book. Each stack is closed when it is full, or when the council says.",
+    "East stacks: shelves 1 to 40, boxed in waxed cloth in number order. Door closed with clay. O.",
+    "North stacks: shelves 41 to 77. Door closed with clay. The list of every number is just inside the door. O.",
+    "The great doors: not yet. The lamp is on the long table, by the reading room window, for whoever comes.",
+]
+
+
+def sealed_stacks():
+    """Stacks of the Archive sealed in its last days, deep underground with no way in but its wall of clay: shelves
+    behind doors, wax and the archive's seal, boxes of records in waxed cloth in number order, the sealing book on its
+    lectern, and a lamp left on the long table for whoever comes."""
+    t = Template(13, 7, 16)
+    t.fill(0, 0, 0, 12, 6, 15, "deepslate_tiles")
+    t.fill(1, 1, 1, 11, 5, 14, "air")
+    t.fill(1, 0, 1, 11, 0, 14, "polished_tuff")
+    for z in range(1, 15, 3):
+        t.fill(0, 1, z, 0, 5, z, "polished_deepslate")
+        t.fill(12, 1, z, 12, 5, z, "polished_deepslate")
+    # shelf bays along both long walls: full shelves behind trapdoor doors, sealed with wax and the archive's seal
+    shelf = {f"slot_{i}_occupied": "true" for i in range(6)}
+    for z in range(2, 14):
+        if (z - 1) % 3 == 0:
+            continue
+        for x, face in ((1, "east"), (11, "west")):
+            for y in (1, 2, 3):
+                t.set(x, y, z, "chiseled_bookshelf", {"facing": face, **shelf})
+            t.trapdoor(x + (1 if face == "east" else -1), 2, z, "spruce_trapdoor", face, open_=True)
+            t.set(x, 4, z, "honeycomb_block")
+    for z in (3, 6, 9, 12):
+        t.set(0, 4, z, "chiseled_tuff")
+        t.set(12, 4, z, "chiseled_tuff")
+    # boxes in waxed cloth down the middle, in number order
+    for z in range(3, 11, 2):
+        t.barrel(5, 1, z, "up", "residual:chests/sealed_stacks")
+        t.set(5, 2, z, "white_carpet")
+        t.set(7, 1, z, "barrel", {"facing": "up", "open": "false"})
+        t.set(7, 2, z, "white_carpet")
+    # the long table, the lamp left burning on it, and the sealing book
+    for x in (4, 5, 6, 7, 8):
+        t.slab(x, 1, 13, "spruce_slab", "top")
+    t.lantern(6, 2, 13)
+    t.set(8, 1, 12, "lectern", {"facing": "north", "has_book": "true", "powered": "false"},
+          {"id": "minecraft:lectern", "Page": 0, "Book": {"id": "minecraft:written_book", "count": 1, "components": {
+              "minecraft:written_book_content": {"title": {"raw": "The sealing book"}, "author": "O.", "resolved": 1,
+                                                 "pages": [{"raw": p} for p in SEALING_BOOK]}}}})
+    # the way in, closed with clay
+    t.fill(5, 1, 15, 7, 3, 15, "clay")
+    t.fill(5, 1, 14, 7, 3, 14, "clay")
+    for x in (3, 9):
+        t.lantern(x, 5, 7, hanging=True)
+    t.set(2, 5, 13, "cobweb")
+    return t
+
 def weathered(*rules, integrity=0.82):
     """A ruin's processors: each (block, its weathered form, the share that weathered) as a rule, then the decay that
     takes out some of the blocks tagged ruin_rot."""
@@ -963,6 +1199,9 @@ ARCHIVES = ["archive", "clerk"]
 MASTS = ["mast", "relay house"]
 VAULTS = ["vault", "sealed"]
 ROADS = ["waymark", "Long Road", "north road", "inn"]
+TUTORS = ["tutor", "drill"]
+FALLEN = ["mast", "relay line"]
+SEALED = ["sealed", "the stacks", "sealing"]
 
 
 class Ruin:
@@ -994,6 +1233,14 @@ RUINS = {
                          words=VAULTS),
     "waymark": Ruin([(3, waymark_road), (1, waymark_north)], 24, 8, 21094417, words=ROADS,
                     processors=weathered(*STONE_AGE, integrity=0.95)),
+    "tutor_house": Ruin(tutor_house, 72, 22, 66190453, words=TUTORS,
+                        processors=weathered(("tuff_bricks", "tuff", 0.1), integrity=0.92),
+                        biomes=[f"minecraft:{b}" for b in ("plains", "meadow", "forest", "birch_forest", "flower_forest",
+                                                            "taiga", "savanna", "cherry_grove")]),
+    "fallen_relay_mast": Ruin(fallen_relay_mast, 40, 12, 18830291, start=-5, terrain="none", words=FALLEN,
+                              processors=weathered(integrity=0.95)),
+    "sealed_stacks": Ruin(sealed_stacks, 64, 20, 77015239, step="underground_structures", start=-16, terrain="none",
+                          words=SEALED, processors=weathered(integrity=0.97)),
     "relay_tower": Ruin(relay_tower, 48, 16, 30817231, processors=weathered(*STONE_AGE, integrity=0.9), words=RELAYS),
     "windmill": Ruin(windmill_farm, 56, 18, 48215537, processors=weathered(*STONE_AGE, integrity=0.9), words=MILLS,
                      biomes=[f"minecraft:{b}" for b in ("plains", "sunflower_plains", "meadow", "windswept_hills",
@@ -1012,8 +1259,9 @@ BIOMES = ["plains", "sunflower_plains", "meadow", "forest", "birch_forest", "flo
 
 # ---------------------------------------------------------------- loot
 
-def item(name, weight=1, count=None, components=None, about=None):
-    """A loot entry; with about, words a shard's record most often mentions (the shard_about function)."""
+def item(name, weight=1, count=None, components=None, about=None, drive=None):
+    """A loot entry; with about, words a shard's record most often mentions (the shard_about function); with drive,
+    (records, words) to fill an Archive Drive with (the fill_drive function)."""
     entry = {"type": "minecraft:item", "name": name if ":" in name else f"residual:{name}", "weight": weight}
     functions = []
     if count:
@@ -1022,6 +1270,8 @@ def item(name, weight=1, count=None, components=None, about=None):
         functions.append({"function": "minecraft:set_components", "components": components})
     if about:
         functions.append({"function": "residual:shard_about", "words": about})
+    if drive:
+        functions.append({"function": "residual:fill_drive", "records": drive[0], "words": drive[1]})
     if functions:
         entry["functions"] = functions
     return entry
@@ -1096,6 +1346,22 @@ LOOT = {
         item("minecraft:torch", 4, (2, 5)), item("minecraft:bread", 2, (1, 2)), item("minecraft:coal", 3, (1, 4))])],
     "archaeology/waymark": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
         item("archive_shard", 6, about=ROADS), item("minecraft:emerald", 2), item("minecraft:flint", 2)]}],
+    "chests/tutor_house": [pool((2, 4), [
+        item("archive_shard", 10, (1, 3), about=TUTORS), item("checkpoint", 4), item("weight_crystal", 4, (1, 3)),
+        mask("linear", 2), mask("softmax", 1), item("minecraft:paper", 3, (1, 4)), item("minecraft:book", 2),
+        item("minecraft:amethyst_shard", 3, (1, 3))])],
+    "chests/tutor_dry_box": [
+        pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS] + [item("checkpoint", 5)]),
+        pool((2, 3), [item("checkpoint", 4, (1, 2)), item("weight_crystal", 5, (2, 4)),
+                      item("minecraft:honeycomb", 3, (1, 3)), item("archive_shard", 3, about=TUTORS)])],
+    "chests/fallen_relay_mast": [
+        pool((2, 3), [item("archive_drive", 1, drive=(10, ["relay", "message", "tower", "keeper"]))]),
+        pool((1, 3), [item("relay_card", 4), item("archive_shard", 6, (1, 3), about=["relay", "message"]),
+                      item("minecraft:copper_ingot", 4, (2, 6)), item("minecraft:redstone", 3, (2, 5))])],
+    "chests/sealed_stacks": [
+        pool((1, 2), [item("archive_drive", 1, drive=(14, ["archive", "clerk", "Vell", "record"]))]),
+        pool((1, 3), [item("archive_shard", 8, (1, 3)), item("minecraft:paper", 4, (2, 6)),
+                      item("minecraft:honeycomb", 3, (1, 3)), item("minecraft:book", 2)])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
         item("archive_shard", 9), mask("matmul", 1), item("weight_crystal", 2)]}],
 }

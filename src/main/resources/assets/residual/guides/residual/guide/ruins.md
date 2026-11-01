@@ -53,6 +53,25 @@ A stone quay with a shipwright's shed and stacked timber, and running out over t
 finished, a crane leaning over it. Only where a beach or a stony shore meets deep enough water, the slip toward the
 sea: at most one in each region 40 chunks across.
 
+## Tutor houses
+
+Halls of tuff under a cornice of copper, a relay on the roof, where minds were drilled and tested. Apprentices still
+stand in their row before the tutor's Bench; the teaching room keeps its tray of crystals, each on its card; the
+apprentice hall keeps its dry box; and the drill yard, ringed with torches, its boards drawn as small fields. In
+grassland, forest, taiga, savanna and cherry groves, at most one in each region 72 chunks across.
+
+## Fallen relay masts
+
+Where a relay mast fell it broke a bowl in the ground, grassed over now at the rim. The mast lies across it in three
+pieces of green copper, its relay half buried, and its drive housing split open: the chest inside holds
+<ItemLink id="archive_drive" />s already filled with the relays' writing. At most one in each region 40 chunks across.
+
+## Sealed stacks
+
+Deep under the ground, with no way in but a wall of clay: stacks of the archive sealed in its last days, shelves
+behind wax and the archive's seal, boxes of records in waxed cloth, the sealing book on its lectern, and a lamp left on
+the long table. Their boxes hold filled <ItemLink id="archive_drive" />s. At most one in each region 64 chunks across.
+
 ## Archive houses, relay masts and buried vaults
 
 Small houses of calcite and tuff, one corner usually fallen in, that kept records; tall copper masts with an old relay
