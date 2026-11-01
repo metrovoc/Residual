@@ -638,9 +638,10 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
 
     private void testsTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
         Ui.screen(g, 6, 22, 308, 146);
+        // a line each, spaced as widely as the display lets them be: ten at fourteen pixels
+        int pitch = Math.min(15, 140 / Benchmark.values().length);
         for (Benchmark a : Benchmark.values()) {
-            // a line each, as many as fit the display: nine at fifteen pixels
-            int top = 26 + a.ordinal() * 15, y = top + 4;
+            int top = 26 + a.ordinal() * pitch, y = top + 4;
             CoreSync.Score score = s == null ? CoreSync.Score.NONE : s.tests().get(a.ordinal());
             boolean practising = s != null && s.practising().get(a.ordinal());
             boolean tested = score.step() >= 0;
@@ -656,7 +657,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
             } else if (tested && !s.causal()) {
                 g.text(font, "⚠", 294, y, Ui.RED, false);
             }
-            if (Ui.inside(mx, my, 6, top, 308, 15)) {
+            if (Ui.inside(mx, my, 6, top, 308, pitch)) {
                 // what the row leaves out: its job, when it was tested and what passes, then the test itself
                 List<FormattedCharSequence> lines = new ArrayList<>();
                 lines.add(Component.translatable("residual.benchmark." + a.id).withColor(Ui.TEAL).getVisualOrderText());

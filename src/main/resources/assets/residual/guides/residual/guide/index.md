@@ -30,7 +30,7 @@ you say into programs for agents, and read what the old world wrote.
 - [The Model Core](core.md): where models are built, trained, tested and saved.
 - [Tokens](tokenizers.md): the BPE Forge, and vocabularies learned from the archive.
 - [Training](training.md): reading a loss curve, and the settings that shape it.
-- [Models and Tests](models.md): the nine benchmarks, checkpoints, and how big a model may be.
+- [Models and Tests](models.md): the ten benchmarks, checkpoints, and how big a model may be.
 - [Salvaged Models](salvage.md): broken models from the ruins.
 
 ## Putting models to work
@@ -46,6 +46,7 @@ you say into programs for agents, and read what the old world wrote.
 - [Storage](storage.md): drives that keep any number of kinds, a terminal that finds anything, and Ports that move
   items between the network and every chest and machine, 1,280 a second.
 - [Power](power.md): generators, cables and cells, and a Smelter that makes two ingots from every ore, three with a
+- [Flight](flight.md): the flight frame, flown by a pilot you train.
   controller.
 
 ## Reference

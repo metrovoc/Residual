@@ -72,8 +72,8 @@ public final class Trainer {
 
     /** A task that plays its own examples, such as Control, plays them with the model being practised. */
     private static void bind(Task task, CompiledGraph model) {
-        if (task instanceof Control control) {
-            control.policy(model);
+        if (task instanceof Played played) {
+            played.policy(model);
         } else if (task instanceof Mixture mixture) {
             mixture.sources.forEach(s -> bind(s.data(), model));
         }

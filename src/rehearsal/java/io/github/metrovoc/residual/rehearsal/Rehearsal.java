@@ -33,6 +33,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -112,6 +113,8 @@ import org.slf4j.Logger;
  * useitem                    right-click the air with the main hand
  * creative TAB               open the creative inventory on a tab, by id (residual:main)
  * press LABEL                click the open screen's first button whose label starts with LABEL
+ * rclick X Y                 right-click the open screen, in the same coordinates as click
+ * inventory                  open the player's own inventory (in survival; creative opens its own)
  * click X Y                  left-click the open screen; a container screen's coordinates start at its corner
  * shift N|ITEM               shift-click hotbar slot N (0-8), or the first one holding ITEM, in the open container
  *                            screen
@@ -154,6 +157,7 @@ public final class Rehearsal {
             !SCRIPT.isEmpty() || System.getProperty("guideme.exportOnStartupAndExit") != null;
     private static final String WORLD = "Rehearsal";
     private static final MouseButtonInfo LEFT = new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, 0);
+    private static final MouseButtonInfo RIGHT = new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_RIGHT, 0);
 
     private static final String[] CURSOR = {
             "#", "##", "#.#", "#..#", "#...#", "#....#", "#.....#", "#......#", "#...####", "#..#", "#.#", "##", "#"};
@@ -405,6 +409,11 @@ public final class Rehearsal {
                 point(mc, args);
                 click(mc, mouseX, mouseY);
             }
+            case "rclick" -> {
+                point(mc, args);
+                click(mc, mouseX, mouseY, RIGHT);
+            }
+            case "inventory" -> mc.setScreen(new InventoryScreen(mc.player));
             case "shift" -> {
                 AbstractContainerMenu menu = mc.player.containerMenu;
                 Slot slot = menu.slots.stream()
@@ -499,7 +508,11 @@ public final class Rehearsal {
     }
 
     private static void click(Minecraft mc, double x, double y) {
-        MouseButtonEvent click = new MouseButtonEvent(x, y, LEFT);
+        click(mc, x, y, LEFT);
+    }
+
+    private static void click(Minecraft mc, double x, double y, MouseButtonInfo button) {
+        MouseButtonEvent click = new MouseButtonEvent(x, y, button);
         mc.screen.mouseClicked(click, false);
         mc.screen.mouseReleased(click);
     }

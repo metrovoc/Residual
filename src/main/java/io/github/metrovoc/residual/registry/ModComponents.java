@@ -58,6 +58,9 @@ public final class ModComponents {
     public static final Supplier<DataComponentType<StorageDriveItem.Label>> STORAGE_DRIVE = COMPONENTS.registerComponentType("storage_drive",
             b -> b.persistent(StorageDriveItem.Label.CODEC).networkSynchronized(StorageDriveItem.Label.STREAM_CODEC));
 
+    /** The power in a flight frame, in FE. */
+    public static final Supplier<DataComponentType<Integer>> CHARGE = COMPONENTS.registerComponentType("charge",
+            b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
     /** Time an Hourglass has kept, in ticks. */
     public static final Supplier<DataComponentType<Integer>> KEPT_TIME = COMPONENTS.registerComponentType("kept_time",
             b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));

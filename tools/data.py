@@ -21,10 +21,11 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey"]
+BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot"]
 DATASETS = {"forecast_dataset": "minecraft:clock", "storage_dataset": "minecraft:chest",
             "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
-            "orders_dataset": "minecraft:writable_book", "process_dataset": "minecraft:raw_iron", "survey_dataset": "minecraft:flint"}
+            "orders_dataset": "minecraft:writable_book", "process_dataset": "minecraft:raw_iron", "survey_dataset": "minecraft:flint",
+            "flight_dataset": "minecraft:feather"}
 SCHEMATICS = ["schematic_relays"]
 # see storage/PortMode.java
 PORT_MODES = ["import", "export", "stock", "window"]
@@ -402,7 +403,7 @@ def storage():
 
 def items():
     flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
-             "agent", "relay_card", "terminal", "field_log", "storage_drive", "hourglass"] + list(DATASETS) + SCHEMATICS)
+             "agent", "relay_card", "terminal", "field_log", "storage_drive", "hourglass", "flight_frame"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -634,6 +635,7 @@ def advancements():
     advancement("forecast/hourglass", "forecast/ahead", "hourglass", awarded(), frame="goal")
     advancement("forecast/deep", "forecast/ahead", "forecaster_ii", awarded(), frame="goal")
     advancement("survey/found", "benchmark/survey", "surveyor", awarded(), frame="goal")
+    advancement("flight/frame", "benchmark/pilot", "flight_frame", awarded(), frame="goal")
     advancement("power/generator", "root", "combustion_generator", placed("combustion_generator"))
     advancement("power/smelter", "power/generator", "smelter", awarded(), frame="goal")
     advancement("storage/drive", "root", "storage_drive", has("storage_drive"))

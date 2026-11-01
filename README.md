@@ -120,6 +120,10 @@ makes two ingots from every ore, or three from a melt its controller holds in it
 practised by playing melts and learning from its own choices. Every power block speaks Forge Energy to other mods'
 cables and machines.
 
+A flight frame, worn on the back and charged from an Energy Cell, flies its wearer as freely as creative play, for 80
+FE a tick, while its pilot holds it: a model that learned to fly the frame on its own flights, reading its speed from
+the heights before and meeting the wind before it pushes.
+
 ## The archive
 
 <p>
@@ -147,7 +151,7 @@ fairly.
 <img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each benchmark" width="49%">
 </p>
 
-Every model is tested on nine benchmarks. A test uses examples that practice never shows, and a job asks its model in
+Every model is tested on ten benchmarks. A test uses examples that practice never shows, and a job asks its model in
 exactly the test's format, so a test score is how often an agent decides right.
 
 | Benchmark   | Practice      | Passes at   | Put to work                  |
@@ -161,6 +165,7 @@ exactly the test's format, so a test score is how often an agent decides right.
 | Reading   | Archive Drive | loss ≤ 1.40 | restoring the archive        |
 | Control   | Process Dataset | 90%       | holding a Smelter's melt     |
 | Survey    | Survey Dataset  | 90%       | finding ores in the ground   |
+| Pilot     | Flight Dataset  | 90%       | flying a flight frame        |
 
 A single embedding table can forecast a furnace. Recall needs attention, reversal needs to know positions, induction takes
 two layers of attention, sorting has to tell what a thing is from its name alone, and understanding orders takes a model

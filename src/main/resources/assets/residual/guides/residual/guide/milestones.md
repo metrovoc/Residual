@@ -118,6 +118,9 @@ model's own choices, and it takes a model that attends to the whole melt.</resid
 <residual:Milestone id="benchmark/survey">Practise on the <ItemLink id="survey_dataset" />; it takes attention that knows
 where each block stands in a row.</residual:Milestone>
 
+<residual:Milestone id="benchmark/pilot">Practise on the <ItemLink id="flight_dataset" />: the Core flies the model's own
+flights, and it takes a model that reads the flight back to its start.</residual:Milestone>
+
 <residual:Milestone id="benchmark/orders">Practise on the <ItemLink id="orders_dataset" />; it takes a model too big to
 carry.</residual:Milestone>
 
@@ -140,6 +143,11 @@ agent whose model passes Induction: [The Architect](architect.md).</residual:Mil
 
 <residual:Milestone id="survey/found">The Fabricator makes a Surveyor from an attention photomask; give it a model that
 passes Survey: [The Surveyor](surveyor.md).</residual:Milestone>
+
+## Flight
+
+<residual:Milestone id="flight/frame">Put a pilot that passes Pilot in a charged flight frame, wear it, and jump twice:
+[Flight](flight.md).</residual:Milestone>
 
 ## Power
 

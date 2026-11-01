@@ -978,6 +978,62 @@ def surveyor_side():
     return c
 
 
+# the flight frame: two thruster pods joined across the back, their cells lit, their nozzles below
+FLIGHT_FRAME = [
+    "................",
+    "...oo......oo...",
+    "..o##o....o##o..",
+    "..o#+#oooo#+#o..",
+    "..o#+######+#o..",
+    "..o#+#o..o#+#o..",
+    "..o#+#o..o#+#o..",
+    "..o###o..o###o..",
+    "..o#*#o..o#*#o..",
+    "...o*o....o*o...",
+    "....o......o....",
+]
+
+
+def flight_frame():
+    c = Canvas()
+    c.stamp(0, 2, FLIGHT_FRAME, {"o": INK, "#": STEEL[6], "+": TEAL[3], "*": AMBER[3]})
+    return c
+
+
+# the frame worn, on the back face of the chestplate's body box: the item's two pods, joined across
+FLIGHT_FRAME_BACK = [
+    "e#e..e#e",
+    "#+#..#+#",
+    "#+#ee#+#",
+    "#+####+#",
+    "#+#ee#+#",
+    "#+#..#+#",
+    "#+#..#+#",
+    "###..###",
+    "#*#..#*#",
+    "e*e..e*e",
+    ".e....e.",
+    "........",
+]
+
+
+def flight_frame_worn():
+    """The frame as the chestplate's model maps it: a body box 8 wide, 12 tall and 4 deep, its faces from (16, 16).
+    Straps over the shoulders and down the front, joined across the chest; the pods on the back, their tops along the
+    back edge of the top face and their sides on the columns of the side faces next to the back."""
+    c = Canvas(64, 32)
+    strap, edge = SLATE[1], STEEL[4]
+    c.rect(20, 16, 22, 16, edge)
+    c.rect(25, 16, 27, 16, edge)
+    for x in (21, 26):
+        c.rect(x, 17, x, 31, strap)
+    c.rect(22, 26, 25, 26, strap)
+    c.stamp(32, 20, FLIGHT_FRAME_BACK, {"e": edge, "#": STEEL[6], "+": TEAL[3], "*": AMBER[3]})
+    for x in (16, 31):
+        c.rect(x, 20, x, 29, edge)
+    return c
+
+
 def forecaster_side(ramp=GREEN):
     c = plate(salt=22)
     engraved_glyph(c, SPROUT, ramp)
@@ -1435,7 +1491,7 @@ def punch(c, rows, x0=4, y0=5):
 
 # one color per benchmark, on its dataset's stripe
 BENCHMARK_COLORS = {"forecast": hue_ramp(85), "storage": AMBER, "errand": AZURE, "pattern": AMETHYST, "orders": TEAL,
-                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110)}
+                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110), "flight": AZURE}
 # what each dataset practices, punched into the card
 DATASET_HOLES = {
     "forecast": [
@@ -1492,6 +1548,16 @@ DATASET_HOLES = {
         "........",
         "########",
         "........",
+    ],
+    # a frame held at its height: the hold between two lines, the path through it level
+    "flight": [
+        "########",
+        "........",
+        ".#....#.",
+        "########",
+        ".#....#.",
+        "........",
+        "########",
     ],
     # a row of ground, and above it the mark that finds the first ore in it
     "survey": [
@@ -2608,6 +2674,8 @@ def build():
     for rows in [TERMINAL_SIDE, ASSEMBLER_SIDE, *PORT_GLYPHS.values()]:
         assert mirrored(rows) and len(rows[0]) % 2 == 0 and len(rows) % 2 == 0, rows
     # a glyph symmetric along an axis has to be even along it, or it sits half a pixel off the tile's centre
+    assert mirrored(FLIGHT_FRAME), FLIGHT_FRAME
+    assert mirrored(FLIGHT_FRAME_BACK), FLIGHT_FRAME_BACK
     for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, SURVEY_PROBE, *PORT_GLYPHS.values()]:
         assert not (mirrored(rows) and len(rows[0]) % 2), rows
         assert not (rows == rows[::-1] and len(rows) % 2), rows
@@ -2633,6 +2701,8 @@ def build():
     lit("block/combustion_generator_front_on.png", [generator_front(True)], [generator_front(False)])
     generator_side().save("block/combustion_generator_side.png")
     machine_top(58).save("block/combustion_generator_top.png")
+    flight_frame().save("item/flight_frame.png")
+    flight_frame_worn().save("entity/equipment/humanoid/flight_frame.png")
     surveyor_front().save("block/surveyor_front.png")
     lit("block/surveyor_front_on.png", [surveyor_front(i) for i in range(8)], [surveyor_front()], 3)
     surveyor_side().save("block/surveyor_side.png")

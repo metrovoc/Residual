@@ -97,6 +97,8 @@ navigation:
 
 <residual:Milestone id="benchmark/survey">用<ItemLink id="survey_dataset" />练习；需要知道每个方块在行中位置的注意力。</residual:Milestone>
 
+<residual:Milestone id="benchmark/pilot">用<ItemLink id="flight_dataset" />练习：核心用模型自己的选择去飞，需要一个能读回整次飞行的模型。</residual:Milestone>
+
 <residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习；需要一个大到无法随身携带的模型。</residual:Milestone>
 
 <residual:Milestone id="model/complete">一个模型核心最多可同时练习四种数据。</residual:Milestone>
@@ -114,6 +116,10 @@ navigation:
 <residual:Milestone id="agent/move">同样的标记，用 `move` 代替 `copy`。</residual:Milestone>
 
 <residual:Milestone id="survey/found">制造机用注意力光掩模做出勘测仪；给它一个通过勘测测试的模型：[勘测仪](surveyor.md)。</residual:Milestone>
+
+## 飞行
+
+<residual:Milestone id="flight/frame">把通过驾驶测试的驾驶装进充好电的飞行背架，穿上它，连跳两下：[飞行](flight.md)。</residual:Milestone>
 
 ## 电力
 

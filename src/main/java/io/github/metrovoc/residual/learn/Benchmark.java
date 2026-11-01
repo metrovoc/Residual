@@ -41,7 +41,12 @@ public enum Benchmark {
      */
     CONTROL(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
     /** Surveying: where in a row of ground the first of an ore lies, as a Surveyor asks of every row it reads. */
-    SURVEY(Survey.ROW + 3, Task.Metric.ACCURACY, 0.9);
+    SURVEY(Survey.ROW + 3, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Piloting: holding a flight frame at its height against a wind it is never told of, practised by playing flights,
+     * scored by the share of flights held of the wind held worst.
+     */
+    PILOT(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */
@@ -60,9 +65,9 @@ public enum Benchmark {
         return this == READING ? Archive.test(vocab) : practice();
     }
 
-    /** What a dataset of this benchmark practises on: a Control task plays its own melts with the model it practises. */
+    /** What a dataset of this benchmark practises on: Control and Pilot play their own episodes with the model they practise. */
     public Task practice() {
-        return this == CONTROL ? new Control() : Dataset.of(this);
+        return this == CONTROL ? new Control() : this == PILOT ? new Pilot() : Dataset.of(this);
     }
 
     public static Benchmark byId(String id) {

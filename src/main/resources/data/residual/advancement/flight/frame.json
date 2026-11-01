@@ -1,0 +1,28 @@
+{
+  "parent": "residual:benchmark/pilot",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:flight_frame"
+    },
+    "title": {
+      "translate": "advancements.residual.flight.frame.title"
+    },
+    "description": {
+      "translate": "advancements.residual.flight.frame.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

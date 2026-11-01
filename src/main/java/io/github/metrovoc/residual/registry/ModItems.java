@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
+import io.github.metrovoc.residual.item.FlightFrameItem;
 import io.github.metrovoc.residual.item.HourglassItem;
 import io.github.metrovoc.residual.item.LinkItem;
 import io.github.metrovoc.residual.item.MachineItem;
@@ -27,9 +28,15 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.equipment.EquipmentAssets;
+import net.minecraft.world.item.equipment.Equippable;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -53,6 +60,9 @@ public final class ModItems {
     public static final DeferredItem<TokenizerItem> TOKENIZER = ITEMS.registerItem("tokenizer", TokenizerItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<FieldLogItem> FIELD_LOG = ITEMS.registerItem("field_log", FieldLogItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<HourglassItem> HOURGLASS = ITEMS.registerItem("hourglass", HourglassItem::new, p -> p.stacksTo(1));
+    public static final DeferredItem<FlightFrameItem> FLIGHT_FRAME = ITEMS.registerItem("flight_frame", FlightFrameItem::new, p -> p.stacksTo(1)
+            .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(SoundEvents.ARMOR_EQUIP_NETHERITE)
+                    .setAsset(ResourceKey.create(EquipmentAssets.ROOT_ID, Residual.id("flight_frame"))).build()));
     public static final DeferredItem<ShardItem> SHARD = ITEMS.registerItem("archive_shard", ShardItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<AgentItem> AGENT = ITEMS.registerItem("agent", AgentItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<SurveyRodItem> SURVEY_ROD = ITEMS.registerItem("survey_rod", SurveyRodItem::new, p -> p.stacksTo(1));
@@ -96,6 +106,7 @@ public final class ModItems {
             case ORDERS -> "orders_dataset";
             case CONTROL -> "process_dataset";
             case SURVEY -> "survey_dataset";
+            case PILOT -> "flight_dataset";
             case READING -> throw new IllegalArgumentException();
         };
     }

@@ -94,6 +94,27 @@ class CalibrationTest {
         pool.shutdown();
     }
 
+    /** Any task practised by playing: its test score as it learns. */
+    static void played(String label, Played task, GraphSpec spec, Wrecks.Settings st, int steps, int every, long seed, int threads)
+            throws Exception {
+        CompiledGraph g = CompiledGraph.compile(spec, new Env(task.vocab, Vocab.CONTEXT), null, seed);
+        Trainer tr = new Trainer(g, task, seed, st.learningRate(), st.batchSize(), st.clip());
+        ForkJoinPool pool = new ForkJoinPool(threads);
+        long t0 = System.nanoTime();
+        Parallel.with(pool, () -> {
+            for (int s = 1; s <= steps; s++) {
+                tr.train();
+                if (s % every == 0 || s == steps) {
+                    double secs = (System.nanoTime() - t0) / 1e9;
+                    double held = Trainer.evaluate(g, task, 1).accuracy();
+                    System.out.println(String.format("%-18s step %5d  held %.3f%s  %.1fs (%.1f ms/step)", label, s, held,
+                            held >= task.target ? "✔" : "", secs, secs * 1000 / s));
+                }
+            }
+        });
+        pool.shutdown();
+    }
+
     static void run(String label, GraphSpec spec, Benchmark a, Wrecks.Settings st, int steps, int every) throws Exception {
         Task practice = a == Benchmark.READING ? reading() : Dataset.of(a);
         run(label, spec, practice, List.of(a), a.target, st, steps, every);
@@ -239,6 +260,39 @@ class CalibrationTest {
         List<String> runs = List.of(which.split("[ ,]+"));
         boolean all = runs.contains("all");
         Wrecks.Settings st = Wrecks.Settings.DEFAULT;
+        if (runs.contains("pilot_winds")) {
+            // which winds a two-block transformer can learn to meet and a model reading three characters cannot
+            int[][] threes = {{3, -1}, {3, 1}}, slower = {{3, -1}, {4, -1}, {3, 1}, {4, 1}};
+            List<Thread> runs2 = new ArrayList<>();
+            for (Object[] r : new Object[][] {{"threes_context", threes, Blueprints.context()}, {"threes_gpt32", threes, Blueprints.gpt(32, 2, 4)},
+                    {"slower_context", slower, Blueprints.context()}, {"slower_gpt32", slower, Blueprints.gpt(32, 2, 4)}}) {
+                runs2.add(Thread.ofPlatform().start(() -> {
+                    try {
+                        played((String) r[0], new Pilot((int[][]) r[1], 2), (GraphSpec) r[2], st, 1500, 150, 1, 3);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }));
+            }
+            for (Thread t : runs2) {
+                t.join();
+            }
+        }
+        if (runs.contains("pilot")) {
+            List<Thread> pilots = new ArrayList<>();
+            for (Object[] r : new Object[][] {{"pilot_context", Blueprints.context()}, {"pilot_gpt32", Blueprints.gpt(32, 2, 4)}}) {
+                pilots.add(Thread.ofPlatform().start(() -> {
+                    try {
+                        played((String) r[0], new Pilot(), (GraphSpec) r[1], st, 1500, 150, 1, 4);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }));
+            }
+            for (Thread t : pilots) {
+                t.join();
+            }
+        }
         if (runs.contains("control_gpt32")) {
             control("control_gpt32", Blueprints.gpt(32, 2, 4), st, 500, 50);
         }

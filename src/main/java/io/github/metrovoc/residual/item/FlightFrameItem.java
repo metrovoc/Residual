@@ -1,0 +1,169 @@
+package io.github.metrovoc.residual.item;
+
+import io.github.metrovoc.residual.Awards;
+import io.github.metrovoc.residual.ResidualConfig;
+import io.github.metrovoc.residual.energy.CellBlockEntity;
+import io.github.metrovoc.residual.learn.Benchmark;
+import io.github.metrovoc.residual.model.ModelInfo;
+import io.github.metrovoc.residual.registry.ModComponents;
+import io.github.metrovoc.residual.registry.ModItems;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Consumer;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * A flight frame, worn on the back. With power in it and a pilot that passes Pilot, the model that holds it steady, its
+ * wearer flies as freely as in creative play, for {@link #DRAIN} FE a tick. The pilot is a carried model, put in as
+ * into a bundle: click the frame with a checkpoint, and click it empty-handed to take the pilot out again. It charges
+ * from an Energy Cell it is used on.
+ */
+public class FlightFrameItem extends Item {
+    public static final int CAPACITY = 400_000, DRAIN = 80;
+    /** The players a frame is holding up, so it lets go only of those. */
+    private static final Set<UUID> HELD = new HashSet<>();
+
+    public FlightFrameItem(Properties properties) {
+        super(properties);
+    }
+
+    public static int charge(ItemStack frame) {
+        return frame.getOrDefault(ModComponents.CHARGE.get(), 0);
+    }
+
+    @Nullable
+    public static ModelInfo pilot(ItemStack frame) {
+        return frame.get(ModComponents.MODEL.get());
+    }
+
+    /** Whether {@code frame} can hold its wearer up: charged, with a pilot it can carry that passes Pilot. */
+    public static boolean holds(ItemStack frame) {
+        ModelInfo p = pilot(frame);
+        return frame.getItem() instanceof FlightFrameItem && charge(frame) > 0 && p != null && p.causal() && p.passes(Benchmark.PILOT)
+                && p.parameters() <= ResidualConfig.ONBOARD_PARAMETERS.get();
+    }
+
+    @Override
+    public boolean overrideOtherStackedOnMe(ItemStack self, ItemStack other, Slot slot, ClickAction action, Player player, SlotAccess carried) {
+        if (action != ClickAction.SECONDARY || !slot.allowModification(player)) {
+            return false;
+        }
+        ModelInfo pilot = pilot(self);
+        if (other.isEmpty() && pilot != null) {
+            ItemStack out = new ItemStack(ModItems.CHECKPOINT.get());
+            out.set(ModComponents.MODEL.get(), pilot);
+            self.remove(ModComponents.MODEL.get());
+            carried.set(out);
+            player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 0.8f, 1f);
+            return true;
+        }
+        if (pilot == null && other.is(ModItems.CHECKPOINT.get()) && CrystalItem.model(other) instanceof ModelInfo model) {
+            self.set(ModComponents.MODEL.get(), model);
+            other.shrink(1);
+            player.playSound(SoundEvents.BUNDLE_INSERT, 0.8f, 1f);
+            return true;
+        }
+        return false;
+    }
+
+    /** Used on an Energy Cell, it takes as much of the cell's charge as it has room for. */
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        if (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof CellBlockEntity cell)) {
+            return InteractionResult.PASS;
+        }
+        if (context.getLevel() instanceof ServerLevel level) {
+            ItemStack frame = context.getItemInHand();
+            int stored = cell.energy().getAmountAsInt();
+            int moved = Math.min(CAPACITY - charge(frame), stored);
+            if (moved > 0) {
+                cell.energy().set(stored - moved);
+                frame.set(ModComponents.CHARGE.get(), charge(frame) + moved);
+                level.playSound(null, context.getClickedPos(), SoundEvents.BEACON_POWER_SELECT, SoundSource.BLOCKS, 0.5f, 1.6f);
+            }
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack frame) {
+        return true;
+    }
+
+    @Override
+    public int getBarWidth(ItemStack frame) {
+        return Math.round(13f * charge(frame) / CAPACITY);
+    }
+
+    @Override
+    public int getBarColor(ItemStack frame) {
+        return 0x3CD6C6;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack frame, TooltipContext context, TooltipDisplay display, Consumer<Component> out, TooltipFlag flag) {
+        out.accept(Component.translatable("residual.frame.charge", String.format("%,d", charge(frame)), String.format("%,d", CAPACITY))
+                .withStyle(ChatFormatting.GRAY));
+        ModelInfo pilot = pilot(frame);
+        if (pilot == null) {
+            out.accept(Component.translatable("residual.frame.no_pilot").withStyle(ChatFormatting.DARK_GRAY));
+        } else {
+            boolean ok = pilot.causal() && pilot.passes(Benchmark.PILOT) && pilot.parameters() <= ResidualConfig.ONBOARD_PARAMETERS.get();
+            out.accept(Component.translatable(ok ? "residual.frame.pilot" : "residual.frame.pilot_not", pilot.tag())
+                    .withStyle(ok ? ChatFormatting.AQUA : ChatFormatting.RED));
+        }
+    }
+
+    /** Lets a player fly while the frame on their back holds them, spends its charge while they do, and lets go after. */
+    public static void tick(PlayerTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player) || player.isCreative() || player.isSpectator()) {
+            return;
+        }
+        ItemStack frame = player.getItemBySlot(EquipmentSlot.CHEST);
+        Abilities abilities = player.getAbilities();
+        if (!holds(frame)) {
+            if (HELD.remove(player.getUUID())) {
+                abilities.mayfly = false;
+                abilities.flying = false;
+                player.onUpdateAbilities();
+            }
+            return;
+        }
+        if (HELD.add(player.getUUID()) || !abilities.mayfly) {
+            abilities.mayfly = true;
+            player.onUpdateAbilities();
+        }
+        if (!abilities.flying) {
+            return;
+        }
+        frame.set(ModComponents.CHARGE.get(), Math.max(0, charge(frame) - DRAIN));
+        Awards.grant(player, "flight/frame");
+        if (player.tickCount % 2 == 0) {
+            // sparks from the thrusters on its back
+            Vec3 back = player.position().add(player.getLookAngle().multiply(-0.35, 0, -0.35)).add(0, 0.9, 0);
+            player.level().sendParticles(ParticleTypes.ELECTRIC_SPARK, back.x, back.y, back.z, 2, 0.12, 0.08, 0.12, 0.02);
+        }
+    }
+}

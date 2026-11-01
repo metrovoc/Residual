@@ -3,9 +3,10 @@ package io.github.metrovoc.residual;
 import com.mojang.logging.LogUtils;
 import guideme.Guides;
 import io.github.metrovoc.residual.agent.Agents;
-import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.Bursts;
+import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
+import io.github.metrovoc.residual.item.FlightFrameItem;
 import io.github.metrovoc.residual.net.Network;
 import io.github.metrovoc.residual.registry.ModAttachments;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
@@ -27,9 +28,9 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import org.slf4j.Logger;
 
 @Mod(Residual.MOD_ID)
@@ -58,6 +59,7 @@ public final class Residual {
         NeoForge.EVENT_BUS.addListener(Agents::commands);
         NeoForge.EVENT_BUS.addListener(ForecasterBlockEntity::grew);
         NeoForge.EVENT_BUS.addListener(Bursts::tick);
+        NeoForge.EVENT_BUS.addListener(FlightFrameItem::tick);
     }
 
     public static Identifier id(String path) {

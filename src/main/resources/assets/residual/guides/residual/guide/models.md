@@ -12,11 +12,12 @@ item_ids:
   - orders_dataset
   - process_dataset
   - survey_dataset
+  - flight_dataset
 ---
 
 # Models and Tests
 
-Every model is tested on nine benchmarks. Each test uses examples practice never shows, and each job asks its model in
+Every model is tested on ten benchmarks. Each test uses examples practice never shows, and each job asks its model in
 exactly the test's format, so a test score is how often an agent will decide right.
 
 | Benchmark   | Practice                              | The test                                           | Passes at   | Used for    |
@@ -30,6 +31,7 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Reading   | <ItemLink id="archive_drive" />       | records no shard carries                           | loss ≤ 1.40 | the Reader  |
 | Control   | <ItemLink id="process_dataset" />       | melts of each ore, held at 90% of their looks      | 90%         | the Smelter |
 | Survey    | <ItemLink id="survey_dataset" />        | rows of ground, and where the first of an ore lies | 90%         | the Surveyor |
+| Pilot     | <ItemLink id="flight_dataset" />        | flights in each wind, held at 90% of their looks   | 90%         | the flight frame |
 
 Hover over a benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
 example, the way an agent would ask it.
