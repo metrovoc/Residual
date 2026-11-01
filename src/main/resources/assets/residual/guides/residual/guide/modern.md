@@ -49,6 +49,32 @@ from zero, where a softmax stops being accurate.
 
 ![z-loss](/formulas/zloss.png)
 
+## What it does to a run
+
+Two layers of width 32 at a learning rate of 0.003, from three starts each, and the step by which each passed:
+
+| Test | Transformer Blocks | Modern Blocks | Modern Blocks after a Position Table |
+|---|---|---|---|
+| Reversal | 250 | 250 to 500 | 250 |
+| Induction | 800 to 1,200 | 400 to 800 | one start of three |
+| Recall | none: 23% at 1,000 | 1,000 | none: 25% at 1,000 |
+| Survey | two starts of three, 500 and 1,000 | none: 85% at 1,000 | 500 to 750 |
+
+Turning tells a model how far apart two tokens are and nothing about where they stand. Recall and Induction ask how far.
+Survey asks where along a row the first of an ore lies, and a Position Table is what answers that. Choose by the job.
+
+A step costs less as well. On four threads it took 34 milliseconds beside a Transformer Block model's 118 at width 32, and 90
+beside 186 at width 64; on one thread, 89 beside 121, and 276 beside 324.
+
+Past the rates a model is comfortable with, the difference grows. A Transformer Block model passes Reversal in 75 steps at a rate
+of 0.03. At 0.1 it never does, and ends near 42% as its largest attention score runs out to 56,000. Modern Blocks hold that score at 30 and
+pass from two starts of three, and with QK norm turned off the score goes to 47,000 and Reversal stays at 16%. On the archive at a rate of 0.3,
+a Transformer Block model stays near a test loss of 3.0, Modern Blocks reach 2.0, and with QK norm off they reach 2.6.
+
+A <ItemLink id="z_loss" /> does less on a model this small. On Reversal at 0.03 it brought the largest output score of Modern Blocks
+from 20 to 14, and their spikes from 1, 0, 1 to none. On the archive at the same rate, on Transformer Blocks, the score went from 9.4 to 9.2 and the
+test loss stayed at 1.96.
+
 ## Building one
 
 A <ItemLink id="modern_block" /> holds a whole modern layer, with the online softmax inside. A line of them needs nothing

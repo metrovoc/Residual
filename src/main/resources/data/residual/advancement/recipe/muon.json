@@ -1,0 +1,28 @@
+{
+  "parent": "residual:bench/orthogonalize",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:orthogonalizer"
+    },
+    "title": {
+      "translate": "advancements.residual.recipe.muon.title"
+    },
+    "description": {
+      "translate": "advancements.residual.recipe.muon.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

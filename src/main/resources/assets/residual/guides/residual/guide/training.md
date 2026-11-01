@@ -48,7 +48,8 @@ each weight's step by the size of its recent gradients, so the learning rate set
 ![AdamW](/formulas/adamw.png)
 
 with the usual β₁ = 0.9, β₂ = 0.999 and weight decay λ = 0.01 on weight matrices. The first 20 steps warm up from
-zero to the full learning rate.
+zero to the full learning rate. A [recipe](recipe.md) can warm up for longer, let the rate fall over a run, and move the
+weights another way.
 
 **Batch.** How many sequences each step looks at. Bigger batches give a steadier gradient but cost more per step.
 
@@ -79,6 +80,8 @@ up, because the table is memorising its one line. At 1.5 the steps are so big th
 - **Falling, then flattening above the goal:** the model has learned all it can see. Give it more to work with: more
   context, more width, more layers.
 - **Jagged and climbing:** the steps are too big. Lower the learning rate.
+- **A red stroke up from the curve:** a spike, a step whose loss leapt far above its recent average. Point at the place
+  for how high it went: see [The Recipe](recipe.md).
 - **Both losses suspiciously low:** something lets the model see the answer. The Core flags a model that reads
   ahead.
 
@@ -99,8 +102,8 @@ see the holograms when nothing is training.
 ## When training stops
 
 Training stops when you press Stop or when a machine of the model changes. It also stops when the loss diverges: if
-it turns into NaN, or climbs far above where it started. A salvaged model adds a **budget**: a limited number of steps
-per run, after which you reset the weights and try again.
+it turns into NaN, or climbs far above where it started. A recipe with a **Length** stops by itself when it reaches it.
+A salvaged model adds a **budget**: a limited number of steps per run, after which you reset the weights and try again.
 
 **Reset** throws the learned weights away so the next run starts fresh. **Check** reads the model again and reports
 any problem without training.

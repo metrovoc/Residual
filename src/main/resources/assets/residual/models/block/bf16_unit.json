@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/bf16_unit",
+    "north": "residual:block/bf16_unit",
+    "south": "residual:block/bf16_unit",
+    "east": "residual:block/bf16_unit",
+    "west": "residual:block/bf16_unit",
+    "up": "residual:block/bf16_unit",
+    "down": "residual:block/bf16_unit"
+  }
+}

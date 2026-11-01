@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/packer",
+    "north": "residual:block/packer",
+    "south": "residual:block/packer",
+    "east": "residual:block/packer",
+    "west": "residual:block/packer",
+    "up": "residual:block/packer",
+    "down": "residual:block/packer"
+  }
+}

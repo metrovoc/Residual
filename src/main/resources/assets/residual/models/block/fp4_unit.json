@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/fp4_unit",
+    "north": "residual:block/fp4_unit",
+    "south": "residual:block/fp4_unit",
+    "east": "residual:block/fp4_unit",
+    "west": "residual:block/fp4_unit",
+    "up": "residual:block/fp4_unit",
+    "down": "residual:block/fp4_unit"
+  }
+}

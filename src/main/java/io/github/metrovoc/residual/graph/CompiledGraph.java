@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.graph;
 
 import io.github.metrovoc.residual.graph.CompileException.Issue;
+import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.ShapeException;
 import io.github.metrovoc.residual.tensor.Tape;
 import io.github.metrovoc.residual.tensor.Tensor;
@@ -24,6 +25,8 @@ public final class CompiledGraph {
     /** Symbolic output shape of every node in {@link #order}; null for unused nodes. */
     public final Sym[] shapes;
     private final List<Map<String, Tensor>> params;
+    /** What its numbers are rounded to on the way through it. */
+    public volatile Numerics.Format precision = Numerics.Format.FP32;
 
     private CompiledGraph(GraphSpec spec, Env env, int[] order, Sym[] shapes, List<Map<String, Tensor>> params) {
         this.spec = spec;
@@ -181,6 +184,11 @@ public final class CompiledGraph {
 
     /** As {@link #forward(Tape, Tokens, Captures)}, for a training pass: machines leave what they add to the loss in {@code extras}. */
     public Tensor forward(Tape tape, Tokens tokens, Captures captures, Extras extras) {
+        return forward(tape, tokens, captures, extras, precision);
+    }
+
+    /** As {@link #forward(Tape, Tokens, Captures, Extras)}, its numbers rounded to {@code format}. */
+    public Tensor forward(Tape tape, Tokens tokens, Captures captures, Extras extras, Numerics.Format format) {
         Object[] values = new Object[spec.size()];
         for (int node : order) {
             GraphSpec.Node nd = spec.node(node);
@@ -189,13 +197,65 @@ public final class CompiledGraph {
                 int src = nd.inputs[i];
                 in[i] = src == GraphSpec.TOKENS ? tokens : values[src];
             }
-            Tensor out = nd.op.run(tape, in, params.get(node), nd.config, new Op.Frame(node, tokens.time, captures, nd.fused, extras));
+            Tensor out = nd.op.run(tape, in, narrowed(tape, params.get(node), format), nd.config, new Op.Frame(node, tokens.time, captures,
+                    nd.fused, extras, format(node, format), tokens.starts, tokens.batch));
             values[node] = out;
             if (captures != null) {
                 captures.output(node, out);
             }
         }
         return (Tensor) values[spec.output];
+    }
+
+    /** The format a node's matrices take: fp4 made to work keeps the first and last layers in fp8. */
+    private Numerics.Format format(int node, Numerics.Format format) {
+        return format == Numerics.Format.FP4 && (node == spec.output || isTable(spec.node(node).op)) ? Numerics.Format.FP8 : format;
+    }
+
+    private static boolean isTable(Op op) {
+        return op == Op.EMBEDDING || op == Op.POSITION;
+    }
+
+    /** Gains, offsets and temperatures stay in bf16 whatever the matrices are in. */
+    private static Map<String, Tensor> narrowed(Tape tape, Map<String, Tensor> p, Numerics.Format format) {
+        if (!format.narrow() || p.isEmpty()) {
+            return p;
+        }
+        Map<String, Tensor> out = new LinkedHashMap<>();
+        p.forEach((name, t) -> out.put(name, t.rank() < 2 ? Numerics.cast(tape, t, Numerics.Format.BF16) : t));
+        return out;
+    }
+
+    /** What its weights take in {@code format}, in bytes. */
+    public long weightBytes(Numerics.Format format) {
+        double bytes = 0;
+        for (int node : order) {
+            for (Tensor t : params.get(node).values()) {
+                bytes += t.size() * (t.rank() < 2 ? Math.min(2f, format.bytes) : format(node, format).bytes);
+            }
+        }
+        return Math.round(bytes);
+    }
+
+    /** The matrices inside the model: what Muon moves, leaving the token and position tables and the last layer to AdamW. */
+    public List<Tensor> hiddenMatrices() {
+        List<Tensor> out = new ArrayList<>();
+        for (int node : order) {
+            if (node != spec.output && !isTable(spec.node(node).op)) {
+                for (Tensor t : params.get(node).values()) {
+                    if (t.rank() == 2) {
+                        out.add(t);
+                    }
+                }
+            }
+        }
+        return out;
+    }
+
+    public List<Tensor> otherParameters() {
+        List<Tensor> out = parameters();
+        out.removeAll(hiddenMatrices());
+        return out;
     }
 
     public Map<String, Tensor> params(int node) {

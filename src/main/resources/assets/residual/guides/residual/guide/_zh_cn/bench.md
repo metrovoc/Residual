@@ -52,7 +52,7 @@ item_ids:
 
 把光掩模放进制造机，选一台机器。每台机器需要一个<ItemLink id="tensor_casing" />、若干晶圆，会学习权重的还需要权重晶体。设计的**面积**决定晶圆数：每四单位面积一块晶圆。每个基本运算占一点面积，每个模块占其规格的设计所需的面积，所以设计越小，机器越便宜。光掩模永远不会消耗。
 
-不放光掩模时，制造机制造无需设计的机器：嵌入表和位置表、残差汇合点、门控、缩放器、因果掩码、分头器与合头器、延迟线以及拼接器。矩阵乘法光掩模还能制造<ItemLink id="accelerator" />和<ItemLink id="drive_dock" />，线性层光掩模还能制造<ItemLink id="dense_drive" />和<ItemLink id="portable_drive" />，注意力光掩模还能制造<ItemLink id="hourglass" />和<ItemLink id="access_point" />和大多数[升级](programs.md)，Transformer 光掩模还能制造<ItemLink id="forecaster_ii" />、<ItemLink id="forecaster_iii" />、<ItemLink id="smelter" />和<ItemLink id="stacked_drive" />，以及<ItemLink id="energy_upgrade" />和<ItemLink id="lift_upgrade" />。
+不放光掩模时，制造机制造无需设计的机器：嵌入表和位置表、残差汇合点、门控、缩放器、因果掩码、分头器与合头器、延迟线以及拼接器。矩阵乘法光掩模还能制造<ItemLink id="accelerator" />和<ItemLink id="drive_dock" />，线性层光掩模还能制造<ItemLink id="dense_drive" />和<ItemLink id="portable_drive" />，注意力光掩模还能制造<ItemLink id="hourglass" />和<ItemLink id="access_point" />和大多数[升级](programs.md)，Transformer 光掩模还能制造<ItemLink id="forecaster_ii" />、<ItemLink id="forecaster_iii" />、<ItemLink id="smelter" />和<ItemLink id="stacked_drive" />，以及<ItemLink id="energy_upgrade" />和<ItemLink id="lift_upgrade" />。计划、bf16、fp8、fp4、正交化和文档掩码的光掩模制造[配方](recipe.md)的各个单元。
 
 ## 融合与未融合
 

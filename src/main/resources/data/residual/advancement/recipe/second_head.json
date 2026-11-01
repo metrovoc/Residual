@@ -1,0 +1,28 @@
+{
+  "parent": "residual:bench/multi_token",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:two_token_head"
+    },
+    "title": {
+      "translate": "advancements.residual.recipe.second_head.title"
+    },
+    "description": {
+      "translate": "advancements.residual.recipe.second_head.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

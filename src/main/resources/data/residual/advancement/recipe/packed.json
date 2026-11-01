@@ -1,0 +1,28 @@
+{
+  "parent": "residual:bench/document_mask",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:packer"
+    },
+    "title": {
+      "translate": "advancements.residual.recipe.packed.title"
+    },
+    "description": {
+      "translate": "advancements.residual.recipe.packed.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

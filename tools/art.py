@@ -490,6 +490,17 @@ GLYPHS = {
         "........",
         "...++...",
     ],
+    # one line in, two lines of scores out, the second dimmer: the token after next
+    "two_token_head": [
+        "++++++++",
+        "++++++++",
+        "........",
+        "--------",
+        "--------",
+        "........",
+        "...##...",
+        "...##...",
+    ],
     # scores held down under a lid
     "z_loss": [
         "--------",
@@ -531,12 +542,12 @@ HUE = {"add": TEAL, "multiply": TEAL, "scale": TEAL, "shift": TEAL,
        "attention": AMETHYST, "matmul": AMETHYST, "softmax": AMETHYST, "causal_mask": AMETHYST, "transformer": AMETHYST,
        "concat": AMBER, "split_heads": AMBER, "merge_heads": AMBER,
        "activation": GREEN, "norm": GREEN, "rms_norm": GREEN, "swiglu": AZURE, "rotary": AMETHYST, "qk_norm": AMETHYST,
-       "z_loss": GREEN, "modern_attention": AMETHYST, "modern_block": AMETHYST}
+       "z_loss": GREEN, "modern_attention": AMETHYST, "modern_block": AMETHYST, "two_token_head": AZURE}
 # glyphs that picture something one-sided: a rising curve, a triangle, a step in time, a diagonal, two different halves
 ONE_SIDED = {"activation", "causal_mask", "shift", "position", "concat", "rotary"}
 
 PARAMETRIC = {"embedding", "position", "linear", "norm", "attention", "mlp", "transformer", "rms_norm", "swiglu", "modern_attention",
-              "modern_block"}
+              "modern_block", "two_token_head"}
 ARITY = {"position": 0, "add": 2, "multiply": 2, "matmul": 2, "concat": 2, "qk_norm": 2}
 
 
@@ -557,6 +568,87 @@ def operator_faces(op):
     else:
         engraved_glyph(side, GLYPHS[op], hue)
     return front, side
+
+
+# A Model Core's recipe units. Each shows the same picture on every side, on a screen that lights while a run uses it.
+UNIT_GLYPHS = {
+    # the rate over a run: up, held, and down
+    "scheduler": [
+        "........",
+        "..####..",
+        ".######.",
+        ".######.",
+        "########",
+        "########",
+        "........",
+        "--------",
+    ],
+    # a grid of numbers: the narrower the format, the fewer of them
+    "bf16_unit": [
+        "##.++.##",
+        "##.++.##",
+        "........",
+        "++.##.++",
+        "++.##.++",
+        "........",
+        "##.++.##",
+        "##.++.##",
+    ],
+    "fp8_unit": [
+        "++.##.++",
+        "++.##.++",
+        "........",
+        "##....##",
+        "##....##",
+        "........",
+        "++.##.++",
+        "++.##.++",
+    ],
+    "fp4_unit": [
+        "++....++",
+        "++....++",
+        "........",
+        "........",
+        "........",
+        "........",
+        "++....++",
+        "++....++",
+    ],
+    # two directions at right angles, of equal length
+    "orthogonalizer": [
+        "...++...",
+        "...++...",
+        "...++...",
+        "++++++++",
+        "++++++++",
+        "...++...",
+        "...++...",
+        "...++...",
+    ],
+    # rows filled with pieces of different lengths, nothing left over
+    "packer": [
+        "###..###",
+        "###..###",
+        "........",
+        "#.++++.#",
+        "#.++++.#",
+        "........",
+        "##.##.##",
+        "##.##.##",
+    ],
+}
+UNIT_HUE = {"scheduler": TEAL, "bf16_unit": GREEN, "fp8_unit": GREEN, "fp4_unit": GREEN, "orthogonalizer": AZURE, "packer": AMBER}
+
+
+def unit_face(name, on):
+    """Its picture on a screen in the plate, dark until a run uses it."""
+    c = plate(salt=64)
+    window(c, ramp=UNIT_HUE[name] if on else None, salt=64)
+    if on:
+        glow_glyph(c, UNIT_GLYPHS[name], UNIT_HUE[name])
+    else:
+        dim_glyph(c, UNIT_GLYPHS[name])
+    return c
 
 
 def machine_back():
@@ -3129,6 +3221,90 @@ ICONS = {
 ...........##...
 ............#...
 """),
+    # the rate over a run: up, held, and down
+    "schedule": icon_cells("""
+................
+................
+.....#######....
+....#.......#...
+....#.......#...
+...#.........#..
+...#.........#..
+..#...........#.
+..#...........#.
+.##############.
+................
+"""),
+    # a rate rising to its full size
+    "warmup": icon_cells("""
+................
+................
+..........#####.
+.........#......
+........#.......
+.......#........
+......#.........
+.....#..........
+....#...........
+..###...........
+................
+"""),
+    # a run with an end to it
+    "length": icon_cells("""
+................
+................
+.............##.
+.............##.
+.............##.
+.##..........##.
+.##############.
+.##..........##.
+.............##.
+.............##.
+.............##.
+"""),
+    # numbers on a grid: a few wide bits
+    "precision": icon_cells("""
+................
+................
+..##..##..##....
+..##..##..##....
+................
+..##..##..##....
+..##..##..##....
+................
+..##..##........
+..##..##........
+................
+"""),
+    # a step along two directions at right angles
+    "moves": icon_cells("""
+................
+................
+...#............
+..###...........
+...#............
+...#............
+...#............
+...#............
+...#........#...
+...##########...
+............#...
+"""),
+    # rows filled with pieces of different lengths
+    "packing": icon_cells("""
+................
+................
+..#####.#####...
+..#####.#####...
+................
+..##.#########..
+..##.#########..
+................
+..#######.###...
+..#######.###...
+................
+"""),
     # a step down the slope, as far as the rate says
     "learning_rate": icon_cells("""
 ................
@@ -3553,6 +3729,9 @@ def build():
         if ARITY.get(op, 1) == 0:
             blank_back(op).save(f"block/{op}_back.png")
     machine_back().save("block/machine_back.png")
+    for name in UNIT_GLYPHS:
+        unit_face(name, False).save(f"block/{name}.png")
+        lit(f"block/{name}_on.png", [unit_face(name, True)], [unit_face(name, False)])
 
     core_front().save("block/model_core_front.png")
     core_side().save("block/model_core_side.png")
@@ -3612,7 +3791,7 @@ def build():
     assert mirrored(FLIGHT_FRAME), FLIGHT_FRAME
     for rows in (EXOSUIT, EXOSUIT_FRONT, EXOSUIT_BACK, EXOSUIT_ARM_OUT, EXOSUIT_ARM):
         assert mirrored(rows), rows
-    for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, SURVEY_PROBE, *PORT_GLYPHS.values()]:
+    for rows in [*GLYPHS.values(), *UNIT_GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, SURVEY_PROBE, *PORT_GLYPHS.values()]:
         assert not (mirrored(rows) and len(rows[0]) % 2), rows
         assert not (rows == rows[::-1] and len(rows) % 2), rows
     assert [u + 5 for u in RACK_BAY_U] == [15 - u for u in reversed(RACK_BAY_U)]

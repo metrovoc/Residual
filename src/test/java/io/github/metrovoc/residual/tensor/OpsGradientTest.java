@@ -206,6 +206,44 @@ class OpsGradientTest {
         }
     }
 
+    /** Three rows of six, cut into documents differently; the second-last token's document starts at 4 in the first row. */
+    private static final int[] STARTS = {0, 0, 0, 0, 4, 4, 0, 1, 1, 1, 1, 1};
+
+    @Test
+    void documentsStopAttentionAndPositionsAndDelayLines() {
+        Tensor s = rand(2, 6, 6);
+        check("masked scores", List.of(s), tape -> Ops.softmax(tape, Ops.causalMask(tape, s, STARTS, 2)));
+        Tensor masked = Ops.causalMask(null, s, STARTS, 2);
+        assertEquals(Float.NEGATIVE_INFINITY, masked.data[5 * 6 + 3], "row 5 of the first row can't see its first document");
+        assertEquals(s.data[5 * 6 + 4], masked.data[5 * 6 + 4]);
+        Tensor table = rand(6, 3);
+        check("positions", List.of(table), tape -> Ops.positions(tape, table, 6, STARTS, 2));
+        // a document's first token takes the table's first row, wherever in the row it stands
+        Tensor placed = Ops.positions(null, table, 6, STARTS, 2);
+        for (int c = 0; c < 3; c++) {
+            assertEquals(table.data[c], placed.data[4 * 3 + c], "first token of the second document");
+            assertEquals(table.data[3 + c], placed.data[5 * 3 + c], "second token of the second document");
+        }
+        Tensor x = rand(2, 6, 3);
+        check("shift", List.of(x), tape -> Ops.shift(tape, x, 1, STARTS));
+        Tensor shifted = Ops.shift(null, x, 1, STARTS);
+        assertEquals(0f, shifted.data[4 * 3], "a document's first token has nothing before it");
+        assertEquals(x.data[4 * 3], shifted.data[5 * 3]);
+    }
+
+    @Test
+    void flashAttentionStopsAtDocumentsToo() {
+        Tensor q = rand(2, 2, 6, 4);
+        Tensor k = rand(2, 2, 6, 4);
+        Tensor v = rand(2, 2, 6, 4);
+        Tensor flash = Ops.flashAttention(null, q, k, v, 0.5f, STARTS, 2);
+        Tensor plain = Ops.matmul(null, Ops.softmax(null, Ops.causalMask(null, Ops.scale(null, Ops.matmul(null, q, k, true), 0.5f), STARTS, 2)), v, false);
+        for (int i = 0; i < plain.size(); i++) {
+            assertEquals(plain.data[i], flash.data[i], 1e-4, "element " + i);
+        }
+        check("flash with documents", List.of(q, k, v), tape -> Ops.flashAttention(tape, q, k, v, 0.5f, STARTS, 2));
+    }
+
     @Test
     void zLossAndTemperature() {
         Tensor y = rand(2, 3, 5);

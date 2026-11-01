@@ -3,7 +3,7 @@ package io.github.metrovoc.residual.tensor;
 import java.util.List;
 
 /** {@code torch.optim.AdamW}, with optional global-norm gradient clipping. */
-public final class AdamW {
+public final class AdamW implements Optimizer {
     public static final class Group {
         final Tensor param;
         final boolean decay;
@@ -53,23 +53,28 @@ public final class AdamW {
     }
 
     /** Scales gradients so their global norm is at most {@code maxNorm}; returns the norm before clipping. */
+    @Override
     public double clip(double maxNorm) {
         double norm = gradNorm();
         if (maxNorm > 0 && norm > maxNorm) {
-            float s = (float) (maxNorm / (norm + 1e-6));
-            for (Group g : groups) {
-                if (!g.param.hasGrad()) {
-                    continue;
-                }
-                float[] grad = g.param.grad();
-                for (int i = 0; i < grad.length; i++) {
-                    grad[i] *= s;
-                }
-            }
+            scale((float) (maxNorm / (norm + 1e-6)));
         }
         return norm;
     }
 
+    void scale(float s) {
+        for (Group g : groups) {
+            if (!g.param.hasGrad()) {
+                continue;
+            }
+            float[] grad = g.param.grad();
+            for (int i = 0; i < grad.length; i++) {
+                grad[i] *= s;
+            }
+        }
+    }
+
+    @Override
     public void step(float lr) {
         step++;
         double bc1 = 1 - Math.pow(beta1, step);
@@ -93,6 +98,7 @@ public final class AdamW {
         }
     }
 
+    @Override
     public void zeroGrad() {
         for (Group g : groups) {
             g.param.zeroGrad();

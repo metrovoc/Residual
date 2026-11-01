@@ -10,6 +10,7 @@ import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.agent.Trace;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
+import io.github.metrovoc.residual.block.UnitBlock;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.client.AgentScreen;
@@ -256,6 +257,8 @@ import org.slf4j.Logger;
  * expect program NAME N      fail the step unless the agent NAME runs a program at least N characters long, not stopped
  * expect proposed NAME N     fail the step unless the agent NAME has read back an order at least N characters long
  * expect steps X Y Z N       fail the step unless the Model Core at the place has trained at least N steps
+ * expect running X Y Z N     fail the step unless the Model Core at the place is training (1) or not (0)
+ * expect working X Y Z N     fail the step unless the recipe unit at the place is lit (1) or not (0)
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
@@ -1026,6 +1029,12 @@ public final class Rehearsal {
                     if (args[0].equals("steps")) {
                         return (long) ((CoreBlockEntity) level.getBlockEntity(at)).snapshot().steps();
                     }
+                    if (args[0].equals("running")) {
+                        return ((CoreBlockEntity) level.getBlockEntity(at)).running() ? 1L : 0L;
+                    }
+                    if (args[0].equals("working")) {
+                        return level.getBlockState(at).getValue(UnitBlock.WORKING) ? 1L : 0L;
+                    }
                     StorageNetwork net = StorageNetwork.at(level, at);
                     switch (args[0]) {
                         case "jobs" -> {
@@ -1155,7 +1164,8 @@ public final class Rehearsal {
                 || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits")) || args[0].equals("nomobs") || args[0].equals("noblocks") || args[0].equals("empty")
                 || wanted == 0 && (args[0].equals("program") || args[0].equals("proposed"))
                 || args[0].equals("netopen") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("out")
-                || args[0].equals("state") || args[0].equals("ticking");
+                || args[0].equals("state") || args[0].equals("ticking")
+                || args[0].equals("running") || args[0].equals("working");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube_directional",
+  "textures": {
+    "particle": "residual:block/two_token_head_side",
+    "north": "residual:block/two_token_head_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/two_token_head_side",
+    "west": "residual:block/two_token_head_side",
+    "up": "residual:block/two_token_head_side",
+    "down": "residual:block/two_token_head_side"
+  }
+}

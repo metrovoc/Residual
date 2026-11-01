@@ -31,6 +31,11 @@ None: unlike a <ItemLink id="position" />, it has no table to fill and no longes
 > `z = torch.view_as_complex(x.reshape(*x.shape[:-1], -1, 2))`\
 > `y = torch.view_as_real(z * freqs_cis[:T]).flatten(-2)`
 
+## Notes
+
+A query and a key learn how far apart they are this way, and never where they stand. A job that asks where, such as Survey,
+wants a <ItemLink id="position" /> as well: see [The Modern Block](../modern.md).
+
 ## Making it
 
 The <ItemLink id="fabricator" /> makes it from a photomask of **Rotary Positions**: verify the spec on a

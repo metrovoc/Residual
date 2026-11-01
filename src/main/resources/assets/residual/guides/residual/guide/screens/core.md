@@ -116,4 +116,41 @@ Use a Model Core to open it. Its tabs take a model from its data to its tests; [
       </residual:Part>
     </residual:Shot>
   </residual:Step>
+
+  <residual:Step>
+    **Recipe**: how a run goes beside its learning rate.
+
+    <residual:Shot name="core_recipe" alt="The Recipe tab: the settings, what the run is doing, the rate over the run and the units at the Core">
+      <residual:Part name="settings">
+        **The settings**: Each is dim until the unit for it touches the Core. [The Recipe](../recipe.md) says what each does.
+      </residual:Part>
+      <residual:Part name="readings">
+        **What the run is doing**: The rate now, what the weights take, the text read, the spikes, the largest scores and how often a second head is right. Point at one for what it means.
+      </residual:Part>
+      <residual:Part name="rate">
+        **The rate over the run**: What the learning rate is multiplied by from the first step to the last, with a line where the run has reached.
+      </residual:Part>
+      <residual:Part name="units">
+        **The units**: Lit if one touches the Core, directly or through accelerators and other units. Point at one for what it opens.
+      </residual:Part>
+      <residual:Part name="recipe.schedule">
+        **Schedule**: How the learning rate moves over a run: held steady, falling along a cosine from the end of warmup, or held and falling over the last fifth. A falling one needs a Length.
+      </residual:Part>
+      <residual:Part name="recipe.warmup">
+        **Warmup**: How many steps the rate takes to rise to its full size.
+      </residual:Part>
+      <residual:Part name="recipe.length">
+        **Length**: How many steps a run lasts, after which it stops by itself. With no end it runs until it is stopped.
+      </residual:Part>
+      <residual:Part name="recipe.precision">
+        **Precision**: What the model's matrices, and the numbers going into them, are rounded to, in training and whenever it answers afterwards. The narrower, the fewer bytes a weight takes.
+      </residual:Part>
+      <residual:Part name="recipe.moves">
+        **Optimizer**: What moves the weights: AdamW, each number on its own, or Muon, each matrix inside the model as a whole, every direction alike.
+      </residual:Part>
+      <residual:Part name="recipe.packing">
+        **Packing**: How archive text is cut into rows: windows of long stretches only, rows packed from every stretch, or packed with a mask so that nothing looks from one stretch into another.
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
 </residual:Steps>

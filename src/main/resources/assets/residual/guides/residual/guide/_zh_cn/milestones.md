@@ -127,6 +127,28 @@ navigation:
 
 <residual:Milestone id="bench/modern_block">验证 RMS 归一化、现代注意力和门控前馈后开放。</residual:Milestone>
 
+<residual:Milestone id="bench/fp32">每个浮点数所在的网格，有几个能难倒对数的案例。</residual:Milestone>
+
+<residual:Milestone id="bench/bf16">验证浮点网格后开放。</residual:Milestone>
+
+<residual:Milestone id="bench/fp8">验证浮点网格后开放。范围这么小，需要一个缩放系数。</residual:Milestone>
+
+<residual:Milestone id="bench/fp4">验证 fp8 后开放。一共八种大小，一个特别大的数不能连累其余的数。</residual:Milestone>
+
+<residual:Milestone id="bench/schedule">一次运行中学习率的走向：[配方](recipe.md)。</residual:Milestone>
+
+<residual:Milestone id="bench/grad_clip">长度为零的梯度会难倒直接的设计。</residual:Milestone>
+
+<residual:Milestone id="bench/newton_step">验证矩阵乘法后开放。</residual:Milestone>
+
+<residual:Milestone id="bench/orthogonalize">验证牛顿步后开放。</residual:Milestone>
+
+<residual:Milestone id="bench/document_mask">在文本段落之间的接缝处截止的掩码。</residual:Milestone>
+
+<residual:Milestone id="bench/cross_entropy">损失本身。上千的分数会让直接的设计溢出。</residual:Milestone>
+
+<residual:Milestone id="bench/multi_token">验证交叉熵后开放。</residual:Milestone>
+
 <residual:Milestone id="bench/all"></residual:Milestone>
 
 <residual:Milestone id="model/stream">Transformer 层从中读取，并向其中累加：[残差流](stream.md)。</residual:Milestone>
@@ -157,11 +179,25 @@ navigation:
 
 <residual:Milestone id="benchmark/pilot">用<ItemLink id="flight_dataset" />练习：核心用模型自己的选择去飞，需要一个能读回整次飞行的模型。</residual:Milestone>
 
-<residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习；需要一个大到无法随身携带的模型。</residual:Milestone>
+<residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习；需要一个用 fp32 时大到无法随身携带的模型。</residual:Milestone>
 
 <residual:Milestone id="model/complete">一个模型核心最多可同时练习四种数据。</residual:Milestone>
 
 <residual:Milestone id="model/modern">用现代块代替 Transformer 块，模型通过任意一项测试后保存：[现代块](modern.md)。</residual:Milestone>
+
+## 配方
+
+一次运行除了学习率之外还做什么，在模型核心的「配方」页上设定，前提是相应的单元接触着模型核心：[配方](recipe.md)。
+
+<residual:Milestone id="recipe/planned">让<ItemLink id="scheduler" />接触模型核心，设定**长度**和一条会下降的计划，让这次运行跑到终点。</residual:Milestone>
+
+<residual:Milestone id="recipe/narrow">让<ItemLink id="fp8_unit" />或<ItemLink id="fp4_unit" />接触模型核心来训练，模型通过任意一项测试后保存。</residual:Milestone>
+
+<residual:Milestone id="recipe/muon">让<ItemLink id="orthogonalizer" />接触模型核心，选 Muon 来训练，模型通过任意一项测试后保存。</residual:Milestone>
+
+<residual:Milestone id="recipe/packed">让<ItemLink id="packer" />接触模型核心，用打包加掩码的行练习档案文本，模型通过「阅读」后保存。</residual:Milestone>
+
+<residual:Milestone id="recipe/second_head">让模型以<ItemLink id="two_token_head" />结尾，通过任意一项测试后保存。</residual:Milestone>
 
 ## 让模型干活
 

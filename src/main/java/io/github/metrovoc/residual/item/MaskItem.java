@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.item;
 
 import io.github.metrovoc.residual.bench.MaskData;
 import io.github.metrovoc.residual.bench.Spec;
+import io.github.metrovoc.residual.bench.Unit;
 import io.github.metrovoc.residual.registry.ModComponents;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
@@ -57,6 +58,11 @@ public class MaskItem extends Item {
         out.accept(Component.translatable("residual.mask.area", m.area(), spec.area()).withStyle(ChatFormatting.GRAY));
         for (var op : spec.unlocks()) {
             out.accept(Component.translatable("residual.mask.makes", Component.translatable("block.residual." + op.id))
+                    .withStyle(ChatFormatting.DARK_GRAY));
+        }
+        Unit unit = Unit.of(spec);
+        if (unit != null) {
+            out.accept(Component.translatable("residual.mask.makes", Component.translatable("block.residual." + unit.id))
                     .withStyle(ChatFormatting.DARK_GRAY));
         }
         if (spec.id().equals("matmul")) {

@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.agent.SignalBlock;
+import io.github.metrovoc.residual.bench.Unit;
 import io.github.metrovoc.residual.block.AcceleratorBlock;
 import io.github.metrovoc.residual.block.BenchBlock;
 import io.github.metrovoc.residual.block.CableBlock;
@@ -22,6 +23,7 @@ import io.github.metrovoc.residual.block.RelayLinkBlock;
 import io.github.metrovoc.residual.block.ServerBlock;
 import io.github.metrovoc.residual.block.StreamBlock;
 import io.github.metrovoc.residual.block.SurveyorBlock;
+import io.github.metrovoc.residual.block.UnitBlock;
 import io.github.metrovoc.residual.block.WatchPostBlock;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.storage.AccessPointBlock;
@@ -47,6 +49,8 @@ public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Residual.MOD_ID);
 
     public static final Map<Op, DeferredBlock<OperatorBlock>> OPERATORS = new EnumMap<>(Op.class);
+    /** What a Model Core's recipe is built from. */
+    public static final Map<Unit, DeferredBlock<UnitBlock>> UNITS = new EnumMap<>(Unit.class);
     /** Uncolored cable, which joins cables of any color. */
     public static final DeferredBlock<CableBlock> CABLE = BLOCKS.registerBlock("cable", p -> new CableBlock(null, p), ModBlocks::cable);
     public static final Map<DyeColor, DeferredBlock<CableBlock>> COLORED_CABLES = new EnumMap<>(DyeColor.class);
@@ -122,6 +126,10 @@ public final class ModBlocks {
     static {
         for (Op op : Op.values()) {
             OPERATORS.put(op, BLOCKS.registerBlock(op.id, p -> new OperatorBlock(op, p), ModBlocks::machine));
+        }
+        for (Unit unit : Unit.values()) {
+            UNITS.put(unit, BLOCKS.registerBlock(unit.id, p -> new UnitBlock(unit, p),
+                    p -> machine(p).lightLevel(s -> s.getValue(UnitBlock.WORKING) ? 9 : 2)));
         }
         for (DyeColor color : DyeColor.values()) {
             COLORED_CABLES.put(color, BLOCKS.registerBlock(color.getSerializedName() + "_cable", p -> new CableBlock(color, p), ModBlocks::cable));

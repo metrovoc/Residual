@@ -37,6 +37,7 @@ navigation:
 - <ItemLink id="attention" />，来自注意力：一台机器实现多头注意力。
 - <ItemLink id="mlp" />，来自前馈块：加宽、弯折、投影回去。
 - <ItemLink id="transformer" />，来自 Transformer 块：一整个 Transformer 层。
+- <ItemLink id="two_token_head" />，来自多词元预测：给下一个词元和再下一个词元打分。
 
 ## 现代块
 

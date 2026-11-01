@@ -145,7 +145,8 @@ lantern on a post beside a hatch, deep rooms with a bank of old accelerators and
   relay tower's shards are mostly its keepers' writing. See [The Archive](archive.md).
 - Photomasks with salvaged designs: the Fabricator makes working but unfused machines from them, without a Bench.
   Linear layer, softmax and GELU masks turn up in houses, matrix multiply ones under the gravel, and attention, layer
-  norm, feed-forward and transformer masks in vaults. See [The Bench and the Fabricator](bench.md).
+  norm, feed-forward and transformer masks in vaults. Those of [the modern block](modern.md) and [the recipe](recipe.md)
+  lie in tutor houses, vaults and the Deep Works. See [The Bench and the Fabricator](bench.md).
 - <ItemLink id="schematic_relays" />: the plans for relays, a pattern to copy that stays in the crafting grid. In
   relay towers, on masts and in vaults.
 - What each place kept: coal and food in the towers, flour and seed on the farms, remedies in the marsh, timber and

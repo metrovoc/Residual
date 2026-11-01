@@ -8,6 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.tensor.Ops.Activation;
 import io.github.metrovoc.residual.tensor.Prims.Binary;
@@ -162,6 +163,66 @@ class TorchParityTest {
                 for (int i = 0; i < params.size(); i++) {
                     assertClose(floats(after.get(i).getAsJsonArray()), params.get(i).data, at + " parameter " + i);
                 }
+            }
+        }
+    }
+
+    /** Narrow floats against PyTorch's own casts: every value exactly the same float. */
+    @Test
+    void narrowFloatsMatchPyTorch() throws IOException {
+        JsonObject fixture = read("numerics.json");
+        for (String format : List.of("bf16", "e4m3", "e5m2")) {
+            JsonObject c = fixture.getAsJsonArray(format).get(0).getAsJsonObject();
+            float[] in = floats(c.getAsJsonArray("input"));
+            float[] want = floats(c.getAsJsonArray("output"));
+            for (int i = 0; i < in.length; i++) {
+                float got = switch (format) {
+                    case "bf16" -> Numerics.bf16(in[i]);
+                    case "e4m3" -> (float) Numerics.e4m3(in[i]);
+                    default -> (float) Numerics.e5m2(in[i]);
+                };
+                assertEquals(want[i], got, format + " of " + in[i]);
+            }
+        }
+        JsonObject c = fixture.getAsJsonArray("fp8").get(0).getAsJsonObject();
+        assertClose(floats(c.getAsJsonArray("output")), Numerics.forward(floats(c.getAsJsonArray("input")), Numerics.Format.FP8), "fp8 scaled");
+    }
+
+    @Test
+    void muonMatchesPyTorch() throws IOException {
+        for (JsonElement e : read("muon.json").getAsJsonArray("muon")) {
+            JsonObject run = e.getAsJsonObject();
+            List<Tensor> params = new ArrayList<>();
+            for (JsonElement p : run.getAsJsonArray("params")) {
+                params.add(tensor(p.getAsJsonObject()));
+            }
+            Muon optimizer = new Muon(params, List.of());
+            float lr = run.get("lr").getAsFloat();
+            JsonArray steps = run.getAsJsonArray("steps");
+            for (int s = 0; s < steps.size(); s++) {
+                JsonObject step = steps.get(s).getAsJsonObject();
+                for (int i = 0; i < params.size(); i++) {
+                    float[] grad = floats(step.getAsJsonArray("grads").get(i).getAsJsonArray());
+                    System.arraycopy(grad, 0, params.get(i).grad(), 0, grad.length);
+                }
+                optimizer.step(lr);
+                JsonArray after = step.getAsJsonArray("params");
+                for (int i = 0; i < params.size(); i++) {
+                    assertClose(floats(after.get(i).getAsJsonArray()), params.get(i).data, run.get("name").getAsString() + " step " + s + " parameter " + i);
+                }
+            }
+        }
+    }
+
+    @Test
+    void schedulesMatchPyTorch() throws IOException {
+        for (JsonElement e : read("schedules.json").getAsJsonArray("cosine")) {
+            JsonObject run = e.getAsJsonObject();
+            Recipe recipe = new Recipe(Recipe.Schedule.COSINE, run.get("warmup").getAsInt(), run.get("total").getAsInt(),
+                    Numerics.Format.FP32, Recipe.Moves.ADAMW, Recipe.Packing.WINDOWS);
+            float[] rates = floats(run.getAsJsonArray("rates"));
+            for (int s = 0; s < rates.length; s++) {
+                assertEquals(rates[s], recipe.multiplier(s), 1e-5, run.get("name").getAsString() + " step " + s);
             }
         }
     }

@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.learn.Vocab;
+import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.Tensor;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -142,6 +143,7 @@ public final class Checkpoints {
         CompoundTag root = new CompoundTag();
         root.putInt("output", model.spec.output);
         root.putIntArray("merges", model.env.tokenizer().mergeIds());
+        root.putString("precision", model.precision.id);
         ListTag nodes = new ListTag();
         for (int i = 0; i < model.spec.size(); i++) {
             GraphSpec.Node n = model.spec.node(i);
@@ -203,6 +205,8 @@ public final class Checkpoints {
         }
         spec.output = root.getIntOr("output", GraphSpec.MISSING);
         Vocab vocab = Vocab.of(root.getIntArray("merges").orElse(new int[0]));
-        return CompiledGraph.compile(spec, new Env(vocab, Vocab.CONTEXT), params::get, 0);
+        CompiledGraph model = CompiledGraph.compile(spec, new Env(vocab, Vocab.CONTEXT), params::get, 0);
+        model.precision = Numerics.Format.byId(root.getStringOr("precision", ""));
+        return model;
     }
 }

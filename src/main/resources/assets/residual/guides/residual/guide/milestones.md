@@ -150,6 +150,29 @@ instead of letters: [Tokens](tokenizers.md).</residual:Milestone>
 
 <residual:Milestone id="bench/modern_block">It opens once RMS norm, modern attention and the gated block are verified.</residual:Milestone>
 
+<residual:Milestone id="bench/fp32">The grid every float sits on, with the cases that break a logarithm.</residual:Milestone>
+
+<residual:Milestone id="bench/bf16">It opens once the float grid is verified.</residual:Milestone>
+
+<residual:Milestone id="bench/fp8">It opens once the float grid is verified. So small a range needs a scale.</residual:Milestone>
+
+<residual:Milestone id="bench/fp4">It opens once fp8 is verified. Eight sizes, and one loud number must not spoil the
+rest.</residual:Milestone>
+
+<residual:Milestone id="bench/schedule">The rate over a run: [The Recipe](recipe.md).</residual:Milestone>
+
+<residual:Milestone id="bench/grad_clip">A gradient of zero breaks the obvious design.</residual:Milestone>
+
+<residual:Milestone id="bench/newton_step">It opens once matrix multiply is verified.</residual:Milestone>
+
+<residual:Milestone id="bench/orthogonalize">It opens once the Newton step is verified.</residual:Milestone>
+
+<residual:Milestone id="bench/document_mask">A mask that stops at the seams between stretches of text.</residual:Milestone>
+
+<residual:Milestone id="bench/cross_entropy">The loss itself. Scores of a thousand overflow the obvious design.</residual:Milestone>
+
+<residual:Milestone id="bench/multi_token">It opens once cross-entropy is verified.</residual:Milestone>
+
 <residual:Milestone id="bench/all"></residual:Milestone>
 
 <residual:Milestone id="model/stream">Transformer layers read from it and add to it:
@@ -190,12 +213,32 @@ stops.</residual:Milestone>
 flights, and it takes a model that reads the flight back to its start.</residual:Milestone>
 
 <residual:Milestone id="benchmark/orders">Practise on the <ItemLink id="orders_dataset" />; it takes a model too big to
-carry.</residual:Milestone>
+carry in fp32.</residual:Milestone>
 
 <residual:Milestone id="model/complete">A Model Core practises up to four kinds at once.</residual:Milestone>
 
 <residual:Milestone id="model/modern">Put Modern Blocks in place of Transformer Blocks, and save the model once it passes
 any test: [The Modern Block](modern.md).</residual:Milestone>
+
+## The recipe
+
+What a run does beside its learning rate is set on the Core's **Recipe** tab, once the unit for it touches the Core:
+[The Recipe](recipe.md).
+
+<residual:Milestone id="recipe/planned">Set a Length and a schedule that falls, with a <ItemLink id="scheduler" /> at the
+Core, and let the run reach its end.</residual:Milestone>
+
+<residual:Milestone id="recipe/narrow">Train with an <ItemLink id="fp8_unit" /> or an <ItemLink id="fp4_unit" /> at the
+Core, and save the model once it passes any test.</residual:Milestone>
+
+<residual:Milestone id="recipe/muon">Train with an <ItemLink id="orthogonalizer" /> at the Core and Muon chosen, and save
+the model once it passes any test.</residual:Milestone>
+
+<residual:Milestone id="recipe/packed">Train on archive text with a <ItemLink id="packer" /> at the Core, its rows packed
+and masked, and save the model once it passes Reading.</residual:Milestone>
+
+<residual:Milestone id="recipe/second_head">End a model in a <ItemLink id="two_token_head" />, and save it once it passes
+any test.</residual:Milestone>
 
 ## Putting models to work
 

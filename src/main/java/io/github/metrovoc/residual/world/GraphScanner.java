@@ -7,6 +7,7 @@ import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.Port;
 import io.github.metrovoc.residual.block.StreamBlock;
+import io.github.metrovoc.residual.block.UnitBlock;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
 import java.util.ArrayDeque;
@@ -381,6 +382,20 @@ public final class GraphScanner {
 
     /** Accelerators touching the Core, directly or through each other. */
     public static Set<BlockPos> accelerators(Level level, BlockPos core) {
+        Set<BlockPos> found = around(level, core);
+        found.removeIf(p -> !(level.getBlockState(p).getBlock() instanceof AcceleratorBlock));
+        return found;
+    }
+
+    /** The recipe units joined to a Core. */
+    public static Set<BlockPos> units(Level level, BlockPos core) {
+        Set<BlockPos> found = around(level, core);
+        found.removeIf(p -> !(level.getBlockState(p).getBlock() instanceof UnitBlock));
+        return found;
+    }
+
+    /** Every accelerator and unit touching the Core, directly or through one another. */
+    private static Set<BlockPos> around(Level level, BlockPos core) {
         Set<BlockPos> seen = new HashSet<>();
         Deque<BlockPos> todo = new ArrayDeque<>();
         todo.add(core);
@@ -388,7 +403,8 @@ public final class GraphScanner {
             BlockPos p = todo.poll();
             for (Direction d : Direction.values()) {
                 BlockPos n = p.relative(d);
-                if (level.isLoaded(n) && level.getBlockState(n).getBlock() instanceof AcceleratorBlock && seen.add(n)) {
+                if (level.isLoaded(n) && (level.getBlockState(n).getBlock() instanceof AcceleratorBlock
+                        || level.getBlockState(n).getBlock() instanceof UnitBlock) && seen.add(n)) {
                     if (seen.size() == MAX_ACCELERATORS) {
                         return seen;
                     }

@@ -576,9 +576,15 @@ public final class Ops {
      * same scores out again from the q and k it kept. Its memory grows with T where the plain way's grows with T².
      */
     public static Tensor flashAttention(Tape tape, Tensor q, Tensor k, Tensor v, float scale) {
+        return flashAttention(tape, q, k, v, scale, null, 1);
+    }
+
+    /** As {@link #flashAttention(Tape, Tensor, Tensor, Tensor, float)}, each row seeing only from where its own document begins. */
+    public static Tensor flashAttention(Tape tape, Tensor q, Tensor k, Tensor v, float scale, int[] starts, int batch) {
         int d = q.dim(-1);
         int t = q.dim(-2);
         int grids = q.size() / (t * d);
+        int heads = grids / batch;
         Tensor out = result(v.shape.clone(), tracks(tape, q, k, v));
         float[] tops = new float[grids * t];
         float[] sums = new float[grids * t];
@@ -594,7 +600,7 @@ public final class Ops {
                     int qi = base + i * d;
                     float top = Float.NEGATIVE_INFINITY;
                     float sum = 0f;
-                    for (int tile = 0; tile <= i; tile += TILE) {
+                    for (int tile = starts == null ? 0 : starts[g / heads * t + i]; tile <= i; tile += TILE) {
                         int end = Math.min(tile + TILE, i + 1);
                         float high = top;
                         for (int j = tile; j < end; j++) {
@@ -654,7 +660,7 @@ public final class Ops {
                             for (int c = 0; c < d; c++) {
                                 back += gy[row + c] * od[row + c];
                             }
-                            for (int j = 0; j <= i; j++) {
+                            for (int j = starts == null ? 0 : starts[g / heads * t + i]; j <= i; j++) {
                                 int kj = base + j * d;
                                 float s = 0f;
                                 float through = 0f;
@@ -683,6 +689,121 @@ public final class Ops {
                         }
                     }
                 });
+            });
+        }
+        return out;
+    }
+
+    // ------------------------------------------------------------------ documents
+
+    /**
+     * {@link #causalMask(Tape, Tensor)} that also hides other documents: a row sees only from where its own document
+     * begins. {@code starts} holds that place for each token of each of {@code batch} rows; null hides only the future.
+     */
+    public static Tensor causalMask(Tape tape, Tensor x, int[] starts, int batch) {
+        if (starts == null) {
+            return causalMask(tape, x);
+        }
+        int t = x.dim(-1);
+        int grids = x.size() / (t * t);
+        int heads = grids / batch;
+        Tensor out = result(x.shape.clone(), tracks(tape, x));
+        for (int g = 0; g < grids; g++) {
+            int base = g * t * t;
+            int row = g / heads * t;
+            for (int i = 0; i < t; i++) {
+                for (int j = 0; j < t; j++) {
+                    int idx = base + i * t + j;
+                    out.data[idx] = j > i || j < starts[row + i] ? Float.NEGATIVE_INFINITY : x.data[idx];
+                }
+            }
+        }
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                if (!out.hasGrad()) {
+                    return;
+                }
+                float[] gy = out.grad();
+                float[] gx = x.grad();
+                for (int g = 0; g < grids; g++) {
+                    int base = g * t * t;
+                    int row = g / heads * t;
+                    for (int i = 0; i < t; i++) {
+                        for (int j = starts[row + i]; j <= i; j++) {
+                            gx[base + i * t + j] += gy[base + i * t + j];
+                        }
+                    }
+                }
+            });
+        }
+        return out;
+    }
+
+    /** {@link #positions(Tape, Tensor, int)} counted from where each token's document begins: [B, T, d]. */
+    public static Tensor positions(Tape tape, Tensor table, int t, int[] starts, int batch) {
+        if (starts == null) {
+            return positions(tape, table, t);
+        }
+        if (t > table.dim(0)) {
+            throw new ShapeException("residual.shape.op.position", table.dim(0), t);
+        }
+        int d = table.dim(1);
+        Tensor out = result(new int[]{batch, t, d}, tracks(tape, table));
+        for (int n = 0; n < batch * t; n++) {
+            System.arraycopy(table.data, (n % t - starts[n]) * d, out.data, n * d, d);
+        }
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                if (!out.hasGrad()) {
+                    return;
+                }
+                float[] g = out.grad();
+                float[] gt = table.grad();
+                for (int n = 0; n < batch * t; n++) {
+                    int at = (n % t - starts[n]) * d;
+                    for (int j = 0; j < d; j++) {
+                        gt[at + j] += g[n * d + j];
+                    }
+                }
+            });
+        }
+        return out;
+    }
+
+    /** {@link #shift(Tape, Tensor, int)} that looks no further back than where each token's document begins: zero there, as at the start. */
+    public static Tensor shift(Tape tape, Tensor x, int n, int[] starts) {
+        if (starts == null) {
+            return shift(tape, x, n);
+        }
+        int t = x.dim(-2);
+        int d = x.dim(-1);
+        int seqs = x.size() / (t * d);
+        Tensor out = result(x.shape.clone(), tracks(tape, x));
+        for (int s = 0; s < seqs; s++) {
+            int base = s * t * d;
+            for (int ti = n; ti < t; ti++) {
+                if (ti - n >= starts[s * t + ti]) {
+                    System.arraycopy(x.data, base + (ti - n) * d, out.data, base + ti * d, d);
+                }
+            }
+        }
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                if (!out.hasGrad()) {
+                    return;
+                }
+                float[] g = out.grad();
+                float[] gx = x.grad();
+                for (int s = 0; s < seqs; s++) {
+                    int base = s * t * d;
+                    for (int ti = n; ti < t; ti++) {
+                        if (ti - n >= starts[s * t + ti]) {
+                            for (int j = 0; j < d; j++) {
+                                gx[base + (ti - n) * d + j] += g[base + ti * d + j];
+                            }
+                        }
+                    }
+                }
             });
         }
         return out;

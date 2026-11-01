@@ -198,6 +198,38 @@
         },
         {
           "type": "minecraft:item",
+          "name": "residual:photomask",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "fp4",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "fp8",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
           "name": "residual:weight_crystal",
           "weight": 4,
           "functions": [

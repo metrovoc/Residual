@@ -182,6 +182,54 @@
         },
         {
           "type": "minecraft:item",
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "fp8",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "orthogonalize",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "multi_token",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
           "name": "residual:schematic_relays",
           "weight": 1
         },

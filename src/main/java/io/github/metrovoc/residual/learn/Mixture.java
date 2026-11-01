@@ -10,6 +10,8 @@ public final class Mixture extends Task {
     }
 
     public final List<Source> sources;
+    /** What the last batch of practice was drawn from: batches of different kinds have losses of very different sizes. */
+    public Benchmark lastDrawn;
 
     public Mixture(List<Source> sources, Vocab vocab) {
         super(vocab, sources.stream().mapToInt(s -> s.data().context).max().orElse(Vocab.CONTEXT), Metric.LOSS, 0);
@@ -18,6 +20,10 @@ public final class Mixture extends Task {
 
     @Override
     public Batch batch(Random rng, int size, boolean test) {
-        return sources.get(rng.nextInt(sources.size())).data().batch(rng, size, test);
+        Source source = sources.get(rng.nextInt(sources.size()));
+        if (!test) {
+            lastDrawn = source.benchmark();
+        }
+        return source.data().batch(rng, size, test);
     }
 }

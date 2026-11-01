@@ -1,9 +1,7 @@
 package io.github.metrovoc.residual.model;
 
-import io.github.metrovoc.residual.graph.CompiledGraph;
-
-import io.github.metrovoc.residual.ResidualConfig;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
+import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.LinkItem;
 import io.github.metrovoc.residual.learn.Sampler;
@@ -46,9 +44,7 @@ public sealed interface ModelLink {
     static ModelLink of(ServerLevel level, BlockPos where, ItemStack slot) {
         ModelInfo info = CrystalItem.model(slot);
         if (info != null) {
-            long limit = ResidualConfig.ONBOARD_PARAMETERS.get();
-            return info.parameters() > limit ? new Missing("residual.model.too_big")
-                    : new Onboard(info);
+            return info.fitsOnboard() ? new Onboard(info) : new Missing("residual.model.too_big");
         }
         if (slot.getItem() instanceof LinkItem) {
             GlobalPos link = slot.get(ModComponents.LINK.get());

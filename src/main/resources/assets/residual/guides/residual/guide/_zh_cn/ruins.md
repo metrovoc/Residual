@@ -83,7 +83,7 @@ item_ids:
 ## 里面有什么
 
 - <ItemLink id="archive_shard" />：档案的碎片，大多写的是它们所在的地方：中继灯塔里的碎片大多是守塔人写的。见[档案](archive.md)。
-- 带有打捞设计的光掩模：制造机无需试验台，就能用它们造出可以运转但未融合的机器。线性层、softmax 和 GELU 的光掩模出现在档案屋里，矩阵乘法的在沙砾下，注意力、层归一化、前馈和 Transformer 的则在地下库里。见[试验台与制造机](bench.md)。
+- 带有打捞设计的光掩模：制造机无需试验台，就能用它们造出可以运转但未融合的机器。线性层、softmax 和 GELU 的光掩模出现在档案屋里，矩阵乘法的在沙砾下，注意力、层归一化、前馈和 Transformer 的则在地下库里。[现代块](modern.md)和[配方](recipe.md)的光掩模在导师之家、地下库和深层矿场里。见[试验台与制造机](bench.md)。
 - <ItemLink id="schematic_relays" />：中继器的图纸，一种照着复制的图样，会留在合成格中。出现在中继灯塔、中继塔和地下库里。
 - 每个地方存下的东西：塔里有煤和食物，农场有面粉和种子，沼泽里有药，船台有木料和工具；还有<ItemLink id="weight_crystal" />、空白的<ItemLink id="checkpoint" />和少量金子。
 - <ItemLink id="salvaged_model" />：见[打捞模型](salvage.md)。

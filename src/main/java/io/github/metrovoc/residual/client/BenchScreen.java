@@ -542,7 +542,7 @@ public class BenchScreen extends Screen implements Parts.Drawn {
         inspector(g);
         panel(g);
         record.active = editable() && Spec.passes(results);
-        record.setMessage(Component.translatable(spec.unlocks().isEmpty() ? "residual.bench.verify" : "residual.bench.record"));
+        record.setMessage(Component.translatable(spec.makesSomething() ? "residual.bench.record" : "residual.bench.verify"));
         super.extractRenderState(g, mx, my, a);
         if (choosing) {
             chooser(g);

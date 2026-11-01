@@ -74,9 +74,11 @@ the model on it.
 
 ## How big a model may be
 
-An agent can carry a model of up to 40,000 parameters in its head. A bigger model stays in a
+An agent can carry 160 KB of weights in its head. A model trained in fp32 takes four bytes a weight, which makes that
+40,000 parameters; a narrower [recipe](recipe.md) fits more of them in. A bigger model stays in a
 <ItemLink id="model_server" /> and is asked over relays: see [Serving Models](deployment.md). The **Train** tab counts
-a model's parameters. An [exosuit's](exosuit.md) board holds as many bytes, and carries bigger models by quantizing them.
+a model's parameters, and the **Recipe** tab what they take. An [exosuit's](exosuit.md) board holds as many bytes, and carries bigger models
+by quantizing them.
 
 ## Reading ahead
 

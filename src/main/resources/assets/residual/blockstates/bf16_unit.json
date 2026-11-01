@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "residual:block/bf16_unit"
+    },
+    "working=true": {
+      "model": "residual:block/bf16_unit_on"
+    }
+  }
+}

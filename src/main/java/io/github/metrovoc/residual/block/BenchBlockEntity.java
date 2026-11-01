@@ -84,7 +84,7 @@ public class BenchBlockEntity extends BlockEntity {
             }
             level.playSound(null, worldPosition, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 1f, 1.4f);
         }
-        if (spec.unlocks().isEmpty()) {
+        if (!spec.makesSomething()) {
             player.sendOverlayMessage(Component.translatable("residual.bench.verified", title));
             return;
         }

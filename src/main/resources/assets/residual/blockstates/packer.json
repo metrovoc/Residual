@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "residual:block/packer"
+    },
+    "working=true": {
+      "model": "residual:block/packer_on"
+    }
+  }
+}

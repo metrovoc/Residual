@@ -1,0 +1,28 @@
+{
+  "parent": "residual:bench/fp8",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:fp8_unit"
+    },
+    "title": {
+      "translate": "advancements.residual.recipe.narrow.title"
+    },
+    "description": {
+      "translate": "advancements.residual.recipe.narrow.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

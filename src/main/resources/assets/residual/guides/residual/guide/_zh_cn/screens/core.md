@@ -116,4 +116,41 @@ navigation:
       </residual:Part>
     </residual:Shot>
   </residual:Step>
+
+  <residual:Step>
+    **配方**：一次运行除了学习率之外怎么走。
+
+    <residual:Shot name="core_recipe" alt="配方页：各项设置、运行正在做的事、整次运行的学习率，以及核心身边的单元">
+      <residual:Part name="settings">
+        **设置**：相应的单元接触核心之前，它是暗的。每一项的作用见[配方](../recipe.md)。
+      </residual:Part>
+      <residual:Part name="readings">
+        **运行正在做的事**：当前的学习率、权重占用的大小、读到的文字、尖峰、最大的分数，以及第二个头猜对的比例。指向某一项可看到它的含义。
+      </residual:Part>
+      <residual:Part name="rate">
+        **整次运行的学习率**：学习率从第一步到最后一步乘上的比例，并用一条线标出运行走到了哪里。
+      </residual:Part>
+      <residual:Part name="units">
+        **单元**：有单元接触核心（直接接触，或经由训练加速器和其他单元相连）时亮起。指向一个可看到它开放什么。
+      </residual:Part>
+      <residual:Part name="recipe.schedule">
+        **计划**：学习率在一次运行中怎么变：保持不变，从预热结束起沿余弦下降，或者先保持、在最后五分之一下降。会下降的计划需要一个长度。
+      </residual:Part>
+      <residual:Part name="recipe.warmup">
+        **预热**：学习率要用多少步升到全值。
+      </residual:Part>
+      <residual:Part name="recipe.length">
+        **长度**：一次运行持续多少步，到了就自己停下。没有尽头时，它会一直跑到被停下。
+      </residual:Part>
+      <residual:Part name="recipe.precision">
+        **精度**：模型的矩阵以及进入矩阵的数舍入成什么格式，训练时和之后每次作答时都是如此。越窄，每个权重占的字节越少。
+      </residual:Part>
+      <residual:Part name="recipe.moves">
+        **优化器**：什么来移动权重：AdamW 让每个数各走各的；Muon 让模型内部的每个矩阵整体移动，各个方向走得一样多。
+      </residual:Part>
+      <residual:Part name="recipe.packing">
+        **打包**：档案文字怎样切成行：只取长段落的窗口；用所有段落打包成行；或者打包并加掩码，让任何东西都看不到别的段落。
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
 </residual:Steps>

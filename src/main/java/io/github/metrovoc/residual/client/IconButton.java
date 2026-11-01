@@ -72,7 +72,7 @@ public class IconButton extends AbstractButton {
     /** Shows a value without reporting a change (for updates coming from the server). */
     public void set(int i) {
         index = values.isEmpty() ? 0 : Math.floorMod(i, values.size());
-        Component label = values.isEmpty() ? name : Component.translatable("residual.cycler", name, values.get(index));
+        Component label = values.isEmpty() ? name : Component.translatable("residual.cycler", name, shown(values.get(index)));
         setMessage(label);
         if (hint != null) {
             Component text = Component.empty().append(label).append("\n").append(hint.copy().withStyle(ChatFormatting.GRAY));
@@ -81,6 +81,11 @@ public class IconButton extends AbstractButton {
             }
             setTooltip(Tooltip.create(text));
         }
+    }
+
+    /** A value that is a translation key reads as its text. */
+    private static Component shown(String value) {
+        return value.startsWith("residual.") ? Component.translatable(value) : Component.literal(value);
     }
 
     @Override

@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.agent.Upgrades;
 import io.github.metrovoc.residual.bench.MaskData;
 import io.github.metrovoc.residual.bench.Spec;
 import io.github.metrovoc.residual.bench.Specs;
+import io.github.metrovoc.residual.bench.Unit;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
@@ -114,6 +115,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
             for (Op op : spec.unlocks()) {
                 out.add(ModItems.MACHINES.get(op).get());
             }
+            if (Unit.of(spec) != null) {
+                out.add(ModBlocks.UNITS.get(Unit.of(spec)).asItem());
+            }
             if (spec == Specs.MATMUL) {
                 out.add(ModBlocks.ACCELERATOR.asItem());
                 out.add(ModBlocks.DRIVE_DOCK.asItem());
@@ -211,6 +215,7 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
             case EMBEDDING, POSITION, LINEAR, NORM, RMS_NORM, QK_NORM -> 1;
             case ATTENTION, MLP, SWIGLU, MODERN_ATTENTION -> 2;
             case TRANSFORMER, MODERN_BLOCK -> 4;
+            case TWO_TOKEN_HEAD -> 2;
             default -> 0;
         } : 0;
         return new Cost(1, wafers, crystals, 40 + 10 * wafers);

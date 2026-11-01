@@ -3,6 +3,9 @@ package io.github.metrovoc.residual.bench;
 import io.github.metrovoc.residual.bench.Spec.Case;
 import io.github.metrovoc.residual.bench.Spec.Port;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.learn.Recipe;
+import io.github.metrovoc.residual.tensor.Muon;
+import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Ops.Activation;
 import io.github.metrovoc.residual.tensor.Prims;
@@ -25,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class Specs {
     public static final float EPS = 1e-5f;
+    /** The largest number bf16 holds. */
+    private static final float BF16_TOP = 3.3895314e38f;
     private static final Map<String, Spec> ALL = new LinkedHashMap<>();
 
     public static final Spec MEAN = add("mean", ports("x"), List.of(), List.of(),
@@ -262,6 +267,184 @@ public final class Specs {
             },
             modernCase("four", 141, 4, 4), modernCase("three", 151, 3, 2));
 
+    public static final Spec FP32 = add("fp32", ports("x", "m", "e", "top"), List.of(), List.of(),
+            in -> grid(in[0], (int) in[1].v[0], (int) in[2].v[0], in[3].v[0]),
+            (tape, in) -> grid(tape, in[0], in[1], in[2], in[3]),
+            b -> {
+                int e = b.prim(Prim.MAX, b.prim(Prim.EXPONENT, 0), 2);
+                int q = b.prim(Prim.POW2, b.prim(Prim.SUB, e, 1));
+                int y = b.prim(Prim.MUL, b.prim(Prim.ROUND, b.prim(Prim.DIV, 0, q)), q);
+                return b.output(b.prim(Prim.MAX, b.prim(Prim.NEG, 3), b.prim(Prim.NEG, b.prim(Prim.MAX, b.prim(Prim.NEG, 3), b.prim(Prim.NEG, y)))));
+            },
+            new Object[]{"ordinary", vec(1.3f, 5.7f, 100.4f, -0.3f), vec(3f), vec(-6f), vec(448f)},
+            new Object[]{"ties", vec(8.5f, 9.5f, 17f, 19f), vec(3f), vec(-6f), vec(448f)},
+            new Object[]{"zero", vec(0f, 0.25f, -0f), vec(3f), vec(-6f), vec(448f)},
+            new Object[]{"tiny", vec(0.001f, 0.003f, -0.0005f), vec(3f), vec(-6f), vec(448f)},
+            new Object[]{"top", vec(449f, 1000f, -1000000f), vec(3f), vec(-6f), vec(448f)},
+            new Object[]{"itself", vec(1.1f, 3e38f, 1e-30f, -7.7f), vec(23f), vec(-126f), vec(Float.MAX_VALUE)});
+
+    public static final Spec BF16 = add("bf16", ports("x"), List.of("fp32"), List.of(),
+            in -> grid(in[0], 7, -126, BF16_TOP),
+            (tape, in) -> grid(tape, in[0], Prims.scalar(7), Prims.scalar(-126), Prims.scalar(BF16_TOP)),
+            b -> b.output(b.module("fp32", 0, b.constant(7), b.constant(-126), b.constant(BF16_TOP))),
+            new Object[]{"ordinary", vec(1.3f, 5.7f, 1000f, -0.3f)},
+            new Object[]{"step", vec(1.001f, 1.002f, 1.003f, 1.01f)},
+            new Object[]{"ties", vec(257f, 259f, 261f, 263f)},
+            new Object[]{"wide", vec(1e30f, 1e-30f, -2.5e10f)});
+
+    public static final Spec FP8 = add("fp8", ports("x"), List.of("fp32"), List.of(),
+            in -> fp8(in[0]),
+            (tape, in) -> fp8(tape, in[0]),
+            b -> {
+                int size = b.prim(Prim.MAX, 0, b.prim(Prim.NEG, 0));
+                int most = b.prim(Prim.AMAX, b.prim(Prim.TRANSPOSE, b.prim(Prim.AMAX, size)));
+                int s = b.prim(Prim.DIV, b.prim(Prim.MAX, most, b.constant(1e-30f)), b.constant(448));
+                return b.output(b.prim(Prim.MUL, b.module("fp32", b.prim(Prim.DIV, 0, s), b.constant(3), b.constant(-6), b.constant(448)), s));
+            },
+            new Object[]{"ordinary", mat(2, 3, 1.3f, 5.7f, -2.2f, 0.4f, 3.3f, 1f)},
+            new Object[]{"loud", mat(1, 4, 1000000, 1000, 100, 1)},
+            new Object[]{"small", mat(1, 4, 0.01f, 0.003f, -0.007f, 0.001f)},
+            new Object[]{"silent", mat(2, 2, 0, 0, 0, 0)});
+
+    public static final Spec FP4 = add("fp4", ports("x"), List.of("fp8"), List.of(),
+            in -> fp4(in[0]),
+            (tape, in) -> fp4(tape, in[0]),
+            b -> {
+                int size = b.prim(Prim.MAX, 0, b.prim(Prim.NEG, 0));
+                int rows = b.prim(Prim.AMAX, size);
+                int most = b.prim(Prim.MAX, b.prim(Prim.AMAX, b.prim(Prim.TRANSPOSE, rows)), b.constant(1e-30f));
+                int whole = b.prim(Prim.DIV, most, b.constant(2688));
+                int kept = b.module("fp32", b.prim(Prim.DIV, b.prim(Prim.DIV, rows, b.constant(6)), whole), b.constant(3), b.constant(-6), b.constant(448));
+                int s = b.prim(Prim.MUL, b.prim(Prim.MAX, kept, b.constant(1e-30f)), whole);
+                return b.output(b.prim(Prim.MUL, b.module("fp32", b.prim(Prim.DIV, 0, s), b.constant(1), b.constant(0), b.constant(6)), s));
+            },
+            new Object[]{"ordinary", mat(2, 4, 1.3f, 5.7f, -2.2f, 0.4f, 3.3f, 1f, -0.5f, 2f)},
+            new Object[]{"outlier", mat(2, 4, 1000, 1, -2, 3, 1.5f, -0.25f, 0.7f, 1f)},
+            new Object[]{"silent", mat(2, 4, 0, 0, 0, 0, 1, 2, 3, 4)},
+            new Object[]{"far", mat(2, 4, 1000000, 500000, 250000, 1, 0.001f, 0.002f, 0.003f, 0.004f)});
+
+    public static final Spec SCHEDULE = add("schedule", ports("t", "W", "S", "T"), List.of(), List.of(),
+            in -> schedule(in[0], in[1].v[0], in[2].v[0], in[3].v[0]),
+            (tape, in) -> schedule(tape, in[0], in[1], in[2], in[3]),
+            b -> {
+                int rise = b.prim(Prim.DIV, b.prim(Prim.ADD, 0, b.constant(1)), 1);
+                int up = b.prim(Prim.NEG, b.prim(Prim.MAX, b.constant(-1), b.prim(Prim.NEG, rise)));
+                int along = b.prim(Prim.DIV, b.prim(Prim.SUB, 0, 2), b.prim(Prim.MAX, b.prim(Prim.SUB, 3, 2), b.constant(1)));
+                int clamped = b.prim(Prim.MAX, b.constant(0), b.prim(Prim.NEG, b.prim(Prim.MAX, b.constant(-1), b.prim(Prim.NEG, along))));
+                int wave = b.prim(Prim.COS, b.prim(Prim.MUL, b.constant((float) Math.PI), clamped));
+                return b.output(b.prim(Prim.MUL, up, b.prim(Prim.MUL, b.constant(0.5f), b.prim(Prim.ADD, b.constant(1), wave))));
+            },
+            new Object[]{"cosine", vec(10, 30, 55, 80, 99), vec(10), vec(10), vec(100)},
+            new Object[]{"warmup", vec(0, 1, 4, 9), vec(10), vec(10), vec(100)},
+            new Object[]{"late", vec(10, 50, 79, 85, 95), vec(10), vec(80), vec(100)},
+            new Object[]{"end", vec(100, 150, 400), vec(10), vec(10), vec(100)},
+            new Object[]{"no_warmup", vec(0, 1, 50), vec(0), vec(0), vec(100)},
+            new Object[]{"no_decay", vec(5, 99, 100), vec(10), vec(100), vec(100)});
+
+    public static final Spec GRAD_CLIP = add("grad_clip", ports("g", "c"), List.of(), List.of(),
+            in -> gradClip(in[0], in[1].v[0]),
+            (tape, in) -> {
+                // in double, as the optimizer's own norm is, so no square overflows
+                double sum = 0;
+                for (float v : in[0].data) {
+                    sum += (double) v * v;
+                }
+                float s = (float) Math.min(1, in[1].data[0] / (Math.sqrt(sum) + 1e-6));
+                return Ops.scale(tape, in[0], s);
+            },
+            b -> {
+                int size = b.prim(Prim.MAX, 0, b.prim(Prim.NEG, 0));
+                int most = b.prim(Prim.MAX, b.prim(Prim.AMAX, size), b.constant(1e-30f));
+                int small = b.prim(Prim.DIV, 0, most);
+                int norm = b.prim(Prim.MUL, most, b.prim(Prim.SQRT, b.prim(Prim.SUM, b.prim(Prim.MUL, small, small))));
+                int ratio = b.prim(Prim.DIV, 1, b.prim(Prim.ADD, norm, b.constant(1e-6f)));
+                return b.output(b.prim(Prim.MUL, 0, b.prim(Prim.NEG, b.prim(Prim.MAX, b.constant(-1), b.prim(Prim.NEG, ratio)))));
+            },
+            new Object[]{"large", vec(3, 4), vec(1)},
+            new Object[]{"small", vec(0.03f, 0.04f), vec(1)},
+            new Object[]{"zero", vec(0, 0, 0), vec(1)},
+            new Object[]{"exploded", vec(3e25f, 4e25f), vec(5)});
+
+    public static final Spec NEWTON_STEP = add("newton_step", ports("x"), List.of("matmul"), List.of(),
+            in -> newtonStep(in[0]),
+            (tape, in) -> newtonStep(tape, in[0]),
+            b -> {
+                int g = b.module("matmul", 0, b.prim(Prim.TRANSPOSE, 0));
+                int gx = b.module("matmul", g, 0);
+                int ggx = b.module("matmul", g, gx);
+                int ax = b.prim(Prim.MUL, b.constant(Muon.A), 0);
+                int bgx = b.prim(Prim.MUL, b.constant(Muon.B), gx);
+                int cggx = b.prim(Prim.MUL, b.constant(Muon.C), ggx);
+                return b.output(b.prim(Prim.ADD, ax, b.prim(Prim.ADD, bgx, cggx)));
+            },
+            new Object[]{"square", scaled(rand(161, 3, 3), 0.3)},
+            new Object[]{"tall", scaled(rand(162, 4, 2), 0.3)},
+            new Object[]{"wide", scaled(rand(163, 2, 4), 0.3)});
+
+    public static final Spec ORTHOGONALIZE = add("orthogonalize", ports("m"), List.of("newton_step"), List.of(),
+            in -> orthogonalize(in[0]),
+            (tape, in) -> new Tensor(in[0].shape.clone(), Muon.orthogonalized(in[0].data, in[0].dim(0), in[0].dim(1)), false),
+            b -> {
+                int size = b.prim(Prim.MAX, b.prim(Prim.AMAX, b.prim(Prim.MAX, 0, b.prim(Prim.NEG, 0))), b.constant(1e-30f));
+                int most = b.prim(Prim.MAX, b.prim(Prim.AMAX, b.prim(Prim.TRANSPOSE, size)), b.constant(1e-30f));
+                int small = b.prim(Prim.DIV, 0, most);
+                int columns = b.prim(Prim.SUM, b.prim(Prim.MUL, small, small));
+                int all = b.prim(Prim.SUM, b.prim(Prim.TRANSPOSE, columns));
+                int norm = b.prim(Prim.MAX, b.prim(Prim.MUL, most, b.prim(Prim.SQRT, all)), b.constant(1e-7f));
+                int x = b.prim(Prim.DIV, 0, norm);
+                for (int i = 0; i < Muon.NEWTON_STEPS; i++) {
+                    x = b.module("newton_step", x);
+                }
+                return b.output(x);
+            },
+            new Object[]{"ordinary", rand(164, 3, 3)},
+            new Object[]{"tall", rand(165, 5, 2)},
+            new Object[]{"loud", scaled(rand(166, 3, 3), 10000)},
+            new Object[]{"still", mat(2, 3, 0, 0, 0, 0, 0, 0)});
+
+    public static final Spec DOCUMENT_MASK = add("document_mask", ports("s", "d"), List.of(), List.of(),
+            in -> documentMask(in[0], in[1]),
+            (tape, in) -> {
+                // what the fused path does with a row's own start, from the document numbers it is given
+                int t = in[0].dim(-1);
+                int[] starts = new int[t];
+                for (int i = 1; i < t; i++) {
+                    starts[i] = in[1].data[i] == in[1].data[i - 1] ? starts[i - 1] : i;
+                }
+                return Ops.causalMask(tape, in[0], starts, 1);
+            },
+            b -> {
+                int apart = b.prim(Prim.SUB, 1, b.prim(Prim.TRANSPOSE, 1));
+                int far = b.prim(Prim.MAX, apart, b.prim(Prim.NEG, apart));
+                int same = b.prim(Prim.SUB, b.constant(1), b.prim(Prim.NEG, b.prim(Prim.MAX, b.constant(-1), b.prim(Prim.NEG, far))));
+                return b.output(b.prim(Prim.ADD, b.prim(Prim.CAUSAL, 0), b.prim(Prim.LOG, same)));
+            },
+            new Object[]{"two", rand(171, 4, 4), column(0, 0, 1, 1)},
+            new Object[]{"late", rand(172, 5, 5), column(0, 1, 1, 1, 1)},
+            new Object[]{"single", rand(173, 3, 3), column(0, 1, 2)},
+            new Object[]{"one", rand(174, 3, 3), column(5, 5, 5)});
+
+    public static final Spec CROSS_ENTROPY = add("cross_entropy", ports("y", "t"), List.of(), List.of(),
+            in -> crossEntropy(in[0], in[1]),
+            (tape, in) -> crossEntropy(tape, in[0], in[1]),
+            b -> {
+                int m = b.prim(Prim.AMAX, 0);
+                int z = b.prim(Prim.ADD, m, b.prim(Prim.LOG, b.prim(Prim.SUM, b.prim(Prim.EXP, b.prim(Prim.SUB, 0, m)))));
+                return b.output(b.prim(Prim.NEG, b.prim(Prim.SUM, b.prim(Prim.MUL, 1, b.prim(Prim.SUB, 0, z)))));
+            },
+            new Object[]{"ordinary", mat(2, 3, 2, 1, 0.1f, -1, 3, 0), mat(2, 3, 1, 0, 0, 0, 0, 1)},
+            new Object[]{"right", mat(1, 3, 1000, 0, -1000), mat(1, 3, 1, 0, 0)},
+            new Object[]{"wrong", mat(1, 3, 1000, 0, -1000), mat(1, 3, 0, 0, 1)},
+            new Object[]{"none", mat(1, 3, 1, 2, 3), mat(1, 3, 0, 0, 0)});
+
+    public static final Spec MULTI_TOKEN = add("multi_token", ports("y", "t", "y2", "t2"), List.of("cross_entropy"), List.of(Op.TWO_TOKEN_HEAD),
+            in -> plus(crossEntropy(in[0], in[1]), map(crossEntropy(in[2], in[3]), v -> 0.3 * v)),
+            (tape, in) -> Prims.binary(tape, Binary.ADD, crossEntropy(tape, in[0], in[1]),
+                    Ops.scale(tape, crossEntropy(tape, in[2], in[3]), 0.3f)),
+            b -> b.output(b.prim(Prim.ADD, b.module("cross_entropy", 0, 1), b.prim(Prim.MUL, b.constant(0.3f), b.module("cross_entropy", 2, 3)))),
+            new Object[]{"both", mat(1, 3, 2, 1, 0), mat(1, 3, 1, 0, 0), mat(1, 3, 0, 1, 2), mat(1, 3, 0, 0, 1)},
+            new Object[]{"last", mat(2, 3, 2, 1, 0, 1, 1, 1), mat(2, 3, 1, 0, 0, 0, 1, 0), mat(2, 3, 0, 1, 2, 5, -5, 0), mat(2, 3, 0, 0, 1, 0, 0, 0)});
+
     private Specs() {
     }
 
@@ -366,6 +549,42 @@ public final class Specs {
         Tensor v = Prims.matmul(tape, x, wv);
         Tensor weights = Ops.softmax(tape, Ops.causalMask(tape, qkNorm(tape, q, k, t)));
         return Prims.matmul(tape, Prims.matmul(tape, weights, v), wo);
+    }
+
+    private static Tensor grid(@Nullable Tape tape, Tensor x, Tensor m, Tensor e, Tensor top) {
+        return Unfused.grid(tape, x, m, e, top);
+    }
+
+    private static Tensor fp8(@Nullable Tape tape, Tensor x) {
+        return new Tensor(x.shape.clone(), Numerics.forward(x.data, Numerics.Format.FP8), false);
+    }
+
+    /** Each row of the Bench's inputs is one block. */
+    private static Tensor fp4(@Nullable Tape tape, Tensor x) {
+        return Unfused.fp4Rows(tape, x);
+    }
+
+    private static Tensor schedule(@Nullable Tape tape, Tensor t, Tensor w, Tensor s, Tensor end) {
+        float[] out = new float[t.size()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = Recipe.multiplier((int) t.data[i], (int) w.data[0], (int) s.data[0], (int) end.data[0]);
+        }
+        return new Tensor(t.shape.clone(), out, false);
+    }
+
+    private static Tensor newtonStep(@Nullable Tape tape, Tensor x) {
+        Tensor g = Prims.matmul(tape, x, Prims.transpose(tape, x));
+        Tensor gx = Prims.matmul(tape, g, x);
+        Tensor ggx = Prims.matmul(tape, g, gx);
+        return Prims.binary(tape, Binary.ADD, Ops.scale(tape, x, Muon.A),
+                Prims.binary(tape, Binary.ADD, Ops.scale(tape, gx, Muon.B), Ops.scale(tape, ggx, Muon.C)));
+    }
+
+    private static Tensor crossEntropy(@Nullable Tape tape, Tensor y, Tensor t) {
+        Tensor m = Prims.amax(tape, y);
+        Tensor z = Prims.binary(tape, Binary.ADD, m, Prims.unary(tape, Unary.LOG,
+                Prims.sum(tape, Prims.unary(tape, Unary.EXP, Prims.binary(tape, Binary.SUB, y, m)))));
+        return Prims.unary(tape, Unary.NEG, Prims.sum(tape, Prims.binary(tape, Binary.MUL, t, Prims.binary(tape, Binary.SUB, y, z))));
     }
 
     // ---------------------------------------------------------------- exact answers
@@ -610,6 +829,121 @@ public final class Specs {
             }
         }
         return matmul(matmul(softmax(new M(s.rows, s.cols, masked, false)), matmul(x, wv)), wo);
+    }
+
+    /** A column of numbers, one row each. */
+    private static M column(float... v) {
+        return mat(v.length, 1, v);
+    }
+
+    private static double gridded(double x, int m, int e, double top) {
+        double a = Math.abs(x);
+        if (Double.isNaN(x)) {
+            return x;
+        }
+        double q = Math.scalb(1.0, Math.max(Math.getExponent((float) a), e) - m);
+        double y = Math.rint(a / q) * q;
+        return Math.copySign(Math.min(y, top), x);
+    }
+
+    private static M grid(M x, int m, int e, double top) {
+        return map(x, v -> gridded(v, m, e, top));
+    }
+
+    private static double largest(M x) {
+        double most = 0;
+        for (double v : x.v) {
+            most = Math.max(most, Math.abs(v));
+        }
+        return most;
+    }
+
+    private static M fp8(M x) {
+        double most = largest(x);
+        if (most == 0) {
+            return x;
+        }
+        double s = most / 448;
+        return map(x, v -> gridded(v / s, 3, -6, 448) * s);
+    }
+
+    private static M fp4(M x) {
+        double most = largest(x);
+        if (most == 0) {
+            return x;
+        }
+        double whole = most / 2688;
+        double[] out = new double[x.v.length];
+        for (int r = 0; r < x.rows; r++) {
+            double loudest = 0;
+            for (int c = 0; c < x.cols; c++) {
+                loudest = Math.max(loudest, Math.abs(x.at(r, c)));
+            }
+            double s = gridded(loudest / 6 / whole, 3, -6, 448) * whole;
+            for (int c = 0; c < x.cols; c++) {
+                out[r * x.cols + c] = s == 0 ? 0 : gridded(x.at(r, c) / s, 1, 0, 6) * s;
+            }
+        }
+        return new M(x.rows, x.cols, out, x.vector);
+    }
+
+    private static M schedule(M t, double w, double s, double end) {
+        return map(t, v -> Math.min(1, (v + 1) / w) * 0.5
+                * (1 + Math.cos(Math.PI * Math.max(0, Math.min(1, (v - s) / Math.max(end - s, 1))))));
+    }
+
+    private static M gradClip(M g, double c) {
+        double sum = 0;
+        for (double v : g.v) {
+            sum += v * v;
+        }
+        double s = Math.min(1, c / (Math.sqrt(sum) + 1e-6));
+        return map(g, v -> v * s);
+    }
+
+    private static M newtonStep(M x) {
+        M g = matmul(x, transpose(x));
+        M gx = matmul(g, x);
+        M ggx = matmul(g, gx);
+        double[] out = new double[x.v.length];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = (double) Muon.A * x.v[i] + (double) Muon.B * gx.v[i] + (double) Muon.C * ggx.v[i];
+        }
+        return new M(x.rows, x.cols, out, false);
+    }
+
+    private static M orthogonalize(M m) {
+        double sum = 0;
+        for (double v : m.v) {
+            sum += v * v;
+        }
+        double norm = Math.max(Math.sqrt(sum), 1e-7);
+        M x = map(m, v -> v / norm);
+        for (int i = 0; i < Muon.NEWTON_STEPS; i++) {
+            x = newtonStep(x);
+        }
+        return x;
+    }
+
+    private static M documentMask(M s, M d) {
+        double[] out = new double[s.v.length];
+        for (int i = 0; i < s.rows; i++) {
+            for (int j = 0; j < s.cols; j++) {
+                out[i * s.cols + j] = j > i || d.v[i] != d.v[j] ? Double.NEGATIVE_INFINITY : s.at(i, j);
+            }
+        }
+        return new M(s.rows, s.cols, out, false);
+    }
+
+    private static M crossEntropy(M y, M t) {
+        double[] z = logSumExp(y);
+        double[] out = new double[y.rows];
+        for (int r = 0; r < y.rows; r++) {
+            for (int c = 0; c < y.cols; c++) {
+                out[r] -= t.at(r, c) == 0 ? 0 : t.at(r, c) * (y.at(r, c) - z[r]);
+            }
+        }
+        return new M(y.rows, 1, out, false);
     }
 
     private static M attention(M x, M wq, M wk, M wv, M wo) {

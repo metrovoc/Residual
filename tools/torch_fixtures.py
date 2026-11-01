@@ -251,6 +251,88 @@ def modern():
     return g
 
 
+def as_format(x, dtype):
+    return x.float().to(dtype).to(torch.float64)
+
+
+def grid_values():
+    """Ties, the edge of each format's subnormals, and numbers across its range."""
+    ties = [257.0, 259.0, 261.0, 263.0, 8.5, 9.5, 17.0, 19.0, 1.125, 1.375, 0.0009765625, 0.0029296875, -1.125]
+    rest = 10.0 ** (6 * torch.rand(200, generator=G) - 3) * torch.randn(200, generator=G).sign()
+    return torch.tensor(ties + [0.0, 1.0, -1.0, 0.5, 448.0, 449.0, 460.0, 57344.0]).float().tolist() + rest.tolist()
+
+
+def numerics():
+    """Narrow floats as PyTorch's own casts have them, and the whole-tensor scale of fp8 as low-precision training uses it."""
+    g = {}
+    values = [v for v in grid_values()]
+    x = torch.tensor(values)
+    g["bf16"] = [{"name": "cast", "input": values, "output": [float(v) for v in as_format(x, torch.bfloat16).tolist()]}]
+    g["e4m3"] = [{"name": "cast", "input": values, "output": [float(v) for v in as_format(x, torch.float8_e4m3fn).tolist()]}]
+    within = [v for v in values if abs(v) <= 57344]  # past its top E5M2 gives infinity, where the engine stays at the top
+    g["e5m2"] = [{"name": "cast", "input": within,
+                  "output": [float(v) for v in as_format(torch.tensor(within), torch.float8_e5m2).tolist()]}]
+    t = randn(8, 16, scale=3)
+    t[2] *= 100
+    s = t.abs().max().double() / 448
+    g["fp8"] = [{"name": "scaled", "shape": list(t.shape), "input": t.flatten().tolist(),
+                 "output": [float(v) for v in (as_format(t.double() / s, torch.float8_e4m3fn) * s).float().flatten().tolist()]}]
+    return g
+
+
+def newton_schulz(update, steps=5, a=3.4445, b=-4.7750, c=2.0315, eps=1e-7):
+    """torch.optim.Muon's iteration, in float64 where it works in bf16."""
+    x = update.T if update.shape[0] > update.shape[1] else update
+    x = x / x.norm().clamp(min=eps)
+    for _ in range(steps):
+        gram = x @ x.T
+        x = a * x + (b * gram + c * gram @ gram) @ x
+    return x.T if update.shape[0] > update.shape[1] else x
+
+
+def muon(name, lr, steps=25):
+    """Muon on two matrices, tall and wide, as torch.optim.Muon does it with match_rms_adamw and weight decay 0.01."""
+    params = [randn(5, 3), randn(3, 4)]
+    run = {"name": name, "lr": lr, "params": [tensor(p) for p in params], "steps": []}
+    exact = [p.double() for p in params]
+    theirs = [p.double().clone().requires_grad_() for p in params]
+    optimizer = torch.optim.Muon(theirs, lr=lr, momentum=0.95, nesterov=True, weight_decay=0.01, adjust_lr_fn="match_rms_adamw")
+    buffers = [torch.zeros_like(p) for p in exact]
+    for _ in range(steps):
+        grads = [randn(*p.shape) for p in exact]
+        for i, (p, grad) in enumerate(zip(exact, grads)):
+            g = grad.double()
+            buffers[i] = 0.95 * buffers[i] + 0.05 * g
+            update = 0.05 * g + 0.95 * buffers[i]
+            step = newton_schulz(update)
+            size = lr * 0.2 * math.sqrt(max(p.shape))
+            exact[i] = p * (1 - lr * 0.01) - size * step
+            theirs[i].grad = g
+        optimizer.step()
+        # the iteration in bf16 rounds a little; the method itself has to match
+        for mine, other in zip(exact, theirs):
+            assert (mine - other).abs().max() < 2e-2 * lr * 25 + 1e-3, (name, (mine - other).abs().max())
+        run["steps"].append({"grads": [values(g) for g in grads], "params": [values(p) for p in exact]})
+    return run
+
+
+def schedules():
+    """Warmup then a cosine, by PyTorch's own schedulers: warmup ends at step W, the cosine reaches 0 at step T."""
+    out = []
+    for warmup, total in ((10, 100), (20, 2000), (1, 50)):
+        opt = torch.optim.SGD([torch.zeros(1, requires_grad=True)], lr=1.0)
+        rise = torch.optim.lr_scheduler.LinearLR(opt, start_factor=1 / warmup, end_factor=1.0, total_iters=max(warmup - 1, 0))
+        fall = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=total - warmup, eta_min=0.0)
+        both = torch.optim.lr_scheduler.SequentialLR(opt, [rise, fall], milestones=[warmup])
+        rates = []
+        for _ in range(total):
+            rates.append(opt.param_groups[0]["lr"])
+            opt.step()
+            both.step()
+        out.append({"name": f"warmup {warmup} of {total}", "warmup": warmup, "total": total, "rates": rates})
+    return out
+
+
 def adamw(name, lr, clip, steps=25):
     """Trainer's update on given gradients. Their size changes from step to step, so clipping bites on some only."""
     params = [randn(4, 3), randn(3)]
@@ -290,3 +372,6 @@ if __name__ == "__main__":
     write("prims.json", prims())
     write("adamw.json", {"adamw": [adamw("clipped", 0.03, 1.0), adamw("unclipped", 0.3, 0.0)]})
     write("modern.json", modern())
+    write("numerics.json", numerics())
+    write("muon.json", {"muon": [muon("small", 0.003), muon("large", 0.03)]})
+    write("schedules.json", {"cosine": schedules()})

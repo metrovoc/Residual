@@ -16,7 +16,7 @@ NS = "residual"
 # Op ids in registry order, with their arity where it isn't 1 (see graph/Op.java)
 OPS = ["embedding", "position", "linear", "activation", "add", "multiply", "norm", "matmul", "scale", "causal_mask",
        "softmax", "split_heads", "merge_heads", "shift", "concat", "attention", "mlp", "transformer", "rms_norm", "swiglu",
-       "rotary", "qk_norm", "z_loss", "modern_attention", "modern_block"]
+       "rotary", "qk_norm", "z_loss", "modern_attention", "modern_block", "two_token_head"]
 ARITY = {"position": 0, "add": 2, "multiply": 2, "matmul": 2, "concat": 2, "qk_norm": 2}
 DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray", "cyan", "purple",
         "blue", "brown", "green", "red", "black"]
@@ -34,7 +34,9 @@ PORT_MODES = ["import", "export", "stock", "window"]
 SPECS = {"mean": None, "softmax": None, "matmul": None, "linear": "matmul", "gelu": None, "layer_norm": "mean",
          "attention": "softmax", "mlp": "linear", "transformer": "attention", "rms_norm": "layer_norm", "silu": "gelu", "swiglu": "silu",
          "rotary": "attention", "qk_norm": "rotary", "online_softmax": "softmax", "z_loss": "softmax",
-         "modern_attention": "qk_norm", "modern_block": "modern_attention"}
+         "modern_attention": "qk_norm", "modern_block": "modern_attention", "fp32": "mean", "bf16": "fp32", "fp8": "fp32", "fp4": "fp8",
+         "schedule": "transformer", "grad_clip": "schedule", "newton_step": "matmul", "orthogonalize": "newton_step",
+         "document_mask": "attention", "cross_entropy": "softmax", "multi_token": "cross_entropy"}
 WRECKS = ruins.WRECKS
 
 FACING = {"north": {}, "south": {"y": 180}, "east": {"y": 90}, "west": {"y": 270}, "up": {"x": 270}, "down": {"x": 90}}
@@ -127,6 +129,16 @@ def accelerator():
     write(f"assets/{NS}/blockstates/accelerator.json", {"variants": {
         "hot=false": {"model": rid("block/accelerator")}, "hot=true": {"model": rid("block/accelerator_hot")}}})
     item_definition("accelerator", rid("block/accelerator"))
+
+
+def units():
+    """The same picture on every side; lit while a run uses the unit."""
+    for unit in UNITS:
+        cube(unit, *[rid(f"block/{unit}")] * 3)
+        cube(f"{unit}_on", *[rid(f"block/{unit}_on")] * 3)
+        write(f"assets/{NS}/blockstates/{unit}.json", {"variants": {
+            "working=false": {"model": rid(f"block/{unit}")}, "working=true": {"model": rid(f"block/{unit}_on")}}})
+        item_definition(unit, rid(f"block/{unit}"))
 
 
 def server():
@@ -586,7 +598,9 @@ def power():
 
 # ---------------------------------------------------------------- data
 
-MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "relay_gate", "relay_link", "bench", "fabricator", "stream",
+# see bench/Unit.java
+UNITS = ["scheduler", "bf16_unit", "fp8_unit", "fp4_unit", "orthogonalizer", "packer"]
+MACHINE_BLOCKS = UNITS + ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "relay_gate", "relay_link", "bench", "fabricator", "stream",
                   "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "combustion_generator", "energy_cell", "smelter", "power_cable",
                   "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor", "drive_dock", "access_point",
                   "link_driver"]
@@ -746,6 +760,11 @@ def advancements():
         advancement(f"benchmark/{a}", parent, "checkpoint", awarded(), frame="goal")
     advancement("model/complete", "benchmark/reading", "checkpoint", awarded(), frame="challenge")
     advancement("model/modern", "bench/modern_block", "modern_block", awarded(), frame="goal")
+    advancement("recipe/planned", "bench/schedule", "scheduler", awarded())
+    advancement("recipe/narrow", "bench/fp8", "fp8_unit", awarded(), frame="goal")
+    advancement("recipe/muon", "bench/orthogonalize", "orthogonalizer", awarded(), frame="goal")
+    advancement("recipe/packed", "bench/document_mask", "packer", awarded(), frame="goal")
+    advancement("recipe/second_head", "bench/multi_token", "two_token_head", awarded())
     advancement("agent/made", "root", "agent", has("agent"))
     advancement("agent/program", "agent/made", "program_card", awarded())
     advancement("agent/debugger", "agent/program", "program_card", awarded())
@@ -794,7 +813,7 @@ def advancements():
     advancement("model/stream", "bench/made", "stream", placed("stream"))
     advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))
     for spec, after in SPECS.items():
-        frame = "goal" if spec in ("transformer", "modern_block") else "task"
+        frame = "goal" if spec in ("transformer", "modern_block", "fp4", "orthogonalize") else "task"
         advancement(f"bench/{spec}", f"bench/{after}" if after else "bench/made", "photomask", awarded(), frame=frame,
                     components={rid("mask"): {"spec": spec}})
     advancement("bench/all", "bench/transformer", "photomask", awarded(), frame="challenge", components={rid("mask"): {"spec": "transformer"}})
@@ -810,6 +829,7 @@ if __name__ == "__main__":
     operators()
     core()
     accelerator()
+    units()
     simple("tensor_casing")
     server()
     reader()

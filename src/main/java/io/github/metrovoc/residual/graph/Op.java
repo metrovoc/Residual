@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.graph;
 
 import io.github.metrovoc.residual.graph.ParamSpec.Init;
+import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Ops.Activation;
 import io.github.metrovoc.residual.tensor.ShapeException;
@@ -35,7 +36,7 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            return Ops.embedding(tape, (Tokens) in[0], p.get("weight"));
+            return Ops.embedding(tape, (Tokens) in[0], Numerics.cast(tape, p.get("weight"), f.format()));
         }
     },
 
@@ -52,7 +53,7 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            return Ops.positions(tape, p.get("weight"), f.time());
+            return Ops.positions(tape, Numerics.cast(tape, p.get("weight"), f.format()), f.time(), f.starts(), f.batch());
         }
     },
 
@@ -203,7 +204,7 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            return Ops.causalMask(tape, (Tensor) in[0]);
+            return Ops.causalMask(tape, (Tensor) in[0], f.starts(), f.batch());
         }
     },
 
@@ -268,7 +269,7 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            return Ops.shift(tape, (Tensor) in[0], c.integer("steps"));
+            return Ops.shift(tape, (Tensor) in[0], c.integer("steps"), f.starts());
         }
     },
 
@@ -510,6 +511,33 @@ public enum Op {
             x = Ops.add(tape, x, modernAttention(tape, rmsNorm(tape, x, p.get("rms1.weight"), f), p, "attn.", c, f));
             return Ops.add(tape, x, swiglu(tape, rmsNorm(tape, x, p.get("rms2.weight"), f), p, "mlp.", f));
         }
+    },
+
+    TWO_TOKEN_HEAD("two_token_head", 1) {
+        @Override
+        public Sym infer(Sym[] in, Config c, Env env) {
+            features(in[0], "two_token_head");
+            return in[0].withLast(env.vocab());
+        }
+
+        @Override
+        public List<ParamSpec> params(Sym[] in, Config c, Env env) {
+            int d = in[0].dim(-1);
+            return List.of(
+                    new ParamSpec("w1", new int[]{d, env.vocab()}, Init.fanIn()),
+                    new ParamSpec("b1", new int[]{env.vocab()}, Init.zeros()),
+                    new ParamSpec("w2", new int[]{d, env.vocab()}, Init.fanIn()),
+                    new ParamSpec("b2", new int[]{env.vocab()}, Init.zeros()));
+        }
+
+        @Override
+        Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
+            Tensor x = (Tensor) in[0];
+            if (f.extras() != null) {
+                f.extras().second = Ops.add(tape, matmul(tape, x, p.get("w2"), false, f), p.get("b2"));
+            }
+            return Ops.add(tape, matmul(tape, x, p.get("w1"), false, f), p.get("b1"));
+        }
     };
 
     public static final float EPS = 1e-5f;
@@ -558,9 +586,13 @@ public enum Op {
     /**
      * Per-call context: the node being run, the sequence length, an optional capture sink, whether the machine was
      * fabricated from a verified design (fused kernels) or a salvaged one (one primitive at a time), and, while
-     * training, what it adds to the loss.
+     * training, what it adds to the loss; what its matrices are rounded to, and for rows packed with masks between
+     * documents, where each token's document begins.
      */
-    record Frame(int node, int time, Captures captures, boolean fused, Extras extras) {
+    record Frame(int node, int time, Captures captures, boolean fused, Extras extras, Numerics.Format format, int[] starts, int batch) {
+        Frame(int node, int time, Captures captures, boolean fused, Extras extras) {
+            this(node, time, captures, fused, extras, Numerics.Format.FP32, null, 1);
+        }
     }
 
     public static Op byId(String id) {
@@ -643,7 +675,7 @@ public enum Op {
         Tensor k = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "k"), false, f), heads);
         Tensor v = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "v"), false, f), heads);
         Tensor scores = Ops.scale(tape, matmul(tape, q, k, true, f), (float) (1.0 / Math.sqrt(dh)));
-        Tensor probs = softmax(tape, Ops.causalMask(tape, scores), f);
+        Tensor probs = softmax(tape, Ops.causalMask(tape, scores, f.starts(), f.batch()), f);
         if (f.captures() != null) {
             f.captures().pattern(f.node(), probs);
         }
@@ -711,9 +743,10 @@ public enum Op {
         }
         Tensor y;
         if (f.fused() && f.captures() == null) {
-            y = Ops.flashAttention(tape, q, k, v, scale);
+            y = Numerics.product(tape, Ops.flashAttention(tape, Numerics.cast(tape, q, f.format()), Numerics.cast(tape, k, f.format()),
+                    Numerics.cast(tape, v, f.format()), scale, f.starts(), f.batch()), f.format());
         } else {
-            Tensor probs = softmax(tape, Ops.causalMask(tape, Ops.scale(tape, matmul(tape, q, k, true, f), scale)), f);
+            Tensor probs = softmax(tape, Ops.causalMask(tape, Ops.scale(tape, matmul(tape, q, k, true, f), scale), f.starts(), f.batch()), f);
             if (f.captures() != null) {
                 f.captures().pattern(f.node(), probs);
             }
@@ -731,7 +764,9 @@ public enum Op {
     // ------------------------------------------------------------------ fused or not
 
     static Tensor matmul(Tape tape, Tensor a, Tensor b, boolean transB, Frame f) {
-        return f.fused() ? Ops.matmul(tape, a, b, transB) : Unfused.matmul(tape, a, b, transB);
+        Tensor x = Numerics.cast(tape, a, f.format());
+        Tensor y = Numerics.cast(tape, b, f.format());
+        return Numerics.product(tape, f.fused() ? Ops.matmul(tape, x, y, transB) : Unfused.matmul(tape, x, y, transB), f.format());
     }
 
     static Tensor softmax(Tape tape, Tensor x, Frame f) {

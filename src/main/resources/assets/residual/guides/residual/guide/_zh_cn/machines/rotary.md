@@ -29,6 +29,10 @@ item_ids:
 > `z = torch.view_as_complex(x.reshape(*x.shape[:-1], -1, 2))`\
 > `y = torch.view_as_real(z * freqs_cis[:T]).flatten(-2)`
 
+## 说明
+
+这样一来，查询和键只知道相隔多远，不知道站在哪里。要问在哪里的工作，比如勘测，还需要一个<ItemLink id="position" />：见[现代块](../modern.md)。
+
 ## 制造
 
 <ItemLink id="fabricator" />用**旋转位置**光掩模制造它：在<ItemLink id="bench" />上验证规格，或者在[遗迹](../ruins.md)里找到打捞的光掩模（造出的是未融合的）。见[试验台与制造机](../bench.md)。

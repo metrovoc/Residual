@@ -68,6 +68,26 @@ public final class Unfused {
                 bin(tape, Binary.MUL, Prims.turn(tape, x), Prims.unary(tape, Unary.SIN, angle)));
     }
 
+    /** The grid of the Bench's fp32 spec, each part a tensor of its own: exponent, spacing, rounding, then the top. */
+    public static Tensor grid(Tape tape, Tensor x, Tensor mantissa, Tensor lowest, Tensor top) {
+        Tensor e = bin(tape, Binary.MAX, Prims.unary(tape, Unary.EXPONENT, x), lowest);
+        Tensor q = Prims.unary(tape, Unary.POW2, bin(tape, Binary.SUB, e, mantissa));
+        Tensor y = bin(tape, Binary.MUL, Prims.unary(tape, Unary.ROUND, bin(tape, Binary.DIV, x, q)), q);
+        Tensor under = Prims.unary(tape, Unary.NEG, top);
+        return bin(tape, Binary.MAX, under, Prims.unary(tape, Unary.NEG, bin(tape, Binary.MAX, under, Prims.unary(tape, Unary.NEG, y))));
+    }
+
+    /** fp4 with each row a block, as the Bench's spec has it. */
+    public static Tensor fp4Rows(Tape tape, Tensor x) {
+        Tensor size = bin(tape, Binary.MAX, x, Prims.unary(tape, Unary.NEG, x));
+        Tensor rows = Prims.amax(tape, size);
+        Tensor most = bin(tape, Binary.MAX, Prims.amax(tape, Prims.transpose(tape, rows)), Prims.scalar(1e-30f));
+        Tensor whole = bin(tape, Binary.DIV, most, Prims.scalar(2688f));
+        Tensor kept = grid(tape, bin(tape, Binary.DIV, bin(tape, Binary.DIV, rows, Prims.scalar(6f)), whole), Prims.scalar(3f), Prims.scalar(-6f), Prims.scalar(448f));
+        Tensor s = bin(tape, Binary.MUL, bin(tape, Binary.MAX, kept, Prims.scalar(1e-30f)), whole);
+        return bin(tape, Binary.MUL, grid(tape, bin(tape, Binary.DIV, x, s), Prims.scalar(1f), Prims.scalar(0f), Prims.scalar(6f)), s);
+    }
+
     private static Tensor sigmoid(Tape tape, Tensor x) {
         Tensor one = Prims.scalar(1f);
         return bin(tape, Binary.DIV, one, bin(tape, Binary.ADD, one, Prims.unary(tape, Unary.EXP, Prims.unary(tape, Unary.NEG, x))));

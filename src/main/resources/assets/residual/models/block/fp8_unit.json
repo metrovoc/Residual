@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/fp8_unit",
+    "north": "residual:block/fp8_unit",
+    "south": "residual:block/fp8_unit",
+    "east": "residual:block/fp8_unit",
+    "west": "residual:block/fp8_unit",
+    "up": "residual:block/fp8_unit",
+    "down": "residual:block/fp8_unit"
+  }
+}

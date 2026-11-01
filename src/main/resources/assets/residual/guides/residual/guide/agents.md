@@ -25,7 +25,7 @@ Where you place an agent is its home, and its work happens around home. **Set ho
 makes where it stands its new home.
 
 The panel beside its screen holds its two model slots, and its [upgrades](programs.md). Its **Model** takes a <ItemLink id="checkpoint" /> with a model
-of up to 40,000 parameters, or a <ItemLink id="relay_card" /> tuned to a Model Server, for a model of any size: see
+of up to 160 KB of weights, or a <ItemLink id="relay_card" /> tuned to a Model Server, for a model of any size: see
 [Serving Models](deployment.md). This model writes the orders you give as programs, and makes the decisions of storing,
 hauling, building and copying. Its **Filter** takes a checkpoint that passes Sorting, and tells what kind each thing is.
 Its screen says what is missing.

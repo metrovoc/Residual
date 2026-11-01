@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/orthogonalizer",
+    "north": "residual:block/orthogonalizer",
+    "south": "residual:block/orthogonalizer",
+    "east": "residual:block/orthogonalizer",
+    "west": "residual:block/orthogonalizer",
+    "up": "residual:block/orthogonalizer",
+    "down": "residual:block/orthogonalizer"
+  }
+}

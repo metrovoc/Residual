@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.block;
 import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.ResidualConfig;
+import io.github.metrovoc.residual.bench.Unit;
 import io.github.metrovoc.residual.graph.CompileException;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Env;
@@ -21,6 +22,7 @@ import io.github.metrovoc.residual.learn.Dataset;
 import io.github.metrovoc.residual.learn.Demand;
 import io.github.metrovoc.residual.learn.FieldTask;
 import io.github.metrovoc.residual.learn.Mixture;
+import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.TextTask;
@@ -35,6 +37,7 @@ import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModComponents;
+import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.train.Jobs;
 import io.github.metrovoc.residual.train.TrainingJob;
@@ -106,6 +109,13 @@ public class CoreBlockEntity extends BlockEntity {
     private int batchSize;
     private int clip;
     private TrainingJob.Speed speed = TrainingJob.Speed.NORMAL;
+    /** The recipe: each setting's place in its list. A setting away from the plain recipe needs its unit touching the Core. */
+    private int schedule, warmup = 1, length, precision, moves, packing;
+    /** The units touching the Core at the last check, a bit each. */
+    private int units;
+    private int runStep, spikes;
+    private float rate = Float.NaN, topScore = Float.NaN, topLogit = Float.NaN, secondRight = Float.NaN;
+    private long weightBytes;
     /** Steps trained, and since the weights were last reset or a wreck rebuilt (a wreck's budget counts these). */
     private int steps;
     private int runSteps;
@@ -163,6 +173,172 @@ public class CoreBlockEntity extends BlockEntity {
         return job != null;
     }
 
+    /** How a run trains, as the settings stand. */
+    public Recipe recipe() {
+        return new Recipe(Recipe.Schedule.values()[schedule], Recipe.WARMUPS[warmup], Recipe.LENGTHS[length],
+                Numerics.Format.values()[precision], Recipe.Moves.values()[moves], Recipe.Packing.values()[packing]);
+    }
+
+    private boolean has(Unit unit) {
+        return (units >> unit.ordinal() & 1) != 0;
+    }
+
+    /** The unit a format takes, or null for fp32. */
+    @Nullable
+    private static Unit unitFor(Numerics.Format format) {
+        return switch (format) {
+            case FP32 -> null;
+            case BF16 -> Unit.BF16_UNIT;
+            case FP8 -> Unit.FP8_UNIT;
+            case FP4, FP4_FLAT -> Unit.FP4_UNIT;
+        };
+    }
+
+    /** Which units this run's recipe is using. */
+    private boolean uses(Unit unit) {
+        return switch (unit) {
+            case SCHEDULER -> schedule != 0 || warmup != 1 || length != 0;
+            case BF16_UNIT, FP8_UNIT, FP4_UNIT -> unitFor(Numerics.Format.values()[precision]) == unit;
+            case ORTHOGONALIZER -> moves != 0;
+            case PACKER -> packing != 0;
+        };
+    }
+
+    /** Finds which units touch the Core, and takes back whatever a unit no longer there allowed. */
+    private void findUnits() {
+        int found = 0;
+        for (BlockPos p : GraphScanner.units(level, worldPosition)) {
+            if (level.getBlockState(p).getBlock() instanceof UnitBlock u) {
+                found |= 1 << u.unit.ordinal();
+            }
+        }
+        units = found;
+        if (!has(Unit.SCHEDULER)) {
+            schedule = 0;
+            warmup = 1;
+            length = 0;
+        }
+        Unit format = unitFor(Numerics.Format.values()[precision]);
+        if (format != null && !has(format)) {
+            precision = 0;
+        }
+        if (!has(Unit.ORTHOGONALIZER)) {
+            moves = 0;
+        }
+        if (!has(Unit.PACKER) && packing != 0) {
+            packing = 0;
+            practiceKnown = false;
+        }
+    }
+
+    /** Lights the units a run is using, and puts out the others. */
+    private void lightUnits(boolean running) {
+        for (BlockPos p : GraphScanner.units(level, worldPosition)) {
+            BlockState s = level.getBlockState(p);
+            if (s.getBlock() instanceof UnitBlock u && s.getValue(UnitBlock.WORKING) != (running && uses(u.unit))) {
+                level.setBlock(p, s.setValue(UnitBlock.WORKING, running && uses(u.unit)), Block.UPDATE_CLIENTS);
+            }
+        }
+    }
+
+    /** A recipe setting has changed: a running job takes it from its next step. */
+    private void recipeChanged() {
+        if (job != null) {
+            job.recipe = recipe();
+            lightUnits(true);
+        }
+        if (message.equals("residual.status.needs_unit")) {
+            say("residual.status.ready");
+        }
+        touch();
+    }
+
+    /** Whether the Scheduler is there to allow a change; says so if not. */
+    private boolean scheduled() {
+        if (!has(Unit.SCHEDULER)) {
+            say("residual.status.needs_unit", "block.residual." + Unit.SCHEDULER.id);
+        }
+        return has(Unit.SCHEDULER);
+    }
+
+    public void setSchedule(int i) {
+        if (scheduled()) {
+            schedule = Math.floorMod(i, Recipe.Schedule.values().length);
+            // a schedule that falls has to know where it ends
+            if (schedule != 0 && length == 0) {
+                length = 3;
+            }
+            recipeChanged();
+        }
+    }
+
+    public void setWarmup(int i) {
+        if (scheduled()) {
+            warmup = Math.floorMod(i, Recipe.WARMUPS.length);
+            recipeChanged();
+        }
+    }
+
+    public void setLength(int i) {
+        if (scheduled()) {
+            length = Math.floorMod(i, Recipe.LENGTHS.length);
+            if (length == 0) {
+                schedule = 0;
+            }
+            recipeChanged();
+        }
+    }
+
+    /** Takes the next format the way the player is stepping whose unit touches the Core; fp32 is always there. */
+    public void setPrecision(int i) {
+        int n = Numerics.Format.values().length;
+        int to = Math.floorMod(i, n);
+        int direction = Math.floorMod(to - precision, n) == n - 1 ? -1 : 1;
+        Unit missing = null;
+        for (int k = 0; k < n; k++) {
+            int at = Math.floorMod(to + direction * k, n);
+            Unit needs = unitFor(Numerics.Format.values()[at]);
+            if (needs == null || has(needs)) {
+                precision = at;
+                break;
+            }
+            missing = missing == null ? needs : missing;
+        }
+        // what the weights take changes with it
+        if (job != null) {
+            weightBytes = job.model.weightBytes(Numerics.Format.values()[precision]);
+        } else {
+            check();
+        }
+        recipeChanged();
+        if (missing != null) {
+            say("residual.status.needs_unit", "block.residual." + missing.id);
+        }
+    }
+
+    public void setMoves(int i) {
+        if (!has(Unit.ORTHOGONALIZER)) {
+            say("residual.status.needs_unit", "block.residual." + Unit.ORTHOGONALIZER.id);
+            return;
+        }
+        moves = Math.floorMod(i, Recipe.Moves.values().length);
+        recipeChanged();
+    }
+
+    public void setPacking(int i) {
+        if (!has(Unit.PACKER)) {
+            say("residual.status.needs_unit", "block.residual." + Unit.PACKER.id);
+            return;
+        }
+        packing = Math.floorMod(i, Recipe.Packing.values().length);
+        // the same text, cut into rows another way
+        practiceKnown = false;
+        if (job != null && mixture() != null) {
+            job.data = mixture();
+        }
+        recipeChanged();
+    }
+
     private void applySettings(Wrecks.Settings s) {
         learningRate = nearest(LEARNING_RATES, s.learningRate());
         batchSize = nearest(BATCH_SIZES, s.batchSize());
@@ -216,6 +392,7 @@ public class CoreBlockEntity extends BlockEntity {
                 sources.add(new Mixture.Source(dataset.benchmark, dataset.benchmark.practice()));
             } else if (stack.getItem() instanceof DriveItem) {
                 TextTask text = Archive.practice(DriveItem.contents(stack), vocab);
+                text.packing = Recipe.Packing.values()[packing];
                 if (!text.isEmpty()) {
                     sources.add(new Mixture.Source(Benchmark.READING, text));
                 }
@@ -342,13 +519,16 @@ public class CoreBlockEntity extends BlockEntity {
         }
         compute = compute();
         job = new TrainingJob(server, worldPosition, checked.scan, checked.model, data, w, server.getRandom().nextLong(),
-                compute.threads(), remaining, speed, LEARNING_RATES[learningRate], BATCH_SIZES[batchSize], CLIPS[clip]);
+                compute.threads(), remaining, speed, LEARNING_RATES[learningRate], BATCH_SIZES[batchSize], CLIPS[clip], recipe());
+        runStep = 0;
+        spikes = 0;
         jobSteps = steps;
         jobRunSteps = runSteps;
         owner = player.getUUID();
         Jobs.start(job);
         setRunning(true);
         Cooling.working(level, worldPosition, true);
+        lightUnits(true);
         say(w != null ? "residual.status.repairing" : "residual.status.training");
     }
 
@@ -380,6 +560,8 @@ public class CoreBlockEntity extends BlockEntity {
         tests.clear();
         trainLoss = valLoss = accuracy = gradNorm = Float.NaN;
         causal = true;
+        runStep = spikes = 0;
+        rate = topScore = topLogit = secondRight = Float.NaN;
     }
 
     /** Rebuilds the loaded wreck's machine in front of the Core, with the settings it was trained with. */
@@ -483,7 +665,8 @@ public class CoreBlockEntity extends BlockEntity {
             }
             String failed = failure;
             byte[] encoded = checkpoint;
-            Jobs.back(mc, () -> tested(results, failed, saver, target, new ModelInfo(id, count, at, scores(results), causal(results)),
+            Jobs.back(mc, () -> tested(results, failed, saver, target, new ModelInfo(id, count, at, scores(results), causal(results),
+                    checked.model().weightBytes(checked.model().precision)),
                     checked.model(), encoded));
         });
     }
@@ -543,6 +726,18 @@ public class CoreBlockEntity extends BlockEntity {
         if (passed > 0 && Arrays.stream(model.order).anyMatch(n -> model.spec.node(n).op == Op.MODERN_BLOCK)) {
             Awards.grant(saver, "model/modern");
         }
+        if (passed > 0 && model.precision.narrow() && model.precision != Numerics.Format.BF16) {
+            Awards.grant(saver, "recipe/narrow");
+        }
+        if (passed > 0 && moves != 0) {
+            Awards.grant(saver, "recipe/muon");
+        }
+        if (info.passes(Benchmark.READING) && packing == Recipe.Packing.MASKED.ordinal()) {
+            Awards.grant(saver, "recipe/packed");
+        }
+        if (passed > 0 && Arrays.stream(model.order).anyMatch(n -> model.spec.node(n).op == Op.TWO_TOKEN_HEAD)) {
+            Awards.grant(saver, "recipe/second_head");
+        }
     }
 
     private Cooling.Compute compute() {
@@ -568,6 +763,7 @@ public class CoreBlockEntity extends BlockEntity {
         GraphScanner.Scan scan = GraphScanner.scan(level, worldPosition);
         if (job == null) {
             compute = compute();
+            findUnits();
         }
         List<CoreSync.Issue> found = new ArrayList<>();
         if (scan.problem() != null) {
@@ -585,6 +781,10 @@ public class CoreBlockEntity extends BlockEntity {
             for (CompileException.Issue i : e.issues) {
                 found.add(new CoreSync.Issue(i.node() >= 0 ? scan.nodes().get(i.node()) : null, i.message()));
             }
+        }
+        if (model != null) {
+            model.precision = recipe().precision();
+            weightBytes = model.weightBytes(model.precision);
         }
         publish(scan, model, shapes, env, found);
         return found.isEmpty() && model != null ? new Checked(scan, model) : null;
@@ -657,7 +857,7 @@ public class CoreBlockEntity extends BlockEntity {
         }
         if (job != null) {
             for (TrainingJob.Point p : job.drainPoints()) {
-                addPoint(new TrainingJob.Point(jobSteps + p.step(), p.train(), p.val(), p.accuracy()));
+                addPoint(new TrainingJob.Point(jobSteps + p.step(), p.train(), p.val(), p.accuracy(), p.peak(), p.rate()));
             }
             boolean finished = job.finished();
             TrainingJob.Update u = job.poll();
@@ -669,6 +869,7 @@ public class CoreBlockEntity extends BlockEntity {
                 job = null;
                 setRunning(false);
                 Cooling.working(level, worldPosition, false);
+                lightUnits(false);
                 touch();
             } else if (job != null && ticks % 100 == 0) {
                 Cooling.working(level, worldPosition, true);
@@ -707,8 +908,16 @@ public class CoreBlockEntity extends BlockEntity {
     private void apply(TrainingJob running, TrainingJob.Update u) {
         steps = jobSteps + u.steps;
         runSteps = jobRunSteps + u.steps;
+        runStep = u.steps;
         trainLoss = u.trainLoss;
         gradNorm = u.gradNorm;
+        rate = u.rate;
+        spikes = u.spikes;
+        secondRight = u.secondRight;
+        if (u.params != null) {
+            topScore = u.topScore;
+            topLogit = u.topLogit;
+        }
         if (!u.tests.isEmpty()) {
             double loss = 0, acc = 0;
             int accs = 0;
@@ -828,9 +1037,16 @@ public class CoreBlockEntity extends BlockEntity {
                         worldPosition.getZ() + 0.5, 40, 0.4, 0.3, 0.4, 0.05);
             }
             case BUDGET -> say("residual.status.budget_used", Integer.toString(Wrecks.BUDGET));
+            case FINISHED -> {
+                say("residual.status.finished", String.format(Locale.ROOT, "%,d", u.steps));
+                ServerPlayer player = owner == null ? null : ((ServerLevel) level).getServer().getPlayerList().getPlayer(owner);
+                if (player != null && schedule != 0) {
+                    Awards.grant(player, "recipe/planned");
+                }
+            }
             case DIVERGED -> {
                 // the curve ends where the run did, even one that ran away before its next test
-                addPoint(new TrainingJob.Point(steps, trainLoss, valLoss, accuracy));
+                addPoint(new TrainingJob.Point(steps, trainLoss, valLoss, accuracy, trainLoss, rate));
                 if ("NaN".equals(u.detail)) {
                     say("residual.status.nan");
                 } else {
@@ -875,7 +1091,21 @@ public class CoreBlockEntity extends BlockEntity {
         int budgetLeft = wreck() == null ? -1 : Math.max(0, Wrecks.BUDGET - runSteps);
         return new CoreSync(worldPosition, learningRate, batchSize, clip, speed.ordinal(), job != null, steps, runSteps,
                 trainLoss, valLoss, accuracy, causal, gradNorm, message, args, List.copyOf(history), issues, nodes,
-                job != null ? job.threads : compute.threads(), compute.hot(), parameters, scores, practising, budgetLeft, busy);
+                job != null ? job.threads : compute.threads(), compute.hot(), parameters, scores, practising, budgetLeft, busy,
+                new CoreSync.Plan(schedule, warmup, length, precision, moves, packing, units, runStep, rate, spikes, topScore, topLogit,
+                        secondRight, weightBytes, readShare(m), ResidualConfig.ONBOARD_PARAMETERS.get() * 4));
+    }
+
+    /** The share of the text in the data slots that its rows ever read. */
+    private static float readShare(@Nullable Mixture m) {
+        if (m != null) {
+            for (Mixture.Source s : m.sources) {
+                if (s.data() instanceof TextTask text) {
+                    return text.readShare();
+                }
+            }
+        }
+        return Float.NaN;
     }
 
     private void sync() {
@@ -929,6 +1159,12 @@ public class CoreBlockEntity extends BlockEntity {
         out.putInt("batch_size", batchSize);
         out.putInt("clip", clip);
         out.putInt("speed", speed.ordinal());
+        out.putInt("schedule", schedule);
+        out.putInt("warmup", warmup);
+        out.putInt("length", length);
+        out.putInt("precision", precision);
+        out.putInt("moves", moves);
+        out.putInt("packing", packing);
         out.putInt("steps", steps);
         out.putInt("run_steps", runSteps);
         out.putFloat("train_loss", trainLoss);
@@ -948,18 +1184,24 @@ public class CoreBlockEntity extends BlockEntity {
         int[] train = new int[at.length];
         int[] val = new int[at.length];
         int[] acc = new int[at.length];
+        int[] peak = new int[at.length];
+        int[] rates = new int[at.length];
         for (int i = 0; i < at.length; i++) {
             TrainingJob.Point p = history.get(i);
             at[i] = p.step();
             train[i] = Float.floatToRawIntBits(p.train());
             val[i] = Float.floatToRawIntBits(p.val());
             acc[i] = Float.floatToRawIntBits(p.accuracy());
+            peak[i] = Float.floatToRawIntBits(p.peak());
+            rates[i] = Float.floatToRawIntBits(p.rate());
         }
         ValueOutput h = out.child("history");
         h.putIntArray("step", at);
         h.putIntArray("train", train);
         h.putIntArray("val", val);
         h.putIntArray("accuracy", acc);
+        h.putIntArray("peak", peak);
+        h.putIntArray("rate", rates);
     }
 
     @Override
@@ -973,6 +1215,12 @@ public class CoreBlockEntity extends BlockEntity {
         batchSize = Math.floorMod(in.getIntOr("batch_size", batchSize), BATCH_SIZES.length);
         clip = Math.floorMod(in.getIntOr("clip", clip), CLIPS.length);
         speed = TrainingJob.Speed.values()[Math.floorMod(in.getIntOr("speed", 1), TrainingJob.Speed.values().length)];
+        schedule = Math.floorMod(in.getIntOr("schedule", 0), Recipe.Schedule.values().length);
+        warmup = Math.floorMod(in.getIntOr("warmup", 1), Recipe.WARMUPS.length);
+        length = Math.floorMod(in.getIntOr("length", 0), Recipe.LENGTHS.length);
+        precision = Math.floorMod(in.getIntOr("precision", 0), Numerics.Format.values().length);
+        moves = Math.floorMod(in.getIntOr("moves", 0), Recipe.Moves.values().length);
+        packing = Math.floorMod(in.getIntOr("packing", 0), Recipe.Packing.values().length);
         steps = in.getIntOr("steps", 0);
         runSteps = in.getIntOr("run_steps", 0);
         trainLoss = in.getFloatOr("train_loss", Float.NaN);
@@ -995,10 +1243,13 @@ public class CoreBlockEntity extends BlockEntity {
             int[] train = h.getIntArray("train").orElse(new int[0]);
             int[] val = h.getIntArray("val").orElse(new int[0]);
             int[] acc = h.getIntArray("accuracy").orElse(new int[0]);
+            int[] peak = h.getIntArray("peak").orElse(new int[0]);
+            int[] rates = h.getIntArray("rate").orElse(new int[0]);
             int n = Math.min(Math.min(at.length, train.length), Math.min(val.length, acc.length));
             for (int i = 0; i < n; i++) {
                 history.add(new TrainingJob.Point(at[i], Float.intBitsToFloat(train[i]), Float.intBitsToFloat(val[i]),
-                        Float.intBitsToFloat(acc[i])));
+                        Float.intBitsToFloat(acc[i]), i < peak.length ? Float.intBitsToFloat(peak[i]) : Float.NaN,
+                        i < rates.length ? Float.intBitsToFloat(rates[i]) : Float.NaN));
             }
         });
     }

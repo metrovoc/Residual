@@ -64,6 +64,15 @@ Every machine of the model in the order data reaches it, with its output shape, 
 its last gradient. Problems found by Check are listed here too. A bar that shrinks to nothing as you go down the list
 is a gradient that never arrives.
 
+## Recipe
+
+How a run goes beside its learning rate: **Schedule**, **Warmup** and **Length**, **Precision**, **Optimizer** and
+**Packing**. The toolbar beside the window sets them: point at one for its value and what it does, click for the next
+value. Each needs its unit touching the Core before it will change. Under them is what the run is doing: the rate now, what
+the weights take beside what can be carried, the share of the text it ever reads, its spikes, the largest scores inside the
+model and how often a second head is right. Beside them are the rate over the whole run and the units the Core has. See
+[The Recipe](recipe.md).
+
 ## More threads
 
 <ItemImage id="accelerator" float="left" />

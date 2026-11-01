@@ -1,0 +1,33 @@
+{
+  "parent": "residual:bench/cross_entropy",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:photomask",
+      "components": {
+        "residual:mask": {
+          "spec": "multi_token"
+        }
+      }
+    },
+    "title": {
+      "translate": "advancements.residual.bench.multi_token.title"
+    },
+    "description": {
+      "translate": "advancements.residual.bench.multi_token.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

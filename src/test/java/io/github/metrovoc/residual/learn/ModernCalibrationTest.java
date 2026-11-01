@@ -22,7 +22,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 /**
  * What the modern block does on small models, for the field notes' numbers. Run with {@code RESIDUAL_MODERN} set to the
- * names of the runs wanted: {@code kernel}, {@code steps}, {@code seeds}, {@code high}.
+ * names of the runs wanted, played one at a time: {@code kernel}, {@code steps}, {@code seeds}, {@code high}.
  */
 @EnabledIfEnvironmentVariable(named = "RESIDUAL_MODERN", matches = ".+")
 class ModernCalibrationTest {
@@ -107,40 +107,30 @@ class ModernCalibrationTest {
 
     /** One model on one benchmark from several seeds: the score at each mark, and the step each first passes. */
     private static void seeds(String label, java.util.function.Supplier<GraphSpec> spec, Benchmark a, float rate, int steps, int every, int seeds) throws Exception {
-        List<Thread> runs = new ArrayList<>();
         double[][] marks = new double[seeds][steps / every + 1];
         int[] passed = new int[seeds];
         Object[] holder = new Object[1];
         for (int s = 0; s < seeds; s++) {
             int seed = s + 1;
-            runs.add(Thread.ofPlatform().start(() -> {
-                try {
-                    Task practice = a == Benchmark.READING ? reading() : a.practice();
-                    CompiledGraph g = CompiledGraph.compile(spec.get(), new Env(practice.vocab, Vocab.CONTEXT), null, seed);
-                    holder[0] = g.parameterCount();
-                    Task test = a.test(practice.vocab);
-                    Trainer tr = new Trainer(g, practice, seed, rate, 32, 1f);
-                    ForkJoinPool pool = new ForkJoinPool(2);
-                    Parallel.with(pool, () -> {
-                        for (int i = 1; i <= steps; i++) {
-                            tr.train();
-                            if (i % every == 0) {
-                                double score = score(g, test);
-                                marks[seed - 1][i / every] = score;
-                                if (passed[seed - 1] == 0 && test.passes(score, score)) {
-                                    passed[seed - 1] = i;
-                                }
-                            }
+            Task practice = a == Benchmark.READING ? reading() : a.practice();
+            CompiledGraph g = CompiledGraph.compile(spec.get(), new Env(practice.vocab, Vocab.CONTEXT), null, seed);
+            holder[0] = g.parameterCount();
+            Task test = a.test(practice.vocab);
+            Trainer tr = new Trainer(g, practice, seed, rate, 32, 1f);
+            ForkJoinPool pool = new ForkJoinPool(2);
+            Parallel.with(pool, () -> {
+                for (int i = 1; i <= steps; i++) {
+                    tr.train();
+                    if (i % every == 0) {
+                        double score = score(g, test);
+                        marks[seed - 1][i / every] = score;
+                        if (passed[seed - 1] == 0 && test.passes(score, score)) {
+                            passed[seed - 1] = i;
                         }
-                    });
-                    pool.shutdown();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    }
                 }
-            }));
-        }
-        for (Thread t : runs) {
-            t.join();
+            });
+            pool.shutdown();
         }
         StringBuilder line = new StringBuilder(String.format("seeds %-22s %-11s lr %.0e params %s:", label, a.id, rate, holder[0]));
         for (int m = 1; m < marks[0].length; m++) {
@@ -231,43 +221,18 @@ class ModernCalibrationTest {
             }
         }
         if (runs.contains("seeds")) {
-            List<Thread> threads = new ArrayList<>();
             for (Benchmark a : List.of(Benchmark.READING, Benchmark.INDUCTION, Benchmark.SORTING, Benchmark.RECALL, Benchmark.REVERSAL, Benchmark.SURVEY)) {
                 int steps = a == Benchmark.READING ? 2000 : a == Benchmark.INDUCTION || a == Benchmark.SORTING ? 1600 : 1000;
-                for (Object[] m : new Object[][]{{"gpt32", (java.util.function.Supplier<GraphSpec>) () -> Blueprints.gpt(32, 2, 4)},
-                        {"modern32", (java.util.function.Supplier<GraphSpec>) () -> Blueprints.modern(32, 2, 4)},
-                        {"modern32+pos", (java.util.function.Supplier<GraphSpec>) () -> modern(32, 2, 4, true, true, true)}}) {
-                    threads.add(Thread.ofPlatform().start(() -> {
-                        try {
-                            @SuppressWarnings("unchecked")
-                            java.util.function.Supplier<GraphSpec> spec = (java.util.function.Supplier<GraphSpec>) m[1];
-                            seeds((String) m[0], spec, a, 3e-3f, steps, steps / 4, 3);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }));
-                }
-            }
-            for (Thread t : threads) {
-                t.join();
+                seeds("gpt32", () -> Blueprints.gpt(32, 2, 4), a, 3e-3f, steps, steps / 4, 3);
+                seeds("modern32", () -> Blueprints.modern(32, 2, 4), a, 3e-3f, steps, steps / 4, 3);
+                seeds("modern32+pos", () -> modern(32, 2, 4, true, true, true), a, 3e-3f, steps, steps / 4, 3);
             }
         }
         if (runs.contains("high")) {
-            List<Thread> threads = new ArrayList<>();
             for (float rate : new float[]{3e-3f, 1e-2f, 3e-2f, 1e-1f}) {
-                for (Object[] m : new Object[][]{{"gpt32", Blueprints.gpt(32, 2, 4)}, {"modern32", Blueprints.modern(32, 2, 4)},
-                        {"modern32 no qk", modern(32, 2, 4, true, false, false)}}) {
-                    threads.add(Thread.ofPlatform().start(() -> {
-                        try {
-                            high((String) m[0], (GraphSpec) m[1], rate, 1f, 1500, 1);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }));
-                }
-            }
-            for (Thread t : threads) {
-                t.join();
+                high("gpt32", Blueprints.gpt(32, 2, 4), rate, 1f, 1500, 1);
+                high("modern32", Blueprints.modern(32, 2, 4), rate, 1f, 1500, 1);
+                high("modern32 no qk", modern(32, 2, 4, true, false, false), rate, 1f, 1500, 1);
             }
         }
     }

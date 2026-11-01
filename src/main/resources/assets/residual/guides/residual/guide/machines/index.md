@@ -40,6 +40,7 @@ of the spec that describes them, verified on a Bench or salvaged from the ruins.
 - <ItemLink id="attention" />, from Attention: multi-head attention in one machine.
 - <ItemLink id="mlp" />, from Feed-Forward Block: widen, bend, project back.
 - <ItemLink id="transformer" />, from Transformer Block: a whole transformer layer.
+- <ItemLink id="two_token_head" />, from Multi-Token Prediction: scores for the next token and the one after it.
 
 ## The modern block
 

@@ -1,7 +1,6 @@
 package io.github.metrovoc.residual.item;
 
 import io.github.metrovoc.residual.Awards;
-import io.github.metrovoc.residual.ResidualConfig;
 import io.github.metrovoc.residual.energy.CellBlockEntity;
 import io.github.metrovoc.residual.energy.PowerNetwork;
 import io.github.metrovoc.residual.learn.Benchmark;
@@ -70,7 +69,7 @@ public class FlightFrameItem extends Item {
     public static boolean holds(ItemStack frame) {
         ModelInfo p = pilot(frame);
         return frame.is(ModItems.FLIGHT_FRAME.get()) && charge(frame) > 0 && p != null && p.causal() && p.passes(Benchmark.PILOT)
-                && p.parameters() <= ResidualConfig.ONBOARD_PARAMETERS.get();
+                && p.fitsOnboard();
     }
 
     @Override
@@ -144,7 +143,7 @@ public class FlightFrameItem extends Item {
         if (pilot == null) {
             out.accept(Component.translatable("residual.frame.no_pilot").withStyle(ChatFormatting.DARK_GRAY));
         } else {
-            boolean ok = pilot.causal() && pilot.passes(Benchmark.PILOT) && pilot.parameters() <= ResidualConfig.ONBOARD_PARAMETERS.get();
+            boolean ok = pilot.causal() && pilot.passes(Benchmark.PILOT) && pilot.fitsOnboard();
             out.accept(Component.translatable(ok ? "residual.frame.pilot" : "residual.frame.pilot_not", pilot.tag())
                     .withStyle(ok ? ChatFormatting.AQUA : ChatFormatting.RED));
         }

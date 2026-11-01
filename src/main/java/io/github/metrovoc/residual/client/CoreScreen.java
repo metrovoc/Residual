@@ -1,11 +1,13 @@
 package io.github.metrovoc.residual.client;
 
+import io.github.metrovoc.residual.bench.Unit;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Kinds;
+import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Retrieval;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Vocab;
@@ -15,7 +17,9 @@ import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.net.CoreAction;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.SampleResult;
+import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModItems;
+import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.train.TrainingJob;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
  * settings are icon buttons in a toolbar beside the window, their values and what they do in their tooltips.
  */
 public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Parts.Drawn {
-    private enum Tab { DATA, TRAIN, TESTS, TRY, INSPECT }
+    private enum Tab { DATA, TRAIN, TESTS, TRY, INSPECT, RECIPE }
 
     private static final int WINDOW_W = 320, TOOLBAR_X = WINDOW_W + 3;
 
@@ -63,6 +67,12 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
     private IconButton batchSize;
     private IconButton clip;
     private IconButton speed;
+    private IconButton schedule;
+    private IconButton warmup;
+    private IconButton length;
+    private IconButton precision;
+    private IconButton moves;
+    private IconButton packing;
     private EditBox prompt;
     private Button generate;
 
@@ -101,6 +111,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         clearWidgets();
         train = save = rebuild = testAll = generate = null;
         learningRate = batchSize = clip = speed = null;
+        schedule = warmup = length = precision = moves = packing = null;
         prompt = null;
         menu.slotsShown = tab == Tab.DATA;
         int x = leftPos, y = topPos;
@@ -182,8 +193,53 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             }
             case INSPECT -> {
             }
+            case RECIPE -> {
+                CoreSync s = sync();
+                CoreSync.Plan p = s == null ? CoreSync.Plan.NONE : s.plan();
+                int tx = x + TOOLBAR_X, ty = y + 22, step = IconButton.SIZE + 4;
+                schedule = addRenderableWidget(recipeSetting(tx, ty, "schedule", SCHEDULES, p.schedule(), CoreAction.Kind.SCHEDULE));
+                warmup = addRenderableWidget(recipeSetting(tx, ty + step, "warmup", warmups(), p.warmup(), CoreAction.Kind.WARMUP));
+                length = addRenderableWidget(recipeSetting(tx, ty + 2 * step, "length", lengths(), p.length(), CoreAction.Kind.LENGTH));
+                precision = addRenderableWidget(recipeSetting(tx, ty + 3 * step, "precision", PRECISIONS, p.precision(), CoreAction.Kind.PRECISION));
+                moves = addRenderableWidget(recipeSetting(tx, ty + 4 * step, "moves", MOVES, p.moves(), CoreAction.Kind.MOVES));
+                packing = addRenderableWidget(recipeSetting(tx, ty + 5 * step, "packing", PACKINGS, p.packing(), CoreAction.Kind.PACKING));
+            }
         }
         refresh();
+    }
+
+    private IconButton recipeSetting(int x, int y, String name, List<String> values, int index, CoreAction.Kind kind) {
+        return IconButton.setting(x, y, List.of(name), Component.translatable("residual.recipe." + name), values, index,
+                Component.translatable("residual.recipe." + name + ".hint"), i -> send(kind, i));
+    }
+
+    private static List<String> named(String prefix, String... ids) {
+        List<String> out = new ArrayList<>();
+        for (String id : ids) {
+            out.add(prefix + id);
+        }
+        return out;
+    }
+
+    private static final List<String> SCHEDULES = named("residual.recipe.schedule.", "constant", "cosine", "wsd");
+    private static final List<String> PRECISIONS = named("residual.recipe.precision.", "fp32", "bf16", "fp8", "fp4_flat", "fp4");
+    private static final List<String> MOVES = named("residual.recipe.moves.", "adamw", "muon");
+    private static final List<String> PACKINGS = named("residual.recipe.packing.", "windows", "packed", "masked");
+
+    private static List<String> warmups() {
+        List<String> out = new ArrayList<>();
+        for (int w : Recipe.WARMUPS) {
+            out.add(w == 0 ? "residual.recipe.warmup.off" : Integer.toString(w));
+        }
+        return out;
+    }
+
+    private static List<String> lengths() {
+        List<String> out = new ArrayList<>();
+        for (int l : Recipe.LENGTHS) {
+            out.add(l == 0 ? "residual.recipe.length.none" : Ui.count(l));
+        }
+        return out;
     }
 
     private static List<String> labels(float[] values) {
@@ -224,6 +280,15 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             batchSize.set(s.batchSize());
             clip.set(s.clip());
             speed.set(s.speed());
+        }
+        if (schedule != null && s != null) {
+            CoreSync.Plan p = s.plan();
+            schedule.set(p.schedule());
+            warmup.set(p.warmup());
+            length.set(p.length());
+            precision.set(p.precision());
+            moves.set(p.moves());
+            packing.set(p.packing());
         }
         if (save != null) {
             ItemStack crystal = menu.getSlot(CoreMenu.CRYSTAL).getItem();
@@ -351,6 +416,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             case TESTS -> testsTab(g, s, mx, my);
             case TRY -> tryTab(g);
             case INSPECT -> inspectTab(g, s);
+            case RECIPE -> recipeTab(g, s, mx, my);
         }
         statusLine(g, s, mx, my);
     }
@@ -364,7 +430,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         boolean running = s.running();
         int dot = running ? (minecraft.level.getGameTime() / 10 % 2 == 0 ? Ui.TEAL : 0xFF1F7A72) : s.issues().isEmpty() ? Ui.DIM : Ui.RED;
         g.fill(10, y + 2, 14, y + 6, dot);
-        Object[] args = s.args().stream().map(a -> a.startsWith("residual.") ? Component.translatable(a) : a).toArray();
+        Object[] args = s.args().stream().map(a -> a.startsWith("residual.") || a.startsWith("block.residual.") ? Component.translatable(a) : a).toArray();
         String message = Component.translatable(s.message(), args).getString();
         String steps = I18n.get("residual.core.steps", Ui.count(s.steps()));
         int max = WINDOW_W - 34 - font.width(steps);
@@ -574,6 +640,15 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         if (anyAccuracy) {
             plot(g, pts, TrainingJob.Point::accuracy, 0, 1, first, span, px0, py0, pw, ph, Ui.GREEN);
         }
+        // a spike is drawn as a stroke up from the smoothed curve, cut off by the top of the chart
+        for (TrainingJob.Point p : pts) {
+            if (p.peak() > p.train() && Float.isFinite(p.train())) {
+                int cx = px0 + (int) ((long) (p.step() - first) * (pw - 1) / span);
+                int from = py0 + (int) Math.round((hi - Math.max(lo, Math.min(hi, p.train()))) / (hi - lo) * (ph - 1));
+                int to = py0 + (int) Math.round((hi - Math.max(lo, Math.min(hi, p.peak()))) / (hi - lo) * (ph - 1));
+                g.fill(cx, to, cx + 1, from, 0xA0FF6B6B);
+            }
+        }
         plot(g, pts, TrainingJob.Point::train, lo, hi, first, span, px0, py0, pw, ph, Ui.TEAL);
         plot(g, pts, TrainingJob.Point::val, lo, hi, first, span, px0, py0, pw, ph, Ui.AMBER);
         g.text(font, Ui.num(hi), x + 3, y + 3, Ui.DIM, false);
@@ -601,6 +676,12 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             if (Float.isFinite(best.accuracy())) {
                 lines.add(Component.translatable("residual.metric.accuracy")
                         .append(String.format(Locale.ROOT, " %.1f%%", 100 * best.accuracy())).withColor(Ui.GREEN));
+            }
+            if (best.peak() > best.train()) {
+                lines.add(Component.translatable("residual.metric.peak").append(" " + Ui.num(best.peak())).withColor(Ui.RED));
+            }
+            if (Float.isFinite(best.rate())) {
+                lines.add(Component.translatable("residual.metric.rate").append(" " + Ui.num(best.rate())).withColor(Ui.DIM));
             }
             g.setComponentTooltipForNextFrame(font, lines, mx + leftPos, my + topPos);
         }
@@ -740,6 +821,97 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         CoreView.clear();
     }
 
+    // ---------------------------------------------------------------- recipe tab
+
+    /** The recipe: each setting a line, what it comes to in numbers a line each, the rate over the run, and the units there. */
+    private void recipeTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
+        Ui.screen(g, 6, 22, 308, 166);
+        CoreSync.Plan p = s == null ? CoreSync.Plan.NONE : s.plan();
+        int x = 12, y = 26;
+        y = setting(g, x, y, "schedule", I18n.get(SCHEDULES.get(p.schedule())), Unit.SCHEDULER, p);
+        y = setting(g, x, y, "warmup", shown(warmups().get(p.warmup())), Unit.SCHEDULER, p);
+        y = setting(g, x, y, "length", shown(lengths().get(p.length())), Unit.SCHEDULER, p);
+        y = setting(g, x, y, "precision", I18n.get(PRECISIONS.get(p.precision())), null, p);
+        y = setting(g, x, y, "moves", I18n.get(MOVES.get(p.moves())), Unit.ORTHOGONALIZER, p);
+        y = setting(g, x, y, "packing", I18n.get(PACKINGS.get(p.packing())), Unit.PACKER, p);
+        y += 4;
+        g.fill(x, y - 3, 154, y - 2, Ui.GRID);
+        List<FormattedCharSequence> tip = null;
+        for (String[] row : new String[][]{{"rate", Float.isNaN(p.rate()) ? "–" : Ui.num(p.rate())},
+                {"weights", bytes(p.weightBytes()) + " / " + bytes(p.onboardBytes())},
+                {"read", Float.isNaN(p.readShare()) ? "–" : String.format(Locale.ROOT, "%.0f%%", 100 * p.readShare())},
+                {"spikes", Integer.toString(p.spikes())},
+                {"top_score", Float.isNaN(p.topScore()) ? "–" : Ui.num(p.topScore())},
+                {"top_logit", Float.isNaN(p.topLogit()) ? "–" : Ui.num(p.topLogit())},
+                {"second", Float.isNaN(p.secondRight()) ? "–" : String.format(Locale.ROOT, "%.0f%%", 100 * p.secondRight())}}) {
+            g.text(font, Component.translatable("residual.recipe." + row[0]), x, y, Ui.DIM, false);
+            g.text(font, row[1], 154 - font.width(row[1]), y, Ui.TEXT, false);
+            if (Ui.inside(mx, my, x, y - 1, 144, 11)) {
+                tip = font.split(Component.translatable("residual.recipe." + row[0] + ".hint"), 200);
+            }
+            y += 11;
+        }
+        ratePlot(g, p, 164, 38, 144, 60);
+        int ux = 164;
+        for (Unit unit : Unit.values()) {
+            boolean there = (p.units() >> unit.ordinal() & 1) != 0;
+            g.item(new ItemStack(ModBlocks.UNITS.get(unit).get()), ux, 118);
+            if (!there) {
+                g.fill(ux, 118, ux + 16, 134, 0xC011161B);
+            }
+            if (Ui.inside(mx, my, ux, 118, 16, 16)) {
+                tip = new ArrayList<>();
+                tip.add(Component.translatable("block.residual." + unit.id).withColor(there ? Ui.TEAL : Ui.DIM).getVisualOrderText());
+                tip.addAll(font.split(Component.translatable("residual.unit." + unit.id + ".opens").withStyle(ChatFormatting.GRAY), 200));
+                tip.addAll(font.split(Component.translatable(there ? "residual.recipe.unit_here" : "residual.recipe.unit_missing").withStyle(ChatFormatting.GRAY), 200));
+            }
+            ux += 24;
+        }
+        if (tip != null) {
+            g.setTooltipForNextFrame(tip, mx + leftPos, my + topPos);
+        }
+    }
+
+    private static String shown(String value) {
+        return value.startsWith("residual.") ? I18n.get(value) : value;
+    }
+
+    /** A setting's line: dimmed when the unit that opens it isn't there. */
+    private int setting(GuiGraphicsExtractor g, int x, int y, String name, String value, @Nullable Unit unit, CoreSync.Plan p) {
+        boolean open = unit == null || (p.units() >> unit.ordinal() & 1) != 0;
+        g.text(font, Component.translatable("residual.recipe." + name), x, y, Ui.DIM, false);
+        g.text(font, Ui.fit(font, value, 84), 154 - Math.min(84, font.width(value)), y, open ? Ui.TEAL : Ui.DIM, false);
+        return y + 11;
+    }
+
+    private static String bytes(long n) {
+        return n >= 1_000_000 ? String.format(Locale.ROOT, "%.1f MB", n / 1e6) : String.format(Locale.ROOT, "%.0f KB", n / 1e3);
+    }
+
+    /** What the learning rate is multiplied by over the run this recipe plans, with where the run has reached. */
+    private void ratePlot(GuiGraphicsExtractor g, CoreSync.Plan p, int x, int y, int w, int h) {
+        g.text(font, Component.translatable("residual.recipe.plot"), x, y - 11, Ui.DIM, false);
+        for (int i = 0; i <= 2; i++) {
+            g.fill(x, y + i * (h - 1) / 2, x + w, y + i * (h - 1) / 2 + 1, Ui.GRID);
+        }
+        Recipe recipe = new Recipe(Recipe.Schedule.values()[p.schedule()], Recipe.WARMUPS[p.warmup()], Recipe.LENGTHS[p.length()],
+                Numerics.Format.values()[p.precision()], Recipe.Moves.values()[p.moves()], Recipe.Packing.values()[p.packing()]);
+        int total = recipe.length() > 0 ? recipe.length() : Math.max(1000, Math.max(recipe.warmup() * 4, p.step()));
+        int before = -1;
+        for (int c = 0; c < w; c++) {
+            int at = y + Math.round((1 - recipe.multiplier(c * total / w)) * (h - 1));
+            g.fill(x + c, before < 0 ? at : Math.min(before, at), x + c + 1, (before < 0 ? at : Math.max(before, at)) + 1, Ui.AMBER);
+            before = at;
+        }
+        if (p.step() > 0) {
+            int c = Math.min(w - 1, (int) ((long) p.step() * w / total));
+            g.fill(x + c, y, x + c + 1, y + h, 0x60FFFFFF);
+        }
+        String end = recipe.length() > 0 ? Ui.count(total) : Ui.count(total) + "…";
+        g.text(font, "0", x, y + h + 2, Ui.DIM, false);
+        g.text(font, end, x + w - font.width(end), y + h + 2, Ui.DIM, false);
+    }
+
     // ---------------------------------------------------------------- inspect tab
 
     private void inspectTab(GuiGraphicsExtractor g, CoreSync s) {
@@ -839,6 +1011,12 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                 out.add("next", leftPos + 230, topPos + 66, 84, 88);
             }
             case INSPECT -> out.add("table", leftPos + 6, topPos + 22, 308, 166);
+            case RECIPE -> {
+                out.add("settings", leftPos + 8, topPos + 24, 150, 68);
+                out.add("readings", leftPos + 8, topPos + 94, 150, 80);
+                out.add("rate", leftPos + 160, topPos + 24, 152, 88);
+                out.add("units", leftPos + 160, topPos + 114, 148, 24);
+            }
         }
     }
 }

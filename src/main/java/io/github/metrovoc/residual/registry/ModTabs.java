@@ -25,6 +25,7 @@ public final class ModTabs {
             .displayItems((params, out) -> {
                 out.accept(ModBlocks.CORE.get());
                 out.accept(ModBlocks.ACCELERATOR.get());
+                ModBlocks.UNITS.values().forEach(unit -> out.accept(unit.get()));
                 out.accept(ModBlocks.CASING.get());
                 out.accept(ModItems.PROBE.get());
                 out.accept(ModItems.WEIGHT_CRYSTAL.get());
@@ -38,7 +39,7 @@ public final class ModTabs {
                 out.accept(ModItems.WAFER.get());
                 out.accept(ModItems.PHOTOMASK.get());
                 for (Spec spec : Specs.all()) {
-                    if (!spec.unlocks().isEmpty()) {
+                    if (spec.makesSomething()) {
                         out.accept(MaskItem.of(ModItems.PHOTOMASK.get(), MaskData.salvaged(spec)));
                     }
                 }

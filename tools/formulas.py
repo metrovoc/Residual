@@ -43,6 +43,11 @@ FORMULAS = {
     "zloss": r"L_z = 10^{-4} \cdot \dfrac{1}{N} \sum_t \left( \log \sum_j e^{y_{tj}} \right)^{\!2}",
     "online": r"m' = \max(m, \max_j s_j) \qquad l' = l\, e^{m - m'} + \sum_j e^{s_j - m'} \qquad o' = o\, e^{m - m'} + \sum_j e^{s_j - m'} v_j",
     "modern": r"x \leftarrow x + \mathrm{Attn}(\mathrm{RMS}_1(x)) \qquad x \leftarrow x + \mathrm{SwiGLU}(\mathrm{RMS}_2(x))",
+    "schedule": r"\eta_t = \eta \cdot \min\left(1, \dfrac{t + 1}{W}\right) \cdot \dfrac{1}{2}\left(1 + \cos \pi\, \dfrac{t - S}{T - S}\right)",
+    "float_grid": r"y = \mathrm{round}\left(\dfrac{x}{q}\right) q \qquad q = 2^{\max(\lfloor \log_2 |x| \rfloor,\, e) - m}",
+    "newton": r"X \leftarrow X \left( a I + b X^\top X + c (X^\top X)^2 \right) \qquad a = 3.4445,\; b = -4.775,\; c = 2.0315",
+    "muon": r"W \leftarrow (1 - \eta \lambda)\, W - 0.2\, \eta \sqrt{\max(r, c)}\; \mathrm{orth}((1 - \mu) g + \mu M)",
+    "second_head": r"L = L_{\mathrm{next}} + 0.3 \, L_{\mathrm{after\ next}}",
     "residual": r"x_{l+1} = x_l + F_l(x_l)",
     "block": r"x \leftarrow x + \mathrm{Attn}(\mathrm{LN}_1(x)) \qquad x \leftarrow x + \mathrm{MLP}(\mathrm{LN}_2(x))",
     "residual_grad": r"\dfrac{\partial x_{l+1}}{\partial x_l} = I + \dfrac{\partial F_l}{\partial x_l}",
@@ -92,12 +97,67 @@ def activations():
     plt.close(fig)
 
 
+def axes(figsize):
+    fig, ax = plt.subplots(figsize=figsize, dpi=100)
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_color(DIM)
+    ax.tick_params(colors=DIM, labelsize=20)
+    return fig, ax
+
+
+def schedules():
+    """The three schedules of a run of 2,000 steps with 100 of warmup, as learn/Recipe.java has them: the page says which is which, in its language."""
+    t = np.arange(2000)
+    rise = np.minimum(1, (t + 1) / 100)
+
+    def fall(start):
+        return 0.5 * (1 + np.cos(np.pi * np.clip((t - start) / (2000 - start), 0, 1)))
+
+    fig, ax = axes((9.6, 4.2))
+    for y, color in ((rise, DIM), (rise * fall(100), TEAL), (rise * fall(1600), AMBER)):
+        ax.plot(t, y, color=color, linewidth=4)
+    ax.set_xlim(0, 2000)
+    ax.set_ylim(0, 1.05)
+    ax.set_xticks([0, 1000, 2000])
+    ax.set_yticks([0, 0.5, 1])
+    fig.savefig(OUT / "schedules.png", transparent=True, bbox_inches="tight", pad_inches=0.1)
+    plt.close(fig)
+
+
+def grids():
+    """Every number fp8 and fp4 can hold from 0 to 8, as tensor/Numerics.java rounds to them: half as far apart in each power of 2 below."""
+    def points(mantissa, lowest, top):
+        out = {0.0}
+        for e in range(lowest, 5):
+            for m in range(2 ** mantissa):
+                out.add(2.0 ** e * (1 + m / 2 ** mantissa))
+        for m in range(2 ** mantissa):
+            out.add(2.0 ** lowest * m / 2 ** mantissa)
+        return sorted(v for v in out if v <= top)
+
+    fig, ax = axes((9.6, 2.4))
+    ax.spines["left"].set_visible(False)
+    ax.set_yticks([])
+    for y, (values, color, label) in enumerate(((points(1, 0, 6), AMBER, "fp4"), (points(3, -6, 8), TEAL, "fp8"))):
+        ax.scatter(values, [y] * len(values), s=70, color=color, linewidths=0, clip_on=False)
+        ax.text(8.25, y, label, color=TEXT, fontsize=20, va="center")
+    ax.set_xlim(0, 8)
+    ax.set_ylim(-0.6, 1.6)
+    ax.set_xticks([0, 1, 2, 3, 4, 5, 6, 7, 8])
+    fig.savefig(OUT / "grids.png", transparent=True, bbox_inches="tight", pad_inches=0.1)
+    plt.close(fig)
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     plt.rcParams["mathtext.fontset"] = "cm"
     for name, tex in FORMULAS.items():
         formula(name, tex)
     activations()
+    schedules()
+    grids()
 
 
 if __name__ == "__main__":

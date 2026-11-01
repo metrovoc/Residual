@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "residual:block/fp8_unit"
+    },
+    "working=true": {
+      "model": "residual:block/fp8_unit_on"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "residual:block/orthogonalizer"
+    },
+    "working=true": {
+      "model": "residual:block/orthogonalizer_on"
+    }
+  }
+}

@@ -7,6 +7,7 @@ import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.learn.Batch;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Mixture;
+import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.learn.Wrecks;
@@ -49,15 +50,17 @@ public final class TrainingJob {
     }
 
     /** {@code PASSED} and {@code BUDGET} only end the repair of a wreck; other training runs until stopped. */
-    public enum Outcome { PASSED, BUDGET, DIVERGED, STOPPED, CHANGED, CRASHED }
+    public enum Outcome { PASSED, BUDGET, FINISHED, DIVERGED, STOPPED, CHANGED, CRASHED }
 
     /**
      * One point of the learning curve.
      *
      * @param val      mean test loss over the benchmarks being practised
      * @param accuracy mean test accuracy over those scored by accuracy
+     * @param peak     the largest loss of a step that spiked since the point before, or 0; the smoothed curve hides them
+     * @param rate     the learning rate at this step
      */
-    public record Point(int step, float train, float val, float accuracy) {
+    public record Point(int step, float train, float val, float accuracy, float peak, float rate) {
     }
 
     /** What the training thread hands to the server thread. */
@@ -68,6 +71,14 @@ public final class TrainingJob {
         /** The latest test of every benchmark being practised. */
         public Map<Benchmark, Trainer.Eval> tests = Map.of();
         public float gradNorm;
+        /** The learning rate of the latest step. */
+        public float rate;
+        /** Steps whose loss leapt far above the run's recent average, since this job began. */
+        public int spikes;
+        /** The largest attention score and the largest of the model's own scores, on the fixed example. */
+        public float topScore, topLogit;
+        /** How often a second head's first choice is right, or NaN without one. */
+        public float secondRight = Float.NaN;
         /** Weight copies by node; null when they must not be kept (they turned into NaN). */
         @Nullable
         public Map<Integer, Map<String, Tensor>> params;
@@ -108,16 +119,20 @@ public final class TrainingJob {
     public volatile float learningRate;
     public volatile int batchSize;
     public volatile float clip;
+    /** The rest of how it trains; changes take effect from the next step. */
+    public volatile Recipe recipe;
 
     private volatile boolean stopRequested;
     private volatile Outcome stopAs = Outcome.STOPPED;
     private volatile boolean finished;
     private final AtomicReference<Update> pending = new AtomicReference<>();
+    private volatile int spikes;
+    private volatile float secondRight = Float.NaN;
     private final ConcurrentLinkedQueue<Point> points = new ConcurrentLinkedQueue<>();
 
     public TrainingJob(ServerLevel level, BlockPos core, GraphScanner.Scan scan, CompiledGraph model, Mixture data,
                        @Nullable Wrecks.Wreck wreck, long seed, int threads, int budget, Speed speed, float learningRate,
-                       int batchSize, float clip) {
+                       int batchSize, float clip, Recipe recipe) {
         this.level = level;
         this.core = core;
         this.footprint = scan.footprint();
@@ -132,7 +147,9 @@ public final class TrainingJob {
         this.learningRate = learningRate;
         this.batchSize = batchSize;
         this.clip = clip;
+        this.recipe = recipe;
         this.trainer = new Trainer(model, data, seed, learningRate, batchSize, clip);
+        this.trainer.recipe = recipe;
         this.probe = data.batch(new java.util.Random(99), 1, true);
     }
 
@@ -186,14 +203,26 @@ public final class TrainingJob {
         long lastPublish = System.currentTimeMillis();
         long next = System.nanoTime();
         int done = 0;
+        int spikes = 0;
+        float peak = 0;
+        Map<Benchmark, Double> recent = new EnumMap<>(Benchmark.class);
         while (!stopRequested) {
             Mixture d = data;
+            Recipe r = recipe;
             trainer.task = d;
             trainer.learningRate = learningRate;
             trainer.batchSize = batchSize;
             trainer.clip = clip;
+            trainer.recipe = r;
             float loss = trainer.train();
             done++;
+            double usual = recent.getOrDefault(d.lastDrawn, Double.NaN);
+            if (Trainer.spiked(loss, usual)) {
+                spikes++;
+                peak = Math.max(peak, loss);
+            }
+            recent.put(d.lastDrawn, Double.isNaN(usual) ? loss : 0.95 * usual + 0.05 * loss);
+            this.spikes = spikes;
             if (!Float.isFinite(loss)) {
                 Update u = update(ema, tests, done, Outcome.DIVERGED, false);
                 u.detail = "NaN";
@@ -210,7 +239,9 @@ public final class TrainingJob {
             Speed s = speed;
             if (done % s.evalEvery == 0) {
                 tests = test(d, 4);
-                points.add(point(trainer.step(), ema, tests));
+                points.add(point(trainer.step(), ema, tests, peak, trainer.lastRate()));
+                peak = 0;
+                secondRight = Trainer.secondRight(model, d);
                 Trainer.Eval mine = wreck == null ? null : tests.get(wreck.benchmark());
                 if (mine != null && wreck.passes(mine)) {
                     // a lucky estimate shouldn't count: confirm on four times as much data
@@ -225,6 +256,12 @@ public final class TrainingJob {
             }
             if (budget > 0 && done >= budget) {
                 pending.set(update(ema, tests, done, Outcome.BUDGET, true));
+                return;
+            }
+            if (r.length() > 0 && done >= r.length()) {
+                tests = test(d, 4);
+                points.add(point(trainer.step(), ema, tests, peak, trainer.lastRate()));
+                pending.set(update(ema, tests, done, Outcome.FINISHED, true));
                 return;
             }
             long now = System.currentTimeMillis();
@@ -255,7 +292,7 @@ public final class TrainingJob {
         return out;
     }
 
-    private static Point point(int step, double ema, Map<Benchmark, Trainer.Eval> tests) {
+    private static Point point(int step, double ema, Map<Benchmark, Trainer.Eval> tests, float peak, float rate) {
         double loss = 0, acc = 0;
         int accs = 0;
         for (Map.Entry<Benchmark, Trainer.Eval> e : tests.entrySet()) {
@@ -266,7 +303,7 @@ public final class TrainingJob {
             }
         }
         return new Point(step, (float) ema, tests.isEmpty() ? Float.NaN : (float) (loss / tests.size()),
-                accs == 0 ? Float.NaN : (float) (acc / accs));
+                accs == 0 ? Float.NaN : (float) (acc / accs), peak, rate);
     }
 
     private Update update(double ema, Map<Benchmark, Trainer.Eval> tests, int done, @Nullable Outcome outcome, boolean keepWeights) {
@@ -275,6 +312,9 @@ public final class TrainingJob {
         u.trainLoss = (float) ema;
         u.tests = tests;
         u.gradNorm = (float) trainer.lastGradNorm();
+        u.rate = trainer.lastRate();
+        u.spikes = spikes;
+        u.secondRight = secondRight;
         u.outcome = outcome;
         if (!keepWeights) {
             return u;
@@ -291,6 +331,10 @@ public final class TrainingJob {
         Tape tape = new Tape();
         Captures captures = new Captures();
         Tensor logits = model.forward(tape, probe.input(), captures);
+        u.topScore = captures.topScore;
+        for (float v : logits.data) {
+            u.topLogit = Math.max(u.topLogit, Math.abs(v));
+        }
         tape.backward(Ops.crossEntropy(tape, logits, probe.targets(), probe.weights()));
         for (int node : model.order) {
             Tensor out = captures.outputs.get(node);

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "residual:block/scheduler"
+    },
+    "working=true": {
+      "model": "residual:block/scheduler_on"
+    }
+  }
+}

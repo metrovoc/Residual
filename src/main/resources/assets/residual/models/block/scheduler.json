@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/scheduler",
+    "north": "residual:block/scheduler",
+    "south": "residual:block/scheduler",
+    "east": "residual:block/scheduler",
+    "west": "residual:block/scheduler",
+    "up": "residual:block/scheduler",
+    "down": "residual:block/scheduler"
+  }
+}

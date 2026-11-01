@@ -133,6 +133,54 @@
         },
         {
           "type": "minecraft:item",
+          "name": "residual:photomask",
+          "weight": 2,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "schedule",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "bf16",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "residual:photomask",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "residual:mask": {
+                  "spec": "document_mask",
+                  "salvaged": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
           "name": "minecraft:paper",
           "weight": 3,
           "functions": [

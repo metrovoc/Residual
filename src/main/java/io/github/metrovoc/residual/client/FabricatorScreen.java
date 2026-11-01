@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.client;
 
 import io.github.metrovoc.residual.bench.MaskData;
 import io.github.metrovoc.residual.block.FabricatorBlockEntity;
+import io.github.metrovoc.residual.block.UnitBlock;
 import io.github.metrovoc.residual.block.FabricatorBlockEntity.Cost;
 import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
@@ -18,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -144,6 +146,8 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> im
             note = Component.translatable("residual.fabricator.relay_gate");
         } else if (item == ModBlocks.RELAY_LINK.asItem()) {
             note = Component.translatable("residual.fabricator.relay_link");
+        } else if (item instanceof BlockItem block && block.getBlock() instanceof UnitBlock) {
+            note = Component.translatable("residual.fabricator.unit");
         } else if (!(item instanceof MachineItem)) {
             note = Component.translatable("residual.fabricator.accelerator");
         } else if (m != null) {

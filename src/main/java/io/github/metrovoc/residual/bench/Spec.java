@@ -35,6 +35,11 @@ public record Spec(String id, List<Port> ports, List<Case> cases, Kernel kernel,
         Tensor apply(@Nullable Tape tape, Tensor[] in);
     }
 
+    /** Whether a verified design goes on a photomask, for the Fabricator to make something from. */
+    public boolean makesSomething() {
+        return !unlocks.isEmpty() || Unit.of(this) != null;
+    }
+
     /** Whether a player who verified {@code verified} may work on this spec: every spec it builds on is verified. */
     public boolean openTo(List<String> verified) {
         return verified.containsAll(requires);
@@ -91,8 +96,8 @@ public record Spec(String id, List<Port> ports, List<Case> cases, Kernel kernel,
                 }
                 continue;
             }
-            double err = Math.abs((double) g - w);
-            if (err > ABS + REL * Math.abs(w) && err > worstErr) {
+            double err = Float.isFinite(w) ? Math.abs((double) g - w) : Double.POSITIVE_INFINITY;
+            if ((!Float.isFinite(w) || err > ABS + REL * Math.abs(w)) && err > worstErr) {
                 worstErr = err;
                 worst = i;
             }

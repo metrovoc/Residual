@@ -170,6 +170,12 @@ public final class Network {
             case SAMPLE -> core.sample(player, a.text(), a.value());
             case TEST -> core.runTests();
             case SAVE -> core.save(player);
+            case SCHEDULE -> core.setSchedule(a.value());
+            case WARMUP -> core.setWarmup(a.value());
+            case LENGTH -> core.setLength(a.value());
+            case PRECISION -> core.setPrecision(a.value());
+            case MOVES -> core.setMoves(a.value());
+            case PACKING -> core.setPacking(a.value());
         }
     }
 
