@@ -315,6 +315,11 @@ public class TerminalMenu extends AbstractContainerMenu {
         return host.network();
     }
 
+    /** The level of what it shows: a Terminal in hand reaches it from any dimension. */
+    private ServerLevel level() {
+        return network().level();
+    }
+
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
@@ -323,7 +328,7 @@ public class TerminalMenu extends AbstractContainerMenu {
         }
         host.tick();
         StorageNetwork net = network();
-        ServerLevel level = (ServerLevel) player.level();
+        ServerLevel level = level();
         List<CraftJob> running = CraftingData.of(level.getServer()).on(level, net);
         List<CraftJobsSync.Job> jobs = running.stream().map(CraftJobsSync.Job::of).toList();
         if (!CraftJobsSync.same(jobs, sentJobs)) {
@@ -429,7 +434,7 @@ public class TerminalMenu extends AbstractContainerMenu {
 
     /** Plans what the player asked for off the server thread, starts it if they said so, and sends the plan back. */
     public void ask(CraftAsk ask) {
-        ServerLevel level = (ServerLevel) player.level();
+        ServerLevel level = level();
         CraftJobs.plan(level, network(), ask.item(), ask.amount(), planned -> {
             if (!(player instanceof ServerPlayer server) || server.containerMenu != this) {
                 return;
@@ -443,7 +448,7 @@ public class TerminalMenu extends AbstractContainerMenu {
     }
 
     public void cancel(CraftCancel cancel) {
-        CraftJobs.cancel((ServerLevel) player.level(), network(), cancel.job());
+        CraftJobs.cancel(level(), network(), cancel.job());
     }
 
     /** Follows a job's plan from now on, or none. */

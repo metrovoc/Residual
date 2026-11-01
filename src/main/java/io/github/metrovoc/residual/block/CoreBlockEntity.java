@@ -148,6 +148,15 @@ public class CoreBlockEntity extends BlockEntity {
         applySettings(Wrecks.Settings.DEFAULT);
     }
 
+    /** Steps it has trained, and the loss it had at the last of them, for a Terminal to read. */
+    public int steps() {
+        return steps;
+    }
+
+    public float trainLoss() {
+        return trainLoss;
+    }
+
     public boolean running() {
         return job != null;
     }

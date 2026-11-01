@@ -110,6 +110,10 @@ public final class StorageNetwork {
         return new StorageNetwork(level, drive, at);
     }
 
+    public ServerLevel level() {
+        return level;
+    }
+
     /** A storage block came, went, loaded or unloaded: networks in this level are found again when next asked for. */
     public static void changed(ServerLevel level) {
         FOUND.remove(level);

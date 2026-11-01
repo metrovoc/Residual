@@ -22,8 +22,10 @@ import io.github.metrovoc.residual.net.StorageMeaningSync;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.SuitFlight;
 import io.github.metrovoc.residual.net.RelaySync;
+import io.github.metrovoc.residual.net.TerminalAgentsSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.WatchSync;
+import io.github.metrovoc.residual.net.TerminalBaseSync;
 import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModEntities;
@@ -183,6 +185,8 @@ public final class ResidualClient {
             AgentView.answer = answer;
             AgentView.asking = false;
         });
+        event.register(TerminalBaseSync.TYPE, (base, ctx) -> RelayView.base = base);
+        event.register(TerminalAgentsSync.TYPE, (agents, ctx) -> RelayView.agents = agents);
         event.register(RelaySync.TYPE, (sync, ctx) -> RelayView.receive(sync));
     }
 

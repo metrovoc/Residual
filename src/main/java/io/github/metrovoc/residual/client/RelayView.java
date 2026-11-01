@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.item.TerminalItem;
 import io.github.metrovoc.residual.net.RelaySync;
+import io.github.metrovoc.residual.net.TerminalAgentsSync;
+import io.github.metrovoc.residual.net.TerminalBaseSync;
 import io.github.metrovoc.residual.registry.ModComponents;
 import io.github.metrovoc.residual.world.Relays;
 import java.util.ArrayList;
@@ -50,6 +52,11 @@ public final class RelayView {
     public static Map<Integer, RelaySync.Stats> nets = Map.of();
     /** Counts how often {@link #parts} changed. */
     public static int revision;
+    /** What the last calls about the base and the agents came back with. */
+    @Nullable
+    public static TerminalBaseSync base;
+    @Nullable
+    public static TerminalAgentsSync agents;
 
     private record Dot(AABB box, int argb) {
     }

@@ -35,9 +35,10 @@ public final class Agents {
         ModelLink.Served line = line(player);
         for (Agent a : level.getEntities(ModEntities.AGENT.get(), a -> a.getName().getString().equalsIgnoreCase(name))) {
             boolean heard = a.distanceToSqr(player) <= HEARING * HEARING;
-            boolean relayed = line != null && Relays.covers(level, line.server().getBlockPos(), a.blockPosition());
+            boolean relayed = line != null && Relays.of(level.getServer()).covers(line.server().where(), level.dimension(), a.blockPosition());
             if ((heard || relayed) && a.ownership().allows(player)) {
-                a.order(player, said);
+                // what has no model of its own hears the order through the served one
+                a.order(player, said, relayed && a.items.getItem(Agent.MODEL).isEmpty() ? line : null);
             }
         }
     }

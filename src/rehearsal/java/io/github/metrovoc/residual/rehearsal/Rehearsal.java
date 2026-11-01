@@ -10,8 +10,10 @@ import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.agent.Trace;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
+import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.client.AgentScreen;
 import io.github.metrovoc.residual.client.CoreScreen;
+import io.github.metrovoc.residual.client.RelayView;
 import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.FlightFrameItem;
@@ -21,6 +23,7 @@ import io.github.metrovoc.residual.net.GhostSlot;
 import io.github.metrovoc.residual.net.PatternTransfer;
 import io.github.metrovoc.residual.net.StorageTransfer;
 import io.github.metrovoc.residual.model.Board;
+import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.storage.CraftingData;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
 import io.github.metrovoc.residual.storage.DockMenu;
@@ -34,8 +37,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -232,12 +237,21 @@ import org.slf4j.Logger;
  * expect reach X Y Z N       fail the step unless the relay network's part at the place reaches at least N blocks
  * expect netopen X Y Z N     fail the step unless the relay network at the place is open (1) or shut (0)
  * expect hops X1 Y1 Z1 X2 Y2 Z2 N  fail the step unless two parts are on one relay network, N steps apart
+ * expect gate NAME N         fail the step unless the player was last told of N gates called NAME
  * expect state X Y Z NAME=VALUE N  fail the step unless the block's state has that value (1) or not (0)
  * expect ticking X Y Z N     fail the step unless blocks tick at the place (1) or not (0), wherever the player is
+ * expect walked NAME N       fail the step unless the agent NAME, in any dimension, stands at least N blocks from where it
+ *                            stood when last asked about; the first time, only that it is there at all (N 0)
  * expect energy X Y Z N      fail the step unless the block at the place stores at least N FE
  * expect near X Y Z N        fail the step unless the player stands within N blocks of the place
  * expect dimension NAME N    fail the step unless the player is in the dimension whose path is NAME (1) or not (0)
  * expect said TEXT N         fail the step unless at least N messages since the world began held TEXT (no spaces)
+ * expect out N               fail the step unless the Terminal's last call said it is out of reach (1) or not (0)
+ * expect machines N          fail the step unless the Terminal's last call about the base brought back at least N machines
+ * expect stock N             fail the step unless it brought back at least N kinds of items, over all storage networks
+ * expect agents N            fail the step unless the Terminal's last call about agents brought back at least N of them
+ * expect program NAME N      fail the step unless the agent NAME runs a program at least N characters long, not stopped
+ * expect proposed NAME N     fail the step unless the agent NAME has read back an order at least N characters long
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
@@ -288,6 +302,8 @@ public final class Rehearsal {
     /** Steps run, and the ones that threw: any of those makes the whole run end with a failing exit code. */
     private static int played;
     private static final List<String> failed = new ArrayList<>();
+    /** Where each agent stood when {@code expect walked} last asked. */
+    private static final Map<String, Vec3> WALKED = new HashMap<>();
     /** What the server has said to the player. */
     private static final List<String> HEARD = new ArrayList<>();
     /** Keeps the player flying: creative flight ends whenever the player touches the ground. */
@@ -931,7 +947,36 @@ public final class Rehearsal {
             }
             case "dimension" -> found = mc.player.level().dimension().identifier().getPath().equals(args[1]) ? 1 : 0;
             case "said" -> found = HEARD.stream().filter(line -> line.contains(args[1])).count();
+            case "out" -> found = RelayView.base != null && !RelayView.base.problem().isEmpty()
+                    || RelayView.agents != null && !RelayView.agents.problem().isEmpty() ? 1 : 0;
+            case "machines" -> found = RelayView.base == null ? 0 : RelayView.base.machines().size();
+            case "stock" -> found = RelayView.base == null ? 0 : RelayView.base.storage().stream().mapToLong(s -> s.kinds()).sum();
+            case "agents" -> found = RelayView.agents == null ? 0 : RelayView.agents.agents().size();
+            case "gate" -> found = RelayView.parts.stream().filter(p -> p.name().equals(args[1])).count();
             case "near" -> found = mc.player.position().distanceTo(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]))) <= wanted ? wanted : 0;
+            case "program", "proposed" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                found = server.submit(() -> {
+                    ServerLevel level = server.getPlayerList().getPlayer(id).level();
+                    for (Agent a : level.getEntities(ModEntities.AGENT.get(), a -> a.getName().getString().equals(args[1]))) {
+                        return args[0].equals("proposed") ? (long) a.proposed().length() : a.stopped() ? 0L : (long) a.program().length();
+                    }
+                    return -1L;
+                }).get(10, TimeUnit.SECONDS);
+            }
+            case "walked" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                found = server.submit(() -> {
+                    for (ServerLevel level : server.getAllLevels()) {
+                        for (Agent a : level.getEntities(ModEntities.AGENT.get(), a -> a.getName().getString().equals(args[1]))) {
+                            Vec3 before = WALKED.put(args[1], a.position());
+                            return before == null ? 0L : Math.round(a.position().distanceTo(before));
+                        }
+                    }
+                    return -1L;
+                }).get(10, TimeUnit.SECONDS);
+            }
             case "hops" -> {
                 MinecraftServer server = mc.getSingleplayerServer();
                 UUID id = mc.player.getUUID();
@@ -1074,7 +1119,9 @@ public final class Rehearsal {
                 || args[0].equals("meant") || args[0].equals("words") || args[0].equals("holds") || args[0].equals("attribute")
                 || args[0].equals("flyspeed") || args[0].equals("mayfly") || args[0].equals("sight") || args[0].equals("blocks") || args[0].equals("health")
                 || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits")) || args[0].startsWith("no") || args[0].equals("empty")
-                || args[0].equals("netopen") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("state") || args[0].equals("ticking");
+                || wanted == 0 && (args[0].equals("program") || args[0].equals("proposed"))
+                || args[0].equals("netopen") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("out")
+                || args[0].equals("state") || args[0].equals("ticking");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }

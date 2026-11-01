@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.client;
 import com.mojang.blaze3d.platform.NativeImage;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.net.RelaySync;
+import io.github.metrovoc.residual.net.TerminalAgentsSync;
 import io.github.metrovoc.residual.world.Relays;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -261,6 +262,15 @@ final class RelayMap {
         }
         for (RelaySync.Part p : shown) {
             glyph(g, p, p.net() == net, stats);
+        }
+        TerminalAgentsSync agents = RelayView.agents;
+        if (agents != null) {
+            for (TerminalAgentsSync.Row a : agents.agents()) {
+                if (a.at().dimension().equals(dimension)) {
+                    int sx = screenX(a.at().pos().getX()), sy = screenZ(a.at().pos().getZ());
+                    g.fill(sx - 1, sy - 1, sx + 1, sy + 1, a.stopped() ? Ui.DIM : Ui.AMBER);
+                }
+            }
         }
         LocalPlayer player = mc.player;
         if (player != null && player.level().dimension().equals(dimension)) {

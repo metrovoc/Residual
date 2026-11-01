@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.agent;
 
 import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.learn.Kinds;
 import io.github.metrovoc.residual.learn.Orders;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.menu.AgentMenu;
@@ -204,7 +205,7 @@ public class Agent extends PathfinderMob implements Body {
         }
     }
 
-    private record PendingOrder(UUID player, String said) {
+    private record PendingOrder(UUID player, String said, @Nullable ModelLink through) {
     }
 
     private record Proposal(Program program, UUID by, int at) {
@@ -301,6 +302,20 @@ public class Agent extends PathfinderMob implements Body {
 
     public boolean stopped() {
         return stopped;
+    }
+
+    /** What its status says now, a translation key and its arguments. */
+    public String statusKey() {
+        return status;
+    }
+
+    public List<String> statusArgs() {
+        return statusArgs;
+    }
+
+    /** The order it read back and waits for a yes to, or empty. */
+    public String proposed() {
+        return proposal == null ? "" : proposal.program().toString();
     }
 
     /** Starts its program over, forgetting any question in flight: after a change of program, home or marks. */
@@ -460,7 +475,10 @@ public class Agent extends PathfinderMob implements Body {
      * {@link #ask(String, int, char, String, Consumer)}.
      */
     void ask(int slot, String prompt, int max, char stop, @Nullable String expected, Consumer<String> then) {
-        ModelLink link = ModelLink.of(serverLevel(), blockPosition(), items.getItem(slot));
+        ask(ModelLink.of(serverLevel(), blockPosition(), items.getItem(slot)), slot, prompt, max, stop, expected, then);
+    }
+
+    private void ask(ModelLink link, int slot, String prompt, int max, char stop, @Nullable String expected, Consumer<String> then) {
         if (link instanceof ModelLink.Missing m) {
             status(m.problem(), m.args().toArray());
             pause(100);
@@ -516,7 +534,12 @@ public class Agent extends PathfinderMob implements Body {
 
     /** Takes an order said by {@code player}; its model decides what the words mean. */
     public void order(ServerPlayer player, String said) {
-        pendingOrder = new PendingOrder(player.getUUID(), said);
+        order(player, said, null);
+    }
+
+    /** Takes an order said by {@code player}; {@code through} decides what the words mean, or with none its own model. */
+    public void order(ServerPlayer player, String said, @Nullable ModelLink through) {
+        pendingOrder = new PendingOrder(player.getUUID(), said, through);
     }
 
     /**
@@ -526,7 +549,8 @@ public class Agent extends PathfinderMob implements Body {
     private void startOrder(PendingOrder o) {
         ServerPlayer player = serverLevel().getServer().getPlayerList().getPlayer(o.player());
         String prompt = Orders.prompt(o.said());
-        ask(prompt, Orders.WRITTEN, '\n', null, meant -> {
+        ModelLink link = o.through() != null ? o.through() : ModelLink.of(serverLevel(), blockPosition(), items.getItem(MODEL));
+        ask(link, MODEL, prompt, Orders.WRITTEN, '\n', null, meant -> {
             Program.Parsed p = Program.parse(meant);
             if (!p.ok() || p.program().steps().isEmpty()) {
                 tell(decided(Component.translatable("residual.agent.puzzled", meant)), player);
@@ -538,7 +562,9 @@ public class Agent extends PathfinderMob implements Body {
             if (player != null) {
                 Awards.grant(player, "agent/order");
             }
-            if (program.size() > 1 && Job.of(program.toString()) == null) {
+            // from afar nobody sees what it does, so what the served model is unsure of waits for a yes too
+            boolean unsure = o.through() != null && lastConfidence < Kinds.SURE;
+            if (unsure || program.size() > 1 && Job.of(program.toString()) == null) {
                 proposal = new Proposal(program, o.player(), tickCount);
                 tell(decided(Component.literal(program.toString())).copy().append(" ").append(choice(true)).append(" ")
                         .append(choice(false)), player);
@@ -572,6 +598,13 @@ public class Agent extends PathfinderMob implements Body {
             tell(Component.translatable("residual.agent.said.never_mind"), player);
             status("residual.agent.status.never_mind");
         }
+    }
+
+    /** Does what {@code by} wrote out, with no model to ask: a Terminal's way of giving an order without one. */
+    public void carryOut(ServerPlayer by, Program program) {
+        boss = by.getUUID();
+        tell(Component.literal(program.toString()), by);
+        obey(program);
     }
 
     /** Does what it was told: a program that goes on for good becomes its program, any other it does in between. */

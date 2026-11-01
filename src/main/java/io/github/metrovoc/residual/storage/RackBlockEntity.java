@@ -72,7 +72,7 @@ public class RackBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /** Adds how many items its drives hold, and could hold, to {@code used}. */
-    void usage(long[] used) {
+    public void usage(long[] used) {
         if (!(level instanceof ServerLevel server)) {
             return;
         }

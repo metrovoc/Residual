@@ -86,6 +86,8 @@ public final class Network {
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(ProgramSync.TYPE, ProgramSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
+        r.playToClient(TerminalBaseSync.TYPE, TerminalBaseSync.STREAM_CODEC);
+        r.playToClient(TerminalAgentsSync.TYPE, TerminalAgentsSync.STREAM_CODEC);
         r.playToClient(RelaySync.TYPE, RelaySync.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
         r.playToClient(SampleResult.TYPE, SampleResult.STREAM_CODEC);

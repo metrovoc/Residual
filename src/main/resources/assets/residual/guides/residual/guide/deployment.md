@@ -16,7 +16,8 @@ item_ids:
 
 A model too big for an agent's head can still work for it. A Model Server holds the model and answers questions
 for everything tuned to it, as far as its relays reach. A network of relays does more than carry questions: it keeps a
-base running with nobody there, moves you between its gates, and makes storage and power at both ends of the world one.
+base running with nobody there, moves you between its gates, makes storage and power at both ends of the world one, and
+lets you read and steer the base from wherever it reaches.
 
 ## The Model Server
 
@@ -109,7 +110,8 @@ back home. Assemblers and Processors work for a request made anywhere on it in t
 
 A network's links together carry 4 items and 50,000 FE a tick for each answer it gives a second: at 16 answers, 1,280
 items a second and 800,000 FE a tick, and each cooled Accelerator on the server adds 320 items a second and 200,000 FE a
-tick. Use a link to see how much of that it is carrying. Its faces light while it carries.
+tick. Fluids count against the items, a bucket as 8. Use a link to see how much of that it is carrying. Its faces light
+while it carries.
 
 ## The Terminal
 
@@ -118,15 +120,22 @@ tick. Use a link to see how much of that it is carrying. Its faces light while i
 <RecipeFor id="terminal" />
 
 Tune a <ItemLink id="terminal" /> on a Model Server the same way, then carry it out into the world and use it anywhere
-the server's network reaches.
+the server's network reaches. Every call it makes takes its turn at the server, as any other question does.
 
 - **Map** shows the network from above, on the ground as far as you can see it: its reach, its masts, its gates and its
   agents. Click a gate to go there, from wherever you are: that takes 8 answers more than a jump from a gate.
+- **Base** shows what its storage networks hold and what its machines are doing. Click a storage network to open it as
+  if you stood at its Storage Terminal: search, take, put in and ask it to make things.
+- **Agents** shows what each agent in reach is doing. Pick one to stop it, start it again, hand it the program on any
+  <ItemLink id="program_card" /> you carry, or give it an order. A program written out runs as it stands. Anything else
+  the served model writes as a program, so an agent needs no model of its own for this, and a model that passes Orders
+  writes it best. One step or one job it does at once; anything longer, or anything the model is under 60% sure of, waits
+  for your yes here.
 - **Writing** is the served model itself: write the start of something and it carries it on.
 
 While you hold a tuned Terminal, bars in the corner show how far inside the reach you stand, pulses run from mast to
-mast while the server answers, and near the edge of the reach, posts of light mark where it ends. Every agent the server reaches also hears the
-orders you give by name in chat.
+mast while the server answers, and near the edge of the reach, posts of light mark where it ends. Every agent the server
+reaches also hears the orders you give by name in chat.
 
 ## Heat
 
