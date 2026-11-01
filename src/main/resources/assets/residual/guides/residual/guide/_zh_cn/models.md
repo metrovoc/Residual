@@ -12,6 +12,7 @@ item_ids:
   - orders_dataset
   - process_dataset
   - survey_dataset
+  - demand_dataset
   - flight_dataset
 ---
 
@@ -33,6 +34,7 @@ item_ids:
 | 控制   | <ItemLink id="process_dataset" />       | 每种矿石的熔炼，90% 的查看保持在温区内      | 90%         | 冶炼炉 |
 | 勘测   | <ItemLink id="survey_dataset" />        | 一行行地层，某种矿石最前面那块在哪里      | 90%         | 勘测仪 |
 | 驾驶   | <ItemLink id="flight_dataset" />        | 每种风里的飞行，90% 的查看停在原来的高度      | 90%         | 飞行背架 |
+| 需求   | <ItemLink id="demand_dataset" />        | 端口每次查看送出了多少，有节奏                    | 90%         | 端口的目标 |
 
 把鼠标悬停在核心「测试」页上的某项基准上，可以看到准确的格式。「试用」页展示模型回答一个新例子，就像智能体提问那样。
 

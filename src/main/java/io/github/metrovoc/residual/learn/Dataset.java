@@ -53,6 +53,7 @@ public final class Dataset extends Task {
                 case SORTING -> sorting(rng, seq, answer, test);
                 case ORDERS -> orders(rng, seq, answer, test);
                 case SURVEY -> survey(rng, seq, answer);
+                case DEMAND -> demand(rng, seq, answer, test);
                 default -> throw new IllegalStateException();
             }
             int o = b * t;
@@ -99,6 +100,15 @@ public final class Dataset extends Task {
         seq[2 * PAIRS + 1] = vocab.id(GOODS.charAt(keys[q]));
         seq[2 * PAIRS + 2] = vocab.id(CHESTS.charAt(vals[q]));
         answer[2 * PAIRS + 2] = true;
+    }
+
+    /** {@code 0020020020020…}: how much a Port moved out at each look, scored once the rhythm has come round twice. */
+    private void demand(Random rng, int[] seq, boolean[] answer, boolean test) {
+        Demand.Line line = Demand.line(rng, seq.length, test);
+        for (int i = 0; i < seq.length; i++) {
+            seq[i] = vocab.id(line.looks().charAt(i));
+            answer[i] = i >= line.scoredFrom();
+        }
     }
 
     /** {@code SSSIIDDDCCSSSSSS>C:i}: where in a row of ground the first of an ore lies, or {@code -} for none. */

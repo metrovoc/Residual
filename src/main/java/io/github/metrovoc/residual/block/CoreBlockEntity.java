@@ -17,6 +17,7 @@ import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Archive;
 import io.github.metrovoc.residual.learn.Dataset;
+import io.github.metrovoc.residual.learn.Demand;
 import io.github.metrovoc.residual.learn.FieldTask;
 import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Sampler;
@@ -208,9 +209,10 @@ public class CoreBlockEntity extends BlockEntity {
                     sources.add(new Mixture.Source(Benchmark.READING, text));
                 }
             } else if (stack.getItem() instanceof FieldLogItem) {
-                FieldTask field = new FieldTask(FieldLogItem.log(stack), vocab);
+                String log = FieldLogItem.log(stack);
+                FieldTask field = new FieldTask(log, vocab);
                 if (!field.isEmpty()) {
-                    sources.add(new Mixture.Source(Benchmark.FORECASTING, field));
+                    sources.add(new Mixture.Source(Demand.isLog(log) ? Benchmark.DEMAND : Benchmark.FORECASTING, field));
                 }
             } else if (WreckItem.wreck(stack) instanceof Wrecks.Wreck w) {
                 sources.add(new Mixture.Source(w.benchmark(), w.practice()));

@@ -46,7 +46,13 @@ public enum Benchmark {
      * Piloting: holding a flight frame at its height against a wind it is never told of, practised by playing flights,
      * scored by the share of flights held of the wind held worst.
      */
-    PILOT(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
+    PILOT(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Demand: what a Port will move out at its next look, from the rhythm of the looks before, in mixes of rhythm and draw
+     * practice never shows. Counting models stay near 60%, one layer of attention near 78% and Induction's two near 89%; a
+     * two-block transformer 32 wide passes in about 1,500 steps.
+     */
+    DEMAND(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */

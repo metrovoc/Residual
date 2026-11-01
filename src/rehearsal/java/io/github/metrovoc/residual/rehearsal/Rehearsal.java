@@ -11,6 +11,7 @@ import io.github.metrovoc.residual.client.CoreScreen;
 import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.storage.CraftingData;
+import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.StorageNetwork;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.io.IOException;
@@ -147,6 +148,7 @@ import org.slf4j.Logger;
  * expect net X Y Z ITEM N    fail the step unless the storage network at the place keeps at least N of ITEM
  * expect inv X Y Z ITEM N    fail the step unless the inventory at the place holds at least N of ITEM
  * expect jobs X Y Z N        fail the step unless N crafting jobs run on the network at the place
+ * expect port X Y Z N        fail the step unless the Port at the place expects to move at least N next
  * expect pins N              fail the step unless the open Storage Terminal has N kinds pinned
  * expect tree N              fail the step unless the open Storage Terminal has at least N rows of a job's plan
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
@@ -742,6 +744,9 @@ public final class Rehearsal {
                     ServerLevel level = server.getPlayerList().getPlayer(id).level();
                     if (args[0].equals("jobs")) {
                         return (long) CraftingData.of(server).on(level, StorageNetwork.at(level, at)).size();
+                    }
+                    if (args[0].equals("port")) {
+                        return (long) ((PortBlockEntity) level.getBlockEntity(at)).expects();
                     }
                     ItemResource kind = ItemResource.of(BuiltInRegistries.ITEM.getValue(Identifier.parse(args[4])));
                     if (args[0].equals("net")) {

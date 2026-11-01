@@ -334,6 +334,13 @@ class CalibrationTest {
             control("control_gpt32", Blueprints.gpt(32, 2, 4), st, 800, 100);
             control("control_induction", Blueprints.induction(), st, 800, 100);
         }
+        if (all || runs.contains("demand")) {
+            run("demand_bigram", Blueprints.bigram(), Benchmark.DEMAND, st, 1000, 250);
+            run("demand_context", Blueprints.context(), Benchmark.DEMAND, st, 1500, 250);
+            run("demand_recall", Blueprints.recall(), Benchmark.DEMAND, st, 2000, 250);
+            run("demand_induction", Blueprints.induction(), Benchmark.DEMAND, st, 2000, 250);
+            run("demand_gpt32", Blueprints.gpt(32, 2, 4), Benchmark.DEMAND, st, 2000, 250);
+        }
         if (all || runs.contains("survey")) {
             run("survey_context", Blueprints.context(), Benchmark.SURVEY, st, 1500, 250);
             run("survey_recall", Blueprints.recall(), Benchmark.SURVEY, st, 3000, 250);

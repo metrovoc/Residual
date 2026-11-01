@@ -123,6 +123,9 @@ model's own choices, and it takes a model that attends to the whole melt.</resid
 <residual:Milestone id="benchmark/survey">Practise on the <ItemLink id="survey_dataset" />; it takes attention that knows
 where each block stands in a row.</residual:Milestone>
 
+<residual:Milestone id="benchmark/demand">Practise on the <ItemLink id="demand_dataset" />; it takes a model that looks back
+along the line to find its rhythm.</residual:Milestone>
+
 <residual:Milestone id="benchmark/pilot">Practise on the <ItemLink id="flight_dataset" />: the Core flies the model's own
 flights, and it takes a model that reads the flight back to its start.</residual:Milestone>
 

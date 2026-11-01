@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.storage;
 
 import io.github.metrovoc.residual.item.CrystalItem;
+import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.item.LinkItem;
 import io.github.metrovoc.residual.registry.ModMenus;
 import net.minecraft.core.BlockPos;
@@ -18,26 +19,26 @@ import net.minecraft.world.item.ItemStack;
 /**
  * A Port's filter, its filter model, its settings and the player's inventory. The filter's slots hold a picture of a
  * kind, not the items: clicking one with a stack names that kind, and clicking it empty-handed clears it. The filter
- * model's slot sits in a panel beside the window.
+ * model's slot sits in a panel beside the window, with its target model's, its Field Log's and the toggle for asking.
  */
 public class PortMenu extends AbstractContainerMenu {
     public static final int FILTER_X = 8, FILTER_Y = 40, INVENTORY_X = 8, INVENTORY_Y = 108;
-    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 48, MODEL_X = 179, MODEL_Y = 10;
-    /** The toggle for asking the network to make what it lacks, under the model slot. */
-    public static final int CRAFT_X = 178, CRAFT_Y = 30;
-    /** The model slot's index, after the filter's. */
-    public static final int MODEL = PortBlockEntity.FILTERS;
+    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 47, SIDE_H = 48, MODEL_X = 179, MODEL_Y = 10;
+    /** Beside the filter model's slot, the target model's; under them, the toggle for asking and the Field Log's slot. */
+    public static final int TARGET_X = 197, TARGET_Y = 10, CRAFT_X = 178, CRAFT_Y = 30, LOG_X = 197, LOG_Y = 31;
+    /** The side slots' indices, after the filter's. */
+    public static final int MODEL = PortBlockEntity.FILTERS, TARGET = MODEL + 1, LOG = MODEL + 2;
 
     public final BlockPos pos;
     public final ContainerData data;
     private final Container filter;
 
     public PortMenu(int id, Inventory inventory, BlockPos pos) {
-        this(id, inventory, pos, new SimpleContainer(PortBlockEntity.FILTERS), new SimpleContainer(1),
+        this(id, inventory, pos, new SimpleContainer(PortBlockEntity.FILTERS), new SimpleContainer(1), new SimpleContainer(2),
                 new SimpleContainerData(PortBlockEntity.DATA));
     }
 
-    public PortMenu(int id, Inventory inventory, BlockPos pos, Container filter, Container model, ContainerData data) {
+    public PortMenu(int id, Inventory inventory, BlockPos pos, Container filter, Container model, Container extras, ContainerData data) {
         super(ModMenus.PORT.get(), id);
         this.pos = pos;
         this.data = data;
@@ -54,6 +55,28 @@ public class PortMenu extends AbstractContainerMenu {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return isModel(stack);
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+        addSlot(new Slot(extras, PortBlockEntity.TARGET, TARGET_X, TARGET_Y) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return isModel(stack);
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+        addSlot(new Slot(extras, PortBlockEntity.LOG, LOG_X, LOG_Y) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getItem() instanceof FieldLogItem;
             }
 
             @Override
@@ -88,8 +111,8 @@ public class PortMenu extends AbstractContainerMenu {
     }
 
     /**
-     * Shift-clicking a model in the inventory puts it in the model slot, and the model back; any other stack names its
-     * kind in the first free filter slot.
+     * Shift-clicking a model in the inventory puts it in the first free model slot, a Field Log in its slot, and either
+     * back; any other stack names its kind in the first free filter slot.
      */
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
@@ -100,13 +123,14 @@ public class PortMenu extends AbstractContainerMenu {
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
-        if (index == MODEL) {
-            moveItemStackTo(stack, MODEL + 1, slots.size(), true);
+        if (index <= LOG) {
+            moveItemStackTo(stack, LOG + 1, slots.size(), true);
             slots.get(index).setChanged();
             return ItemStack.EMPTY;
         }
-        if (isModel(stack) && !slots.get(MODEL).hasItem()) {
-            moveItemStackTo(stack, MODEL, MODEL + 1, false);
+        if (isModel(stack) && !(slots.get(MODEL).hasItem() && slots.get(TARGET).hasItem())
+                || stack.getItem() instanceof FieldLogItem && !slots.get(LOG).hasItem()) {
+            moveItemStackTo(stack, MODEL, LOG + 1, false);
             slots.get(index).setChanged();
             return ItemStack.EMPTY;
         }

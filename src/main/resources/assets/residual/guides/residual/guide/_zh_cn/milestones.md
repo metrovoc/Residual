@@ -101,6 +101,8 @@ navigation:
 
 <residual:Milestone id="benchmark/survey">用<ItemLink id="survey_dataset" />练习；需要知道每个方块在行中位置的注意力。</residual:Milestone>
 
+<residual:Milestone id="benchmark/demand">用<ItemLink id="demand_dataset" />练习；这需要模型能沿着这一行往回看，找到它的节奏。</residual:Milestone>
+
 <residual:Milestone id="benchmark/pilot">用<ItemLink id="flight_dataset" />练习：核心用模型自己的选择去飞，需要一个能读回整次飞行的模型。</residual:Milestone>
 
 <residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习；需要一个大到无法随身携带的模型。</residual:Milestone>

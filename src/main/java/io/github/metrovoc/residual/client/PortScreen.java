@@ -91,6 +91,12 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
         if (!menu.getSlot(PortMenu.MODEL).hasItem()) {
             Ui.ghost(g, new ItemStack(ModItems.CHECKPOINT.get()), leftPos + PortMenu.MODEL_X, topPos + PortMenu.MODEL_Y);
         }
+        if (!menu.getSlot(PortMenu.TARGET).hasItem()) {
+            Ui.ghost(g, new ItemStack(ModItems.CHECKPOINT.get()), leftPos + PortMenu.TARGET_X, topPos + PortMenu.TARGET_Y);
+        }
+        if (!menu.getSlot(PortMenu.LOG).hasItem()) {
+            Ui.ghost(g, new ItemStack(ModItems.FIELD_LOG.get()), leftPos + PortMenu.LOG_X, topPos + PortMenu.LOG_Y);
+        }
         PortMode mode = mode();
         for (int i = 0; i < modes.size(); i++) {
             modes.get(i).active = i != mode.ordinal();
@@ -124,6 +130,18 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
         g.text(font, status, 8, VALUE_Y + 16, Ui.LABEL_DIM, false);
     }
 
+    /** What a side slot is for, while it is pointed at and empty, or for the target model what it expects. */
+    private void side(GuiGraphicsExtractor g, int index, String name, Component hint, int mouseX, int mouseY) {
+        Slot slot = menu.getSlot(index);
+        boolean says = index == PortMenu.TARGET && menu.data.get(PortBlockEntity.EXPECTS) >= 0;
+        if ((!slot.hasItem() || says) && Ui.inside(mouseX - leftPos, mouseY - topPos, slot.x, slot.y, 16, 16)) {
+            List<FormattedCharSequence> lines = new ArrayList<>();
+            lines.add(Component.translatable(name).getVisualOrderText());
+            lines.addAll(font.split(hint.copy().withStyle(ChatFormatting.GRAY), 200));
+            g.setTooltipForNextFrame(lines, mouseX, mouseY);
+        }
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractRenderState(g, mouseX, mouseY, a);
@@ -133,12 +151,12 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
                 g.setTooltipForNextFrame(font.split(Component.translatable("residual.port.filter_hint"), 200), mouseX, mouseY);
             }
         }
-        if (!menu.getSlot(PortMenu.MODEL).hasItem() && menu.getCarried().isEmpty()
-                && Ui.inside(mouseX - leftPos, mouseY - topPos, PortMenu.MODEL_X, PortMenu.MODEL_Y, 16, 16)) {
-            List<FormattedCharSequence> lines = new ArrayList<>();
-            lines.add(Component.translatable("residual.port.model").getVisualOrderText());
-            lines.addAll(font.split(Component.translatable("residual.port.model_hint").withStyle(ChatFormatting.GRAY), 200));
-            g.setTooltipForNextFrame(lines, mouseX, mouseY);
+        if (menu.getCarried().isEmpty()) {
+            side(g, PortMenu.MODEL, "residual.port.model", Component.translatable("residual.port.model_hint"), mouseX, mouseY);
+            int expects = menu.data.get(PortBlockEntity.EXPECTS);
+            side(g, PortMenu.TARGET, "residual.port.target", expects < 0 ? Component.translatable("residual.port.target_hint")
+                    : Component.translatable("residual.port.expects", Ui.count(expects)), mouseX, mouseY);
+            side(g, PortMenu.LOG, "residual.port.log", Component.translatable("residual.port.log_hint"), mouseX, mouseY);
         }
     }
 }

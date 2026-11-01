@@ -124,6 +124,14 @@ second at each thing its filter names, and if there is too little of it, in the 
 when stocking, in the network when exporting, it has the network make the rest: one job at a time for each thing, listed
 under **Jobs** like any other.
 
+A rule asks only once things are short, and a long job then runs late. A target model asks ahead. Put a checkpoint or a tuned
+<ItemLink id="relay_card" /> whose model passes Demand ([Models and Tests](models.md)) in the slot beside the filter model's.
+Every five seconds the Port writes down a digit for how much of each thing went out, and the model reads that line and
+writes the next eight looks. If it is sure of every one of them, the Port has what they add up to made before it is needed,
+on top of what it keeps; if it is not, the Port goes back to the rule. Point at the slot to see what it expects. A
+<ItemLink id="field_log" /> in the slot under it keeps a copy of these lines, and in a Model Core's data slot it is practice on your
+own base.
+
 ## Assemblers
 
 An <ItemLink id="assembler" /> on the network crafts one recipe from what the network keeps, and puts the result
