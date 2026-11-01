@@ -57,6 +57,8 @@ navigation:
 
 <residual:Milestone id="storage/portable">制造机用线性层光掩模制造它：<ItemLink id="portable_drive" />。</residual:Milestone>
 
+<residual:Milestone id="storage/search">把通过检索测试的模型放在存储终端窗口旁，搜索以 ? 开头：[存储](storage.md)。</residual:Milestone>
+
 <residual:Milestone id="storage/request">在存储终端里点击网络能做的东西，请求一个数量并开始：[存储](storage.md)。</residual:Milestone>
 
 ## 旧世界
@@ -112,6 +114,8 @@ navigation:
 <residual:Milestone id="benchmark/reversal">用<ItemLink id="errand_dataset" />练习。</residual:Milestone>
 
 <residual:Milestone id="benchmark/induction">用<ItemLink id="pattern_dataset" />练习；需要两层注意力。</residual:Milestone>
+
+<residual:Milestone id="benchmark/retrieval">用<ItemLink id="retrieval_dataset" />练习。</residual:Milestone>
 
 <residual:Milestone id="benchmark/sorting">用<ItemLink id="sorting_dataset" />练习。</residual:Milestone>
 

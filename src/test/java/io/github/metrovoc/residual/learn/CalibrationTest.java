@@ -1,12 +1,17 @@
 package io.github.metrovoc.residual.learn;
 
+import com.mojang.serialization.JsonOps;
 import io.github.metrovoc.residual.graph.CompileException;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Config;
 import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.model.Checkpoints;
+import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.tensor.Parallel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -14,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -270,6 +276,79 @@ class CalibrationTest {
         return g;
     }
 
+    /**
+     * Trains the Retrieval model a terminal's search slot would hold, prints how well a search does at each threshold among
+     * things it never practised and how long placing a thing takes, and keeps it where {@code /rehearsal model retrieval} finds it.
+     */
+    static void retrievalKept() throws Exception {
+        GraphSpec spec = Blueprints.gpt(32, 2, 4);
+        Task practice = Dataset.of(Benchmark.RETRIEVAL);
+        CompiledGraph g = CompiledGraph.compile(spec, new Env(practice.vocab, Vocab.CONTEXT), null, 1);
+        Wrecks.Settings st = Wrecks.Settings.DEFAULT;
+        Trainer tr = new Trainer(g, practice, 1, st.learningRate(), st.batchSize(), st.clip());
+        ForkJoinPool pool = new ForkJoinPool(4);
+        Trainer.Eval[] last = new Trainer.Eval[1];
+        int steps = Integer.parseInt(System.getenv().getOrDefault("RESIDUAL_STEPS", "4000"));
+        Parallel.with(pool, () -> {
+            for (int s = 1; s <= steps; s++) {
+                tr.train();
+                if (s % 250 == 0 || s == steps) {
+                    last[0] = Trainer.evaluate(g, practice, 8);
+                    System.out.printf("retrieval step %5d test %.3f%n", s, last[0].accuracy());
+                }
+            }
+        });
+        pool.shutdown();
+        // a search as a terminal does it: one query against things of every use, half of them never practised
+        Random rng = new Random(99);
+        float[] at = {0.2f, 0.3f, 0.36f, 0.5f, 0.7f};
+        int[] shownRight = new int[at.length], shownWrong = new int[at.length];
+        int fitting = 0, asked = 4000;
+        long t0 = System.nanoTime();
+        for (int i = 0; i < asked; i++) {
+            Retrieval.Example query, thing;
+            do {
+                query = Retrieval.example(rng, true);
+            } while (query.use() == Retrieval.Use.OTHER || !Retrieval.known(query.said()).isEmpty());
+            do {
+                thing = Retrieval.example(rng, true);
+            } while (thing.said().contains(" a ") || thing.said().startsWith("something"));
+            boolean fits = query.use() == thing.use() && thing.use() != Retrieval.Use.OTHER;
+            float fit = Retrieval.fit(Retrieval.place(g, query.said()), Retrieval.place(g, thing.said()));
+            fitting += fits ? 1 : 0;
+            for (int k = 0; k < at.length; k++) {
+                if (fit >= at[k]) {
+                    if (fits) {
+                        shownRight[k]++;
+                    } else {
+                        shownWrong[k]++;
+                    }
+                }
+            }
+        }
+        System.out.printf("one thread: %.2f ms a place%n", (System.nanoTime() - t0) / 1e6 / (2 * asked));
+        for (int k = 0; k < at.length; k++) {
+            System.out.printf("threshold %.2f: precision %.3f, recall %.3f (%d fitting of %d)%n", at[k],
+                    shownRight[k] / (double) Math.max(1, shownRight[k] + shownWrong[k]), shownRight[k] / (double) Math.max(1, fitting), fitting, asked);
+        }
+        for (String[] q : new String[][]{{"something to light a cave", "torch"}, {"something to light a cave", "soul lantern"}, {"something to light a cave", "lantern"},
+                {"something to light a cave", "cobblestone"}, {"something to light a cave", "iron pickaxe"}, {"something to light a cave", "copper lamp"},
+                {"something to eat", "baked potato"}, {"something to eat", "oak planks"}, {"cross the sea", "mangrove boat"}, {"something to mine with", "mithril pickaxe"}}) {
+            System.out.printf("%s / %s -> %.2f%n", q[0], q[1], Retrieval.fit(Retrieval.place(g, q[0]), Retrieval.place(g, q[1])));
+        }
+        Path kept = Path.of(System.getenv().getOrDefault("RESIDUAL_KEEP", "kept"));
+        Files.createDirectories(kept);
+        UUID id = UUID.randomUUID();
+        Files.write(kept.resolve("retrieval.dat"), Checkpoints.encode(g));
+        Map<String, Float> scores = new HashMap<>();
+        for (Benchmark a : Benchmark.values()) {
+            scores.put(a.id, a == Benchmark.RETRIEVAL ? (float) last[0].accuracy() : a.metric == Task.Metric.LOSS ? 99f : 0f);
+        }
+        ModelInfo info = new ModelInfo(id, g.parameterCount(), steps, scores, true);
+        Files.writeString(kept.resolve("retrieval.json"), ModelInfo.CODEC.encodeStart(JsonOps.INSTANCE, info).getOrThrow().toString());
+        System.out.println("kept in " + kept.toAbsolutePath());
+    }
+
     @Test
     void calibrate() throws Exception {
         String which = System.getenv("RESIDUAL_CALIBRATE");
@@ -367,6 +446,16 @@ class CalibrationTest {
         }
         if (all || runs.contains("sorting")) {
             run("sorting", Blueprints.gpt(32, 2, 4), Benchmark.SORTING, st, 3000, 250);
+        }
+        if (all || runs.contains("retrieval")) {
+            run("retrieval32", Blueprints.gpt(32, 2, 4), Benchmark.RETRIEVAL, st, 4000, 250);
+        }
+        if (runs.contains("small_retrieval")) {
+            run("retrieval_rev", Blueprints.reverse(), Benchmark.RETRIEVAL, st, 3000, 500);
+            run("retrieval_ctx", Blueprints.context(), Benchmark.RETRIEVAL, st, 3000, 500);
+        }
+        if (runs.contains("retrieval_keep")) {
+            retrievalKept();
         }
         if (runs.contains("small_sorting")) {
             run("sorting_rev", Blueprints.reverse(), Benchmark.SORTING, st, 3000, 500);

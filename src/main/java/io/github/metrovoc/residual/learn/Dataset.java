@@ -54,6 +54,7 @@ public final class Dataset extends Task {
                 case ORDERS -> orders(rng, seq, answer, test);
                 case SURVEY -> survey(rng, seq, answer);
                 case DEMAND -> demand(rng, seq, answer, test);
+                case RETRIEVAL -> retrieval(rng, seq, answer, test);
                 default -> throw new IllegalStateException();
             }
             int o = b * t;
@@ -173,6 +174,22 @@ public final class Dataset extends Task {
                 answer[text.length()] = true;
             }
             text.append(ex.kind().letter).append('\n');
+        }
+        for (int i = 0; i < seq.length; i++) {
+            seq[i] = vocab.id(text.charAt(i));
+        }
+    }
+
+    /** {@code soul lantern? l⏎something to eat? f⏎}, repeated: what each thing or query is for is the answer. */
+    private void retrieval(Random rng, int[] seq, boolean[] answer, boolean test) {
+        StringBuilder text = new StringBuilder();
+        while (text.length() < seq.length) {
+            Retrieval.Example ex = Retrieval.example(rng, test);
+            text.append(Retrieval.prompt(ex.said()));
+            if (text.length() < seq.length) {
+                answer[text.length()] = true;
+            }
+            text.append(ex.use().letter).append('\n');
         }
         for (int i = 0; i < seq.length; i++) {
             seq[i] = vocab.id(text.charAt(i));

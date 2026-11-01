@@ -1,0 +1,28 @@
+{
+  "parent": "residual:benchmark/retrieval",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:storage_terminal"
+    },
+    "title": {
+      "translate": "advancements.residual.storage.search.title"
+    },
+    "description": {
+      "translate": "advancements.residual.storage.search.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -143,6 +143,17 @@ public final class Sampler {
                             : Component.translatable("residual.sample.sorting.chest", kind.id));
             return new Demo(given, given + letter, labels(vocab, step.topIds()), floats(step.topProbs()), note);
         }
+        if (benchmark == Benchmark.RETRIEVAL) {
+            Retrieval.Example example = prompt.isBlank() ? Retrieval.example(rng, true) : null;
+            String given = Retrieval.prompt(example == null ? prompt : example.said());
+            Step step = generate(model, vocab.spell(given), 1, 0f, rng).getFirst();
+            char letter = vocab.piece(step.token()).charAt(0);
+            Retrieval.Use use = Retrieval.Use.of(letter);
+            Component note = (example == null ? Component.empty() : Component.translatable("residual.sample.really", example.use().id))
+                    .append(use == null || use == Retrieval.Use.OTHER ? Component.translatable("residual.sample.retrieval.nothing")
+                            : Component.translatable("residual.sample.retrieval.use", use.id));
+            return new Demo(given, given + letter, labels(vocab, step.topIds()), floats(step.topProbs()), note);
+        }
         if (benchmark == Benchmark.FORECASTING) {
             return forecast(model, rng);
         }

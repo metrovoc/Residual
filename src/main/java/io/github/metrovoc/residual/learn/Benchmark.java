@@ -57,7 +57,13 @@ public enum Benchmark {
      * Watch: whether something has gone wrong with a thing, from how much what it did surprises a model that has practised only
      * on things going well.
      */
-    WATCH(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
+    WATCH(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Retrieval: what a thing is for, by its name, and what a query wants, in the one space of uses a terminal compares them
+     * in. The test names only things practice never does, some of them made up. A context model stays near 29%, one layer of
+     * attention reaches 91% in 3,000 steps, and a two-block transformer 32 wide passes in about 1,250.
+     */
+    RETRIEVAL(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */

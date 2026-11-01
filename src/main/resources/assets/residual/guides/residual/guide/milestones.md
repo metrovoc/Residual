@@ -70,6 +70,9 @@ its relays: <ItemLink id="access_point" />.</residual:Milestone>
 
 <residual:Milestone id="storage/portable">The Fabricator makes it from a linear layer photomask: <ItemLink id="portable_drive" />.</residual:Milestone>
 
+<residual:Milestone id="storage/search">Put a model that passes Retrieval beside a Storage Terminal's window, and start a
+search with ?: [Storage](storage.md).</residual:Milestone>
+
 <residual:Milestone id="storage/request">Click something the network can make in a Storage Terminal, ask for an amount
 and start it: [Storage](storage.md).</residual:Milestone>
 
@@ -135,6 +138,8 @@ practise for each.
 
 <residual:Milestone id="benchmark/induction">Practise on the <ItemLink id="pattern_dataset" />; it takes two layers of
 attention.</residual:Milestone>
+
+<residual:Milestone id="benchmark/retrieval">Practise on the <ItemLink id="retrieval_dataset" />.</residual:Milestone>
 
 <residual:Milestone id="benchmark/sorting">Practise on the <ItemLink id="sorting_dataset" />.</residual:Milestone>
 

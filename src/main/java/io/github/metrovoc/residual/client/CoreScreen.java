@@ -6,6 +6,7 @@ import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Kinds;
+import io.github.metrovoc.residual.learn.Retrieval;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.learn.Wrecks;
@@ -156,16 +157,19 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> {
                     CoreView.sample = null;
                     rebuild();
                 }));
-                boolean typed = lastBenchmark == Benchmark.ORDERS || lastBenchmark == Benchmark.SORTING || lastBenchmark == Benchmark.READING;
+                boolean typed = lastBenchmark == Benchmark.ORDERS || lastBenchmark == Benchmark.SORTING || lastBenchmark == Benchmark.READING
+                        || lastBenchmark == Benchmark.RETRIEVAL;
                 if (lastBenchmark == Benchmark.READING) {
                     addRenderableWidget(new Cycler(x + 150, y + 24, 76, Component.translatable("residual.sample.temperature"),
                             TEMPERATURES, lastTemperature, i -> lastTemperature = i));
                 }
                 if (typed) {
                     prompt = addRenderableWidget(new EditBox(font, x + 6, y + 44, 308, 16, Component.translatable("residual.sample.prompt")));
-                    prompt.setMaxLength(lastBenchmark == Benchmark.ORDERS ? 60 : lastBenchmark == Benchmark.SORTING ? Kinds.LONGEST : 200);
+                    prompt.setMaxLength(lastBenchmark == Benchmark.ORDERS ? 60 : lastBenchmark == Benchmark.SORTING ? Kinds.LONGEST
+                            : lastBenchmark == Benchmark.RETRIEVAL ? Retrieval.LONGEST : 200);
                     prompt.setHint(Component.translatable(lastBenchmark == Benchmark.ORDERS ? "residual.try.order_hint"
-                            : lastBenchmark == Benchmark.SORTING ? "residual.try.thing_hint" : "residual.try.text_hint").withColor(Ui.DIM));
+                            : lastBenchmark == Benchmark.SORTING ? "residual.try.thing_hint"
+                            : lastBenchmark == Benchmark.RETRIEVAL ? "residual.try.want_hint" : "residual.try.text_hint").withColor(Ui.DIM));
                 }
                 String label = lastBenchmark == Benchmark.READING ? "residual.try.write" : typed ? "residual.try.ask" : "residual.try.example";
                 generate = addRenderableWidget(Button.builder(Component.translatable(label), b -> {
