@@ -31,6 +31,7 @@
     "residual:forecaster",
     "residual:forecaster_ii",
     "residual:surveyor",
+    "residual:watch_post",
     "residual:combustion_generator",
     "residual:energy_cell",
     "residual:smelter",

@@ -13,6 +13,7 @@ item_ids:
   - process_dataset
   - survey_dataset
   - demand_dataset
+  - watch_dataset
   - flight_dataset
 ---
 
@@ -36,6 +37,7 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Survey    | <ItemLink id="survey_dataset" />        | rows of ground, and where the first of an ore lies | 90%         | the Surveyor |
 | Pilot     | <ItemLink id="flight_dataset" />        | flights in each wind, held at 90% of their looks   | 90%         | the flight frame |
 | Demand    | <ItemLink id="demand_dataset" />        | what a Port moved out at each look, in rhythms     | 90%         | a Port's target |
+| Watch     | <ItemLink id="watch_dataset" />         | things going well; the test has some gone wrong     | 90%         | the Watch Post |
 
 Hover over a benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
 example, the way an agent would ask it.

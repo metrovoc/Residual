@@ -9,6 +9,7 @@ import io.github.metrovoc.residual.tensor.Tokens;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import net.minecraft.network.chat.Component;
 
@@ -150,6 +151,15 @@ public final class Sampler {
             Played.Episode episode = played.demo(model, rng);
             return new Demo("", episode.line.toString(), List.of("0", "1", "2"), played.first(model, 1),
                     Component.translatable("residual.sample." + benchmark.id, Math.round(100 * episode.score())));
+        }
+        if (benchmark == Benchmark.WATCH) {
+            Watch.Example ex = Watch.example(rng, true);
+            int[] ids = vocab.spell(ex.line());
+            Step last = generate(model, ids, 1, 0f, rng).getFirst();
+            String says = Watch.judge(Watch.surprise(model, ex.line())).name().toLowerCase(Locale.ROOT);
+            Component note = Component.translatable(ex.fault() == null ? "residual.sample.watch.really_fine" : "residual.sample.watch.really_wrong")
+                    .append(" ").append(Component.translatable("residual.sample.watch." + says));
+            return new Demo(ex.line(), ex.line(), labels(vocab, last.topIds()), floats(last.topProbs()), note);
         }
         if (benchmark != Benchmark.READING) {
             return puzzle(model, Dataset.of(benchmark), rng);

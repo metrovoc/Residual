@@ -126,6 +126,12 @@ where each block stands in a row.</residual:Milestone>
 <residual:Milestone id="benchmark/demand">Practise on the <ItemLink id="demand_dataset" />; it takes a model that looks back
 along the line to find its rhythm.</residual:Milestone>
 
+<residual:Milestone id="benchmark/watch">Practise on the <ItemLink id="watch_dataset" />, which only ever shows things going
+well, until what goes wrong surprises the model.</residual:Milestone>
+
+<residual:Milestone id="watch/noticed">Keep a <ItemLink id="watch_post" /> near your machines, and be close when one of them
+stops.</residual:Milestone>
+
 <residual:Milestone id="benchmark/pilot">Practise on the <ItemLink id="flight_dataset" />: the Core flies the model's own
 flights, and it takes a model that reads the flight back to its start.</residual:Milestone>
 

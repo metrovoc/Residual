@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "S": "minecraft:spyglass",
+    "K": "residual:tensor_casing",
+    "W": "residual:weight_crystal",
+    "C": "minecraft:comparator"
+  },
+  "pattern": [
+    "GSG",
+    "KWK",
+    "KCK"
+  ],
+  "result": {
+    "id": "residual:watch_post"
+  }
+}

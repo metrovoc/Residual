@@ -1,0 +1,28 @@
+{
+  "parent": "residual:benchmark/watch",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:watch_post"
+    },
+    "title": {
+      "translate": "advancements.residual.watch.noticed.title"
+    },
+    "description": {
+      "translate": "advancements.residual.watch.noticed.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

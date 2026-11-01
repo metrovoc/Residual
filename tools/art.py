@@ -942,6 +942,16 @@ def forecaster_front(step=None, ramp=None, every=4):
 # the ground in the Surveyor's window: where its ores lie, and the colour each shows once found
 SURVEY_ORES = [(5, 5, "d8af93"), (9, 6, "fcdb3a"), (6, 8, "3a3a3a"), (10, 9, "e07a4a"), (4, 10, "ff4a4a"), (8, 11, "4ae8e0")]
 # a core drill: the bit going down, its cutting edges in the block's hue
+WATCH_GLYPH = [
+    "#..#..+.",
+    "#..#..+.",
+    "#..#..+.",
+    "########",
+    "........",
+    "...##...",
+    "...++...",
+]
+
 SURVEY_PROBE = [
     "########",
     ".#.++.#.",
@@ -971,6 +981,29 @@ def surveyor_front(step=None):
     if line is not None:
         for x in range(4, 12):
             c.px(x, line, AMETHYST[4])
+    return c
+
+
+def watch_post_front(step=None):
+    """A lens in its bezel, looking out: a dim pupil while all is well; while something is wrong it burns and pulses."""
+    c = plate(salt=33)
+    window(c, salt=33)
+    edge(c, 3, 3, 12, 12, CORAL[2], mix(CORAL[2], CORAL[1], .45), 37)
+    for y in range(4, 12):
+        for x in range(4, 12):
+            c.px(x, y, mix(W1, STONE[0], .25))
+    ring = CORAL[4] if step is not None and step % 2 == 0 else CORAL[3] if step is not None else mix(TEAL[2], W1, .4)
+    for x, y in ((6, 5), (7, 5), (8, 5), (9, 5), (5, 6), (10, 6), (5, 7), (10, 7), (5, 8), (10, 8), (5, 9), (10, 9), (6, 10), (7, 10), (8, 10), (9, 10)):
+        c.px(x, y, ring)
+    pupil = CORAL[5] if step is not None else TEAL[3]
+    for x, y in ((7, 7), (8, 7), (7, 8), (8, 8)):
+        c.px(x, y, pupil)
+    return c
+
+
+def watch_post_side():
+    c = plate(salt=34)
+    engraved_glyph(c, WATCH_GLYPH, CORAL)
     return c
 
 
@@ -1537,9 +1570,18 @@ def punch(c, rows, x0=4, y0=5):
 
 # one color per benchmark, on its dataset's stripe
 BENCHMARK_COLORS = {"forecast": hue_ramp(85), "storage": AMBER, "errand": AZURE, "pattern": AMETHYST, "orders": TEAL,
-                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110), "flight": AZURE, "demand": hue_ramp(20)}
+                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110), "flight": AZURE, "demand": hue_ramp(20), "watch": hue_ramp(350)}
 # what each dataset practices, punched into the card
 DATASET_HOLES = {
+    "watch": [
+        "..#..#..",
+        "..#..#..",
+        ".##.##..",
+        "########",
+        "#.......",
+        "#...#...",
+        "........",
+    ],
     "demand": [
         "#..#..#.",
         "#..#..#.",
@@ -2766,6 +2808,7 @@ def build():
     one_sided = {f"block/{op}_{face}.png" for op in ONE_SIDED for face in ("front", "side", "back")}
     data = {"block/forecaster_front", "block/forecaster_front_on", "block/forecaster_ii_front", "block/forecaster_ii_front_on",
             "block/surveyor_front", "block/surveyor_front_on",
+            "block/watch_post_front", "block/watch_post_front_on",
             "block/reader_front", "block/reader_front_on",
             "block/bpe_forge_front_on", "block/storage_terminal_front_on", "block/model_core_side_on",
             "block/model_server_front_on", "block/drive_cartridge", "block/relay"}
@@ -2790,6 +2833,10 @@ def build():
     surveyor_front().save("block/surveyor_front.png")
     lit("block/surveyor_front_on.png", [surveyor_front(i) for i in range(8)], [surveyor_front()], 3)
     surveyor_side().save("block/surveyor_side.png")
+    watch_post_front().save("block/watch_post_front.png")
+    lit("block/watch_post_front_on.png", [watch_post_front(i) for i in range(2)], [watch_post_front()], 6)
+    watch_post_side().save("block/watch_post_side.png")
+    machine_top(63).save("block/watch_post_top.png")
     machine_top(61).save("block/surveyor_top.png")
     smelter_front(False).save("block/smelter_front.png")
     lit("block/smelter_front_on.png", [smelter_front(True)], [smelter_front(False)])

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/watch_post_side",
+    "north": "residual:block/watch_post_front",
+    "south": "residual:block/watch_post_side",
+    "east": "residual:block/watch_post_side",
+    "west": "residual:block/watch_post_side",
+    "up": "residual:block/watch_post_top",
+    "down": "residual:block/machine_back"
+  }
+}

@@ -110,6 +110,7 @@ public final class ModItems {
             case SURVEY -> "survey_dataset";
             case PILOT -> "flight_dataset";
             case DEMAND -> "demand_dataset";
+            case WATCH -> "watch_dataset";
             case READING -> throw new IllegalArgumentException();
         };
     }

@@ -17,10 +17,12 @@ import io.github.metrovoc.residual.net.CraftPlanSync;
 import io.github.metrovoc.residual.net.CraftTreeSync;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
+import io.github.metrovoc.residual.net.WatchSync;
 import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModMenus;
+import io.github.metrovoc.residual.menu.WatchPostMenu;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +73,7 @@ public final class ResidualClient {
         event.register(ModMenus.AGENT.get(), AgentScreen::new);
         event.register(ModMenus.READER.get(), ReaderScreen::new);
         event.register(ModMenus.SURVEYOR.get(), SurveyorScreen::new);
+        event.register(ModMenus.WATCH_POST.get(), WatchPostScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
         event.register(ModMenus.POWER.get(), PowerScreen::new);
         event.register(ModMenus.FORGE.get(), ForgeScreen::new);
@@ -126,6 +129,11 @@ public final class ResidualClient {
                     menu.tree = tree.rows();
                 }
                 menu.treeDone = tree.done();
+            }
+        });
+        event.register(WatchSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof WatchPostMenu menu && menu.containerId == sync.menu()) {
+                menu.rows = sync.rows();
             }
         });
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {

@@ -21,11 +21,11 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand"]
+BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch"]
 DATASETS = {"forecast_dataset": "minecraft:clock", "storage_dataset": "minecraft:chest",
             "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
             "orders_dataset": "minecraft:writable_book", "process_dataset": "minecraft:raw_iron", "survey_dataset": "minecraft:flint",
-            "flight_dataset": "minecraft:feather", "demand_dataset": "minecraft:hopper"}
+            "flight_dataset": "minecraft:feather", "demand_dataset": "minecraft:hopper", "watch_dataset": "minecraft:spyglass"}
 SCHEMATICS = ["schematic_relays"]
 # see storage/PortMode.java
 PORT_MODES = ["import", "export", "stock", "window"]
@@ -509,7 +509,7 @@ def power():
 # ---------------------------------------------------------------- data
 
 MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream",
-                  "bpe_forge", "forecaster", "forecaster_ii", "surveyor", "combustion_generator", "energy_cell", "smelter", "power_cable",
+                  "bpe_forge", "forecaster", "forecaster_ii", "surveyor", "watch_post", "combustion_generator", "energy_cell", "smelter", "power_cable",
                   "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor"]
 
 
@@ -576,6 +576,8 @@ def recipes():
     shapeless("tokenizer", ["minecraft:paper", "minecraft:paper", "minecraft:ink_sac", "minecraft:amethyst_shard"], 2)
     for dataset, part in DATASETS.items():
         shapeless(dataset, ["minecraft:paper", "minecraft:paper", "minecraft:redstone", part])
+    shaped("watch_post", ["GSG", "KWK", "KCK"], {"G": "minecraft:glass_pane", "S": "minecraft:spyglass", "K": rid("tensor_casing"),
+                                                 "W": rid("weight_crystal"), "C": "minecraft:comparator"})
     shaped("forecaster", ["GLG", "KWK", "KCK"], {"G": "minecraft:glass_pane", "L": "minecraft:clock", "K": rid("tensor_casing"),
                                                  "W": rid("weight_crystal"), "C": "minecraft:composter"})
     shaped("combustion_generator", ["KCK", "IFI", "KRK"], {"K": rid("tensor_casing"), "C": "minecraft:copper_block",
@@ -668,6 +670,7 @@ def advancements():
     advancement("forecast/hourglass", "forecast/ahead", "hourglass", awarded(), frame="goal")
     advancement("forecast/deep", "forecast/ahead", "forecaster_ii", awarded(), frame="goal")
     advancement("survey/found", "benchmark/survey", "surveyor", awarded(), frame="goal")
+    advancement("watch/noticed", "benchmark/watch", "watch_post", awarded(), frame="goal")
     advancement("flight/frame", "benchmark/pilot", "flight_frame", awarded(), frame="goal")
     advancement("power/generator", "root", "combustion_generator", placed("combustion_generator"))
     advancement("power/smelter", "power/generator", "smelter", awarded(), frame="goal")
@@ -707,6 +710,7 @@ if __name__ == "__main__":
     forecaster()
     forecaster("forecaster_ii")
     forecaster("surveyor")
+    forecaster("watch_post")
     power()
     storage()
     stream()

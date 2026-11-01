@@ -12,6 +12,7 @@ import io.github.metrovoc.residual.block.ForgeBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
 import io.github.metrovoc.residual.block.SurveyorBlockEntity;
+import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.block.RelayBlockEntity;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
 import io.github.metrovoc.residual.storage.AssemblerBlockEntity;
@@ -68,6 +69,8 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(CellBlockEntity::new, Set.of(ModBlocks.ENERGY_CELL.get())));
     public static final Supplier<BlockEntityType<SurveyorBlockEntity>> SURVEYOR = BLOCK_ENTITIES.register("surveyor",
             () -> new BlockEntityType<>(SurveyorBlockEntity::new, Set.of(ModBlocks.SURVEYOR.get())));
+    public static final Supplier<BlockEntityType<WatchPostBlockEntity>> WATCH_POST = BLOCK_ENTITIES.register("watch_post",
+            () -> new BlockEntityType<>(WatchPostBlockEntity::new, Set.of(ModBlocks.WATCH_POST.get())));
     public static final Supplier<BlockEntityType<SmelterBlockEntity>> SMELTER = BLOCK_ENTITIES.register("smelter",
             () -> new BlockEntityType<>(SmelterBlockEntity::new, Set.of(ModBlocks.SMELTER.get())));
 

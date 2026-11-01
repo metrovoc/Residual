@@ -1,5 +1,7 @@
 package io.github.metrovoc.residual.model;
 
+import io.github.metrovoc.residual.graph.CompiledGraph;
+
 import io.github.metrovoc.residual.ResidualConfig;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
 import io.github.metrovoc.residual.item.CrystalItem;
@@ -9,6 +11,7 @@ import io.github.metrovoc.residual.registry.ModComponents;
 import io.github.metrovoc.residual.world.Relays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
@@ -79,6 +82,15 @@ public sealed interface ModelLink {
         switch (this) {
             case Onboard o -> Models.ask(level.getServer(), o.info().id(), prompt, max, stop, reply);
             case Served s -> s.server().ask(prompt, max, stop, reply);
+            case Missing m -> reply.accept(null);
+        }
+    }
+
+    /** Runs {@code work} on the model, off the server thread; {@code reply} runs on the server thread, with null if it could not. */
+    default <T> void submit(ServerLevel level, Function<CompiledGraph, T> work, Consumer<@Nullable T> reply) {
+        switch (this) {
+            case Onboard o -> Models.submit(level.getServer(), o.info().id(), work, reply);
+            case Served s -> s.server().submit(work, reply);
             case Missing m -> reply.accept(null);
         }
     }

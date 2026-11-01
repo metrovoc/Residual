@@ -573,7 +573,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /** Ticks an item takes in a machine it can watch, or -1 for a block that is not one. */
-    private static int cook(BlockEntity be) {
+    static int cook(BlockEntity be) {
         if (be instanceof AbstractFurnaceBlockEntity furnace) {
             int total = furnace.dataAccess.get(AbstractFurnaceBlockEntity.DATA_COOKING_TOTAL_TIME);
             return total > 0 ? total : be.getType() == BlockEntityType.FURNACE ? 200 : 100;
@@ -598,7 +598,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     /** How many ticks a machine is into the item it is making. */
-    private static int timer(BlockEntity be) {
+    static int timer(BlockEntity be) {
         if (be instanceof AbstractFurnaceBlockEntity furnace) {
             return furnace.dataAccess.get(AbstractFurnaceBlockEntity.DATA_COOKING_PROGRESS);
         }

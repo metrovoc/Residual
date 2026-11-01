@@ -103,6 +103,10 @@ navigation:
 
 <residual:Milestone id="benchmark/demand">用<ItemLink id="demand_dataset" />练习；这需要模型能沿着这一行往回看，找到它的节奏。</residual:Milestone>
 
+<residual:Milestone id="benchmark/watch">用<ItemLink id="watch_dataset" />练习，它只展示一切正常的情况，直到出问题的情况能让模型感到意外。</residual:Milestone>
+
+<residual:Milestone id="watch/noticed">在机器旁放一个<ItemLink id="watch_post" />，并在其中一台停下时待在附近。</residual:Milestone>
+
 <residual:Milestone id="benchmark/pilot">用<ItemLink id="flight_dataset" />练习：核心用模型自己的选择去飞，需要一个能读回整次飞行的模型。</residual:Milestone>
 
 <residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习；需要一个大到无法随身携带的模型。</residual:Milestone>

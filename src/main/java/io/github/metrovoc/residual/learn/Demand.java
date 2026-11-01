@@ -24,7 +24,7 @@ public final class Demand {
     private static final long[] MOST = {0, 16, 64, 256, 1024};
     /** The most looks a rhythm takes to come round: a minute. */
     private static final int LONGEST = 12;
-    private static final float SLIP = 0.02f;
+    private static final float SLIP = 0.01f;
 
     /** A line of looks, and where it has shown enough of itself to be scored. */
     public record Line(String looks, int scoredFrom) {
@@ -59,27 +59,44 @@ public final class Demand {
     }
 
     /**
-     * A line as a base draws: bursts of one size on a quieter steady draw, coming round in a rhythm, or one steady draw, and
-     * now and then a look that does not fit. The test's mixes of rhythm, burst and draw are ones practice never shows.
+     * How a base draws: bursts of one size on a quieter steady draw, coming round in a rhythm, or one steady draw, and now and
+     * then a look that does not fit. The test's mixes of rhythm, burst and draw are ones practice never shows.
      */
+    record Rhythm(int period, int width, int quiet, int burst, boolean steady, int phase) {
+        static Rhythm draw(Random rng, boolean test) {
+            int period, width, quiet, burst;
+            do {
+                period = 2 + rng.nextInt(LONGEST - 1);
+                width = 1 + rng.nextInt(Math.min(3, period - 1));
+                quiet = rng.nextInt(3) == 0 ? 1 : 0;
+                burst = quiet + 1 + rng.nextInt(MOST.length - 1 - quiet);
+            } while ((period * 7 + width * 3 + quiet * 5 + burst) % 5 == 0 != test);
+            return new Rhythm(period, width, quiet, burst, rng.nextInt(8) == 0, rng.nextInt(period));
+        }
+
+        /** The digit it means for look {@code i}, as if it took {@code stretch} times as long to come round. */
+        int digit(int i, int stretch) {
+            return steady || (i + phase) % (period * stretch) < width ? burst : quiet;
+        }
+
+        /** How many looks it takes to show itself. */
+        int shown() {
+            return steady ? 2 : 2 * period + 1;
+        }
+    }
+
+    /** The digit for a look, or now and then one that does not fit. */
+    static char slip(Random rng, int digit) {
+        return (char) ('0' + (rng.nextFloat() < SLIP ? rng.nextInt(MOST.length) : digit));
+    }
+
+    /** A line of {@code length} looks. */
     static Line line(Random rng, int length, boolean test) {
-        int period, width, quiet, burst;
-        do {
-            period = 2 + rng.nextInt(LONGEST - 1);
-            width = 1 + rng.nextInt(Math.min(3, period - 1));
-            quiet = rng.nextInt(3) == 0 ? 1 : 0;
-            burst = quiet + 1 + rng.nextInt(MOST.length - 1 - quiet);
-        } while ((period * 7 + width * 3 + quiet * 5 + burst) % 5 == 0 != test);
-        boolean steady = rng.nextInt(8) == 0;
-        int phase = rng.nextInt(period);
+        Rhythm rhythm = Rhythm.draw(rng, test);
         StringBuilder looks = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
-            int d = steady || (i + phase) % period < width ? burst : quiet;
-            if (rng.nextFloat() < SLIP) {
-                d = rng.nextInt(MOST.length);
-            }
-            looks.append((char) ('0' + d));
+            looks.append(slip(rng, rhythm.digit(i, 1)));
         }
-        return new Line(looks.toString(), steady ? 2 : 2 * period + 1);
+        return new Line(looks.toString(), rhythm.shown());
     }
 }

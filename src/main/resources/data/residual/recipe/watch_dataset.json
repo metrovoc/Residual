@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:paper",
+    "minecraft:paper",
+    "minecraft:redstone",
+    "minecraft:spyglass"
+  ],
+  "result": {
+    "id": "residual:watch_dataset"
+  }
+}

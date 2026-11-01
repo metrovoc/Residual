@@ -67,6 +67,7 @@ public final class Network {
         r.playToClient(CraftPlanSync.TYPE, CraftPlanSync.STREAM_CODEC);
         r.playToClient(CraftJobsSync.TYPE, CraftJobsSync.STREAM_CODEC);
         r.playToClient(CraftTreeSync.TYPE, CraftTreeSync.STREAM_CODEC);
+        r.playToClient(WatchSync.TYPE, WatchSync.STREAM_CODEC);
     }
 
     private static void onFindRuin(FindRuin f, IPayloadContext ctx) {

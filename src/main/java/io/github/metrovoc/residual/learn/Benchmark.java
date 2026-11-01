@@ -52,7 +52,12 @@ public enum Benchmark {
      * practice never shows. Counting models stay near 60%, one layer of attention near 78% and Induction's two near 89%; a
      * two-block transformer 32 wide passes in about 1,500 steps.
      */
-    DEMAND(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
+    DEMAND(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Watch: whether something has gone wrong with a thing, from how much what it did surprises a model that has practised only
+     * on things going well.
+     */
+    WATCH(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */
@@ -71,9 +76,12 @@ public enum Benchmark {
         return this == READING ? Archive.test(vocab) : practice();
     }
 
-    /** What a dataset of this benchmark practises on: Control and Pilot play their own episodes with the model they practise. */
+    /**
+     * What a dataset of this benchmark practises on: Control and Pilot play their own episodes with the model they practise, and
+     * Watch practises on things going well and is tested on things going wrong.
+     */
     public Task practice() {
-        return this == CONTROL ? new Control() : this == PILOT ? new Pilot() : Dataset.of(this);
+        return this == CONTROL ? new Control() : this == PILOT ? new Pilot() : this == WATCH ? new Watching() : Dataset.of(this);
     }
 
     public static Benchmark byId(String id) {

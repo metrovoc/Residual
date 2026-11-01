@@ -124,7 +124,7 @@ class CalibrationTest {
     }
 
     static void run(String label, GraphSpec spec, Benchmark a, Wrecks.Settings st, int steps, int every) throws Exception {
-        Task practice = a == Benchmark.READING ? reading() : Dataset.of(a);
+        Task practice = a == Benchmark.READING ? reading() : a.practice();
         run(label, spec, practice, List.of(a), a.target, st, steps, every);
     }
 
@@ -340,6 +340,13 @@ class CalibrationTest {
             run("demand_recall", Blueprints.recall(), Benchmark.DEMAND, st, 2000, 250);
             run("demand_induction", Blueprints.induction(), Benchmark.DEMAND, st, 2000, 250);
             run("demand_gpt32", Blueprints.gpt(32, 2, 4), Benchmark.DEMAND, st, 2000, 250);
+        }
+        if (all || runs.contains("watch")) {
+            run("watch_recall", Blueprints.recall(), Benchmark.WATCH, st, 1000, 500);
+            run("watch_induction", Blueprints.induction(), Benchmark.WATCH, st, 2000, 500);
+        }
+        if (all || runs.contains("watch_gpt32")) {
+            run("watch_gpt32", Blueprints.gpt(32, 2, 4), Benchmark.WATCH, st, 3000, 500);
         }
         if (all || runs.contains("survey")) {
             run("survey_context", Blueprints.context(), Benchmark.SURVEY, st, 1500, 250);
