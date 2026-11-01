@@ -24,6 +24,8 @@
     "residual:model_server",
     "residual:reader",
     "residual:relay",
+    "residual:relay_gate",
+    "residual:relay_link",
     "residual:bench",
     "residual:fabricator",
     "residual:stream",

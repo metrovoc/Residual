@@ -4,7 +4,14 @@ import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
+import io.github.metrovoc.residual.block.ServerBlockEntity;
+import io.github.metrovoc.residual.learn.Benchmark;
+import io.github.metrovoc.residual.model.ModelInfo;
+import io.github.metrovoc.residual.registry.ModBlocks;
+import io.github.metrovoc.residual.registry.ModComponents;
+import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
+import io.github.metrovoc.residual.world.Relays;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,11 +19,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -29,14 +38,15 @@ import org.slf4j.Logger;
 /**
  * A large base on a dedicated server, for the tick time each release records: {@link #PAIRS} pairs of Ports, one
  * exporting into a chest and one importing from it, so items never stop moving; {@link #AGENTS} agents walking their
- * rounds; {@link #FORECASTERS} Forecasters among working furnaces; and a two-block transformer training at full speed.
- * It lets the base settle for a minute, logs the next minute's tick times and stops the server. The {@code stress} run
- * turns it on.
+ * rounds; {@link #FORECASTERS} Forecasters among working furnaces; a two-block transformer training at full speed; and a
+ * relay network of {@link #MASTS} masts, each keeping its chunks loaded, with Ports at its far end whose items all cross a
+ * Relay Link. It lets the base settle for a minute, logs the next minute's tick times and stops the server. The
+ * {@code stress} run turns it on.
  */
 @EventBusSubscriber(modid = Residual.MOD_ID)
 public final class Stress {
     private static final Logger LOG = LogUtils.getLogger();
-    private static final int PAIRS = 128, ROW = 16, AGENTS = 256, FORECASTERS = 32;
+    private static final int PAIRS = 128, ROW = 16, AGENTS = 256, FORECASTERS = 32, MASTS = 32, FAR_PAIRS = 8;
     private static final int SETTLE = 1200, MEASURE = 1200;
     /** The ground of a flat world. */
     private static final int Y = -60;
@@ -117,10 +127,54 @@ public final class Stress {
             be.setSpeed(2);
             be.start(FakePlayerFactory.getMinecraft(level));
         }
+        relays(server, level);
         ticks = new long[MEASURE];
         seen = -SETTLE;
         LOG.info("[stress] {} Ports, {} agents, {} Forecasters and {} furnaces, a training run", PORTS.size(),
                 level.getEntitiesOfClass(Agent.class, new AABB(-64, -64, -64, 256, 64, 256)).size(), FORECASTERS, FORECASTERS * 4);
+    }
+
+    /**
+     * A served model that opens its network, masts out along a line, a Relay Link on the first row's rack, and at the far end
+     * another with Port pairs on it. No one asks the model anything, so the checkpoint need hold no real one.
+     */
+    private static void relays(MinecraftServer server, ServerLevel level) {
+        int x = -10, z = -10;
+        command(server, "fill %d %d %d %d %d %d minecraft:water".formatted(x - 1, Y - 1, z - 1, x + 1, Y - 1, z + 1));
+        command(server, "setblock %d %d %d residual:model_server[facing=north]".formatted(x, Y, z));
+        command(server, "setblock %d %d %d residual:accelerator".formatted(x + 1, Y, z));
+        command(server, "setblock %d %d %d residual:accelerator".formatted(x - 1, Y, z));
+        command(server, "setblock %d %d %d residual:accelerator".formatted(x, Y, z + 1));
+        if (level.getBlockEntity(new BlockPos(x, Y, z)) instanceof ServerBlockEntity model) {
+            ItemStack checkpoint = new ItemStack(ModItems.CHECKPOINT.get());
+            checkpoint.set(ModComponents.MODEL.get(), new ModelInfo(UUID.randomUUID(), 113_742, 1, Map.of(Benchmark.ORDERS.id, 1f), true));
+            model.swap(checkpoint);
+        }
+        command(server, "setblock -2 %d 0 residual:relay_link".formatted(Y));
+        int mast = x;
+        for (int i = 0; i < MASTS; i++) {
+            mast += i == 0 ? 272 : 512;
+            level.getChunk(new BlockPos(mast, Y, z));
+            for (int y = 0; y < 8; y++) {
+                level.setBlockAndUpdate(new BlockPos(mast, Y + y, z), ModBlocks.RELAY.get().defaultBlockState());
+            }
+        }
+        BlockPos link = new BlockPos(mast + 8, Y, z);
+        for (int cx = link.getX() >> 4; cx <= link.getX() + FAR_PAIRS * 2 >> 4; cx++) {
+            level.setChunkForced(cx, z >> 4, true);
+            level.getChunk(cx, z >> 4);
+        }
+        level.setBlockAndUpdate(link, ModBlocks.RELAY_LINK.get().defaultBlockState());
+        for (int i = 0; i < FAR_PAIRS; i++) {
+            int fx = link.getX() + i * 2;
+            command(server, "fill %d %d %d %d %d %d residual:storage_link".formatted(fx, Y, z + 1, fx + 1, Y, z + 1));
+            command(server, ("setblock %d %d %d residual:port[facing=south,mode=export]"
+                    + "{filter:{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:1}]}}").formatted(fx, Y, z + 2));
+            command(server, "setblock %d %d %d minecraft:chest[facing=north]".formatted(fx, Y, z + 3));
+            command(server, "item replace block %d %d %d container.0 with minecraft:cobblestone 64".formatted(fx, Y, z + 3));
+            command(server, "setblock %d %d %d residual:storage_link".formatted(fx + 1, Y, z + 2));
+            command(server, "setblock %d %d %d residual:port[facing=west,mode=import]".formatted(fx + 1, Y, z + 3));
+        }
     }
 
     private static int moved() {
@@ -157,6 +211,10 @@ public final class Stress {
             } else {
                 LOG.info("[stress] in the last second {} items moved through Ports and {} of {} agents moved", moved(),
                         agents.stream().filter(a -> a.position().distanceToSqr(places.get(a)) > 0.25).count(), agents.size());
+                for (Relays.Net net : Relays.of(server).all()) {
+                    LOG.info("[stress] a relay network of {} parts, {} answers a second: {} items a second over its links, open {}",
+                            net.parts.size(), net.capacity(), net.itemsPerSecond(), net.open());
+                }
             }
         }
         if (seen == MEASURE) {

@@ -140,6 +140,10 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
             note = Component.translatable("residual.fabricator.access_point");
         } else if (item == ModItems.STACKED_DRIVE.get()) {
             note = Component.translatable("residual.fabricator.stacked_drive");
+        } else if (item == ModBlocks.RELAY_GATE.asItem()) {
+            note = Component.translatable("residual.fabricator.relay_gate");
+        } else if (item == ModBlocks.RELAY_LINK.asItem()) {
+            note = Component.translatable("residual.fabricator.relay_link");
         } else if (!(item instanceof MachineItem)) {
             note = Component.translatable("residual.fabricator.accelerator");
         } else if (m != null) {

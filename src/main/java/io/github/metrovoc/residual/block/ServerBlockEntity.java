@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -41,11 +42,14 @@ public class ServerBlockEntity extends BlockEntity {
     private float credit;
     private int inFlight;
     private int answered;
+    /** Turns taken in the second before this one, and in this one so far. */
+    private int lastSecond, thisSecond;
     private int quiet;
     private int ticks;
     private int revision;
 
-    private record Request<T>(Function<CompiledGraph, T> work, Consumer<@Nullable T> reply) {
+    /** Something waiting its turn: work for the model, or with none only the turn itself. */
+    private record Request<T>(@Nullable Function<CompiledGraph, T> work, Consumer<@Nullable T> reply) {
     }
 
     public ServerBlockEntity(BlockPos pos, BlockState state) {
@@ -67,9 +71,10 @@ public class ServerBlockEntity extends BlockEntity {
         crystal = stack;
         cancelQueued();
         setChanged();
-        if (level != null) {
+        if (level instanceof ServerLevel server) {
             BlockState s = getBlockState();
             level.setBlock(worldPosition, s.setValue(ServerBlock.LOADED, !crystal.isEmpty()), Block.UPDATE_CLIENTS);
+            Relays.served(server, worldPosition, model() != null);
         }
         return old;
     }
@@ -81,6 +86,31 @@ public class ServerBlockEntity extends BlockEntity {
 
     public void ask(String prompt, int max, char stop, Consumer<Sampler.@Nullable Answer> reply) {
         submit(m -> Sampler.answer(m, prompt, max, stop), reply);
+    }
+
+    public GlobalPos where() {
+        return GlobalPos.of(level.dimension(), worldPosition);
+    }
+
+    /** How many questions wait for their turn. */
+    public int waiting() {
+        return queue.size();
+    }
+
+    public int answersLastSecond() {
+        return lastSecond;
+    }
+
+    /**
+     * Takes one turn of what it can answer, with nothing for the model to do: a call from a Terminal, a step of a jump.
+     * {@code reply} gets true on the server thread when the turn comes, or false if it is turned away.
+     */
+    public void call(Consumer<Boolean> reply) {
+        if (model() == null || queue.size() >= QUEUE) {
+            reply.accept(false);
+            return;
+        }
+        queue.add(new Request<Boolean>(null, turn -> reply.accept(turn != null)));
     }
 
     /** Runs {@code work} on the model when its turn comes; {@code reply} gets the result (or null) on the server thread. */
@@ -101,6 +131,10 @@ public class ServerBlockEntity extends BlockEntity {
             compute = Cooling.compute(level, worldPosition, 1, ResidualConfig.MAX_THREADS.get());
             Cooling.working(level, worldPosition, quiet < 100);
         }
+        if (ticks % 20 == 0) {
+            lastSecond = thisSecond;
+            thisSecond = 0;
+        }
         credit = Math.min(rate(), credit + rate() / 20f);
         ModelInfo info = model();
         while (info != null && credit >= 1 && !queue.isEmpty() && inFlight < 2 * compute.threads()) {
@@ -118,7 +152,15 @@ public class ServerBlockEntity extends BlockEntity {
         return getBlockState();
     }
 
+    @SuppressWarnings("unchecked")
     private <T> void run(MinecraftServer server, ModelInfo info, Request<T> r) {
+        thisSecond++;
+        if (r.work() == null) {
+            answered++;
+            setChanged();
+            r.reply().accept((T) Boolean.TRUE);
+            return;
+        }
         inFlight++;
         int at = revision;
         Models.submit(server, info.id(), r.work(), out -> {
@@ -157,8 +199,9 @@ public class ServerBlockEntity extends BlockEntity {
     @Override
     public void onLoad() {
         super.onLoad();
-        if (level != null && !level.isClientSide()) {
-            Relays.server(level, worldPosition, true);
+        if (level instanceof ServerLevel server) {
+            Relays.sign(server, worldPosition, Relays.Kind.SERVER, Relays.SERVER_RANGE);
+            Relays.served(server, worldPosition, model() != null);
         }
     }
 
@@ -166,7 +209,6 @@ public class ServerBlockEntity extends BlockEntity {
     public void setRemoved() {
         super.setRemoved();
         if (level != null && !level.isClientSide()) {
-            Relays.server(level, worldPosition, false);
             cancelQueued();
         }
     }
@@ -175,7 +217,6 @@ public class ServerBlockEntity extends BlockEntity {
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
         if (level != null && !level.isClientSide()) {
-            Relays.server(level, worldPosition, false);
             cancelQueued();
         }
     }
@@ -186,6 +227,9 @@ public class ServerBlockEntity extends BlockEntity {
         if (level != null) {
             Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, crystal);
             Cooling.working(level, pos, false);
+        }
+        if (level instanceof ServerLevel server) {
+            Relays.leave(server, pos);
         }
     }
 

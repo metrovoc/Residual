@@ -24,6 +24,8 @@ import io.github.metrovoc.residual.registry.ModStructures;
 import io.github.metrovoc.residual.registry.ModTabs;
 import io.github.metrovoc.residual.train.Jobs;
 import io.github.metrovoc.residual.train.TrainingJob;
+import io.github.metrovoc.residual.world.Gates;
+import io.github.metrovoc.residual.world.Relays;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -62,6 +64,7 @@ public final class Residual {
         ModStructures.PROCESSORS.register(modBus);
         modBus.addListener(Network::register);
         modBus.addListener(Residual::capabilities);
+        modBus.addListener(Relays::controllers);
         container.registerConfig(ModConfig.Type.SERVER, ResidualConfig.SPEC);
 
         NeoForge.EVENT_BUS.addListener(Residual::onServerStopping);
@@ -79,6 +82,8 @@ public final class Residual {
         NeoForge.EVENT_BUS.addListener(Vein::tick);
         NeoForge.EVENT_BUS.addListener(Vein::loggedOut);
         NeoForge.EVENT_BUS.addListener(WayfinderItem::tick);
+        NeoForge.EVENT_BUS.addListener(Relays::tick);
+        NeoForge.EVENT_BUS.addListener(Gates::tick);
     }
 
     public static Identifier id(String path) {

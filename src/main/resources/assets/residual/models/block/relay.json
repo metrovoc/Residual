@@ -1,7 +1,9 @@
 {
   "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
   "textures": {
     "relay": "residual:block/relay",
+    "lattice": "residual:block/relay_lattice",
     "particle": "residual:block/relay"
   },
   "elements": [
@@ -76,74 +78,6 @@
     },
     {
       "from": [
-        6.5,
-        2,
-        6.5
-      ],
-      "to": [
-        9.5,
-        11,
-        9.5
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            0,
-            5,
-            3,
-            14
-          ],
-          "texture": "#relay"
-        },
-        "south": {
-          "uv": [
-            0,
-            5,
-            3,
-            14
-          ],
-          "texture": "#relay"
-        },
-        "east": {
-          "uv": [
-            0,
-            5,
-            3,
-            14
-          ],
-          "texture": "#relay"
-        },
-        "west": {
-          "uv": [
-            0,
-            5,
-            3,
-            14
-          ],
-          "texture": "#relay"
-        },
-        "up": {
-          "uv": [
-            3,
-            5,
-            6,
-            8
-          ],
-          "texture": "#relay"
-        },
-        "down": {
-          "uv": [
-            3,
-            5,
-            6,
-            8
-          ],
-          "texture": "#relay"
-        }
-      }
-    },
-    {
-      "from": [
         5,
         11,
         5
@@ -207,6 +141,56 @@
             6
           ],
           "texture": "#relay"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        2,
+        5
+      ],
+      "to": [
+        11,
+        11,
+        11
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            5,
+            11,
+            14
+          ],
+          "texture": "#lattice"
+        },
+        "south": {
+          "uv": [
+            5,
+            5,
+            11,
+            14
+          ],
+          "texture": "#lattice"
+        },
+        "east": {
+          "uv": [
+            5,
+            5,
+            11,
+            14
+          ],
+          "texture": "#lattice"
+        },
+        "west": {
+          "uv": [
+            5,
+            5,
+            11,
+            14
+          ],
+          "texture": "#lattice"
         }
       }
     }

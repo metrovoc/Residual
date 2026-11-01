@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "residual:block/relay_link"
+    },
+    "working=true": {
+      "model": "residual:block/relay_link_on"
+    }
+  }
+}

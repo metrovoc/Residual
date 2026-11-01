@@ -149,6 +149,14 @@ navigation:
 
 <residual:Milestone id="deploy/relay">图纸出现在中继塔和地下库里。</residual:Milestone>
 
+<residual:Milestone id="deploy/mast">把中继器叠到八格高，覆盖范围就是八倍。</residual:Milestone>
+
+<residual:Milestone id="deploy/gate">以每秒 16 个回答服务一个通过指令测试的模型，并在它的覆盖范围内放两座中继门：[模型服务](deployment.md)。</residual:Milestone>
+
+<residual:Milestone id="deploy/link">开启的网络上放两个中继链路，每处都连着存储或电力。</residual:Milestone>
+
+<residual:Milestone id="deploy/api">远离基地，用终端把程序卡上的程序交给智能体，或打开存储网络。</residual:Milestone>
+
 <residual:Milestone id="agent/order">以它的名字开头发一条聊天消息，例如 *Pip, bring me some bread*。它的模型必须练过指令。</residual:Milestone>
 
 <residual:Milestone id="agent/copy">标出建筑的对角和副本要立在上面的方块，把标记交给模型通过了归纳测试的智能体：[建筑师](architect.md)。</residual:Milestone>

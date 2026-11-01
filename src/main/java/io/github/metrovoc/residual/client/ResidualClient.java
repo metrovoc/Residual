@@ -21,6 +21,7 @@ import io.github.metrovoc.residual.net.ShimmerSync;
 import io.github.metrovoc.residual.net.StorageMeaningSync;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.SuitFlight;
+import io.github.metrovoc.residual.net.RelaySync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.WatchSync;
 import io.github.metrovoc.residual.net.WaveSync;
@@ -73,6 +74,8 @@ public final class ResidualClient {
         NeoForge.EVENT_BUS.addListener(VeinView::extract);
         NeoForge.EVENT_BUS.addListener(VeinView::submit);
         NeoForge.EVENT_BUS.addListener(ExosuitScreen::pressed);
+        NeoForge.EVENT_BUS.addListener(RelayView::extract);
+        NeoForge.EVENT_BUS.addListener(RelayView::submit);
         NeoForge.EVENT_BUS.addListener(Clips::tick);
         // the field notes
         Guide.builder(Residual.GUIDE)
@@ -180,11 +183,13 @@ public final class ResidualClient {
             AgentView.answer = answer;
             AgentView.asking = false;
         });
+        event.register(RelaySync.TYPE, (sync, ctx) -> RelayView.receive(sync));
     }
 
     private static void renderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.OPERATOR.get(), context -> new MachineRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.RACK.get(), context -> new RackRenderer());
+        event.registerBlockEntityRenderer(ModBlockEntities.RELAY_GATE.get(), context -> new GateRenderer());
         event.registerEntityRenderer(ModEntities.AGENT.get(), AgentRenderer::new);
     }
 
@@ -195,5 +200,6 @@ public final class ResidualClient {
     private static void layers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, Residual.id("lens"), Lens::render);
         event.registerAbove(VanillaGuiLayers.CROSSHAIR, Residual.id("exosuit"), SuitHud::render);
+        event.registerAbove(VanillaGuiLayers.CROSSHAIR, Residual.id("signal"), RelayView::signal);
     }
 }

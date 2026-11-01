@@ -15,6 +15,7 @@ import io.github.metrovoc.residual.client.CoreScreen;
 import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.FlightFrameItem;
+import io.github.metrovoc.residual.client.TerminalScreen;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.net.GhostSlot;
 import io.github.metrovoc.residual.net.PatternTransfer;
@@ -26,6 +27,7 @@ import io.github.metrovoc.residual.storage.DockMenu;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.StorageNetwork;
 import io.github.metrovoc.residual.storage.TerminalMenu;
+import io.github.metrovoc.residual.world.Relays;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -60,6 +62,7 @@ import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.HolderSet;
@@ -226,6 +229,15 @@ import org.slf4j.Logger;
  * mine X Y Z                 break a block as the player does, whatever stands between
  * bound NAME                 press the key a key mapping is bound to, by its name (key.residual.exosuit)
  * hold NAME on|off           hold a key mapping's key down, by its name, or let go of it
+ * expect reach X Y Z N       fail the step unless the relay network's part at the place reaches at least N blocks
+ * expect netopen X Y Z N     fail the step unless the relay network at the place is open (1) or shut (0)
+ * expect hops X1 Y1 Z1 X2 Y2 Z2 N  fail the step unless two parts are on one relay network, N steps apart
+ * expect state X Y Z NAME=VALUE N  fail the step unless the block's state has that value (1) or not (0)
+ * expect ticking X Y Z N     fail the step unless blocks tick at the place (1) or not (0), wherever the player is
+ * expect energy X Y Z N      fail the step unless the block at the place stores at least N FE
+ * expect near X Y Z N        fail the step unless the player stands within N blocks of the place
+ * expect dimension NAME N    fail the step unless the player is in the dimension whose path is NAME (1) or not (0)
+ * expect said TEXT N         fail the step unless at least N messages since the world began held TEXT (no spaces)
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
@@ -276,6 +288,8 @@ public final class Rehearsal {
     /** Steps run, and the ones that threw: any of those makes the whole run end with a failing exit code. */
     private static int played;
     private static final List<String> failed = new ArrayList<>();
+    /** What the server has said to the player. */
+    private static final List<String> HEARD = new ArrayList<>();
     /** Keeps the player flying: creative flight ends whenever the player touches the ground. */
     private static boolean hover;
     private static double mouseX;
@@ -415,6 +429,7 @@ public final class Rehearsal {
         remember(CoreScreen.class, "lastBenchmark", "FORECASTING");
         remember(AgentScreen.class, "lastTab", "WORK");
         remember(AgentScreen.class, "palette", false);
+        remember(TerminalScreen.class, "lastTab", "MAP");
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -441,6 +456,7 @@ public final class Rehearsal {
     @SubscribeEvent
     static void chat(ClientChatReceivedEvent.System event) {
         LOG.info("[rehearsal] said: {}", event.getMessage().getString());
+        HEARD.add(event.getMessage().getString());
     }
 
     /** Draws a cursor on screens while a clip records, since the system's own is not in the frame. */
@@ -913,6 +929,18 @@ public final class Rehearsal {
                     return (long) Math.floor(parse(agent.variable(args[1])));
                 }).get(10, TimeUnit.SECONDS);
             }
+            case "dimension" -> found = mc.player.level().dimension().identifier().getPath().equals(args[1]) ? 1 : 0;
+            case "said" -> found = HEARD.stream().filter(line -> line.contains(args[1])).count();
+            case "near" -> found = mc.player.position().distanceTo(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]))) <= wanted ? wanted : 0;
+            case "hops" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                found = server.submit(() -> {
+                    var dimension = server.getPlayerList().getPlayer(id).level().dimension();
+                    return (long) Relays.of(server).hops(GlobalPos.of(dimension, new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]))),
+                            GlobalPos.of(dimension, new BlockPos(Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]))));
+                }).get(10, TimeUnit.SECONDS);
+            }
             default -> {
                 MinecraftServer server = mc.getSingleplayerServer();
                 UUID id = mc.player.getUUID();
@@ -1010,6 +1038,25 @@ public final class Rehearsal {
                         }
                         return n;
                     }
+                    GlobalPos place = GlobalPos.of(level.dimension(), at);
+                    if (args[0].equals("reach")) {
+                        return Relays.of(server).part(place) == null ? -1L : (long) Relays.of(server).part(place).reach();
+                    }
+                    if (args[0].equals("netopen")) {
+                        return Relays.of(server).netOf(place) != null && Relays.of(server).netOf(place).open() ? 1L : 0L;
+                    }
+                    if (args[0].equals("state")) {
+                        String[] kv = args[4].split("=");
+                        for (var e : level.getBlockState(at).getValues().toList()) {
+                            if (e.property().getName().equals(kv[0])) {
+                                return e.valueName().equals(kv[1]) ? 1L : 0L;
+                            }
+                        }
+                        return -1L;
+                    }
+                    if (args[0].equals("ticking")) {
+                        return level.shouldTickBlocksAt(at) ? 1L : 0L;
+                    }
                     ItemResource kind = ItemResource.of(BuiltInRegistries.ITEM.getValue(Identifier.parse(args[4])));
                     if (args[0].equals("net")) {
                         return StorageNetwork.at(level, at).count(kind);
@@ -1026,7 +1073,8 @@ public final class Rehearsal {
         boolean exact = args[0].equals("jobs") || args[0].equals("pins") || args[0].equals("open") || args[0].equals("grid")
                 || args[0].equals("meant") || args[0].equals("words") || args[0].equals("holds") || args[0].equals("attribute")
                 || args[0].equals("flyspeed") || args[0].equals("mayfly") || args[0].equals("sight") || args[0].equals("blocks") || args[0].equals("health")
-                || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits")) || args[0].startsWith("no") || args[0].equals("empty");
+                || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits")) || args[0].startsWith("no") || args[0].equals("empty")
+                || args[0].equals("netopen") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("state") || args[0].equals("ticking");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }

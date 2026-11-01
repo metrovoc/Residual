@@ -1276,15 +1276,17 @@ def photomask(pattern):
 
 # ---------------------------------------------------------------- Relay
 
-def relay():
-    """One sheet for the relay's three parts, laid out where its model samples them."""
+def relay(live=True):
+    """One sheet for the relay's three parts, laid out where its model samples them. Its lamp is lit while a model is
+    served on its network, and dark glass otherwise."""
     c = Canvas(fill=G2)
-    # lamp sides, 6x5: a lit glass band between a cap and a collar
+    # lamp sides, 6x5: a band of glass between a cap and a collar
     for x in range(6):
         c.px(x, 0, G3)
         c.px(x, 4, G0)
         for y in (1, 2, 3):
-            c.px(x, y, G1 if x in (0, 5) else TEAL[4] if y == 2 and x in (2, 3) else TEAL[3])
+            c.px(x, y, G1 if x in (0, 5) else (TEAL[4] if y == 2 and x in (2, 3) else TEAL[3]) if live
+                 else (SLATE[4] if y == 2 and x in (2, 3) else SLATE[3]))
     # lamp top and bottom, 6x6
     c.rect(10, 0, 15, 5, G2)
     for i in range(10, 16):
@@ -1293,8 +1295,8 @@ def relay():
     for i in range(6):
         c.px(10, i, G3)
         c.px(15, i, G0)
-    c.rect(12, 2, 13, 3, TEAL[4])
-    c.px(12, 2, TEAL[5])
+    c.rect(12, 2, 13, 3, TEAL[4] if live else SLATE[3])
+    c.px(12, 2, TEAL[5] if live else SLATE[4])
     # post sides, 3x9, with a lit trace running up the middle
     for y in range(5, 14):
         c.px(0, y, G3)
@@ -2044,6 +2046,101 @@ def survey_rod():
                          (12, 3): 3, (13, 3): 2, (11, 3): 2, (13, 0): 4}.items():
         c.px(x, y, AMETHYST[tone])
     outline(c, rgb("33241a"))
+    return c
+
+
+def relay_lights():
+    """What of the relay's lamp glows while its network is live: its glass, on the sheet where the model samples it."""
+    c = Canvas()
+    for x in range(1, 5):
+        for y in (1, 2, 3):
+            c.px(x, y, TEAL[4] if y == 2 and x in (2, 3) else TEAL[3])
+    c.rect(12, 2, 13, 3, TEAL[4])
+    c.px(12, 2, TEAL[5])
+    return c
+
+
+# a mast's lattice, one side of it 6 px wide and repeating every 8 up: two legs, braces crossing between them and a girt
+RELAY_LATTICE = [
+    "L#..#L",
+    "L#..#L",
+    "L.##.L",
+    "L.##.L",
+    "L#..#L",
+    "L#..#L",
+    "LLLLLL",
+    "L....L",
+]
+
+
+def relay_lattice():
+    """The lattice of a relay mast, open between its braces."""
+    c = Canvas()
+    for y in range(16):
+        for x, ch in enumerate(RELAY_LATTICE[y % 8]):
+            if ch == "L":
+                c.px(5 + x, y, STEEL[4] if x in (0, 5) else STEEL[5])
+            elif ch == "#":
+                c.px(5 + x, y, STEEL[6])
+    return c
+
+
+# a gate's pad, seen from above: a frame round a square well of light
+GATE_WELL = [
+    "########",
+    "#......#",
+    "#.++++.#",
+    "#.+**+.#",
+    "#.+**+.#",
+    "#.++++.#",
+    "#......#",
+    "########",
+]
+# a Relay Link's face: two networks joined across a gap
+LINK_GLYPH = [
+    "##......##",
+    "##......##",
+    "..#....#..",
+    "...#++#...",
+    "...+**+...",
+    "...+**+...",
+    "...#++#...",
+    "..#....#..",
+    "##......##",
+    "##......##",
+]
+
+
+def gate_top(open_):
+    """A pad's top: a well that shows light while its network is open."""
+    c = plate(salt=61)
+    window(c, ramp=TEAL if open_ else None, salt=61)
+    if open_:
+        glow_glyph(c, GATE_WELL, TEAL)
+    else:
+        dim_glyph(c, GATE_WELL)
+    return c
+
+
+def gate_side():
+    """A pad's side, in four rows the model samples, and its posts' faces under them."""
+    c = Canvas()
+    fill(c, 0, 0, 15, 0, STEEL[0], STEEL[1], 62)
+    fill(c, 0, 1, 15, 1, SLATE[3], SLATE[2], 63)
+    fill(c, 0, 2, 15, 2, STEEL[1], STEEL[2], 64)
+    fill(c, 0, 3, 15, 3, STEEL[3], STEEL[4], 65)
+    fill(c, 0, 4, 15, 15, STEEL[2], STEEL[3], 66)
+    return c
+
+
+def relay_link_face(working):
+    """A Relay Link's six faces: dim while nothing crosses it, lit while it carries."""
+    c = plate(salt=67)
+    window(c, ramp=TEAL if working else None, salt=67)
+    if working:
+        glow_glyph(c, LINK_GLYPH, TEAL)
+    else:
+        dim_glyph(c, LINK_GLYPH)
     return c
 
 
@@ -3282,6 +3379,92 @@ ICONS = {
 ...##....##.....
 ...#.....#......
 """),
+    # a Terminal's tabs: the network on a map, a reach with something at its middle
+    "terminal_map": icon_ring(8, 8.5, 5) | icon_cells("""
+................
+................
+................
+................
+................
+................
+................
+................
+.......##.......
+.......##.......
+"""),
+    # what the base holds and does: a rack of two bays
+    "terminal_base": icon_cells("""
+................
+................
+................
+...##########...
+...#........#...
+...#.##.....#...
+...##########...
+...##########...
+...#........#...
+...#.##.....#...
+...##########...
+"""),
+    # the agents: a frame with two eyes
+    "terminal_agents": icon_cells("""
+................
+................
+.......##.......
+.......##.......
+...##########...
+...#........#...
+...#.##..##.#...
+...#.##..##.#...
+...#........#...
+...##########...
+.....##..##.....
+.....##..##.....
+"""),
+    # writing with the served model
+    "terminal_write": icon_cells("""
+................
+................
+................
+...##########...
+................
+...##########...
+................
+...##########...
+................
+...######.......
+.........##.....
+.........##.....
+"""),
+    # frame all of it
+    "terminal_fit": icon_cells("""
+................
+................
+...####..####...
+...##......##...
+...#........#...
+................
+.....######.....
+.....######.....
+................
+...#........#...
+...##......##...
+...####..####...
+"""),
+    # another dimension: one square behind another
+    "terminal_dimension": icon_cells("""
+................
+................
+................
+...#######......
+...#.....#......
+...#.#######....
+...#.#...#.#....
+...#.#...#.#....
+...#######.#....
+.....#.....#....
+.....#######....
+"""),
 }
 
 
@@ -3323,6 +3506,14 @@ def build():
     reader_top().save("block/reader_top.png")
     reader_side().save("block/reader_side.png")
     relay().save("block/relay.png")
+    relay(False).save("block/relay_dark.png")
+    relay_lights().save("block/relay_lights.png")
+    relay_lattice().save("block/relay_lattice.png")
+    gate_top(False).save("block/relay_gate_top.png")
+    lit("block/relay_gate_top_on.png", [gate_top(True)], [gate_top(False)])
+    gate_side().save("block/relay_gate_side.png")
+    relay_link_face(False).save("block/relay_link.png")
+    lit("block/relay_link_on.png", [relay_link_face(True)], [relay_link_face(False)])
     bench_top().save("block/bench_top.png")
     bench_side().save("block/bench_side.png")
     fabricator_front().save("block/fabricator_front.png")
@@ -3348,7 +3539,7 @@ def build():
     port_back().save("block/port_back.png")
     port_front().save("block/port_front.png")
     storage_link().save("block/storage_link.png")
-    for rows in [TERMINAL_SIDE, ASSEMBLER_SIDE, *PORT_GLYPHS.values()]:
+    for rows in [TERMINAL_SIDE, ASSEMBLER_SIDE, GATE_WELL, LINK_GLYPH, *PORT_GLYPHS.values()]:
         assert mirrored(rows) and len(rows[0]) % 2 == 0 and len(rows) % 2 == 0, rows
     # a glyph symmetric along an axis has to be even along it, or it sits half a pixel off the tile's centre
     assert mirrored(FLIGHT_FRAME), FLIGHT_FRAME
@@ -3384,7 +3575,7 @@ def build():
             "block/watch_post_front", "block/watch_post_front_on",
             "block/reader_front", "block/reader_front_on",
             "block/bpe_forge_front_on", "block/storage_terminal_front_on", "block/model_core_side_on",
-            "block/model_server_front_on", "block/drive_cartridge", "block/relay"}
+            "block/model_server_front_on", "block/drive_cartridge", "block/relay", "block/relay_dark", "block/relay_lights"}
     for rel, im in SAVED.items():
         if str(rel).startswith("block/") and im.size == (16, 16) and rel not in one_sided and rel[:-4] not in data:
             px = im.load()

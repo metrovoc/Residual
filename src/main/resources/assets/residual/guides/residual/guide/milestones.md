@@ -183,6 +183,16 @@ carry.</residual:Milestone>
 
 <residual:Milestone id="deploy/relay">The plans turn up on relay masts and in vaults.</residual:Milestone>
 
+<residual:Milestone id="deploy/mast">Relays stacked eight blocks high reach eight times as far.</residual:Milestone>
+
+<residual:Milestone id="deploy/gate">Serve a model that passes Orders at 16 answers a second, and place two Relay Gates in
+its reach: [Serving Models](deployment.md).</residual:Milestone>
+
+<residual:Milestone id="deploy/link">Two Relay Links on an open network, with storage or power at each.</residual:Milestone>
+
+<residual:Milestone id="deploy/api">From a Terminal, far from them, hand an agent a Program Card's program or open a
+storage network.</residual:Milestone>
+
 <residual:Milestone id="agent/order">Start a chat message with its name, such as *Pip, bring me some bread*. Its model
 has to have practised orders.</residual:Milestone>
 

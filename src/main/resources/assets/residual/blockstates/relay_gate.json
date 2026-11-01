@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "open=false": {
+      "model": "residual:block/relay_gate"
+    },
+    "open=true": {
+      "model": "residual:block/relay_gate_on"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/relay_link",
+    "north": "residual:block/relay_link",
+    "south": "residual:block/relay_link",
+    "east": "residual:block/relay_link",
+    "west": "residual:block/relay_link",
+    "up": "residual:block/relay_link",
+    "down": "residual:block/relay_link"
+  }
+}

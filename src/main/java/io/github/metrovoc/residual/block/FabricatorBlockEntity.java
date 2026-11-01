@@ -95,8 +95,8 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
     /**
      * What it can make: the machines a mask's spec unlocks, or with no mask the machines that need no design. A matrix
      * multiply mask also makes the Accelerator and the Drive Dock, a linear layer mask the Dense and Portable Drives, an attention
-     * mask the Hourglass, the Surveyor and the Access Point, and a transformer mask Forecaster II, the Smelter, the flight frame
-     * and the Stacked Drive.
+     * mask the Hourglass, the Surveyor and the Access Point, and a transformer mask Forecaster II, the Smelter, the flight frame,
+     * the Stacked Drive and the relay network's gates and links.
      */
     public static List<Item> choices(ItemStack mask) {
         List<Item> out = new ArrayList<>();
@@ -138,6 +138,8 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
                 out.add(ModItems.STACKED_DRIVE.get());
                 out.add(ModItems.UPGRADES.get(Upgrades.Kind.ENERGY).get());
                 out.add(ModItems.UPGRADES.get(Upgrades.Kind.LIFT).get());
+                out.add(ModBlocks.RELAY_GATE.asItem());
+                out.add(ModBlocks.RELAY_LINK.asItem());
             }
         }
         return out;
@@ -196,6 +198,12 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         }
         if (item == ModItems.STACKED_DRIVE.get()) {
             return new Cost(2, 16, 8, 240);
+        }
+        if (item == ModBlocks.RELAY_GATE.asItem()) {
+            return new Cost(8, 16, 8, 400);
+        }
+        if (item == ModBlocks.RELAY_LINK.asItem()) {
+            return new Cost(4, 8, 4, 200);
         }
         MaskData m = MaskItem.mask(mask);
         int wafers = Math.max(1, ((m == null ? 0 : m.area()) + 3) / 4);

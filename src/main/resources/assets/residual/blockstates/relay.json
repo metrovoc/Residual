@@ -1,7 +1,66 @@
 {
-  "variants": {
-    "": {
-      "model": "residual:block/relay"
+  "multipart": [
+    {
+      "when": {
+        "down": "false"
+      },
+      "apply": {
+        "model": "residual:block/relay_foot"
+      }
+    },
+    {
+      "when": {
+        "up": "false",
+        "live": "false"
+      },
+      "apply": {
+        "model": "residual:block/relay_lamp"
+      }
+    },
+    {
+      "when": {
+        "up": "false",
+        "live": "true"
+      },
+      "apply": {
+        "model": "residual:block/relay_lamp_on"
+      }
+    },
+    {
+      "when": {
+        "down": "false",
+        "up": "false"
+      },
+      "apply": {
+        "model": "residual:block/relay_lattice_2_11"
+      }
+    },
+    {
+      "when": {
+        "down": "false",
+        "up": "true"
+      },
+      "apply": {
+        "model": "residual:block/relay_lattice_2_16"
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "up": "false"
+      },
+      "apply": {
+        "model": "residual:block/relay_lattice_0_11"
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "up": "true"
+      },
+      "apply": {
+        "model": "residual:block/relay_lattice_0_16"
+      }
     }
-  }
+  ]
 }

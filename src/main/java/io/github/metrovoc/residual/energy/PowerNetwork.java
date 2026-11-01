@@ -1,5 +1,7 @@
 package io.github.metrovoc.residual.energy;
 
+import io.github.metrovoc.residual.block.RelayLinkBlockEntity;
+import io.github.metrovoc.residual.world.Relays;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,11 +12,13 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
  * Power cables and the blocks they join. Once a tick, machines take what they want from the generators, and from the
@@ -27,6 +31,7 @@ public final class PowerNetwork {
 
     private final ServerLevel level;
     private final List<BlockPos> devices = new ArrayList<>();
+    private final List<BlockPos> links = new ArrayList<>();
     private long tickedAt = -1;
     private long drawn;
 
@@ -35,6 +40,8 @@ public final class PowerNetwork {
         for (BlockPos p : blocks) {
             if (level.getBlockEntity(p) instanceof PowerBlockEntity) {
                 devices.add(p);
+            } else if (level.getBlockEntity(p) instanceof RelayLinkBlockEntity) {
+                links.add(p);
             }
         }
     }
@@ -78,6 +85,24 @@ public final class PowerNetwork {
         return network;
     }
 
+    /** What generators, cells and machines a network has at the moment. */
+    private record Handlers(List<EnergyHandler> generators, List<EnergyHandler> cells, List<EnergyHandler> machines) {
+    }
+
+    private Handlers handlers() {
+        Handlers out = new Handlers(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        for (BlockPos p : devices) {
+            if (level.getBlockEntity(p) instanceof PowerBlockEntity be) {
+                switch (be.role()) {
+                    case GENERATOR -> out.generators.add(be.energy());
+                    case CELL -> out.cells.add(be.energy());
+                    case MACHINE -> out.machines.add(be.energy());
+                }
+            }
+        }
+        return out;
+    }
+
     /** Moves this tick's power, once however many of its blocks ask. */
     public void tick() {
         long now = level.getGameTime();
@@ -85,16 +110,8 @@ public final class PowerNetwork {
             return;
         }
         tickedAt = now;
-        List<EnergyHandler> generators = new ArrayList<>(), cells = new ArrayList<>(), machines = new ArrayList<>();
-        for (BlockPos p : devices) {
-            if (level.getBlockEntity(p) instanceof PowerBlockEntity be) {
-                switch (be.role()) {
-                    case GENERATOR -> generators.add(be.energy());
-                    case CELL -> cells.add(be.energy());
-                    case MACHINE -> machines.add(be.energy());
-                }
-            }
-        }
+        Handlers mine = handlers();
+        List<EnergyHandler> generators = mine.generators, cells = mine.cells, machines = mine.machines;
         try (Transaction tx = Transaction.openRoot()) {
             drawn = 0;
             for (EnergyHandler machine : machines) {
@@ -110,6 +127,7 @@ public final class PowerNetwork {
                     EnergyHandlerUtil.move(from, cell, Integer.MAX_VALUE, tx);
                 }
             }
+            carryOverRelays(mine, now, tx);
             tx.commit();
         }
     }
@@ -125,6 +143,56 @@ public final class PowerNetwork {
             }
         }
         return taken;
+    }
+
+    /**
+     * Through its Relay Links, while their network is open: what its machines still want comes from the generators and
+     * then the cells of the power networks joined to it, and what its generators have left goes to their cells, as much a
+     * tick as the relay network carries. Each network does this once a tick for itself, so power goes both ways.
+     */
+    private void carryOverRelays(Handlers mine, long now, TransactionContext tx) {
+        if (links.isEmpty()) {
+            return;
+        }
+        Relays relays = Relays.of(level.getServer());
+        Set<PowerNetwork> seen = new HashSet<>();
+        seen.add(this);
+        for (BlockPos link : links) {
+            Relays.Net relay = relays.netOf(GlobalPos.of(level.dimension(), link));
+            if (relay == null || !relay.open()) {
+                continue;
+            }
+            for (Relays.Part p : relay.parts) {
+                ServerLevel there = p.kind() == Relays.Kind.LINK ? level.getServer().getLevel(p.at().dimension()) : null;
+                if (there == null || !there.isLoaded(p.at().pos())) {
+                    continue;
+                }
+                PowerNetwork far = at(there, p.at().pos());
+                if (seen.add(far)) {
+                    Handlers theirs = far.handlers();
+                    for (EnergyHandler machine : mine.machines) {
+                        drawn += carry(theirs.generators, machine, relay, now, tx);
+                        drawn += carry(theirs.cells, machine, relay, now, tx);
+                    }
+                    for (EnergyHandler cell : theirs.cells) {
+                        carry(mine.generators, cell, relay, now, tx);
+                    }
+                }
+            }
+        }
+    }
+
+    private static long carry(List<EnergyHandler> from, EnergyHandler to, Relays.Net relay, long now, TransactionContext tx) {
+        long carried = 0;
+        for (EnergyHandler handler : from) {
+            long room = relay.feRoom(now);
+            if (room > 0) {
+                long moved = EnergyHandlerUtil.move(handler, to, (int) Math.min(room, Integer.MAX_VALUE), tx);
+                relay.feCarried(moved);
+                carried += moved;
+            }
+        }
+        return carried;
     }
 
     /** Power stored in its cells, what they hold in all, how many there are, and what its machines drew last tick. */

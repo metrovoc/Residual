@@ -38,6 +38,7 @@ import io.github.metrovoc.residual.storage.PortMenu;
 import io.github.metrovoc.residual.storage.PortMode;
 import io.github.metrovoc.residual.storage.PortProgramMenu;
 import io.github.metrovoc.residual.storage.TerminalMenu;
+import io.github.metrovoc.residual.world.TerminalApi;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.server.level.ServerPlayer;
@@ -61,6 +62,7 @@ public final class Network {
         r.playToServer(MachineEdit.TYPE, MachineEdit.STREAM_CODEC, Network::onMachineEdit);
         r.playToServer(AgentAction.TYPE, AgentAction.STREAM_CODEC, Network::onAgentAction);
         r.playToServer(TerminalAsk.TYPE, TerminalAsk.STREAM_CODEC, Network::onTerminalAsk);
+        r.playToServer(TerminalCall.TYPE, TerminalCall.STREAM_CODEC, Network::onTerminalCall);
         r.playToServer(BenchEdit.TYPE, BenchEdit.STREAM_CODEC, Network::onBenchEdit);
         r.playToServer(BenchRecord.TYPE, BenchRecord.STREAM_CODEC, Network::onBenchRecord);
         r.playToServer(StorageClick.TYPE, StorageClick.STREAM_CODEC, Network::onStorageClick);
@@ -84,6 +86,7 @@ public final class Network {
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(ProgramSync.TYPE, ProgramSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
+        r.playToClient(RelaySync.TYPE, RelaySync.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
         r.playToClient(SampleResult.TYPE, SampleResult.STREAM_CODEC);
         r.playToClient(WaveSync.TYPE, WaveSync.STREAM_CODEC);
@@ -224,6 +227,12 @@ public final class Network {
         if (ctx.player() instanceof ServerPlayer player && spec != null && player.distanceToSqr(r.pos().getCenter()) < 64
                 && player.level().getBlockEntity(r.pos()) instanceof BenchBlockEntity bench) {
             bench.record(player, spec);
+        }
+    }
+
+    private static void onTerminalCall(TerminalCall call, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player) {
+            TerminalApi.call(player, call);
         }
     }
 

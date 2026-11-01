@@ -1,0 +1,28 @@
+{
+  "parent": "residual:deploy/mast",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:relay_link"
+    },
+    "title": {
+      "translate": "advancements.residual.deploy.link.title"
+    },
+    "description": {
+      "translate": "advancements.residual.deploy.link.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

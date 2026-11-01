@@ -41,6 +41,9 @@ public final class ModComponents {
     /** The Model Server an Uplink or a Terminal is tuned to. */
     public static final Supplier<DataComponentType<GlobalPos>> LINK = COMPONENTS.registerComponentType("link",
             b -> b.persistent(GlobalPos.CODEC).networkSynchronized(GlobalPos.STREAM_CODEC));
+    /** The Relay Gate a Relay Card has taken the place of, to tune the next gate it is used on to. */
+    public static final Supplier<DataComponentType<GlobalPos>> GATE = COMPONENTS.registerComponentType("gate",
+            b -> b.persistent(GlobalPos.CODEC).networkSynchronized(GlobalPos.STREAM_CODEC));
     /** Blocks marked with a Survey Marker, oldest first. */
     public static final Supplier<DataComponentType<List<BlockPos>>> MARKS = COMPONENTS.registerComponentType("marks",
             b -> b.persistent(BlockPos.CODEC.listOf()).networkSynchronized(BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list())));

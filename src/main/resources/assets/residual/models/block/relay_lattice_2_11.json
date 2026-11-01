@@ -1,0 +1,61 @@
+{
+  "parent": "minecraft:block/block",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "relay": "residual:block/relay_lattice",
+    "lights": "residual:block/relay_lights",
+    "particle": "residual:block/relay_lattice"
+  },
+  "elements": [
+    {
+      "from": [
+        5,
+        2,
+        5
+      ],
+      "to": [
+        11,
+        11,
+        11
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            5,
+            11,
+            14
+          ],
+          "texture": "#relay"
+        },
+        "south": {
+          "uv": [
+            5,
+            5,
+            11,
+            14
+          ],
+          "texture": "#relay"
+        },
+        "east": {
+          "uv": [
+            5,
+            5,
+            11,
+            14
+          ],
+          "texture": "#relay"
+        },
+        "west": {
+          "uv": [
+            5,
+            5,
+            11,
+            14
+          ],
+          "texture": "#relay"
+        }
+      }
+    }
+  ]
+}

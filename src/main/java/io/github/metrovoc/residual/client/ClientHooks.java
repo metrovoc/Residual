@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.client;
 import io.github.metrovoc.residual.model.Recovered;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.world.InteractionHand;
 
 /** Client-only actions that common code triggers; only ever called where {@code level.isClientSide()}. */
@@ -24,6 +25,10 @@ public final class ClientHooks {
 
     public static void openExosuit() {
         Minecraft.getInstance().setScreen(new ExosuitScreen());
+    }
+
+    public static void openGate(GlobalPos gate) {
+        Minecraft.getInstance().setScreen(new GateScreen(gate));
     }
 
     public static void openWayfinder(InteractionHand hand) {

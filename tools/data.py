@@ -236,16 +236,75 @@ def all_faces(uv_side, uv_end, texture="#relay", cull_down=False):
 
 
 def relay():
-    """A footing, a mast and a lamp head; the texture keeps each part in its own band."""
+    """Relays stacked make a mast: a footing under the lowest, a lattice all the way up and a lamp on the highest, lit while
+    a model is served on its network. The sheet keeps footing and lamp in their own bands; the lattice is open, and each
+    block of it joins the next."""
+    def part(name, texture, *elements):
+        write(f"assets/{NS}/models/block/{name}.json", {
+            "parent": "minecraft:block/block", "render_type": "minecraft:cutout",
+            "textures": {"relay": rid(f"block/{texture}"), "lights": rid("block/relay_lights"), "particle": rid(f"block/{texture}")},
+            "elements": list(elements)})
+
+    foot = box([4, 0, 4], [12, 2, 12], all_faces([0, 14, 8, 16], [8, 8, 16, 16], cull_down=True))
+    lamp = box([5, 11, 5], [11, 16, 11], all_faces([0, 0, 6, 5], [10, 0, 16, 6]))
+    bright = {"block_light": 15, "sky_light": 15}
+    glass = box([5, 11, 5], [11, 16, 11], {f: {"uv": [0, 0, 6, 5], "texture": "#lights", "neoforge_data": bright} for f in ("north", "south", "east", "west")}
+                | {"up": {"uv": [10, 0, 16, 6], "texture": "#lights", "neoforge_data": bright}}) | {"shade": False}
+
+    def lattice(y0, y1):
+        sides = {f: {"uv": [5, 16 - y1, 11, 16 - y0], "texture": "#relay"} for f in ("north", "south", "east", "west")}
+        return box([5, y0, 5], [11, y1, 11], sides)
+
+    part("relay_foot", "relay", foot)
+    part("relay_lamp", "relay_dark", lamp)
+    part("relay_lamp_on", "relay", lamp, glass)
+    # the lattice from where the block below it ends to where the block above it begins
+    for down, up, y0, y1 in (("false", "false", 2, 11), ("false", "true", 2, 16), ("true", "false", 0, 11), ("true", "true", 0, 16)):
+        part(f"relay_lattice_{y0}_{y1}", "relay_lattice", lattice(y0, y1))
+    parts = [{"when": {"down": "false"}, "apply": {"model": rid("block/relay_foot")}},
+             {"when": {"up": "false", "live": "false"}, "apply": {"model": rid("block/relay_lamp")}},
+             {"when": {"up": "false", "live": "true"}, "apply": {"model": rid("block/relay_lamp_on")}}]
+    for down, up, y0, y1 in (("false", "false", 2, 11), ("false", "true", 2, 16), ("true", "false", 0, 11), ("true", "true", 0, 16)):
+        parts.append({"when": {"down": down, "up": up}, "apply": {"model": rid(f"block/relay_lattice_{y0}_{y1}")}})
+    write(f"assets/{NS}/blockstates/relay.json", {"multipart": parts})
+    # in the hand a relay stands alone, its lamp lit
     write(f"assets/{NS}/models/block/relay.json", {
-        "parent": "minecraft:block/block", "textures": {"relay": rid("block/relay"), "particle": rid("block/relay")},
-        "elements": [
-            box([4, 0, 4], [12, 2, 12], all_faces([0, 14, 8, 16], [8, 8, 16, 16], cull_down=True)),
-            box([6.5, 2, 6.5], [9.5, 11, 9.5], all_faces([0, 5, 3, 14], [3, 5, 6, 8])),
-            box([5, 11, 5], [11, 16, 11], all_faces([0, 0, 6, 5], [10, 0, 16, 6])),
-        ]})
-    write(f"assets/{NS}/blockstates/relay.json", {"variants": {"": {"model": rid("block/relay")}}})
+        "parent": "minecraft:block/block", "render_type": "minecraft:cutout",
+        "textures": {"relay": rid("block/relay"), "lattice": rid("block/relay_lattice"), "particle": rid("block/relay")},
+        "elements": [foot, lamp, box([5, 2, 5], [11, 11, 11], {f: {"uv": [5, 5, 11, 14], "texture": "#lattice"} for f in ("north", "south", "east", "west")})]})
     item_definition("relay", rid("block/relay"))
+
+
+def relay_gate():
+    """A pad a quarter of a block high with a post at each corner; its well lights while its network is open."""
+    side = rid("block/relay_gate_side")
+    faces = lambda top: {"north": {"uv": [0, 0, 16, 4], "texture": "#side"}, "south": {"uv": [0, 0, 16, 4], "texture": "#side"},
+                         "east": {"uv": [0, 0, 16, 4], "texture": "#side"}, "west": {"uv": [0, 0, 16, 4], "texture": "#side"},
+                         "up": {"uv": [0, 0, 16, 16], "texture": top}, "down": {"uv": [0, 0, 16, 16], "texture": "#side", "cullface": "down"}}
+    post = {f: {"uv": [0, 0, 3, 3], "texture": "#side"} for f in ("north", "south", "east", "west", "up")}
+    posts = [box([x, 4, z], [x + 3, 7, z + 3], post) for x in (0, 13) for z in (0, 13)]
+    bright = {"block_light": 15, "sky_light": 15}
+    write(f"assets/{NS}/models/block/relay_gate.json", {
+        "parent": "minecraft:block/block", "textures": {"side": side, "top": rid("block/relay_gate_top"), "particle": side},
+        "elements": [box([0, 0, 0], [16, 4, 16], faces("#top"))] + posts})
+    write(f"assets/{NS}/models/block/relay_gate_on.json", {
+        "parent": "minecraft:block/block", "render_type": "minecraft:cutout",
+        "textures": {"side": side, "top": rid("block/relay_gate_top_on"), "lights": rid("block/relay_gate_top_on_lights"), "particle": side},
+        "elements": [box([0, 0, 0], [16, 4, 16], faces("#top"))] + posts
+                    + [box([0, 0, 0], [16, 4, 16], {"up": {"uv": [0, 0, 16, 16], "texture": "#lights", "neoforge_data": bright}}) | {"shade": False}]})
+    write(f"assets/{NS}/blockstates/relay_gate.json", {"variants": {
+        "open=false": {"model": rid("block/relay_gate")}, "open=true": {"model": rid("block/relay_gate_on")}}})
+    item_definition("relay_gate", rid("block/relay_gate"))
+
+
+def relay_link():
+    """The same face all round: every side of it joins."""
+    for suffix in ("", "_on"):
+        t = rid(f"block/relay_link{suffix}")
+        cube(f"relay_link{suffix}", t, t, t, t, t)
+    write(f"assets/{NS}/blockstates/relay_link.json", {"variants": {
+        "working=false": {"model": rid("block/relay_link")}, "working=true": {"model": rid("block/relay_link_on")}}})
+    item_definition("relay_link", rid("block/relay_link"))
 
 
 def cables():
@@ -524,7 +583,7 @@ def power():
 
 # ---------------------------------------------------------------- data
 
-MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream",
+MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "relay_gate", "relay_link", "bench", "fabricator", "stream",
                   "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "combustion_generator", "energy_cell", "smelter", "power_cable",
                   "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor", "drive_dock", "access_point",
                   "link_driver"]
@@ -694,6 +753,10 @@ def advancements():
     advancement("agent/move", "agent/copy", "minecraft:chest", awarded(), frame="goal")
     advancement("deploy/server", "agent/made", "model_server", placed("model_server"))
     advancement("deploy/relay", "deploy/server", "relay", placed("relay"))
+    advancement("deploy/mast", "deploy/relay", "relay", awarded())
+    advancement("deploy/gate", "deploy/mast", "relay_gate", awarded(), frame="goal")
+    advancement("deploy/link", "deploy/mast", "relay_link", awarded(), frame="goal")
+    advancement("deploy/api", "deploy/relay", "terminal", awarded(), frame="goal")
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
     advancement("forecast/watching", "root", "forecaster", placed("forecaster"))
     advancement("forecast/ahead", "forecast/watching", "minecraft:furnace", awarded(), frame="goal")
@@ -747,6 +810,8 @@ if __name__ == "__main__":
     server()
     reader()
     relay()
+    relay_gate()
+    relay_link()
     bench()
     fabricator()
     forge()

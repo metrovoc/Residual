@@ -13,7 +13,9 @@ import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
 import io.github.metrovoc.residual.block.SurveyorBlockEntity;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
+import io.github.metrovoc.residual.block.GateBlockEntity;
 import io.github.metrovoc.residual.block.RelayBlockEntity;
+import io.github.metrovoc.residual.block.RelayLinkBlockEntity;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
 import io.github.metrovoc.residual.storage.AccessPointBlockEntity;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
@@ -45,6 +47,10 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(ReaderBlockEntity::new, Set.of(ModBlocks.READER.get())));
     public static final Supplier<BlockEntityType<RelayBlockEntity>> RELAY = BLOCK_ENTITIES.register("relay",
             () -> new BlockEntityType<>(RelayBlockEntity::new, Set.of(ModBlocks.RELAY.get())));
+    public static final Supplier<BlockEntityType<GateBlockEntity>> RELAY_GATE = BLOCK_ENTITIES.register("relay_gate",
+            () -> new BlockEntityType<>(GateBlockEntity::new, Set.of(ModBlocks.RELAY_GATE.get())));
+    public static final Supplier<BlockEntityType<RelayLinkBlockEntity>> RELAY_LINK = BLOCK_ENTITIES.register("relay_link",
+            () -> new BlockEntityType<>(RelayLinkBlockEntity::new, Set.of(ModBlocks.RELAY_LINK.get())));
 
     public static final Supplier<BlockEntityType<BenchBlockEntity>> BENCH = BLOCK_ENTITIES.register("bench",
             () -> new BlockEntityType<>(BenchBlockEntity::new, Set.of(ModBlocks.BENCH.get())));

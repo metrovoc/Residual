@@ -42,7 +42,7 @@ you say into programs for agents, and read what the old world wrote.
 - [Programs](programs.md): one language for agents and Ports, what it can do, how fast and how far, and how to watch it run.
 - [The Architect](architect.md): agents that copy, move and repeat builds, read as letters a slice at a time.
 - [The Surveyor](surveyor.md): a model that finds the ores in the ground around it, read a row at a time.
-- [Serving Models](deployment.md): Model Servers, relays and the Terminal.
+- [Serving Models](deployment.md): Model Servers, relays, gates, links and the Terminal.
 
 ## The base
 

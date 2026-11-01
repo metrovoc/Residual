@@ -1,5 +1,7 @@
 package io.github.metrovoc.residual.storage;
 
+import io.github.metrovoc.residual.block.RelayLinkBlockEntity;
+import io.github.metrovoc.residual.world.Relays;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenHashMap;
 import java.util.ArrayDeque;
@@ -12,8 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.function.ObjLongConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -44,6 +48,7 @@ public final class StorageNetwork {
     private final List<BlockPos> processors = new ArrayList<>();
     private final List<BlockPos> accessPoints = new ArrayList<>();
     private final List<BlockPos> drivers = new ArrayList<>();
+    private final List<BlockPos> links = new ArrayList<>();
     /** Where the last items stored or taken went or came from, for the flows players see along the links. */
     @Nullable
     public BlockPos lastStore;
@@ -87,6 +92,8 @@ public final class StorageNetwork {
                 accessPoints.add(p);
             } else if (level.getBlockEntity(p) instanceof LinkDriverBlockEntity) {
                 drivers.add(p);
+            } else if (level.getBlockEntity(p) instanceof RelayLinkBlockEntity) {
+                links.add(p);
             }
         }
     }
@@ -142,13 +149,38 @@ public final class StorageNetwork {
         return network;
     }
 
-    /** Where the network keeps items and fluids, highest priority first. */
-    public List<Store> stores() {
-        List<Store> out = new ArrayList<>();
-        if (held != null) {
-            out.add(held);
-            return out;
+    /** A network joined to this one over a relay network: through the link here, out of the link there. */
+    private record Far(StorageNetwork net, ServerLevel level, BlockPos here, BlockPos there, Relays.Net relay) {
+    }
+
+    /** The other networks joined to this one through its Relay Links, while their relay network is open. */
+    private List<Far> far() {
+        if (links.isEmpty()) {
+            return List.of();
         }
+        Relays relays = Relays.of(level.getServer());
+        List<Far> out = new ArrayList<>();
+        Set<StorageNetwork> seen = new HashSet<>();
+        seen.add(this);
+        for (BlockPos link : links) {
+            Relays.Net relay = relays.netOf(GlobalPos.of(level.dimension(), link));
+            if (relay == null || !relay.open()) {
+                continue;
+            }
+            for (Relays.Part p : relay.parts) {
+                ServerLevel there = p.kind() == Relays.Kind.LINK ? level.getServer().getLevel(p.at().dimension()) : null;
+                if (there != null && there.isLoaded(p.at().pos())) {
+                    StorageNetwork net = at(there, p.at().pos());
+                    if (seen.add(net)) {
+                        out.add(new Far(net, there, link, p.at().pos(), relay));
+                    }
+                }
+            }
+        }
+        return out;
+    }
+
+    private void own(List<Store> out) {
         for (BlockPos p : racks) {
             if (level.getBlockEntity(p) instanceof RackBlockEntity rack) {
                 rack.stores(out);
@@ -159,8 +191,105 @@ public final class StorageNetwork {
                 out.add(port.window());
             }
         }
+    }
+
+    /** Where the network keeps items and fluids, highest priority first; what is joined over a relay network counts as its own. */
+    public List<Store> stores() {
+        List<Store> out = new ArrayList<>();
+        if (held != null) {
+            out.add(held);
+            return out;
+        }
+        own(out);
+        for (Far far : far()) {
+            List<Store> there = new ArrayList<>();
+            far.net.own(there);
+            there.forEach(s -> out.add(new Through(s, far)));
+        }
         out.sort(Comparator.comparingInt(Store::priority).reversed());
         return out;
+    }
+
+    /**
+     * A store on another network, as this one sees it: reached through its link, as much a tick as the relay network carries.
+     * Fluids count as a Port's do, a {@link DockBlockEntity#FLUID_UNIT} of millibuckets for an item.
+     */
+    private final class Through implements Store {
+        private final Store store;
+        private final Far far;
+
+        Through(Store store, Far far) {
+            this.store = store;
+            this.far = far;
+        }
+
+        @Override
+        public int priority() {
+            return store.priority();
+        }
+
+        @Override
+        public BlockPos pos() {
+            return far.here;
+        }
+
+        @Override
+        public long count(ItemResource item) {
+            return store.count(item);
+        }
+
+        @Override
+        public long insert(ItemResource item, long amount, boolean simulate) {
+            long room = far.relay.itemsRoom(level.getGameTime(), amount);
+            return room <= 0 ? 0 : moved(store.insert(item, room, simulate), 1, true, simulate, item, FluidResource.EMPTY);
+        }
+
+        @Override
+        public long extract(ItemResource item, long amount, boolean simulate) {
+            long room = far.relay.itemsRoom(level.getGameTime(), amount);
+            return room <= 0 ? 0 : moved(store.extract(item, room, simulate), 1, false, simulate, item, FluidResource.EMPTY);
+        }
+
+        @Override
+        public void forEach(ObjLongConsumer<ItemResource> each) {
+            store.forEach(each);
+        }
+
+        @Override
+        public long amount(FluidResource fluid) {
+            return store.amount(fluid);
+        }
+
+        @Override
+        public long insert(FluidResource fluid, long amount, boolean simulate) {
+            long room = fluidRoom(amount);
+            return room <= 0 ? 0 : moved(store.insert(fluid, room, simulate), DockBlockEntity.FLUID_UNIT, true, simulate, ItemResource.EMPTY, fluid);
+        }
+
+        @Override
+        public long extract(FluidResource fluid, long amount, boolean simulate) {
+            long room = fluidRoom(amount);
+            return room <= 0 ? 0 : moved(store.extract(fluid, room, simulate), DockBlockEntity.FLUID_UNIT, false, simulate, ItemResource.EMPTY, fluid);
+        }
+
+        @Override
+        public void forEachFluid(ObjLongConsumer<FluidResource> each) {
+            store.forEachFluid(each);
+        }
+
+        private long fluidRoom(long amount) {
+            return Math.min(amount, far.relay.itemsRoom(level.getGameTime(), Long.MAX_VALUE / DockBlockEntity.FLUID_UNIT) * DockBlockEntity.FLUID_UNIT);
+        }
+
+        private long moved(long n, int unit, boolean in, boolean simulate, ItemResource item, FluidResource fluid) {
+            if (n > 0 && !simulate) {
+                far.relay.itemsCarried((n + unit - 1) / unit);
+                if (level.getGameTime() % Flows.EVERY == 0) {
+                    Flows.send(far.level, far.there, store.pos(), in, (int) Math.min(n, Integer.MAX_VALUE), item, fluid, false);
+                }
+            }
+            return n;
+        }
     }
 
     public List<PortBlockEntity> ports() {
@@ -175,22 +304,41 @@ public final class StorageNetwork {
 
     public List<AssemblerBlockEntity> assemblers() {
         List<AssemblerBlockEntity> out = new ArrayList<>();
-        for (BlockPos p : assemblers) {
-            if (level.getBlockEntity(p) instanceof AssemblerBlockEntity a) {
-                out.add(a);
+        ownAssemblers(out);
+        // a job keeps to one dimension: what is joined over relays works for it from this one only
+        for (Far far : far()) {
+            if (far.level == level) {
+                far.net.ownAssemblers(out);
             }
         }
         return out;
     }
 
+    private void ownAssemblers(List<AssemblerBlockEntity> out) {
+        for (BlockPos p : assemblers) {
+            if (level.getBlockEntity(p) instanceof AssemblerBlockEntity a) {
+                out.add(a);
+            }
+        }
+    }
+
     public List<ProcessorBlockEntity> processors() {
         List<ProcessorBlockEntity> out = new ArrayList<>();
+        ownProcessors(out);
+        for (Far far : far()) {
+            if (far.level == level) {
+                far.net.ownProcessors(out);
+            }
+        }
+        return out;
+    }
+
+    private void ownProcessors(List<ProcessorBlockEntity> out) {
         for (BlockPos p : processors) {
             if (level.getBlockEntity(p) instanceof ProcessorBlockEntity a) {
                 out.add(a);
             }
         }
-        return out;
     }
 
     public List<AccessPointBlockEntity> accessPoints() {
@@ -402,14 +550,19 @@ public final class StorageNetwork {
         }
         List<Store> stores = stores();
         long left = amount;
-        for (int i = stores.size() - 1; i >= 0 && left > 0; i--) {
-            long took = stores.get(i).extract(item, left, simulate);
-            if (took > 0 && !simulate) {
-                lastStore = stores.get(i).pos();
-                lastItem = item;
-                lastFluid = FluidResource.EMPTY;
+        // what is on this network first, so nothing crosses a relay link that needn't
+        for (int pass = 0; pass < 2 && left > 0; pass++) {
+            for (int i = stores.size() - 1; i >= 0 && left > 0; i--) {
+                if (stores.get(i) instanceof Through == (pass == 1)) {
+                    long took = stores.get(i).extract(item, left, simulate);
+                    if (took > 0 && !simulate) {
+                        lastStore = stores.get(i).pos();
+                        lastItem = item;
+                        lastFluid = FluidResource.EMPTY;
+                    }
+                    left -= took;
+                }
             }
-            left -= took;
         }
         return amount - left;
     }
@@ -465,14 +618,18 @@ public final class StorageNetwork {
         }
         List<Store> stores = stores();
         long left = amount;
-        for (int i = stores.size() - 1; i >= 0 && left > 0; i--) {
-            long took = stores.get(i).extract(fluid, left, simulate);
-            if (took > 0 && !simulate) {
-                lastStore = stores.get(i).pos();
-                lastFluid = fluid;
-                lastItem = ItemResource.EMPTY;
+        for (int pass = 0; pass < 2 && left > 0; pass++) {
+            for (int i = stores.size() - 1; i >= 0 && left > 0; i--) {
+                if (stores.get(i) instanceof Through == (pass == 1)) {
+                    long took = stores.get(i).extract(fluid, left, simulate);
+                    if (took > 0 && !simulate) {
+                        lastStore = stores.get(i).pos();
+                        lastFluid = fluid;
+                        lastItem = ItemResource.EMPTY;
+                    }
+                    left -= took;
+                }
             }
-            left -= took;
         }
         return amount - left;
     }
@@ -504,6 +661,13 @@ public final class StorageNetwork {
         for (BlockPos p : racks) {
             if (level.getBlockEntity(p) instanceof RackBlockEntity rack) {
                 rack.usage(used);
+            }
+        }
+        for (Far far : far()) {
+            for (BlockPos p : far.net.racks) {
+                if (far.level.getBlockEntity(p) instanceof RackBlockEntity rack) {
+                    rack.usage(used);
+                }
             }
         }
         return used;

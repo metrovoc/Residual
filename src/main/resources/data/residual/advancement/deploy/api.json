@@ -1,0 +1,28 @@
+{
+  "parent": "residual:deploy/relay",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:terminal"
+    },
+    "title": {
+      "translate": "advancements.residual.deploy.api.title"
+    },
+    "description": {
+      "translate": "advancements.residual.deploy.api.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

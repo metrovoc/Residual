@@ -16,7 +16,9 @@ import io.github.metrovoc.residual.energy.SmelterBlock;
 import io.github.metrovoc.residual.block.ForgeBlock;
 import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.block.ReaderBlock;
+import io.github.metrovoc.residual.block.GateBlock;
 import io.github.metrovoc.residual.block.RelayBlock;
+import io.github.metrovoc.residual.block.RelayLinkBlock;
 import io.github.metrovoc.residual.block.ServerBlock;
 import io.github.metrovoc.residual.block.StreamBlock;
 import io.github.metrovoc.residual.block.SurveyorBlock;
@@ -80,7 +82,13 @@ public final class ModBlocks {
     public static final DeferredBlock<StreamBlock> STREAM = BLOCKS.registerBlock("stream", StreamBlock::new,
             p -> p.mapColor(MapColor.COLOR_CYAN).strength(1f, 6f).sound(SoundType.AMETHYST).lightLevel(s -> 7));
     public static final DeferredBlock<RelayBlock> RELAY = BLOCKS.registerBlock("relay", RelayBlock::new,
-            p -> machine(p).strength(1.5f, 6f).noOcclusion().lightLevel(s -> 9));
+            p -> machine(p).strength(1.5f, 6f).noOcclusion().lightLevel(s -> s.getValue(RelayBlock.LIVE) && !s.getValue(RelayBlock.UP) ? 9 : 0));
+    /** The Datacenter tier's way across the world: stand on one and be sent to another on its network. */
+    public static final DeferredBlock<GateBlock> RELAY_GATE = BLOCKS.registerBlock("relay_gate", GateBlock::new,
+            p -> machine(p).strength(3f, 8f).noOcclusion().lightLevel(s -> s.getValue(GateBlock.OPEN) ? 10 : 2));
+    /** Joins the storage and power networks touching it to those at every other link on its relay network. */
+    public static final DeferredBlock<RelayLinkBlock> RELAY_LINK = BLOCKS.registerBlock("relay_link", RelayLinkBlock::new,
+            p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(RelayLinkBlock.WORKING) ? 9 : 2));
     public static final DeferredBlock<LinkBlock> STORAGE_LINK = BLOCKS.registerBlock("storage_link", LinkBlock::new,
             p -> p.mapColor(MapColor.COLOR_GRAY).strength(0.5f).sound(SoundType.COPPER).noOcclusion().forceSolidOn());
     public static final DeferredBlock<RackBlock> DRIVE_RACK = BLOCKS.registerBlock("drive_rack", RackBlock::new,

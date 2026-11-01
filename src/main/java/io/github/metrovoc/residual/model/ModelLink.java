@@ -29,6 +29,10 @@ public sealed interface ModelLink {
 
     /** A model served by a Model Server in relay range. */
     record Served(ServerBlockEntity server, ModelInfo info) implements ModelLink {
+        /** Where the server stands. */
+        public GlobalPos where() {
+            return server.where();
+        }
     }
 
     /** Why there is no model to ask right now: a translation key and its arguments. */
@@ -51,11 +55,16 @@ public sealed interface ModelLink {
             if (link == null) {
                 return new Missing("residual.model.unbound");
             }
-            if (!link.dimension().equals(level.dimension()) || !Relays.covers(level, link.pos(), where)) {
+            Relays relays = Relays.of(level.getServer());
+            ServerLevel home = level.getServer().getLevel(link.dimension());
+            if (home == null || relays.part(link) == null) {
+                return new Missing("residual.model.no_server");
+            }
+            if (!relays.covers(link, level.dimension(), where)) {
                 return new Missing("residual.model.out_of_range");
             }
             // a server answers from its block tick, so one out of the simulation distance would never answer
-            if (!level.shouldTickBlocksAt(link.pos()) || !(level.getBlockEntity(link.pos()) instanceof ServerBlockEntity server)) {
+            if (!home.shouldTickBlocksAt(link.pos()) || !(home.getBlockEntity(link.pos()) instanceof ServerBlockEntity server)) {
                 return new Missing("residual.model.no_server");
             }
             ModelInfo served = server.model();

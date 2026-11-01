@@ -76,6 +76,8 @@ public final class ModTabs {
                 ModItems.UPGRADES.values().forEach(u -> out.accept(u.get()));
                 out.accept(ModBlocks.SERVER.get());
                 out.accept(ModBlocks.RELAY.get());
+                out.accept(ModBlocks.RELAY_GATE.get());
+                out.accept(ModBlocks.RELAY_LINK.get());
                 out.accept(ModItems.RELAY_CARD.get());
                 out.accept(ModItems.TERMINAL.get());
                 out.accept(ModBlocks.DRIVE_RACK.get());

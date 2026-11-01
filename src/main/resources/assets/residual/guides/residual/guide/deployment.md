@@ -7,13 +7,16 @@ item_ids:
   - model_server
   - relay
   - relay_card
+  - relay_gate
+  - relay_link
   - terminal
 ---
 
 # Serving Models
 
 A model too big for an agent's head can still work for it. A Model Server holds the model and answers questions
-for everything tuned to it, as far as its relays reach.
+for everything tuned to it, as far as its relays reach. A network of relays does more than carry questions: it keeps a
+base running with nobody there, moves you between its gates, and makes storage and power at both ends of the world one.
 
 ## The Model Server
 
@@ -29,11 +32,43 @@ turned away until it catches up.
 
 ## Relays
 
+<GameScene zoom="4" interactive={true}>
+  <Block id="relay" y="0" p:up="true" p:live="true" />
+  <Block id="relay" y="1" p:up="true" p:down="true" p:live="true" />
+  <Block id="relay" y="2" p:up="true" p:down="true" p:live="true" />
+  <Block id="relay" y="3" p:down="true" p:live="true" />
+  <Block id="model_server" x="-2" p:facing="south" p:loaded="true" />
+  <Block id="accelerator" x="-3" />
+  <Block id="relay_gate" x="2" p:open="true" />
+  <Block id="relay_link" x="2" z="-2" />
+  <IsometricCamera yaw="200" pitch="30" />
+  <BoxAnnotation min="0 0 0" max="1 4 1" color="#3CD6C6">
+    A mast four relays tall: it reaches 128 blocks.
+  </BoxAnnotation>
+  <BoxAnnotation min="-2 0 0" max="-1 1 1" color="#3EB8FF">
+    A Model Server, serving.
+  </BoxAnnotation>
+  <BoxAnnotation min="2 0 0" max="3 0.25 1" color="#FFB547">
+    A Relay Gate, open.
+  </BoxAnnotation>
+  <BoxAnnotation min="2 0 -2" max="3 1 -1" color="#84E08A">
+    A Relay Link.
+  </BoxAnnotation>
+</GameScene>
+
 <RecipeFor id="relay" />
 
-A Model Server reaches 16 blocks by itself. A <ItemLink id="relay" /> within 32 blocks of the server, or of another
-relay already linked to it, links up and carries the server's reach 32 blocks around itself. Use a relay to see how
-many other relays are in reach and which servers it is linked to.
+A Model Server reaches 16 blocks by itself, and a <ItemLink id="relay" /> 32. Two of them join when their reaches
+touch: a relay up to 48 blocks from the server is on its network, and one up to 64 blocks from that relay is too, so
+the ground a network reaches has no gaps in it. Reach runs level, however high or deep you stand.
+
+Relays stacked make a mast, which reaches 32 blocks for each block of it, up to 1,024 from a mast 32 blocks tall. Use
+one to see how far it reaches and what is on its network.
+
+The lamp on top lights while a model is served on the network, and such a network keeps the ground around it running. The
+chunk each of its relays, gates and links stands in, and the eight around that, stay loaded with nobody near them: machines
+go on working, agents go on walking, and the server goes on answering. Put a relay in each part of a base you want kept
+running.
 
 ## Relay Cards
 
@@ -46,15 +81,52 @@ tuned to one server shares its answers per second.
 In an <ItemLink id="access_point" />, a card that reaches the server lets the storage network's Wireless Terminals go
 anywhere the server's relays cover ([Storage](storage.md)).
 
+## Relay Gates
+
+A <ItemLink id="relay_gate" /> is a pad to stand on, and it has to stand in a relay's reach. The Fabricator makes it from
+a Transformer mask, 8 casings, 16 wafers and 8 weight crystals. It opens once its network can carry you: a model that
+passes Orders is served on it, and it gives at least 16 answers a second, which is a server with three cooled
+Accelerators. An open gate shows a shaft of light.
+
+Use a gate to see its network on a map, and click another gate, on the map or in the list beside it. A jump is a request
+like any other. It takes one answer for every step of the way from relay to relay, and each waits its turn at the server
+behind whatever else is asking, so a gate is quicker with more Accelerators and slower when the base is busy. Walk away
+and the jump is called off.
+
+Name a gate in the box at the top of its screen, or at an anvil before you place it.
+
+A network doesn't have to be one piece. Use a <ItemLink id="relay_card" /> on a gate and it takes the gate's place; use
+it on another gate, however far off, in any dimension, and the two are tuned to each other. Their networks are one from
+then on: for jumps, for reach and for links. Sneak-use a card on a gate to cut it free.
+
+## Relay Links
+
+A <ItemLink id="relay_link" /> comes from the same mask, with 4 casings, 8 wafers and 4 weight crystals. It joins whatever
+touches it, on any face: <ItemLink id="storage_link" />s, Drive Racks, <ItemLink id="power_cable" />s and machines. On an
+open network, all the storage networks and all the power networks at its links act as one. A Storage Terminal at the far
+end shows what the drives at the near end keep, a Port there takes from them, and a machine there runs on the generators
+back home. Assemblers and Processors work for a request made anywhere on it in their own dimension.
+
+A network's links together carry 4 items and 50,000 FE a tick for each answer it gives a second: at 16 answers, 1,280
+items a second and 800,000 FE a tick, and each cooled Accelerator on the server adds 320 items a second and 200,000 FE a
+tick. Use a link to see how much of that it is carrying. Its faces light while it carries.
+
 ## The Terminal
 
 <residual:Clip name="terminal" alt="Writing with a served model on a Terminal" />
 
 <RecipeFor id="terminal" />
 
-Tune a <ItemLink id="terminal" /> on a Model Server the same way, then use it to talk to the served model: write the
-start of something and the model carries it on. While you hold a tuned Terminal within the server's reach, every agent
-the server reaches hears the orders you give by name in chat.
+Tune a <ItemLink id="terminal" /> on a Model Server the same way, then carry it out into the world and use it anywhere
+the server's network reaches.
+
+- **Map** shows the network from above, on the ground as far as you can see it: its reach, its masts, its gates and its
+  agents. Click a gate to go there, from wherever you are: that takes 8 answers more than a jump from a gate.
+- **Writing** is the served model itself: write the start of something and it carries it on.
+
+While you hold a tuned Terminal, bars in the corner show how far inside the reach you stand, pulses run from mast to
+mast while the server answers, and near the edge of the reach, posts of light mark where it ends. Every agent the server reaches also hears the
+orders you give by name in chat.
 
 ## Heat
 
