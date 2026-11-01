@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.agent;
 
+import io.github.metrovoc.residual.block.SurveyorBlockEntity;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -7,12 +8,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -546,6 +551,9 @@ final class Acts {
     /** Mines {@code count} blocks of a thing, or one, nearest first; blocks that need a tool need it carried. */
     private static Action mine(Agent a, int count, String thing) {
         Things.Wanted wanted = Things.of(thing);
+        // to mine iron is to mine iron ore: the ore blocks of a name count as well
+        List<TagKey<Block>> ores = wanted.names().stream()
+                .map(n -> TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", "ores/" + n.replace(' ', '_')))).toList();
         return new Action() {
             private final int want = Math.max(1, count);
             private final Set<BlockPos> skipped = new HashSet<>();
@@ -554,6 +562,15 @@ final class Acts {
             private int progress;
             @Nullable
             private BlockPos target;
+            /** Whether the target is buried, or one a Surveyor found out of sight: it digs its way there. */
+            private boolean digging;
+            /** The block in the way it is digging through, how far into it, and how long it has stood still. */
+            @Nullable
+            private BlockPos through;
+            private int dug;
+            private int still;
+            @Nullable
+            private BlockPos stood;
 
             @Override
             public Outcome tick(ServerLevel level) {
@@ -562,6 +579,10 @@ final class Acts {
                         return Outcome.done("residual.program.mined", mined, wanted.thing());
                     }
                     target = nearest(level);
+                    if (target == null) {
+                        target = SurveyorBlockEntity.nearestFound(level, a.blockPosition(), this::matches, skipped);
+                    }
+                    digging = target != null && buried(level, target);
                     if (target == null) {
                         return mined > 0 ? Outcome.done("residual.program.mined", mined, wanted.thing())
                                 : Outcome.failed("residual.program.failed.none_near", wanted.thing(), NEARBY);
@@ -578,6 +599,10 @@ final class Acts {
                     return null;
                 }
                 a.status("residual.agent.status.mining", wanted.thing());
+                if (digging && a.distanceToSqr(Vec3.atBottomCenterOf(target)) > 3.0 * 3.0) {
+                    dig(level);
+                    return null;
+                }
                 switch (a.walk(target, 3.0)) {
                     case ON_THE_WAY -> {
                         return null;
@@ -619,10 +644,100 @@ final class Acts {
                 return null;
             }
 
+            /** Shut in on every side, so no walking gets near it. */
+            private boolean buried(ServerLevel level, BlockPos p) {
+                for (Direction d : Direction.values()) {
+                    BlockPos n = p.relative(d);
+                    if (level.getBlockState(n).getCollisionShape(level, n).isEmpty()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            /**
+             * A step of a tunnel to a buried target: down where it lies at least as far below as aside and the ground
+             * under the next block holds, otherwise along the longer way, two blocks high for its body. A tunnel that would
+             * let in water or lava, or meets a block it cannot break, is given up for another target.
+             */
+            private void dig(ServerLevel level) {
+                BlockPos at = a.blockPosition();
+                if (through == null) {
+                    int dx = target.getX() - at.getX(), dy = target.getY() - at.getY(), dz = target.getZ() - at.getZ();
+                    BlockPos step = Math.abs(dx) >= Math.abs(dz) ? at.offset(Integer.signum(dx), 0, 0) : at.offset(0, 0, Integer.signum(dz));
+                    boolean down = dy < 0 && -dy >= Math.max(Math.abs(dx), Math.abs(dz)) && level.getBlockState(at.below(2)).isSolid();
+                    List<BlockPos> way = down ? List.of(at.below()) : List.of(step, step.above());
+                    through = way.stream().filter(p -> !level.getBlockState(p).getCollisionShape(level, p).isEmpty()).findFirst().orElse(null);
+                    if (through == null) {
+                        // the way is open: step into it, and give up a target it cannot get nearer to
+                        still = at.equals(stood) ? still + 1 : 0;
+                        stood = at;
+                        if (still > 60) {
+                            giveUp();
+                            return;
+                        }
+                        // one block over, so straight there, with no path to find
+                        BlockPos into = way.getFirst();
+                        a.getMoveControl().setWantedPosition(into.getX() + 0.5, into.getY(), into.getZ() + 0.5, 1.0);
+                        return;
+                    }
+                    if (!diggable(level, through)) {
+                        giveUp();
+                        return;
+                    }
+                    dug = 0;
+                }
+                BlockState s = level.getBlockState(through);
+                if (s.getCollisionShape(level, through).isEmpty()) {
+                    through = null;
+                    return;
+                }
+                a.getLookControl().setLookAt(Vec3.atCenterOf(through));
+                int time = Math.max(8, (int) (s.getDestroySpeed(level, through) * 12));
+                if (++dug < time) {
+                    level.destroyBlockProgress(a.getId(), through, dug * 10 / time);
+                    if (dug % 5 == 0) {
+                        a.swing(InteractionHand.MAIN_HAND);
+                    }
+                    return;
+                }
+                level.destroyBlockProgress(a.getId(), through, -1);
+                int t = tool(s);
+                ItemStack used = t < 0 ? ItemStack.EMPTY : a.items.getItem(t);
+                for (ItemStack drop : Block.getDrops(s, level, through, level.getBlockEntity(through), a, used)) {
+                    ItemStack rest = a.keep(drop);
+                    if (!rest.isEmpty()) {
+                        Block.popResource(level, through, rest);
+                    }
+                }
+                level.destroyBlock(through, false, a);
+                through = null;
+            }
+
+            /** Breakable, with no water or lava beside it to let in. */
+            private boolean diggable(ServerLevel level, BlockPos p) {
+                if (level.getBlockState(p).getDestroySpeed(level, p) < 0) {
+                    return false;
+                }
+                for (Direction d : Direction.values()) {
+                    if (!level.getFluidState(p.relative(d)).isEmpty()) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            private void giveUp() {
+                skipped.add(target);
+                target = null;
+                through = null;
+                still = 0;
+            }
+
             private boolean matches(BlockState s) {
                 return !s.isAir() && kinds.computeIfAbsent(s.getBlock(), b -> {
                     ItemStack as = new ItemStack(b.asItem());
-                    return wanted.exactly(as) || wanted.loosely(as);
+                    return wanted.exactly(as) || wanted.loosely(as) || ores.stream().anyMatch(s::is);
                 });
             }
 

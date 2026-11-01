@@ -14,10 +14,13 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -63,8 +66,9 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
     public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.unbound",
             "residual.model.out_of_range", "residual.model.no_server", "residual.model.server_empty", "residual.model.too_big",
             "residual.model.failed");
-    /** How near a player with a Survey Rod has to be to see what it found. */
+    /** How near a player with a Survey Rod has to be to see what it found, and an agent to dig for it. */
     public static final int SEEN = 48;
+    private static final Set<SurveyorBlockEntity> LOADED = new HashSet<>();
 
     public enum State { NO_MODEL, PEEKS, SURVEYING }
 
@@ -131,6 +135,46 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         Map<BlockPos, Character> all = new HashMap<>(last);
         all.putAll(found);
         return all;
+    }
+
+    /**
+     * The nearest place to {@code from} where a Surveyor within {@link #SEEN} blocks found something {@code wanted},
+     * still there, or null.
+     */
+    @Nullable
+    public static BlockPos nearestFound(ServerLevel level, BlockPos from, Predicate<BlockState> wanted, Set<BlockPos> skipped) {
+        BlockPos best = null;
+        for (SurveyorBlockEntity s : LOADED) {
+            if (s.level != level || s.worldPosition.distSqr(from) > SEEN * SEEN) {
+                continue;
+            }
+            for (BlockPos p : s.shown().keySet()) {
+                if (!skipped.contains(p) && (best == null || p.distSqr(from) < best.distSqr(from)) && wanted.test(level.getBlockState(p))) {
+                    best = p;
+                }
+            }
+        }
+        return best;
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide()) {
+            LOADED.add(this);
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        LOADED.remove(this);
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        LOADED.remove(this);
     }
 
     /** Whether {@code pos} lies in the ground it surveys. */

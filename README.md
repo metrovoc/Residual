@@ -88,7 +88,7 @@ from the chests at home or a storage network.
 
 A Surveyor reads the ground around it a row of sixteen blocks at a time, 16 blocks each way and 48 below, and asks its
 model where the first of each ore in a row lies; every answer the block bears out is kept. Hold a Survey Rod near it to
-see the ores it found through the ground.
+see the ores it found through the ground. An agent told `mine 8 iron` digs its way to the iron it found.
 
 Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it. Its model
 writes the order as a program; anything longer than one step it reads back, and runs only once you click Do it.

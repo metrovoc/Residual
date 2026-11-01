@@ -81,6 +81,13 @@ the next survey.
 Its screen shows each ore it found and how many; along the screen's foot, how far the survey has gone. Hold a
 <ItemLink id="survey_rod" /> within 48 blocks of it to see what it found through the ground, a box in each ore's colour.
 
+## Digging for it
+
+An agent's `mine` goes to what a Surveyor within 48 blocks found when nothing of the kind lies within its own reach of
+8, and digs its way to anything buried: down where the ore lies at least as far below as aside, otherwise along the
+longer way, two blocks high. It gives up a tunnel that would let in water or lava, or that meets a block it cannot
+break. To mine iron is to mine iron ore: `repeat (mine 8 iron, put)` digs where the iron is and brings it home.
+
 ## Its model
 
 A model learns this on the <ItemLink id="survey_dataset" />, and passes the Survey test by answering 90% of its
