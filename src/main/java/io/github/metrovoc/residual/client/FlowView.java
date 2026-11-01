@@ -1,5 +1,7 @@
 package io.github.metrovoc.residual.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.net.FlowSync;
 import io.github.metrovoc.residual.storage.Node;
@@ -11,34 +13,50 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.context.ContextKey;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ExtractLevelRenderStateEvent;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Items moving through a storage network, drawn as pulses of light running along its links from a Port or an
- * Assembler to the drive they went into, or back out of it: teal into the network, amber out. A bigger load makes a
- * brighter, longer pulse.
+ * What moves through a storage network, drawn along its links from a Port, a Dock or an Assembler to the drive it went into,
+ * or back out of it: the things themselves riding on the link, and under them pulses of light, teal into the network, amber
+ * out, red where a link is full; a fluid's pulses are its own color. A bigger load makes a brighter, longer stream.
  */
 public final class FlowView {
-    private static final ContextKey<List<Dot>> KEY = new ContextKey<>(Residual.id("flows"));
+    private static final ContextKey<List<Dot>> DOTS = new ContextKey<>(Residual.id("flows"));
+    private static final ContextKey<List<Riding>> RIDING = new ContextKey<>(Residual.id("flow_items"));
     /** Blocks a pulse travels a second. */
     private static final double SPEED = 12;
-    private static final int TEAL = 0x3CD6C6, AMBER = 0xFFB547;
+    private static final int TEAL = 0x3CD6C6, AMBER = 0xFFB547, RED = 0xFF6B6B;
     private static final int MOST = 256, LONGEST = 1024;
     private static final double RANGE = 64;
+    /** How close things have to be to be drawn, how many a frame, and how far apart in a stream. */
+    private static final double SEEN_RIDING = 32;
+    private static final int MOST_RIDING = 96;
+    private static final double GAP = 0.45;
+    /** How far above a link's centre they ride. */
+    private static final double RIDE = 0.2;
+    private static final int FULL_BRIGHT = 0xF000F0;
     private static final List<Pulse> PULSES = new ArrayList<>();
 
-    private record Pulse(List<Vec3> path, long start, int rgb, int dots) {
+    private record Pulse(List<Vec3> path, long start, int rgb, int dots, @Nullable ItemStackRenderState item) {
     }
 
     private record Dot(AABB box, int argb) {
+    }
+
+    private record Riding(Vec3 pos, float spin, ItemStackRenderState item) {
     }
 
     private FlowView() {
@@ -57,7 +75,22 @@ public final class FlowView {
             Collections.reverse(path);
         }
         int dots = Math.clamp(1 + (int) (Math.log(flow.count()) / Math.log(4)), 1, 5);
-        PULSES.add(new Pulse(path, System.nanoTime(), flow.in() ? TEAL : AMBER, dots));
+        int rgb = flow.full() ? RED : !flow.fluid().isEmpty() ? tint(flow.fluid()) : flow.in() ? TEAL : AMBER;
+        ItemStackRenderState item = null;
+        if (!flow.item().isEmpty()) {
+            item = new ItemStackRenderState();
+            Minecraft.getInstance().getItemModelResolver().updateForTopItem(item, flow.item().toStack(), ItemDisplayContext.GROUND, level, null, 0);
+        }
+        PULSES.add(new Pulse(path, System.nanoTime(), rgb, dots, item));
+    }
+
+    /** A fluid's color, as a tank's window shows it. */
+    private static int tint(FluidResource fluid) {
+        var model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid.getFluid().defaultFluidState());
+        if (model.fluidTintSource() != null) {
+            return model.fluidTintSource().colorAsStack(fluid.toStack(1000)) & 0xFFFFFF;
+        }
+        return Ui.sprited(model.stillMaterial().sprite());
     }
 
     /** The way through storage blocks from one to the other, block centre to block centre, or nothing. */
@@ -98,6 +131,12 @@ public final class FlowView {
         return List.of();
     }
 
+    /** Where a stream's point is {@code at} blocks along its path. */
+    private static Vec3 along(List<Vec3> path, double at) {
+        int k = (int) Math.floor(at);
+        return path.get(k).lerp(path.get(Math.min(k + 1, path.size() - 1)), at - k);
+    }
+
     public static void extract(ExtractLevelRenderStateEvent event) {
         if (PULSES.isEmpty()) {
             return;
@@ -105,41 +144,59 @@ public final class FlowView {
         long now = System.nanoTime();
         Vec3 camera = event.getCamera().position();
         List<Dot> dots = new ArrayList<>();
+        List<Riding> riding = new ArrayList<>();
         PULSES.removeIf(p -> (now - p.start) / 1e9 * SPEED > p.path.size() + p.dots);
+        float spin = (float) (now / 1e9 * 90 % 360);
         for (Pulse p : PULSES) {
             double head = (now - p.start) / 1e9 * SPEED;
             for (int i = 0; i < p.dots; i++) {
                 double at = head - i * 0.35;
-                if (at < 0 || at > p.path.size() - 1) {
-                    continue;
+                if (at >= 0 && at <= p.path.size() - 1) {
+                    Vec3 pos = along(p.path, at);
+                    if (pos.distanceToSqr(camera) <= RANGE * RANGE) {
+                        // just wider than a link's 6 px core, so the pulse glows around it rather than hidden inside
+                        double r = i == 0 ? 0.22 : 0.2;
+                        int alpha = (int) (170 * (1 - i / (double) (p.dots + 1)));
+                        dots.add(new Dot(new AABB(pos.subtract(r, r, r), pos.add(r, r, r)), alpha << 24 | p.rgb));
+                    }
                 }
-                int k = (int) Math.floor(at);
-                Vec3 a = p.path.get(k), b = p.path.get(Math.min(k + 1, p.path.size() - 1));
-                Vec3 pos = a.lerp(b, at - k);
-                if (pos.distanceToSqr(camera) > RANGE * RANGE) {
-                    continue;
+                double thing = head - i * GAP;
+                if (p.item != null && riding.size() < MOST_RIDING && thing >= 0 && thing <= p.path.size() - 1) {
+                    Vec3 pos = along(p.path, thing).add(0, RIDE, 0);
+                    if (pos.distanceToSqr(camera) <= SEEN_RIDING * SEEN_RIDING) {
+                        riding.add(new Riding(pos, spin, p.item));
+                    }
                 }
-                // just wider than a link's 6 px core, so the pulse glows around it rather than hidden inside
-                double r = i == 0 ? 0.22 : 0.2;
-                int alpha = (int) (170 * (1 - i / (double) (p.dots + 1)));
-                dots.add(new Dot(new AABB(pos.subtract(r, r, r), pos.add(r, r, r)), alpha << 24 | p.rgb));
             }
         }
         if (!dots.isEmpty()) {
-            event.getRenderState().setRenderData(KEY, dots);
+            event.getRenderState().setRenderData(DOTS, dots);
+        }
+        if (!riding.isEmpty()) {
+            event.getRenderState().setRenderData(RIDING, riding);
         }
     }
 
     public static void submit(SubmitCustomGeometryEvent event) {
-        List<Dot> dots = event.getLevelRenderState().getRenderData(KEY);
-        if (dots == null) {
-            return;
-        }
         Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
-        event.getSubmitNodeCollector().submitCustomGeometry(event.getPoseStack(), RenderTypes.lightning(), (pose, buffer) -> {
-            for (Dot d : dots) {
-                Waves.box(pose, buffer, d.box.move(-camera.x, -camera.y, -camera.z), d.argb);
+        List<Dot> dots = event.getLevelRenderState().getRenderData(DOTS);
+        if (dots != null) {
+            event.getSubmitNodeCollector().submitCustomGeometry(event.getPoseStack(), RenderTypes.lightning(), (pose, buffer) -> {
+                for (Dot d : dots) {
+                    Waves.box(pose, buffer, d.box.move(-camera.x, -camera.y, -camera.z), d.argb);
+                }
+            });
+        }
+        List<Riding> riding = event.getLevelRenderState().getRenderData(RIDING);
+        if (riding != null) {
+            PoseStack stack = event.getPoseStack();
+            for (Riding r : riding) {
+                stack.pushPose();
+                stack.translate(r.pos.x - camera.x, r.pos.y - camera.y, r.pos.z - camera.z);
+                stack.mulPose(Axis.YP.rotationDegrees(r.spin));
+                r.item.submit(stack, event.getSubmitNodeCollector(), FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
+                stack.popPose();
             }
-        });
+        }
     }
 }

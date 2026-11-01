@@ -96,9 +96,9 @@ public class RackBlockEntity extends BlockEntity implements MenuProvider {
                 continue;
             }
             Drive drive = data.drive(StorageDriveItem.id(s), d.capacity);
-            StorageDriveItem.Label label = new StorageDriveItem.Label(StorageDriveItem.id(s), drive.stored(), drive.kinds());
-            if (!label.equals(s.get(ModComponents.STORAGE_DRIVE.get()))) {
-                s.set(ModComponents.STORAGE_DRIVE.get(), label);
+            StorageDriveItem.Label label = s.get(ModComponents.STORAGE_DRIVE.get());
+            StorageDriveItem.note(s, drive);
+            if (label != s.get(ModComponents.STORAGE_DRIVE.get())) {
                 setChanged();
             }
             now[i] = drive.stored() == 0 ? EMPTY : drive.stored() >= d.capacity ? FULL : drive.stored() * 4 >= d.capacity * 3 ? FILLING : ROOM;

@@ -169,6 +169,30 @@ public final class Ui {
     }
 
     /** A count with thousands separators. */
+    /** A fluid's still sprite in its own color, as a tank's window shows it. */
+    public static void fluid(GuiGraphicsExtractor g, net.neoforged.neoforge.transfer.fluid.FluidResource fluid, int x, int y, int w, int h) {
+        net.minecraft.client.renderer.block.FluidModel model = net.minecraft.client.Minecraft.getInstance().getModelManager()
+                .getFluidStateModelSet().get(fluid.getFluid().defaultFluidState());
+        int tint = model.fluidTintSource() == null ? -1 : model.fluidTintSource().colorAsStack(fluid.toStack(1000)) | 0xFF000000;
+        g.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, model.stillMaterial().sprite(), x, y, w, h, tint);
+    }
+
+    /** The color a sprite averages to, for a fluid with no tint of its own: lava's orange, on a stream of light. */
+    public static int sprited(net.minecraft.client.renderer.texture.TextureAtlasSprite sprite) {
+        long r = 0, g = 0, b = 0;
+        int n = 0;
+        for (int y = 0; y < sprite.contents().height(); y++) {
+            for (int x = 0; x < sprite.contents().width(); x++) {
+                int argb = sprite.getPixelRGBA(0, x, y);
+                r += argb & 0xFF;
+                g += argb >> 8 & 0xFF;
+                b += argb >> 16 & 0xFF;
+                n++;
+            }
+        }
+        return n == 0 ? 0xFFFFFF : (int) (r / n) << 16 | (int) (g / n) << 8 | (int) (b / n);
+    }
+
     public static String count(long v) {
         return String.format(Locale.ROOT, "%,d", v);
     }

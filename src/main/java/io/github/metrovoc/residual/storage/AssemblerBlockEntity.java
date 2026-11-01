@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jetbrains.annotations.Nullable;
 
@@ -255,7 +256,7 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
         }
         madeThisSecond += (int) n;
         if (level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
-            Flows.send(level, worldPosition, to, true, (int) n * r.made());
+            Flows.send(level, worldPosition, to, true, (int) n * r.made(), r.output(), FluidResource.EMPTY, false);
         }
         return n;
     }

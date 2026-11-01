@@ -41,6 +41,22 @@ navigation:
 
 <residual:Milestone id="storage/processor">把处理器贴着熔炉放并连上网络，设定放入什么、产出什么，再向存储终端请求一些，或告诉处理器要保持多少：<ItemLink id="processor" />。</residual:Milestone>
 
+<residual:Milestone id="storage/fluid">打开存储终端，光标上拿着装满的桶，点击网格：[存储](storage.md)。</residual:Milestone>
+
+<residual:Milestone id="storage/dense">制造机用线性层光掩模制造它：<ItemLink id="dense_drive" />。</residual:Milestone>
+
+<residual:Milestone id="storage/deep">八个堆叠驱动器围着中继图纸：<ItemLink id="deep_drive" />。</residual:Milestone>
+
+<residual:Milestone id="storage/dock">制造机用矩阵乘法光掩模制造它：<ItemLink id="drive_dock" />。</residual:Milestone>
+
+<residual:Milestone id="storage/driver">合成一个，把它连到存储网络和电力网络：<ItemLink id="link_driver" />。</residual:Milestone>
+
+<residual:Milestone id="storage/wireless">在接入点上调谐无线终端，然后使用它：<ItemLink id="wireless_terminal" />。</residual:Milestone>
+
+<residual:Milestone id="storage/relay">在接入点里放一张中继卡，到它的范围之外、中继器覆盖之内打开终端：<ItemLink id="access_point" />。</residual:Milestone>
+
+<residual:Milestone id="storage/portable">制造机用线性层光掩模制造它：<ItemLink id="portable_drive" />。</residual:Milestone>
+
 <residual:Milestone id="storage/request">在存储终端里点击网络能做的东西，请求一个数量并开始：[存储](storage.md)。</residual:Milestone>
 
 ## 旧世界

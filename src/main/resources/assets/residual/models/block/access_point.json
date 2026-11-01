@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/access_point_side",
+    "north": "residual:block/access_point_front",
+    "south": "residual:block/access_point_side",
+    "east": "residual:block/access_point_side",
+    "west": "residual:block/access_point_side",
+    "up": "residual:block/drive_rack_top",
+    "down": "residual:block/access_point_side"
+  }
+}

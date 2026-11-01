@@ -2371,6 +2371,207 @@ def storage_drive():
     return c
 
 
+# what a larger drive's window shows: its cells set closer, then in stacked sheets, then a block lit all through
+DRIVE_WINDOWS = {
+    "dense_drive": (TEAL, [
+        "WWWWWWWW",
+        "WaWbWaWb",
+        "WWWWWWWW",
+        "WbWaWbWa",
+        "WWWWWWWW",
+        "WaWbWaWb",
+        "WWWWWWWW"]),
+    "stacked_drive": (AZURE, [
+        "WWWWWWWW",
+        "aaaaaaaa",
+        "WWWWWWWW",
+        "bbbbbbbb",
+        "WWWWWWWW",
+        "aaaaaaaa",
+        "WWWWWWWW"]),
+    "deep_drive": (AMBER, [
+        "aabbbbaa",
+        "aabbbbaa",
+        "abbccbba",
+        "abbccbba",
+        "abbccbba",
+        "aabbbbaa",
+        "aabbbbaa"]),
+}
+
+
+def larger_drive(name):
+    """The same cartridge with a window of its own, a brighter band and a brighter foot for each size."""
+    ramp, rows = DRIVE_WINDOWS[name]
+    c = Canvas()
+    c.stamp(0, 0, STORAGE_DRIVE, {"k": K3, "K": K1, "G": G2, "g": G1, "W": W1, "a": W1, "b": W1, "c": W1, "d": W1,
+                                  "t": ramp[4], "y": ramp[3]})
+    c.stamp(4, 4, rows, {"W": W1, "a": ramp[2], "b": ramp[4], "c": ramp[5]})
+    outline(c, SLATE[0])
+    return c
+
+
+PORTABLE_DRIVE = [
+    "................",
+    "................",
+    ".....kKKKKk.....",
+    ".....k....k.....",
+    "...kKKKKKKKKk...",
+    "...GGGGGGGGGG...",
+    "...GWWWWWWWWG...",
+    "...GWaWbWcWWG...",
+    "...GWWWWWWWWG...",
+    "...GWdWaWWWWG...",
+    "...GWWWWWWWWG...",
+    "...GGGGGGGGGG...",
+    "...GkGkGkGlGG...",
+    "...gGGGGGGGGg...",
+    "................",
+    "................",
+]
+
+
+def portable_drive():
+    """A cartridge with a handle and keys of its own: a drive that needs no rack to show what it holds."""
+    c = Canvas()
+    c.stamp(0, 0, PORTABLE_DRIVE, {"k": K3, "K": K1, "G": G2, "g": G1, "W": W1, "a": AMBER[4], "b": TEAL[4], "c": GREEN[4],
+                                   "d": AMETHYST[4], "l": TEAL[4]})
+    outline(c, SLATE[0])
+    return c
+
+
+WIRELESS_TERMINAL = [
+    "..b.........b...",
+    "..b.........b...",
+    "...GGGGGGGGGG...",
+    "...GWWWWWWWWG...",
+    "...GWttWccWWG...",
+    "...GWttWccWWG...",
+    "...GWWWWWWWWG...",
+    "...GWccWttWWG...",
+    "...GWccWttWWG...",
+    "...GWWWWWWWWG...",
+    "...GGGGGGGGGG...",
+    "...GkGkGkGkGG...",
+    "...GGGGGGGGGG...",
+    "...GkGkGkGlGG...",
+    "...gGGGGGGGGg...",
+    "................",
+]
+
+
+def wireless_terminal():
+    """A Storage Terminal's screen in the hand, with two aerials: the kinds it shows are the network's, wherever that is."""
+    c = Canvas()
+    c.stamp(0, 0, WIRELESS_TERMINAL, {"G": G2, "g": G1, "W": W1, "t": AZURE[3], "c": AZURE[5], "k": K2, "l": AZURE[4],
+                                      "b": K3})
+    outline(c, SLATE[0])
+    return c
+
+
+def drive_dock_front(working):
+    """Two bays above and two below, as drives wait in it and come out of it, and between them an arrow that lights."""
+    c = plate(salt=71)
+    window(c, ramp=AZURE if working else None, salt=71)
+    for y in (4, 10):
+        for x in (4, 9):
+            c.rect(x, y, x + 2, y + 1, AZURE[3] if working else STEEL[5])
+    c.rect(7, 6, 8, 7, AZURE[5] if working else SLATE[4])
+    c.rect(6, 8, 9, 8, AZURE[5] if working else SLATE[4])
+    c.rect(7, 9, 8, 9, AZURE[5] if working else SLATE[4])
+    return c
+
+
+DOCK_SIDE = [
+    "######",
+    "#....#",
+    "######",
+    "######",
+    "#....#",
+    "######",
+]
+
+
+def drive_dock_side():
+    """Drives one over another."""
+    c = plate(salt=72)
+    engraved_glyph(c, DOCK_SIDE)
+    return c
+
+
+ACCESS_POINT = [
+    "##....##",
+    "#......#",
+    "..####..",
+    "..#++#..",
+    "..#++#..",
+    "..####..",
+    "#......#",
+    "##....##",
+]
+
+
+def access_point_front(lit_up):
+    """A square within the corners of the space it reaches: dark until it has a network behind it."""
+    c = plate(salt=73)
+    window(c, ramp=AZURE if lit_up else None, salt=73)
+    (glow_glyph if lit_up else dim_glyph)(*((c, ACCESS_POINT, AZURE) if lit_up else (c, ACCESS_POINT)))
+    return c
+
+
+ACCESS_POINT_SIDE = [
+    "#....#",
+    ".####.",
+    ".#..#.",
+    ".#..#.",
+    ".####.",
+    "#....#",
+]
+
+
+def access_point_side():
+    c = plate(salt=74)
+    engraved_glyph(c, ACCESS_POINT_SIDE)
+    return c
+
+
+LINK_DRIVER = [
+    "...##...",
+    "..####..",
+    ".##..##.",
+    "##....##",
+    "...##...",
+    "..####..",
+    ".##..##.",
+    "##....##",
+]
+
+
+def link_driver_front(working):
+    """Chevrons driving upward, dark until power runs through them."""
+    c = plate(salt=75)
+    window(c, ramp=CORAL if working else None, salt=75)
+    (glow_glyph if working else dim_glyph)(*((c, LINK_DRIVER, CORAL) if working else (c, LINK_DRIVER)))
+    return c
+
+
+LINK_DRIVER_SIDE = [
+    "..##..",
+    "..##..",
+    "######",
+    "######",
+    "..##..",
+    "..##..",
+]
+
+
+def link_driver_side():
+    """A link's joint, in the coral of power."""
+    c = plate(salt=76)
+    engraved_glyph(c, LINK_DRIVER_SIDE, CORAL)
+    return c
+
+
 GUIDE = [
     "................",
     "..ooooooooooo...",
@@ -2657,6 +2858,44 @@ ICONS = {
 ......##........
 ......#.........
 """),
+    # out of the drive
+    "dock_empty": icon_cells("""
+................
+...##########...
+...#........#...
+...##########...
+................
+.......##.......
+.......##.......
+.......##.......
+.......##.......
+....########....
+.....######.....
+......####......
+.......##.......
+................
+................
+................
+"""),
+    # into the drive
+    "dock_fill": icon_cells("""
+................
+................
+.......##.......
+.......##.......
+.......##.......
+.......##.......
+....########....
+.....######.....
+......####......
+.......##.......
+................
+...##########...
+...#........#...
+...##########...
+................
+................
+"""),
     "stop": icon_cells("""
 ................
 ................
@@ -2803,6 +3042,21 @@ def build():
     assert [u + 5 for u in RACK_BAY_U] == [15 - u for u in reversed(RACK_BAY_U)]
     assert [v + 1 for v in RACK_BAY_V] == [15 - v for v in reversed(RACK_BAY_V)]
     storage_drive().save("item/storage_drive.png")
+    for name in DRIVE_WINDOWS:
+        larger_drive(name).save(f"item/{name}.png")
+    portable_drive().save("item/portable_drive.png")
+    wireless_terminal().save("item/wireless_terminal.png")
+    for rows in [DOCK_SIDE, ACCESS_POINT, ACCESS_POINT_SIDE, LINK_DRIVER, LINK_DRIVER_SIDE]:
+        assert mirrored(rows) and len(rows[0]) % 2 == 0 and len(rows) % 2 == 0, rows
+    drive_dock_front(False).save("block/drive_dock_front.png")
+    lit("block/drive_dock_front_on.png", [drive_dock_front(True)], [drive_dock_front(False)])
+    drive_dock_side().save("block/drive_dock_side.png")
+    access_point_front(False).save("block/access_point_front.png")
+    lit("block/access_point_front_on.png", [access_point_front(True)], [access_point_front(False)])
+    access_point_side().save("block/access_point_side.png")
+    link_driver_front(False).save("block/link_driver_front.png")
+    lit("block/link_driver_front_on.png", [link_driver_front(True)], [link_driver_front(False)])
+    link_driver_side().save("block/link_driver_side.png")
     # every face mirrors left to right but those that picture something one-sided or show data, the cartridge the
     # rack mirrors per column, and the relay's sheet of parts
     one_sided = {f"block/{op}_{face}.png" for op in ONE_SIDED for face in ("front", "side", "back")}

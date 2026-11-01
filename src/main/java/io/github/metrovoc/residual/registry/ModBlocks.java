@@ -21,6 +21,9 @@ import io.github.metrovoc.residual.block.StreamBlock;
 import io.github.metrovoc.residual.block.SurveyorBlock;
 import io.github.metrovoc.residual.block.WatchPostBlock;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.storage.AccessPointBlock;
+import io.github.metrovoc.residual.storage.DockBlock;
+import io.github.metrovoc.residual.storage.LinkDriverBlock;
 import io.github.metrovoc.residual.storage.AssemblerBlock;
 import io.github.metrovoc.residual.storage.LinkBlock;
 import io.github.metrovoc.residual.storage.PortBlock;
@@ -85,6 +88,12 @@ public final class ModBlocks {
             p -> machine(p).lightLevel(s -> s.getValue(TerminalBlock.LIT) ? 9 : 2));
     public static final DeferredBlock<PortBlock> PORT = BLOCKS.registerBlock("port", PortBlock::new,
             p -> machine(p).lightLevel(s -> s.getValue(PortBlock.ACTIVE) ? 7 : 2));
+    public static final DeferredBlock<DockBlock> DRIVE_DOCK = BLOCKS.registerBlock("drive_dock", DockBlock::new,
+            p -> machine(p).lightLevel(s -> s.getValue(DockBlock.WORKING) ? 9 : 2));
+    public static final DeferredBlock<AccessPointBlock> ACCESS_POINT = BLOCKS.registerBlock("access_point", AccessPointBlock::new,
+            p -> machine(p).lightLevel(s -> s.getValue(AccessPointBlock.LIT) ? 9 : 2));
+    public static final DeferredBlock<LinkDriverBlock> LINK_DRIVER = BLOCKS.registerBlock("link_driver", LinkDriverBlock::new,
+            p -> machine(p).lightLevel(s -> s.getValue(PowerDeviceBlock.WORKING) ? 11 : 2));
     public static final DeferredBlock<PowerCableBlock> POWER_CABLE = BLOCKS.registerBlock("power_cable", PowerCableBlock::new,
             p -> p.mapColor(MapColor.COLOR_ORANGE).strength(0.5f).sound(SoundType.COPPER).noOcclusion().forceSolidOn());
     public static final DeferredBlock<GeneratorBlock> COMBUSTION_GENERATOR = BLOCKS.registerBlock("combustion_generator",

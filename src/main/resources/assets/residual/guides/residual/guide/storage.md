@@ -5,9 +5,17 @@ navigation:
   position: 18
 item_ids:
   - storage_drive
+  - dense_drive
+  - stacked_drive
+  - deep_drive
+  - portable_drive
   - drive_rack
+  - drive_dock
   - storage_link
+  - link_driver
   - storage_terminal
+  - access_point
+  - wireless_terminal
   - port
   - assembler
   - processor
@@ -17,8 +25,8 @@ item_ids:
 
 Storage Drives in a <ItemLink id="drive_rack" />, joined by <ItemLink id="storage_link" />s to a
 <ItemLink id="storage_terminal" /> and to <ItemLink id="port" />s, make one storage network. It keeps any number of
-kinds of item, finds any of them from the terminal, and moves them in and out of chests and machines on its own.
-Nothing in it needs power, and nothing switches off.
+kinds of item and fluid, finds any of them from the terminal, and moves them in and out of chests, tanks and machines on
+its own. Nothing in it needs power, and nothing switches off.
 
 <GameScene zoom="4" interactive={true}>
   <Block id="drive_rack" p:facing="north" />
@@ -42,17 +50,35 @@ Nothing in it needs power, and nothing switches off.
 
 ## Drives and racks
 
-A <ItemLink id="storage_drive" /> holds 262,144 items, of as many kinds as you like: a kind costs nothing but its items.
-What a drive holds goes with it, so a drive moved to another rack takes everything with it, and its tooltip says how
-full it is.
+A drive holds as many kinds as you like: a kind costs nothing but what there is of it. A bucket of fluid takes the room
+of one item. What a drive holds goes with it, so a drive moved to another rack takes everything with it, and its tooltip
+says how full it is.
+
+| Drive | Holds | Made |
+|-------|-------|------|
+| <ItemLink id="storage_drive" /> | 262,144 | at a crafting table |
+| <ItemLink id="dense_drive" /> | 8,388,608 | in the Fabricator, from a linear layer photomask |
+| <ItemLink id="stacked_drive" /> | 268,435,456 | in the Fabricator, from a transformer photomask |
+| <ItemLink id="deep_drive" /> | 8,589,934,592 | from eight Stacked Drives, to the plans on the relay schematic |
 
 <Row>
   <RecipeFor id="storage_drive" />
+  <RecipeFor id="deep_drive" />
   <RecipeFor id="drive_rack" />
 </Row>
 
-A Drive Rack holds eight drives. Beside each bay a light shows how full its drive is: dim while it is empty, teal
-while it has room, amber once it is three quarters full, red when it is full.
+A Drive Rack holds eight drives of any size. Beside each bay a light shows how full its drive is: dim while it is empty,
+teal while it has room, amber once it is three quarters full, red when it is full.
+
+## The Drive Dock
+
+A <ItemLink id="drive_dock" />, from a matrix multiply photomask, moves what drives hold far faster than a Port: 2,048
+items a tick, 40,960 a second, or 256 buckets a tick. Put it on the network and drives in its left bays, and it takes them
+one at a time. Set by the button beside its window, it either empties each drive into the network or fills it from the
+network; a drive it has finished, emptied, full, or with nothing more to be had, comes out on the right. Beside a rack
+nothing limits it. Through a link it goes as fast as the link does.
+
+To move everything to a larger drive, fill the larger drive here, or empty the old one into a rack that holds the new.
 
 ## Links
 
@@ -64,6 +90,20 @@ are not the signal cables models are wired with: the two never connect.
 
 <RecipeFor id="storage_link" />
 
+What a link limits is how much goes along it. You can watch it go: the things themselves ride on the link, over a pulse
+of light, teal going into the network and amber coming out; a fluid's pulse is its own color. A link carries 1,024 items
+a tick, 20,480 a second, or eight times that many millibuckets. What a Port or a Dock moves takes the shortest way to the
+nearest rack, and everything sharing a stretch of link shares its 1,024. Nothing stops when a link is full; the rest just
+waits for the next tick, the pulses along that way turn red, and the Port's screen says so. A second line beside the first
+carries as much again, and a rack near the Ports that use it most saves the links altogether.
+
+A <ItemLink id="link_driver" /> joins a storage network on any face and a power network through <ItemLink id="power_cable" />s.
+While it has power, every link of its network carries 4,096 items a tick. It burns 40 FE for each tick a link would
+otherwise be full, and nothing while they have room. Without power everything goes on at the plain rate. Use it to see its
+power and what the links carry now.
+
+<RecipeFor id="link_driver" />
+
 ## The Storage Terminal
 
 <RecipeFor id="storage_terminal" />
@@ -74,6 +114,8 @@ somewhere to keep things.
 - Click a kind to take a stack, right-click to take half, shift-click to move a stack into your inventory.
 - Click the grid with a stack to put it in, right-click to put in one. Shift-click a stack in your inventory to put it
   away.
+- Click the grid with a filled bucket or tank to pour it in; the empty one stays in your hand. Click a fluid with an empty
+  one to fill it. Right-click with a filled bucket, and the bucket itself goes in.
 - The button beside the search box sorts by name (Az), by how many (#) or by mod (@); shift-click it to reverse.
 
 The search box finds things by name, every word at once. Other facts take a sign before them:
@@ -92,11 +134,34 @@ The search box finds things by name, every word at once. Other facts take a sign
 
 `@minecraft ingot -iron` finds every ingot but iron, and `>1k` everything there are more than a thousand of.
 
+## Wireless Terminals
+
+A <ItemLink id="wireless_terminal" /> is a Storage Terminal's screen in the hand. Use it on an
+<ItemLink id="access_point" /> to tune it to that network, then use it anywhere in reach, or press the key you give it in
+the controls to open the first one in your inventory.
+
+<RecipeFor id="wireless_terminal" />
+
+An Access Point comes from an attention photomask and joins its network like any storage block. It reaches 528 blocks, in
+every direction; with power in a Link Driver on the same network, 2,112. Any number can stand on one network, and a terminal
+goes by the nearest. A network far off stays loaded for as long as the screen is open.
+
+Beyond that lie the relays. Put a <ItemLink id="relay_card" /> in an Access Point's slot, tuned to a Model Server whose relays
+cover the Access Point, and its terminals reach the network anywhere those relays cover, however far from home
+([Deploying a Model](deployment.md)).
+
+## Portable Drives
+
+A <ItemLink id="portable_drive" />, from a linear layer photomask, holds 1,048,576 items of any number of kinds and opens
+its own terminal screen in the hand, with no rack, link or power. In a rack it works like any other drive, and a Dock fills
+or empties it at full speed, so it carries a share of the network out to wherever the work is and back.
+
 ## Ports
 
-A Port holds its front against an inventory (a chest, a barrel, a furnace or any other machine) and moves items between
-it and the network, 64 items a tick: 1,280 a second. Placed against a block, it faces that block; sneak-use one of its
-faces to turn its front there. Its sides show what it does, and light while it moves things.
+A Port holds its front against an inventory (a chest, a barrel, a furnace or any other machine) or a tank and moves things
+between it and the network: 64 items a tick, 1,280 a second, and 8 buckets a tick, 160 a second, whichever the block in front
+holds. Placed against a block, it faces that block; sneak-use one of its faces to turn its front there. Its sides show what
+it does, and light while it moves things.
 
 <RecipeFor id="port" />
 
@@ -110,7 +175,8 @@ faces to turn its front there. Its sides show what it does, and light while it m
   window with a higher priority is filled first, and a filter limits what may go in.
 
 To set the filter, click one of its slots with a stack, or shift-click the stack in your inventory; click a slot
-empty-handed to clear it. The screen says how many items the Port moved in the last second.
+empty-handed to clear it. A filled bucket in the filter names its fluid. Stocking counts a fluid in buckets. The screen says
+how many items the Port moved in the last second.
 
 A Port can also filter by what things are. Put a filter model in the slot beside its screen: a
 <ItemLink id="checkpoint" />, or a <ItemLink id="relay_card" /> tuned to a Model Server, whose model passes Sorting

@@ -13,6 +13,7 @@ import io.github.metrovoc.residual.item.HourglassItem;
 import io.github.metrovoc.residual.item.LinkItem;
 import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
+import io.github.metrovoc.residual.item.PortableDriveItem;
 import io.github.metrovoc.residual.item.ProbeItem;
 import io.github.metrovoc.residual.item.ProgramCardItem;
 import io.github.metrovoc.residual.item.SchematicItem;
@@ -22,6 +23,7 @@ import io.github.metrovoc.residual.item.SurveyRodItem;
 import io.github.metrovoc.residual.item.TerminalItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.WayfinderItem;
+import io.github.metrovoc.residual.item.WirelessTerminalItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
 import java.util.ArrayList;
@@ -74,6 +76,19 @@ public final class ModItems {
     /** The first Storage Drive: a quarter of a million items, of any number of kinds. */
     public static final DeferredItem<StorageDriveItem> STORAGE_DRIVE = ITEMS.registerItem("storage_drive",
             p -> new StorageDriveItem(262_144, p), p -> p.stacksTo(1));
+    /** The Lab tier's drive: four times a 256k cell, and a rack of eight more than a full ME Drive. */
+    public static final DeferredItem<StorageDriveItem> DENSE_DRIVE = ITEMS.registerItem("dense_drive",
+            p -> new StorageDriveItem(8_388_608, p), p -> p.stacksTo(1));
+    public static final DeferredItem<StorageDriveItem> STACKED_DRIVE = ITEMS.registerItem("stacked_drive",
+            p -> new StorageDriveItem(268_435_456, p), p -> p.stacksTo(1));
+    /** The top drive: four times a 256M cell. */
+    public static final DeferredItem<StorageDriveItem> DEEP_DRIVE = ITEMS.registerItem("deep_drive",
+            p -> new StorageDriveItem(8_589_934_592L, p), p -> p.stacksTo(1));
+    /** A drive with a terminal's screen of its own, a little over a million items. */
+    public static final DeferredItem<PortableDriveItem> PORTABLE_DRIVE = ITEMS.registerItem("portable_drive",
+            p -> new PortableDriveItem(1_048_576, p), p -> p.stacksTo(1));
+    public static final DeferredItem<WirelessTerminalItem> WIRELESS_TERMINAL = ITEMS.registerItem("wireless_terminal",
+            WirelessTerminalItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<WreckItem> WRECK = ITEMS.registerItem("salvaged_model", WreckItem::new,
             p -> p.stacksTo(1).rarity(Rarity.UNCOMMON));
 

@@ -78,8 +78,16 @@ public final class ModTabs {
                 out.accept(ModItems.TERMINAL.get());
                 out.accept(ModBlocks.DRIVE_RACK.get());
                 out.accept(ModItems.STORAGE_DRIVE.get());
+                out.accept(ModItems.DENSE_DRIVE.get());
+                out.accept(ModItems.STACKED_DRIVE.get());
+                out.accept(ModItems.DEEP_DRIVE.get());
+                out.accept(ModItems.PORTABLE_DRIVE.get());
+                out.accept(ModBlocks.DRIVE_DOCK.get());
                 out.accept(ModBlocks.STORAGE_LINK.get());
                 out.accept(ModBlocks.STORAGE_TERMINAL.get());
+                out.accept(ModBlocks.ACCESS_POINT.get());
+                out.accept(ModItems.WIRELESS_TERMINAL.get());
+                out.accept(ModBlocks.LINK_DRIVER.get());
                 out.accept(ModBlocks.PORT.get());
                 out.accept(ModBlocks.ASSEMBLER.get());
                 out.accept(ModBlocks.PROCESSOR.get());

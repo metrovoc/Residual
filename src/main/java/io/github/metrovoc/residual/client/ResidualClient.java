@@ -15,6 +15,7 @@ import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.net.CraftJobsSync;
 import io.github.metrovoc.residual.net.CraftPlanSync;
 import io.github.metrovoc.residual.net.CraftTreeSync;
+import io.github.metrovoc.residual.net.OpenTerminal;
 import io.github.metrovoc.residual.net.ShimmerSync;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
@@ -27,12 +28,18 @@ import io.github.metrovoc.residual.menu.WatchPostMenu;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.List;
 import java.util.Optional;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -47,6 +54,8 @@ public final class ResidualClient {
         modBus.addListener(ResidualClient::renderers);
         modBus.addListener(ResidualClient::layers);
         modBus.addListener(ResidualClient::models);
+        modBus.addListener(ResidualClient::keys);
+        NeoForge.EVENT_BUS.addListener(ResidualClient::openTerminalKey);
         NeoForge.EVENT_BUS.addListener(Waves::extract);
         NeoForge.EVENT_BUS.addListener(Waves::submit);
         NeoForge.EVENT_BUS.addListener(FlowView::extract);
@@ -70,6 +79,20 @@ public final class ResidualClient {
                 .build();
     }
 
+    /** Opens a Wireless Terminal or Portable Drive from anywhere in the inventory; no key is taken until a player gives it one. */
+    private static final KeyMapping OPEN_TERMINAL = new KeyMapping("key.residual.open_terminal", KeyConflictContext.IN_GAME, InputConstants.UNKNOWN,
+            KeyMapping.Category.INVENTORY);
+
+    private static void keys(RegisterKeyMappingsEvent event) {
+        event.register(OPEN_TERMINAL);
+    }
+
+    private static void openTerminalKey(ClientTickEvent.Post event) {
+        while (OPEN_TERMINAL.consumeClick()) {
+            ClientPacketDistributor.sendToServer(new OpenTerminal());
+        }
+    }
+
     private static void screens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.CORE.get(), CoreScreen::new);
         event.register(ModMenus.OPERATOR.get(), OperatorScreen::new);
@@ -86,6 +109,8 @@ public final class ResidualClient {
         event.register(ModMenus.PORT.get(), PortScreen::new);
         event.register(ModMenus.ASSEMBLER.get(), AssemblerScreen::new);
         event.register(ModMenus.PROCESSOR.get(), ProcessorScreen::new);
+        event.register(ModMenus.DOCK.get(), DockScreen::new);
+        event.register(ModMenus.ACCESS_POINT.get(), AccessPointScreen::new);
     }
 
     private static void payloads(RegisterClientPayloadHandlersEvent event) {
@@ -106,11 +131,7 @@ public final class ResidualClient {
         event.register(SurveySync.TYPE, (survey, ctx) -> SurveyView.receive(survey));
         event.register(StorageSync.TYPE, (sync, ctx) -> {
             if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == sync.menu()) {
-                menu.items = sync.items();
-                menu.stored = sync.stored();
-                menu.capacity = sync.capacity();
-                menu.craftable = java.util.Set.copyOf(sync.craftable());
-                menu.pins = sync.pins();
+                menu.apply(sync);
             }
         });
         event.register(CraftPlanSync.TYPE, (plan, ctx) -> {

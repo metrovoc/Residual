@@ -11,7 +11,9 @@ import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.ReaderMenu;
 import io.github.metrovoc.residual.menu.SurveyorMenu;
 import io.github.metrovoc.residual.menu.WatchPostMenu;
+import io.github.metrovoc.residual.storage.AccessPointMenu;
 import io.github.metrovoc.residual.storage.AssemblerMenu;
+import io.github.metrovoc.residual.storage.DockMenu;
 import io.github.metrovoc.residual.storage.PortMenu;
 import io.github.metrovoc.residual.storage.ProcessorMenu;
 import io.github.metrovoc.residual.storage.RackMenu;
@@ -58,6 +60,12 @@ public final class ModMenus {
 
     public static final Supplier<MenuType<ProcessorMenu>> PROCESSOR = MENUS.register("processor",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ProcessorMenu(id, inv, buf.readBlockPos())));
+
+    public static final Supplier<MenuType<DockMenu>> DOCK = MENUS.register("drive_dock",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new DockMenu(id, inv, buf.readBlockPos())));
+
+    public static final Supplier<MenuType<AccessPointMenu>> ACCESS_POINT = MENUS.register("access_point",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new AccessPointMenu(id, inv, buf.readBlockPos())));
 
     private ModMenus() {
     }

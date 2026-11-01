@@ -1,0 +1,28 @@
+{
+  "parent": "residual:storage/terminal",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:wireless_terminal"
+    },
+    "title": {
+      "translate": "advancements.residual.storage.wireless.title"
+    },
+    "description": {
+      "translate": "advancements.residual.storage.wireless.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

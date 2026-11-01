@@ -126,8 +126,17 @@ public class PortScreen extends AbstractContainerScreen<PortMenu> {
                     : Component.translatable("residual.port.priority", menu.data.get(PortBlockEntity.PRIORITY));
             g.text(font, label, 8, VALUE_Y, Ui.LABEL, false);
         }
-        Component status = Component.translatable("residual.port.moved", Ui.count(menu.data.get(PortBlockEntity.MOVED)));
-        g.text(font, status, 8, VALUE_Y + 16, Ui.LABEL_DIM, false);
+        g.text(font, status(), 8, VALUE_Y + 16, Ui.LABEL_DIM, false);
+    }
+
+    /** How much it moved in the last second, or that a full link holds it back. */
+    private Component status() {
+        if (menu.data.get(PortBlockEntity.LINK_FULL) != 0) {
+            return Component.translatable("residual.port.link_full");
+        }
+        return menu.data.get(PortBlockEntity.FLUID_MOVED) > 0
+                ? Component.translatable("residual.port.moved_fluid", Ui.count(menu.data.get(PortBlockEntity.FLUID_MOVED)))
+                : Component.translatable("residual.port.moved", Ui.count(menu.data.get(PortBlockEntity.MOVED)));
     }
 
     /** What a side slot is for, while it is pointed at and empty, or for the target model what it expects. */

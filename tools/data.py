@@ -391,6 +391,18 @@ def storage():
     write(f"assets/{NS}/blockstates/processor.json", {"variants": variants})
     item_definition("processor", rid("block/processor"))
 
+    # three blocks of the network that stand upright, each with a face that lights
+    for name, prop, top in (("drive_dock", "working", "block/drive_rack_top"), ("access_point", "lit", "block/drive_rack_top"),
+                            ("link_driver", "working", "block/combustion_generator_top")):
+        side = rid(f"block/{name}_side")
+        variants = {}
+        for on, suffix in (("false", ""), ("true", "_on")):
+            cube(f"{name}{suffix}", rid(f"block/{name}_front{suffix}"), side, side, rid(top), side)
+            for key, value in facing_variants(rid(f"block/{name}{suffix}"), facings=HORIZONTAL).items():
+                variants[f"{key},{prop}={on}"] = value
+        write(f"assets/{NS}/blockstates/{name}.json", {"variants": variants})
+        item_definition(name, rid(f"block/{name}"))
+
     # a 6 px link, built like the signal cables
     joint = {f: {"uv": [5, 5, 11, 11], "texture": "#link"} for f in ("north", "south", "east", "west", "up", "down")}
     write(f"assets/{NS}/models/block/storage_link_joint.json", {
@@ -417,7 +429,8 @@ def storage():
 
 def items():
     flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model",
-             "agent", "relay_card", "terminal", "field_log", "storage_drive", "hourglass", "flight_frame"] + list(DATASETS) + SCHEMATICS)
+             "agent", "relay_card", "terminal", "field_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
+             "portable_drive", "wireless_terminal", "hourglass", "flight_frame"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
         write(f"assets/{NS}/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": rid(f"item/{name}")}})
         item_definition(name, rid(f"item/{name}"))
@@ -510,7 +523,8 @@ def power():
 
 MACHINE_BLOCKS = ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "bench", "fabricator", "stream",
                   "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "combustion_generator", "energy_cell", "smelter", "power_cable",
-                  "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor"]
+                  "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor", "drive_dock", "access_point",
+                  "link_driver"]
 
 
 def blocks():
@@ -602,6 +616,12 @@ def recipes():
     shapeless("terminal", [rid("relay_card"), "minecraft:glass_pane", "minecraft:copper_ingot", "minecraft:redstone"])
     # storage, from what the crafting table and the Fabricator already make
     shaped("storage_drive", ["IWI", "WRW", "IWI"], {"I": "minecraft:iron_ingot", "W": rid("wafer"), "R": "minecraft:redstone"})
+    # the largest drive is built from stacked ones to the plans of the relay houses, whose stores it keeps; the sizes between come from the Fabricator
+    shaped("deep_drive", ["DDD", "DSD", "DDD"], {"D": rid("stacked_drive"), "S": rid("schematic_relays")})
+    shaped("wireless_terminal", [" A ", "CTC", " R "], {"A": "minecraft:amethyst_shard", "C": "minecraft:copper_ingot",
+                                                        "T": rid("storage_terminal"), "R": "minecraft:redstone"})
+    shaped("link_driver", ["KLK", "CAC", "KLK"], {"K": rid("tensor_casing"), "L": rid("storage_link"), "C": "minecraft:copper_block",
+                                                  "A": rid("accelerator")})
     shaped("drive_rack", ["KCK", "C C", "KCK"], {"K": rid("tensor_casing"), "C": "minecraft:copper_ingot"})
     shaped("storage_link", ["CCC", "RGR", "CCC"], {"C": "minecraft:copper_ingot", "R": "minecraft:redstone", "G": "minecraft:glass"}, 16)
     shaped("storage_terminal", ["KGK", "GWG", "KRK"], {"K": rid("tensor_casing"), "G": "minecraft:glass_pane", "W": rid("wafer"),
@@ -681,6 +701,14 @@ def advancements():
     advancement("storage/assembler", "storage/terminal", "assembler", awarded(), frame="goal")
     advancement("storage/request", "storage/assembler", "storage_terminal", awarded(), frame="goal")
     advancement("storage/processor", "storage/assembler", "processor", awarded(), frame="goal")
+    advancement("storage/fluid", "storage/terminal", "minecraft:water_bucket", awarded())
+    advancement("storage/dense", "storage/drive", "dense_drive", has("dense_drive"))
+    advancement("storage/deep", "storage/dense", "deep_drive", has("deep_drive"), frame="challenge")
+    advancement("storage/dock", "storage/dense", "drive_dock", placed("drive_dock"), frame="goal")
+    advancement("storage/driver", "storage/terminal", "link_driver", placed("link_driver"), frame="goal")
+    advancement("storage/wireless", "storage/terminal", "wireless_terminal", awarded(), frame="goal")
+    advancement("storage/relay", "storage/wireless", "relay", awarded(), frame="challenge")
+    advancement("storage/portable", "storage/terminal", "portable_drive", has("portable_drive"), frame="goal")
     advancement("bench/made", "root", "bench", placed("bench"))
     advancement("model/stream", "bench/made", "stream", placed("stream"))
     advancement("bench/fabricator", "bench/made", "fabricator", placed("fabricator"))

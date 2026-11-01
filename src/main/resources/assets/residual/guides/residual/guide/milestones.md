@@ -52,6 +52,24 @@ keep.</residual:Milestone>
 
 <residual:Milestone id="storage/processor">Stand a Processor against a furnace and link it to the network, say what goes in and what comes out, and ask a Storage Terminal for some of it or tell the Processor how many to keep: <ItemLink id="processor" />.</residual:Milestone>
 
+<residual:Milestone id="storage/fluid">Open a Storage Terminal with a filled bucket on the cursor and click the grid:
+[Storage](storage.md).</residual:Milestone>
+
+<residual:Milestone id="storage/dense">The Fabricator makes it from a linear layer photomask: <ItemLink id="dense_drive" />.</residual:Milestone>
+
+<residual:Milestone id="storage/deep">Eight Stacked Drives around the relay schematic: <ItemLink id="deep_drive" />.</residual:Milestone>
+
+<residual:Milestone id="storage/dock">The Fabricator makes it from a matrix multiply photomask: <ItemLink id="drive_dock" />.</residual:Milestone>
+
+<residual:Milestone id="storage/driver">Craft one and join it to a storage network and a power network: <ItemLink id="link_driver" />.</residual:Milestone>
+
+<residual:Milestone id="storage/wireless">Tune a Wireless Terminal on an Access Point, then use it: <ItemLink id="wireless_terminal" />.</residual:Milestone>
+
+<residual:Milestone id="storage/relay">Put a Relay Card in an Access Point, and open the terminal beyond its range but under
+its relays: <ItemLink id="access_point" />.</residual:Milestone>
+
+<residual:Milestone id="storage/portable">The Fabricator makes it from a linear layer photomask: <ItemLink id="portable_drive" />.</residual:Milestone>
+
 <residual:Milestone id="storage/request">Click something the network can make in a Storage Terminal, ask for an amount
 and start it: [Storage](storage.md).</residual:Milestone>
 

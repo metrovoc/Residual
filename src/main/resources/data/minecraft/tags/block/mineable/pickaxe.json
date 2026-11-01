@@ -42,6 +42,9 @@
     "residual:port",
     "residual:storage_link",
     "residual:assembler",
-    "residual:processor"
+    "residual:processor",
+    "residual:drive_dock",
+    "residual:access_point",
+    "residual:link_driver"
   ]
 }

@@ -130,7 +130,16 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> {
             note = Component.translatable("residual.fabricator.surveyor");
         } else if (item == ModItems.FLIGHT_FRAME.get()) {
             note = Component.translatable("residual.fabricator.flight_frame");
-
+        } else if (item == ModBlocks.DRIVE_DOCK.asItem()) {
+            note = Component.translatable("residual.fabricator.drive_dock");
+        } else if (item == ModItems.DENSE_DRIVE.get()) {
+            note = Component.translatable("residual.fabricator.dense_drive");
+        } else if (item == ModItems.PORTABLE_DRIVE.get()) {
+            note = Component.translatable("residual.fabricator.portable_drive");
+        } else if (item == ModBlocks.ACCESS_POINT.asItem()) {
+            note = Component.translatable("residual.fabricator.access_point");
+        } else if (item == ModItems.STACKED_DRIVE.get()) {
+            note = Component.translatable("residual.fabricator.stacked_drive");
         } else if (!(item instanceof MachineItem)) {
             note = Component.translatable("residual.fabricator.accelerator");
         } else if (m != null) {

@@ -42,7 +42,9 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.EmptyResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.Nullable;
@@ -70,9 +72,10 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
     public static final int MOST = Short.MAX_VALUE;
     /**
      * Container data: how many of each kind to stock, the window's priority, items moved in the last second, whether it
-     * asks for what it lacks, and how much its target model expects it to move next, or -1 with no answer it trusts.
+     * asks for what it lacks, how much its target model expects it to move next, or -1 with no answer it trusts, and what
+     * it moved of fluids and whether a full link held it back.
      */
-    public static final int AMOUNT = 0, PRIORITY = 1, MOVED = 2, CRAFT = 3, EXPECTS = 4, DATA = 5;
+    public static final int AMOUNT = 0, PRIORITY = 1, MOVED = 2, CRAFT = 3, EXPECTS = 4, FLUID_MOVED = 5, LINK_FULL = 6, DATA = 7;
     /** The slots beside its screen besides the filter model's: its target model and the Field Log it writes to. */
     public static final int TARGET = 0, LOG = 1;
     /** Ticks between two looks at what it lacks. */
@@ -121,12 +124,15 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
     private boolean craft;
     /** The kinds it asked to have planned and has not heard back about. */
     private final Set<ItemResource> planning = new HashSet<>();
+    private final PortFluids fluids = new PortFluids(this);
     private int movedThisSecond;
     /** Items moved since it last showed a flow, and whether the last of them went into the network. */
     private int movedSinceFlow;
     private boolean flowIn;
     @Nullable
     private BlockPos flowTo;
+    private ItemResource flowItem = ItemResource.EMPTY;
+    private boolean flowFull;
     private int movedLastSecond;
     @Nullable
     private BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> target;
@@ -140,6 +146,8 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
                 case MOVED -> movedLastSecond;
                 case CRAFT -> craft ? 1 : 0;
                 case EXPECTS -> expected.isEmpty() ? -1 : (int) Math.min(Short.MAX_VALUE, expected.values().stream().mapToLong(Long::longValue).sum());
+                case FLUID_MOVED -> fluids.movedLastSecond();
+                case LINK_FULL -> flowFull ? 1 : 0;
                 default -> 0;
             };
         }
@@ -188,7 +196,8 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         if (level.getGameTime() % 20 == 0) {
             movedLastSecond = movedThisSecond;
             movedThisSecond = 0;
-            boolean active = movedLastSecond > 0;
+            fluids.nextSecond();
+            boolean active = movedLastSecond > 0 || fluids.movedLastSecond() > 0;
             if (state.getValue(PortBlock.ACTIVE) != active) {
                 level.setBlock(worldPosition, state.setValue(PortBlock.ACTIVE, active), Block.UPDATE_CLIENTS);
             }
@@ -197,6 +206,7 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         if (mode == PortMode.WINDOW) {
             return;
         }
+        fluids.tick(level, StorageNetwork.at(level, worldPosition), mode);
         ResourceHandler<ItemResource> inv = target();
         if (inv == null) {
             return;
@@ -208,7 +218,8 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         if (craft && mode != PortMode.IMPORT && level.getGameTime() % ASK_EVERY == Math.floorMod(worldPosition.asLong(), ASK_EVERY)) {
             askForWhatItLacks(level, net, inv, mode);
         }
-        int budget = RATE;
+        int allowed = net.allowance(worldPosition, RATE);
+        int budget = allowed;
         switch (mode) {
             case IMPORT -> budget -= importFrom(inv, net, budget, null);
             case EXPORT -> {
@@ -250,14 +261,18 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
             default -> {
             }
         }
-        int moved = RATE - budget;
+        int moved = allowed - budget;
+        net.carry(worldPosition, moved);
         movedThisSecond += moved;
         movedSinceFlow += moved;
+        flowFull = allowed < RATE;
         if (moved > 0) {
             flowTo = net.lastStore;
+            flowItem = net.lastItem;
         }
         if (movedSinceFlow > 0 && level.getGameTime() % Flows.EVERY == Math.floorMod(worldPosition.asLong(), Flows.EVERY)) {
-            Flows.send(level, worldPosition, flowTo, mode == PortMode.IMPORT || mode == PortMode.STOCK && flowIn, movedSinceFlow);
+            Flows.send(level, worldPosition, flowTo, mode == PortMode.IMPORT || mode == PortMode.STOCK && flowIn, movedSinceFlow, flowItem,
+                    FluidResource.EMPTY, flowFull);
             movedSinceFlow = 0;
         }
     }
@@ -386,6 +401,16 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
         return !any;
+    }
+
+    /** What its filter holds in {@code slot}: a filled bucket there names a fluid. */
+    ItemStack filterEntry(int slot) {
+        return filter.getItem(slot);
+    }
+
+    /** How many of each kind it stocks; of a fluid, how many buckets. */
+    int stockAmount() {
+        return amount;
     }
 
     /** The kind a filter entry stands for: one renamed Food, Plants, Wood, Stone, Ores or Tools, or other. */
@@ -533,10 +558,11 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
         if (mode() != PortMode.WINDOW) {
             return null;
         }
-        ResourceHandler<ItemResource> inv = target();
-        if (inv == null) {
+        ResourceHandler<ItemResource> found = target();
+        if (found == null && fluids.target() == null) {
             return null;
         }
+        ResourceHandler<ItemResource> inv = found == null ? EmptyResourceHandler.instance() : found;
         return new Store() {
             @Override
             public int priority() {
@@ -589,7 +615,32 @@ public class PortBlockEntity extends BlockEntity implements MenuProvider {
                     }
                 }
             }
+
+            @Override
+            public long amount(FluidResource fluid) {
+                return fluids.amount(fluid);
+            }
+
+            @Override
+            public long insert(FluidResource fluid, long n, boolean simulate) {
+                return fluids.insert(fluid, n, simulate);
+            }
+
+            @Override
+            public long extract(FluidResource fluid, long n, boolean simulate) {
+                return fluids.extract(fluid, n, simulate);
+            }
+
+            @Override
+            public void forEachFluid(ObjLongConsumer<FluidResource> each) {
+                fluids.forEach(each);
+            }
         };
+    }
+
+    /** Items it moved in the last whole second. */
+    public int moved() {
+        return movedLastSecond;
     }
 
     public void setMode(PortMode mode) {

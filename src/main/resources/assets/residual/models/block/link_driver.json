@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/link_driver_side",
+    "north": "residual:block/link_driver_front",
+    "south": "residual:block/link_driver_side",
+    "east": "residual:block/link_driver_side",
+    "west": "residual:block/link_driver_side",
+    "up": "residual:block/combustion_generator_top",
+    "down": "residual:block/link_driver_side"
+  }
+}

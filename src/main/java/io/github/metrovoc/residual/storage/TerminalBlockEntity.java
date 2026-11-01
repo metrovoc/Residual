@@ -19,10 +19,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
 /** A Storage Terminal's place in its network. */
-public class TerminalBlockEntity extends BlockEntity implements MenuProvider {
-    /** The most kinds a terminal keeps pinned to the top of its grid: two rows of it. */
-    public static final int MOST_PINS = 18;
-
+public class TerminalBlockEntity extends BlockEntity implements MenuProvider, TerminalHost {
     private final List<ItemResource> pins = new ArrayList<>();
 
     public TerminalBlockEntity(BlockPos pos, BlockState state) {
@@ -38,13 +35,24 @@ public class TerminalBlockEntity extends BlockEntity implements MenuProvider {
         }
     }
 
+    @Override
+    public StorageNetwork network() {
+        return StorageNetwork.at((ServerLevel) level, worldPosition);
+    }
+
+    @Override
+    public boolean reaches(Player player) {
+        return !isRemoved() && player.distanceToSqr(worldPosition.getCenter()) < 64;
+    }
+
+    @Override
     public List<ItemResource> pins() {
         return pins;
     }
 
-    /** Pins a kind, or lets go of it if it is pinned. */
+    @Override
     public void pin(ItemResource kind) {
-        if (!pins.remove(kind) && pins.size() < MOST_PINS) {
+        if (!pins.remove(kind) && pins.size() < TerminalHost.MOST_PINS) {
             pins.add(kind);
         }
         setChanged();
@@ -86,6 +94,6 @@ public class TerminalBlockEntity extends BlockEntity implements MenuProvider {
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        return new TerminalMenu(id, inventory, worldPosition);
+        return new TerminalMenu(id, inventory, worldPosition, this);
     }
 }

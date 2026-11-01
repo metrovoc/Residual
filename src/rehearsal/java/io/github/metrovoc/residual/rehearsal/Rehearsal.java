@@ -13,6 +13,8 @@ import io.github.metrovoc.residual.client.CoreScreen;
 import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.storage.CraftingData;
+import io.github.metrovoc.residual.storage.DockBlockEntity;
+import io.github.metrovoc.residual.storage.DockMenu;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.StorageNetwork;
 import io.github.metrovoc.residual.storage.TerminalMenu;
@@ -50,6 +52,7 @@ import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -67,7 +70,10 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
@@ -94,6 +100,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.event.ToastAddEvent;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
@@ -154,6 +161,19 @@ import org.slf4j.Logger;
  * expect watching X Y Z N    fail the step unless the Watch Post at the place watches at least N things
  * expect wrong X Y Z N       fail the step unless the Watch Post at the place says at least N things have gone wrong
  * expect spent X Y Z N       fail the step unless the Forecaster III at the place has spent at least N FE of a full store
+ * stock X Y Z ITEM N         put N of ITEM into the storage network at the place, all at once
+ * kinds X Y Z N              put one each of N made-up kinds into the storage network at the place, all at once
+ * expect carried ITEM N      fail the step unless the cursor holds at least N of ITEM
+ * expect fluid X Y Z FLUID N  fail the step unless the storage network at the place keeps at least N millibuckets of FLUID
+ * expect tank X Y Z FLUID N  fail the step unless the block at the place holds at least N millibuckets of FLUID
+ * expect capacity X Y Z N    fail the step unless the storage network at the place can keep at least N
+ * expect nodes X Y Z N       fail the step unless the storage network at the place joins at least N blocks
+ * expect kinds X Y Z N       fail the step unless the storage network at the place keeps at least N kinds
+ * expect moved X Y Z N       fail the step unless the Port or Drive Dock at the place moved at least N items in the last second
+ * expect linkrate X Y Z N    fail the step unless the links of the storage network at the place carry at least N items a tick
+ * expect docked N            fail the step unless the open Drive Dock's screen says it moved at least N items in the last second
+ * expect open N              fail the step unless a Storage Terminal's screen is open (1) or not (0)
+ * expect shown N             fail the step unless the open Storage Terminal has been sent at least N kinds
  * expect pins N              fail the step unless the open Storage Terminal has N kinds pinned
  * expect tree N              fail the step unless the open Storage Terminal has at least N rows of a job's plan
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
@@ -605,6 +625,8 @@ public final class Rehearsal {
             case "frame" -> frame(mc, args);
             case "count" -> count(mc, args);
             case "expect" -> expect(mc, args);
+            case "stock" -> stock(mc, args);
+            case "kinds" -> kinds(mc, args);
             case "seek" -> seek(mc, args);
             case "survey" -> survey(mc, args);
             case "fly" -> {
@@ -741,14 +763,52 @@ public final class Rehearsal {
         switch (args[0]) {
             case "pins" -> found = ((TerminalMenu) mc.player.containerMenu).pins.size();
             case "tree" -> found = ((TerminalMenu) mc.player.containerMenu).tree.size();
+            case "open" -> found = mc.player.containerMenu instanceof TerminalMenu ? 1 : 0;
+            case "docked" -> found = ((DockMenu) mc.player.containerMenu).moved();
+            case "carried" -> found = mc.player.containerMenu.getCarried().is(BuiltInRegistries.ITEM.getValue(Identifier.parse(args[1])))
+                    ? mc.player.containerMenu.getCarried().getCount() : 0;
+            case "shown" -> found = ((TerminalMenu) mc.player.containerMenu).items.size() + ((TerminalMenu) mc.player.containerMenu).fluids.size();
             default -> {
                 MinecraftServer server = mc.getSingleplayerServer();
                 UUID id = mc.player.getUUID();
                 BlockPos at = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
                 found = server.submit(() -> {
                     ServerLevel level = server.getPlayerList().getPlayer(id).level();
-                    if (args[0].equals("jobs")) {
-                        return (long) CraftingData.of(server).on(level, StorageNetwork.at(level, at)).size();
+                    StorageNetwork net = StorageNetwork.at(level, at);
+                    switch (args[0]) {
+                        case "jobs" -> {
+                            return (long) CraftingData.of(server).on(level, net).size();
+                        }
+                        case "capacity" -> {
+                            return net.usage()[1];
+                        }
+                        case "nodes" -> {
+                            return (long) net.nodes.size();
+                        }
+                        case "kinds" -> {
+                            return (long) net.contents().size() + net.fluids().size();
+                        }
+                        case "linkrate" -> {
+                            return (long) net.linkRate();
+                        }
+                        case "moved" -> {
+                            return level.getBlockEntity(at) instanceof DockBlockEntity dock ? (long) dock.moved()
+                                    : level.getBlockEntity(at) instanceof PortBlockEntity port ? (long) port.moved() : 0L;
+                        }
+                        case "fluid" -> {
+                            return net.amount(FluidResource.of(BuiltInRegistries.FLUID.getValue(Identifier.parse(args[4]))));
+                        }
+                        case "tank" -> {
+                            FluidResource fluid = FluidResource.of(BuiltInRegistries.FLUID.getValue(Identifier.parse(args[4])));
+                            ResourceHandler<FluidResource> tank = level.getCapability(Capabilities.Fluid.BLOCK, at, null);
+                            long held = 0;
+                            for (int slot = 0; tank != null && slot < tank.size(); slot++) {
+                                held += tank.getResource(slot).equals(fluid) ? tank.getAmountAsLong(slot) : 0;
+                            }
+                            return held;
+                        }
+                        default -> {
+                        }
                     }
                     if (args[0].equals("watching")) {
                         return (long) ((WatchPostBlockEntity) level.getBlockEntity(at)).rows().size();
@@ -775,11 +835,33 @@ public final class Rehearsal {
                 }).get(10, TimeUnit.SECONDS);
             }
         }
-        boolean exact = args[0].equals("jobs") || args[0].equals("pins");
+        boolean exact = args[0].equals("jobs") || args[0].equals("pins") || args[0].equals("open");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }
         LOG.info("[rehearsal] expected {}, found {}", what, found);
+    }
+
+    private static void stock(Minecraft mc, String[] args) throws Exception {
+        MinecraftServer server = mc.getSingleplayerServer();
+        UUID id = mc.player.getUUID();
+        BlockPos at = new BlockPos(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+        server.submit(() -> StorageNetwork.at(server.getPlayerList().getPlayer(id).level(), at)
+                .insert(ItemResource.of(BuiltInRegistries.ITEM.getValue(Identifier.parse(args[3]))), Long.parseLong(args[4]), false)).get(10, TimeUnit.SECONDS);
+    }
+
+    private static void kinds(Minecraft mc, String[] args) throws Exception {
+        MinecraftServer server = mc.getSingleplayerServer();
+        UUID id = mc.player.getUUID();
+        BlockPos at = new BlockPos(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+        server.submit(() -> {
+            StorageNetwork net = StorageNetwork.at(server.getPlayerList().getPlayer(id).level(), at);
+            for (int i = 0; i < Integer.parseInt(args[3]); i++) {
+                ItemStack stack = new ItemStack(Items.PAPER);
+                stack.set(DataComponents.CUSTOM_NAME, Component.literal("Kind " + i));
+                net.insert(ItemResource.of(stack), 1, false);
+            }
+        }).get(30, TimeUnit.SECONDS);
     }
 
     private static void count(Minecraft mc, String[] args) {

@@ -17,7 +17,7 @@ import net.minecraft.world.item.component.TooltipDisplay;
 public class SchematicItem extends Item {
     /** What each schematic is the plan for, by translation key. */
     private static final Map<String, List<String>> PLANS = Map.of(
-            "schematic_relays", List.of("block.residual.model_server", "block.residual.relay", "item.residual.relay_card"));
+            "schematic_relays", List.of("block.residual.model_server", "block.residual.relay", "item.residual.relay_card", "item.residual.deep_drive"));
 
     public SchematicItem(Properties properties) {
         super(properties);

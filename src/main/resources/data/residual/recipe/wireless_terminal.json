@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "C": "minecraft:copper_ingot",
+    "T": "residual:storage_terminal",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    " A ",
+    "CTC",
+    " R "
+  ],
+  "result": {
+    "id": "residual:wireless_terminal"
+  }
+}

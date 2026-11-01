@@ -1,0 +1,35 @@
+{
+  "parent": "residual:storage/drive",
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "residual:dense_drive"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:dense_drive"
+    },
+    "title": {
+      "translate": "advancements.residual.storage.dense.title"
+    },
+    "description": {
+      "translate": "advancements.residual.storage.dense.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ]
+}

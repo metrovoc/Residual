@@ -19,7 +19,9 @@ public record StorageClick(int menu, ItemStack item, Action action) implements C
         /** Everything the cursor holds into the network. */
         PUT,
         /** One of what the cursor holds into the network. */
-        PUT_ONE
+        PUT_ONE,
+        /** The fluid in the bucket or tank the cursor holds into the network, the container staying on the cursor. */
+        POUR
     }
 
     public static final Type<StorageClick> TYPE = new Type<>(Residual.id("storage_click"));

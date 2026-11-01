@@ -92,7 +92,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
 
     /**
      * What it can make: the machines a mask's spec unlocks, or with no mask the machines that need no design. A matrix
-     * multiply mask also makes the Accelerator, an attention mask the Hourglass and a transformer mask Forecaster II and the Smelter.
+     * multiply mask also makes the Accelerator and the Drive Dock, a linear layer mask the Dense and Portable Drives, an attention
+     * mask the Hourglass, the Surveyor and the Access Point, and a transformer mask Forecaster II, the Smelter, the flight frame
+     * and the Stacked Drive.
      */
     public static List<Item> choices(ItemStack mask) {
         List<Item> out = new ArrayList<>();
@@ -112,16 +114,23 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
             }
             if (spec == Specs.MATMUL) {
                 out.add(ModBlocks.ACCELERATOR.asItem());
+                out.add(ModBlocks.DRIVE_DOCK.asItem());
+            }
+            if (spec == Specs.LINEAR) {
+                out.add(ModItems.DENSE_DRIVE.get());
+                out.add(ModItems.PORTABLE_DRIVE.get());
             }
             if (spec == Specs.ATTENTION) {
                 out.add(ModItems.HOURGLASS.get());
                 out.add(ModBlocks.SURVEYOR.asItem());
+                out.add(ModBlocks.ACCESS_POINT.asItem());
             }
             if (spec == Specs.TRANSFORMER) {
                 out.add(ModBlocks.FORECASTER_II.asItem());
                 out.add(ModBlocks.FORECASTER_III.asItem());
                 out.add(ModBlocks.SMELTER.asItem());
                 out.add(ModItems.FLIGHT_FRAME.get());
+                out.add(ModItems.STACKED_DRIVE.get());
             }
         }
         return out;
@@ -157,6 +166,21 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         }
         if (item == ModBlocks.SMELTER.asItem()) {
             return new Cost(2, 6, 2, 160);
+        }
+        if (item == ModBlocks.DRIVE_DOCK.asItem()) {
+            return new Cost(4, 8, 2, 160);
+        }
+        if (item == ModItems.DENSE_DRIVE.get()) {
+            return new Cost(1, 8, 2, 120);
+        }
+        if (item == ModItems.PORTABLE_DRIVE.get()) {
+            return new Cost(1, 6, 1, 100);
+        }
+        if (item == ModBlocks.ACCESS_POINT.asItem()) {
+            return new Cost(2, 6, 2, 160);
+        }
+        if (item == ModItems.STACKED_DRIVE.get()) {
+            return new Cost(2, 16, 8, 240);
         }
         MaskData m = MaskItem.mask(mask);
         int wafers = Math.max(1, ((m == null ? 0 : m.area()) + 3) / 4);

@@ -15,6 +15,9 @@ import io.github.metrovoc.residual.block.SurveyorBlockEntity;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.block.RelayBlockEntity;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
+import io.github.metrovoc.residual.storage.AccessPointBlockEntity;
+import io.github.metrovoc.residual.storage.DockBlockEntity;
+import io.github.metrovoc.residual.storage.LinkDriverBlockEntity;
 import io.github.metrovoc.residual.storage.AssemblerBlockEntity;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.ProcessorBlockEntity;
@@ -63,6 +66,12 @@ public final class ModBlockEntities {
             () -> new BlockEntityType<>(AssemblerBlockEntity::new, Set.of(ModBlocks.ASSEMBLER.get())));
     public static final Supplier<BlockEntityType<ProcessorBlockEntity>> PROCESSOR = BLOCK_ENTITIES.register("processor",
             () -> new BlockEntityType<>(ProcessorBlockEntity::new, Set.of(ModBlocks.PROCESSOR.get())));
+    public static final Supplier<BlockEntityType<DockBlockEntity>> DOCK = BLOCK_ENTITIES.register("drive_dock",
+            () -> new BlockEntityType<>(DockBlockEntity::new, Set.of(ModBlocks.DRIVE_DOCK.get())));
+    public static final Supplier<BlockEntityType<AccessPointBlockEntity>> ACCESS_POINT = BLOCK_ENTITIES.register("access_point",
+            () -> new BlockEntityType<>(AccessPointBlockEntity::new, Set.of(ModBlocks.ACCESS_POINT.get())));
+    public static final Supplier<BlockEntityType<LinkDriverBlockEntity>> LINK_DRIVER = BLOCK_ENTITIES.register("link_driver",
+            () -> new BlockEntityType<>(LinkDriverBlockEntity::new, Set.of(ModBlocks.LINK_DRIVER.get())));
     public static final Supplier<BlockEntityType<GeneratorBlockEntity>> GENERATOR = BLOCK_ENTITIES.register("combustion_generator",
             () -> new BlockEntityType<>(GeneratorBlockEntity::new, Set.of(ModBlocks.COMBUSTION_GENERATOR.get())));
     public static final Supplier<BlockEntityType<CellBlockEntity>> CELL = BLOCK_ENTITIES.register("energy_cell",

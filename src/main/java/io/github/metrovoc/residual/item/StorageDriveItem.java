@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.item;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.metrovoc.residual.registry.ModComponents;
+import io.github.metrovoc.residual.storage.Drive;
 import io.netty.buffer.ByteBuf;
 import java.util.Locale;
 import java.util.UUID;
@@ -47,6 +48,14 @@ public class StorageDriveItem extends Item {
             stack.set(ModComponents.STORAGE_DRIVE.get(), label);
         }
         return label.id();
+    }
+
+    /** Notes on {@code stack} how full its drive is, for its tooltip. */
+    public static void note(ItemStack stack, Drive drive) {
+        Label label = new Label(id(stack), drive.stored(), drive.kinds());
+        if (!label.equals(stack.get(ModComponents.STORAGE_DRIVE.get()))) {
+            stack.set(ModComponents.STORAGE_DRIVE.get(), label);
+        }
     }
 
     @Override

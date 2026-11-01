@@ -15,6 +15,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 public final class ModComponents {
     public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Residual.MOD_ID);
@@ -63,6 +64,10 @@ public final class ModComponents {
     /** Which contents a Storage Drive holds, and how full it was when its rack last looked. */
     public static final Supplier<DataComponentType<StorageDriveItem.Label>> STORAGE_DRIVE = COMPONENTS.registerComponentType("storage_drive",
             b -> b.persistent(StorageDriveItem.Label.CODEC).networkSynchronized(StorageDriveItem.Label.STREAM_CODEC));
+
+    /** What a Wireless Terminal or Portable Drive keeps pinned to the top of its screen's grid. */
+    public static final Supplier<DataComponentType<List<ItemResource>>> PINS = COMPONENTS.registerComponentType("pins",
+            b -> b.persistent(ItemResource.CODEC.listOf()).networkSynchronized(ItemResource.STREAM_CODEC.apply(ByteBufCodecs.list())));
 
     /** The power in a flight frame, in FE. */
     public static final Supplier<DataComponentType<Integer>> CHARGE = COMPONENTS.registerComponentType("charge",

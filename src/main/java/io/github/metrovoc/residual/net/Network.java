@@ -8,7 +8,9 @@ import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.item.ProgramCardItem;
+import io.github.metrovoc.residual.item.PortableDriveItem;
 import io.github.metrovoc.residual.item.WayfinderItem;
+import io.github.metrovoc.residual.item.WirelessTerminalItem;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.menu.AgentMenu;
@@ -18,6 +20,10 @@ import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.storage.AssemblerBlockEntity;
 import io.github.metrovoc.residual.storage.AssemblerMenu;
+import io.github.metrovoc.residual.storage.DockBlockEntity;
+import io.github.metrovoc.residual.storage.DockMenu;
+import io.github.metrovoc.residual.storage.PortableHost;
+import io.github.metrovoc.residual.storage.WirelessHost;
 import io.github.metrovoc.residual.storage.ProcessorBlockEntity;
 import io.github.metrovoc.residual.storage.ProcessorMenu;
 import io.github.metrovoc.residual.storage.PortBlockEntity;
@@ -54,7 +60,10 @@ public final class Network {
         r.playToServer(CraftCancel.TYPE, CraftCancel.STREAM_CODEC, Network::onCraftCancel);
         r.playToServer(CraftWatch.TYPE, CraftWatch.STREAM_CODEC, Network::onCraftWatch);
         r.playToServer(StoragePin.TYPE, StoragePin.STREAM_CODEC, Network::onStoragePin);
+        r.playToServer(StorageFill.TYPE, StorageFill.STREAM_CODEC, Network::onStorageFill);
         r.playToServer(FindRuin.TYPE, FindRuin.STREAM_CODEC, Network::onFindRuin);
+        r.playToServer(DockEdit.TYPE, DockEdit.STREAM_CODEC, Network::onDockEdit);
+        r.playToServer(OpenTerminal.TYPE, OpenTerminal.STREAM_CODEC, Network::onOpenTerminal);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
@@ -69,6 +78,32 @@ public final class Network {
         r.playToClient(CraftTreeSync.TYPE, CraftTreeSync.STREAM_CODEC);
         r.playToClient(WatchSync.TYPE, WatchSync.STREAM_CODEC);
         r.playToClient(ShimmerSync.TYPE, ShimmerSync.STREAM_CODEC);
+    }
+
+    private static void onDockEdit(DockEdit e, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof DockMenu menu && menu.pos.equals(e.pos())
+                && menu.stillValid(player) && player.level().getBlockEntity(e.pos()) instanceof DockBlockEntity dock) {
+            dock.setFilling(e.filling());
+        }
+    }
+
+    /** Opens the first Wireless Terminal in the player's inventory, or else the first Portable Drive. */
+    private static void onOpenTerminal(OpenTerminal open, IPayloadContext ctx) {
+        if (!(ctx.player() instanceof ServerPlayer player)) {
+            return;
+        }
+        for (ItemStack stack : player.getInventory()) {
+            if (stack.getItem() instanceof WirelessTerminalItem) {
+                WirelessHost.open(player, stack);
+                return;
+            }
+        }
+        for (ItemStack stack : player.getInventory()) {
+            if (stack.getItem() instanceof PortableDriveItem) {
+                PortableHost.open(player, stack);
+                return;
+            }
+        }
     }
 
     private static void onFindRuin(FindRuin f, IPayloadContext ctx) {
@@ -212,6 +247,13 @@ public final class Network {
         if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
                 && menu.containerId == pin.menu() && menu.stillValid(player)) {
             menu.pin(pin);
+        }
+    }
+
+    private static void onStorageFill(StorageFill fill, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TerminalMenu menu
+                && menu.containerId == fill.menu() && menu.stillValid(player)) {
+            menu.fill(fill.fluid());
         }
     }
 

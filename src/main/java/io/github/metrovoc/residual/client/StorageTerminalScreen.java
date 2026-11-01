@@ -6,9 +6,11 @@ import io.github.metrovoc.residual.net.CraftJobsSync;
 import io.github.metrovoc.residual.net.CraftPlanSync;
 import io.github.metrovoc.residual.net.CraftWatch;
 import io.github.metrovoc.residual.net.StorageClick;
+import io.github.metrovoc.residual.net.StorageFill;
 import io.github.metrovoc.residual.net.StoragePin;
 import io.github.metrovoc.residual.net.StorageSync;
 import io.github.metrovoc.residual.storage.CraftJobs;
+import io.github.metrovoc.residual.storage.Drive;
 import io.github.metrovoc.residual.storage.StorageSearch;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
@@ -38,6 +41,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.lwjgl.glfw.GLFW;
 
@@ -74,8 +79,9 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
     private EditBox search, amount;
     private Button sortButton, jobsButton, backButton, startButton;
     private final List<Button> steps = new ArrayList<>();
-    private List<StorageSync.Entry> shown = List.of();
+    private List<Kept> shown = List.of();
     private List<StorageSync.Entry> seen;
+    private List<StorageSync.Fluid> seenFluids;
     private Set<ItemResource> seenCraftable;
     private List<ItemResource> seenPins;
     private List<CraftJobsSync.Job> seenJobs;
@@ -256,11 +262,12 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
      * The kinds that match the search, in the chosen order, with what the network can make but holds none of; worked
      * out again only when something changed.
      */
-    private List<StorageSync.Entry> shown() {
+    private List<Kept> shown() {
         String query = search == null ? "" : search.getValue();
-        if (menu.items != seen || menu.craftable != seenCraftable || menu.pins != seenPins || menu.jobs != seenJobs
+        if (menu.items != seen || menu.fluids != seenFluids || menu.craftable != seenCraftable || menu.pins != seenPins || menu.jobs != seenJobs
                 || !query.equals(seenQuery) || sort != seenSort || descending != seenDescending) {
             seen = menu.items;
+            seenFluids = menu.fluids;
             seenCraftable = menu.craftable;
             seenPins = menu.pins;
             seenJobs = menu.jobs;
@@ -268,12 +275,18 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             seenSort = sort;
             seenDescending = descending;
             Predicate<StorageSearch.Facts> wanted = StorageSearch.parse(query);
-            List<StorageSync.Entry> all = new ArrayList<>(menu.items);
+            List<Kept> all = new ArrayList<>();
             Set<ItemResource> held = new HashSet<>();
-            menu.items.forEach(e -> held.add(e.item()));
+            for (StorageSync.Entry e : menu.items) {
+                all.add(Kept.of(e.item(), e.count()));
+                held.add(e.item());
+            }
+            for (StorageSync.Fluid f : menu.fluids) {
+                all.add(Kept.of(f.fluid(), f.amount()));
+            }
             for (ItemResource c : menu.craftable) {
                 if (held.add(c)) {
-                    all.add(new StorageSync.Entry(c, 0));
+                    all.add(Kept.of(c, 0));
                 }
             }
             // what is pinned stays in view with none kept, and what jobs make comes after it by itself
@@ -285,27 +298,27 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             }
             for (ItemResource t : top) {
                 if (held.add(t)) {
-                    all.add(new StorageSync.Entry(t, 0));
+                    all.add(Kept.of(t, 0));
                 }
             }
-            List<StorageSync.Entry> out = new ArrayList<>();
-            for (StorageSync.Entry e : all) {
+            List<Kept> out = new ArrayList<>();
+            for (Kept e : all) {
                 if (wanted.test(new Facts(e))) {
                     out.add(e);
                 }
             }
-            Comparator<StorageSync.Entry> byName = Comparator.comparing(e -> e.item().getHoverName().getString().toLowerCase(Locale.ROOT));
-            Comparator<StorageSync.Entry> order = switch (sort) {
+            Comparator<Kept> byName = Comparator.comparing(Kept::sortName);
+            Comparator<Kept> order = switch (sort) {
                 case NAME -> byName;
-                case COUNT -> Comparator.<StorageSync.Entry>comparingLong(StorageSync.Entry::count).reversed().thenComparing(byName);
-                case MOD -> Comparator.<StorageSync.Entry, String>comparing(e -> mod(e.item())).thenComparing(byName);
+                case COUNT -> Comparator.<Kept>comparingLong(Kept::units).reversed().thenComparing(byName);
+                case MOD -> Comparator.comparing(Kept::mod).thenComparing(byName);
             };
             out.sort(descending ? order.reversed() : order);
-            List<StorageSync.Entry> pinned = new ArrayList<>(), rest = new ArrayList<>();
+            List<Kept> pinned = new ArrayList<>(), rest = new ArrayList<>();
             for (ItemResource t : top) {
                 out.stream().filter(e -> e.item().equals(t)).findFirst().ifPresent(pinned::add);
             }
-            for (StorageSync.Entry e : out) {
+            for (Kept e : out) {
                 if (!top.contains(e.item())) {
                     rest.add(e);
                 }
@@ -316,20 +329,53 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         return shown;
     }
 
-    private static String mod(ItemResource item) {
-        return BuiltInRegistries.ITEM.getKey(item.getItem()).getNamespace();
+    /** A kind on the grid: an item and how many there are, or a fluid and how many millibuckets. */
+    private record Kept(ItemResource item, FluidResource fluid, long count, String sortName) {
+        static Kept of(ItemResource item, long count) {
+            return new Kept(item, FluidResource.EMPTY, count, item.getHoverName().getString().toLowerCase(Locale.ROOT));
+        }
+
+        static Kept of(FluidResource fluid, long amount) {
+            return new Kept(ItemResource.EMPTY, fluid, amount, fluid.toStack((int) Drive.BUCKET).getHoverName().getString().toLowerCase(Locale.ROOT));
+        }
+
+        boolean isFluid() {
+            return !fluid.isEmpty();
+        }
+
+        Component name() {
+            return isFluid() ? fluid.toStack((int) Drive.BUCKET).getHoverName() : item.getHoverName();
+        }
+
+        /** How many there are, a bucket of fluid counted as one. */
+        long units() {
+            return isFluid() ? count / Drive.BUCKET : count;
+        }
+
+        String mod() {
+            return id().getNamespace();
+        }
+
+        Identifier id() {
+            return isFluid() ? BuiltInRegistries.FLUID.getKey(fluid.getFluid()) : BuiltInRegistries.ITEM.getKey(item.getItem());
+        }
+
+        /** How much there is, short enough for a cell's corner. */
+        String label() {
+            return !isFluid() ? abbreviate(count) : count < Drive.BUCKET ? count + "m" : abbreviate(count / Drive.BUCKET) + "B";
+        }
     }
 
     /** What a search can ask about a kind, worked out only if it asks. */
-    private record Facts(StorageSync.Entry e) implements StorageSearch.Facts {
+    private record Facts(Kept e) implements StorageSearch.Facts {
         @Override
         public String name() {
-            return e.item().getHoverName().getString();
+            return e.name().getString();
         }
 
         @Override
         public String mod() {
-            return StorageTerminalScreen.mod(e.item());
+            return e.mod();
         }
 
         @Override
@@ -339,11 +385,14 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
 
         @Override
         public Collection<String> tags() {
-            return e.item().typeHolder().tags().map(t -> t.location().toString()).toList();
+            return (e.isFluid() ? e.fluid().typeHolder().tags() : e.item().typeHolder().tags()).map(t -> t.location().toString()).toList();
         }
 
         @Override
         public String tooltip() {
+            if (e.isFluid()) {
+                return e.name().getString();
+            }
             Minecraft mc = Minecraft.getInstance();
             StringBuilder out = new StringBuilder();
             for (Component line : e.item().toStack().getTooltipLines(Item.TooltipContext.of(mc.level), mc.player, TooltipFlag.NORMAL)) {
@@ -354,12 +403,12 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
 
         @Override
         public String id() {
-            return BuiltInRegistries.ITEM.getKey(e.item().getItem()).toString();
+            return e.id().toString();
         }
 
         @Override
         public long count() {
-            return e.count();
+            return e.units();
         }
     }
 
@@ -421,18 +470,21 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             // how many jobs run, on the Jobs button's corner
             count(g, Integer.toString(menu.jobs.size()), JOBS_X + JOBS_W - CELL - 1, 5 - CELL + 7, Ui.TEAL);
         }
-        List<StorageSync.Entry> list = shown();
+        List<Kept> list = shown();
         for (int i = 0; i < COLS * ROWS; i++) {
             int index = scroll * COLS + i;
             int x = GRID_X + i % COLS * CELL, y = GRID_Y + i / COLS * CELL;
             if (index >= list.size()) {
                 break;
             }
-            StorageSync.Entry e = list.get(index);
-            ItemStack stack = e.item().toStack();
-            g.item(stack, x + 1, y + 1);
+            Kept e = list.get(index);
+            if (e.isFluid()) {
+                Ui.fluid(g, e.fluid(), x + 1, y + 1, CELL - 2, CELL - 2);
+            } else {
+                g.item(e.item().toStack(), x + 1, y + 1);
+            }
             if (e.count() > 0) {
-                count(g, abbreviate(e.count()), x, y, 0xFFFFFFFF);
+                count(g, e.label(), x, y, 0xFFFFFFFF);
             } else {
                 count(g, Component.translatable("residual.craft.mark").getString(), x, y, Ui.TEAL);
             }
@@ -456,7 +508,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             }
         }
         if (list.isEmpty()) {
-            Component empty = Component.translatable(menu.items.isEmpty() ? "residual.storage.empty" : "residual.storage.no_match");
+            Component empty = Component.translatable(menu.items.isEmpty() && menu.fluids.isEmpty() ? "residual.storage.empty" : "residual.storage.no_match");
             int y = GRID_Y + 6;
             for (var line : font.split(empty, COLS * CELL - 12)) {
                 g.text(font, line, GRID_X + 6, y, Ui.DIM, false);
@@ -464,7 +516,7 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             }
         }
         Component usage = menu.capacity == 0 ? Component.translatable("residual.storage.no_drives")
-                : Component.translatable("residual.storage.usage", abbreviate(menu.stored), abbreviate(menu.capacity), Ui.count(menu.items.size()));
+                : Component.translatable("residual.storage.usage", abbreviate(menu.stored), abbreviate(menu.capacity), Ui.count(menu.items.size() + menu.fluids.size()));
         g.text(font, usage, GRID_X, USAGE_Y + 1, Ui.LABEL_DIM, false);
     }
 
@@ -683,8 +735,10 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         if (view != View.GRID) {
             return;
         }
-        StorageSync.Entry e = at(mouseX, mouseY);
-        if (e != null && menu.getCarried().isEmpty()) {
+        Kept e = at(mouseX, mouseY);
+        if (e != null && e.isFluid()) {
+            fluidTooltip(g, e, mouseX, mouseY);
+        } else if (e != null && menu.getCarried().isEmpty()) {
             List<Component> lines = new ArrayList<>(getTooltipFromContainerItem(e.item().toStack()));
             lines.add(Component.translatable("residual.storage.stored", Ui.count(e.count())).withColor(Ui.TEAL));
             if (menu.craftable.contains(e.item())) {
@@ -695,13 +749,21 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         }
     }
 
-    private StorageSync.Entry at(double mouseX, double mouseY) {
+    /** A fluid's name and how much there is, and what a click does with something to hold it. */
+    private void fluidTooltip(GuiGraphicsExtractor g, Kept e, int mouseX, int mouseY) {
+        List<Component> lines = List.of(e.name(),
+                Component.translatable("residual.storage.stored_fluid", Ui.count(e.units()), Ui.count(e.count())).withColor(Ui.TEAL),
+                Component.translatable("residual.storage.fill_help").withColor(Ui.DIM));
+        g.setTooltipForNextFrame(font, lines, java.util.Optional.empty(), ItemStack.EMPTY, mouseX, mouseY);
+    }
+
+    private Kept at(double mouseX, double mouseY) {
         int x = (int) mouseX - leftPos - GRID_X, y = (int) mouseY - topPos - GRID_Y;
         if (x < 0 || y < 0 || x >= COLS * CELL || y >= ROWS * CELL) {
             return null;
         }
         int index = (scroll + y / CELL) * COLS + x / CELL;
-        List<StorageSync.Entry> list = shown();
+        List<Kept> list = shown();
         return index < list.size() ? list.get(index) : null;
     }
 
@@ -731,7 +793,10 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
         }
         if (view == View.GRID && onGrid(event.x(), event.y())) {
             ItemStack carried = menu.getCarried();
-            StorageSync.Entry e = at(event.x(), event.y());
+            Kept e = at(event.x(), event.y());
+            if (clickFluid(event, carried, e)) {
+                return true;
+            }
             if (carried.isEmpty() && e != null && event.hasAltDown()) {
                 ClientPacketDistributor.sendToServer(new StoragePin(menu.containerId, e.item()));
                 return true;
@@ -759,6 +824,24 @@ public class StorageTerminalScreen extends AbstractContainerScreen<TerminalMenu>
             return true;
         }
         return super.mouseClicked(event, doubled);
+    }
+
+    /**
+     * What a click does for fluids: on a fluid it fills what the cursor holds, or does nothing with the cursor empty; a left
+     * click anywhere with a filled bucket or tank pours it in, the container staying on the cursor.
+     */
+    private boolean clickFluid(MouseButtonEvent event, ItemStack carried, Kept e) {
+        if (e != null && e.isFluid() && (carried.isEmpty() || event.button() != GLFW.GLFW_MOUSE_BUTTON_RIGHT)) {
+            if (!carried.isEmpty()) {
+                ClientPacketDistributor.sendToServer(new StorageFill(menu.containerId, e.fluid()));
+            }
+            return true;
+        }
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && !FluidUtil.getFirstStackContained(carried).isEmpty()) {
+            ClientPacketDistributor.sendToServer(new StorageClick(menu.containerId, ItemStack.EMPTY, StorageClick.Action.POUR));
+            return true;
+        }
+        return false;
     }
 
     @Override

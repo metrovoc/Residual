@@ -1,0 +1,40 @@
+{
+  "parent": "residual:storage/dense",
+  "criteria": {
+    "placed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": "residual:drive_dock"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:drive_dock"
+    },
+    "title": {
+      "translate": "advancements.residual.storage.dock.title"
+    },
+    "description": {
+      "translate": "advancements.residual.storage.dock.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "placed"
+    ]
+  ]
+}

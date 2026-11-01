@@ -75,6 +75,8 @@ public final class Stress {
             int z = r * 4;
             command(server, "fill 0 %d %d %d %d %d residual:storage_link".formatted(Y, z, ROW * 2 - 1, Y, z));
             command(server, "setblock -1 %d %d residual:drive_rack[facing=north]{drives:{Items:[{Slot:0b,id:\"residual:storage_drive\",count:1}]}}".formatted(Y, z));
+            // a rack at each end, so each half of a row's Ports has a link's worth of room to its own
+            command(server, "setblock %d %d %d residual:drive_rack[facing=north]{drives:{Items:[{Slot:0b,id:\"residual:storage_drive\",count:1}]}}".formatted(ROW * 2, Y, z));
             for (int i = 0; i < ROW; i++) {
                 int x = i * 2;
                 command(server, ("setblock %d %d %d residual:port[facing=south,mode=export]"
