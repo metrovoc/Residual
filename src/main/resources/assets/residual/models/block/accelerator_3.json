@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/accelerator_3",
+    "north": "residual:block/accelerator_3",
+    "south": "residual:block/accelerator_3",
+    "east": "residual:block/accelerator_3",
+    "west": "residual:block/accelerator_3",
+    "up": "residual:block/accelerator_3",
+    "down": "residual:block/accelerator_3"
+  }
+}

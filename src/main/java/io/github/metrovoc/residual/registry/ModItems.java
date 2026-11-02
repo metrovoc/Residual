@@ -2,8 +2,10 @@ package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.agent.Upgrades;
+import io.github.metrovoc.residual.block.AcceleratorBlock;
 import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.graph.Op;
+import io.github.metrovoc.residual.item.AcceleratorItem;
 import io.github.metrovoc.residual.item.AgentItem;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
@@ -63,6 +65,10 @@ public final class ModItems {
     public static final Map<Benchmark, DeferredItem<DatasetItem>> DATASETS = new EnumMap<>(Benchmark.class);
     public static final DeferredItem<Item> WEIGHT_CRYSTAL = ITEMS.registerSimpleItem("weight_crystal");
     public static final DeferredItem<Item> WAFER = ITEMS.registerSimpleItem("wafer");
+    public static final DeferredItem<Item> WAFER_28 = ITEMS.registerSimpleItem("wafer_28");
+    public static final DeferredItem<Item> WAFER_7 = ITEMS.registerSimpleItem("wafer_7");
+    public static final DeferredItem<Item> WAFER_3 = ITEMS.registerSimpleItem("wafer_3");
+    public static final DeferredItem<Item> REACTOR_FUEL = ITEMS.registerSimpleItem("reactor_fuel");
     public static final DeferredItem<MaskItem> PHOTOMASK = ITEMS.registerItem("photomask", MaskItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<ProbeItem> PROBE = ITEMS.registerItem("tensor_probe", ProbeItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<CrystalItem> CHECKPOINT = ITEMS.registerItem("checkpoint", CrystalItem::new, p -> p.stacksTo(1));
@@ -112,7 +118,9 @@ public final class ModItems {
             UPGRADES.put(kind, ITEMS.registerItem(kind.name().toLowerCase(java.util.Locale.ROOT) + "_upgrade", p -> new UpgradeItem(kind, p), p -> p.stacksTo(kind.most)));
         }
         ModBlocks.BLOCKS.getEntries().forEach(block -> {
-            if (!ModBlocks.OPERATORS.containsValue(block) && block != ModBlocks.SIGNAL) {
+            if (ModBlocks.ACCELERATORS.contains(block)) {
+                ITEMS.registerItem(block.getId().getPath(), p -> new AcceleratorItem((AcceleratorBlock) block.get(), p), p -> p.useBlockDescriptionPrefix());
+            } else if (!ModBlocks.OPERATORS.containsValue(block) && block != ModBlocks.SIGNAL) {
                 BLOCK_ITEMS.add(ITEMS.registerSimpleBlockItem(block));
             }
         });
@@ -145,6 +153,7 @@ public final class ModItems {
             case DEMAND -> "demand_dataset";
             case WATCH -> "watch_dataset";
             case RETRIEVAL -> "retrieval_dataset";
+            case REACTOR -> "reactor_dataset";
             case READING, QUALITY -> throw new IllegalArgumentException();
         };
     }

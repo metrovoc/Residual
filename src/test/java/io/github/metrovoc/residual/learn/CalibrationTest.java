@@ -449,6 +449,10 @@ class CalibrationTest {
                 t.join();
             }
         }
+        if (runs.contains("reactor")) {
+            played("reactor_context", new Reactor(), Blueprints.context(), st, 1500, 150, 1, 1);
+            played("reactor_gpt32", new Reactor(), Blueprints.gpt(32, 2, 4), st, 4000, 250, 1, 1);
+        }
         if (runs.contains("control_gpt32")) {
             control("control_gpt32", Blueprints.gpt(32, 2, 4), st, 500, 50);
         }

@@ -22,14 +22,16 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval", "quality"]
+BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval", "quality", "reactor"]
 DATASETS = {"forecast_dataset": "minecraft:clock", "storage_dataset": "minecraft:chest",
             "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
             "orders_dataset": "minecraft:writable_book", "process_dataset": "minecraft:raw_iron", "survey_dataset": "minecraft:flint",
-            "flight_dataset": "minecraft:feather", "demand_dataset": "minecraft:hopper", "watch_dataset": "minecraft:spyglass", "retrieval_dataset": "minecraft:map"}
+            "flight_dataset": "minecraft:feather", "demand_dataset": "minecraft:hopper", "watch_dataset": "minecraft:spyglass", "retrieval_dataset": "minecraft:map",
+            "reactor_dataset": "minecraft:blaze_powder"}
 # see refine/Stage.java; the first takes text in, and every other but the tank comes out of the Fabricator
 REFINERY = ["refinery_intake", "duplicate_sieve", "filter_bed", "quality_classifier", "program_press", "domain_mixer", "contamination_check"]
 SCHEMATICS = ["schematic_relays"]
+ACCELERATORS = ["accelerator", "accelerator_28", "accelerator_7", "accelerator_3"]
 # see storage/PortMode.java
 PORT_MODES = ["import", "export", "stock", "window"]
 # see bench/Specs.java, in the order the Bench lists them, each with the spec whose module it builds on first
@@ -126,11 +128,12 @@ def simple(name):
 
 
 def accelerator():
-    for name in ("accelerator", "accelerator_hot"):
-        cube(name, *[rid(f"block/{name}")] * 3)
-    write(f"assets/{NS}/blockstates/accelerator.json", {"variants": {
-        "hot=false": {"model": rid("block/accelerator")}, "hot=true": {"model": rid("block/accelerator_hot")}}})
-    item_definition("accelerator", rid("block/accelerator"))
+    for block in ACCELERATORS:
+        for name in (block, f"{block}_hot"):
+            cube(name, *[rid(f"block/{name}")] * 3)
+        write(f"assets/{NS}/blockstates/{block}.json", {"variants": {
+            "hot=false": {"model": rid(f"block/{block}")}, "hot=true": {"model": rid(f"block/{block}_hot")}}})
+        item_definition(block, rid(f"block/{block}"))
 
 
 def units():
@@ -389,13 +392,13 @@ def north_uv(x0, y0, x1, y1):
     return [16 - x1, 16 - y1, 16 - x0, 16 - y0]
 
 
-def rack():
+def rack(name="drive_rack", cartridge_texture="drive_cartridge"):
     """A 3D Drive Rack, built the way AE2 builds its drive: full top and bottom panels and two side panels make the
     shell, its front edge a 1 px rim; behind the rim, a divider and shelves set 1 px back part eight bays that run 6 px
-    deep to a back panel. A cartridge model per bay shows when a drive is in it."""
-    t = {"front": rid("block/drive_rack_front"), "inside": rid("block/drive_rack_inside"),
-         "panel": rid("block/drive_rack_back_panel"), "side": rid("block/drive_rack_side"), "top": rid("block/drive_rack_top"),
-         "particle": rid("block/drive_rack_front")}
+    deep to a back panel. A cartridge model per bay shows when a drive is in it. A Rack Module is built the same."""
+    t = {"front": rid(f"block/{name}_front"), "inside": rid(f"block/{name}_inside"),
+         "panel": rid(f"block/{name}_back_panel"), "side": rid(f"block/{name}_side"), "top": rid(f"block/{name}_top"),
+         "particle": rid(f"block/{name}_front")}
     holes_x = [(16 - u - 6, 16 - u) for u in RACK_BAY_U]
     holes_y = [(16 - v - 2, 16 - v) for v in RACK_BAY_V]
     parts = []
@@ -425,10 +428,10 @@ def rack():
     # the back panel the bays end at, and the back of the block
     element([1, 1, 7], [15, 15, 16], {"north": face("#panel", north_uv(1, 1, 15, 15)),
                                       "south": face("#side", [1, 1, 15, 15], "south")})
-    write(f"assets/{NS}/models/block/drive_rack.json", {"parent": "minecraft:block/block", "textures": t, "elements": parts})
+    write(f"assets/{NS}/models/block/{name}.json", {"parent": "minecraft:block/block", "textures": t, "elements": parts})
 
     # a drive in a bay: a cartridge 2 px behind the face
-    multipart = [{"when": {"facing": f}, "apply": {"model": rid("block/drive_rack"), **rot}} for f, rot in HORIZONTAL.items()]
+    multipart = [{"when": {"facing": f}, "apply": {"model": rid(f"block/{name}"), **rot}} for f, rot in HORIZONTAL.items()]
     for i in range(8):
         col, row = i % 2, i // 2
         x0, x1 = holes_x[col]
@@ -438,14 +441,14 @@ def rack():
         cart = {"north": {"uv": face, "texture": "#cartridge"}, "up": {"uv": [0, 2, 6, 7], "texture": "#cartridge"},
                 "down": {"uv": [0, 7, 6, 12], "texture": "#cartridge"}, "east": {"uv": [6, 2, 11, 4], "texture": "#cartridge"},
                 "west": {"uv": [6, 4, 11, 6], "texture": "#cartridge"}}
-        write(f"assets/{NS}/models/block/drive_rack_bay{i}.json", {
+        write(f"assets/{NS}/models/block/{name}_bay{i}.json", {
             "parent": "minecraft:block/block", "ambientocclusion": False,
-            "textures": {"cartridge": rid("block/drive_cartridge"), "particle": rid("block/drive_cartridge")},
+            "textures": {"cartridge": rid(f"block/{cartridge_texture}"), "particle": rid(f"block/{cartridge_texture}")},
             "elements": [box([x0, y0, 2], [x1, y1, 7], cart)]})
         for f, rot in HORIZONTAL.items():
-            multipart.append({"when": {"facing": f, f"bay{i}": "true"}, "apply": {"model": rid(f"block/drive_rack_bay{i}"), **rot}})
-    write(f"assets/{NS}/blockstates/drive_rack.json", {"multipart": multipart})
-    item_definition("drive_rack", rid("block/drive_rack"))
+            multipart.append({"when": {"facing": f, f"bay{i}": "true"}, "apply": {"model": rid(f"block/{name}_bay{i}"), **rot}})
+    write(f"assets/{NS}/blockstates/{name}.json", {"multipart": multipart})
+    item_definition(name, rid(f"block/{name}"))
 
 
 def storage():
@@ -528,7 +531,7 @@ def storage():
 
 
 def items():
-    flat = (["weight_crystal", "wafer", "checkpoint", "archive_drive", "archive_shard", "salvaged_model", "relay_dump", "token_cell",
+    flat = (["weight_crystal", "wafer", "wafer_28", "wafer_7", "wafer_3", "reactor_fuel", "checkpoint", "archive_drive", "archive_shard", "salvaged_model", "relay_dump", "token_cell",
              "agent", "relay_card", "terminal", "field_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
              "portable_drive", "wireless_terminal", "hourglass", "flight_frame", "exosuit",
              "speed_upgrade", "stack_upgrade", "range_upgrade", "fluid_upgrade", "energy_upgrade", "carry_upgrade", "lift_upgrade"] + list(DATASETS) + SCHEMATICS)
@@ -600,34 +603,150 @@ def power():
     write(f"assets/{NS}/blockstates/energy_cell.json", {"variants": variants})
     item_definition("energy_cell", rid("block/energy_cell_0"))
 
-    # a 4 px cable
-    joint = {f: {"uv": [6, 6, 10, 10], "texture": "#cable"} for f in ("north", "south", "east", "west", "up", "down")}
-    textures = {"particle": rid("block/power_cable"), "cable": rid("block/power_cable")}
-    write(f"assets/{NS}/models/block/power_cable_joint.json", {
-        "parent": "minecraft:block/block", "textures": textures, "elements": [box([6, 6, 6], [10, 10, 10], joint)]})
-    arm = {"north": {"uv": [6, 6, 10, 10], "texture": "#cable", "cullface": "north"},
-           "east": {"uv": [10, 6, 16, 10], "texture": "#cable"}, "west": {"uv": [0, 6, 6, 10], "texture": "#cable"},
-           "up": {"uv": [6, 0, 10, 6], "texture": "#cable"}, "down": {"uv": [6, 10, 10, 16], "texture": "#cable"}}
-    write(f"assets/{NS}/models/block/power_cable_arm.json", {
-        "parent": "minecraft:block/block", "textures": textures, "elements": [box([6, 6, 0], [10, 10, 6], arm)]})
-    straight = {"north": {"uv": [0, 6, 16, 10], "texture": "#cable"}, "south": {"uv": [0, 6, 16, 10], "texture": "#cable"},
-                "up": {"uv": [0, 6, 16, 10], "texture": "#cable"}, "down": {"uv": [0, 6, 16, 10], "texture": "#cable"},
-                "east": {"uv": [6, 6, 10, 10], "texture": "#cable"}, "west": {"uv": [6, 6, 10, 10], "texture": "#cable"}}
-    write(f"assets/{NS}/models/item/power_cable.json", {
-        "parent": "minecraft:block/block", "textures": textures, "elements": [box([0, 6, 6], [16, 10, 10], straight)]})
-    parts = [{"apply": {"model": rid("block/power_cable_joint")}}]
-    for face, rot in FACING.items():
-        parts.append({"when": {face: "true"}, "apply": {"model": rid("block/power_cable_arm"), **rot}})
-    write(f"assets/{NS}/blockstates/power_cable.json", {"multipart": parts})
-    item_definition("power_cable", rid("item/power_cable"))
+    pipe("power_cable", 2)
+    pipe("heavy_cable", 3)
+    pipe("bus_bar", 4)
+    pipe("interconnect", 1)
+    pipe("coolant_pipe", 3, flowing=True)
+
+    # the Boiler: a machine with a port on top for the steam; Turbines stand on it, spinning while it burns
+    variants = {}
+    side, top = rid("block/boiler_side"), rid("block/boiler_top")
+    for working, suffix in (("false", ""), ("true", "_on")):
+        cube(f"boiler{suffix}", rid(f"block/boiler_front{suffix}"), rid("block/machine_back"), side, top, rid("block/machine_back"))
+        for key, value in facing_variants(rid(f"block/boiler{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},working={working}"] = value
+    write(f"assets/{NS}/blockstates/boiler.json", {"variants": variants})
+    item_definition("boiler", rid("block/boiler"))
+    top = rid("block/turbine_top")
+    for suffix in ("", "_on"):
+        face = rid(f"block/turbine_side{suffix}")
+        cube(f"turbine{suffix}", face, face, face, top, top)
+    write(f"assets/{NS}/blockstates/turbine.json", {"variants": {"spinning=false": {"model": rid("block/turbine")},
+                                                                 "spinning=true": {"model": rid("block/turbine_on")}}})
+    item_definition("turbine", rid("block/turbine"))
+
+    # a Solar Panel: a flat frame 6 px high
+    for suffix in ("", "_on"):
+        side_face = {"uv": [0, 10, 16, 16], "texture": "#side"}
+        write(f"assets/{NS}/models/block/solar_panel{suffix}.json", {
+            "parent": "minecraft:block/block",
+            "textures": {"top": rid(f"block/solar_panel_top{suffix}"), "side": rid("block/solar_panel_side"), "bottom": rid("block/machine_back"),
+                         "particle": rid("block/solar_panel_side")},
+            "elements": [box([0, 0, 0], [16, 6, 16], {"up": {"uv": [0, 0, 16, 16], "texture": "#top"}, "down": {"uv": [0, 0, 16, 16], "texture": "#bottom", "cullface": "down"},
+                                                      **{f: side_face | {"cullface": f} for f in ("north", "south", "east", "west")}})]})
+    write(f"assets/{NS}/blockstates/solar_panel.json", {"variants": {"lit=false": {"model": rid("block/solar_panel")},
+                                                                     "lit=true": {"model": rid("block/solar_panel_on")}}})
+    item_definition("solar_panel", rid("block/solar_panel"))
+
+    # a Capacitor Bank fills like a cell
+    variants = {}
+    for charge in range(5):
+        face, top = rid(f"block/capacitor_bank_{charge}"), rid("block/capacitor_bank_top")
+        cube(f"capacitor_bank_{charge}", face, face, face, top, top)
+        variants[f"charge={charge}"] = {"model": rid(f"block/capacitor_bank_{charge}")}
+    write(f"assets/{NS}/blockstates/capacitor_bank.json", {"variants": variants})
+    item_definition("capacitor_bank", rid("block/capacitor_bank_0"))
+
+    # a reactor: its core a machine in the shell, the shell plain, the glass cut out, the rods lit while it runs
+    casing = rid("block/reactor_casing")
+    variants = {}
+    for working, suffix in (("false", ""), ("true", "_on")):
+        cube(f"reactor_core{suffix}", rid(f"block/reactor_core_front{suffix}"), casing, casing, casing, casing)
+        for key, value in facing_variants(rid(f"block/reactor_core{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},working={working}"] = value
+    write(f"assets/{NS}/blockstates/reactor_core.json", {"variants": variants})
+    item_definition("reactor_core", rid("block/reactor_core"))
+    simple("reactor_casing")
+    write(f"assets/{NS}/models/block/reactor_glass.json", {"parent": "minecraft:block/cube_all", "render_type": "minecraft:translucent",
+                                                            "textures": {"all": rid("block/reactor_glass")}})
+    write(f"assets/{NS}/blockstates/reactor_glass.json", {"variants": {"": {"model": rid("block/reactor_glass")}}})
+    item_definition("reactor_glass", rid("block/reactor_glass"))
+    for suffix in ("", "_on"):
+        face = rid(f"block/fuel_rod{suffix}")
+        cube(f"fuel_rod{suffix}", face, face, face, rid("block/machine_back"), rid("block/machine_back"))
+    write(f"assets/{NS}/blockstates/fuel_rod.json", {"variants": {"burning=false": {"model": rid("block/fuel_rod")},
+                                                                  "burning=true": {"model": rid("block/fuel_rod_on")}}})
+    item_definition("fuel_rod", rid("block/fuel_rod"))
+
+
+def pipe(name, half, flowing=False):
+    """A cable or pipe 2 * half px across: a joint and one arm per connected side, sampling a texture shaped like a plus."""
+    lo, hi = 8 - half, 8 + half
+    def parts_of(suffix):
+        texture = rid(f"block/{name}{suffix}")
+        textures = {"particle": texture, "cable": texture}
+        joint = {f: {"uv": [lo, lo, hi, hi], "texture": "#cable"} for f in ("north", "south", "east", "west", "up", "down")}
+        write(f"assets/{NS}/models/block/{name}{suffix}_joint.json", {
+            "parent": "minecraft:block/block", "textures": textures, "elements": [box([lo, lo, lo], [hi, hi, hi], joint)]})
+        arm = {"north": {"uv": [lo, lo, hi, hi], "texture": "#cable", "cullface": "north"},
+               "east": {"uv": [hi, lo, 16, hi], "texture": "#cable"}, "west": {"uv": [0, lo, lo, hi], "texture": "#cable"},
+               "up": {"uv": [lo, 0, hi, lo], "texture": "#cable"}, "down": {"uv": [lo, hi, hi, 16], "texture": "#cable"}}
+        write(f"assets/{NS}/models/block/{name}{suffix}_arm.json", {
+            "parent": "minecraft:block/block", "textures": textures, "elements": [box([lo, lo, 0], [hi, hi, lo], arm)]})
+        return textures
+    textures = parts_of("")
+    straight = {"north": {"uv": [0, lo, 16, hi], "texture": "#cable"}, "south": {"uv": [0, lo, 16, hi], "texture": "#cable"},
+                "up": {"uv": [0, lo, 16, hi], "texture": "#cable"}, "down": {"uv": [0, lo, 16, hi], "texture": "#cable"},
+                "east": {"uv": [lo, lo, hi, hi], "texture": "#cable"}, "west": {"uv": [lo, lo, hi, hi], "texture": "#cable"}}
+    write(f"assets/{NS}/models/item/{name}.json", {
+        "parent": "minecraft:block/block", "textures": textures, "elements": [box([0, lo, lo], [16, hi, hi], straight)]})
+    if flowing:
+        parts_of("_on")
+        parts = [{"when": {"flowing": "false"}, "apply": {"model": rid(f"block/{name}_joint")}},
+                 {"when": {"flowing": "true"}, "apply": {"model": rid(f"block/{name}_on_joint")}}]
+        for face, rot in FACING.items():
+            parts.append({"when": {face: "true", "flowing": "false"}, "apply": {"model": rid(f"block/{name}_arm"), **rot}})
+            parts.append({"when": {face: "true", "flowing": "true"}, "apply": {"model": rid(f"block/{name}_on_arm"), **rot}})
+    else:
+        parts = [{"apply": {"model": rid(f"block/{name}_joint")}}]
+        for face, rot in FACING.items():
+            parts.append({"when": {face: "true"}, "apply": {"model": rid(f"block/{name}_arm"), **rot}})
+    write(f"assets/{NS}/blockstates/{name}.json", {"multipart": parts})
+    item_definition(name, rid(f"item/{name}"))
+
+
+def compute():
+    """Rack Modules built like Drive Racks; switches, the Chiller and the Hall Console that face the player and light; the Load Wall's glass."""
+    rack("rack_module", "device_cartridge")
+    for name in ("rack_switch", "pod_switch"):
+        side, top = rid(f"block/{name}_side"), rid("block/drive_rack_top")
+        variants = {}
+        for lit, suffix in (("false", ""), ("true", "_on")):
+            cube(f"{name}{suffix}", rid(f"block/{name}_front{suffix}"), rid("block/machine_back"), side, top, side)
+            for key, value in facing_variants(rid(f"block/{name}{suffix}"), facings=HORIZONTAL).items():
+                variants[f"{key},lit={lit}"] = value
+        write(f"assets/{NS}/blockstates/{name}.json", {"variants": variants})
+        item_definition(name, rid(f"block/{name}"))
+    side, top = rid("block/chiller_side"), rid("block/chiller_top")
+    variants = {}
+    for working, suffix in (("false", ""), ("true", "_on")):
+        # a cooling line leaves its front and comes back to its back: the same port on both
+        cube(f"chiller{suffix}", rid(f"block/chiller_front{suffix}"), rid(f"block/chiller_front{suffix}"), side, top, side)
+        for key, value in facing_variants(rid(f"block/chiller{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},working={working}"] = value
+    write(f"assets/{NS}/blockstates/chiller.json", {"variants": variants})
+    item_definition("chiller", rid("block/chiller"))
+    variants = {}
+    for formed, suffix in (("false", ""), ("true", "_on")):
+        cube(f"hall_console{suffix}", rid(f"block/hall_console_front{suffix}"), rid("block/machine_back"), rid("block/load_wall_side"), rid("block/drive_rack_top"), rid("block/load_wall_side"))
+        for key, value in facing_variants(rid(f"block/hall_console{suffix}"), facings=HORIZONTAL).items():
+            variants[f"{key},formed={formed}"] = value
+    write(f"assets/{NS}/blockstates/hall_console.json", {"variants": variants})
+    item_definition("hall_console", rid("block/hall_console"))
+    cube("load_wall", rid("block/load_wall_front"), rid("block/machine_back"), rid("block/load_wall_side"))
+    write(f"assets/{NS}/blockstates/load_wall.json", {"variants": facing_variants(rid("block/load_wall"), facings=HORIZONTAL)})
+    item_definition("load_wall", rid("block/load_wall"))
 
 
 # ---------------------------------------------------------------- data
 
 # see bench/Unit.java
 UNITS = ["scheduler", "bf16_unit", "fp8_unit", "fp4_unit", "orthogonalizer", "packer"]
-MACHINE_BLOCKS = UNITS + ["model_core", "accelerator", "tensor_casing", "model_server", "reader", "relay", "relay_gate", "relay_link", "bench", "fabricator", "stream",
+MACHINE_BLOCKS = UNITS + ["model_core", "accelerator", "accelerator_28", "accelerator_7", "accelerator_3", "tensor_casing", "model_server", "reader", "relay", "relay_gate", "relay_link", "bench", "fabricator", "stream",
                   "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "combustion_generator", "energy_cell", "smelter", "power_cable",
+                  "heavy_cable", "bus_bar", "boiler", "turbine", "solar_panel", "capacitor_bank", "reactor_core", "reactor_casing", "reactor_glass", "fuel_rod",
+                  "rack_module", "rack_switch", "pod_switch", "interconnect", "chiller", "coolant_pipe", "hall_console", "load_wall",
                   "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor", "drive_dock", "access_point",
                   "link_driver", "token_tank"] + REFINERY
 
@@ -709,6 +828,29 @@ def recipes():
     shaped("power_cable", ["CCC", "RRR", "CCC"], {"C": "minecraft:copper_ingot", "R": "minecraft:redstone"}, 12)
     shaped("energy_cell", ["KRK", "RCR", "KRK"], {"K": rid("tensor_casing"), "R": "minecraft:redstone_block",
                                                 "C": "minecraft:copper_block"})
+    # steam, the sun, and thicker lines to carry them
+    shaped("boiler", ["KBK", "IFI", "KCK"], {"K": rid("tensor_casing"), "B": "minecraft:bucket", "I": "minecraft:iron_block",
+                                             "F": "minecraft:blast_furnace", "C": "minecraft:copper_block"})
+    shaped("turbine", ["ICI", "RKR", "ICI"], {"I": "minecraft:iron_ingot", "C": "minecraft:copper_block", "R": "minecraft:redstone_block", "K": rid("tensor_casing")})
+    shaped("solar_panel", ["GGG", "WWW", "ICI"], {"G": "minecraft:glass_pane", "W": rid("wafer"), "I": "minecraft:iron_ingot", "C": "minecraft:copper_ingot"}, 2)
+    shaped("heavy_cable", ["CCC", "RGR", "CCC"], {"C": rid("power_cable"), "R": "minecraft:redstone_block", "G": "minecraft:gold_ingot"}, 6)
+    shaped("bus_bar", ["CCC", "GDG", "CCC"], {"C": rid("heavy_cable"), "G": "minecraft:gold_block", "D": "minecraft:diamond"}, 6)
+    shaped("capacitor_bank", ["CCC", "CKC", "CCC"], {"C": rid("energy_cell"), "K": "minecraft:gold_block"})
+    # a reactor's shell and what burns in it
+    shaped("reactor_casing", ["IKI", "KOK", "IKI"], {"I": "minecraft:iron_block", "K": rid("tensor_casing"), "O": "minecraft:obsidian"}, 4)
+    shaped("reactor_glass", [" K ", "KGK", " K "], {"K": rid("reactor_casing"), "G": "minecraft:tinted_glass"}, 4)
+    shaped("fuel_rod", ["IBI", "IAI", "IBI"], {"I": "minecraft:iron_ingot", "B": "minecraft:blaze_rod", "A": "minecraft:amethyst_block"}, 2)
+    shapeless("reactor_fuel", ["minecraft:blaze_rod", "minecraft:blaze_rod", "minecraft:magma_cream", "minecraft:redstone_block"], 2)
+    # finer process nodes take finer wafers
+    shapeless("wafer_28", [rid("wafer"), rid("wafer"), "minecraft:quartz", "minecraft:amethyst_shard"])
+    shapeless("wafer_7", [rid("wafer_28"), rid("wafer_28"), "minecraft:diamond", "minecraft:prismarine_crystals"])
+    shapeless("wafer_3", [rid("wafer_7"), rid("wafer_7"), "minecraft:netherite_scrap", "minecraft:echo_shard"])
+    # racks and what keeps them cool
+    shaped("rack_module", ["KCK", "W W", "KCK"], {"K": rid("tensor_casing"), "C": "minecraft:copper_ingot", "W": rid("wafer")})
+    shaped("interconnect", ["GGG", "QRQ", "GGG"], {"G": "minecraft:glass_pane", "Q": "minecraft:quartz", "R": "minecraft:redstone"}, 16)
+    shaped("chiller", ["KIK", "PBP", "KIK"], {"K": rid("tensor_casing"), "I": "minecraft:iron_block", "P": rid("coolant_pipe"), "B": "minecraft:blue_ice"})
+    shaped("coolant_pipe", ["ICI", "G G", "ICI"], {"I": "minecraft:iron_ingot", "C": "minecraft:copper_ingot", "G": "minecraft:glass_pane"}, 8)
+    shaped("load_wall", ["GGG", "GWG", "KRK"], {"G": "minecraft:tinted_glass", "W": rid("wafer"), "K": rid("tensor_casing"), "R": "minecraft:redstone_lamp"}, 2)
     shapeless("field_log", ["minecraft:paper", "minecraft:paper", "minecraft:wheat", "#minecraft:planks"])
     shaped("agent", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
     shapeless("program_card", ["minecraft:paper", "minecraft:redstone"], 2)
@@ -829,6 +971,15 @@ def advancements():
     advancement("refinery/million", "refinery/tokens", "token_tank", awarded(), frame="challenge")
     advancement("power/generator", "root", "combustion_generator", placed("combustion_generator"))
     advancement("power/smelter", "power/generator", "smelter", awarded(), frame="goal")
+    advancement("power/boiler", "power/generator", "turbine", placed("turbine"))
+    advancement("power/solar", "power/generator", "solar_panel", placed("solar_panel"))
+    advancement("power/reactor", "benchmark/reactor", "reactor_core", awarded(), frame="challenge")
+    advancement("compute/node", "root", "accelerator_28", has("accelerator_28"))
+    advancement("compute/rack", "compute/node", "rack_switch", placed("rack_switch"))
+    advancement("compute/split", "compute/rack", "rack_module", awarded(), frame="goal")
+    advancement("compute/pod", "compute/rack", "pod_switch", placed("pod_switch"))
+    advancement("compute/loop", "compute/rack", "chiller", awarded(), frame="goal")
+    advancement("compute/hall", "compute/pod", "hall_console", awarded(), frame="challenge")
     advancement("storage/drive", "root", "storage_drive", has("storage_drive"))
     advancement("storage/terminal", "storage/drive", "storage_terminal", placed("storage_terminal"))
     advancement("storage/port", "storage/terminal", "port", placed("port"), frame="goal")
@@ -883,6 +1034,7 @@ if __name__ == "__main__":
         forecaster(name)
     token_tank()
     power()
+    compute()
     storage()
     stream()
     cables()

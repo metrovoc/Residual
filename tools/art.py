@@ -2061,9 +2061,18 @@ def punch(c, rows, x0=4, y0=5):
 
 # one color per benchmark, on its dataset's stripe
 BENCHMARK_COLORS = {"forecast": hue_ramp(85), "storage": AMBER, "errand": AZURE, "pattern": AMETHYST, "orders": TEAL,
-                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110), "flight": AZURE, "demand": hue_ramp(20), "watch": hue_ramp(350), "retrieval": hue_ramp(315)}
+                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110), "flight": AZURE, "demand": hue_ramp(20), "watch": hue_ramp(350), "retrieval": hue_ramp(315), "reactor": hue_ramp(60)}
 # what each dataset practices, punched into the card
 DATASET_HOLES = {
+    "reactor": [
+        "...##...",
+        "..#..#..",
+        ".#.##.#.",
+        ".#.##.#.",
+        "..#..#..",
+        "...##...",
+        "#..##..#",
+    ],
     "watch": [
         "..#..#..",
         "..#..#..",
@@ -3629,6 +3638,70 @@ ICONS = {
 ...##....##.....
 ..##......##....
 """),
+    # how a run shares out its work: all on one device
+    "split_one": icon_cells("""
+................
+................
+................
+...##########...
+...#........#...
+...#........#...
+...#........#...
+...#........#...
+...#........#...
+...#........#...
+...#........#...
+...#........#...
+...##########...
+"""),
+    # the whole model on each device
+    "split_data": icon_cells("""
+................
+................
+...####..####...
+...#..#..#..#...
+...#..#..#..#...
+...####..####...
+................
+................
+................
+...####..####...
+...#..#..#..#...
+...#..#..#..#...
+...####..####...
+"""),
+    # each layer cut across the devices
+    "split_tensor": icon_cells("""
+................
+................
+................
+...##########...
+...#..#..#..#...
+...#..#..#..#...
+...#..#..#..#...
+...#..#..#..#...
+...#..#..#..#...
+...#..#..#..#...
+...#..#..#..#...
+...#..#..#..#...
+...##########...
+"""),
+    # the layers one after another along the devices
+    "split_pipeline": icon_cells("""
+................
+..####..........
+..#..#..........
+..####..........
+.....####.......
+.....#..#.......
+.....####.......
+........####....
+........#..#....
+........####....
+...........####.
+...........#..#.
+...........####.
+"""),
     # back to the start, against the clock
     "reset": icon_ring(8, 8.5, 4.5, gap=(100, 160)) | icon_cells("""
 ................
@@ -4154,6 +4227,318 @@ def screen_icon(cells):
     return c
 
 
+# ---------------------------------------------------------------- energy and compute
+
+DROPLET = [
+    "...##...",
+    "...##...",
+    "..#++#..",
+    ".#++++#.",
+    ".#++++#.",
+    "..####..",
+]
+
+
+def boiler_front(working):
+    """A firebox under a water gauge: the gauge is always there, the fire only while it burns."""
+    c = plate(salt=71)
+    edge(c, 5, 3, 10, 5, SLATE[3], SLATE[2], 71)
+    c.rect(6, 4, 9, 4, AZURE[3])
+    window(c, 4, 7, 11, 12, ramp=CORAL if working else None, salt=72)
+    for y in (9, 11):
+        c.rect(5, y, 10, y, STEEL[5])
+    if working:
+        for y, tone in ((8, CORAL[5]), (10, CORAL[4])):
+            c.rect(5, y, 10, y, tone)
+    return c
+
+
+def boiler_side():
+    c = plate(salt=73)
+    engraved_glyph(c, DROPLET, AZURE)
+    return c
+
+
+def boiler_top():
+    """The port the steam goes up through."""
+    c = plate(salt=74)
+    edge(c, 4, 4, 11, 11, SLATE[3], SLATE[2], 74)
+    fill(c, 5, 5, 10, 10, SLATE[1], mix(SLATE[1], SLATE[0], .5), 75)
+    return c
+
+
+def turbine_side(step=None):
+    """The rotor seen through a slot, its vanes running past while it spins: step by step they rise, mirrored about the shaft."""
+    c = plate(salt=76)
+    window(c, 3, 3, 12, 12, ramp=AZURE if step is not None else None, salt=76)
+    c.rect(7, 4, 8, 11, STEEL[5])
+    for k in range(3):
+        y = 4 + (k * 3 + (step or 0)) % 8
+        tone = AZURE[5] if step is not None else SLATE[4]
+        c.rect(4, y, 6, y, tone)
+        c.rect(9, y, 11, y, tone)
+    return c
+
+
+def turbine_top():
+    c = plate(salt=77)
+    for x in (5, 7, 8, 10):
+        c.rect(x, 4, x, 11, SLATE[2])
+    return c
+
+
+def solar_top(lit_up):
+    """Sixteen cells in a light frame, deep blue, brighter under a sky that feeds them."""
+    c = Canvas()
+    ring(c, 0, STEEL[1], STEEL[2], 78)
+    fill(c, 1, 1, 14, 14, SLATE[3], None, 78)
+    deep, shine = (AZURE[2], AZURE[3]) if lit_up else (AZURE[0], AZURE[1])
+    for y0 in (1, 5, 8, 12):
+        for x0 in (1, 5, 8, 12):
+            h, w = 3 if y0 in (1, 12) else 2, 3 if x0 in (1, 12) else 2
+            c.rect(x0, y0, x0 + w - 1, y0 + h - 1, deep)
+            c.px(x0 + (0 if x0 < 8 else w - 1), y0, shine)
+    return c
+
+
+def solar_side():
+    """The edge of the frame, in the top six rows of a face."""
+    c = plate(salt=79)
+    c.rect(0, 10, 15, 15, STEEL[3])
+    c.rect(0, 10, 15, 10, STEEL[1])
+    c.rect(0, 15, 15, 15, STEEL[5])
+    return c
+
+
+def capacitor_bank(charge):
+    """Two gauges of four bars up the face, lit from the bottom as it charges."""
+    c = plate(salt=80)
+    for x0 in (3, 9):
+        window(c, x0, 2, x0 + 3, 13, salt=80)
+        for k in range(4):
+            y = 11 - 3 * k
+            tone = (CORAL[4], CORAL[5]) if k < charge else (SLATE[2], SLATE[3])
+            c.rect(x0 + 1, y - 1, x0 + 2, y, tone[0])
+            c.rect(x0 + 1, y - 1, x0 + 2, y - 1, tone[1])
+    return c
+
+
+def capacitor_bank_top():
+    """Four terminals."""
+    c = plate(salt=81)
+    for x in (4, 10):
+        for y in (4, 10):
+            edge(c, x, y, x + 1, y + 1, SLATE[3], SLATE[2], 81)
+            c.px(x, y, CORAL[3])
+            c.px(x + 1, y, CORAL[3])
+    return c
+
+
+def band(half, tones, joint):
+    """A cable's texture: a band across and a band down, tones from its edge in to its middle, and its joint where they cross."""
+    c = Canvas()
+    lo = 8 - half
+    across = list(tones) + list(reversed(tones))
+    for i in range(16):
+        for k, color in enumerate(across):
+            c.px(i, lo + k, color)
+            c.px(lo + k, i, color)
+    for k, color in enumerate(joint):
+        c.rect(lo + k, lo + k, 15 - lo - k, 15 - lo - k, color)
+    return c
+
+
+def heavy_cable():
+    return band(3, (SLATE[2], CORAL[2], CORAL[3]), (SLATE[3], CORAL[3], CORAL[4]))
+
+
+def bus_bar():
+    return band(4, (STEEL[4], CORAL[3], CORAL[4], CORAL[5]), (STEEL[3], STEEL[5], CORAL[4], CORAL[5]))
+
+
+def interconnect():
+    return band(1, (TEAL[4],), (TEAL[5],))
+
+
+def coolant_pipe(step=None):
+    """A band of steel round a line of coolant: still, or running out from the middle in both directions, as pulses."""
+    c = band(3, (STEEL[4], SLATE[3], AZURE[1]), (STEEL[3], SLATE[3], AZURE[2]))
+    if step is not None:
+        for i in range(16):
+            for k in (7, 8):
+                pulse = AZURE[4] if (i - step) % 4 == 0 or (15 - i - step) % 4 == 0 else AZURE[2]
+                if i < 5 or i > 10:
+                    c.px(i, k, pulse)
+                    c.px(k, i, pulse)
+    return c
+
+
+def accelerator_node(ramp):
+    """The bare chip at a finer process node: its die in the node's hue."""
+    c = plate(salt=6)
+    c.stamp(2, 2, CHIP, {"l": STEEL[6], "d": SLATE[2], "h": G3, "G": ramp[1], "t": ramp[3]})
+    c.rect(7, 7, 8, 7, ramp[5])
+    c.rect(7, 8, 8, 8, ramp[4])
+    return c
+
+
+def module_front():
+    """A Rack Module's rim, in graphite: the block's edge, its divider and shelves; the bays are holes in the model."""
+    c = Canvas()
+    fill(c, 0, 0, 15, 15, G2, G3, 411)
+    ring(c, 0, STEEL[2], STEEL[3], 412)
+    return c
+
+
+def module_side():
+    """Ducts the height of a module, so a stacked rack reads as one column."""
+    c = plate(salt=413, centre=(G2, G3))
+    for x in (4, 7, 8, 11):
+        c.rect(x, 0, x, 15, G1)
+    return c
+
+
+def module_top():
+    c = plate(salt=414, centre=(G2, G3))
+    for x in (5, 10):
+        c.rect(x, 4, x, 11, SLATE[1])
+    return c
+
+
+def device_cartridge():
+    """A device seen in its bay: a dark card with a light rail over the strip the module lights, plain on its other faces."""
+    c = Canvas()
+    fill(c, 0, 0, 15, 15, G1, G0, 415)
+    c.rect(0, 0, 5, 0, STEEL[4])
+    c.rect(0, 1, 5, 1, SLATE[1])
+    return c
+
+
+def switch_front(ramp, ports, working):
+    """A display for what the cluster runs, the switch's front drawn on it, over a row or two of ports lit while it works."""
+    c = plate(salt=416)
+    window(c, 2, 2, 13, 10, salt=416)
+    for y in ports:
+        for x in (3, 5, 7, 8, 10, 12):
+            c.px(x, y, ramp[4] if working else SLATE[3])
+    return c
+
+
+def switch_side(ramp):
+    c = plate(salt=417)
+    for y in (5, 7, 8, 10):
+        c.rect(4, y, 11, y, SLATE[2])
+    c.rect(7, 4, 8, 4, ramp[3])
+    c.rect(7, 11, 8, 11, ramp[3])
+    return c
+
+
+def chiller_front(working):
+    """A coolant port in a grille: the port is where a cooling line leaves it; it runs blue while the Chiller works."""
+    c = plate(salt=418)
+    window(c, 3, 3, 12, 12, ramp=AZURE if working else None, salt=418)
+    for k in (5, 10):
+        c.rect(4, k, 11, k, STEEL[5] if not working else AZURE[4])
+    edge(c, 6, 6, 9, 9, SLATE[4], SLATE[3], 419)
+    c.rect(7, 7, 8, 8, AZURE[5] if working else SLATE[1])
+    return c
+
+
+def chiller_side():
+    c = plate(salt=420)
+    for y in (4, 6, 9, 11):
+        c.rect(3, y, 12, y, K4)
+        c.rect(3, y + 1, 12, y + 1, K0)
+    return c
+
+
+def console_front(working):
+    """A long screen ruled with a column for each rack, lit when the hall stands."""
+    c = plate(salt=421)
+    window(c, 2, 2, 13, 13, ramp=TEAL if working else None, salt=421)
+    heights = (5, 8, 3, 9, 9, 3, 8, 5)
+    for i, h in enumerate(heights):
+        c.rect(4 + i, 12 - h, 4 + i, 12, TEAL[5] if working else SLATE[3])
+    return c
+
+
+def wall_front():
+    """Dark glass, ruled so its panels line up; what it shows is drawn on it."""
+    c = Canvas()
+    fill(c, 0, 0, 15, 15, W0, mix(W0, W1, .4), 422)
+    return c
+
+
+def wall_side():
+    c = plate(salt=423)
+    c.rect(7, 3, 8, 12, TEAL[2])
+    return c
+
+
+def reactor_core_front(working):
+    """A gauge of eight marks up a dark window, its middle two the band, the rest in steel; lit in amber while it runs."""
+    c = plate(salt=424, centre=(STEEL[5], STEEL[6]))
+    window(c, 3, 2, 12, 13, ramp=AMBER if working else None, salt=424)
+    for k in range(8):
+        y = 12 - k
+        on = k in (3, 4)
+        tone = (AMBER[5] if on else AMBER[3]) if working else (SLATE[4] if on else SLATE[3])
+        c.rect(5, y, 10, y, tone)
+    return c
+
+
+def reactor_casing():
+    """Heavy plate, dark for a machine: a panel with its corners bolted."""
+    c = plate(salt=425, centre=(STEEL[5], STEEL[6]))
+    edge(c, 4, 4, 11, 11, STEEL[6], STEEL[7], 425)
+    for x, y in ((5, 5), (10, 5), (5, 10), (10, 10)):
+        c.px(x, y, SLATE[2])
+    return c
+
+
+def reactor_glass():
+    """A frame of the casing's steel round thick glass, with one rule of its tone across the corner of each pane."""
+    c = Canvas()
+    ring(c, 0, STEEL[5], STEEL[6], 426)
+    ring(c, 1, STEEL[6], STEEL[7], 427)
+    glass = (150, 190, 205, 90)
+    fill(c, 2, 2, 13, 13, glass)
+    for k in range(2, 5):
+        c.px(k + 1, 2 + 4 - k, (210, 235, 240, 140))
+        c.px(15 - k - 1, 2 + 4 - k, (210, 235, 240, 140))
+    return c
+
+
+def fuel_rod(burning):
+    """Four rods in a frame: dark, or with their middles running amber."""
+    c = plate(salt=428, centre=(SLATE[1], SLATE[2]))
+    for x in (4, 6, 9, 11):
+        c.rect(x, 3, x, 12, AMBER[4] if burning else STEEL[6])
+        c.rect(x, 3, x, 3, STEEL[3])
+        c.rect(x, 12, x, 12, STEEL[3])
+    return c
+
+
+def wafer_node(ramp):
+    """A finer wafer: the same disc, its dies in the node's hue."""
+    c = wafer()
+    swap = {rgb("8fa3b8"): ramp[2], rgb("a9bccf"): ramp[3], rgb("6f8399"): ramp[1], rgb("e6f3ff"): ramp[5]}
+    for y in range(16):
+        for x in range(16):
+            old = c.get(x, y)
+            if old in swap:
+                c.px(x, y, swap[old])
+    return c
+
+
+def reactor_fuel():
+    """A rod in its sleeve."""
+    c = Canvas()
+    c.stamp(5, 1, ["..oo..", ".oSSo.", ".oSso.", ".oaao.", ".oaao.", ".oAao.", ".oAAo.", ".oAAo.", ".oaAo.", ".oaao.", ".oaao.", ".oSso.", ".oSSo.", "..oo.."],
+            {"o": INK, "S": STEEL[3], "s": STEEL[5], "a": AMBER[3], "A": AMBER[5]})
+    return c
+
+
 def build():
     for op in GLYPHS:
         front, side = operator_faces(op)
@@ -4340,6 +4725,57 @@ def build():
     relay_card().save("item/relay_card.png")
     terminal().save("item/terminal.png")
     wafer().save("item/wafer.png")
+    # energy and compute
+    boiler_front(False).save("block/boiler_front.png")
+    lit("block/boiler_front_on.png", [boiler_front(True)], [boiler_front(False)])
+    boiler_side().save("block/boiler_side.png")
+    boiler_top().save("block/boiler_top.png")
+    turbine_side().save("block/turbine_side.png")
+    lit("block/turbine_side_on.png", [turbine_side(i) for i in range(8)], [turbine_side()], 2)
+    turbine_top().save("block/turbine_top.png")
+    solar_top(False).save("block/solar_panel_top.png")
+    solar_top(True).save("block/solar_panel_top_on.png")
+    solar_side().save("block/solar_panel_side.png")
+    capacitor_bank(0).save("block/capacitor_bank_0.png")
+    for charge in range(1, 5):
+        lit(f"block/capacitor_bank_{charge}.png", [capacitor_bank(charge)], [capacitor_bank(0)])
+    capacitor_bank_top().save("block/capacitor_bank_top.png")
+    heavy_cable().save("block/heavy_cable.png")
+    bus_bar().save("block/bus_bar.png")
+    interconnect().save("block/interconnect.png")
+    coolant_pipe().save("block/coolant_pipe.png")
+    animated([coolant_pipe(i) for i in range(4)], "block/coolant_pipe_on.png", 3)
+    SAVED["block/coolant_pipe_on.png"] = coolant_pipe(0).im
+    for name, ramp in (("accelerator_28", AZURE), ("accelerator_7", AMETHYST), ("accelerator_3", AMBER)):
+        accelerator_node(ramp).save(f"block/{name}.png")
+        lit(f"block/{name}_hot.png", [accelerator_hot()], [accelerator_node(ramp)])
+    module_front().save("block/rack_module_front.png")
+    rack_inside().save("block/rack_module_inside.png")
+    rack_back_panel().save("block/rack_module_back_panel.png")
+    device_cartridge().save("block/device_cartridge.png")
+    module_side().save("block/rack_module_side.png")
+    module_top().save("block/rack_module_top.png")
+    for name, ramp, ports in (("rack_switch", TEAL, (12,)), ("pod_switch", AMETHYST, (11, 13))):
+        switch_front(ramp, ports, False).save(f"block/{name}_front.png")
+        lit(f"block/{name}_front_on.png", [switch_front(ramp, ports, True)], [switch_front(ramp, ports, False)])
+        switch_side(ramp).save(f"block/{name}_side.png")
+    chiller_front(False).save("block/chiller_front.png")
+    lit("block/chiller_front_on.png", [chiller_front(True)], [chiller_front(False)])
+    chiller_side().save("block/chiller_side.png")
+    machine_top(82).save("block/chiller_top.png")
+    console_front(False).save("block/hall_console_front.png")
+    lit("block/hall_console_front_on.png", [console_front(True)], [console_front(False)])
+    wall_front().save("block/load_wall_front.png")
+    wall_side().save("block/load_wall_side.png")
+    reactor_core_front(False).save("block/reactor_core_front.png")
+    lit("block/reactor_core_front_on.png", [reactor_core_front(True)], [reactor_core_front(False)])
+    reactor_casing().save("block/reactor_casing.png")
+    reactor_glass().save("block/reactor_glass.png")
+    fuel_rod(False).save("block/fuel_rod.png")
+    lit("block/fuel_rod_on.png", [fuel_rod(True)], [fuel_rod(False)])
+    for name, ramp in (("wafer_28", AZURE), ("wafer_7", AMETHYST), ("wafer_3", AMBER)):
+        wafer_node(ramp).save(f"item/{name}.png")
+    reactor_fuel().save("item/reactor_fuel.png")
     photomask(False).save("item/photomask.png")
     photomask(True).save("item/photomask_recorded.png")
     guide().save("item/guide.png")

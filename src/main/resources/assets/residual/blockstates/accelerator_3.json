@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "hot=false": {
+      "model": "residual:block/accelerator_3"
+    },
+    "hot=true": {
+      "model": "residual:block/accelerator_3_hot"
+    }
+  }
+}

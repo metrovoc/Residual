@@ -16,6 +16,7 @@ item_ids:
   - watch_dataset
   - flight_dataset
   - retrieval_dataset
+  - reactor_dataset
 ---
 
 # Models and Tests
@@ -41,6 +42,7 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Watch     | <ItemLink id="watch_dataset" />         | things going well; the test has some gone wrong     | 90%         | the Watch Post |
 | Retrieval | <ItemLink id="retrieval_dataset" />     | things named and asked for, and what each is for   | 90%         | a terminal's search |
 | Quality   | <ItemLink id="archive_drive" />         | documents, half of them spoiled by bad lines        | 90%         | the [Refinery](refinery.md) |
+| Containment | <ItemLink id="reactor_dataset" />     | cycles of each fuel, held at 90% of their looks    | 90%         | the Reactor |
 
 Hover over a benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
 example, the way an agent would ask it.

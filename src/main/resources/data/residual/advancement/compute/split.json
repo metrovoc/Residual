@@ -1,0 +1,28 @@
+{
+  "parent": "residual:compute/rack",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:rack_module"
+    },
+    "title": {
+      "translate": "advancements.residual.compute.split.title"
+    },
+    "description": {
+      "translate": "advancements.residual.compute.split.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -290,7 +290,8 @@ as the network has the ingredients; whatever a recipe leaves behind, such as an 
 network. One Assembler can keep another stocked: one that keeps sticks lets one that makes torches go on as long as
 there is coal.
 
-An <ItemLink id="accelerator" /> touching an Assembler, directly or through another Accelerator, lets it make four more
+An <ItemLink id="accelerator" /> touching an Assembler, directly or through another Accelerator (past the first four they take
+[power](compute.md)), lets it make four more
 crafts a tick, and half that with nothing to cool it. Assemblers with the same recipe share a job's crafts, so what a
 network can make in a tick grows with every Assembler and every Accelerator you give it.
 

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:wafer_7",
+    "residual:wafer_7",
+    "minecraft:netherite_scrap",
+    "minecraft:echo_shard"
+  ],
+  "result": {
+    "id": "residual:wafer_3"
+  }
+}

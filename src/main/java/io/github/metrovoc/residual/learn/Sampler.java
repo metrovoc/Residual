@@ -200,8 +200,8 @@ public final class Sampler {
         if (benchmark == Benchmark.FORECASTING) {
             return forecast(model, rng);
         }
-        if (benchmark == Benchmark.CONTROL || benchmark == Benchmark.PILOT) {
-            Played played = benchmark == Benchmark.CONTROL ? new Control() : new Pilot();
+        if (benchmark == Benchmark.CONTROL || benchmark == Benchmark.PILOT || benchmark == Benchmark.REACTOR) {
+            Played played = benchmark == Benchmark.CONTROL ? new Control() : benchmark == Benchmark.PILOT ? new Pilot() : new Reactor();
             Played.Episode episode = played.demo(model, rng);
             return new Demo("", episode.line.toString(), List.of("0", "1", "2"), played.first(model, 1),
                     Component.translatable("residual.sample." + benchmark.id, Math.round(100 * episode.score())));

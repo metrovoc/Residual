@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "burning=false": {
+      "model": "residual:block/fuel_rod"
+    },
+    "burning=true": {
+      "model": "residual:block/fuel_rod_on"
+    }
+  }
+}

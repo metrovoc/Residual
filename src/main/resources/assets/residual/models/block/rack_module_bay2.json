@@ -1,0 +1,69 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "textures": {
+    "cartridge": "residual:block/device_cartridge",
+    "particle": "residual:block/device_cartridge"
+  },
+  "elements": [
+    {
+      "from": [
+        9,
+        9,
+        2
+      ],
+      "to": [
+        15,
+        11,
+        7
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            0,
+            0,
+            2
+          ],
+          "texture": "#cartridge"
+        },
+        "up": {
+          "uv": [
+            0,
+            2,
+            6,
+            7
+          ],
+          "texture": "#cartridge"
+        },
+        "down": {
+          "uv": [
+            0,
+            7,
+            6,
+            12
+          ],
+          "texture": "#cartridge"
+        },
+        "east": {
+          "uv": [
+            6,
+            2,
+            11,
+            4
+          ],
+          "texture": "#cartridge"
+        },
+        "west": {
+          "uv": [
+            6,
+            4,
+            11,
+            6
+          ],
+          "texture": "#cartridge"
+        }
+      }
+    }
+  ]
+}

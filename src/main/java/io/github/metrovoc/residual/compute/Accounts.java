@@ -2,7 +2,7 @@ package io.github.metrovoc.residual.compute;
 
 /**
  * The sums labs plan with: what a run costs in flops, memory and energy, for a run counted as it happens and for one too
- * large to run. {@link RunBook} keeps a real run's counts; a {@link Capacity} says what a block's compute can do, and
+ * large to run. {@link RunMeter} keeps a real run's counts; a {@link Capacity} says what a block's compute can do, and
  * {@link #book} says what a run would cost on it.
  */
 public final class Accounts {
@@ -12,6 +12,8 @@ public final class Accounts {
     public static final int WEIGHT_BYTES = 4;
     /** Flops a parameter takes per token: two forward and four back. */
     public static final int FLOPS_PER_PARAMETER_TOKEN = 6;
+    /** Bytes a second the links between devices carry: in a rack, across a pod, across a hall. */
+    public static final double RACK_LINK = 100e9, POD_LINK = 25e9, HALL_LINK = 6e9;
     private static final double SECONDS_A_DAY = 86_400;
 
     private Accounts() {
@@ -68,6 +70,11 @@ public final class Accounts {
         long bytes = trainingBytes(parameters);
         return new Booking(parameters, tokens, flops, bytes, bytes <= at.memoryBytes(), energy(flops, at.flopsPerFe(), at.pue()),
                 at.flopsPerSecond() <= 0 ? Double.POSITIVE_INFINITY : flops / at.flopsPerSecond() / SECONDS_A_DAY);
+    }
+
+    /** Milliseconds {@code bytes} take over a link of {@code bytesPerSecond}: a prediction, for devices that share no memory. */
+    public static double linkMillis(long bytes, double bytesPerSecond) {
+        return 1000.0 * bytes / bytesPerSecond;
     }
 
     /** Pipeline parallelism's bubbles with level stages: a prediction, which real stages never quite meet. */

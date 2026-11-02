@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "spinning=false": {
+      "model": "residual:block/turbine"
+    },
+    "spinning=true": {
+      "model": "residual:block/turbine_on"
+    }
+  }
+}

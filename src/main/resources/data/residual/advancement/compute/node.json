@@ -1,0 +1,35 @@
+{
+  "parent": "residual:root",
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "residual:accelerator_28"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:accelerator_28"
+    },
+    "title": {
+      "translate": "advancements.residual.compute.node.title"
+    },
+    "description": {
+      "translate": "advancements.residual.compute.node.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ]
+}

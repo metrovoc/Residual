@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Blueprints;
+import io.github.metrovoc.residual.learn.Reactor;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.learn.Vocab;
@@ -28,13 +29,21 @@ class ParallelTest {
     private static final Task TASK = Benchmark.SORTING.practice();
 
     private static CompiledGraph model(GraphSpec spec) throws Exception {
-        return CompiledGraph.compile(spec, new Env(TASK.vocab, Vocab.CONTEXT), null, 7);
+        return model(spec, TASK);
+    }
+
+    private static CompiledGraph model(GraphSpec spec, Task task) throws Exception {
+        return CompiledGraph.compile(spec, new Env(task.vocab, Vocab.CONTEXT), null, 7);
     }
 
     /** {@code steps} steps of a fresh model split as {@code mode}, on {@code devices} devices. */
     private static Run run(GraphSpec spec, Parallelism mode, int devices, int steps, int batch) throws Exception {
-        CompiledGraph model = model(spec);
-        Trainer trainer = new Trainer(model, TASK, 11, 1e-3f, batch, 1f);
+        return run(spec, TASK, mode, devices, steps, batch);
+    }
+
+    private static Run run(GraphSpec spec, Task task, Parallelism mode, int devices, int steps, int batch) throws Exception {
+        CompiledGraph model = model(spec, task);
+        Trainer trainer = new Trainer(model, task, 11, 1e-3f, batch, 1f);
         LongAdder flops = new LongAdder();
         Run run = new Run(model, flops);
         mode.training(model, devices, flops, () -> {
@@ -102,6 +111,15 @@ class ParallelTest {
     }
 
     @Test
+    void whatIsPractisedByPlayingSplitsToo() throws Exception {
+        GraphSpec spec = Blueprints.gpt(32, 1, 2);
+        CompiledGraph one = run(spec, new Reactor(), Parallelism.ONE, 1, 3, 8).model;
+        for (Parallelism mode : List.of(Parallelism.DATA, Parallelism.TENSOR, Parallelism.PIPELINE)) {
+            sameWeights(one, run(spec, new Reactor(), mode, 2, 3, 8).model, 2e-4, mode + " playing");
+        }
+    }
+
+    @Test
     void replicasEndTheStepAlike() throws Exception {
         CompiledGraph model = model(Blueprints.gpt(32, 1, 2));
         Trainer trainer = new Trainer(model, TASK, 11, 1e-3f, 8, 1f);
@@ -133,7 +151,12 @@ class ParallelTest {
     @Test
     @EnabledIfEnvironmentVariable(named = "RESIDUAL_MEASURE", matches = ".+")
     void measure() throws Exception {
+        // RESIDUAL_MEASURE=pipeline: the largest model's pipeline alone, in a few minutes
+        boolean pipeline = "pipeline".equals(System.getenv("RESIDUAL_MEASURE"));
         for (Object[] m : new Object[][] {{"gpt32", Blueprints.gpt(32, 2, 4)}, {"gpt64", Blueprints.gpt(64, 2, 4)}, {"gpt128x4", Blueprints.gpt(128, 4, 4)}}) {
+            if (pipeline && !"gpt128x4".equals(m[0])) {
+                continue;
+            }
             GraphSpec spec = (GraphSpec) m[1];
             int steps = "gpt128x4".equals(m[0]) ? 30 : 60;
             Run base = run(spec, Parallelism.ONE, 1, steps, 32);
@@ -141,7 +164,7 @@ class ParallelTest {
                     base.msPerStep(), base.flops.sum() / (double) steps / base.msPerStep() / 1e6);
             for (Parallelism mode : Parallelism.values()) {
                 for (int devices : new int[] {2, 4, 8}) {
-                    if (mode == Parallelism.ONE && devices == 1) {
+                    if (mode == Parallelism.ONE && devices == 1 || pipeline && (mode != Parallelism.PIPELINE || devices != 8)) {
                         continue;
                     }
                     Run r = run(spec, mode, devices, steps, 32);

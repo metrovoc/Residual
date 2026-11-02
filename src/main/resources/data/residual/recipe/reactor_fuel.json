@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:blaze_rod",
+    "minecraft:blaze_rod",
+    "minecraft:magma_cream",
+    "minecraft:redstone_block"
+  ],
+  "result": {
+    "id": "residual:reactor_fuel",
+    "count": 2
+  }
+}

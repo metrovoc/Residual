@@ -22,6 +22,11 @@ import io.github.metrovoc.residual.client.StorageTerminalScreen;
 import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.FlightFrameItem;
 import io.github.metrovoc.residual.client.TerminalScreen;
+import io.github.metrovoc.residual.compute.ChillerBlockEntity;
+import io.github.metrovoc.residual.compute.Cluster;
+import io.github.metrovoc.residual.energy.PowerBlockEntity;
+import io.github.metrovoc.residual.energy.PowerNetwork;
+import io.github.metrovoc.residual.energy.ReactorBlockEntity;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.net.GhostSlot;
 import io.github.metrovoc.residual.net.PatternTransfer;
@@ -217,6 +222,16 @@ import org.slf4j.Logger;
  * expect shows X Y Z N       fail the step unless the Refinery machine at the place shows at least N rows
  * expect judged X Y Z N      fail the step unless the Quality Classifier at the place had at least N documents settled by its model
  * expect trained X Y Z N     fail the step unless the Model Core at the place has trained at least N steps
+ * expect carries X Y Z N     fail the step unless the power network at the place carries exactly N FE a tick at most
+ * expect devices X Y Z N     fail the step unless the cluster at the place has the use of at least N devices
+ * expect racks X Y Z N       fail the step unless the cluster at the place has the use of N racks
+ * expect hall X Y Z N        fail the step unless the cluster at the place is a hall (N 1) or not (N 0)
+ * expect flops X Y Z N       fail the step unless the Model Core at the place has counted at least N flops
+ * expect paid X Y Z N        fail the step unless the Model Core at the place has paid at least N FE for its flops
+ * expect chilled X Y Z N     fail the step unless the Chiller at the place has spent at least N FE
+ * expect making X Y Z N      fail the step unless the Reactor Core at the place is making at least N FE a tick
+ * expect status X Y Z N      fail the step unless the Reactor Core at the place says N of why it is not running, 0 when it is
+ * expect rods X Y Z N        fail the step unless the Reactor Core at the place has found N rods in a whole shell
  * expect pins N              fail the step unless the open Storage Terminal has N kinds pinned
  * expect tree N              fail the step unless the open Storage Terminal has at least N rows of a job's plan
  * expect moved X Y Z N       fail the step unless the Port at the place moved at least N items in the last second
@@ -1189,6 +1204,36 @@ public final class Rehearsal {
                     if (args[0].equals("ticking")) {
                         return level.shouldTickBlocksAt(at) ? 1L : 0L;
                     }
+                    if (args[0].equals("carries")) {
+                        return (long) PowerNetwork.at(level, at).carries();
+                    }
+                    if (args[0].equals("devices")) {
+                        return (long) Cluster.at(level, at).devices().size();
+                    }
+                    if (args[0].equals("racks")) {
+                        return (long) Cluster.at(level, at).racks().size();
+                    }
+                    if (args[0].equals("hall")) {
+                        return Cluster.at(level, at).hall() ? 1L : 0L;
+                    }
+                    if (args[0].equals("flops")) {
+                        return ((CoreBlockEntity) level.getBlockEntity(at)).meter().flops();
+                    }
+                    if (args[0].equals("paid")) {
+                        return ((CoreBlockEntity) level.getBlockEntity(at)).meter().energy();
+                    }
+                    if (args[0].equals("chilled")) {
+                        return ((ChillerBlockEntity) level.getBlockEntity(at)).spentSoFar();
+                    }
+                    if (args[0].equals("making")) {
+                        return (long) ((ReactorBlockEntity) level.getBlockEntity(at)).rate();
+                    }
+                    if (args[0].equals("status")) {
+                        return (long) ((ReactorBlockEntity) level.getBlockEntity(at)).status();
+                    }
+                    if (args[0].equals("rods")) {
+                        return (long) ((ReactorBlockEntity) level.getBlockEntity(at)).rods();
+                    }
                     ItemResource kind = ItemResource.of(BuiltInRegistries.ITEM.getValue(Identifier.parse(args[4])));
                     if (args[0].equals("net")) {
                         return StorageNetwork.at(level, at).count(kind);
@@ -1209,7 +1254,8 @@ public final class Rehearsal {
                 || wanted == 0 && (args[0].equals("program") || args[0].equals("proposed"))
                 || args[0].equals("netopen") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("out")
                 || args[0].equals("state") || args[0].equals("ticking")
-                || args[0].equals("running") || args[0].equals("working") || args[0].equals("afloatabove") || args[0].equals("afloatheard");
+                || args[0].equals("running") || args[0].equals("working") || args[0].equals("afloatabove") || args[0].equals("afloatheard")
+                || args[0].equals("racks") || args[0].equals("hall") || args[0].equals("carries") || args[0].equals("status") || args[0].equals("rods");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }

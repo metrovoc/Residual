@@ -5,10 +5,14 @@ import guideme.GuideItemSettings;
 import guideme.compiler.TagCompiler;
 import guideme.siteexport.ExportPostProcessor;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.compute.HallConsoleMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.net.AgentSync;
+import io.github.metrovoc.residual.net.ComputeSync;
 import io.github.metrovoc.residual.net.ProgramSync;
 import io.github.metrovoc.residual.net.CoreSync;
+import io.github.metrovoc.residual.net.CurrentSync;
+import io.github.metrovoc.residual.net.HallSync;
 import io.github.metrovoc.residual.net.FlowSync;
 import io.github.metrovoc.residual.net.StepSync;
 import io.github.metrovoc.residual.net.GhostSync;
@@ -127,6 +131,8 @@ public final class ResidualClient {
         event.register(ModMenus.WATCH_POST.get(), WatchPostScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
         event.register(ModMenus.POWER.get(), PowerScreen::new);
+        event.register(ModMenus.RACK_MODULE.get(), RackModuleScreen::new);
+        event.register(ModMenus.HALL_CONSOLE.get(), HallConsoleScreen::new);
         event.register(ModMenus.FORGE.get(), ForgeScreen::new);
         event.register(ModMenus.FORECASTER.get(), ForecasterScreen::new);
         event.register(ModMenus.RACK.get(), RackScreen::new);
@@ -195,6 +201,17 @@ public final class ResidualClient {
                 menu.rows = sync.rows();
             }
         });
+        event.register(ComputeSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof CoreMenu menu && menu.pos.equals(sync.pos())) {
+                CoreView.compute = sync;
+            }
+        });
+        event.register(HallSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof HallConsoleMenu menu && menu.containerId == sync.menu()) {
+                menu.reading = sync;
+            }
+        });
+        event.register(CurrentSync.TYPE, (current, ctx) -> FlowView.receive(current));
         event.register(WatchSync.TYPE, (sync, ctx) -> {
             if (ctx.player().containerMenu instanceof WatchPostMenu menu && menu.containerId == sync.menu()) {
                 menu.rows = sync.rows();
@@ -215,6 +232,9 @@ public final class ResidualClient {
         event.registerBlockEntityRenderer(ModBlockEntities.RACK.get(), context -> new RackRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.RELAY_GATE.get(), context -> new GateRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.REFINERY.get(), context -> new RefineryRenderer());
+        event.registerBlockEntityRenderer(ModBlockEntities.RACK_MODULE.get(), context -> new RackModuleRenderer());
+        event.registerBlockEntityRenderer(ModBlockEntities.SWITCH.get(), context -> new SwitchRenderer());
+        event.registerBlockEntityRenderer(ModBlockEntities.LOAD_WALL.get(), context -> new LoadWallRenderer());
         event.registerEntityRenderer(ModEntities.AGENT.get(), AgentRenderer::new);
     }
 

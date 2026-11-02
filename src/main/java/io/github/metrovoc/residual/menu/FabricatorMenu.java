@@ -40,7 +40,8 @@ public class FabricatorMenu extends AbstractContainerMenu {
         this.items = items;
         addSlot(only(FabricatorBlockEntity.MASK, MASK_X, MASK_Y, s -> MaskItem.mask(s) != null));
         addSlot(only(FabricatorBlockEntity.CASING, CASING_X, MATERIALS_Y, s -> s.is(ModBlocks.CASING.asItem())));
-        addSlot(only(FabricatorBlockEntity.WAFER, WAFER_X, MATERIALS_Y, s -> s.is(ModItems.WAFER.get())));
+        addSlot(only(FabricatorBlockEntity.WAFER, WAFER_X, MATERIALS_Y, s -> s.is(ModItems.WAFER.get()) || s.is(ModItems.WAFER_28.get())
+                || s.is(ModItems.WAFER_7.get()) || s.is(ModItems.WAFER_3.get())));
         addSlot(only(FabricatorBlockEntity.CRYSTAL, CRYSTAL_X, MATERIALS_Y, s -> s.is(ModItems.WEIGHT_CRYSTAL.get())));
         addSlot(only(FabricatorBlockEntity.OUTPUT, OUTPUT_X, OUTPUT_Y, s -> false));
         for (int row = 0; row < 3; row++) {

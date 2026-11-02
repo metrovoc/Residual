@@ -5,9 +5,17 @@ import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.FabricatorBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
+import io.github.metrovoc.residual.compute.ChillerBlockEntity;
+import io.github.metrovoc.residual.compute.HallConsoleBlockEntity;
+import io.github.metrovoc.residual.compute.LoadWallBlockEntity;
+import io.github.metrovoc.residual.compute.RackModuleBlockEntity;
+import io.github.metrovoc.residual.compute.SwitchBlockEntity;
+import io.github.metrovoc.residual.energy.BoilerBlockEntity;
 import io.github.metrovoc.residual.energy.CellBlockEntity;
 import io.github.metrovoc.residual.energy.GeneratorBlockEntity;
+import io.github.metrovoc.residual.energy.ReactorBlockEntity;
 import io.github.metrovoc.residual.energy.SmelterBlockEntity;
+import io.github.metrovoc.residual.energy.SolarBlockEntity;
 import io.github.metrovoc.residual.block.ForgeBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
@@ -82,7 +90,23 @@ public final class ModBlockEntities {
     public static final Supplier<BlockEntityType<GeneratorBlockEntity>> GENERATOR = BLOCK_ENTITIES.register("combustion_generator",
             () -> new BlockEntityType<>(GeneratorBlockEntity::new, Set.of(ModBlocks.COMBUSTION_GENERATOR.get())));
     public static final Supplier<BlockEntityType<CellBlockEntity>> CELL = BLOCK_ENTITIES.register("energy_cell",
-            () -> new BlockEntityType<>(CellBlockEntity::new, Set.of(ModBlocks.ENERGY_CELL.get())));
+            () -> new BlockEntityType<>(CellBlockEntity::new, Set.of(ModBlocks.ENERGY_CELL.get(), ModBlocks.CAPACITOR_BANK.get())));
+    public static final Supplier<BlockEntityType<BoilerBlockEntity>> BOILER = BLOCK_ENTITIES.register("boiler",
+            () -> new BlockEntityType<>(BoilerBlockEntity::new, Set.of(ModBlocks.BOILER.get())));
+    public static final Supplier<BlockEntityType<SolarBlockEntity>> SOLAR = BLOCK_ENTITIES.register("solar_panel",
+            () -> new BlockEntityType<>(SolarBlockEntity::new, Set.of(ModBlocks.SOLAR_PANEL.get())));
+    public static final Supplier<BlockEntityType<ReactorBlockEntity>> REACTOR = BLOCK_ENTITIES.register("reactor_core",
+            () -> new BlockEntityType<>(ReactorBlockEntity::new, Set.of(ModBlocks.REACTOR_CORE.get())));
+    public static final Supplier<BlockEntityType<RackModuleBlockEntity>> RACK_MODULE = BLOCK_ENTITIES.register("rack_module",
+            () -> new BlockEntityType<>(RackModuleBlockEntity::new, Set.of(ModBlocks.RACK_MODULE.get())));
+    public static final Supplier<BlockEntityType<SwitchBlockEntity>> SWITCH = BLOCK_ENTITIES.register("rack_switch",
+            () -> new BlockEntityType<>(SwitchBlockEntity::new, Set.of(ModBlocks.RACK_SWITCH.get(), ModBlocks.POD_SWITCH.get())));
+    public static final Supplier<BlockEntityType<ChillerBlockEntity>> CHILLER = BLOCK_ENTITIES.register("chiller",
+            () -> new BlockEntityType<>(ChillerBlockEntity::new, Set.of(ModBlocks.CHILLER.get())));
+    public static final Supplier<BlockEntityType<HallConsoleBlockEntity>> HALL_CONSOLE = BLOCK_ENTITIES.register("hall_console",
+            () -> new BlockEntityType<>(HallConsoleBlockEntity::new, Set.of(ModBlocks.HALL_CONSOLE.get())));
+    public static final Supplier<BlockEntityType<LoadWallBlockEntity>> LOAD_WALL = BLOCK_ENTITIES.register("load_wall",
+            () -> new BlockEntityType<>(LoadWallBlockEntity::new, Set.of(ModBlocks.LOAD_WALL.get())));
     public static final Supplier<BlockEntityType<SurveyorBlockEntity>> SURVEYOR = BLOCK_ENTITIES.register("surveyor",
             () -> new BlockEntityType<>(SurveyorBlockEntity::new, Set.of(ModBlocks.SURVEYOR.get())));
     public static final Supplier<BlockEntityType<WatchPostBlockEntity>> WATCH_POST = BLOCK_ENTITIES.register("watch_post",

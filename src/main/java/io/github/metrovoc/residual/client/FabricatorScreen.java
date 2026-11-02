@@ -16,6 +16,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
@@ -57,10 +58,10 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> im
         }
         ghost(g, FabricatorBlockEntity.MASK, new ItemStack(ModItems.PHOTOMASK.get()));
         ghost(g, FabricatorBlockEntity.CASING, new ItemStack(ModBlocks.CASING.asItem()));
-        ghost(g, FabricatorBlockEntity.WAFER, new ItemStack(ModItems.WAFER.get()));
-        ghost(g, FabricatorBlockEntity.CRYSTAL, new ItemStack(ModItems.WEIGHT_CRYSTAL.get()));
         List<Item> choices = choices();
         int chosen = choice();
+        ghost(g, FabricatorBlockEntity.WAFER, new ItemStack(chosen >= 0 ? FabricatorBlockEntity.wafer(choices.get(chosen)) : ModItems.WAFER.get()));
+        ghost(g, FabricatorBlockEntity.CRYSTAL, new ItemStack(ModItems.WEIGHT_CRYSTAL.get()));
         for (int i = 0; i < choices.size(); i++) {
             int x = leftPos + CHOICES_X + (i % PER_ROW) * CELL, y = topPos + CHOICES_Y + (i / PER_ROW) * CELL;
             g.fill(x, y, x + 18, y + 18, i == chosen ? Ui.TEAL : Ui.inside(mouseX, mouseY, x, y, 18, 18) ? 0xFFDADADA : 0xFF8B8B8B);
@@ -100,7 +101,8 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> im
         // what each material slot needs, under it
         Cost cost = FabricatorBlockEntity.cost(choices().get(chosen), menu.mask());
         need(g, FabricatorMenu.CASING_X, FabricatorBlockEntity.CASING, cost.casings());
-        need(g, FabricatorMenu.WAFER_X, FabricatorBlockEntity.WAFER, cost.wafers());
+        boolean rightWafers = !menu.getSlot(FabricatorBlockEntity.WAFER).hasItem() || menu.getSlot(FabricatorBlockEntity.WAFER).getItem().is(FabricatorBlockEntity.wafer(choices().get(chosen)));
+        need(g, FabricatorMenu.WAFER_X, FabricatorBlockEntity.WAFER, rightWafers ? cost.wafers() : Integer.MAX_VALUE);
         need(g, FabricatorMenu.CRYSTAL_X, FabricatorBlockEntity.CRYSTAL, cost.crystals());
     }
 
@@ -108,7 +110,8 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> im
         if (count == 0) {
             return;
         }
-        String c = "×" + count;
+        // the wrong kind of wafer for what it is making: shown short
+        String c = count == Integer.MAX_VALUE ? "×?" : "×" + count;
         boolean enough = menu.getSlot(slot).getItem().getCount() >= count;
         g.text(font, c, x + 8 - font.width(c) / 2, FabricatorMenu.MATERIALS_Y + 19, enough ? Ui.LABEL_DIM : 0xFFB3261E, false);
     }
@@ -151,7 +154,9 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> im
             note = Component.translatable("residual.fabricator.unit");
         } else if (item instanceof BlockItem b && b.getBlock() instanceof RefineryBlock refinery) {
             note = Component.translatable("residual.fabricator." + refinery.stage.id);
-
+        } else if (item == ModBlocks.RACK_SWITCH.asItem() || item == ModBlocks.POD_SWITCH.asItem() || item == ModBlocks.HALL_CONSOLE.asItem()
+                || item == ModBlocks.REACTOR_CORE.asItem()) {
+            note = Component.translatable("residual.fabricator." + BuiltInRegistries.ITEM.getKey(item).getPath());
         } else if (!(item instanceof MachineItem)) {
             note = Component.translatable("residual.fabricator.accelerator");
         } else if (m != null) {

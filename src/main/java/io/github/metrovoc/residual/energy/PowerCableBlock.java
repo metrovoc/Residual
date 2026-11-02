@@ -20,22 +20,30 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-/** A Power Cable: joins generators, Energy Cells and the machines they run into one power network. */
+/**
+ * A power cable: joins generators, cells, machines and compute into one power network, and carries so much in a tick:
+ * the Power Cable, the Heavy Cable and the Bus Bar, each sixteen times the one before.
+ */
 public class PowerCableBlock extends Block implements PowerNode {
-    public static final MapCodec<PowerCableBlock> CODEC = simpleCodec(PowerCableBlock::new);
     public static final Map<Direction, BooleanProperty> ARMS = PipeBlock.PROPERTY_BY_DIRECTION;
-    private static final VoxelShape[] SHAPES = new VoxelShape[64];
+    private final int carries;
+    private final int half;
+    private final VoxelShape[] shapes;
+    private final MapCodec<PowerCableBlock> codec;
 
-    static {
-        VoxelShape core = Block.box(6, 6, 6, 10, 10, 10);
+    /** A joint and arms of a square {@code 2 * half} pixels across. */
+    static VoxelShape[] shapes(int half) {
+        VoxelShape[] out = new VoxelShape[64];
+        int lo = 8 - half, hi = 8 + half;
+        VoxelShape core = Block.box(lo, lo, lo, hi, hi, hi);
         VoxelShape[] arms = new VoxelShape[6];
         for (Direction d : Direction.values()) {
-            double x0 = d.getStepX() < 0 ? 0 : d.getStepX() > 0 ? 10 : 6;
-            double y0 = d.getStepY() < 0 ? 0 : d.getStepY() > 0 ? 10 : 6;
-            double z0 = d.getStepZ() < 0 ? 0 : d.getStepZ() > 0 ? 10 : 6;
-            double x1 = d.getStepX() < 0 ? 6 : d.getStepX() > 0 ? 16 : 10;
-            double y1 = d.getStepY() < 0 ? 6 : d.getStepY() > 0 ? 16 : 10;
-            double z1 = d.getStepZ() < 0 ? 6 : d.getStepZ() > 0 ? 16 : 10;
+            double x0 = d.getStepX() < 0 ? 0 : d.getStepX() > 0 ? hi : lo;
+            double y0 = d.getStepY() < 0 ? 0 : d.getStepY() > 0 ? hi : lo;
+            double z0 = d.getStepZ() < 0 ? 0 : d.getStepZ() > 0 ? hi : lo;
+            double x1 = d.getStepX() < 0 ? lo : d.getStepX() > 0 ? 16 : hi;
+            double y1 = d.getStepY() < 0 ? lo : d.getStepY() > 0 ? 16 : hi;
+            double z1 = d.getStepZ() < 0 ? lo : d.getStepZ() > 0 ? 16 : hi;
             arms[d.ordinal()] = Block.box(x0, y0, z0, x1, y1, z1);
         }
         for (int mask = 0; mask < 64; mask++) {
@@ -45,12 +53,17 @@ public class PowerCableBlock extends Block implements PowerNode {
                     shape = Shapes.or(shape, arms[d.ordinal()]);
                 }
             }
-            SHAPES[mask] = shape;
+            out[mask] = shape;
         }
+        return out;
     }
 
-    public PowerCableBlock(Properties properties) {
+    public PowerCableBlock(int carries, int half, Properties properties) {
         super(properties);
+        this.carries = carries;
+        this.half = half;
+        this.shapes = shapes(half);
+        this.codec = simpleCodec(p -> new PowerCableBlock(carries, half, p));
         BlockState state = stateDefinition.any();
         for (BooleanProperty arm : ARMS.values()) {
             state = state.setValue(arm, false);
@@ -60,7 +73,12 @@ public class PowerCableBlock extends Block implements PowerNode {
 
     @Override
     protected MapCodec<PowerCableBlock> codec() {
-        return CODEC;
+        return codec;
+    }
+
+    @Override
+    public int carries() {
+        return carries;
     }
 
     @Override
@@ -100,7 +118,7 @@ public class PowerCableBlock extends Block implements PowerNode {
                 mask |= 1 << d.ordinal();
             }
         }
-        return SHAPES[mask];
+        return shapes[mask];
     }
 
     @Override

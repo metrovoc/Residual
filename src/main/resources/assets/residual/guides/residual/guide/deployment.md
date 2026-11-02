@@ -141,5 +141,5 @@ reaches also hears the orders you give by name in chat.
 
 ## Heat
 
-Accelerators run hot. One touching water, ice or snow, or standing in a cold biome, lends a full thread to a Core or
+Accelerators run hot, and past the first four they take power ([Compute](compute.md)). One touching water, ice or snow, or standing in a cold biome, lends a full thread to a Core or
 a full share of answers to a server; one with nothing to cool it lends half, and smokes while it works.

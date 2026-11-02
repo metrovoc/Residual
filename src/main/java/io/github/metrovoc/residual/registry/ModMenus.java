@@ -4,6 +4,8 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.menu.AgentMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.FabricatorMenu;
+import io.github.metrovoc.residual.compute.HallConsoleMenu;
+import io.github.metrovoc.residual.compute.RackModuleMenu;
 import io.github.metrovoc.residual.energy.PowerMenu;
 import io.github.metrovoc.residual.menu.ForecasterMenu;
 import io.github.metrovoc.residual.menu.ForgeMenu;
@@ -59,6 +61,10 @@ public final class ModMenus {
     public static final Supplier<MenuType<PortProgramMenu>> PORT_PROGRAM = MENUS.register("port_program",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new PortProgramMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<PowerMenu>> POWER = MENUS.register("power", () -> IMenuTypeExtension.create(PowerMenu::new));
+    public static final Supplier<MenuType<RackModuleMenu>> RACK_MODULE = MENUS.register("rack_module",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new RackModuleMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<HallConsoleMenu>> HALL_CONSOLE = MENUS.register("hall_console",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new HallConsoleMenu(id, inv, buf.readBlockPos())));
 
     public static final Supplier<MenuType<AssemblerMenu>> ASSEMBLER = MENUS.register("assembler",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new AssemblerMenu(id, inv, buf.readBlockPos())));

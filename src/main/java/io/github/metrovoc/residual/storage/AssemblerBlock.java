@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.storage;
 
+import io.github.metrovoc.residual.compute.ComputeHost;
 import com.mojang.serialization.MapCodec;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -20,7 +21,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.Nullable;
 
 /** An Assembler: crafts one recipe from what its network keeps, until the network holds as many as it is told to keep. */
-public class AssemblerBlock extends DeviceBlock {
+public class AssemblerBlock extends DeviceBlock implements ComputeHost {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty WORKING = BooleanProperty.create("working");
     public static final MapCodec<AssemblerBlock> CODEC = simpleCodec(AssemblerBlock::new);

@@ -1,0 +1,40 @@
+{
+  "parent": "residual:power/generator",
+  "criteria": {
+    "placed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": "residual:solar_panel"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:solar_panel"
+    },
+    "title": {
+      "translate": "advancements.residual.power.solar.title"
+    },
+    "description": {
+      "translate": "advancements.residual.power.solar.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "placed"
+    ]
+  ]
+}

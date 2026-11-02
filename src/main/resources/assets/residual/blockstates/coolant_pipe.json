@@ -1,0 +1,138 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "flowing": "false"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_joint"
+      }
+    },
+    {
+      "when": {
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_on_joint"
+      }
+    },
+    {
+      "when": {
+        "north": "true",
+        "flowing": "false"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_arm"
+      }
+    },
+    {
+      "when": {
+        "north": "true",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_on_arm"
+      }
+    },
+    {
+      "when": {
+        "south": "true",
+        "flowing": "false"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_arm",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "true",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_on_arm",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "east": "true",
+        "flowing": "false"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_arm",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "true",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_on_arm",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "west": "true",
+        "flowing": "false"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_arm",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "true",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_on_arm",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "true",
+        "flowing": "false"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_arm",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "up": "true",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_on_arm",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "flowing": "false"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_arm",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "residual:block/coolant_pipe_on_arm",
+        "x": 90
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "parent": "residual:compute/rack",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:chiller"
+    },
+    "title": {
+      "translate": "advancements.residual.compute.loop.title"
+    },
+    "description": {
+      "translate": "advancements.residual.compute.loop.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

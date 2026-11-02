@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:reactor_casing",
+    "G": "minecraft:tinted_glass"
+  },
+  "pattern": [
+    " K ",
+    "KGK",
+    " K "
+  ],
+  "result": {
+    "id": "residual:reactor_glass",
+    "count": 4
+  }
+}

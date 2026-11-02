@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:wafer",
+    "residual:wafer",
+    "minecraft:quartz",
+    "minecraft:amethyst_shard"
+  ],
+  "result": {
+    "id": "residual:wafer_28"
+  }
+}

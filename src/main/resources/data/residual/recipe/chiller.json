@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "I": "minecraft:iron_block",
+    "P": "residual:coolant_pipe",
+    "B": "minecraft:blue_ice"
+  },
+  "pattern": [
+    "KIK",
+    "PBP",
+    "KIK"
+  ],
+  "result": {
+    "id": "residual:chiller"
+  }
+}

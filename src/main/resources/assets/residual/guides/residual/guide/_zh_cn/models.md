@@ -16,6 +16,7 @@ item_ids:
   - watch_dataset
   - flight_dataset
   - retrieval_dataset
+  - reactor_dataset
 ---
 
 # 模型与测试
@@ -40,6 +41,7 @@ item_ids:
 | 看守   | <ItemLink id="watch_dataset" />         | 一切正常的情况；测试里有的出了问题                | 90%         | 哨所     |
 | 检索   | <ItemLink id="retrieval_dataset" />     | 说出名字和想要的东西，以及各自的用途      | 90%         | 终端的搜索 |
 | 质量   | <ItemLink id="archive_drive" />         | 一份份文档，其中一半被坏线路弄坏了                | 90%         | [精炼厂](refinery.md) |
+| 安全壳 | <ItemLink id="reactor_dataset" />       | 每种燃料的周期，90% 的查看保持在带内              | 90%         | 反应堆   |
 
 把鼠标悬停在核心「测试」页上的某项基准上，可以看到准确的格式。「试用」页展示模型回答一个新例子，就像智能体提问那样。
 

@@ -7,12 +7,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** The Energy Cell: holds a million FE for its network, and shows how full it is in fifths on its faces. */
+/** A cell of its network's power: it shows how full it is in quarters on its faces. */
 public class CellBlockEntity extends PowerBlockEntity {
-    public static final int CAPACITY = 1_000_000, RATE = 2_000;
+    private final int capacity;
 
     public CellBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.CELL.get(), pos, state, CAPACITY, RATE, RATE);
+        super(ModBlockEntities.CELL.get(), pos, state, ((CellBlock) state.getBlock()).capacity, ((CellBlock) state.getBlock()).rate,
+                ((CellBlock) state.getBlock()).rate);
+        capacity = ((CellBlock) state.getBlock()).capacity;
     }
 
     @Override
@@ -26,7 +28,7 @@ public class CellBlockEntity extends PowerBlockEntity {
 
     @Override
     protected void energyChanged(int previous) {
-        int charge = (int) Math.ceil(4.0 * energy().getAmountAsInt() / CAPACITY);
+        int charge = (int) Math.ceil(4.0 * energy().getAmountAsInt() / capacity);
         BlockState here = getBlockState();
         if (level != null && here.getValue(CellBlock.CHARGE) != charge) {
             level.setBlock(worldPosition, here.setValue(CellBlock.CHARGE, charge), Block.UPDATE_CLIENTS);

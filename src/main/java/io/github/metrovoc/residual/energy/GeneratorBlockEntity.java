@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.WorldlyContainer;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -31,12 +33,31 @@ public class GeneratorBlockEntity extends PowerBlockEntity implements MenuProvid
     public static final int FUEL = 0, SLOTS = 1;
 
     private final Items items = new Items();
-    private int burn;
-    private int burnTotal;
-    private final ContainerData data = PowerMenu.data(this, () -> burn, () -> burnTotal, () -> burn > 0 ? RATE : 0);
+    protected int burn;
+    protected int burnTotal;
+    private final ContainerData data = PowerMenu.data(this, () -> burn, () -> burnTotal, this::rateNow);
 
     public GeneratorBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.GENERATOR.get(), pos, state, CAPACITY, 0, OUT);
+        this(ModBlockEntities.GENERATOR.get(), pos, state, CAPACITY, OUT);
+    }
+
+    protected GeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, int out) {
+        super(type, pos, state, capacity, 0, out);
+    }
+
+    /** What it makes a tick while it burns. */
+    protected int rate() {
+        return RATE;
+    }
+
+    /** What it makes a tick now. */
+    private int rateNow() {
+        return burn > 0 ? rate() : 0;
+    }
+
+    /** Ticks {@code fuel} keeps it burning. */
+    protected int burnTicks(Level level, ItemStack fuel) {
+        return burnTime(level, fuel);
     }
 
     @Override
@@ -58,9 +79,11 @@ public class GeneratorBlockEntity extends PowerBlockEntity implements MenuProvid
     protected void tick(ServerLevel level) {
         super.tick(level);
         int stored = energy().getAmountAsInt();
-        if (burn <= 0 && stored + RATE <= CAPACITY) {
+        int rate = rate();
+        int room = (int) energy().getCapacityAsLong() - rate;
+        if (burn <= 0 && rate > 0 && stored <= room) {
             ItemStack fuel = items.getItem(FUEL);
-            int time = fuel.isEmpty() ? 0 : burnTime(level, fuel);
+            int time = fuel.isEmpty() ? 0 : burnTicks(level, fuel);
             if (time > 0) {
                 burn = burnTotal = time;
                 // as a furnace does: what the fuel leaves (a lava bucket's bucket) is asked for before it goes
@@ -72,14 +95,14 @@ public class GeneratorBlockEntity extends PowerBlockEntity implements MenuProvid
                 items.setChanged();
             }
         }
-        if (burn > 0 && stored + RATE <= CAPACITY) {
+        if (burn > 0 && rate > 0 && stored <= room) {
             burn--;
-            energy().set(stored + RATE);
+            energy().set(stored + rate);
         }
-        lit(burn > 0);
+        lit(burn > 0 && rate > 0);
     }
 
-    private void lit(boolean on) {
+    protected void lit(boolean on) {
         BlockState here = getBlockState();
         if (level != null && here.getValue(PowerDeviceBlock.WORKING) != on) {
             level.setBlock(worldPosition, here.setValue(PowerDeviceBlock.WORKING, on), Block.UPDATE_CLIENTS);
@@ -99,7 +122,7 @@ public class GeneratorBlockEntity extends PowerBlockEntity implements MenuProvid
     @Override
     protected void saveAdditional(ValueOutput out) {
         super.saveAdditional(out);
-        net.minecraft.world.ContainerHelper.saveAllItems(out.child("items"), items.getItems());
+        ContainerHelper.saveAllItems(out.child("items"), items.getItems());
         out.putInt("burn", burn);
         out.putInt("burn_total", burnTotal);
     }
@@ -107,7 +130,7 @@ public class GeneratorBlockEntity extends PowerBlockEntity implements MenuProvid
     @Override
     protected void loadAdditional(ValueInput in) {
         super.loadAdditional(in);
-        in.child("items").ifPresent(c -> net.minecraft.world.ContainerHelper.loadAllItems(c, items.getItems()));
+        in.child("items").ifPresent(c -> ContainerHelper.loadAllItems(c, items.getItems()));
         burn = in.getIntOr("burn", 0);
         burnTotal = in.getIntOr("burn_total", 0);
     }

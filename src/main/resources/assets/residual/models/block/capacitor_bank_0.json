@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/capacitor_bank_0",
+    "north": "residual:block/capacitor_bank_0",
+    "south": "residual:block/capacitor_bank_0",
+    "east": "residual:block/capacitor_bank_0",
+    "west": "residual:block/capacitor_bank_0",
+    "up": "residual:block/capacitor_bank_top",
+    "down": "residual:block/capacitor_bank_top"
+  }
+}

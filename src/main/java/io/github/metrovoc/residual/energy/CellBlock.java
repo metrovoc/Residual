@@ -16,19 +16,23 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
 
-/** The Energy Cell: stores its network's power; its faces fill in quarters as it charges, and a comparator reads it. */
+/** A cell: stores its network's power; its faces fill in quarters as it charges, and a comparator reads it. */
 public class CellBlock extends BaseEntityBlock implements PowerNode {
     public static final IntegerProperty CHARGE = IntegerProperty.create("charge", 0, 4);
-    public static final MapCodec<CellBlock> CODEC = simpleCodec(CellBlock::new);
+    final int capacity, rate;
+    private final MapCodec<CellBlock> codec;
 
-    public CellBlock(Properties properties) {
+    public CellBlock(int capacity, int rate, Properties properties) {
         super(properties);
+        this.capacity = capacity;
+        this.rate = rate;
+        this.codec = simpleCodec(p -> new CellBlock(capacity, rate, p));
         registerDefaultState(stateDefinition.any().setValue(CHARGE, 0));
     }
 
     @Override
     protected MapCodec<CellBlock> codec() {
-        return CODEC;
+        return codec;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class CellBlock extends BaseEntityBlock implements PowerNode {
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         return level.getBlockEntity(pos) instanceof CellBlockEntity cell
-                ? (int) Math.round(15.0 * cell.energy().getAmountAsLong() / CellBlockEntity.CAPACITY) : 0;
+                ? (int) Math.round(15.0 * cell.energy().getAmountAsLong() / capacity) : 0;
     }
 
     @Override

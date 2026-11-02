@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "W": "residual:wafer",
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:copper_ingot"
+  },
+  "pattern": [
+    "GGG",
+    "WWW",
+    "ICI"
+  ],
+  "result": {
+    "id": "residual:solar_panel",
+    "count": 2
+  }
+}

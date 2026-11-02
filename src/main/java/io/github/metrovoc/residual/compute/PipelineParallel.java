@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.compute;
 
 import io.github.metrovoc.residual.graph.CompiledGraph;
+import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.tensor.Tape;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.tensor.Tokens;
@@ -31,10 +32,26 @@ public final class PipelineParallel implements Split {
 
     public PipelineParallel(CompiledGraph model, int count, LongAdder flops) {
         this.model = model;
-        long[] cost = model.costs();
+        long[] cost = costs(model);
         this.stageStart = stages(cost, Math.max(1, Math.min(count, worthStages(cost))));
         this.stages = stageStart.length - 1;
         this.devices = new Devices(stages, flops);
+    }
+
+    /**
+     * What each node in the model's order costs, for levelling stages without running it: a flop on every token for each weight a
+     * token passes through, which is all of them but in a table a token only reads a row of.
+     */
+    private static long[] costs(CompiledGraph model) {
+        long[] cost = new long[model.order.length];
+        for (int i = 0; i < cost.length; i++) {
+            int node = model.order[i];
+            Op op = model.spec.node(node).op;
+            for (Tensor t : model.params(node).values()) {
+                cost[i] += op == Op.EMBEDDING || op == Op.POSITION ? t.dim(-1) : t.size();
+            }
+        }
+        return cost;
     }
 
     private static int worthStages(long[] cost) {
@@ -93,7 +110,7 @@ public final class PipelineParallel implements Split {
 
     /** What each stage would take to train, in bytes, were {@code model} cut for {@code count} devices. */
     public static long[] stageBytes(CompiledGraph model, int count) {
-        long[] cost = model.costs();
+        long[] cost = costs(model);
         int[] cuts = stages(cost, Math.max(1, Math.min(count, worthStages(cost))));
         long[] out = new long[cuts.length - 1];
         for (int s = 0; s < out.length; s++) {

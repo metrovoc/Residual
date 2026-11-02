@@ -36,6 +36,7 @@ public final class Trainer {
     public float clip;
     private int step;
     private double lastGradNorm;
+    private long lastTokens;
 
     public Trainer(CompiledGraph model, Task task, long seed, float learningRate, int batchSize, float clip) {
         this.model = model;
@@ -65,6 +66,11 @@ public final class Trainer {
         return lastRate;
     }
 
+    /** The tokens its last step read. */
+    public long lastTokens() {
+        return lastTokens;
+    }
+
     /** One optimisation step; returns the training loss per character before the update. */
     public float train() {
         Recipe r = recipe;
@@ -75,6 +81,7 @@ public final class Trainer {
         }
         bind(task, model);
         Batch b = task.batch(rng, batchSize, false);
+        lastTokens = b.input().ids.length;
         Tape tape = new Tape();
         Extras extras = new Extras();
         Tensor logits = model.forward(tape, b.input(), null, extras);

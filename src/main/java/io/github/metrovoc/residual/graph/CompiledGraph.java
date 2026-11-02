@@ -1,7 +1,6 @@
 package io.github.metrovoc.residual.graph;
 
 import io.github.metrovoc.residual.learn.Vocab;
-import io.github.metrovoc.residual.compute.Flops;
 import io.github.metrovoc.residual.compute.Split;
 import io.github.metrovoc.residual.graph.CompileException.Issue;
 import io.github.metrovoc.residual.tensor.Numerics;
@@ -16,7 +15,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.atomic.LongAdder;
 import java.util.function.IntFunction;
 import net.minecraft.network.chat.Component;
 
@@ -331,20 +329,6 @@ public final class CompiledGraph {
         if (captures != null) {
             captures.output(node, out);
         }
-    }
-
-    /** What each node in {@link #order} costs in flops, on one row of the longest context. */
-    public long[] costs() {
-        Tokens probe = new Tokens(new int[env.context()], 1, env.context());
-        Object[] values = new Object[spec.size()];
-        long[] cost = new long[order.length];
-        for (int i = 0; i < order.length; i++) {
-            LongAdder counted = new LongAdder();
-            int node = order[i];
-            Flops.with(counted, () -> node(node, values, null, probe, null));
-            cost[i] = counted.sum();
-        }
-        return cost;
     }
 
     public Map<String, Tensor> params(int node) {

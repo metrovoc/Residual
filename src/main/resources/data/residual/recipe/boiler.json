@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "B": "minecraft:bucket",
+    "I": "minecraft:iron_block",
+    "F": "minecraft:blast_furnace",
+    "C": "minecraft:copper_block"
+  },
+  "pattern": [
+    "KBK",
+    "IFI",
+    "KCK"
+  ],
+  "result": {
+    "id": "residual:boiler"
+  }
+}

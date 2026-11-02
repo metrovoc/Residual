@@ -52,8 +52,11 @@ you say into programs for agents, and read what the old world wrote.
 
 - [Storage](storage.md): drives that keep any number of kinds, a terminal that finds anything, and Ports that move
   items between the network and every chest and machine, 1,280 a second.
-- [Power](power.md): generators, cables and cells, and a Smelter that makes two ingots from every ore, three with a
-  controller.
+- [Power](power.md): generators from fire to steam to the sun, cables and cells, and a Smelter that makes two ingots from every
+  ore, three with a controller.
+- [The Reactor](reactor.md): the most power there is, for a model that can hold it.
+- [Compute](compute.md): process nodes, memory, racks and pods, and the ways of sharing out a run's work.
+- [Halls](datacenter.md): cooling lines, what cooling costs, and a load you can read across the room.
 - [Flight](flight.md): the flight frame, flown by a pilot you train.
 - [The Exosuit](exosuit.md): armour with a quantized model on board, whose compute sets what the suit can do.
 

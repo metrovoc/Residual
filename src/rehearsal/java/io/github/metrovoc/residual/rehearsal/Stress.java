@@ -5,6 +5,8 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
+import io.github.metrovoc.residual.compute.Cluster;
+import io.github.metrovoc.residual.compute.Parallelism;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.registry.ModBlocks;
@@ -38,16 +40,17 @@ import org.slf4j.Logger;
 /**
  * A large base on a dedicated server, for the tick time each release records: {@link #PAIRS} pairs of Ports, one
  * exporting into a chest and one importing from it, so items never stop moving; {@link #AGENTS} agents walking their
- * rounds; {@link #FORECASTERS} Forecasters among working furnaces; a two-block transformer training at full speed; and a
- * relay network of {@link #MASTS} masts, each keeping its chunks loaded, with Ports at its far end whose items all cross a
- * Relay Link. It lets the base settle for a minute, logs the next minute's tick times and stops the server. The
- * {@code stress} run turns it on.
+ * rounds; {@link #FORECASTERS} Forecasters among working furnaces; a two-block transformer training at full speed; a hall of
+ * {@link #PODS} pods, full racks on power and a cooling line, that it trains across with data parallelism; and a relay network of
+ * {@link #MASTS} masts, each keeping its chunks loaded, with Ports at its far end whose items all cross a Relay Link. It lets the base
+ * settle for a minute, logs the next minute's tick times and stops the server. The {@code stress} run turns it on.
  */
 @EventBusSubscriber(modid = Residual.MOD_ID)
 public final class Stress {
     private static final Logger LOG = LogUtils.getLogger();
     private static final int PAIRS = 128, ROW = 16, AGENTS = 256, FORECASTERS = 32, MASTS = 32, FAR_PAIRS = 8;
     private static final int SETTLE = 1200, MEASURE = 1200;
+    private static final int PODS = 4, RACKS_A_POD = 8;
     /** The ground of a flat world. */
     private static final int Y = -60;
 
@@ -119,19 +122,57 @@ public final class Stress {
                 command(server, "item replace block %d %d %d container.1 with minecraft:coal_block 8".formatted(x + j, Y, z));
             }
         }
-        // ---- a two-block transformer training at full speed
+        hall(server);
+        // ---- a two-block transformer training at full speed, across the hall
         BlockPos core = new BlockPos(0, Y, 72);
         ServerSteps.blueprint(level, "gpt32", core, Direction.EAST);
         command(server, "data merge block 0 %d 72 {Items:[{Slot:0b,id:\"residual:forecast_dataset\",count:1}]}".formatted(Y));
+        command(server, "fill -1 %d 72 -1 %d 99 residual:interconnect".formatted(Y, Y));
         if (level.getBlockEntity(core) instanceof CoreBlockEntity be) {
+            be.setParallelism(Parallelism.DATA.ordinal());
             be.setSpeed(2);
             be.start(FakePlayerFactory.getMinecraft(level));
         }
         relays(server, level);
         ticks = new long[MEASURE];
         seen = -SETTLE;
-        LOG.info("[stress] {} Ports, {} agents, {} Forecasters and {} furnaces, a training run", PORTS.size(),
-                level.getEntitiesOfClass(Agent.class, new AABB(-64, -64, -64, 256, 64, 256)).size(), FORECASTERS, FORECASTERS * 4);
+        LOG.info("[stress] {} Ports, {} agents, {} Forecasters and {} furnaces, a training run across {} devices in a hall of {} racks", PORTS.size(),
+                level.getEntitiesOfClass(Agent.class, new AABB(-64, -64, -64, 256, 64, 256)).size(), FORECASTERS, FORECASTERS * 4,
+                Cluster.at(level, core).devices().size(), Cluster.at(level, core).racks().size());
+    }
+
+    /** Rows of racks at z 104 and on, four modules of eight devices under each switch, a line of Interconnect over them to the console at z 100. */
+    private static void hall(MinecraftServer server) {
+        StringBuilder bays = new StringBuilder();
+        for (int bay = 0; bay < 8; bay++) {
+            bays.append(bay == 0 ? "" : ",").append("{Slot:").append(bay).append("b,id:\"residual:accelerator_28\",count:1}");
+        }
+        command(server, "setblock -1 %d 101 residual:interconnect".formatted(Y));
+        command(server, "setblock -1 %d 100 residual:hall_console[facing=east]".formatted(Y));
+        for (int pod = 0; pod < PODS; pod++) {
+            int z = 104 + pod * 4;
+            for (int rack = 0; rack < RACKS_A_POD; rack++) {
+                int x = rack * 2;
+                for (int y = Y; y < Y + 4; y++) {
+                    command(server, "setblock %d %d %d residual:rack_module[facing=south]{devices:{Items:[%s]}}".formatted(x, y, z, bays));
+                }
+                command(server, "setblock %d %d %d residual:rack_switch[facing=south]".formatted(x, Y + 4, z));
+            }
+            // a Pod Switch and Interconnect along the switches, down to a line along x -1 to the console
+            command(server, "fill 0 %d %d %d %d %d residual:interconnect replace minecraft:air".formatted(Y + 4, z, RACKS_A_POD * 2 - 2, Y + 4, z));
+            command(server, "setblock 1 %d %d residual:pod_switch[facing=south]".formatted(Y + 4, z));
+            command(server, "fill -1 %d %d -1 %d %d residual:interconnect".formatted(Y + 4, z, Y, z));
+            command(server, "fill -1 %d 102 -1 %d %d residual:interconnect".formatted(Y, Y, z));
+            // a bus bar along the bottom modules' backs, a coolant pipe along their fronts from a Chiller's front round to its back
+            command(server, "fill 0 %d %d %d %d %d residual:bus_bar".formatted(Y, z + 1, RACKS_A_POD * 2, Y, z + 1));
+            command(server, "fill 0 %d %d %d %d %d residual:coolant_pipe".formatted(Y, z - 1, RACKS_A_POD * 2 + 2, Y, z - 1));
+            command(server, "fill %d %d %d %d %d %d residual:coolant_pipe".formatted(RACKS_A_POD * 2 + 2, Y + 1, z - 1, RACKS_A_POD * 2 + 2, Y + 1, z + 1));
+            command(server, "setblock %d %d %d residual:coolant_pipe".formatted(RACKS_A_POD * 2 + 2, Y, z + 1));
+            command(server, "setblock %d %d %d residual:chiller[facing=north]".formatted(RACKS_A_POD * 2 + 2, Y, z));
+            command(server, "setblock %d %d %d minecraft:water".formatted(RACKS_A_POD * 2 + 3, Y, z));
+            command(server, "setblock %d %d %d residual:capacitor_bank{energy:{energy:64000000}}".formatted(RACKS_A_POD * 2 + 1, Y, z + 1));
+            command(server, "setblock %d %d %d residual:bus_bar".formatted(RACKS_A_POD * 2 + 1, Y, z));
+        }
     }
 
     /**

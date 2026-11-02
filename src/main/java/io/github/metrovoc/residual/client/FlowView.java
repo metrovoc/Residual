@@ -3,6 +3,10 @@ package io.github.metrovoc.residual.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.compute.ComputeHost;
+import io.github.metrovoc.residual.compute.ComputeNode;
+import io.github.metrovoc.residual.energy.PowerNode;
+import io.github.metrovoc.residual.net.CurrentSync;
 import io.github.metrovoc.residual.net.FlowSync;
 import io.github.metrovoc.residual.storage.Node;
 import java.util.ArrayDeque;
@@ -20,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -32,14 +37,15 @@ import org.jetbrains.annotations.Nullable;
  * What moves through a storage network, drawn along its links from a Port, a Dock or an Assembler to the drive it went into,
  * or back out of it: the things themselves riding on the link, and under them pulses of light, teal into the network, amber
  * out, red where a link is full; a fluid's pulses are its own color. A bigger load makes a brighter, longer stream. A program on a Port
- * shows what it reaches the same way, straight through the air.
+ * shows what it reaches the same way, straight through the air. Power runs along its
+ * cables the same way, in coral, and a split run's work along its Interconnect, in teal.
  */
 public final class FlowView {
     private static final ContextKey<List<Dot>> DOTS = new ContextKey<>(Residual.id("flows"));
     private static final ContextKey<List<Riding>> RIDING = new ContextKey<>(Residual.id("flow_items"));
     /** Blocks a pulse travels a second. */
     private static final double SPEED = 12;
-    private static final int TEAL = 0x3CD6C6, AMBER = 0xFFB547, RED = 0xFF6B6B;
+    private static final int TEAL = 0x3CD6C6, AMBER = 0xFFB547, RED = 0xFF6B6B, CORAL = 0xFF7A5C;
     private static final int MOST = 256, LONGEST = 4096;
     private static final double RANGE = 64;
     /** How close things have to be to be drawn, how many a frame, and how far apart in a stream. */
@@ -105,7 +111,24 @@ public final class FlowView {
         return path;
     }
 
-    /** The way through storage blocks from one to the other, block centre to block centre, or nothing. */
+    public static void receive(CurrentSync current) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null || PULSES.size() >= MOST) {
+            return;
+        }
+        List<Vec3> path = route(level, current.from(), current.to());
+        if (path.size() >= 2) {
+            PULSES.add(new Pulse(path, System.nanoTime(), current.work() ? TEAL : CORAL, Math.clamp(1 + (int) (Math.log(Math.max(1, current.count())) / Math.log(16)), 1, 5), null));
+        }
+    }
+
+    private static boolean joins(BlockState state, Direction d) {
+        Block b = state.getBlock();
+        return b instanceof Node link ? link.joins(state, d) : b instanceof PowerNode cable && cable.joins(state, d)
+                || b instanceof ComputeNode line && line.links(state, d) || b instanceof ComputeHost;
+    }
+
+    /** The way through storage, power or compute blocks from one to the other, block centre to block centre, or nothing. */
     private static List<Vec3> route(ClientLevel level, BlockPos from, BlockPos to) {
         Map<BlockPos, BlockPos> came = new HashMap<>();
         ArrayDeque<BlockPos> next = new ArrayDeque<>();
@@ -125,16 +148,12 @@ public final class FlowView {
                 return path;
             }
             BlockState here = level.getBlockState(at);
-            if (!(here.getBlock() instanceof Node node)) {
-                continue;
-            }
             for (Direction d : Direction.values()) {
                 BlockPos n = at.relative(d);
-                if (came.containsKey(n) || !node.joins(here, d)) {
+                if (came.containsKey(n) || !joins(here, d)) {
                     continue;
                 }
-                BlockState there = level.getBlockState(n);
-                if (there.getBlock() instanceof Node other && other.joins(there, d.getOpposite())) {
+                if (joins(level.getBlockState(n), d.getOpposite())) {
                     came.put(n, at);
                     next.add(n);
                 }

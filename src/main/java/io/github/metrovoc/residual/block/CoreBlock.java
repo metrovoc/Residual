@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.block;
 
+import io.github.metrovoc.residual.compute.ComputeHost;
 import com.mojang.serialization.MapCodec;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.train.Jobs;
@@ -29,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  * The Model Core: holds the lesson, feeds tokens out of its front face, reads the model's scores back through any
  * other face, and trains the machines in between.
  */
-public class CoreBlock extends BaseEntityBlock {
+public class CoreBlock extends BaseEntityBlock implements ComputeHost {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty RUNNING = BooleanProperty.create("running");
     public static final MapCodec<CoreBlock> CODEC = simpleCodec(CoreBlock::new);

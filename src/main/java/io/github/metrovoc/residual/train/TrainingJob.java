@@ -1,6 +1,9 @@
 package io.github.metrovoc.residual.train;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.compute.Parallelism;
+import io.github.metrovoc.residual.compute.Split;
+import io.github.metrovoc.residual.compute.Timing;
 import io.github.metrovoc.residual.graph.Captures;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Op;
@@ -12,7 +15,6 @@ import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.learn.Wrecks;
 import io.github.metrovoc.residual.tensor.Ops;
-import io.github.metrovoc.residual.tensor.Parallel;
 import io.github.metrovoc.residual.tensor.Tape;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.view.Heatmap;
@@ -25,8 +27,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.LockSupport;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -122,6 +124,15 @@ public final class TrainingJob {
     /** The rest of how it trains; changes take effect from the next step. */
     public volatile Recipe recipe;
 
+    /** How it shares out its work among its threads, as devices. */
+    public volatile Parallelism parallelism = Parallelism.ONE;
+    /** Flops it has done and tokens it has read, as they happen. */
+    public final LongAdder flops = new LongAdder(), tokens = new LongAdder();
+    /** The flops paid for so far: it waits, in {@link #starved}, once it has done them all. */
+    public volatile long paidFlops = Long.MAX_VALUE;
+    public volatile boolean starved;
+    private volatile long flopsAStep;
+
     private volatile boolean stopRequested;
     private volatile Outcome stopAs = Outcome.STOPPED;
     private volatile boolean finished;
@@ -179,9 +190,8 @@ public final class TrainingJob {
     }
 
     void run() {
-        ForkJoinPool pool = threads > 1 ? new ForkJoinPool(threads) : null;
         try {
-            Parallel.with(pool, this::loop);
+            parallelism.training(model, threads, flops, this::loop);
         } catch (Throwable t) {
             Residual.LOG.error("Training crashed", t);
             Update u = new Update();
@@ -189,11 +199,29 @@ public final class TrainingJob {
             u.detail = String.valueOf(t);
             pending.set(u);
         } finally {
-            if (pool != null) {
-                pool.shutdown();
-            }
             finished = true;
         }
+    }
+
+    /** How the last step ran across its devices, or null for one device. */
+    @Nullable
+    public Timing timing() {
+        Split split = model.split;
+        return split == null ? null : split.last();
+    }
+
+    /** The flops of its last step. */
+    public long flopsAStep() {
+        return flopsAStep;
+    }
+
+    /** Waits until what it has done is paid for. */
+    private void awaitPower() {
+        while (!stopRequested && flops.sum() > paidFlops) {
+            starved = true;
+            LockSupport.parkNanos(2_000_000);
+        }
+        starved = false;
     }
 
     private void loop() {
@@ -214,7 +242,11 @@ public final class TrainingJob {
             trainer.batchSize = batchSize;
             trainer.clip = clip;
             trainer.recipe = r;
+            long before = flops.sum();
             float loss = trainer.train();
+            flopsAStep = flops.sum() - before;
+            tokens.add(trainer.lastTokens());
+            awaitPower();
             done++;
             double usual = recent.getOrDefault(d.lastDrawn, Double.NaN);
             if (Trainer.spiked(loss, usual)) {

@@ -122,7 +122,7 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
                 out.add(ModBlocks.UNITS.get(Unit.of(spec)).asItem());
             }
             if (spec == Specs.MATMUL) {
-                out.add(ModBlocks.ACCELERATOR.asItem());
+                ModBlocks.ACCELERATORS.forEach(a -> out.add(a.asItem()));
                 out.add(ModBlocks.DRIVE_DOCK.asItem());
             }
             if (spec == Specs.LINEAR) {
@@ -152,6 +152,10 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
                         out.add(ModBlocks.REFINERY.get(stage).asItem());
                     }
                 }
+                out.add(ModBlocks.RACK_SWITCH.asItem());
+                out.add(ModBlocks.POD_SWITCH.asItem());
+                out.add(ModBlocks.HALL_CONSOLE.asItem());
+                out.add(ModBlocks.REACTOR_CORE.asItem());
             }
         }
         return out;
@@ -171,9 +175,41 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         return items.getItem(MASK);
     }
 
+    /** The wafers {@code item} has to be printed from: a finer process node takes finer wafers. */
+    public static Item wafer(Item item) {
+        if (item == ModBlocks.ACCELERATOR_28.asItem()) {
+            return ModItems.WAFER_28.get();
+        }
+        if (item == ModBlocks.ACCELERATOR_7.asItem()) {
+            return ModItems.WAFER_7.get();
+        }
+        return item == ModBlocks.ACCELERATOR_3.asItem() ? ModItems.WAFER_3.get() : ModItems.WAFER.get();
+    }
+
     public static Cost cost(Item item, ItemStack mask) {
         if (item == ModBlocks.ACCELERATOR.asItem()) {
             return new Cost(2, 6, 0, 100);
+        }
+        if (item == ModBlocks.ACCELERATOR_28.asItem()) {
+            return new Cost(2, 6, 0, 200);
+        }
+        if (item == ModBlocks.ACCELERATOR_7.asItem()) {
+            return new Cost(2, 6, 0, 400);
+        }
+        if (item == ModBlocks.ACCELERATOR_3.asItem()) {
+            return new Cost(2, 6, 0, 800);
+        }
+        if (item == ModBlocks.RACK_SWITCH.asItem()) {
+            return new Cost(2, 4, 2, 120);
+        }
+        if (item == ModBlocks.POD_SWITCH.asItem()) {
+            return new Cost(4, 8, 4, 240);
+        }
+        if (item == ModBlocks.HALL_CONSOLE.asItem()) {
+            return new Cost(8, 16, 8, 400);
+        }
+        if (item == ModBlocks.REACTOR_CORE.asItem()) {
+            return new Cost(16, 32, 16, 800);
         }
         if (item == ModItems.HOURGLASS.get()) {
             return new Cost(1, 4, 2, 100);
@@ -257,7 +293,7 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
             progress = 0;
         }
         ItemStack product = target == null ? ItemStack.EMPTY : product(target, mask);
-        boolean ready = target != null && enough(cost) && room(product);
+        boolean ready = target != null && enough(cost) && items.getItem(WAFER).is(wafer(target)) && room(product);
         working(ready);
         if (!ready) {
             progress = 0;

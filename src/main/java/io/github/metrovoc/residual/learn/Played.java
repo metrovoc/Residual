@@ -217,6 +217,31 @@ public abstract class Played extends Task {
         return out;
     }
 
+    /** A power chosen and how sure of it the model was, among the three powers. */
+    public record Choice(int power, float sure) {
+    }
+
+    /** The likeliest power after {@code prompt}, as {@link #act} chooses it, with how sure the model is of it. */
+    public static Choice choose(CompiledGraph model, String prompt) {
+        int t = Vocab.CONTEXT;
+        int[] in = new int[t];
+        Arrays.fill(in, Vocab.WORLD.id('\n'));
+        String p = prompt.substring(Math.max(0, prompt.length() - t));
+        for (int k = 0; k < p.length(); k++) {
+            in[k] = Vocab.WORLD.id(p.charAt(k));
+        }
+        Tensor logits = model.forward(null, new Tokens(in, 1, t), null);
+        int off = (p.length() - 1) * logits.dim(-1);
+        int power = choose(logits.data, off, null, false);
+        double sum = 0, top = 0;
+        for (int a = 0; a < 3; a++) {
+            double e = Math.exp(logits.data[off + Vocab.WORLD.id((char) ('0' + a))] - logits.data[off + Vocab.WORLD.id((char) ('0' + power))]);
+            sum += e;
+            top = a == power ? e : top;
+        }
+        return new Choice(power, (float) (top / sum));
+    }
+
     /** The likeliest power after {@code prompt}, an episode so far as {@link #prompt} writes it, for a machine to act on. */
     public static int act(CompiledGraph model, String prompt) {
         int t = Vocab.CONTEXT;

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:wafer_28",
+    "residual:wafer_28",
+    "minecraft:diamond",
+    "minecraft:prismarine_crystals"
+  ],
+  "result": {
+    "id": "residual:wafer_7"
+  }
+}

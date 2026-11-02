@@ -5,8 +5,14 @@ navigation:
   position: 88
 item_ids:
   - combustion_generator
+  - boiler
+  - turbine
+  - solar_panel
   - power_cable
+  - heavy_cable
+  - bus_bar
   - energy_cell
+  - capacitor_bank
   - smelter
 ---
 
@@ -99,16 +105,58 @@ holds 32,000 FE of its own.
 
 <RecipeFor id="combustion_generator" />
 
+### Steam
+
+A <ItemLink id="boiler" /> with water touching it raises steam for the <ItemLink id="turbine" />s stacked on top of it, up to
+four. Each Turbine makes 240 FE a tick, and the Boiler burns a tick of a furnace's fuel for each one, so a coal makes 384,000 FE
+however many there are: six times what it makes in a Combustion Generator. More Turbines only burn it faster. Power comes out of
+the Boiler and the Turbines alike, and they spin and let their steam go while it burns.
+
+<Row>
+  <RecipeFor id="boiler" />
+  <RecipeFor id="turbine" />
+</Row>
+
+### The sun
+
+A <ItemLink id="solar_panel" /> makes 40 FE a tick under a bright sky, less as it darkens toward night or rain, and nothing in the
+dark or under a roof. It costs nothing to run. Panels touching each other share a network with no cable between them, and cells
+carry what they make through the night.
+
+<RecipeFor id="solar_panel" />
+
+### The reactor
+
+The most power there is comes from a [reactor](reactor.md), and only a model can run one.
+
 ## Moving and storing it
 
-Power Cables join generators, cells and machines into one network. Each tick the machines take what they need from
-the generators, then from the cells; whatever the generators make beyond that charges the cells. An
-<ItemLink id="energy_cell" /> holds 1,000,000 FE and moves up to 2,000 FE a tick each way. Its faces fill in quarters
-as it charges, and a comparator beside it reads how full it is.
+Cables join generators, cells and machines into one network. Each tick the machines take what they need from
+the generators, then from the cells; whatever the generators make beyond that charges the cells. All of it goes through
+the cables, and in a tick a network carries no more than its thinnest cable does: one thin cable holds back the whole line.
+Blocks that touch need no cable and hold nothing back.
+
+| Cable                             | Carries a tick |
+|-----------------------------------|----------------|
+| <ItemLink id="power_cable" />     | 3,200 FE       |
+| <ItemLink id="heavy_cable" />     | 51,200 FE      |
+| <ItemLink id="bus_bar" />         | 819,200 FE     |
+
+While a network carries power it runs along the cables as pulses of light.
+
+An <ItemLink id="energy_cell" /> holds 1,000,000 FE and moves up to 2,000 FE a tick each way, and a
+<ItemLink id="capacitor_bank" /> holds 64,000,000 FE and moves up to 64,000 FE. Their faces fill in quarters as they charge, and a
+comparator beside one reads how full it is.
 
 <Row>
   <RecipeFor id="power_cable" />
+  <RecipeFor id="heavy_cable" />
+  <RecipeFor id="bus_bar" />
+</Row>
+
+<Row>
   <RecipeFor id="energy_cell" />
+  <RecipeFor id="capacitor_bank" />
 </Row>
 
 ## The Smelter
@@ -130,5 +178,7 @@ model learns this on the <ItemLink id="process_dataset" />: see [Models and Test
 
 ## Other blocks
 
-Hoppers and Ports feed the generator and the Smelter from any side and take the Smelter's ingots out. Other mods'
-cables can draw power from generators and cells, and give it to cells and the Smelter.
+Hoppers and Ports feed the generators and the Smelter from any side and take the Smelter's ingots out. Other mods'
+cables can draw power from generators, cells and the reactor, and give it to cells, Chillers and the Smelter.
+
+Compute runs on power too, past the first few Accelerators: see [Compute](compute.md).

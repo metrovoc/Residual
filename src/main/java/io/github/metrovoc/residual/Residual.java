@@ -113,6 +113,10 @@ public final class Residual {
     private static void capabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.GENERATOR.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.CELL.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.BOILER.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.SOLAR.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.REACTOR.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.CHILLER.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.SMELTER.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.FORECASTER.get(), (be, side) -> be.third() ? be.energy() : null);
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.LINK_DRIVER.get(), (be, side) -> be.energy());
@@ -123,6 +127,8 @@ public final class Residual {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.PORT.get(), (be, side) -> be.work.battery());
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PORT.get(), (be, side) -> be.work.tank());
         event.registerEntity(Capabilities.Energy.ENTITY, ModEntities.AGENT.get(), (agent, side) -> agent.battery());
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BOILER.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.REACTOR.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SMELTER.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
     }
 }

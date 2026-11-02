@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "residual:energy_cell",
+    "K": "minecraft:gold_block"
+  },
+  "pattern": [
+    "CCC",
+    "CKC",
+    "CCC"
+  ],
+  "result": {
+    "id": "residual:capacitor_bank"
+  }
+}

@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.block;
 
+import io.github.metrovoc.residual.compute.ComputeHost;
 import com.mojang.serialization.MapCodec;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
@@ -36,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
  * The Model Server: use a saved crystal on it to serve that model, and a Relay Card or Terminal to tune it here. With an
  * empty hand it reports how it is doing; sneak with an empty hand to take the crystal out.
  */
-public class ServerBlock extends BaseEntityBlock {
+public class ServerBlock extends BaseEntityBlock implements ComputeHost {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty LOADED = BooleanProperty.create("loaded");
     public static final BooleanProperty SERVING = BooleanProperty.create("serving");

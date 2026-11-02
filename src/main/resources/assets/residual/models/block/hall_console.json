@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/load_wall_side",
+    "north": "residual:block/hall_console_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/load_wall_side",
+    "west": "residual:block/load_wall_side",
+    "up": "residual:block/drive_rack_top",
+    "down": "residual:block/load_wall_side"
+  }
+}

@@ -212,6 +212,9 @@ stops.</residual:Milestone>
 <residual:Milestone id="benchmark/pilot">Practise on the <ItemLink id="flight_dataset" />: the Core flies the model's own
 flights, and it takes a model that reads the flight back to its start.</residual:Milestone>
 
+<residual:Milestone id="benchmark/reactor">Practise on the <ItemLink id="reactor_dataset" />: the Core runs the model's own
+cycles, and it takes a model that works out when the fuel will push next: [The Reactor](reactor.md).</residual:Milestone>
+
 <residual:Milestone id="benchmark/orders">Practise on the <ItemLink id="orders_dataset" />, and lower the learning rate
 when its curve flattens. A model 64 wide passes, too big to carry in fp32: [Models and Tests](models.md).</residual:Milestone>
 
@@ -309,6 +312,31 @@ board at 8 bits, which still holds nearly every flight at 4.</residual:Milestone
 
 <residual:Milestone id="power/smelter">The Fabricator makes a Smelter from a transformer photomask; give it power and
 raw ore.</residual:Milestone>
+
+<residual:Milestone id="power/boiler">Stand a Turbine on a Boiler with water beside it: [Power](power.md).</residual:Milestone>
+
+<residual:Milestone id="power/solar">Where it can see the sky: [Power](power.md).</residual:Milestone>
+
+<residual:Milestone id="power/reactor">Build the shell, fuel it, and give it a controller that passes Containment: it has to
+hold a whole cycle at 90% of its looks: [The Reactor](reactor.md).</residual:Milestone>
+
+## Compute
+
+<residual:Milestone id="compute/node">Put 28 nm wafers in the Fabricator with a matrix multiply photomask: [Compute](compute.md).</residual:Milestone>
+
+<residual:Milestone id="compute/rack">The Fabricator makes a Rack Switch from a transformer photomask; put it on a column of
+Rack Modules.</residual:Milestone>
+
+<residual:Milestone id="compute/split">Choose a way of sharing out the work on the Core's **Compute** tab, and train on two devices
+or more.</residual:Milestone>
+
+<residual:Milestone id="compute/pod">The Fabricator makes it from a transformer photomask.</residual:Milestone>
+
+<residual:Milestone id="compute/loop">Run pipes from a Chiller's front round to its back, past a rack, and put the rack to work:
+[Halls](datacenter.md).</residual:Milestone>
+
+<residual:Milestone id="compute/hall">A Hall Console joined to two Pod Switches, a closed cooling line, and work for it all to
+do: [Halls](datacenter.md).</residual:Milestone>
 
 ## Salvage
 

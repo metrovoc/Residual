@@ -5,7 +5,6 @@ navigation:
   position: 40
 item_ids:
   - model_core
-  - accelerator
 ---
 
 # The Model Core
@@ -77,8 +76,10 @@ model and how often a second head is right. Beside them are the rate over the wh
 
 <ItemImage id="accelerator" float="left" />
 
-Each <ItemLink id="accelerator" /> touching the Core, directly or through other Accelerators, lends it one more thread,
-up to the limit the server allows. An Accelerator with nothing to cool it runs hot and lends half: give it water, ice
-or snow to touch. The Fabricator makes them from a matrix multiply photomask.
+Each <ItemLink id="accelerator" /> touching the Core, directly or through other Accelerators, lends it one more thread and
+its memory, up to the limit the server allows. An Accelerator with nothing to cool it runs hot and lends half: give it water,
+ice or snow to touch. The Fabricator makes them from a matrix multiply photomask. The first four run on what the Core can
+spare; more take power. A model also has to fit: sixteen bytes a parameter, and a Core alone holds 2 MiB. The **Compute** tab
+counts what a run has done and chooses how it shares out its work: see [Compute](compute.md).
 
 <br clear="all" />

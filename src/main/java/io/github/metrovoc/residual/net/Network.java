@@ -91,6 +91,9 @@ public final class Network {
         r.playToClient(TerminalAgentsSync.TYPE, TerminalAgentsSync.STREAM_CODEC);
         r.playToClient(RelaySync.TYPE, RelaySync.STREAM_CODEC);
         r.playToClient(CoreSync.TYPE, CoreSync.STREAM_CODEC);
+        r.playToClient(ComputeSync.TYPE, ComputeSync.STREAM_CODEC);
+        r.playToClient(HallSync.TYPE, HallSync.STREAM_CODEC);
+        r.playToClient(CurrentSync.TYPE, CurrentSync.STREAM_CODEC);
         r.playToClient(SampleResult.TYPE, SampleResult.STREAM_CODEC);
         r.playToClient(WaveSync.TYPE, WaveSync.STREAM_CODEC);
         r.playToClient(StorageSync.TYPE, StorageSync.STREAM_CODEC);
@@ -179,6 +182,7 @@ public final class Network {
             case PRECISION -> core.setPrecision(a.value());
             case MOVES -> core.setMoves(a.value());
             case PACKING -> core.setPacking(a.value());
+            case PARALLELISM -> core.setParallelism(a.value());
         }
     }
 

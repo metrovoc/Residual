@@ -1,0 +1,28 @@
+{
+  "parent": "residual:benchmark/reactor",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:reactor_core"
+    },
+    "title": {
+      "translate": "advancements.residual.power.reactor.title"
+    },
+    "description": {
+      "translate": "advancements.residual.power.reactor.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

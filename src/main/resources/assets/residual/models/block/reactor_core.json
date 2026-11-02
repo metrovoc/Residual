@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/reactor_casing",
+    "north": "residual:block/reactor_core_front",
+    "south": "residual:block/reactor_casing",
+    "east": "residual:block/reactor_casing",
+    "west": "residual:block/reactor_casing",
+    "up": "residual:block/reactor_casing",
+    "down": "residual:block/reactor_casing"
+  }
+}

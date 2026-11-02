@@ -69,7 +69,12 @@ public enum Benchmark {
      * Quality: whether a document is as it was written or a bad line has been at it, by how much it surprises a model that has read
      * a lot of writing. It practises on archive text, as Reading does.
      */
-    QUALITY(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
+    QUALITY(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Containment: holding a reactor at its power with rods that answer late, practised by playing cycles, scored by the share
+     * of cycles held of the fuel held worst.
+     */
+    REACTOR(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */
@@ -93,7 +98,7 @@ public enum Benchmark {
      * Watch practises on things going well and is tested on things going wrong.
      */
     public Task practice() {
-        return this == CONTROL ? new Control() : this == PILOT ? new Pilot() : this == WATCH ? new Watching() : Dataset.of(this);
+        return this == CONTROL ? new Control() : this == PILOT ? new Pilot() : this == REACTOR ? new Reactor() : this == WATCH ? new Watching() : Dataset.of(this);
     }
 
     public static Benchmark byId(String id) {

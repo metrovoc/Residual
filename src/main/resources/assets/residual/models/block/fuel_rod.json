@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/fuel_rod",
+    "north": "residual:block/fuel_rod",
+    "south": "residual:block/fuel_rod",
+    "east": "residual:block/fuel_rod",
+    "west": "residual:block/fuel_rod",
+    "up": "residual:block/machine_back",
+    "down": "residual:block/machine_back"
+  }
+}

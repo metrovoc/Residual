@@ -18,17 +18,22 @@ import org.jetbrains.annotations.Nullable;
 
 /** The screen of a generator or a machine on power: its slots, its stored power, its work, and the player's inventory. */
 public class PowerMenu extends AbstractContainerMenu {
-    public enum Kind { GENERATOR, SMELTER }
+    public enum Kind { GENERATOR, SMELTER, REACTOR }
 
     /** What its screen shows: power and capacity as 15-bit halves (data slots carry 16 bits), work and FE a tick. */
     public static final int ENERGY_LO = 0, ENERGY_HI = 1, CAPACITY_LO = 2, CAPACITY_HI = 3, WORK = 4, WORK_TOTAL = 5, RATE = 6,
             DATA = 7;
     /** A Smelter's melt after that: looks taken, its last melt's share held plus one, then five bands to a slot. */
     public static final int MELT_LOOKS = DATA, MELT_HELD = DATA + 1, MELT_BANDS = DATA + 2, MELT_DATA = 7;
+    /** A reactor's after that: why it is not running, and how sure its controller last was, in percent. */
+    public static final int REACTOR_STATUS = DATA + MELT_DATA, REACTOR_SURE = REACTOR_STATUS + 1, REACTOR_DATA = MELT_DATA + 2;
+    /** A reactor's FE a tick is more than a data slot carries: it travels in hundreds. */
+    public static final int REACTOR_RATE_UNIT = 100;
+    public static final int REACTOR_FUEL_X = 26;
     public static final int FUEL_X = 80, IN_X = 56, OUT_X = 116, SLOT_Y = 35;
     /** A Smelter's controller panel beside the window, tucked under its edge, and the slot in it. */
     public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 28, CONTROLLER_X = 179, CONTROLLER_Y = 10;
-    public static final int CONTROLLER_SLOT = 2;
+    public static final int CONTROLLER_SLOT = 2, REACTOR_CONTROLLER_SLOT = 1;
     public static final int INVENTORY_X = 8, INVENTORY_Y = 84;
 
     public final BlockPos pos;
@@ -41,8 +46,15 @@ public class PowerMenu extends AbstractContainerMenu {
     }
 
     private PowerMenu(int id, Inventory inventory, BlockPos pos, Kind kind) {
-        this(id, inventory, pos, kind, new SimpleContainer(kind == Kind.GENERATOR ? GeneratorBlockEntity.SLOTS : SmelterBlockEntity.SLOTS),
-                new SimpleContainerData(kind == Kind.GENERATOR ? DATA : DATA + MELT_DATA));
+        this(id, inventory, pos, kind, new SimpleContainer(switch (kind) {
+            case GENERATOR -> GeneratorBlockEntity.SLOTS;
+            case SMELTER -> SmelterBlockEntity.SLOTS;
+            case REACTOR -> ReactorBlockEntity.SLOTS;
+        }), new SimpleContainerData(switch (kind) {
+            case GENERATOR -> DATA;
+            case SMELTER -> DATA + MELT_DATA;
+            case REACTOR -> DATA + REACTOR_DATA;
+        }));
     }
 
     public PowerMenu(int id, Inventory inventory, BlockPos pos, Kind kind, Container items, ContainerData data) {
@@ -55,6 +67,24 @@ public class PowerMenu extends AbstractContainerMenu {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return items.canPlaceItem(GeneratorBlockEntity.FUEL, stack);
+                }
+            });
+        } else if (kind == Kind.REACTOR) {
+            addSlot(new Slot(items, ReactorBlockEntity.FUEL, REACTOR_FUEL_X, SLOT_Y) {
+                @Override
+                public boolean mayPlace(ItemStack stack) {
+                    return items.canPlaceItem(ReactorBlockEntity.FUEL, stack);
+                }
+            });
+            addSlot(new Slot(items, ReactorBlockEntity.CONTROLLER, CONTROLLER_X, CONTROLLER_Y) {
+                @Override
+                public boolean mayPlace(ItemStack stack) {
+                    return items.canPlaceItem(ReactorBlockEntity.CONTROLLER, stack);
+                }
+
+                @Override
+                public int getMaxStackSize() {
+                    return 1;
                 }
             });
         } else {
@@ -102,6 +132,12 @@ public class PowerMenu extends AbstractContainerMenu {
     /** The same, then {@link #MELT_DATA} more slots of a Smelter's melt. */
     static ContainerData data(PowerBlockEntity be, IntSupplier work, IntSupplier total, IntSupplier rate,
                               @Nullable IntUnaryOperator melt) {
+        return data(be, work, total, rate, melt, melt == null ? 0 : MELT_DATA);
+    }
+
+    /** The same, then {@code extra} more slots. */
+    static ContainerData data(PowerBlockEntity be, IntSupplier work, IntSupplier total, IntSupplier rate,
+                              @Nullable IntUnaryOperator melt, int extra) {
         return new ContainerData() {
             @Override
             public int get(int i) {
@@ -124,7 +160,7 @@ public class PowerMenu extends AbstractContainerMenu {
 
             @Override
             public int getCount() {
-                return melt == null ? DATA : DATA + MELT_DATA;
+                return DATA + extra;
             }
         };
     }

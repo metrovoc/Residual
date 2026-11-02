@@ -4,6 +4,10 @@ import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.ResidualConfig;
 import io.github.metrovoc.residual.bench.Unit;
+import io.github.metrovoc.residual.compute.Cluster;
+import io.github.metrovoc.residual.compute.ClusterStatus;
+import io.github.metrovoc.residual.compute.Parallelism;
+import io.github.metrovoc.residual.compute.RunMeter;
 import io.github.metrovoc.residual.graph.CompileException;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Env;
@@ -34,6 +38,7 @@ import io.github.metrovoc.residual.learn.Wrecks;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.model.Checkpoints;
 import io.github.metrovoc.residual.model.ModelInfo;
+import io.github.metrovoc.residual.net.ComputeSync;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.net.SampleResult;
@@ -138,6 +143,8 @@ public class CoreBlockEntity extends BlockEntity {
     private List<CoreSync.Node> nodes = List.of();
     private long parameters;
     private Cooling.Compute compute = new Cooling.Compute(1, 0);
+    private final RunMeter meter = new RunMeter();
+    private long lastComputeSync;
 
     @Nullable
     private TrainingJob job;
@@ -539,17 +546,27 @@ public class CoreBlockEntity extends BlockEntity {
         if (checked == null) {
             return;
         }
-        compute = compute();
+        meter.model(checked.model, checked.model.parameterCount());
+        Cluster.Plan plan = meter.plan(server, worldPosition);
+        if (!plan.fits()) {
+            say("residual.status.no_memory", ClusterStatus.bytes(meter.bytes()), ClusterStatus.bytes(plan.budget()));
+            return;
+        }
+        compute = new Cooling.Compute(plan.threads(), plan.hot());
         job = new TrainingJob(server, worldPosition, checked.scan, checked.model, data, w, server.getRandom().nextLong(),
                 compute.threads(), remaining, speed, LEARNING_RATES[learningRate], BATCH_SIZES[batchSize], CLIPS[clip], recipe());
         runStep = 0;
         spikes = 0;
+        meter.started(job, plan);
+        if (plan.mode() != Parallelism.ONE && plan.threads() > 1) {
+            Awards.grant(player, "compute/split");
+        }
         jobSteps = steps;
         jobRunSteps = runSteps;
         owner = player.getUUID();
         Jobs.start(job);
         setRunning(true);
-        Cooling.working(level, worldPosition, true);
+        Cooling.lights(level, worldPosition, true);
         lightUnits(true);
         say(w != null ? "residual.status.repairing" : "residual.status.training");
     }
@@ -576,6 +593,7 @@ public class CoreBlockEntity extends BlockEntity {
     }
 
     private void clearCurve() {
+        meter.forget();
         steps = 0;
         runSteps = 0;
         history.clear();
@@ -763,7 +781,36 @@ public class CoreBlockEntity extends BlockEntity {
     }
 
     private Cooling.Compute compute() {
-        return Cooling.compute(level, worldPosition, ResidualConfig.BASE_THREADS.get(), ResidualConfig.MAX_THREADS.get());
+        Cluster.Plan plan = meter.plan((ServerLevel) level, worldPosition);
+        return new Cooling.Compute(plan.threads(), plan.hot());
+    }
+
+    /** What its training has really done and how it shares out the work. */
+    public RunMeter meter() {
+        return meter;
+    }
+
+    /** Picks how a run shares out its work, for the next run. */
+    public void setParallelism(int i) {
+        meter.mode(Parallelism.values()[Math.floorMod(i, Parallelism.values().length)]);
+        computeSync();
+        setChanged();
+    }
+
+    /** Sends the Compute tab what it shows, to whoever has it open. */
+    private void computeSync() {
+        if (level instanceof ServerLevel server) {
+            ComputeSync msg = null;
+            for (ServerPlayer p : server.players()) {
+                if (p.containerMenu instanceof CoreMenu m && m.pos.equals(worldPosition)) {
+                    if (msg == null) {
+                        msg = meter.snapshot(server, worldPosition, job);
+                    }
+                    PacketDistributor.sendToPlayer(p, msg);
+                }
+            }
+            lastComputeSync = System.currentTimeMillis();
+        }
     }
 
     // ---------------------------------------------------------------- checking the model
@@ -784,7 +831,6 @@ public class CoreBlockEntity extends BlockEntity {
         Env env = new Env(tokenizer(), Vocab.CONTEXT);
         GraphScanner.Scan scan = GraphScanner.scan(level, worldPosition);
         if (job == null) {
-            compute = compute();
             findUnits();
         }
         List<CoreSync.Issue> found = new ArrayList<>();
@@ -809,6 +855,10 @@ public class CoreBlockEntity extends BlockEntity {
             weightBytes = model.weightBytes(model.precision);
         }
         publish(scan, model, shapes, env, found);
+        if (job == null) {
+            meter.model(model, parameters);
+            compute = compute();
+        }
         return found.isEmpty() && model != null ? new Checked(scan, model) : null;
     }
 
@@ -875,9 +925,10 @@ public class CoreBlockEntity extends BlockEntity {
     public void tick() {
         if (ticks++ == 0 && job == null) {
             // accelerators left smoking by a Core that was unloaded mid-run
-            Cooling.working(level, worldPosition, false);
+            Cooling.lights(level, worldPosition, false);
         }
         if (job != null) {
+            meter.tick((ServerLevel) level, worldPosition, job);
             for (TrainingJob.Point p : job.drainPoints()) {
                 addPoint(new TrainingJob.Point(jobSteps + p.step(), p.train(), p.val(), p.accuracy(), p.peak(), p.rate()));
             }
@@ -890,11 +941,11 @@ public class CoreBlockEntity extends BlockEntity {
                 Jobs.forget(job);
                 job = null;
                 setRunning(false);
-                Cooling.working(level, worldPosition, false);
+                Cooling.lights(level, worldPosition, false);
                 lightUnits(false);
                 touch();
             } else if (job != null && ticks % 100 == 0) {
-                Cooling.working(level, worldPosition, true);
+                Cooling.lights(level, worldPosition, true);
             }
         } else if (getBlockState().getValue(CoreBlock.RUNNING)) {
             setRunning(false);
@@ -905,6 +956,9 @@ public class CoreBlockEntity extends BlockEntity {
         }
         if (dirty && System.currentTimeMillis() - lastSync > 250) {
             sync();
+        }
+        if (System.currentTimeMillis() - lastComputeSync > 500) {
+            computeSync();
         }
     }
 
@@ -1153,7 +1207,7 @@ public class CoreBlockEntity extends BlockEntity {
         if (level != null) {
             Containers.dropContents(level, pos, items);
             if (job != null) {
-                Cooling.working(level, pos, false);
+                Cooling.lights(level, pos, false);
             }
         }
     }
@@ -1177,6 +1231,7 @@ public class CoreBlockEntity extends BlockEntity {
     protected void saveAdditional(ValueOutput out) {
         super.saveAdditional(out);
         ContainerHelper.saveAllItems(out, items.getItems());
+        meter.save(out);
         out.putInt("learning_rate", learningRate);
         out.putInt("batch_size", batchSize);
         out.putInt("clip", clip);
@@ -1233,6 +1288,7 @@ public class CoreBlockEntity extends BlockEntity {
         ContainerHelper.loadAllItems(in, items.getItems());
         Wrecks.Wreck w = wreck();
         wreck = w == null ? null : w.id();
+        meter.load(in);
         learningRate = Math.floorMod(in.getIntOr("learning_rate", learningRate), LEARNING_RATES.length);
         batchSize = Math.floorMod(in.getIntOr("batch_size", batchSize), BATCH_SIZES.length);
         clip = Math.floorMod(in.getIntOr("clip", clip), CLIPS.length);

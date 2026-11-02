@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "charge=0": {
+      "model": "residual:block/capacitor_bank_0"
+    },
+    "charge=1": {
+      "model": "residual:block/capacitor_bank_1"
+    },
+    "charge=2": {
+      "model": "residual:block/capacitor_bank_2"
+    },
+    "charge=3": {
+      "model": "residual:block/capacitor_bank_3"
+    },
+    "charge=4": {
+      "model": "residual:block/capacitor_bank_4"
+    }
+  }
+}

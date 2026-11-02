@@ -1,0 +1,69 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "residual:block/bus_bar",
+    "cable": "residual:block/bus_bar"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        4,
+        0
+      ],
+      "to": [
+        12,
+        12,
+        4
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            4,
+            12,
+            12
+          ],
+          "texture": "#cable",
+          "cullface": "north"
+        },
+        "east": {
+          "uv": [
+            12,
+            4,
+            16,
+            12
+          ],
+          "texture": "#cable"
+        },
+        "west": {
+          "uv": [
+            0,
+            4,
+            4,
+            12
+          ],
+          "texture": "#cable"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            12,
+            4
+          ],
+          "texture": "#cable"
+        },
+        "down": {
+          "uv": [
+            4,
+            12,
+            12,
+            16
+          ],
+          "texture": "#cable"
+        }
+      }
+    }
+  ]
+}

@@ -179,6 +179,8 @@ navigation:
 
 <residual:Milestone id="benchmark/pilot">用<ItemLink id="flight_dataset" />练习：核心用模型自己的选择去飞，需要一个能读回整次飞行的模型。</residual:Milestone>
 
+<residual:Milestone id="benchmark/reactor">用<ItemLink id="reactor_dataset" />练习：核心运行模型自己的周期，需要一个能算出燃料下次何时推动的模型：[反应堆](reactor.md)。</residual:Milestone>
+
 <residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习，曲线变平时调低学习率。宽 64 的模型能通过，用 fp32 时大到无法随身携带：[模型与测试](models.md)。</residual:Milestone>
 
 <residual:Milestone id="model/complete">一个模型核心最多可同时练习四种数据。</residual:Milestone>
@@ -252,6 +254,26 @@ navigation:
 <residual:Milestone id="power/generator">它烧熔炉能烧的东西：[电力](power.md)。</residual:Milestone>
 
 <residual:Milestone id="power/smelter">制造机用 Transformer 光掩模制造冶炼炉；给它电力和粗矿。</residual:Milestone>
+
+<residual:Milestone id="power/boiler">把涡轮立在旁边有水的锅炉上：[电力](power.md)。</residual:Milestone>
+
+<residual:Milestone id="power/solar">放在看得见天空的地方：[电力](power.md)。</residual:Milestone>
+
+<residual:Milestone id="power/reactor">造好外壳，装上燃料，给它一个通过安全壳测试的控制器：它要把一整个周期保持在 90% 的查看以上：[反应堆](reactor.md)。</residual:Milestone>
+
+## 算力
+
+<residual:Milestone id="compute/node">把 28 nm 晶圆和矩阵乘法光掩模放进制造机：[算力](compute.md)。</residual:Milestone>
+
+<residual:Milestone id="compute/rack">制造机用 Transformer 光掩模制造机架交换机；把它放在一列机架模块顶上。</residual:Milestone>
+
+<residual:Milestone id="compute/split">在核心的**算力**页选一种分摊工作的方式，在两个以上设备上训练。</residual:Milestone>
+
+<residual:Milestone id="compute/pod">制造机用 Transformer 光掩模制造它。</residual:Milestone>
+
+<residual:Milestone id="compute/loop">从冷水机的正面引管子绕过机架回到它的背面，再让机架工作起来：[机房](datacenter.md)。</residual:Milestone>
+
+<residual:Milestone id="compute/hall">机房控制台连到两台机组交换机，一条闭合的冷却回路，再给它们活干：[机房](datacenter.md)。</residual:Milestone>
 
 ## 打捞
 

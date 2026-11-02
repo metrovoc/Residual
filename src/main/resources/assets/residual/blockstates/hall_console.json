@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,formed=false": {
+      "model": "residual:block/hall_console"
+    },
+    "facing=south,formed=false": {
+      "model": "residual:block/hall_console",
+      "y": 180
+    },
+    "facing=east,formed=false": {
+      "model": "residual:block/hall_console",
+      "y": 90
+    },
+    "facing=west,formed=false": {
+      "model": "residual:block/hall_console",
+      "y": 270
+    },
+    "facing=north,formed=true": {
+      "model": "residual:block/hall_console_on"
+    },
+    "facing=south,formed=true": {
+      "model": "residual:block/hall_console_on",
+      "y": 180
+    },
+    "facing=east,formed=true": {
+      "model": "residual:block/hall_console_on",
+      "y": 90
+    },
+    "facing=west,formed=true": {
+      "model": "residual:block/hall_console_on",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,351 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "residual:block/rack_module"
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "residual:block/rack_module",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "residual:block/rack_module",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "residual:block/rack_module",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "bay0": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay0"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "bay0": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay0",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "bay0": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay0",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "bay0": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay0",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "bay1": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay1"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "bay1": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay1",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "bay1": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay1",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "bay1": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay1",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "bay2": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay2"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "bay2": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay2",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "bay2": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay2",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "bay2": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay2",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "bay3": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay3"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "bay3": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay3",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "bay3": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay3",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "bay3": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay3",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "bay4": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay4"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "bay4": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay4",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "bay4": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay4",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "bay4": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay4",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "bay5": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay5"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "bay5": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay5",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "bay5": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay5",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "bay5": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay5",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "bay6": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay6"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "bay6": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay6",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "bay6": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay6",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "bay6": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay6",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "bay7": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay7"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "bay7": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay7",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "bay7": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay7",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "bay7": "true"
+      },
+      "apply": {
+        "model": "residual:block/rack_module_bay7",
+        "y": 270
+      }
+    }
+  ]
+}

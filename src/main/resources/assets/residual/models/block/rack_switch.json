@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/rack_switch_side",
+    "north": "residual:block/rack_switch_front",
+    "south": "residual:block/machine_back",
+    "east": "residual:block/rack_switch_side",
+    "west": "residual:block/rack_switch_side",
+    "up": "residual:block/drive_rack_top",
+    "down": "residual:block/rack_switch_side"
+  }
+}

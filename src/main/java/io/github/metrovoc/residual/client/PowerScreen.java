@@ -24,9 +24,11 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> implements P
     private static final int BAR_X = 156, BAR_Y = 17, BAR_W = 10, BAR_H = 52;
     /** Between ore and ingots: an arrow, or with a controller the melt, a pixel a look and two a band. */
     private static final int WORK_X = 82, WORK_Y = PowerMenu.SLOT_Y, WORK_W = 24, WORK_H = 16;
+    /** A reactor's cycle, three pixels a look and five a reading of its gauge. */
+    private static final int TRACE_LOOK = 3, TRACE_BAND = 5, TRACE_X = 56, TRACE_Y = 22, TRACE_W = 72, TRACE_H = 40;
 
     public PowerScreen(PowerMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, menu.kind == PowerMenu.Kind.SMELTER ? PowerMenu.SIDE_X + PowerMenu.SIDE_W : WINDOW_W, WINDOW_H);
+        super(menu, inventory, title, menu.kind != PowerMenu.Kind.GENERATOR ? PowerMenu.SIDE_X + PowerMenu.SIDE_W : WINDOW_W, WINDOW_H);
         inventoryLabelY = PowerMenu.INVENTORY_Y - 10;
         inventoryLabelX = PowerMenu.INVENTORY_X;
     }
@@ -38,7 +40,7 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> implements P
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
-        if (menu.kind == PowerMenu.Kind.SMELTER) {
+        if (menu.kind != PowerMenu.Kind.GENERATOR) {
             // the controller's panel, tucked under the window's edge
             Ui.window(g, leftPos + PowerMenu.SIDE_X, topPos + PowerMenu.SIDE_Y, PowerMenu.SIDE_W, PowerMenu.SIDE_H);
         }
@@ -53,6 +55,10 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> implements P
         int filled = cap > 0 ? (int) Math.round((double) BAR_H * menu.energy() / cap) : 0;
         g.fill(x, y + BAR_H - filled, x + BAR_W, y + BAR_H, Ui.TEAL);
         int work = menu.data.get(PowerMenu.WORK), total = menu.data.get(PowerMenu.WORK_TOTAL);
+        if (menu.kind == PowerMenu.Kind.REACTOR) {
+            reactor(g, work, total);
+            return;
+        }
         if (menu.kind == PowerMenu.Kind.GENERATOR) {
             // the flame above the fuel, burning down
             Ui.flame(g, leftPos + PowerMenu.FUEL_X + 1, topPos + PowerMenu.SLOT_Y - 17, total > 0 ? (float) work / total : 0);
@@ -64,6 +70,24 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> implements P
             Ui.arrow(g, leftPos + WORK_X, topPos + WORK_Y, total > 0 ? (float) work / total : 0);
         }
         Slot controller = menu.getSlot(PowerMenu.CONTROLLER_SLOT);
+        if (!controller.hasItem()) {
+            Ui.ghost(g, new ItemStack(ModItems.CHECKPOINT.get()), leftPos + controller.x, topPos + controller.y);
+        }
+    }
+
+    /** A reactor: its fuel burning down under a flame, then its cycle as a Smelter's melt, on a larger gauge. */
+    private void reactor(GuiGraphicsExtractor g, int work, int total) {
+        Ui.flame(g, leftPos + PowerMenu.REACTOR_FUEL_X + 1, topPos + PowerMenu.SLOT_Y - 17, total > 0 ? (float) work / total : 0);
+        int x = leftPos + TRACE_X, y = topPos + TRACE_Y;
+        Ui.screen(g, x, y, TRACE_W, TRACE_H);
+        g.fill(x, y + TRACE_H - 5 * TRACE_BAND, x + TRACE_W, y + TRACE_H - 3 * TRACE_BAND, 0xFF1E3D33);
+        int looks = menu.data.get(PowerMenu.MELT_LOOKS);
+        for (int k = 0; k < looks; k++) {
+            int band = menu.data.get(PowerMenu.MELT_BANDS + k / 5) >> (3 * (k % 5)) & 7;
+            int my = y + TRACE_H - (band + 1) * TRACE_BAND;
+            g.fill(x + k * TRACE_LOOK, my, x + (k + 1) * TRACE_LOOK, my + TRACE_BAND, band == 3 || band == 4 ? Ui.GREEN : band == 0 || band == 7 ? Ui.RED : Ui.AMBER);
+        }
+        Slot controller = menu.getSlot(PowerMenu.REACTOR_CONTROLLER_SLOT);
         if (!controller.hasItem()) {
             Ui.ghost(g, new ItemStack(ModItems.CHECKPOINT.get()), leftPos + controller.x, topPos + controller.y);
         }
@@ -93,10 +117,21 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> implements P
         super.extractRenderState(g, mouseX, mouseY, a);
         int mx = mouseX - leftPos, my = mouseY - topPos;
         List<FormattedCharSequence> lines = new ArrayList<>();
-        if (Ui.inside(mx, my, BAR_X, BAR_Y, BAR_W, BAR_H)) {
+        if (menu.kind == PowerMenu.Kind.REACTOR && Ui.inside(mx, my, TRACE_X, TRACE_Y, TRACE_W, TRACE_H)) {
+            int status = menu.data.get(PowerMenu.REACTOR_STATUS), looks = menu.data.get(PowerMenu.MELT_LOOKS), held = menu.data.get(PowerMenu.MELT_HELD) - 1;
+            lines.add(Component.translatable("residual.reactor.status." + status).getVisualOrderText());
+            lines.add(Component.translatable("residual.reactor.cycle", looks, Control.LOOKS).withStyle(ChatFormatting.GRAY).getVisualOrderText());
+            if (held >= 0) {
+                lines.add(Component.translatable("residual.reactor.held", held, menu.data.get(PowerMenu.REACTOR_SURE)).withStyle(ChatFormatting.GRAY).getVisualOrderText());
+            }
+        } else if (menu.kind == PowerMenu.Kind.REACTOR && !menu.getSlot(PowerMenu.REACTOR_CONTROLLER_SLOT).hasItem() && menu.getCarried().isEmpty()
+                && Ui.inside(mx, my, PowerMenu.CONTROLLER_X, PowerMenu.CONTROLLER_Y, 16, 16)) {
+            lines.add(Component.translatable("residual.power.controller").getVisualOrderText());
+            lines.addAll(font.split(Component.translatable("residual.reactor.controller_hint").withStyle(ChatFormatting.GRAY), 180));
+        } else if (Ui.inside(mx, my, BAR_X, BAR_Y, BAR_W, BAR_H)) {
             lines.add(Component.translatable("residual.power.stored", Ui.count(menu.energy()), Ui.count(menu.capacity())).getVisualOrderText());
-            int rate = menu.data.get(PowerMenu.RATE);
-            String key = menu.kind == PowerMenu.Kind.GENERATOR ? "residual.power.makes" : "residual.power.draws";
+            int rate = menu.data.get(PowerMenu.RATE) * (menu.kind == PowerMenu.Kind.REACTOR ? PowerMenu.REACTOR_RATE_UNIT : 1);
+            String key = menu.kind == PowerMenu.Kind.SMELTER ? "residual.power.draws" : "residual.power.makes";
             lines.add((rate > 0 ? Component.translatable(key, rate) : Component.translatable("residual.power.idle"))
                     .withStyle(ChatFormatting.GRAY).getVisualOrderText());
         } else if (controlled() && Ui.inside(mx, my, WORK_X, WORK_Y, WORK_W, WORK_H)) {
@@ -121,6 +156,11 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> implements P
         if (menu.kind == PowerMenu.Kind.GENERATOR) {
             out.add("fuel", this, menu.getSlot(0));
             out.add("flame", leftPos + PowerMenu.FUEL_X + 1, topPos + PowerMenu.SLOT_Y - 17, 14, 14);
+        } else if (menu.kind == PowerMenu.Kind.REACTOR) {
+            out.add("fuel", this, menu.getSlot(0));
+            out.add("flame", leftPos + PowerMenu.REACTOR_FUEL_X + 1, topPos + PowerMenu.SLOT_Y - 17, 14, 14);
+            out.add("controller", this, menu.getSlot(PowerMenu.REACTOR_CONTROLLER_SLOT));
+            out.add("cycle", leftPos + TRACE_X, topPos + TRACE_Y, TRACE_W, TRACE_H);
         } else {
             out.add("ore", this, menu.getSlot(0));
             out.add("ingots", this, menu.getSlot(1));

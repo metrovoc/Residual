@@ -17,9 +17,12 @@ public abstract class PowerBlockEntity extends BlockEntity {
     public enum Role { GENERATOR, CELL, MACHINE }
 
     private final SimpleEnergyHandler energy;
+    private final int maxInsert, maxExtract;
 
     protected PowerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, int maxInsert, int maxExtract) {
         super(type, pos, state);
+        this.maxInsert = maxInsert;
+        this.maxExtract = maxExtract;
         energy = new SimpleEnergyHandler(capacity, maxInsert, maxExtract) {
             @Override
             protected void onEnergyChanged(int previousAmount) {
@@ -35,6 +38,16 @@ public abstract class PowerBlockEntity extends BlockEntity {
         return energy;
     }
 
+    /** What it can take in a tick. */
+    int room() {
+        return Math.min((int) (energy.getCapacityAsLong() - energy.getAmountAsLong()), maxInsert);
+    }
+
+    /** What it can give in a tick. */
+    int available() {
+        return Math.min(energy.getAmountAsInt(), maxExtract);
+    }
+
     /** Called once a change to its stored power is final. */
     protected void energyChanged(int previous) {
     }
@@ -42,6 +55,22 @@ public abstract class PowerBlockEntity extends BlockEntity {
     /** Its network moves this tick's power, then it does its own work. */
     protected void tick(ServerLevel level) {
         PowerNetwork.at(level, worldPosition).tick();
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level instanceof ServerLevel server) {
+            PowerNetwork.changed(server);
+        }
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        if (level instanceof ServerLevel server) {
+            PowerNetwork.changed(server);
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.block;
 
+import io.github.metrovoc.residual.compute.ComputeHost;
 import com.mojang.serialization.MapCodec;
 import io.github.metrovoc.residual.energy.PowerNode;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
@@ -28,7 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 /** The Forecaster, in all three of its kinds: watches the crops around it, and with a model that matches them, runs them ahead. */
-public class ForecasterBlock extends BaseEntityBlock implements PowerNode {
+public class ForecasterBlock extends BaseEntityBlock implements PowerNode, ComputeHost {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty WORKING = BooleanProperty.create("working");
     public static final MapCodec<ForecasterBlock> CODEC = simpleCodec(ForecasterBlock::new);

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:tinted_glass",
+    "W": "residual:wafer",
+    "K": "residual:tensor_casing",
+    "R": "minecraft:redstone_lamp"
+  },
+  "pattern": [
+    "GGG",
+    "GWG",
+    "KRK"
+  ],
+  "result": {
+    "id": "residual:load_wall",
+    "count": 2
+  }
+}

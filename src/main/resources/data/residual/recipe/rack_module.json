@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "residual:tensor_casing",
+    "C": "minecraft:copper_ingot",
+    "W": "residual:wafer"
+  },
+  "pattern": [
+    "KCK",
+    "W W",
+    "KCK"
+  ],
+  "result": {
+    "id": "residual:rack_module"
+  }
+}
