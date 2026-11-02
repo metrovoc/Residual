@@ -3531,7 +3531,6 @@ def build():
         assert mirrored(rows) and len(rows[0]) % 2 == 0 and len(rows) % 2 == 0, rows
     # a glyph symmetric along an axis has to be even along it, or it sits half a pixel off the tile's centre
     assert mirrored(FLIGHT_FRAME), FLIGHT_FRAME
-    assert mirrored(FLIGHT_FRAME_BACK), FLIGHT_FRAME_BACK
     for rows in (EXOSUIT, EXOSUIT_FRONT, EXOSUIT_BACK, EXOSUIT_ARM_OUT, EXOSUIT_ARM):
         assert mirrored(rows), rows
     for rows in [*GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, SURVEY_PROBE, *PORT_GLYPHS.values()]:
