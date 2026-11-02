@@ -208,8 +208,12 @@ tasks.register('guideWebsite', JavaExec) {
 // the field notes' clips, which the page template's script plays
 tasks.register('guideWebsiteClips', Copy) {
     mustRunAfter 'guideWebsite'
-    from file('src/main/resources/assets/residual/guides/residual/guide/' +
-            (providers.gradleProperty('guideLocale').getOrElse('en_us') == 'zh_cn' ? '_zh_cn/' : '') + 'clips')
+    // Localized screen clips override shared, language-neutral world clips, as in the game.
+    if (providers.gradleProperty('guideLocale').getOrElse('en_us') == 'zh_cn') {
+        from file('src/main/resources/assets/residual/guides/residual/guide/_zh_cn/clips')
+    }
+    from file('src/main/resources/assets/residual/guides/residual/guide/clips')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     into file(providers.gradleProperty('guideOutput').getOrElse('build/guideWebsite') + '/clips')
 }
 // and the shots of their screens, which src/website/live.js marks
