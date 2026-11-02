@@ -102,6 +102,7 @@ public class BenchScreen extends Screen implements Parts.Drawn {
     protected void init() {
         W = Math.max(320, Math.min(width - 8, 480));
         H = Math.max(232, Math.min(height - 8, 300));
+        chooserFirst = Math.clamp(chooserFirst, 0, Specs.all().size() - chooserRows());
         left = (width - W) / 2;
         top = (height - H) / 2;
         paletteW = W >= 400 ? 74 : 64;
@@ -966,6 +967,24 @@ public class BenchScreen extends Screen implements Parts.Drawn {
         return Math.min(Specs.all().size(), (H - CANVAS_Y - 10) / 12);
     }
 
+    /** Scrolls a spec into view in the open chooser. */
+    public void revealSpec(String id) {
+        if (!choosing) {
+            return;
+        }
+        List<Spec> all = Specs.all();
+        for (int i = 0; i < all.size(); i++) {
+            if (all.get(i).id().equals(id)) {
+                if (i < chooserFirst) {
+                    chooserFirst = i;
+                } else if (i >= chooserFirst + chooserRows()) {
+                    chooserFirst = i - chooserRows() + 1;
+                }
+                return;
+            }
+        }
+    }
+
     private void chooser(GuiGraphicsExtractor g) {
         int x = left + canvasX, y = top + CANVAS_Y;
         List<Spec> all = Specs.all();
@@ -1049,8 +1068,8 @@ public class BenchScreen extends Screen implements Parts.Drawn {
         out.add("value", constant);
         if (choosing) {
             List<Spec> all = Specs.all();
-            for (int i = 0; i < all.size(); i++) {
-                out.add("spec:" + all.get(i).id(), left + canvasX, top + CANVAS_Y + 2 + i * 12, canvasW, 12);
+            for (int i = 0; i < chooserRows(); i++) {
+                out.add("spec:" + all.get(chooserFirst + i).id(), left + canvasX, top + CANVAS_Y + 2 + i * 12, canvasW, 12);
             }
         }
         for (Chip c : chips) {

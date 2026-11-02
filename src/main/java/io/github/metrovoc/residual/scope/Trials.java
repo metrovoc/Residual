@@ -239,13 +239,13 @@ public final class Trials {
         int top = 60, height = 28;
         for (int g = 0; g < COPIES.length; g++) {
             int y = top + g * height;
-            b.text(4, y + 6, Component.translatable("residual.trial.memory.copies", Integer.toString(COPIES[g])), Picture.TEXT);
-            int cell = 36;
+            b.text(4, y + 6, 84, Component.translatable("residual.trial.memory.copies", Integer.toString(COPIES[g])), Picture.TEXT);
+            int cell = 28, start = 92;
             for (int i = 0; i < SECRETS; i++) {
                 boolean out = i < after.extracted[g];
-                b.box(70 + i * (cell + 2), y, cell, height - 6, out ? Picture.AMBER : Picture.GRID, Component.translatable(out ? "residual.trial.memory.out" : "residual.trial.memory.in"));
+                b.box(start + i * (cell + 2), y, cell, height - 6, out ? Picture.AMBER : Picture.GRID, Component.translatable(out ? "residual.trial.memory.out" : "residual.trial.memory.in"));
             }
-            b.text(70 + SECRETS * (cell + 2) + 6, y + 6, Component.translatable("residual.trial.memory.rank", String.format(Locale.ROOT, "%.0f", after.rank[g]), Integer.toString(CANDIDATES)), Picture.DIM);
+            b.text(start + SECRETS * (cell + 2) + 6, y + 6, Component.translatable("residual.trial.memory.rank", String.format(Locale.ROOT, "%.0f", after.rank[g]), Integer.toString(CANDIDATES)), Picture.DIM);
         }
         return b.build();
     }

@@ -3,7 +3,7 @@ navigation:
   title: 模型服务器
   icon: model_server
   parent: screens/index.md
-  position: 27
+  position: 28
 ---
 
 # 模型服务器的界面

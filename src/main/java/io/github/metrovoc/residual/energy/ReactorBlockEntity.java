@@ -212,11 +212,11 @@ public class ReactorBlockEntity extends PowerBlockEntity implements MenuProvider
             halt(FULL);
             return;
         }
+        if (burning < rods && !refuel()) {
+            halt(NO_FUEL);
+            return;
+        }
         if (cycle == null) {
-            if (burning <= 0 && !refuel()) {
-                halt(NO_FUEL);
-                return;
-            }
             // its fuel ages from cycle to cycle, and then fresh fuel is drawn down the rods
             cycle = Reactor.cycle((cycles++ / CYCLES_AN_AGE) % Reactor.AGES.length(), rng);
             untilLook = 0;
@@ -244,9 +244,6 @@ public class ReactorBlockEntity extends PowerBlockEntity implements MenuProvider
         }
         rate = power * share(cycle.power()) / 8;
         burning -= rods;
-        if (burning <= 0) {
-            refuel();
-        }
         energy().set(energy().getAmountAsInt() + rate);
         status = RUNNING;
         show(level, true);
@@ -403,7 +400,7 @@ public class ReactorBlockEntity extends PowerBlockEntity implements MenuProvider
     protected void loadAdditional(ValueInput in) {
         super.loadAdditional(in);
         in.child("items").ifPresent(c -> ContainerHelper.loadAllItems(c, items.getItems()));
-        burning = in.getIntOr("burning", 0);
+        burning = Math.max(0, in.getIntOr("burning", 0));
         tripped = in.getIntOr("tripped", 0);
     }
 

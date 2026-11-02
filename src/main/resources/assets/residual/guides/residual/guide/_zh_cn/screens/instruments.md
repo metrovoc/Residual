@@ -3,7 +3,7 @@ navigation:
   title: 流示波器与故障试验架
   icon: stream_scope
   parent: screens/index.md
-  position: 29
+  position: 30
 ---
 
 # 流示波器与故障试验架的界面

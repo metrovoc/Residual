@@ -3,7 +3,7 @@ navigation:
   title: 调校台
   icon: tuner
   parent: screens/index.md
-  position: 28
+  position: 29
 ---
 
 # 调校台的界面

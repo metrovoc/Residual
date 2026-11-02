@@ -80,13 +80,48 @@ navigation:
 
     <residual:Shot name="core_tests" alt="测试页：每项基准一行，带着分数">
       <residual:Part name="row:forecasting">
-        **一项基准**：每项基准一行：名称、一条通向及格线的进度条和分数，及格后变绿。指向一行可看到它的用途、测试时间和测试方式。点击它可看到从新种子训练的结果、它的相似题，以及服务器的排行榜：见[比较模型](../evaluation.md)。
+        **一项基准**：每项基准一行：名称、一条通向及格线的进度条和分数，及格后变绿。滚动可看到其余基准。指向一行可看到它的用途、测试时间和测试方式。点击它可看到从新种子训练的结果、它的相似题，以及服务器的排行榜：见[比较模型](../evaluation.md)。
       </residual:Part>
       <residual:Part name="core.test_all">
         **全部测试**：立即运行所有测试。
       </residual:Part>
       <residual:Part name="core.save">
         **存入检查点**：用每一项基准测试这个模型，并把它连同分数一起存进检查点。
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
+
+  <residual:Step>
+    滚动测试页可看到每一项基准。
+
+    <residual:Shot name="core_tests_lower" alt="测试页下方的基准行，最后一项是地层">
+      <residual:Part name="row:ground">
+        **一项基准**：点击每行可打开它的比较视图。
+      </residual:Part>
+      <residual:Part name="scrollbar">
+        **滚动条**：显示当前看到的是哪些行。在列表上滚动，或点击滚动条，都可移动。
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
+
+  <residual:Step>
+    点击一项基准，比较它的测试、新运行和服务器上的设计。
+
+    <residual:Shot name="core_evaluation" alt="一项基准的比较视图，包含种子运行和服务器排行榜">
+      <residual:Part name="evaluation">
+        **比较**：原测试与另一套相似题的分数。出现警告，表示原测试带来的优势超出了偶然。
+      </residual:Part>
+      <residual:Part name="seeds">
+        **新种子**：从新权重和批次开始的多次运行有多分散；有上一个设计时，它显示在下面。
+      </residual:Part>
+      <residual:Part name="leaderboard">
+        **服务器榜单**：领先的设计，以及它们的作者、分数和大小。指向一个可看到它的机器。
+      </residual:Part>
+      <residual:Part name="histograms">
+        **分布**：服务器的设计按分数和大小怎样分布，当前模型以琥珀色标出。
+      </residual:Part>
+      <residual:Part name="evaluation.back">
+        **返回**：返回基准列表。
       </residual:Part>
     </residual:Shot>
   </residual:Step>

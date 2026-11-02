@@ -80,13 +80,48 @@ Use a Model Core to open it. Its tabs take a model from its data to its tests; [
 
     <residual:Shot name="core_tests" alt="The Tests tab: a line for each benchmark, with its score">
       <residual:Part name="row:forecasting">
-        **A benchmark**: One line for each: its name, a bar toward what passes, and its score, green once it passes. Point at a line for its job, when it was tested and how its test goes. Click it for its runs from fresh seeds, a look-alike of its test and the server's leaderboard: [Comparing Models](../evaluation.md) tells how they go.
+        **A benchmark**: One line for each: its name, a bar toward what passes, and its score, green once it passes. Scroll for the rest. Point at a line for its job, when it was tested and how its test goes. Click it for its runs from fresh seeds, a look-alike of its test and the server's leaderboard: [Comparing Models](../evaluation.md) tells how they go.
       </residual:Part>
       <residual:Part name="core.test_all">
         **Test all**: Runs every test now.
       </residual:Part>
       <residual:Part name="core.save">
         **Save to checkpoint**: Tests the model on every benchmark and keeps it, scores and all, in the checkpoint.
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
+
+  <residual:Step>
+    Scroll through the Tests tab to see every benchmark.
+
+    <residual:Shot name="core_tests_lower" alt="The lower rows of the Tests tab, ending with Ground">
+      <residual:Part name="row:ground">
+        **A benchmark**: Each row opens its comparison when clicked.
+      </residual:Part>
+      <residual:Part name="scrollbar">
+        **The scroll bar**: Shows which rows are in view. Scroll over the list or click the bar to move through it.
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
+
+  <residual:Step>
+    Click a benchmark to compare its test, fresh runs and the server's designs.
+
+    <residual:Shot name="core_evaluation" alt="One benchmark's comparison, with seed runs and the server's leaderboard">
+      <residual:Part name="evaluation">
+        **The comparison**: The score on its test and on a look-alike with other items. A warning means its test flatters it beyond chance.
+      </residual:Part>
+      <residual:Part name="seeds">
+        **Fresh seeds**: The spread of runs from fresh weights and batches, with the previous design below when there is one.
+      </residual:Part>
+      <residual:Part name="leaderboard">
+        **The server's board**: The leading designs, their makers, scores and sizes. Point at one for its machines.
+      </residual:Part>
+      <residual:Part name="histograms">
+        **The distributions**: How the server's designs spread by score and size, with this model marked in amber.
+      </residual:Part>
+      <residual:Part name="evaluation.back">
+        **Back**: Returns to the benchmark list.
       </residual:Part>
     </residual:Shot>
   </residual:Step>

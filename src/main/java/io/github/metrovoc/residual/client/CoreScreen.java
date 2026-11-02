@@ -57,6 +57,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
     private enum Tab { DATA, TRAIN, TESTS, TRY, INSPECT, RECIPE, COMPUTE }
 
     private static final int WINDOW_W = 320, TOOLBAR_X = WINDOW_W + 3;
+    private static final int TEST_TOP = 26, TEST_PITCH = 14, TEST_ROWS = 10;
 
     private static final List<String> TEMPERATURES = List.of("0", "0.5", "0.8", "1.0", "1.5");
     private static final int[] TEMPERATURE_VALUES = {0, 50, 80, 100, 150};
@@ -66,6 +67,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
 
     private Tab tab = lastTab;
     private int scroll;
+    private int testFirst;
     private Button train;
     private Button save;
     private Button rebuild;
@@ -352,6 +354,11 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         double mx = event.x(), my = event.y();
+        if (tab == Tab.TESTS && looking == null && Ui.inside(mx, my, leftPos + 308, topPos + TEST_TOP, 6, TEST_ROWS * TEST_PITCH)) {
+            testFirst = Math.clamp((int) Math.round((my - topPos - TEST_TOP) / (TEST_ROWS * TEST_PITCH) * (Benchmark.values().length - TEST_ROWS)),
+                    0, Math.max(0, Benchmark.values().length - TEST_ROWS));
+            return true;
+        }
         if (tab == Tab.TESTS && looking == null && rowClicked(mx, my)) {
             return true;
         }
@@ -373,6 +380,10 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
 
     @Override
     public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+        if (tab == Tab.TESTS && looking == null && Ui.inside(x, y, leftPos + 6, topPos + 22, 308, 146)) {
+            testFirst = Math.clamp(testFirst - (int) Math.signum(scrollY) * 3, 0, Math.max(0, Benchmark.values().length - TEST_ROWS));
+            return true;
+        }
         if (tab == Tab.INSPECT) {
             scroll = Math.max(0, scroll - (int) Math.signum(scrollY) * 3);
             return true;
@@ -762,10 +773,9 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             return;
         }
         Ui.screen(g, 6, 22, 308, 146);
-        // a line each, spaced as widely as the display lets them be: ten at fourteen pixels
-        int pitch = Math.min(15, 140 / Benchmark.values().length);
-        for (Benchmark a : Benchmark.values()) {
-            int top = 26 + a.ordinal() * pitch, y = top + 4;
+        for (int i = testFirst; i < Math.min(Benchmark.values().length, testFirst + TEST_ROWS); i++) {
+            Benchmark a = Benchmark.values()[i];
+            int top = testRowTop(i), y = top + 4;
             CoreSync.Score score = s == null ? CoreSync.Score.NONE : s.tests().get(a.ordinal());
             boolean practising = s != null && s.practising().get(a.ordinal());
             boolean tested = score.step() >= 0;
@@ -781,7 +791,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             } else if (tested && !s.causal()) {
                 g.text(font, "⚠", 294, y, Ui.RED, false);
             }
-            if (Ui.inside(mx, my, 6, top, 308, pitch)) {
+            if (Ui.inside(mx, my, 6, top, 300, TEST_PITCH)) {
                 // what the row leaves out: its job, when it was tested and what passes, then the test itself
                 List<FormattedCharSequence> lines = new ArrayList<>();
                 lines.add(Component.translatable("residual.benchmark." + a.id).withColor(Ui.TEAL).getVisualOrderText());
@@ -797,14 +807,37 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                 g.setTooltipForNextFrame(lines, mx + leftPos, my + topPos);
             }
         }
+        if (Benchmark.values().length > TEST_ROWS) {
+            int height = TEST_ROWS * TEST_PITCH, thumb = height * TEST_ROWS / Benchmark.values().length;
+            int y = TEST_TOP + testFirst * (height - thumb) / (Benchmark.values().length - TEST_ROWS);
+            g.fill(310, TEST_TOP, 313, TEST_TOP + height, Ui.GRID);
+            g.fill(310, y, 313, y + thumb, Ui.DIM);
+        }
+    }
+
+    private int testRowTop(int index) {
+        return TEST_TOP + (index - testFirst) * TEST_PITCH;
+    }
+
+    /** Scrolls a benchmark's row into view. */
+    public void revealBenchmark(String id) {
+        Benchmark a = Benchmark.byId(id);
+        if (tab != Tab.TESTS || looking != null || a == null) {
+            return;
+        }
+        if (a.ordinal() < testFirst) {
+            testFirst = a.ordinal();
+        } else if (a.ordinal() >= testFirst + TEST_ROWS) {
+            testFirst = a.ordinal() - TEST_ROWS + 1;
+        }
     }
 
     // ---------------------------------------------------------------- one benchmark, closely
 
     private boolean rowClicked(double mx, double my) {
-        int pitch = Math.min(15, 140 / Benchmark.values().length);
-        for (Benchmark a : Benchmark.values()) {
-            if (Ui.inside(mx, my, leftPos + 6, topPos + 26 + a.ordinal() * pitch, 308, pitch)) {
+        for (int i = testFirst; i < Math.min(Benchmark.values().length, testFirst + TEST_ROWS); i++) {
+            Benchmark a = Benchmark.values()[i];
+            if (Ui.inside(mx, my, leftPos + 6, topPos + testRowTop(i), 300, TEST_PITCH)) {
                 looking = a;
                 CoreView.evaluation = null;
                 ClientPacketDistributor.sendToServer(new CoreAction(menu.pos, CoreAction.Kind.EVALUATE, a.ordinal()));
@@ -834,7 +867,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
 
     /** While it looks closely, it asks again every second: runs may be under way, and friends may save. */
     private void evaluationTick() {
-        if (tab == Tab.TESTS && looking != null && evaluationAsked++ % 20 == 19 && CoreView.evaluation != null && CoreView.evaluation.seedFraction() >= 0) {
+        if (tab == Tab.TESTS && looking != null && evaluationAsked++ % 20 == 19) {
             ClientPacketDistributor.sendToServer(new CoreAction(menu.pos, CoreAction.Kind.EVALUATE, looking.ordinal(), "again"));
         }
     }
@@ -885,7 +918,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         lo -= pad;
         hi += pad;
         Seeds.Spread now = Seeds.spread(e.seeds());
-        int x0 = 12, w = 150;
+        int x0 = 12, w = 140;
         strip(g, e.seeds(), lo, hi, x0, y, w, Ui.AMBER);
         g.text(font, Component.translatable("residual.evaluation.spread", shown(a, now.mean()), shown(a, now.sd())), x0 + w + 8, y, Ui.TEXT, false);
         if (e.earlier().length > 0) {
@@ -1326,9 +1359,20 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                 out.add("practising", leftPos + 6, topPos + 163, 236, 12);
             }
             case TESTS -> {
-                int pitch = Math.min(15, 140 / Benchmark.values().length);
-                for (Benchmark a : Benchmark.values()) {
-                    out.add("row:" + a.id, leftPos + 6, topPos + 26 + a.ordinal() * pitch, 308, pitch);
+                if (looking != null) {
+                    out.add("evaluation", leftPos + 6, topPos + 22, 308, 146);
+                    out.add("seeds", leftPos + 6, topPos + 49, 308, 23);
+                    out.add("leaderboard", leftPos + 6, topPos + 76, 164, 81);
+                    out.add("histograms", leftPos + 176, topPos + 78, 130, 81);
+                    break;
+                }
+                out.add("tests", leftPos + 6, topPos + 22, 308, 146);
+                for (int i = testFirst; i < Math.min(Benchmark.values().length, testFirst + TEST_ROWS); i++) {
+                    Benchmark a = Benchmark.values()[i];
+                    out.add("row:" + a.id, leftPos + 6, topPos + testRowTop(i), 300, TEST_PITCH);
+                }
+                if (Benchmark.values().length > TEST_ROWS) {
+                    out.add("scrollbar", leftPos + 308, topPos + TEST_TOP, 6, TEST_ROWS * TEST_PITCH);
                 }
             }
             case TRY -> {

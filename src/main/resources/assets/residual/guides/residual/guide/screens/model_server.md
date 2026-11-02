@@ -3,7 +3,7 @@ navigation:
   title: Model Server
   icon: model_server
   parent: screens/index.md
-  position: 27
+  position: 28
 ---
 
 # A Model Server's screen

@@ -160,9 +160,9 @@ public class InstrumentScreen extends AbstractContainerScreen<InstrumentMenu> im
                 choice(x, y, 110, "residual.trial.steps", counted(Trials.STEPS), c, 1);
             }
             case CONTAMINATE -> {
-                x = choice(x, y, 104, "residual.trial.contaminate.leak", shares(Trials.LEAK), c, 0);
-                x = choice(x, y, 92, "residual.trial.steps", counted(Trials.STEPS), c, 1);
-                benchmark(x, y, 58);
+                x = choice(x, y, 64, "residual.trial.contaminate.leak", shares(Trials.LEAK), c, 0);
+                x = choice(x, y, 78, "residual.trial.steps", counted(Trials.STEPS), c, 1);
+                benchmark(x, y, 104);
             }
         }
         run = addRenderableWidget(Button.builder(Component.empty(), b -> press()).bounds(leftPos + WINDOW_W - 58, y, 52, 16).build());
