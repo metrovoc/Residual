@@ -131,8 +131,8 @@ the server's network reaches. Every call it makes takes its turn at the server, 
 - **Agents** shows what each agent in reach is doing. Pick one to stop it, start it again, hand it the program on any
   <ItemLink id="program_card" /> you carry, or give it an order. A program written out runs as it stands. Anything else
   the served model writes as a program, so an agent needs no model of its own for this, and a model that passes Orders
-  writes it best. One step or one job it does at once; anything longer, or anything the model is under 60% sure of, waits
-  for your yes here.
+  writes it best. A plain step or one job it does at once; anything that says where or how, anything longer, or anything the
+  model is under 60% sure of, waits for your yes here: point at it to see its steps on lines.
 - **Writing** is the served model itself: write the start of something and it carries it on.
 
 While you hold a tuned Terminal, bars in the corner show how far inside the reach you stand, pulses run from mast to

@@ -123,7 +123,10 @@ Start a chat message with an agent's name to give it an order: *Pip, bring me so
 24 blocks, or anywhere a Model Server's relays reach while you are in reach too, holding a Terminal tuned to it. You
 can also type an order on the **Work** tab of its screen and **Tell** it.
 
-Its model writes the order as a program. One step, or one of the jobs, it does at once. Anything else it reads back with
-**[Do it]** and **[Cancel]** to click in chat, or on the **Work** tab of its screen, and runs only once you say yes. An
-order comes before its program, which it goes back to after. If what its model writes is no program at all, it is
-puzzled; a model that never practised orders will mostly be puzzled.
+Its model writes the order as a program, in all the words of [Programs](programs.md): *move 16 iron ingots from mark 1 to mark 2*,
+*dig out everything between the marks*, *put all the logs on the network*, *go to every mark and say hello*, *make a step sweep that harvests
+and puts away*. A plain step, or one of the jobs, it does at once, if its model is sure. Anything else it reads back with **[Do it]** and
+**[Cancel]** to click in chat, or on the **Work** tab of its screen, and runs only once you say yes: point at it to see its steps on
+lines. An order comes before its program, which it goes back to after. If what its model writes is no program at all, it is puzzled; a
+model that never practised orders will mostly be puzzled. With no model at all, an order already written as a program, *dig at front*, is
+taken as it stands.

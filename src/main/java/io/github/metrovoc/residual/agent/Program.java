@@ -29,6 +29,10 @@ public record Program(List<Step> steps) {
     /** Words a thing's name stops at, since a step goes on after them. */
     private static final Set<String> STOPS = Set.of("and", "or", "except", "where", "from", "to", "at", "speed", "pitch", "yaw",
             "for", "priority", "sneak");
+    /** The steps an agent does at once when told, without reading them back. */
+    private static final Set<Verb> AT_ONCE = Set.of(Verb.COME, Verb.HOME, Verb.GO, Verb.STAY, Verb.FOLLOW, Verb.TAKE, Verb.PUT, Verb.GIVE, Verb.FETCH, Verb.PICKUP,
+            Verb.HARVEST, Verb.PLANT, Verb.TILL, Verb.MINE, Verb.PLACE, Verb.WAIT, Verb.SAY, Verb.CRAFT, Verb.SUPPLY, Verb.FARM, Verb.STORE, Verb.SORT, Verb.HAUL,
+            Verb.BUILD, Verb.COPY, Verb.MOVE);
     /** Words no procedure may be called. */
     private static final Set<String> RESERVED = Set.of("repeat", "if", "else", "until", "while", "for", "wait", "set", "to", "on", "when",
             "return", "leave", "next", "stop", "breakpoint", "not", "and", "or", "true", "false", "nothing");
@@ -365,6 +369,14 @@ public record Program(List<Step> steps) {
 
     public static String text(Expr check) {
         return check.text();
+    }
+
+    /**
+     * Whether it is one plain step of the kind an agent can be told and simply do: nothing on it says where or how, so
+     * nothing about it needs reading first.
+     */
+    public boolean atOnce() {
+        return steps.size() == 1 && steps.getFirst() instanceof Act a && AT_ONCE.contains(a.verb()) && a.clauses().stream().allMatch(c -> c.word().equals("place"));
     }
 
     /** How many steps there are, counting those inside blocks and the blocks themselves. */

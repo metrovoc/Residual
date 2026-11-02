@@ -527,7 +527,13 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> implements P
                 : Component.translatable(s.filter() ? "residual.agent.filter_onboard" : "residual.agent.model_onboard", tag,
                 info == null ? "?" : Ui.count(info.parameters()));
         int modelColor = working ? Ui.TEAL : Ui.AMBER;
-        if (s.decisions() == 0 || !working) {
+        if (s.asking()) {
+            // what it read back comes before anything else: as much as fits, and its steps on lines when pointed at
+            List<FormattedCharSequence> said = font.split(status, w);
+            for (int i = 0; i < Math.min(4, said.size()); i++) {
+                g.text(font, said.get(i), 12, 42 + i * 10, Ui.TEXT, false);
+            }
+        } else if (s.decisions() == 0 || !working) {
             // no decision worth showing: the status and the model may take the four lines above the record
             List<FormattedCharSequence> said = font.split(status, w);
             said = said.subList(0, Math.min(2, said.size()));
@@ -565,7 +571,12 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> implements P
         }
         g.text(font, fit(record, s.asking() ? w - 78 : w), 12, 82, Ui.DIM, false);
         // whatever had to be cut short, in full
-        if (Ui.inside(mx, my, 8, 38, 160, 52) && (font.width(status) > w || font.width(modelLine) > w)) {
+        if (s.asking() && Ui.inside(mx, my, 8, 38, 160, 42)) {
+            Program.Parsed read = s.statusArgs().isEmpty() ? null : Program.parse(s.statusArgs().getFirst());
+            if (read != null && read.ok()) {
+                g.setTooltipForNextFrame(font.split(Component.literal(read.program().pretty()), 220), mouseX, mouseY);
+            }
+        } else if (Ui.inside(mx, my, 8, 38, 160, 52) && (font.width(status) > w || font.width(modelLine) > w)) {
             List<FormattedCharSequence> lines = new ArrayList<>();
             for (Component c : List.of(status, modelLine)) {
                 lines.addAll(font.split(c, 220));

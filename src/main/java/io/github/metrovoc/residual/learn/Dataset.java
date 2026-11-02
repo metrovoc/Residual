@@ -1,10 +1,13 @@
 package io.github.metrovoc.residual.learn;
 
+import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.tensor.Tokens;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Synthetic practice for one benchmark, scored only on its answer positions. Agents ask their models in these same
@@ -196,12 +199,22 @@ public final class Dataset extends Task {
         }
     }
 
-    /** {@code > bring me some bread⏎= fetch bread⏎}, repeated: the meaning of each order is the answer. */
+    /**
+     * {@code > bring me some bread⏎= fetch bread⏎}, repeated: the meaning of each order is the answer. The first program may be
+     * too long for the window, so the window shows a stretch of it as a model writing it would see that stretch, and only the
+     * letters a model would write while seeing that much are scored.
+     */
     private void orders(Random rng, int[] seq, boolean[] answer, boolean test) {
-        StringBuilder text = new StringBuilder();
-        boolean[] meant = new boolean[seq.length + 80];
+        Orders.Example ex = Orders.example(rng, test);
+        List<Orders.Window> windows = Orders.windows(ex);
+        Orders.Window w = windows.get(rng.nextInt(windows.size()));
+        boolean[] meant = new boolean[seq.length + 2 * Orders.WRITTEN + Orders.LONGEST];
+        StringBuilder text = new StringBuilder(w.text());
+        for (int i = w.scoredFrom(); i < w.scoredTo(); i++) {
+            meant[i] = true;
+        }
         while (text.length() < seq.length) {
-            Orders.Example ex = Orders.example(rng, test);
+            ex = Orders.example(rng, test);
             text.append(Orders.prompt(ex.said()));
             int start = text.length();
             text.append(ex.meant()).append('\n');
@@ -213,6 +226,11 @@ public final class Dataset extends Task {
             seq[i] = vocab.id(text.charAt(i));
             answer[i] = meant[i];
         }
+    }
+
+    @Override
+    public double @Nullable [] measure(CompiledGraph model) {
+        return benchmark == Benchmark.ORDERS ? Orders.measure(model) : null;
     }
 
     public static int[] distinct(Random rng, int range, int n) {

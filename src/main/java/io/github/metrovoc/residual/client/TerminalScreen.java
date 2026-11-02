@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.client;
 
+import io.github.metrovoc.residual.agent.Program;
 import io.github.metrovoc.residual.item.ProgramCardItem;
 import io.github.metrovoc.residual.net.RelaySync;
 import io.github.metrovoc.residual.net.TerminalAgentsSync;
@@ -538,7 +539,8 @@ public class TerminalScreen extends Screen implements Parts.Drawn {
             Component line = program.isEmpty() ? Component.translatable("residual.agent.status.resting") : Component.literal(program);
             g.text(font, Ui.fit(font, line.getString(), DISPLAY_W - 8), dx + 4, panel + 2, chosen.proposed().isEmpty() ? Ui.DIM : Ui.AMBER, false);
             if (Ui.inside(mouseX, mouseY, dx, panel, DISPLAY_W, 12) && !program.isEmpty()) {
-                g.setTooltipForNextFrame(font.split(Component.literal(program), 220), mouseX, mouseY);
+                Program.Parsed read = Program.parse(program);
+                g.setTooltipForNextFrame(font.split(Component.literal(read.ok() ? read.program().pretty() : program), 220), mouseX, mouseY);
             }
         }
         for (int i = 0; i < CARDS; i++) {

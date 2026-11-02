@@ -32,7 +32,7 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Reversal  | <ItemLink id="errand_dataset" />        | waymarks on the way out, then the way home         | 90%         | hauling     |
 | Induction | <ItemLink id="pattern_dataset" />       | letters where a run comes round again              | 90%         | the Architect |
 | Sorting   | <ItemLink id="sorting_dataset" />       | things named, and the kind of each, some made up   | 90%         | sorting     |
-| Orders    | <ItemLink id="orders_dataset" />        | orders, and what was meant by them                 | 90%         | orders      |
+| Orders    | <ItemLink id="orders_dataset" />        | orders, and the program each means, written whole  | 40%         | orders      |
 | Reading   | <ItemLink id="archive_drive" />       | records no shard carries                           | loss ≤ 1.40 | the Reader  |
 | Control   | <ItemLink id="process_dataset" />       | melts of each ore, held at 90% of their looks      | 90%         | the Smelter |
 | Survey    | <ItemLink id="survey_dataset" />        | rows of ground, and where the first of an ore lies | 90%         | the Surveyor, an exosuit's vein mining |
@@ -50,7 +50,9 @@ The Core's four **Data** slots are practised together: every step draws its batc
 can learn everything, if it is big enough and shaped for it. Each benchmark asks for something different: forecasting a
 machine only needs the look just before, and so does forecasting an average field; recall has to find a pair far back;
 reversal needs to know where each waymark was; induction has to look back for what followed the same letter last time;
-sorting has to find the word in a name that settles its kind.
+sorting has to find the word in a name that settles its kind. Orders have to write out a whole program, copying its names a
+letter at a time, and only a program right to its last letter counts: a model that passes gets about two orders in five right
+the first time, the long ones least, which is why an agent reads those back. When its curve flattens, lower the learning rate.
 
 ## Practising by playing
 

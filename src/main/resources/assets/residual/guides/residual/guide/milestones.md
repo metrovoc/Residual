@@ -212,8 +212,8 @@ stops.</residual:Milestone>
 <residual:Milestone id="benchmark/pilot">Practise on the <ItemLink id="flight_dataset" />: the Core flies the model's own
 flights, and it takes a model that reads the flight back to its start.</residual:Milestone>
 
-<residual:Milestone id="benchmark/orders">Practise on the <ItemLink id="orders_dataset" />; it takes a model too big to
-carry in fp32.</residual:Milestone>
+<residual:Milestone id="benchmark/orders">Practise on the <ItemLink id="orders_dataset" />, and lower the learning rate
+when its curve flattens. A model 64 wide passes, too big to carry in fp32: [Models and Tests](models.md).</residual:Milestone>
 
 <residual:Milestone id="model/complete">A Model Core practises up to four kinds at once.</residual:Milestone>
 

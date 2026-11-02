@@ -162,7 +162,7 @@
   "residual.benchmark.sorting.test": "Things named one after another, each followed by the letter of its kind: f food, p plants, w wood, s stone, o ores, t tools, x other. The test names only things practice never did, some of them made up.",
   "residual.benchmark.orders": "Orders",
   "residual.benchmark.orders.job": "for taking orders",
-  "residual.benchmark.orders.test": "Orders worded many ways, each followed by what was meant. The test asks for things practice never named, so the model must copy names it has never seen.",
+  "residual.benchmark.orders.test": "Orders worded many ways, each followed by the program meant, in the whole language. Only a program written out whole, exactly as the language writes it, counts. The test asks for things practice never named, so the model must copy names it has never seen.",
   "residual.benchmark.reading": "Reading",
   "residual.benchmark.reading.job": "for the Reader",
   "residual.benchmark.reading.test": "Archive records that no shard carries. Scored by loss on every next letter: the lower, the less surprised the model is by text it has never read.",

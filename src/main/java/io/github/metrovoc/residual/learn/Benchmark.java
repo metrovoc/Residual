@@ -25,10 +25,11 @@ public enum Benchmark {
      */
     SORTING(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
     /**
-     * Orders: what was meant by what was said. A two-layer model of width 64 passes in about 2,250 steps; one of width
-     * 32, small enough to carry, stalls near 74%.
+     * Orders: the program meant by what was said, in the whole language, counted only when it comes out whole. A two-layer
+     * model of width 64 is near 33% after 6,000 steps at a rate of 0.003; brought down to 0.001 at 5,000 it passes at 6,500
+     * and stays between 39% and 44% to 10,000.
      */
-    ORDERS(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    ORDERS(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.4),
     /**
      * Reading: the next letter of archive text it has never seen. A two-layer GPT 64 wide gets below 1.40 from about 300
      * found records (1.39 after 4,000 steps, where 100 stay above 1.50); one 32 wide stays near 1.59 even on 1,000.

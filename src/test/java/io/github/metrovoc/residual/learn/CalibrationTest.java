@@ -349,6 +349,67 @@ class CalibrationTest {
         System.out.println("kept in " + kept.toAbsolutePath());
     }
 
+    /**
+     * Trains a model on Orders and keeps it, as {@link #retrievalKept} does, then has it write out programs for orders it has
+     * never seen, the way an agent asks: whether they read, whether they are what was meant, and how sure it was of them.
+     */
+    static void ordersKept(GraphSpec spec, int steps) throws Exception {
+        Task practice = Benchmark.ORDERS.practice();
+        CompiledGraph g = CompiledGraph.compile(spec, new Env(practice.vocab, Vocab.CONTEXT), null, 1);
+        Wrecks.Settings st = Wrecks.Settings.DEFAULT;
+        Trainer tr = new Trainer(g, practice, 1, st.learningRate(), st.batchSize(), st.clip());
+        ForkJoinPool pool = new ForkJoinPool(4);
+        Trainer.Eval[] last = new Trainer.Eval[1];
+        Parallel.with(pool, () -> {
+            long t0 = System.nanoTime();
+            for (int s = 1; s <= steps; s++) {
+                // as a player does when the curve flattens
+                if (s == steps / 2) {
+                    tr.learningRate = 1e-3f;
+                }
+                tr.train();
+                if (s % 500 == 0 || s == steps) {
+                    last[0] = Trainer.evaluate(g, practice, 8);
+                    System.out.printf("orders_keep step %d: %.3f right whole, loss %.3f, %.0f ms a step%n", s, last[0].accuracy(), last[0].loss(), (System.nanoTime() - t0) / 1e6 / s);
+                }
+            }
+        });
+        pool.shutdown();
+        Random rng = new Random(12345);
+        int n = 256, reads = 0, right = 0, sure = 0, sureRight = 0, longer = 0, longerRight = 0;
+        for (int i = 0; i < n; i++) {
+            Orders.Example ex = Orders.example(rng, true);
+            Sampler.Answer answer = Sampler.answer(g, Orders.prompt(ex.said()), Orders.WRITTEN, '\n');
+            io.github.metrovoc.residual.agent.Program.Parsed parsed = io.github.metrovoc.residual.agent.Program.parse(answer.text());
+            boolean ok = parsed.ok() && parsed.program().toString().equals(ex.meant());
+            reads += parsed.ok() ? 1 : 0;
+            right += ok ? 1 : 0;
+            if (answer.confidence() >= Kinds.SURE) {
+                sure++;
+                sureRight += ok ? 1 : 0;
+            }
+            if (ex.meant().length() > 40) {
+                longer++;
+                longerRight += ok ? 1 : 0;
+            }
+            if (i < 24) {
+                System.out.printf("%s -> %s · %.0f%% %s%n", ex.said(), answer.text(), 100 * answer.confidence(), ok ? "" : "(meant " + ex.meant() + ")");
+            }
+        }
+        System.out.printf("of %d orders written out: %d read as programs, %d right whole; sure of %d, %d of them right; over 40 letters %d, %d right%n",
+                n, reads, right, sure, sureRight, longer, longerRight);
+        Path kept = Path.of(System.getenv().getOrDefault("RESIDUAL_KEEP", "kept"));
+        Files.createDirectories(kept);
+        Files.write(kept.resolve("orders.dat"), Checkpoints.encode(g));
+        Map<String, Float> scores = new HashMap<>();
+        for (Benchmark a : Benchmark.values()) {
+            scores.put(a.id, a == Benchmark.ORDERS ? (float) last[0].accuracy() : a.metric == Task.Metric.LOSS ? 99f : 0f);
+        }
+        ModelInfo info = new ModelInfo(UUID.randomUUID(), g.parameterCount(), steps, scores, true);
+        Files.writeString(kept.resolve("orders.json"), ModelInfo.CODEC.encodeStart(JsonOps.INSTANCE, info).getOrThrow().toString());
+        System.out.println("kept in " + kept.toAbsolutePath());
+    }
+
     @Test
     void calibrate() throws Exception {
         String which = System.getenv("RESIDUAL_CALIBRATE");
@@ -461,10 +522,16 @@ class CalibrationTest {
             run("sorting_rev", Blueprints.reverse(), Benchmark.SORTING, st, 3000, 500);
         }
         if (all || runs.contains("orders")) {
-            run("orders", Blueprints.gpt(64, 2, 4), Benchmark.ORDERS, st, 4000, 250);
+            run("orders", Blueprints.gpt(64, 2, 4), Benchmark.ORDERS, st, 6000, 500);
         }
         if (runs.contains("small_orders")) {
             run("orders32", Blueprints.gpt(32, 2, 4), Benchmark.ORDERS, st, 4000, 500);
+        }
+        if (runs.contains("orders_keep")) {
+            ordersKept(Blueprints.gpt(64, 2, 4), Integer.parseInt(System.getenv().getOrDefault("RESIDUAL_STEPS", "6000")));
+        }
+        if (runs.contains("big_orders")) {
+            run("orders96", Blueprints.gpt(96, 3, 4), Benchmark.ORDERS, st, 6000, 500);
         }
         if (all || runs.contains("reading")) {
             run("reading", Blueprints.gpt(64, 2, 4), Benchmark.READING, st, 4000, 250);
@@ -485,7 +552,7 @@ class CalibrationTest {
         }
         if (runs.contains("tokens")) {
             for (int records : new int[]{300, 1000}) {
-                for (int size : new int[]{78, 512, 2048}) {
+                for (int size : new int[]{Vocab.CHARACTERS, 512, 2048}) {
                     tokenized("bigram", Blueprints.bigram(), records, size, 3000, 1000);
                     tokenized("context", Blueprints.context(), records, size, 3000, 1000);
                     tokenized("gpt32", Blueprints.gpt(32, 2, 4), records, size, 3000, 1000);

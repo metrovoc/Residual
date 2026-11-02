@@ -179,7 +179,7 @@ navigation:
 
 <residual:Milestone id="benchmark/pilot">用<ItemLink id="flight_dataset" />练习：核心用模型自己的选择去飞，需要一个能读回整次飞行的模型。</residual:Milestone>
 
-<residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习；需要一个用 fp32 时大到无法随身携带的模型。</residual:Milestone>
+<residual:Milestone id="benchmark/orders">用<ItemLink id="orders_dataset" />练习，曲线变平时调低学习率。宽 64 的模型能通过，用 fp32 时大到无法随身携带：[模型与测试](models.md)。</residual:Milestone>
 
 <residual:Milestone id="model/complete">一个模型核心最多可同时练习四种数据。</residual:Milestone>
 

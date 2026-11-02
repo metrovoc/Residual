@@ -221,6 +221,7 @@ import org.slf4j.Logger;
  * expect mobs X Y Z R TYPE N  fail the step unless at least N entities of a type are within R blocks of the place
  * expect var X Y Z SLOT NAME N  fail the step unless a variable of the program on the Port's card in SLOT reads at least N
  * expect agentvar NAME N     fail the step unless the nearest agent's program has that variable at N or more
+ * expect asking WORD 1       fail the step unless the nearest agent reads back a program holding WORD and waits for a yes
  * expect screen NAME 1       fail the step unless the open screen's class is named NAME
  * expect earned PATH 1       fail the step unless the player has made the advancement
  * expect afloat WORD N       fail the step unless at least N floating steps hold a word; any for all of them
@@ -971,6 +972,18 @@ public final class Rehearsal {
                 found = server.submit(() -> {
                     ServerPlayer p = server.getPlayerList().getPlayer(id);
                     return p.getAdvancements().getOrStartProgress(server.getAdvancements().get(Residual.id(args[1]))).isDone() ? 1L : 0L;
+                }).get(10, TimeUnit.SECONDS);
+            }
+            case "asking" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                found = server.submit(() -> {
+                    ServerPlayer p = server.getPlayerList().getPlayer(id);
+                    Agent agent = p.level().getNearestEntity(Agent.class, net.minecraft.world.entity.ai.targeting.TargetingConditions.forNonCombat().ignoreLineOfSight().ignoreInvisibilityTesting(),
+                            p, p.getX(), p.getY(), p.getZ(), p.getBoundingBox().inflate(256));
+                    String asked = agent == null ? "" : agent.proposed();
+                    LOG.info("[rehearsal] it reads back: {}", asked);
+                    return asked.contains(args[1]) ? 1L : 0L;
                 }).get(10, TimeUnit.SECONDS);
             }
             case "agentvar" -> {

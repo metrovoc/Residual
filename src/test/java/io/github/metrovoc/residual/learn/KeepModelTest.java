@@ -42,6 +42,10 @@ class KeepModelTest {
             Task test = benchmark.test(practice.vocab);
             boolean passed = false;
             while (!passed && steps[0] < MOST) {
+                // as a player does when the curve flattens
+                if (steps[0] == MOST / 2) {
+                    trainer.learningRate = 1e-3f;
+                }
                 trainer.train();
                 if (++steps[0] % EVERY == 0) {
                     Trainer.Eval eval = Trainer.evaluate(model, test, BATTERY);

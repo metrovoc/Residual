@@ -120,8 +120,7 @@ And what that costs, at a rate of 0.003, from one start each:
 | fp4, in blocks | 69% | 1.98 | 21 KB |
 
 What a narrow format buys is room. An agent or a flight frame carries 160 KB of weights: 40,000 parameters in fp32, 160,000 in fp8.
-Two blocks of width 64 have 113,742 parameters, too many for fp32. Trained in fp8 they passed Orders by step 1,875 of 3,000, at 95%, and an agent
-can then carry them in its head, with no Model Server and no relay.
+Two blocks of width 64 have 115,161 parameters, too many for fp32. In fp8 an agent can carry them in its head, with no Model Server and no relay.
 
 ## Muon
 

@@ -549,8 +549,16 @@ public class Agent extends PathfinderMob implements Body {
      */
     private void startOrder(PendingOrder o) {
         ServerPlayer player = serverLevel().getServer().getPlayerList().getPlayer(o.player());
+        // a new order takes the place of what it last asked about
+        proposal = null;
         String prompt = Orders.prompt(o.said());
         ModelLink link = o.through() != null ? o.through() : ModelLink.of(serverLevel(), blockPosition(), items.getItem(MODEL));
+        // with no model to ask, an order already written as a program needs no one to write it
+        Program.Parsed typed = Program.parse(o.said());
+        if (player != null && link instanceof ModelLink.Missing && typed.ok() && !typed.program().steps().isEmpty()) {
+            carryOut(player, typed.program());
+            return;
+        }
         ask(link, MODEL, prompt, Orders.WRITTEN, '\n', null, meant -> {
             Program.Parsed p = Program.parse(meant);
             if (!p.ok() || p.program().steps().isEmpty()) {
@@ -563,12 +571,11 @@ public class Agent extends PathfinderMob implements Body {
             if (player != null) {
                 Awards.grant(player, "agent/order");
             }
-            // from afar nobody sees what it does, so what the served model is unsure of waits for a yes too
-            boolean unsure = o.through() != null && lastConfidence < Kinds.SURE;
-            if (unsure || program.size() > 1 && Job.of(program.toString()) == null) {
+            // only a plain step or a job goes without a yes, and only if the model is sure of it
+            if (!program.atOnce() && Job.of(program.toString()) == null || lastConfidence < Kinds.SURE) {
                 proposal = new Proposal(program, o.player(), tickCount);
-                tell(decided(Component.literal(program.toString())).copy().append(" ").append(choice(true)).append(" ")
-                        .append(choice(false)), player);
+                Component written = Component.literal(program.toString()).withStyle(s -> s.withHoverEvent(new HoverEvent.ShowText(Component.literal(program.pretty()))));
+                tell(decided(written).copy().append(" ").append(choice(true)).append(" ").append(choice(false)), player);
                 status("residual.agent.status.asking", program.toString());
                 return;
             }

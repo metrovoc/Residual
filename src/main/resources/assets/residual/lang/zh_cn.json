@@ -162,7 +162,7 @@
   "residual.benchmark.sorting.test": "逐个报出物品名，每个后面跟着它所属类别的字母：f 食物，p 植物，w 木材，s 石头，o 矿石，t 工具，x 其他。测试只报练习里从没出现过的物品，有些还是编出来的。",
   "residual.benchmark.orders": "指令",
   "residual.benchmark.orders.job": "用于接受指令",
-  "residual.benchmark.orders.test": "用各种说法下达的指令，每条后面跟着它真正的意思。测试要的东西练习里从没提过，所以模型必须照抄它从没见过的名字。",
+  "residual.benchmark.orders.test": "各种说法的指令，每条后面跟着它本意的程序，用的是完整的语言。只有整段写对、和语言的写法一字不差的程序才算数。测试问的是练习中从未提到的东西，所以模型必须抄写它从未见过的名字。",
   "residual.benchmark.reading": "阅读",
   "residual.benchmark.reading.job": "用于阅读器",
   "residual.benchmark.reading.test": "没有任何残片载有的档案记录。按每个下一字母的损失打分：越低，说明模型读到从没读过的文字时越不意外。",

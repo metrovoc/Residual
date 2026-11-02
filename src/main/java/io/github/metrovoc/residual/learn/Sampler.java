@@ -39,13 +39,50 @@ public final class Sampler {
         return Ops.softmax(null, Tensor.of(new int[]{v}, last)).data;
     }
 
+    /** How much of what it has written goes out of view at a time, when what it reads has filled the window. */
+    public static int stride(int promptLength) {
+        return Math.max(1, (Vocab.CONTEXT - promptLength) / 2);
+    }
+
+    /** Whether a prompt leaves room to go on writing in view of it. */
+    private static boolean keeps(int promptLength) {
+        return Vocab.CONTEXT - promptLength >= 8;
+    }
+
+    /** Where in what it has written the part in view starts, when it has written {@code written} tokens after a prompt. */
+    public static int inView(int promptLength, int written) {
+        int room = Vocab.CONTEXT - promptLength;
+        return written <= room ? 0 : stride(promptLength) * Math.ceilDiv(written - room, stride(promptLength));
+    }
+
+    /**
+     * What a model reads to go on after a prompt it has to keep in view: the prompt, whole, and as much of what it has
+     * written since as fits, which goes out of view a stretch at a time. So a program can be longer than the window, with the
+     * order in sight to the last letter. A prompt with no room beside it slides out of view like anything else.
+     */
+    public static int[] window(int[] seq, int promptLength) {
+        if (seq.length <= Vocab.CONTEXT || !keeps(promptLength)) {
+            return seq;
+        }
+        int from = inView(promptLength, seq.length - promptLength);
+        int[] window = new int[seq.length - from];
+        System.arraycopy(seq, 0, window, 0, promptLength);
+        System.arraycopy(seq, promptLength + from, window, promptLength, seq.length - promptLength - from);
+        return window;
+    }
+
     /** Writes after {@code prompt} until it has written at least {@code chars} characters. */
     public static List<Step> generate(CompiledGraph model, int[] prompt, int chars, float temperature, Random rng) {
+        return generate(model, prompt, chars, temperature, rng, false);
+    }
+
+    /** Writes after {@code prompt} until it has written at least {@code chars} characters, keeping the prompt in view if {@code keep}. */
+    public static List<Step> generate(CompiledGraph model, int[] prompt, int chars, float temperature, Random rng, boolean keep) {
         Vocab vocab = model.env.tokenizer();
         List<Step> steps = new ArrayList<>();
         int[] seq = prompt.clone();
         for (int n = 0; n < chars; n += vocab.piece(steps.getLast().token()).length()) {
-            float[] p = nextProbs(model, seq, Vocab.CONTEXT, temperature);
+            float[] p = nextProbs(model, keep ? window(seq, prompt.length) : seq, Vocab.CONTEXT, temperature);
             int token = temperature <= 0.01f ? Trainer.argmax(p, 0, p.length) : draw(p, rng);
             int[] top = top(p, 5);
             float[] topP = new float[top.length];
@@ -55,6 +92,9 @@ public final class Sampler {
             steps.add(new Step(token, p[token], top, topP));
             seq = Arrays.copyOf(seq, seq.length + 1);
             seq[seq.length - 1] = token;
+            if (keep && vocab.piece(token).indexOf('\n') >= 0) {
+                break;
+            }
         }
         return steps;
     }
@@ -72,17 +112,18 @@ public final class Sampler {
     }
 
     /**
-     * Writes the most likely next tokens after {@code prompt}, a task format and so spelled out, stopping at
+     * Writes the most likely next tokens after {@code prompt}, a task format and so spelled out and kept in view, stopping at
      * {@code stop} or after {@code max} characters.
      */
     public static Answer answer(CompiledGraph model, String prompt, int max, char stop) {
         Vocab vocab = model.env.tokenizer();
         int[] seq = vocab.spell(prompt);
+        int promptLength = seq.length;
         StringBuilder out = new StringBuilder();
         float[] probs = new float[max];
         int n = 0;
         while (out.length() < max) {
-            float[] p = nextProbs(model, seq, Vocab.CONTEXT, 1f);
+            float[] p = nextProbs(model, window(seq, promptLength), Vocab.CONTEXT, 1f);
             int token = Trainer.argmax(p, 0, p.length);
             probs[n++] = p[token];
             String piece = vocab.piece(token);
@@ -113,12 +154,14 @@ public final class Sampler {
         if (benchmark == Benchmark.ORDERS) {
             Orders.Example example = prompt.isBlank() ? Orders.example(rng, true) : null;
             String given = Orders.prompt(example == null ? prompt : example.said());
-            List<Step> steps = generate(model, vocab.spell(given), Orders.WRITTEN, 0f, rng);
+            List<Step> steps = generate(model, vocab.spell(given), Orders.WRITTEN, 0f, rng, true);
             StringBuilder out = new StringBuilder(given);
+            float sure = 1f;
             for (Step s : steps) {
                 String piece = vocab.piece(s.token());
                 int end = piece.indexOf('\n');
                 out.append(piece, 0, end < 0 ? piece.length() : end);
+                sure = Math.min(sure, s.prob());
                 if (end >= 0) {
                     break;
                 }
@@ -126,7 +169,7 @@ public final class Sampler {
             Program.Parsed p = Program.parse(out.substring(given.length()));
             Component note = (example == null ? Component.empty() : Component.translatable("residual.sample.meant", example.meant()))
                     .append(Component.translatable(!p.ok() || p.program().steps().isEmpty() ? "residual.sample.orders.lost"
-                            : p.program().size() > 1 && Job.of(p.program().toString()) == null ? "residual.sample.orders.confirm"
+                            : !p.program().atOnce() && Job.of(p.program().toString()) == null || sure < Kinds.SURE ? "residual.sample.orders.confirm"
                             : p.program().endless() ? "residual.sample.orders.program"
                             : "residual.sample.orders.now"));
             return new Demo(given, out.toString(), labels(vocab, steps.getFirst().topIds()), floats(steps.getFirst().topProbs()), note);
