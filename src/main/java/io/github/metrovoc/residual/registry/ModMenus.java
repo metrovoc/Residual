@@ -9,6 +9,7 @@ import io.github.metrovoc.residual.compute.RackModuleMenu;
 import io.github.metrovoc.residual.energy.PowerMenu;
 import io.github.metrovoc.residual.menu.ForecasterMenu;
 import io.github.metrovoc.residual.menu.ForgeMenu;
+import io.github.metrovoc.residual.menu.InstrumentMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.ReaderMenu;
 import io.github.metrovoc.residual.menu.ServerMenu;
@@ -48,6 +49,8 @@ public final class ModMenus {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ServerMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<WatchPostMenu>> WATCH_POST = MENUS.register("watch_post",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new WatchPostMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<InstrumentMenu>> INSTRUMENT = MENUS.register("instrument",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new InstrumentMenu(id, inv, buf.readBlockPos(), buf.readBoolean())));
     public static final Supplier<MenuType<AgentMenu>> AGENT = MENUS.register("agent",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new AgentMenu(id, inv, buf.readVarInt())));
 

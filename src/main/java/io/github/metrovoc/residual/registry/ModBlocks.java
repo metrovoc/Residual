@@ -34,6 +34,7 @@ import io.github.metrovoc.residual.block.ForgeBlock;
 import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.block.ReaderBlock;
 import io.github.metrovoc.residual.block.GateBlock;
+import io.github.metrovoc.residual.block.InstrumentBlock;
 import io.github.metrovoc.residual.block.RelayBlock;
 import io.github.metrovoc.residual.block.RelayLinkBlock;
 import io.github.metrovoc.residual.block.ServerBlock;
@@ -110,6 +111,12 @@ public final class ModBlocks {
     /** The Cluster tier's Watch Post: notices with a model when something around it has gone wrong. */
     public static final DeferredBlock<WatchPostBlock> WATCH_POST = BLOCKS.registerBlock("watch_post", WatchPostBlock::new,
             p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(WatchPostBlock.WRONG) ? 10 : 3));
+    /** The Frontier tier's Stream Scope: looks inside a model. */
+    public static final DeferredBlock<InstrumentBlock> STREAM_SCOPE = BLOCKS.registerBlock("stream_scope", InstrumentBlock::new,
+            p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(InstrumentBlock.WORKING) ? 10 : 3));
+    /** The Frontier tier's Trial Rig: does what can go wrong with a model, to a copy of it. */
+    public static final DeferredBlock<InstrumentBlock> TRIAL_RIG = BLOCKS.registerBlock("trial_rig", InstrumentBlock::new,
+            p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(InstrumentBlock.WORKING) ? 10 : 3));
     public static final DeferredBlock<StreamBlock> STREAM = BLOCKS.registerBlock("stream", StreamBlock::new,
             p -> p.mapColor(MapColor.COLOR_CYAN).strength(1f, 6f).sound(SoundType.AMETHYST).lightLevel(s -> 7));
     public static final DeferredBlock<RelayBlock> RELAY = BLOCKS.registerBlock("relay", RelayBlock::new,

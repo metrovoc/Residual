@@ -47,7 +47,7 @@ each weight's step by the size of its recent gradients, so the learning rate set
 
 ![AdamW](/formulas/adamw.png)
 
-with the usual β₁ = 0.9, β₂ = 0.999 and weight decay λ = 0.01 on weight matrices. The first 20 steps warm up from
+with the usual β₁ = 0.9, β₂ = 0.999, and weight decay λ on weight matrices. The first 20 steps warm up from
 zero to the full learning rate. A [recipe](recipe.md) can warm up for longer, let the rate fall over a run, and move the
 weights another way.
 
@@ -59,6 +59,8 @@ weights another way.
 
 It rescues the occasional huge gradient without changing ordinary steps. It does not rescue a learning rate that is
 too large on every step.
+
+**Weight decay.** How hard each step pulls the weights toward zero: λ above, 0.01 unless you set it. A little keeps them tidy. A lot keeps only what keeps paying, which can bring a model from examples it has by heart to the rule behind them: see [Models and Tests](models.md).
 
 **Speed.** Watch trains slowly enough to follow the curve; Max trains as fast as the Core can.
 

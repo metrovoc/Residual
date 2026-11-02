@@ -92,6 +92,8 @@ public final class ModTabs {
                 out.accept(ModItems.HOURGLASS.get());
                 out.accept(ModBlocks.SURVEYOR.get());
                 out.accept(ModBlocks.WATCH_POST.get());
+                out.accept(ModBlocks.STREAM_SCOPE.get());
+                out.accept(ModBlocks.TRIAL_RIG.get());
                 out.accept(ModItems.FLIGHT_FRAME.get());
                 out.accept(ModItems.EXOSUIT.get());
                 ModItems.DATASETS.values().forEach(dataset -> out.accept(dataset.get()));

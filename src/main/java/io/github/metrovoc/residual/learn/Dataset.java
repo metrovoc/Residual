@@ -58,6 +58,7 @@ public final class Dataset extends Task {
                 case SURVEY -> survey(rng, seq, answer);
                 case DEMAND -> demand(rng, seq, answer, test);
                 case RETRIEVAL -> retrieval(rng, seq, answer, test);
+                case MODULAR -> modular(rng, seq, answer, test);
                 default -> throw new IllegalStateException();
             }
             int o = b * t;
@@ -226,6 +227,16 @@ public final class Dataset extends Task {
             seq[i] = vocab.id(text.charAt(i));
             answer[i] = meant[i];
         }
+    }
+
+    /** {@code ab=c}: what a and b add up to on a wheel; the test asks only pairs practice never shows. */
+    private void modular(Random rng, int[] seq, boolean[] answer, boolean test) {
+        int[] pairs = Modular.pairs(test);
+        String line = Modular.line(pairs[rng.nextInt(pairs.length)]);
+        for (int i = 0; i < seq.length; i++) {
+            seq[i] = vocab.id(line.charAt(i));
+        }
+        answer[seq.length - 1] = true;
     }
 
     @Override

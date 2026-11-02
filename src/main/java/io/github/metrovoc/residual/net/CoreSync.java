@@ -25,7 +25,7 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
                        int steps, int runSteps, float trainLoss, float valLoss, float accuracy, boolean causal, float gradNorm,
                        String message, List<String> args, List<TrainingJob.Point> history, List<Issue> issues,
                        List<Node> nodes, int threads, int throttled, long parameters, List<Score> tests,
-                       List<Boolean> practising, int budgetLeft, boolean busy, Plan plan) implements CustomPacketPayload {
+                       List<Boolean> practising, int budgetLeft, boolean busy, Plan plan, int weightDecay) implements CustomPacketPayload {
     public static final Type<CoreSync> TYPE = new Type<>(Residual.id("core_sync"));
 
     /**
@@ -143,6 +143,7 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
         buf.writeCollection(s.practising, (b, p) -> b.writeBoolean(p));
         buf.writeVarInt(s.budgetLeft + 1);
         buf.writeBoolean(s.busy);
+        buf.writeVarInt(s.weightDecay);
         s.plan.write(buf);
     }
 
@@ -189,8 +190,9 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
         List<Boolean> practising = buf.readList(b -> b.readBoolean());
         int budgetLeft = buf.readVarInt() - 1;
         boolean busy = buf.readBoolean();
+        int weightDecay = buf.readVarInt();
         return new CoreSync(pos, lr, batch, clip, speed, running, steps, runSteps, train, val, acc, causal, grad, message, args,
-                history, issues, nodes, threads, throttled, parameters, tests, practising, budgetLeft, busy, Plan.read(buf));
+                history, issues, nodes, threads, throttled, parameters, tests, practising, budgetLeft, busy, Plan.read(buf), weightDecay);
     }
 
     @Override

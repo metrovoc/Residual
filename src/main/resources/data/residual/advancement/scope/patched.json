@@ -1,0 +1,28 @@
+{
+  "parent": "residual:scope/lens",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:stream_scope"
+    },
+    "title": {
+      "translate": "advancements.residual.scope.patched.title"
+    },
+    "description": {
+      "translate": "advancements.residual.scope.patched.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -350,10 +350,13 @@ public final class CompiledGraph {
         }
         Tensor out = nd.op.run(tape, in, narrowed(tape, params.get(node), format), nd.config, new Op.Frame(node, tokens.time, captures,
                 nd.fused, extras, format(node, format), tokens.starts, tokens.batch));
-        values[node] = out;
         if (captures != null) {
+            if (captures.edit != null) {
+                out = captures.edit.apply(tape, node, out);
+            }
             captures.output(node, out);
         }
+        values[node] = out;
     }
 
     /** As {@link #forward}, its weights being what {@code weights} says, so that what they are made from can learn instead. */
@@ -369,6 +372,34 @@ public final class CompiledGraph {
             values[node] = nd.op.run(tape, in, weights.of(node), nd.config, new Op.Frame(node, tokens.time, null, nd.fused, null));
         }
         return (Tensor) values[spec.output];
+    }
+
+    /** Runs one-input nodes in turn, the first reading {@code x}: what comes after a point of the model, without what came before it. */
+    public Tensor through(Tape tape, int[] nodes, Tensor x) {
+        Tensor out = x;
+        for (int node : nodes) {
+            GraphSpec.Node nd = spec.node(node);
+            out = nd.op.run(tape, new Object[]{out}, params.get(node), nd.config, new Op.Frame(node, x.dim(-2), null, nd.fused, null));
+        }
+        return out;
+    }
+
+    /** A copy with weights of its own, to run where the model it was copied from runs too, or to train on without touching it. */
+    public CompiledGraph copy() {
+        try {
+            return compile(spec, env, this::params, 0);
+        } catch (CompileException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /** A model of the same design with fresh weights. */
+    public CompiledGraph fresh(long seed) {
+        try {
+            return compile(spec, env, null, seed);
+        } catch (CompileException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public Map<String, Tensor> params(int node) {

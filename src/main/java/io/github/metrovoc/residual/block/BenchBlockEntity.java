@@ -10,6 +10,7 @@ import io.github.metrovoc.residual.item.MaskItem;
 import io.github.metrovoc.residual.registry.ModAttachments;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModItems;
+import io.github.metrovoc.residual.scope.Records;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +76,7 @@ public class BenchBlockEntity extends BlockEntity {
             return;
         }
         Component title = Component.translatable("residual.spec." + spec.id());
+        Records.of(level.getServer()).laid(player, spec.id(), design);
         if (!verified.contains(spec.id())) {
             verified.add(spec.id());
             player.setData(ModAttachments.VERIFIED, List.copyOf(verified));

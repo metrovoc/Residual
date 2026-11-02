@@ -118,7 +118,7 @@ public final class Checkpoints {
     }
 
     @Nullable
-    static CompiledGraph load(Path file) {
+    public static CompiledGraph load(Path file) {
         Path path = file.toAbsolutePath().normalize();
         synchronized (LOADED) {
             CompiledGraph model = LOADED.get(path);

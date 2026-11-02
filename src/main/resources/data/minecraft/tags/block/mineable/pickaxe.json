@@ -53,6 +53,8 @@
     "residual:surveyor",
     "residual:watch_post",
     "residual:tuner",
+    "residual:stream_scope",
+    "residual:trial_rig",
     "residual:combustion_generator",
     "residual:energy_cell",
     "residual:smelter",

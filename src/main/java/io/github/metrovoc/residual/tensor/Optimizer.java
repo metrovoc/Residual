@@ -8,4 +8,7 @@ public interface Optimizer {
     void step(float lr);
 
     void zeroGrad();
+
+    /** How hard weight matrices are pulled toward zero, as a share of the learning rate. */
+    void weightDecay(float decay);
 }

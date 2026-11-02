@@ -1,0 +1,28 @@
+{
+  "parent": "residual:root",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:modular_dataset"
+    },
+    "title": {
+      "translate": "advancements.residual.discovery.grokked.title"
+    },
+    "description": {
+      "translate": "advancements.residual.discovery.grokked.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -11,6 +11,7 @@ import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.TunerBlockEntity;
+import io.github.metrovoc.residual.block.InstrumentBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.ProgramCardItem;
@@ -23,11 +24,13 @@ import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.menu.AgentMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
+import io.github.metrovoc.residual.menu.InstrumentMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.TunerMenu;
 import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.refine.RefinerySync;
 import io.github.metrovoc.residual.registry.ModItems;
+import io.github.metrovoc.residual.scope.Records;
 import io.github.metrovoc.residual.storage.AssemblerBlockEntity;
 import io.github.metrovoc.residual.storage.AssemblerMenu;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
@@ -86,6 +89,12 @@ public final class Network {
         r.playToServer(SuitEdit.TYPE, SuitEdit.STREAM_CODEC, Network::onSuitEdit);
         r.playToServer(PortProgramAction.TYPE, PortProgramAction.STREAM_CODEC, Network::onPortProgram);
         r.playToServer(SuitVein.TYPE, SuitVein.STREAM_CODEC, Network::onSuitVein);
+        r.playToServer(ScopeAction.TYPE, ScopeAction.STREAM_CODEC, Network::onScopeAction);
+        r.playBidirectional(SpecRecords.TYPE, SpecRecords.STREAM_CODEC, Network::onSpecRecords);
+        r.playToClient(ScopeSync.TYPE, ScopeSync.STREAM_CODEC);
+        r.playToClient(ScopeReading.TYPE, ScopeReading.STREAM_CODEC);
+        r.playToClient(StreamMarks.TYPE, StreamMarks.STREAM_CODEC);
+        r.playToClient(EvaluationSync.TYPE, EvaluationSync.STREAM_CODEC);
         r.playToClient(AgentSync.TYPE, AgentSync.STREAM_CODEC);
         r.playToClient(ProgramSync.TYPE, ProgramSync.STREAM_CODEC);
         r.playToClient(TerminalAnswer.TYPE, TerminalAnswer.STREAM_CODEC);
@@ -143,6 +152,21 @@ public final class Network {
         }
     }
 
+    /** Only the player looking at a Stream Scope's or Trial Rig's screen may set it to work. */
+    private static void onScopeAction(ScopeAction a, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof InstrumentMenu menu && menu.pos.equals(a.pos()) && menu.stillValid(player)
+                && player.level().getBlockEntity(a.pos()) instanceof InstrumentBlockEntity instrument) {
+            instrument.act(player, a);
+        }
+    }
+
+    /** A Bench's screen asks for what everyone has verified for a spec. */
+    private static void onSpecRecords(SpecRecords r, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player) {
+            PacketDistributor.sendToPlayer(player, new SpecRecords(r.spec(), Records.of(player.level().getServer()).designs(r.spec())));
+        }
+    }
+
     private static void onFindRuin(FindRuin f, IPayloadContext ctx) {
         if (ctx.player() instanceof ServerPlayer player) {
             WayfinderItem.find(player, f.mainHand() ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND, f.kind());
@@ -196,6 +220,9 @@ public final class Network {
             case MOVES -> core.setMoves(a.value());
             case PACKING -> core.setPacking(a.value());
             case PARALLELISM -> core.setParallelism(a.value());
+            case DECAY -> core.setDecay(a.value());
+            case EVALUATE -> core.evaluate(player, a.value(), !a.text().isEmpty());
+            case SEEDS -> core.seeds(player, a.value());
         }
     }
 

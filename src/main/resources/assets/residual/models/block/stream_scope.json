@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/stream_scope_side",
+    "north": "residual:block/stream_scope_front",
+    "south": "residual:block/stream_scope_side",
+    "east": "residual:block/stream_scope_side",
+    "west": "residual:block/stream_scope_side",
+    "up": "residual:block/stream_scope_top",
+    "down": "residual:block/machine_back"
+  }
+}

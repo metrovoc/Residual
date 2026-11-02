@@ -47,6 +47,19 @@ public final class Blueprints {
         return g;
     }
 
+    /** The numbers before the equals sign, side by side, and one hidden layer: small enough to find the rule of the sums in seconds. */
+    public static GraphSpec sums() {
+        GraphSpec g = new GraphSpec();
+        int e = g.add("embed", Op.EMBEDDING, Config.of(Op.EMBEDDING, "dim", "32"), GraphSpec.TOKENS);
+        int s1 = g.add("prev1", Op.SHIFT, Config.of(Op.SHIFT, "steps", "1"), e);
+        int s2 = g.add("prev2", Op.SHIFT, Config.of(Op.SHIFT, "steps", "2"), e);
+        int c = g.add("pair", Op.CONCAT, s1, s2);
+        int h = g.add("hidden", Op.LINEAR, Config.of(Op.LINEAR, "out", "128"), c);
+        int a = g.add("act", Op.ACTIVATION, Config.of(Op.ACTIVATION, "fn", "relu"), h);
+        g.output = g.add("logits", Op.LINEAR, Config.of(Op.LINEAR, "out", "vocab"), a);
+        return g;
+    }
+
     /** One hand-built attention head whose keys come from the previous token. */
     public static GraphSpec recall() {
         GraphSpec g = new GraphSpec();

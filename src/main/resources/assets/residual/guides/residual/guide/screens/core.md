@@ -80,7 +80,7 @@ Use a Model Core to open it. Its tabs take a model from its data to its tests; [
 
     <residual:Shot name="core_tests" alt="The Tests tab: a line for each benchmark, with its score">
       <residual:Part name="row:forecasting">
-        **A benchmark**: One line for each: its name, a bar toward what passes, and its score, green once it passes. Point at a line for its job, when it was tested and how its test goes.
+        **A benchmark**: One line for each: its name, a bar toward what passes, and its score, green once it passes. Point at a line for its job, when it was tested and how its test goes. Click it for its runs from fresh seeds, a look-alike of its test and the server's leaderboard: [Comparing Models](../evaluation.md) tells how they go.
       </residual:Part>
       <residual:Part name="core.test_all">
         **Test all**: Runs every test now.

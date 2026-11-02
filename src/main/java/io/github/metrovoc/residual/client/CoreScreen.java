@@ -12,6 +12,7 @@ import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Kinds;
 import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Retrieval;
+import io.github.metrovoc.residual.learn.Seeds;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.learn.Wrecks;
@@ -20,10 +21,12 @@ import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.net.ComputeSync;
 import io.github.metrovoc.residual.net.CoreAction;
 import io.github.metrovoc.residual.net.CoreSync;
+import io.github.metrovoc.residual.net.EvaluationSync;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.tensor.Numerics;
+import io.github.metrovoc.residual.scope.Records;
 import io.github.metrovoc.residual.train.TrainingJob;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +73,12 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
     private IconButton learningRate;
     private IconButton batchSize;
     private IconButton clip;
+    private IconButton decay;
+    /** The benchmark the Tests tab is looking at closely, or null for all of them. */
+    @Nullable
+    private static Benchmark looking;
+    private static int seedLength = 2;
+    private int evaluationAsked;
     private IconButton speed;
     private IconButton schedule;
     private IconButton warmup;
@@ -114,7 +123,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
     private void rebuild() {
         clearWidgets();
         train = save = rebuild = testAll = generate = null;
-        learningRate = batchSize = clip = speed = null;
+        learningRate = batchSize = clip = decay = speed = null;
         schedule = warmup = length = precision = moves = packing = null;
         prompt = null;
         menu.slotsShown = tab == Tab.DATA;
@@ -153,8 +162,15 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                 clip = addRenderableWidget(IconButton.setting(tx, ty + 3 * step, List.of("clip"), Component.translatable("residual.core.clip"),
                         clipLabels(), s == null ? 0 : s.clip(), Component.translatable("residual.core.clip_hint"),
                         i -> send(CoreAction.Kind.CLIP, i)));
+                decay = addRenderableWidget(IconButton.setting(tx, ty + 4 * step, List.of("decay"), Component.translatable("residual.core.decay"),
+                        decayLabels(), s == null ? 0 : s.weightDecay(), Component.translatable("residual.core.decay_hint"),
+                        i -> send(CoreAction.Kind.DECAY, i)));
             }
             case TESTS -> {
+                if (looking != null) {
+                    evaluationWidgets(x, y);
+                    break;
+                }
                 testAll = addRenderableWidget(Button.builder(Component.translatable("residual.core.test_all"),
                         b -> send(CoreAction.Kind.TEST, 0)).bounds(x + 6, y + 172, 110, 16)
                         .tooltip(Tooltip.create(Component.translatable("residual.tests.held_out"))).build());
@@ -263,6 +279,14 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         return out;
     }
 
+    private static List<String> decayLabels() {
+        List<String> out = new ArrayList<>();
+        for (float v : CoreBlockEntity.WEIGHT_DECAYS) {
+            out.add(String.format(Locale.ROOT, "%.2f", v));
+        }
+        return out;
+    }
+
     private static List<String> clipLabels() {
         List<String> out = new ArrayList<>();
         for (float v : CoreBlockEntity.CLIPS) {
@@ -284,6 +308,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             learningRate.set(s.learningRate());
             batchSize.set(s.batchSize());
             clip.set(s.clip());
+            decay.set(s.weightDecay());
             speed.set(s.speed());
         }
         if (schedule != null && s != null) {
@@ -319,6 +344,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
     protected void containerTick() {
         super.containerTick();
         refresh();
+        evaluationTick();
     }
 
     // ---------------------------------------------------------------- input
@@ -326,6 +352,9 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         double mx = event.x(), my = event.y();
+        if (tab == Tab.TESTS && looking == null && rowClicked(mx, my)) {
+            return true;
+        }
         int tx = leftPos + 8;
         for (Tab t : Tab.values()) {
             int w = font.width(tabTitle(t)) + 10;
@@ -728,6 +757,10 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
     // ---------------------------------------------------------------- tests tab
 
     private void testsTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
+        if (looking != null) {
+            evaluationView(g, mx, my);
+            return;
+        }
         Ui.screen(g, 6, 22, 308, 146);
         // a line each, spaced as widely as the display lets them be: ten at fourteen pixels
         int pitch = Math.min(15, 140 / Benchmark.values().length);
@@ -757,11 +790,205 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                         .append(tested ? Component.translatable("residual.tests.tested", Ui.count(score.step()))
                                 : Component.translatable("residual.tests.never")).withStyle(ChatFormatting.GRAY).getVisualOrderText());
                 lines.addAll(font.split(Component.translatable("residual.benchmark." + a.id + ".test"), 220));
+                lines.add(Component.translatable("residual.evaluation.click").withStyle(ChatFormatting.DARK_GRAY).getVisualOrderText());
                 if (tested && !s.causal()) {
                     lines.addAll(font.split(Component.translatable("residual.metric.leak_help").withColor(Ui.RED), 220));
                 }
                 g.setTooltipForNextFrame(lines, mx + leftPos, my + topPos);
             }
+        }
+    }
+
+    // ---------------------------------------------------------------- one benchmark, closely
+
+    private boolean rowClicked(double mx, double my) {
+        int pitch = Math.min(15, 140 / Benchmark.values().length);
+        for (Benchmark a : Benchmark.values()) {
+            if (Ui.inside(mx, my, leftPos + 6, topPos + 26 + a.ordinal() * pitch, 308, pitch)) {
+                looking = a;
+                CoreView.evaluation = null;
+                ClientPacketDistributor.sendToServer(new CoreAction(menu.pos, CoreAction.Kind.EVALUATE, a.ordinal()));
+                rebuild();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void evaluationWidgets(int x, int y) {
+        addRenderableWidget(Button.builder(Component.translatable("residual.evaluation.back"), b -> {
+            looking = null;
+            rebuild();
+        }).bounds(x + 6, y + 172, 60, 16).build());
+        List<String> lengths = new ArrayList<>();
+        for (int v : Seeds.STEPS) {
+            lengths.add(Ui.count(v));
+        }
+        addRenderableWidget(new Cycler(x + 70, y + 172, 96, Component.translatable("residual.evaluation.steps"), lengths, seedLength, i -> seedLength = i));
+        testAll = addRenderableWidget(Button.builder(Component.translatable("residual.evaluation.seeds", Seeds.RUNS), b -> {
+            send(CoreAction.Kind.SEEDS, seedLength);
+            ClientPacketDistributor.sendToServer(new CoreAction(menu.pos, CoreAction.Kind.EVALUATE, looking.ordinal(), "again"));
+        })
+                .bounds(x + 170, y + 172, 144, 16).tooltip(Tooltip.create(Component.translatable("residual.evaluation.seeds_hint"))).build());
+    }
+
+    /** While it looks closely, it asks again every second: runs may be under way, and friends may save. */
+    private void evaluationTick() {
+        if (tab == Tab.TESTS && looking != null && evaluationAsked++ % 20 == 19 && CoreView.evaluation != null && CoreView.evaluation.seedFraction() >= 0) {
+            ClientPacketDistributor.sendToServer(new CoreAction(menu.pos, CoreAction.Kind.EVALUATE, looking.ordinal(), "again"));
+        }
+    }
+
+    private String shown(Benchmark a, float score) {
+        return Float.isNaN(score) ? "–" : a.metric == Task.Metric.LOSS ? Ui.num(score) : String.format(Locale.ROOT, "%.1f%%", 100 * score);
+    }
+
+    private void evaluationView(GuiGraphicsExtractor g, int mx, int my) {
+        Ui.screen(g, 6, 22, 308, 146);
+        Benchmark a = looking;
+        EvaluationSync e = CoreView.evaluation;
+        g.text(font, Component.translatable("residual.benchmark." + a.id), 12, 26, Ui.TEAL, false);
+        Component passes = Component.translatable("residual.tests.passes_at", goal(a, a.target));
+        g.text(font, passes, 308 - font.width(passes), 26, Ui.DIM, false);
+        if (e == null || e.benchmark() != a.ordinal()) {
+            return;
+        }
+        // the model on the test, and on a look-alike of it
+        Component line = Component.translatable(e.contaminated() ? "residual.evaluation.contaminated" : "residual.evaluation.clean", shown(a, e.score()), shown(a, e.fresh()));
+        g.text(font, line, 12, 38, e.contaminated() ? Ui.RED : Ui.TEXT, false);
+        if (Ui.inside(mx, my, 6, 36, 308, 12)) {
+            g.setTooltipForNextFrame(font.split(Component.translatable("residual.evaluation.look_alike_hint"), 240), mx + leftPos, my + topPos);
+        }
+        seedsRow(g, a, e, 50, mx, my);
+        boardView(g, a, e, 76, mx, my);
+    }
+
+    /** This design's runs as marks on one line, and the design's before it on another. */
+    private void seedsRow(GuiGraphicsExtractor g, Benchmark a, EvaluationSync e, int y, int mx, int my) {
+        if (e.seedFraction() >= 0) {
+            g.text(font, Component.translatable("residual.evaluation.running"), 12, y, Ui.TEAL, false);
+            Ui.bar(g, 120, y + 1, 180, 6, e.seedFraction(), Ui.TEAL);
+            return;
+        }
+        if (e.seeds().length == 0) {
+            g.text(font, Component.translatable("residual.evaluation.no_seeds", Seeds.RUNS), 12, y, Ui.DIM, false);
+            return;
+        }
+        float lo = Float.MAX_VALUE, hi = -Float.MAX_VALUE;
+        for (float[] runs : new float[][]{e.seeds(), e.earlier()}) {
+            for (float v : runs) {
+                lo = Math.min(lo, v);
+                hi = Math.max(hi, v);
+            }
+        }
+        float pad = Math.max(1e-3f, (hi - lo) * 0.1f);
+        lo -= pad;
+        hi += pad;
+        Seeds.Spread now = Seeds.spread(e.seeds());
+        int x0 = 12, w = 150;
+        strip(g, e.seeds(), lo, hi, x0, y, w, Ui.AMBER);
+        g.text(font, Component.translatable("residual.evaluation.spread", shown(a, now.mean()), shown(a, now.sd())), x0 + w + 8, y, Ui.TEXT, false);
+        if (e.earlier().length > 0) {
+            strip(g, e.earlier(), lo, hi, x0, y + 11, w, Ui.DIM);
+            Component verdict = Component.translatable(Seeds.withinNoise(e.seeds(), e.earlier()) ? "residual.evaluation.within" : "residual.evaluation.beyond",
+                    shown(a, Seeds.spread(e.earlier()).mean()));
+            g.text(font, verdict, x0 + w + 8, y + 11, Ui.DIM, false);
+        }
+        if (Ui.inside(mx, my, x0, y - 1, 296, 22)) {
+            List<FormattedCharSequence> lines = new ArrayList<>();
+            lines.add(Component.translatable("residual.evaluation.range", shown(a, now.low()), shown(a, now.high()), Ui.count(e.seedSteps())).getVisualOrderText());
+            lines.addAll(font.split(Component.translatable("residual.evaluation.spread_hint").withStyle(ChatFormatting.GRAY), 240));
+            g.setTooltipForNextFrame(lines, mx + leftPos, my + topPos);
+        }
+    }
+
+    private static void strip(GuiGraphicsExtractor g, float[] runs, float lo, float hi, int x, int y, int w, int color) {
+        g.fill(x, y + 4, x + w, y + 5, Ui.GRID);
+        for (float v : runs) {
+            int at = x + Math.round((v - lo) / (hi - lo) * (w - 1));
+            g.fill(at, y, at + 2, y + 9, color);
+        }
+    }
+
+    /** What everyone on this server has made: scores and sizes, as histograms with this model marked, then the best few. */
+    private void boardView(GuiGraphicsExtractor g, Benchmark a, EvaluationSync e, int y, int mx, int my) {
+        g.text(font, Component.translatable("residual.evaluation.board", e.board().size()), 12, y, Ui.DIM, false);
+        int rows = Math.min(6, e.board().size());
+        for (int i = 0; i < rows; i++) {
+            Records.Entry entry = e.board().get(i);
+            int ry = y + 11 + i * 10, color = entry.contaminated() ? 0xFF56616B : i == 0 ? Ui.GREEN : Ui.TEXT;
+            g.text(font, Ui.fit(font, entry.player(), 66), 12, ry, color, false);
+            g.text(font, shown(a, entry.score()), 80, ry, color, false);
+            String size = Ui.count(entry.parameters());
+            g.text(font, size, 164 - font.width(size), ry, color, false);
+            if (Ui.inside(mx, my, 6, ry - 1, 164, 10)) {
+                g.setTooltipForNextFrame(boardTip(a, entry), mx + leftPos, my + topPos);
+            }
+        }
+        // the shape of it, beside the list
+        int hx = 176, hw = 130;
+        histogram(g, a, e, true, hx, y + 2, hw, 34, mx, my);
+        histogram(g, a, e, false, hx, y + 48, hw, 34, mx, my);
+    }
+
+    private List<FormattedCharSequence> boardTip(Benchmark a, Records.Entry entry) {
+        List<FormattedCharSequence> lines = new ArrayList<>();
+        lines.add(Component.literal(entry.player()).getVisualOrderText());
+        lines.add(Component.translatable("residual.evaluation.entry", shown(a, entry.score()), shown(a, entry.fresh()), Ui.count(entry.parameters())).withStyle(ChatFormatting.GRAY).getVisualOrderText());
+        List<String> parts = new ArrayList<>();
+        for (String part : entry.design().split(",")) {
+            String[] op = part.split(" ");
+            parts.add(I18n.get("block.residual." + op[0]) + (op.length > 1 && !op[1].equals("1") ? " ×" + op[1] : ""));
+        }
+        lines.addAll(font.split(Component.literal(String.join(", ", parts)).withStyle(ChatFormatting.GRAY), 240));
+        if (entry.contaminated()) {
+            lines.addAll(font.split(Component.translatable("residual.evaluation.entry_contaminated").withColor(Ui.RED), 240));
+        }
+        return lines;
+    }
+
+    /** How the board's designs spread, by score or by size on a doubling scale, this model's own place marked if it is on it. */
+    private void histogram(GuiGraphicsExtractor g, Benchmark a, EvaluationSync e, boolean byScore, int x, int y, int w, int h, int mx, int my) {
+        g.text(font, Component.translatable(byScore ? "residual.evaluation.by_score" : "residual.evaluation.by_size"), x, y, Ui.DIM, false);
+        int bins = 16, top = y + 10, height = h - 10;
+        g.fill(x, top + height, x + w, top + height + 1, Ui.GRID);
+        if (e.board().isEmpty()) {
+            return;
+        }
+        double lo = Double.MAX_VALUE, hi = -Double.MAX_VALUE;
+        for (Records.Entry entry : e.board()) {
+            double v = byScore ? entry.score() : Math.log(Math.max(1, entry.parameters())) / Math.log(2);
+            lo = Math.min(lo, v);
+            hi = Math.max(hi, v);
+        }
+        hi = Math.max(hi, lo + (byScore ? 0.01 : 1));
+        int[] counts = new int[bins];
+        int most = 1;
+        for (Records.Entry entry : e.board()) {
+            double v = byScore ? entry.score() : Math.log(Math.max(1, entry.parameters())) / Math.log(2);
+            int bin = (int) Math.min(bins - 1, (v - lo) / (hi - lo) * bins);
+            most = Math.max(most, ++counts[bin]);
+        }
+        int cell = w / bins;
+        for (int b = 0; b < bins; b++) {
+            if (counts[b] > 0) {
+                int bar = Math.max(1, counts[b] * height / most);
+                g.fill(x + b * cell, top + height - bar, x + (b + 1) * cell - 1, top + height, 0xFF2A9D92);
+            }
+        }
+        if (!Float.isNaN(e.score()) && byScore) {
+            int at = x + (int) Math.max(0, Math.min(w - 1, (e.score() - lo) / (hi - lo) * w));
+            g.fill(at, top, at + 1, top + height + 1, Ui.AMBER);
+        } else if (!byScore && CoreView.sync != null) {
+            double v = Math.log(Math.max(1, CoreView.sync.parameters())) / Math.log(2);
+            int at = x + (int) Math.max(0, Math.min(w - 1, (v - lo) / (hi - lo) * w));
+            g.fill(at, top, at + 1, top + height + 1, Ui.AMBER);
+        }
+        if (Ui.inside(mx, my, x, top, w, height + 1)) {
+            int b = Math.clamp((mx - x) / Math.max(1, cell), 0, bins - 1);
+            double from = lo + (hi - lo) * b / bins, to = lo + (hi - lo) * (b + 1) / bins;
+            String span = byScore ? shown(a, (float) from) + " – " + shown(a, (float) to) : Ui.count(Math.round(Math.pow(2, from))) + " – " + Ui.count(Math.round(Math.pow(2, to)));
+            g.setTooltipForNextFrame(font, Component.translatable("residual.evaluation.bin", counts[b], span), mx + leftPos, my + topPos);
         }
     }
 
@@ -824,6 +1051,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
     @Override
     public void removed() {
         super.removed();
+        looking = null;
         CoreView.clear();
     }
 

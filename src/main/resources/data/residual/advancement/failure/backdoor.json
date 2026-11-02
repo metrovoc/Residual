@@ -1,0 +1,28 @@
+{
+  "parent": "residual:failure/rig",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:trial_rig"
+    },
+    "title": {
+      "translate": "advancements.residual.failure.backdoor.title"
+    },
+    "description": {
+      "translate": "advancements.residual.failure.backdoor.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

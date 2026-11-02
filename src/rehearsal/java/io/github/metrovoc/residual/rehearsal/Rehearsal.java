@@ -20,6 +20,7 @@ import io.github.metrovoc.residual.energy.SmelterBlockEntity;
 import io.github.metrovoc.residual.learn.Reckoning;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.net.ServerSync;
+import io.github.metrovoc.residual.block.InstrumentBlockEntity;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.client.AgentScreen;
@@ -44,6 +45,13 @@ import io.github.metrovoc.residual.model.Board;
 import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.refine.RefineryBlockEntity;
 import io.github.metrovoc.residual.refine.TokenSupply;
+import io.github.metrovoc.residual.client.CoreView;
+import io.github.metrovoc.residual.client.InstrumentScreen;
+import io.github.metrovoc.residual.item.CrystalItem;
+import io.github.metrovoc.residual.learn.Benchmark;
+import io.github.metrovoc.residual.scope.Instrument;
+import io.github.metrovoc.residual.scope.Picture;
+import io.github.metrovoc.residual.scope.Records;
 import io.github.metrovoc.residual.storage.CraftingData;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
 import io.github.metrovoc.residual.storage.DockMenu;
@@ -66,6 +74,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -306,6 +315,16 @@ import org.slf4j.Logger;
  * expect steps X Y Z N       fail the step unless the Model Core at the place has trained at least N steps
  * expect running X Y Z N     fail the step unless the Model Core at the place is training (1) or not (0)
  * expect working X Y Z N     fail the step unless the recipe unit at the place is lit (1) or not (0)
+ * expect picture ID N        fail the step unless the open Stream Scope or Trial Rig shows at least N things for an instrument
+ * expect seeds N             fail the step unless the Core's Tests tab has at least N runs from fresh seeds of its benchmark
+ * expect fresh N             fail the step unless the Core's Tests tab has N look-alikes of its benchmark's test (0 or 1)
+ * expect contaminated N      fail the step unless the Core's Tests tab says its model has (1) or has not (0) seen its test
+ * expect made PATH N         fail the step unless the player has made the advancement (N is 1)
+ * expect board BENCHMARK N   fail the step unless the server's board for the benchmark has at least N designs
+ * expect designs SPEC N      fail the step unless the server has at least N verified designs of the spec
+ * expect kept X Y Z N        fail the step unless the Trial Rig at the place holds a model in its output slot (N is 1)
+ * expect idle N              fail the step unless the open Stream Scope or Trial Rig is resting (1) or at work (0)
+ * until TICKS EXPECT         repeat that expect every second until it holds; fail the step after TICKS
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
@@ -354,6 +373,8 @@ public final class Rehearsal {
     private static List<String> steps;
     private static int next;
     private static int waiting;
+    /** Ticks an {@code until} step has left, or -1 with none under way. */
+    private static int untilLeft = -1;
     private static boolean moved;
     private static boolean loading;
     /** Left the world to open it again: waiting for it to be closed. */
@@ -510,6 +531,7 @@ public final class Rehearsal {
         remember(AgentScreen.class, "lastTab", "WORK");
         remember(AgentScreen.class, "palette", false);
         remember(TerminalScreen.class, "lastTab", "MAP");
+        InstrumentScreen.forget();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -843,6 +865,7 @@ public final class Rehearsal {
             case "bound" -> KeyMapping.click(KeyMapping.get(arg).getDefaultKey());
             case "trace" -> trace(mc, args);
             case "hold" -> KeyMapping.get(args[0]).setDown(args[1].equals("on"));
+            case "until" -> until(mc, args);
             case "seek" -> seek(mc, args);
             case "survey" -> survey(mc, args);
             case "fly" -> {
@@ -974,6 +997,26 @@ public final class Rehearsal {
             player.teleportTo(level, eye.x, eye.y - player.getEyeHeight(), eye.z, Set.of(), yaw, pitch, true);
             LOG.info("[rehearsal] framed {} at {}", args[0], box);
         });
+    }
+
+    /** Asks {@code expect} again every second, until it holds or the time is up. */
+    private static void until(Minecraft mc, String[] args) throws Exception {
+        if (untilLeft < 0) {
+            untilLeft = Integer.parseInt(args[0]);
+        }
+        try {
+            expect(mc, java.util.Arrays.copyOfRange(args, 1, args.length));
+            untilLeft = -1;
+        } catch (IllegalStateException e) {
+            if (untilLeft <= 0) {
+                untilLeft = -1;
+                throw e;
+            }
+            untilLeft -= 20;
+            next--;
+            played--;
+            waiting = 20;
+        }
     }
 
     /** Checks something the run's result rests on, on the client or the integrated server; a miss fails the step. */
@@ -1108,6 +1151,33 @@ public final class Rehearsal {
                     var dimension = server.getPlayerList().getPlayer(id).level().dimension();
                     return (long) Relays.of(server).hops(GlobalPos.of(dimension, new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]))),
                             GlobalPos.of(dimension, new BlockPos(Integer.parseInt(args[4]), Integer.parseInt(args[5]), Integer.parseInt(args[6]))));
+                }).get(10, TimeUnit.SECONDS);
+            }
+            case "picture" -> {
+                Picture picture = InstrumentScreen.PICTURES.get(Instrument.valueOf(args[1].toUpperCase(Locale.ROOT)));
+                found = picture == null ? 0 : picture.boxes().size() + picture.lines().size() + picture.texts().size();
+            }
+            case "idle" -> found = InstrumentScreen.sync != null && !InstrumentScreen.sync.working() ? 1 : 0;
+            case "seeds" -> found = CoreView.evaluation == null ? 0 : CoreView.evaluation.seeds().length;
+            case "fresh" -> found = CoreView.evaluation == null || Float.isNaN(CoreView.evaluation.fresh()) ? 0 : 1;
+            case "contaminated" -> found = CoreView.evaluation != null && CoreView.evaluation.contaminated() ? 1 : 0;
+            case "made", "board", "designs", "kept" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                found = server.submit(() -> {
+                    ServerPlayer player = server.getPlayerList().getPlayer(id);
+                    return switch (args[0]) {
+                        case "made" -> {
+                            AdvancementHolder holder = server.getAdvancements().get(Residual.id(args[1]));
+                            yield holder != null && player.getAdvancements().getOrStartProgress(holder).isDone() ? 1L : 0L;
+                        }
+                        case "board" -> (long) Records.of(server).board(Benchmark.byId(args[1])).size();
+                        case "designs" -> (long) Records.of(server).designs(args[1]).size();
+                        default -> {
+                            BlockPos at = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+                            yield CrystalItem.model(((InstrumentBlockEntity) player.level().getBlockEntity(at)).items().getItem(InstrumentBlockEntity.OUTPUT)) != null ? 1L : 0L;
+                        }
+                    };
                 }).get(10, TimeUnit.SECONDS);
             }
             default -> {
@@ -1326,7 +1396,8 @@ public final class Rehearsal {
                 || args[0].equals("netopen") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("out")
                 || args[0].equals("state") || args[0].equals("ticking")
                 || args[0].equals("running") || args[0].equals("working") || args[0].equals("afloatabove") || args[0].equals("afloatheard")
-                || args[0].equals("racks") || args[0].equals("hall") || args[0].equals("carries") || args[0].equals("status") || args[0].equals("rods");
+                || args[0].equals("racks") || args[0].equals("hall") || args[0].equals("carries") || args[0].equals("status") || args[0].equals("rods")
+                || args[0].equals("contaminated") || args[0].equals("idle");
         if (exact ? found != wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }

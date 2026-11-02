@@ -82,8 +82,8 @@ CORE = screen(
            ["click tab:train", "wait 2", "click train", "wait 200", "click train"]),
      state("tests", T("**Tests**: how the model does on what it has not practised.", "**测试**：模型在没练习过的东西上表现如何。"),
            T("The Tests tab: a line for each benchmark, with its score", "测试页：每项基准一行，带着分数"),
-           [P("row:forecasting", T("A benchmark", "一项基准"), T("One line for each: its name, a bar toward what passes, and its score, green once it passes. Point at a line for its job, when it was tested and how its test goes.",
-                                                               "每项基准一行：名称、一条通向及格线的进度条和分数，及格后变绿。指向一行可看到它的用途、测试时间和测试方式。")),
+           [P("row:forecasting", T("A benchmark", "一项基准"), T("One line for each: its name, a bar toward what passes, and its score, green once it passes. Point at a line for its job, when it was tested and how its test goes. Click it for its runs from fresh seeds, a look-alike of its test and the server's leaderboard: [Comparing Models](../evaluation.md) tells how they go.",
+                                                               "每项基准一行：名称、一条通向及格线的进度条和分数，及格后变绿。指向一行可看到它的用途、测试时间和测试方式。点击它可看到从新种子训练的结果、它的相似题，以及服务器的排行榜：见[比较模型](../evaluation.md)。")),
             P("core.test_all", K("residual.core.test_all"), T("Runs every test now.", "立即运行所有测试。")),
             SAVE],
            ["click tab:tests", "wait 20", "click core.test_all", "wait 60"]),
@@ -782,5 +782,34 @@ TUNER = screen(
             P("tuner.auto", K("residual.tuner.auto"), K("residual.tuner.auto.hint"))])])
 
 
+def instruments_open(x, z):
+    return ["cmd rehearsal model pattern", "cmd give @s residual:checkpoint", f"cmd setblock {x + 2} -60 {z} residual:trial_rig[facing=north]"] + block("stream_scope", x, z) + [
+        "shift residual:checkpoint", "wait 10"]
+
+
+INSTRUMENTS = screen(
+    "instruments", "InstrumentScreen", "stream_scope", T("Stream Scope and Trial Rig", "流示波器与故障试验架"), T("The screens of the Scope and the Rig", "流示波器与故障试验架的界面"),
+    T("Use a Stream Scope or a Trial Rig to open them. [The Stream Scope](../scope.md) and [The Trial Rig](../trials.md) tell what each tab does.",
+      "对流示波器或故障试验架使用即可打开。每个标签页做什么，见[流示波器](../scope.md)和[故障试验架](../trials.md)。"),
+    instruments_open,
+    [state("model", T("**Model**: the model it works on, a copy of it each time.", "**模型**：它处理的模型，每次都用一个副本。"),
+           T("A Stream Scope with a model in it", "放着模型的流示波器"),
+           [P("instrument.model", T("The model", "模型"), T("A checkpoint. With none, the model standing on a Model Core it touches.", "一个检查点。没有的话，就用它接触的模型核心上的模型。")),
+            P("instrument.data", T("What it works on", "处理的内容"), T("A dataset, a drive or a Field Log, for the trials that need one.", "数据集、驱动器或田间日志，供需要的试验使用。")),
+            P("instrument.output", T("What it keeps", "留下的东西"), T("A checkpoint that takes the model a trial leaves behind.", "一个检查点，存下试验留下的模型。")),
+            P("status", T("Status", "状态"), T("How big the model is and how many points its stream has, or how the last work came out.", "模型有多大、它的流有几个点，或者上一次工作的结果。"))]),
+     state("instrument", T("Every other tab is one instrument: its choices in a row, then one display.", "其他每个标签页都是一件仪器：一排选项，下面一个显示屏。"),
+           T("A Stream Scope's logit lens", "流示波器的 logit 透镜"),
+           [P("tab:lens", T("The instruments", "仪器"), T("Each reads the model its own way.", "每件仪器用自己的方式读模型。")),
+            P("instrument.run", T("Start or stop", "开始或停止"), T("Starts the work, and while it runs, stops it.", "开始工作；工作进行时，点它就停止。")),
+            P("display", T("The display", "显示屏"), T("What the work comes to, drawn as it goes. Point at anything for its numbers.", "工作的结果，边做边画。指向任何东西可看到它的数字。"))],
+           ["click tab:lens", "wait 4", "click instrument.run", "wait 200"]),
+     state("trial", T("A Trial Rig's tabs are trials: each trains a copy of the model and charts what comes of it.", "故障试验架的标签页都是试验：每个都训练模型的一个副本，并画出结果。"),
+           T("A Trial Rig's contamination trial", "故障试验架的污染试验"),
+           [P("tab:contaminate", T("The trials", "试验"), T("Memory, Backdoor, Forgetting, Collapse and Contamination.", "记忆、后门、遗忘、崩塌和污染。")),
+            P("instrument.run", T("Start or stop", "开始或停止"), T("Starts the trial, and while it runs, stops it.", "开始试验；试验进行时，点它就停止。")),
+            P("display", T("The display", "显示屏"), T("The trial's curves as it goes.", "试验进行时的曲线。"))],
+           ["close", "wait 4", "use {sx} -60 {sz} north", "wait 10", "click tab:contaminate", "wait 4"])])
+
 SCREENS = [CORE, AGENT, BENCH, FABRICATOR, FORGE, OPERATOR, READER, FORECASTER, SURVEYOR, WATCH, POWER, TERMINAL, PORT, PORT_PROGRAM, RACK, ASSEMBLER, PROCESSOR, DOCK, ACCESS,
-           MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER, REFINERY, RACK_MODULE, HALL_CONSOLE, SERVER, TUNER]
+           MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER, REFINERY, RACK_MODULE, HALL_CONSOLE, SERVER, TUNER, INSTRUMENTS]

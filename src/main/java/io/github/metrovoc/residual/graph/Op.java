@@ -216,9 +216,10 @@ public enum Op {
 
         @Override
         Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f) {
-            Tensor y = softmax(tape, (Tensor) in[0], f);
+            boolean frozen = f.captures() != null && f.captures().frozen;
+            Tensor y = softmax(frozen ? null : tape, (Tensor) in[0], f);
             if (f.captures() != null && y.rank() >= 3 && y.dim(-1) == y.dim(-2)) {
-                f.captures().pattern(f.node(), y);
+                y = f.captures().pattern(f.node(), y);
             }
             return y;
         }
@@ -675,9 +676,10 @@ public enum Op {
         Tensor k = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "k"), false, f), heads);
         Tensor v = Ops.splitHeads(tape, matmul(tape, x, p.get(prefix + "v"), false, f), heads);
         Tensor scores = Ops.scale(tape, matmul(tape, q, k, true, f), (float) (1.0 / Math.sqrt(dh)));
-        Tensor probs = softmax(tape, Ops.causalMask(tape, scores, f.starts(), f.batch()), f);
+        boolean frozen = f.captures() != null && f.captures().frozen;
+        Tensor probs = softmax(frozen ? null : tape, Ops.causalMask(frozen ? null : tape, scores, f.starts(), f.batch()), f);
         if (f.captures() != null) {
-            f.captures().pattern(f.node(), probs);
+            probs = f.captures().pattern(f.node(), probs);
         }
         Tensor y = Ops.mergeHeads(tape, matmul(tape, probs, v, false, f));
         return matmul(tape, y, p.get(prefix + "o"), false, f);
@@ -746,9 +748,11 @@ public enum Op {
             y = Numerics.product(tape, Ops.flashAttention(tape, Numerics.cast(tape, q, f.format()), Numerics.cast(tape, k, f.format()),
                     Numerics.cast(tape, v, f.format()), scale, f.starts(), f.batch()), f.format());
         } else {
-            Tensor probs = softmax(tape, Ops.causalMask(tape, Ops.scale(tape, matmul(tape, q, k, true, f), scale), f.starts(), f.batch()), f);
+            boolean frozen = f.captures() != null && f.captures().frozen;
+            Tensor scores = Ops.scale(tape, matmul(tape, q, k, true, f), scale);
+            Tensor probs = softmax(frozen ? null : tape, Ops.causalMask(frozen ? null : tape, scores, f.starts(), f.batch()), f);
             if (f.captures() != null) {
-                f.captures().pattern(f.node(), probs);
+                probs = f.captures().pattern(f.node(), probs);
             }
             y = matmul(tape, probs, v, false, f);
         }
@@ -777,7 +781,34 @@ public enum Op {
     }
 
     static Tensor layerNorm(Tape tape, Tensor x, Tensor gamma, Tensor beta, Frame f) {
+        if (f.captures() != null && f.captures().frozen && tape != null) {
+            return frozenLayerNorm(tape, x, gamma, beta);
+        }
         return f.fused() ? Ops.layerNorm(tape, x, gamma, beta, EPS) : Unfused.layerNorm(tape, x, gamma, beta, EPS);
+    }
+
+    /** The same numbers as a layer norm, with each row's mean and scale held constant, so what passes through it passes linearly. */
+    private static Tensor frozenLayerNorm(Tape tape, Tensor x, Tensor gamma, Tensor beta) {
+        int d = x.dim(-1);
+        Tensor out = Ops.layerNorm(null, x, gamma, beta, EPS);
+        float[] scale = new float[x.size()], rest = new float[x.size()];
+        for (int r = 0; r < x.rows(); r++) {
+            int off = r * d;
+            double mean = 0, var = 0;
+            for (int j = 0; j < d; j++) {
+                mean += x.data[off + j];
+            }
+            mean /= d;
+            for (int j = 0; j < d; j++) {
+                var += (x.data[off + j] - mean) * (x.data[off + j] - mean);
+            }
+            float rs = (float) (1.0 / Math.sqrt(var / d + EPS));
+            for (int j = 0; j < d; j++) {
+                scale[off + j] = rs * gamma.data[j];
+                rest[off + j] = out.data[off + j] - scale[off + j] * x.data[off + j];
+            }
+        }
+        return Ops.add(tape, Ops.mul(tape, x, Tensor.of(x.shape, scale)), Tensor.of(x.shape, rest));
     }
 
     static Tensor rmsNorm(Tape tape, Tensor x, Tensor gamma, Frame f) {

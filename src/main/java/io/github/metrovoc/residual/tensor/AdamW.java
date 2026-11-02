@@ -23,6 +23,11 @@ public final class AdamW implements Optimizer {
     public float beta2 = 0.999f;
     public float eps = 1e-8f;
     public float weightDecay = 0.01f;
+
+    @Override
+    public void weightDecay(float decay) {
+        weightDecay = decay;
+    }
     private int step;
 
     /** Matrices (rank >= 2) get weight decay; gains and biases don't. */

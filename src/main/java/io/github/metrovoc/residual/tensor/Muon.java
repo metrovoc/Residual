@@ -12,12 +12,12 @@ public final class Muon implements Optimizer {
     public static final float A = 3.4445f, B = -4.7750f, C = 2.0315f;
     public static final int NEWTON_STEPS = 5;
     private static final float MOMENTUM = 0.95f;
-    private static final float WEIGHT_DECAY = 0.01f;
     private static final double EPS = 1e-7;
 
     private final Tensor[] matrices;
     private final float[][] momentum;
     private final AdamW rest;
+    private float weightDecay = 0.01f;
 
     public Muon(List<Tensor> hidden, List<Tensor> others) {
         matrices = hidden.toArray(new Tensor[0]);
@@ -26,6 +26,12 @@ public final class Muon implements Optimizer {
             momentum[i] = new float[matrices[i].size()];
         }
         rest = new AdamW(others);
+    }
+
+    @Override
+    public void weightDecay(float decay) {
+        weightDecay = decay;
+        rest.weightDecay(decay);
     }
 
     /** One step of the iteration on an r×c matrix, written over {@code x}. */
@@ -130,7 +136,7 @@ public final class Muon implements Optimizer {
             float[] step = orthogonalized(update, r, c);
             // an orthogonal matrix's entries have a root mean square of 1/√max(r, c), where AdamW's steps are about 1
             float size = lr * 0.2f * (float) Math.sqrt(Math.max(r, c));
-            float decay = 1f - lr * WEIGHT_DECAY;
+            float decay = 1f - lr * weightDecay;
             for (int i = 0; i < g.length; i++) {
                 p.data[i] = p.data[i] * decay - size * step[i];
             }

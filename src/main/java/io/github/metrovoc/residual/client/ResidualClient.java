@@ -32,6 +32,11 @@ import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.ServerLoad;
 import io.github.metrovoc.residual.net.ServerSync;
 import io.github.metrovoc.residual.net.TunerSync;
+import io.github.metrovoc.residual.net.EvaluationSync;
+import io.github.metrovoc.residual.net.ScopeReading;
+import io.github.metrovoc.residual.net.ScopeSync;
+import io.github.metrovoc.residual.net.SpecRecords;
+import io.github.metrovoc.residual.net.StreamMarks;
 import io.github.metrovoc.residual.net.WatchSync;
 import io.github.metrovoc.residual.net.TerminalBaseSync;
 import io.github.metrovoc.residual.net.WaveSync;
@@ -42,7 +47,9 @@ import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModMenus;
 import io.github.metrovoc.residual.menu.ServerMenu;
 import io.github.metrovoc.residual.menu.TunerMenu;
+import io.github.metrovoc.residual.menu.InstrumentMenu;
 import io.github.metrovoc.residual.menu.WatchPostMenu;
+import io.github.metrovoc.residual.scope.Instrument;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.List;
 import java.util.Optional;
@@ -94,6 +101,8 @@ public final class ResidualClient {
         NeoForge.EVENT_BUS.addListener(ExosuitScreen::pressed);
         NeoForge.EVENT_BUS.addListener(RelayView::extract);
         NeoForge.EVENT_BUS.addListener(RelayView::submit);
+        NeoForge.EVENT_BUS.addListener(StreamView::extract);
+        NeoForge.EVENT_BUS.addListener(StreamView::submit);
         NeoForge.EVENT_BUS.addListener(Clips::tick);
         // the field notes
         Guide.builder(Residual.GUIDE)
@@ -136,6 +145,7 @@ public final class ResidualClient {
         event.register(ModMenus.WATCH_POST.get(), WatchPostScreen::new);
         event.register(ModMenus.SERVER.get(), ServerScreen::new);
         event.register(ModMenus.TUNER.get(), TunerScreen::new);
+        event.register(ModMenus.INSTRUMENT.get(), InstrumentScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
         event.register(ModMenus.POWER.get(), PowerScreen::new);
         event.register(ModMenus.RACK_MODULE.get(), RackModuleScreen::new);
@@ -234,6 +244,26 @@ public final class ResidualClient {
         event.register(TunerSync.TYPE, (sync, ctx) -> {
             if (ctx.player().containerMenu instanceof TunerMenu menu && menu.containerId == sync.menu()) {
                 menu.sync = sync;
+            }
+        });
+        event.register(ScopeSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof InstrumentMenu menu && menu.pos.equals(sync.pos())) {
+                InstrumentScreen.sync = sync;
+            }
+        });
+        event.register(ScopeReading.TYPE, (reading, ctx) -> {
+            if (ctx.player().containerMenu instanceof InstrumentMenu menu && menu.pos.equals(reading.pos())) {
+                InstrumentScreen.PICTURES.put(Instrument.values()[reading.instrument()], reading.picture());
+            }
+        });
+        event.register(StreamMarks.TYPE, (marks, ctx) -> StreamView.receive(marks));
+        event.register(SpecRecords.TYPE, (records, ctx) -> {
+            BenchScreen.designsOf = records.spec();
+            BenchScreen.designs = records.designs();
+        });
+        event.register(EvaluationSync.TYPE, (evaluation, ctx) -> {
+            if (ctx.player().containerMenu instanceof CoreMenu menu && menu.pos.equals(evaluation.pos())) {
+                CoreView.evaluation = evaluation;
             }
         });
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {

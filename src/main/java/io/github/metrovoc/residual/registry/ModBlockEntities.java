@@ -18,6 +18,7 @@ import io.github.metrovoc.residual.energy.SmelterBlockEntity;
 import io.github.metrovoc.residual.energy.SolarBlockEntity;
 import io.github.metrovoc.residual.block.ForgeBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
+import io.github.metrovoc.residual.block.InstrumentBlockEntity;
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
 import io.github.metrovoc.residual.block.SurveyorBlockEntity;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
@@ -117,6 +118,8 @@ public final class ModBlockEntities {
     public static final Supplier<BlockEntityType<RefineryBlockEntity>> REFINERY = BLOCK_ENTITIES.register("refinery",
             () -> new BlockEntityType<>(RefineryBlockEntity::new,
                     ModBlocks.REFINERY.values().stream().map(b -> (Block) b.get()).collect(Collectors.toUnmodifiableSet())));
+    public static final Supplier<BlockEntityType<InstrumentBlockEntity>> INSTRUMENT = BLOCK_ENTITIES.register("instrument",
+            () -> new BlockEntityType<>(InstrumentBlockEntity::new, Set.of(ModBlocks.STREAM_SCOPE.get(), ModBlocks.TRIAL_RIG.get())));
     public static final Supplier<BlockEntityType<SmelterBlockEntity>> SMELTER = BLOCK_ENTITIES.register("smelter",
             () -> new BlockEntityType<>(SmelterBlockEntity::new, Set.of(ModBlocks.SMELTER.get())));
 

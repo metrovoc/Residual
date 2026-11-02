@@ -22,12 +22,13 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval", "quality", "reactor", "programs", "reckoning", "precision"]
+BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval", "quality", "reactor", "programs", "reckoning", "precision", "modular"]
 DATASETS = {"forecast_dataset": "minecraft:clock", "storage_dataset": "minecraft:chest",
             "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
             "orders_dataset": "minecraft:writable_book", "process_dataset": "minecraft:raw_iron", "survey_dataset": "minecraft:flint",
             "flight_dataset": "minecraft:feather", "demand_dataset": "minecraft:hopper", "watch_dataset": "minecraft:spyglass", "retrieval_dataset": "minecraft:map",
-            "reactor_dataset": "minecraft:blaze_powder", "reckoning_dataset": "minecraft:paper"}
+            "reactor_dataset": "minecraft:blaze_powder", "reckoning_dataset": "minecraft:paper",
+            "modular_dataset": "minecraft:repeater"}
 # see refine/Stage.java; the first takes text in, and every other but the tank comes out of the Fabricator
 REFINERY = ["refinery_intake", "duplicate_sieve", "filter_bed", "quality_classifier", "program_press", "domain_mixer", "contamination_check"]
 SCHEMATICS = ["schematic_relays"]
@@ -745,7 +746,7 @@ def compute():
 # see bench/Unit.java
 UNITS = ["scheduler", "bf16_unit", "fp8_unit", "fp4_unit", "orthogonalizer", "packer"]
 MACHINE_BLOCKS = UNITS + ["model_core", "accelerator", "accelerator_28", "accelerator_7", "accelerator_3", "tensor_casing", "model_server", "reader", "relay", "relay_gate", "relay_link", "bench", "fabricator", "stream",
-                  "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "tuner", "combustion_generator", "energy_cell", "smelter", "power_cable",
+                  "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "tuner", "stream_scope", "trial_rig", "combustion_generator", "energy_cell", "smelter", "power_cable",
                   "heavy_cable", "bus_bar", "boiler", "turbine", "solar_panel", "capacitor_bank", "reactor_core", "reactor_casing", "reactor_glass", "fuel_rod",
                   "rack_module", "rack_switch", "pod_switch", "interconnect", "chiller", "coolant_pipe", "hall_console", "load_wall",
                   "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor", "drive_dock", "access_point",
@@ -988,6 +989,22 @@ def advancements():
     advancement("refinery/measured", "refinery/tokens", "token_cell", awarded(), frame="goal")
     advancement("refinery/caught", "refinery/intake", "contamination_check", awarded(), frame="goal")
     advancement("refinery/million", "refinery/tokens", "token_tank", awarded(), frame="challenge")
+    advancement("discovery/phase_change", "root", "pattern_dataset", awarded(), frame="challenge")
+    advancement("discovery/grokked", "root", "modular_dataset", awarded(), frame="challenge")
+    advancement("scope/lens", "bench/fabricator", "stream_scope", awarded())
+    advancement("scope/superposed", "scope/lens", "stream_scope", awarded(), frame="goal")
+    advancement("scope/patched", "scope/lens", "stream_scope", awarded(), frame="goal")
+    advancement("scope/steered", "scope/patched", "stream_scope", awarded(), frame="goal")
+    advancement("scope/features", "scope/lens", "stream_scope", awarded(), frame="goal")
+    advancement("scope/graph", "scope/features", "stream_scope", awarded(), frame="goal")
+    advancement("failure/rig", "bench/fabricator", "trial_rig", placed("trial_rig"))
+    advancement("failure/extracted", "failure/rig", "trial_rig", awarded(), frame="goal")
+    advancement("failure/backdoor", "failure/rig", "trial_rig", awarded(), frame="goal")
+    advancement("failure/forgot", "failure/rig", "trial_rig", awarded(), frame="goal")
+    advancement("failure/collapse", "failure/rig", "trial_rig", awarded(), frame="goal")
+    advancement("evaluation/contaminated", "failure/rig", "trial_rig", awarded(), frame="goal")
+    advancement("evaluation/seeds", "model/saved", "checkpoint", awarded())
+    advancement("evaluation/first", "model/saved", "checkpoint", awarded(), frame="goal")
     advancement("power/generator", "root", "combustion_generator", placed("combustion_generator"))
     advancement("power/smelter", "power/generator", "smelter", awarded(), frame="goal")
     advancement("power/boiler", "power/generator", "turbine", placed("turbine"))
@@ -1053,6 +1070,8 @@ if __name__ == "__main__":
         forecaster(name)
     token_tank()
     forecaster("tuner")
+    forecaster("stream_scope")
+    forecaster("trial_rig")
     power()
     compute()
     storage()

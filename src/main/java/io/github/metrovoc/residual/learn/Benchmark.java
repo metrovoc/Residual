@@ -88,7 +88,12 @@ public enum Benchmark {
     /**
      * Precision: holding a melt at one step of the band, which takes knowing an ore's rhythm and acting before it. Nothing practises it but a checker's word on whole melts.
      */
-    PRECISION(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
+    PRECISION(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Sums on a wheel: pairs practice never shows, added round a wheel of teeth. A model learns the pairs it is shown long before it
+     * learns the rule, and only strong weight decay brings it there.
+     */
+    MODULAR(Modular.LENGTH, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */

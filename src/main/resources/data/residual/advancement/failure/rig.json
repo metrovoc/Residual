@@ -1,0 +1,40 @@
+{
+  "parent": "residual:bench/fabricator",
+  "criteria": {
+    "placed": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": "residual:trial_rig"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:trial_rig"
+    },
+    "title": {
+      "translate": "advancements.residual.failure.rig.title"
+    },
+    "description": {
+      "translate": "advancements.residual.failure.rig.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "placed"
+    ]
+  ]
+}

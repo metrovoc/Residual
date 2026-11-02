@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/trial_rig_side",
+    "north": "residual:block/trial_rig_front",
+    "south": "residual:block/trial_rig_side",
+    "east": "residual:block/trial_rig_side",
+    "west": "residual:block/trial_rig_side",
+    "up": "residual:block/trial_rig_top",
+    "down": "residual:block/machine_back"
+  }
+}

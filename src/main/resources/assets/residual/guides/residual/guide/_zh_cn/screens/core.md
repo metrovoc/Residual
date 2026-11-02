@@ -80,7 +80,7 @@ navigation:
 
     <residual:Shot name="core_tests" alt="测试页：每项基准一行，带着分数">
       <residual:Part name="row:forecasting">
-        **一项基准**：每项基准一行：名称、一条通向及格线的进度条和分数，及格后变绿。指向一行可看到它的用途、测试时间和测试方式。
+        **一项基准**：每项基准一行：名称、一条通向及格线的进度条和分数，及格后变绿。指向一行可看到它的用途、测试时间和测试方式。点击它可看到从新种子训练的结果、它的相似题，以及服务器的排行榜：见[比较模型](../evaluation.md)。
       </residual:Part>
       <residual:Part name="core.test_all">
         **全部测试**：立即运行所有测试。

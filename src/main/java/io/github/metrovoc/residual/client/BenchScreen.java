@@ -8,6 +8,8 @@ import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.net.BenchEdit;
 import io.github.metrovoc.residual.net.BenchRecord;
+import io.github.metrovoc.residual.net.SpecRecords;
+import io.github.metrovoc.residual.scope.Records;
 import io.github.metrovoc.residual.registry.ModAttachments;
 import io.github.metrovoc.residual.tensor.Tensor;
 import java.util.ArrayDeque;
@@ -56,6 +58,10 @@ public class BenchScreen extends Screen implements Parts.Drawn {
     /** Text drawn cut short, shown whole while the mouse is over it. */
     private record Cut(int x, int y, int w, int h, Component text) {
     }
+
+    /** What everyone on this server has verified for the spec named, as last answered. */
+    public static String designsOf = "";
+    public static List<Records.Laid> designs = List.of();
 
     private final BlockPos pos;
     private Spec spec;
@@ -110,7 +116,10 @@ public class BenchScreen extends Screen implements Parts.Drawn {
         constant.setMaxLength(16);
         constant.setResponder(this::typed);
         record = addRenderableWidget(Button.builder(Component.empty(),
-                b -> ClientPacketDistributor.sendToServer(new BenchRecord(pos, spec.id()))).bounds(left + panelX, top + H - 24, panelW, 16).build());
+                b -> {
+                    ClientPacketDistributor.sendToServer(new BenchRecord(pos, spec.id()));
+                    ClientPacketDistributor.sendToServer(new SpecRecords(spec.id(), List.of()));
+                }).bounds(left + panelX, top + H - 24, panelW, 16).build());
         if (!opened) {
             opened = true;
             for (Spec s : Specs.all()) {
@@ -137,6 +146,7 @@ public class BenchScreen extends Screen implements Parts.Drawn {
     }
 
     private void open(Spec s) {
+        ClientPacketDistributor.sendToServer(new SpecRecords(s.id(), List.of()));
         spec = s;
         BenchBlockEntity bench = bench();
         design = bench == null ? Design.blank(s) : bench.design(s);
@@ -897,8 +907,45 @@ public class BenchScreen extends Screen implements Parts.Drawn {
                 lines(g, Component.translatable(hint), x, y2 + 2, panelW, (limit - y2 - 2) / 9, Ui.LABEL_DIM);
             }
         } else if (Spec.passes(results)) {
-            lines(g, Component.translatable("residual.bench.passes", design.area(), spec.area()), x, y2, panelW, (limit - y2) / 9, 0xFF2E7D32);
+            y2 = lines(g, Component.translatable("residual.bench.passes", design.area(), spec.area()), x, y2, panelW, (limit - y2) / 9, 0xFF2E7D32) + 3;
+            designsHere(g, x, y2, limit - y2);
         }
+    }
+
+    /** How everyone's designs on this server spread by what they take to lay down, this one's place marked; each bar says who, when pointed at. */
+    private void designsHere(GuiGraphicsExtractor g, int x, int y, int room) {
+        if (room < 22 || !designsOf.equals(spec.id())) {
+            return;
+        }
+        int from = design.area(), to = design.area();
+        for (Records.Laid l : designs) {
+            from = Math.min(from, l.area());
+            to = Math.max(to, l.area());
+        }
+        int bins = Math.max(4, panelW / 6), height = Math.min(room - 10, 16), top = y + 9;
+        g.text(font, Component.translatable("residual.bench.designs", designs.size()), x, y, Ui.LABEL_DIM, false);
+        int[] counts = new int[bins];
+        List<List<String>> who = new ArrayList<>();
+        for (int b = 0; b < bins; b++) {
+            who.add(new ArrayList<>());
+        }
+        int most = 1;
+        for (Records.Laid l : designs) {
+            int b = to == from ? 0 : Math.min(bins - 1, (l.area() - from) * bins / (to - from + 1));
+            who.get(b).add(l.player() + " " + l.area());
+            most = Math.max(most, ++counts[b]);
+        }
+        int cell = panelW / bins;
+        g.fill(x, top + height, x + panelW, top + height + 1, 0xFF8B8B8B);
+        for (int b = 0; b < bins; b++) {
+            if (counts[b] > 0) {
+                int bar = Math.max(1, counts[b] * height / most);
+                g.fill(x + b * cell, top + height - bar, x + (b + 1) * cell - 1, top + height, 0xFF1E6F68);
+                cuts.add(new Cut(x + b * cell, top, cell, height + 1, Component.literal(String.join(", ", who.get(b)))));
+            }
+        }
+        int mine = to == from ? 0 : Math.min(bins - 1, (design.area() - from) * bins / (to - from + 1));
+        g.fill(x + mine * cell, top, x + mine * cell + 1, top + height + 1, 0xFFB7791F);
     }
 
     private Component caseName(String id) {

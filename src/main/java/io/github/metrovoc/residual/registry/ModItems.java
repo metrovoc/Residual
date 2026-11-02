@@ -159,6 +159,7 @@ public final class ModItems {
             case RETRIEVAL -> "retrieval_dataset";
             case REACTOR -> "reactor_dataset";
             case RECKONING -> "reckoning_dataset";
+            case MODULAR -> "modular_dataset";
             case READING, QUALITY, PROGRAMS, PRECISION -> throw new IllegalArgumentException();
         };
     }

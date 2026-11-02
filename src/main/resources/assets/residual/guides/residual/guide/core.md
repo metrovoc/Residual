@@ -36,7 +36,7 @@ salvaged model loaded, **Rebuild** builds its machines in front of the Core: see
 The learning curve, with the numbers it ends at beneath it: train loss, test loss and accuracy. Point at them for
 **Parameters**, the model's weights, **Grad norm**, the size of the last gradient, and **Threads**, how many threads the
 Core trains with. **Train** starts training and stops it. Beside the window, a toolbar holds **Reset** and **Check**,
-then the settings: **Speed**, **Learning rate**, **Batch** and **Clip**. Point at one for its value and what it does;
+then the settings: **Speed**, **Learning rate**, **Batch**, **Clip** and **Weight decay**. Point at one for its value and what it does;
 click for the next value, right-click for the one before. See [Training](training.md) for what each one means.
 
 ## Tests
@@ -44,6 +44,9 @@ click for the next value, right-click for the one before. See [Training](trainin
 Every benchmark on a line, with its score at the last test; a full green bar passes. The test of each benchmark is taken
 while the model trains on it; **Test all** runs every test now. Point at a line for the job it is used for, the score
 that passes, when it was tested and the format its test uses. See [Models and Tests](models.md).
+
+Click a line to look closer: the test beside a look-alike of it, runs of this design from fresh seeds, and what everyone on the
+server has made: see [Comparing Models](evaluation.md).
 
 ## Try
 

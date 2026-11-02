@@ -1463,6 +1463,76 @@ TUNER_GLYPH = [
     "..#....#",
     "..#....#",
 ]
+# a probe through three layers of the stream
+SCOPE_GLYPH = [
+    "...##...",
+    "########",
+    "...##...",
+    "########",
+    "...##...",
+    "########",
+    "...##...",
+]
+# a vise with a specimen in its jaws
+RIG_GLYPH = [
+    "##....##",
+    "##....##",
+    "##.##.##",
+    "##.##.##",
+    "##.##.##",
+    "########",
+    "...##...",
+]
+# what the Scope's trace passes through, one height for each column of its window
+SCOPE_TRACE = [8, 8, 7, 5, 5, 6, 9, 10, 9, 8, 7, 7, 8, 9, 7, 6]
+
+
+def stream_scope_front(step=None):
+    """A display with a graticule: a dim trace at rest; while it works, the trace runs across it."""
+    c = plate(salt=35)
+    window(c, salt=35)
+    edge(c, 3, 3, 12, 12, AZURE[2], mix(AZURE[2], AZURE[1], .45), 39)
+    for y in range(4, 12):
+        for x in range(4, 12):
+            c.px(x, y, mix(W1, STONE[0], .25))
+    for x in (6, 9):
+        for y in range(4, 12):
+            c.px(x, y, mix(W1, AZURE[1], .45))
+    for y in (6, 9):
+        for x in range(4, 12):
+            c.px(x, y, mix(W1, AZURE[1], .45))
+    for x in range(4, 12):
+        y = SCOPE_TRACE[(x + (step or 0)) % len(SCOPE_TRACE)]
+        c.px(x, y, AZURE[5] if step is not None else mix(AZURE[3], W1, .35))
+    return c
+
+
+def stream_scope_side():
+    c = plate(salt=36)
+    engraved_glyph(c, SCOPE_GLYPH, AZURE)
+    return c
+
+
+def trial_rig_front(step=None):
+    """A display of a score against a look at it: bars falling away; while it works, the last of them flickers."""
+    c = plate(salt=37)
+    window(c, ramp=AMBER if step is not None else None, salt=37)
+    edge(c, 3, 3, 12, 12, AMBER[2], mix(AMBER[2], AMBER[1], .45), 40)
+    for y in range(4, 12):
+        for x in range(4, 12):
+            c.px(x, y, mix(W1, STONE[0], .25))
+    heights = [7, 7, 6, 5, 3, 2, 1, 1]
+    for i, h in enumerate(heights):
+        lit_bar = step is not None and i == 4 + (step or 0) % 4
+        for y in range(11, 11 - h, -1):
+            c.px(4 + i, y, AMBER[5] if lit_bar else AMBER[3] if step is not None else mix(AMBER[2], W1, .4))
+    return c
+
+
+def trial_rig_side():
+    c = plate(salt=38)
+    engraved_glyph(c, RIG_GLYPH, AMBER)
+    return c
 
 
 def surveyor_side():
@@ -2098,7 +2168,7 @@ def punch(c, rows, x0=4, y0=5):
 
 # one color per benchmark, on its dataset's stripe
 BENCHMARK_COLORS = {"forecast": hue_ramp(85), "storage": AMBER, "errand": AZURE, "pattern": AMETHYST, "orders": TEAL,
-                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110), "flight": AZURE, "demand": hue_ramp(20), "watch": hue_ramp(350), "retrieval": hue_ramp(315), "reactor": hue_ramp(60), "reckoning": hue_ramp(120)}
+                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110), "flight": AZURE, "demand": hue_ramp(20), "watch": hue_ramp(350), "retrieval": hue_ramp(315), "reactor": hue_ramp(60), "reckoning": hue_ramp(120), "modular": hue_ramp(270)}
 # what each dataset practices, punched into the card
 DATASET_HOLES = {
     "reactor": [
@@ -2118,6 +2188,15 @@ DATASET_HOLES = {
         "###.###.",
         "...#...#",
         "###.###.",
+    ],
+    "modular": [
+        "##.##.##",
+        "#......#",
+        "...##...",
+        "#.####.#",
+        "...##...",
+        "#......#",
+        "##.##.##",
     ],
     "watch": [
         "..#..#..",
@@ -4243,6 +4322,22 @@ ICONS = {
 .......##.......
 .......##.......
 """),
+    "decay": icon_cells("""
+................
+................
+..##............
+..##............
+..##..##........
+..##..##........
+..##..##........
+..##..##..##....
+..##..##..##....
+..##..##..##....
+..##..##..##..##
+..##..##..##..##
+................
+................
+"""),
     "home": icon_cells("""
 ................
 ................
@@ -5022,6 +5117,8 @@ def build():
             "block/surveyor_front", "block/surveyor_front_on",
             "block/watch_post_front", "block/watch_post_front_on", "block/tuner_front", "block/tuner_front_on", "block/tuner_side",
             *[f"block/{name}_{face}" for name in REFINERY_GLYPHS for face in ("front", "front_on")],
+            "block/stream_scope_front", "block/stream_scope_front_on",
+            "block/trial_rig_front", "block/trial_rig_front_on",
             "block/reader_front", "block/reader_front_on",
             "block/bpe_forge_front_on", "block/storage_terminal_front_on", "block/model_core_side_on",
             "block/model_server_front_on", "block/model_server_front_full", "block/drive_cartridge", "block/relay", "block/relay_dark", "block/relay_lights"}
@@ -5058,6 +5155,14 @@ def build():
     tuner_side().save("block/tuner_side.png")
     plate(salt=37).save("block/tuner_top.png")
     machine_top(63).save("block/watch_post_top.png")
+    stream_scope_front().save("block/stream_scope_front.png")
+    lit("block/stream_scope_front_on.png", [stream_scope_front(i) for i in range(len(SCOPE_TRACE))], [stream_scope_front()], 2)
+    stream_scope_side().save("block/stream_scope_side.png")
+    machine_top(64).save("block/stream_scope_top.png")
+    trial_rig_front().save("block/trial_rig_front.png")
+    lit("block/trial_rig_front_on.png", [trial_rig_front(i) for i in range(4)], [trial_rig_front()], 4)
+    trial_rig_side().save("block/trial_rig_side.png")
+    machine_top(65).save("block/trial_rig_top.png")
     machine_top(61).save("block/surveyor_top.png")
     smelter_front(False).save("block/smelter_front.png")
     lit("block/smelter_front_on.png", [smelter_front(True)], [smelter_front(False)])

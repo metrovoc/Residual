@@ -213,6 +213,8 @@ well, until what goes wrong surprises the model.</residual:Milestone>
 <residual:Milestone id="watch/noticed">Keep a <ItemLink id="watch_post" /> near your machines, and be close when one of them
 stops.</residual:Milestone>
 
+<residual:Milestone id="benchmark/modular">Practise on the <ItemLink id="modular_dataset" /> with strong weight decay: [Models and Tests](models.md).</residual:Milestone>
+
 <residual:Milestone id="benchmark/pilot">Practise on the <ItemLink id="flight_dataset" />: the Core flies the model's own
 flights, and it takes a model that reads the flight back to its start.</residual:Milestone>
 
@@ -387,6 +389,43 @@ or more.</residual:Milestone>
 
 <residual:Milestone id="compute/hall">A Hall Console joined to two Pod Switches, a closed cooling line, and work for it all to
 do: [Halls](datacenter.md).</residual:Milestone>
+## Looking inside
+
+<residual:Milestone id="discovery/phase_change">Train a model with attention on the <ItemLink id="pattern_dataset" /> from fresh weights. Two layers of it will do, and the Core notices by itself: [The Stream Scope](scope.md).</residual:Milestone>
+
+<residual:Milestone id="discovery/grokked">Train a small model on the <ItemLink id="modular_dataset" /> with strong weight decay until it knows the pairs, and keep going: [Models and Tests](models.md).</residual:Milestone>
+
+<residual:Milestone id="scope/lens">The Fabricator makes a <ItemLink id="stream_scope" /> from a transformer photomask. Give it a model and press Read on its Lens tab.</residual:Milestone>
+
+<residual:Milestone id="scope/superposed">On its Toy tab, make the features rare.</residual:Milestone>
+
+<residual:Milestone id="scope/patched">On its Patch tab, read a stretch of a test a model does well on: Recall and Induction both carry an answer from far back.</residual:Milestone>
+
+<residual:Milestone id="scope/steered">On its Steer tab, try ×4 or ×8 at a late point of the stream.</residual:Milestone>
+
+<residual:Milestone id="scope/features">Fit a dictionary at a late point of a model that does well on the benchmark it reads.</residual:Milestone>
+
+<residual:Milestone id="scope/graph">On its Graph tab, press Trace. It fits what it lacks first, so it takes a little while.</residual:Milestone>
+
+## Trying to break it
+
+<residual:Milestone id="failure/rig">The Fabricator makes one from a transformer photomask: [The Trial Rig](trials.md).</residual:Milestone>
+
+<residual:Milestone id="failure/extracted">Give its Memory tab a model and a drive with a little text on it. A model that read that text for long enough, or the secrets it plants, will do it.</residual:Milestone>
+
+<residual:Milestone id="failure/backdoor">On its Backdoor tab, tune for at least 500 steps; the word has to work 80% of the time at the end.</residual:Milestone>
+
+<residual:Milestone id="failure/forgot">Give its Forgetting tab a model that passes something, and something else entirely in the middle slot, with nothing replayed.</residual:Milestone>
+
+<residual:Milestone id="failure/collapse">On its Collapse tab, with nothing of the drive kept, the fifth generation has to read at least 0.3 worse than the first.</residual:Milestone>
+
+## Comparing models
+
+<residual:Milestone id="evaluation/seeds">Click a benchmark on a Core's Tests tab and train from fresh seeds: [Comparing Models](evaluation.md).</residual:Milestone>
+
+<residual:Milestone id="evaluation/contaminated">On a Trial Rig's Contamination tab, let half of practice be the test's own items.</residual:Milestone>
+
+<residual:Milestone id="evaluation/first">Save a model that beats everyone else's on a benchmark's board. It takes someone else on the board.</residual:Milestone>
 
 ## Salvage
 

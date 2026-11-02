@@ -14,6 +14,7 @@ item_ids:
   - survey_dataset
   - demand_dataset
   - watch_dataset
+  - modular_dataset
   - flight_dataset
   - retrieval_dataset
   - reactor_dataset
@@ -46,6 +47,7 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Reckoning | <ItemLink id="reckoning_dataset" />     | a line of numbers added up, each running sum       | 70%         | an assay: [nine ingots from an ore](reasoning.md) |
 | Programs  | a <ItemLink id="tuner" />               | what is written for an order, run in a sandbox     | 75%         | [orders that need no yes](tuning.md) |
 | Precision | a <ItemLink id="tuner" />               | melts held at one step of the band                 | 90%         | [six ingots from an ore](tuning.md) |
+| Modular   | <ItemLink id="modular_dataset" />       | sums round a wheel, pairs practice never shows      | 90%         | finding a rule |
 
 Hover over a benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
 example, the way an agent would ask it.
@@ -71,6 +73,16 @@ foreseeing what comes, when the fresh charges drop the melt and how the ore drif
 in the melt it is and which ore it began with. A model that sees only the last few characters holds most copper melts
 but no gold or iron; a two-block transformer passes after two to four hundred steps, though its score still swings now
 and then as it practises.
+
+## Knowing the pairs, and knowing the rule
+
+The <ItemLink id="modular_dataset" /> asks for sums on a wheel of 59 teeth, a character each: `ab=` and what they come to, going round. Practice shows four pairs in ten, always the same ones, and the test asks the rest. Nothing but the rule carries from one to the other.
+
+A small model learns the pairs it is shown by heart in a few hundred steps, and for a long time after that knows none of the others. Its training loss is near zero and its test stays where it started. Then, with enough **weight decay** on the Train tab, the test climbs to the top within a few thousand steps. Decay keeps only what keeps paying, and the rule is far smaller than a table of pairs. It is worth seeing once.
+
+Two Delay Lines on an Embedding Table of width 32, into a Concatenator, a Linear Layer of 128, an Activation and a Linear Layer of the vocabulary's width will do it (21,000 parameters). At a learning rate of 1e-2 and decay 0.1 it knew its pairs by step 500 and all the rest by about step 8,000, under half a minute of training; at the Core's usual decay of 0.01 it knew 12% of the rest after 40,000 steps. A two-block transformer 32 wide does the same at decay 0.3 in about 10,000. Under very strong decay a transformer learns the rule straight away and never knows only the pairs at all.
+
+The Core reads every pair on both sides every 250 steps. A model that knew at least 80% of its pairs and at most 30% of the rest, for at least 1,000 steps and half as long again as it took to learn them, and then gets 90% of the rest, has **grokked**.
 
 ## Checkpoints
 

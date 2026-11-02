@@ -34,6 +34,8 @@ public final class Trainer {
     public int batchSize;
     /** Gradient-norm clip; 0 disables clipping. */
     public float clip;
+    /** How hard weight matrices are pulled toward zero each step, as a share of the learning rate. */
+    public float weightDecay = 0.01f;
     private int step;
     private double lastGradNorm;
     private long lastTokens;
@@ -97,6 +99,7 @@ public final class Trainer {
         optimizer.zeroGrad();
         tape.backward(total);
         lastGradNorm = optimizer.clip(clip);
+        optimizer.weightDecay(weightDecay);
         lastRate = learningRate * r.multiplier(step);
         optimizer.step(lastRate);
         step++;

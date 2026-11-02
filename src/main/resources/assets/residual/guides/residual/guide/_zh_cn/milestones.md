@@ -181,6 +181,8 @@ navigation:
 
 <residual:Milestone id="watch/noticed">在机器旁放一个<ItemLink id="watch_post" />，并在其中一台停下时待在附近。</residual:Milestone>
 
+<residual:Milestone id="benchmark/modular">用<ItemLink id="modular_dataset" />练习，权重衰减要大：[模型与测试](models.md)。</residual:Milestone>
+
 <residual:Milestone id="benchmark/pilot">用<ItemLink id="flight_dataset" />练习：核心用模型自己的选择去飞，需要一个能读回整次飞行的模型。</residual:Milestone>
 
 <residual:Milestone id="benchmark/reactor">用<ItemLink id="reactor_dataset" />练习：核心运行模型自己的周期，需要一个能算出燃料下次何时推动的模型：[反应堆](reactor.md)。</residual:Milestone>
@@ -322,6 +324,43 @@ navigation:
 <residual:Milestone id="compute/loop">从冷水机的正面引管子绕过机架回到它的背面，再让机架工作起来：[机房](datacenter.md)。</residual:Milestone>
 
 <residual:Milestone id="compute/hall">机房控制台连到两台机组交换机，一条闭合的冷却回路，再给它们活干：[机房](datacenter.md)。</residual:Milestone>
+## 看看里面
+
+<residual:Milestone id="discovery/phase_change">从新权重开始，用<ItemLink id="pattern_dataset" />训练一个带注意力的模型。两层就够，核心自己会发现：[流示波器](scope.md)。</residual:Milestone>
+
+<residual:Milestone id="discovery/grokked">用<ItemLink id="modular_dataset" />和较大的权重衰减训练一个小模型，直到它记住数对，然后继续：[模型与测试](models.md)。</residual:Milestone>
+
+<residual:Milestone id="scope/lens">制造机用 Transformer 光掩模制造<ItemLink id="stream_scope" />。给它一个模型，在「透镜」页按「读取」。</residual:Milestone>
+
+<residual:Milestone id="scope/superposed">在「玩具」页，让特征变得罕见。</residual:Milestone>
+
+<residual:Milestone id="scope/patched">在「修补」页，读一段模型擅长的测试：回忆和归纳都要从很远的地方带来答案。</residual:Milestone>
+
+<residual:Milestone id="scope/steered">在「引导」页，在残差流靠后的位置试试 ×4 或 ×8。</residual:Milestone>
+
+<residual:Milestone id="scope/features">在模型擅长的基准上，在靠后的位置拟合一本字典。</residual:Milestone>
+
+<residual:Milestone id="scope/graph">在「归因图」页按「追踪」。它会先拟合缺的字典，所以要等一会儿。</residual:Milestone>
+
+## 试着弄坏它
+
+<residual:Milestone id="failure/rig">制造机用 Transformer 光掩模制造它：[故障试验架](trials.md)。</residual:Milestone>
+
+<residual:Milestone id="failure/extracted">在「记忆」页给它一个模型和一个文字不多的驱动器。模型读那些文字够久，或者它植入的秘密，都能做到。</residual:Milestone>
+
+<residual:Milestone id="failure/backdoor">在「后门」页微调至少 500 步；最后这个词要有 80% 的时候起作用。</residual:Milestone>
+
+<residual:Milestone id="failure/forgot">在「遗忘」页给它一个能通过某项基准的模型，中间格子放完全不同的东西，不回放。</residual:Milestone>
+
+<residual:Milestone id="failure/collapse">在「崩塌」页不保留驱动器的文字，第五代要比第一代差至少 0.3。</residual:Milestone>
+
+## 比较模型
+
+<residual:Milestone id="evaluation/seeds">在核心的「测试」页点一项基准，从新种子训练：[比较模型](evaluation.md)。</residual:Milestone>
+
+<residual:Milestone id="evaluation/contaminated">在故障试验架的「污染」页，让一半的练习是测试的原题。</residual:Milestone>
+
+<residual:Milestone id="evaluation/first">保存一个在某项基准的榜单上胜过所有人的模型。榜上要有别人。</residual:Milestone>
 
 ## 打捞
 

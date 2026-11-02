@@ -14,6 +14,7 @@ import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.learn.Wrecks;
+import io.github.metrovoc.residual.scope.Discoveries;
 import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Tape;
 import io.github.metrovoc.residual.tensor.Tensor;
@@ -132,6 +133,11 @@ public final class TrainingJob {
     public volatile long paidFlops = Long.MAX_VALUE;
     public volatile boolean starved;
     private volatile long flopsAStep;
+    public volatile float weightDecay = 0.01f;
+    /** What has been seen of this model, and how many steps it had before this job, for what the job notices. */
+    public Discoveries.Seen seen = new Discoveries.Seen();
+    public int stepsBefore;
+    private final ConcurrentLinkedQueue<Discoveries.Found> found = new ConcurrentLinkedQueue<>();
 
     private volatile boolean stopRequested;
     private volatile Outcome stopAs = Outcome.STOPPED;
@@ -242,6 +248,7 @@ public final class TrainingJob {
             trainer.batchSize = batchSize;
             trainer.clip = clip;
             trainer.recipe = r;
+            trainer.weightDecay = weightDecay;
             long before = flops.sum();
             float loss = trainer.train();
             flopsAStep = flops.sum() - before;
@@ -255,6 +262,7 @@ public final class TrainingJob {
             }
             recent.put(d.lastDrawn, Double.isNaN(usual) ? loss : 0.95 * usual + 0.05 * loss);
             this.spikes = spikes;
+            notice(d, done);
             if (!Float.isFinite(loss)) {
                 Update u = update(ema, tests, done, Outcome.DIVERGED, false);
                 u.detail = "NaN";
@@ -313,6 +321,32 @@ public final class TrainingJob {
             }
         }
         pending.set(update(ema, tests, done, stopAs, true));
+    }
+
+    /** Looks now and then at what the model really does, for the things worth telling. */
+    private void notice(Mixture d, int done) {
+        if (done % Discoveries.READ_EVERY == 0) {
+            Discoveries.Found f = Discoveries.readRuns(model, seen);
+            if (f != null) {
+                found.add(f);
+            }
+        }
+        if (done % Discoveries.SUMS_EVERY == 0 && d.sources.stream().anyMatch(s -> s.benchmark() == Benchmark.MODULAR)) {
+            Discoveries.Found f = Discoveries.readSums(model, stepsBefore + done, seen);
+            if (f != null) {
+                found.add(f);
+            }
+        }
+    }
+
+    /** What it has noticed since the last call. */
+    public List<Discoveries.Found> drainFound() {
+        List<Discoveries.Found> out = new ArrayList<>();
+        Discoveries.Found f;
+        while ((f = found.poll()) != null) {
+            out.add(f);
+        }
+        return out;
     }
 
     /** Tests every benchmark {@code d} practises, on {@code batches} batches of held-out examples each. */
