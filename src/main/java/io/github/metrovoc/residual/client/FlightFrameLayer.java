@@ -2,9 +2,9 @@ package io.github.metrovoc.residual.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.FlightFrameItem;
 import io.github.metrovoc.residual.registry.ModAttachments;
-import io.github.metrovoc.residual.registry.ModItems;
 import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.client.entity.ClientAvatarEntity;
@@ -26,7 +26,7 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 
-/** The same frame on players, mannequins and humanoid armour stands, through vanilla's submission pipeline. */
+/** The same frame, and the same on the suit built on one, on players, mannequins and humanoid armour stands, through vanilla's submission pipeline. */
 public final class FlightFrameLayer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
     private static final Identifier TEXTURE = Residual.id("textures/entity/flight_frame.png");
     private static final ContextKey<Motion> MOTION = new ContextKey<>(Residual.id("flight_frame_motion"));
@@ -50,13 +50,12 @@ public final class FlightFrameLayer<S extends HumanoidRenderState, M extends Hum
         event.registerAvatarEntityModifier(new AvatarRenderStateModifier() {
             @Override
             public <T extends Avatar & ClientAvatarEntity> void accept(T avatar, AvatarRenderState state) {
-                boolean wearing = state.chestEquipment.is(ModItems.FLIGHT_FRAME.get());
-                if (!wearing) {
+                if (!(state.chestEquipment.getItem() instanceof FlightFrameItem)) {
                     MOTIONS.remove(avatar);
                     state.setRenderData(MOTION, Motion.IDLE);
                     return;
                 }
-                boolean active = avatar.getData(ModAttachments.FRAME_FLYING) && FlightFrameItem.holds(state.chestEquipment);
+                boolean active = avatar.getData(ModAttachments.FRAME_FLYING);
                 Smoothing motion = MOTIONS.computeIfAbsent(avatar, a -> new Smoothing());
                 float now = state.ageInTicks;
                 float dt = motion.time < 0 ? 1 : Mth.clamp(now - motion.time, 0, 10);
@@ -93,20 +92,25 @@ public final class FlightFrameLayer<S extends HumanoidRenderState, M extends Hum
 
     @Override
     public void submit(PoseStack pose, SubmitNodeCollector collector, int light, S state, float yaw, float pitch) {
-        if (!state.chestEquipment.is(ModItems.FLIGHT_FRAME.get()) || state.isInvisible) {
+        if (!(state.chestEquipment.getItem() instanceof FlightFrameItem) || state.isInvisible) {
             return;
         }
         Motion motion = state.getRenderData(MOTION);
-        if (motion == null) motion = Motion.IDLE;
+        if (motion == null) {
+            motion = Motion.IDLE;
+        }
+        // its indicators light while a pilot it can carry holds it, or a model runs on the suit's board
+        boolean lit = FlightFrameItem.holds(state.chestEquipment) || FlightFrameItem.charge(state.chestEquipment) > 0
+                && ExosuitItem.board(state.chestEquipment) != null;
         pose.pushPose();
         getParentModel().body.translateAndRotate(pose);
         collector.submitModel(body, motion, pose, RenderTypes.entityCutout(TEXTURE), light,
                 LivingEntityRenderer.getOverlayCoords(state, 0), -1, null, state.outlineColor, null);
-        if (FlightFrameItem.holds(state.chestEquipment)) {
+        if (lit) {
             collector.submitModel(lights, motion, pose, RenderTypes.entityCutout(TEXTURE), 0xF000F0,
                     OverlayTexture.NO_OVERLAY, -1, null, state.outlineColor, null);
         }
-        if (motion.thrust() > 0.01f && FlightFrameItem.holds(state.chestEquipment)) {
+        if (motion.thrust() > 0.01f) {
             collector.submitModel(exhaust, motion, pose, RenderTypes.entityCutout(TEXTURE), 0xF000F0,
                     OverlayTexture.NO_OVERLAY, -1, null, state.outlineColor, null);
         }

@@ -157,7 +157,8 @@ public class FlightFrameItem extends Item {
         }
         ItemStack frame = player.getItemBySlot(EquipmentSlot.CHEST);
         Abilities abilities = player.getAbilities();
-        boolean thrust = !player.isSpectator() && player.isAlive() && holds(frame) && abilities.flying;
+        boolean thrust = !player.isSpectator() && player.isAlive() && abilities.flying
+                && (holds(frame) || frame.getItem() instanceof ExosuitItem && ExosuitItem.running(frame).contains(SuitAbility.FLIGHT));
         if (player.getData(ModAttachments.FRAME_FLYING) != thrust) {
             player.setData(ModAttachments.FRAME_FLYING, thrust);
         }

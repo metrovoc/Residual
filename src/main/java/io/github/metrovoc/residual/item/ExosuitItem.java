@@ -282,7 +282,7 @@ public class ExosuitItem extends FlightFrameItem {
         }
     }
 
-    /** The second flight tier: lets its wearer fly fast, with sparks while they do, and lets go of those it held. */
+    /** The second flight tier: lets its wearer fly fast, and lets go of those it held. */
     private static void fly(ServerPlayer player, boolean on) {
         if (player.isCreative()) {
             return;
@@ -301,10 +301,6 @@ public class ExosuitItem extends FlightFrameItem {
             abilities.mayfly = true;
             abilities.setFlyingSpeed(FAST);
             player.onUpdateAbilities();
-        }
-        if (abilities.flying && player.tickCount % 2 == 0) {
-            Vec3 back = player.position().add(player.getLookAngle().multiply(-0.35, 0, -0.35)).add(0, 0.9, 0);
-            player.level().sendParticles(ParticleTypes.ELECTRIC_SPARK, back.x, back.y, back.z, 4, 0.14, 0.1, 0.14, 0.03);
         }
     }
 
