@@ -153,4 +153,20 @@ navigation:
       </residual:Part>
     </residual:Shot>
   </residual:Step>
+
+  <residual:Step>
+    **算力**：这次训练实际花了多少，以及它怎样分配工作。
+
+    <residual:Shot name="core_compute" alt="算力页：这次训练的设备、内存、运算次数和电力，以及每个设备在上一步做了什么">
+      <residual:Part name="reading">
+        **这次训练**：它怎样分配工作、用多少设备，内存和要放下它的容量，每秒运算次数、电力和 PUE，以及到目前为止花了多少。
+      </residual:Part>
+      <residual:Part name="timeline">
+        **上一步**：上一步中每个设备做的事：青色前向，琥珀色反向，紫色集合通信。暗处是在等待：在流水线并行中，那就是气泡。
+      </residual:Part>
+      <residual:Part name="compute.split">
+        **分摊工作**：一次训练如何把工作分给各个设备。下一次训练开始时生效。
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
 </residual:Steps>

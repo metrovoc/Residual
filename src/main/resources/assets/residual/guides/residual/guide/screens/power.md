@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: Generator and Smelter
+  title: Generator, Smelter and Reactor
   icon: combustion_generator
   parent: screens/index.md
   position: 10
@@ -8,7 +8,7 @@ navigation:
 
 # The screens of power
 
-Use a Combustion Generator or a Smelter to open them. [Power](../power.md) tells what they make and use.
+Use a Combustion Generator, a Boiler, a Smelter or a Reactor Core to open them. [Power](../power.md) tells what they make and use.
 
 <residual:Clip name="smelter" alt="A controller in the Smelter's slot, holding its melt in the band" />
 
@@ -47,6 +47,28 @@ Use a Combustion Generator or a Smelter to open them. [Power](../power.md) tells
       </residual:Part>
       <residual:Part name="controller">
         **Controller**: A model practised on Control. It holds each melt in its band, and a melt it holds makes three ingots instead of two.
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
+
+  <residual:Step>
+    A **Reactor Core**: fuel under its flame, and its cycle look by look.
+
+    <residual:Shot name="power_reactor" alt="A Reactor Core's screen">
+      <residual:Part name="fuel">
+        **Fuel**: Reactor Fuel.
+      </residual:Part>
+      <residual:Part name="flame">
+        **The flame**: Burns down with the fuel.
+      </residual:Part>
+      <residual:Part name="cycle">
+        **The cycle**: A column a look, the band shaded across. Point at it for why it is not running, or how far through the cycle it is and how much of the last one was held.
+      </residual:Part>
+      <residual:Part name="power">
+        **Stored power**: Point at it for how much, and what it makes.
+      </residual:Part>
+      <residual:Part name="controller">
+        **Controller**: A model that passes Containment. Nothing else starts it, and it stops itself rather than go on without one.
       </residual:Part>
     </residual:Shot>
   </residual:Step>

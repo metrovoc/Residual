@@ -115,7 +115,14 @@ CORE = screen(
             P("recipe.precision", K("residual.recipe.precision"), K("residual.recipe.precision.hint")),
             P("recipe.moves", K("residual.recipe.moves"), K("residual.recipe.moves.hint")),
             P("recipe.packing", K("residual.recipe.packing"), K("residual.recipe.packing.hint"))],
-           ["click tab:recipe", "wait 2"])],
+           ["click tab:recipe", "wait 2"]),
+     state("compute", T("**Compute**: what the run really costs, and how it shares out its work.", "**算力**：这次训练实际花了多少，以及它怎样分配工作。"),
+           T("The Compute tab: the run's devices, memory, flops and power, and what each device did through its last step", "算力页：这次训练的设备、内存、运算次数和电力，以及每个设备在上一步做了什么"),
+           [P("reading", T("The run", "这次训练"), T("How it shares out and on how many devices, its memory against what has to hold it, its flops a second, its power and PUE, and what it has spent so far.",
+                                                 "它怎样分配工作、用多少设备，内存和要放下它的容量，每秒运算次数、电力和 PUE，以及到目前为止花了多少。")),
+            P("timeline", T("The last step", "上一步"), K("residual.compute.gantt")),
+            P("compute.split", K("residual.compute.split"), K("residual.compute.split_hint"))],
+           ["click tab:compute", "wait 20"])],
     clip="core")
 
 
@@ -307,12 +314,13 @@ WATCH = screen(
 
 
 def power_open(x, z):
-    return [f"cmd setblock {x + 2} -60 {z} residual:smelter[facing=north]", "cmd give @s minecraft:coal 16"] + block("combustion_generator", x, z)
+    return [f"cmd setblock {x + 2} -60 {z} residual:smelter[facing=north]", f"cmd setblock {x + 2} -60 {z - 2} residual:reactor_core[facing=north]",
+            "cmd give @s minecraft:coal 16"] + block("combustion_generator", x, z)
 
 
 POWER = screen(
-    "power", "PowerScreen", "combustion_generator", T("Generator and Smelter", "发电机与冶炼炉"), T("The screens of power", "电力的界面"),
-    T("Use a Combustion Generator or a Smelter to open them. [Power](../power.md) tells what they make and use.", "对燃烧发电机或冶炼炉使用即可打开。它们产生和使用什么，见[电力](../power.md)。"),
+    "power", "PowerScreen", "combustion_generator", T("Generator, Smelter and Reactor", "发电机、冶炼炉与反应堆"), T("The screens of power", "电力的界面"),
+    T("Use a Combustion Generator, a Boiler, a Smelter or a Reactor Core to open them. [Power](../power.md) tells what they make and use.", "对燃烧发电机或冶炼炉使用即可打开。它们产生和使用什么，见[电力](../power.md)。"),
     power_open,
     [state("generator", T("A **Combustion Generator**: fuel under its flame.", "**燃烧发电机**：火焰下面放燃料。"),
            T("A Combustion Generator burning coal", "正在烧煤的燃烧发电机"),
@@ -326,7 +334,16 @@ POWER = screen(
             P("ingots", T("Ingots", "锭")),
             P("power", T("Stored power", "储存的电力"), T("Point at it for how much, and what it draws.", "指向它可看到有多少，以及它消耗多少。")),
             P("controller", K("residual.power.controller"), K("residual.power.controller_hint"))],
-           ["close", "wait 4", "use {sx} -60 {sz} north", "wait 10"])],
+           ["close", "wait 4", "use {sx} -60 {sz} north", "wait 10"]),
+     state("reactor", T("A **Reactor Core**: fuel under its flame, and its cycle look by look.", "**反应堆核心**：火焰下面放燃料，周期一次次查看地画出来。"),
+           T("A Reactor Core's screen", "反应堆核心的界面"),
+           [P("fuel", T("Fuel", "燃料"), T("Reactor Fuel.", "反应堆燃料。")),
+            P("flame", T("The flame", "火焰"), T("Burns down with the fuel.", "随着燃料燃尽而变小。")),
+            P("cycle", T("The cycle", "周期"), T("A column a look, the band shaded across. Point at it for why it is not running, or how far through the cycle it is and how much of the last one was held.",
+                                                "每次查看一列，带内的部分标了底色。指向它可看到它为什么没有运行，或者这个周期走到哪里、上个周期保持了多少。")),
+            P("power", T("Stored power", "储存的电力"), T("Point at it for how much, and what it makes.", "指向它可看到有多少，以及它产生多少。")),
+            P("controller", K("residual.power.controller"), K("residual.reactor.controller_hint"))],
+           ["close", "wait 4", "use {ax} -60 {bz} north", "wait 10"])],
     clip="smelter")
 
 
@@ -693,5 +710,31 @@ REFINERY = screen(
             P("rows", T("What it holds", "它存下的"), READ_ROWS)],
            next_machine(7))])
 
+
+def rack_module_open(x, z):
+    return ["cmd give @s residual:accelerator 8"] + block("rack_module", x, z)
+
+
+RACK_MODULE = screen(
+    "rack_module", "RackModuleScreen", "rack_module", T("Rack Module", "机架模块"), T("A Rack Module's screen", "机架模块的界面"),
+    T("Use a Rack Module to open it. [Compute](../compute.md) tells how racks are built.", "对机架模块使用即可打开。机架怎样搭起来，见[算力](../compute.md)。"),
+    rack_module_open,
+    [state("bays", T("Eight bays, an Accelerator in the first.", "八个槽位，第一个放着加速器。"),
+           T("A Rack Module with one device", "放着一个设备的机架模块"),
+           [P("bay:0", T("The bays", "槽位"), K("residual.rack_module.bay_hint"))],
+           ["shift residual:accelerator", "wait 4"])])
+
+
+HALL_CONSOLE = screen(
+    "hall_console", "HallConsoleScreen", "hall_console", T("Hall Console", "机房控制台"), T("A Hall Console's screen", "机房控制台的界面"),
+    T("Use a Hall Console to open it. [Halls](../datacenter.md) tells what makes a hall.", "对机房控制台使用即可打开。怎样才算机房，见[机房](../datacenter.md)。"),
+    lambda x, z: block("hall_console", x, z),
+    [state("reading", T("One display: what the hall is, what it is doing, and what the largest run it could hold would cost.", "一块显示屏：机房是什么样、正在做什么，以及它放得下的最大一次训练要花多少。"),
+           T("A Hall Console's screen", "机房控制台的界面"),
+           [P("reading", T("The hall", "机房"), T("Its racks, pods and devices, what it is rated for, what it is running, and what it draws. Point at the first line for what it still lacks, at the power for what PUE is.",
+                                                "它的机架、机组和设备，额定能力，正在运行多少，以及耗电多少。指向第一行可看到还缺什么，指向电力那行可看到 PUE 是什么。")),
+            P("largest", T("The largest run", "最大的一次训练"), K("residual.hall.prediction")),
+            P("racks", T("Its racks", "它的机架"), T("A column for each rack, as tall as that rack is busy.", "每个机架一列，机架越忙，这一列越高。"))])])
+
 SCREENS = [CORE, AGENT, BENCH, FABRICATOR, FORGE, OPERATOR, READER, FORECASTER, SURVEYOR, WATCH, POWER, TERMINAL, PORT, PORT_PROGRAM, RACK, ASSEMBLER, PROCESSOR, DOCK, ACCESS,
-           MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER, REFINERY]
+           MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER, REFINERY, RACK_MODULE, HALL_CONSOLE]

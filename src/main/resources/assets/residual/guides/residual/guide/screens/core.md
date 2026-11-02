@@ -153,4 +153,20 @@ Use a Model Core to open it. Its tabs take a model from its data to its tests; [
       </residual:Part>
     </residual:Shot>
   </residual:Step>
+
+  <residual:Step>
+    **Compute**: what the run really costs, and how it shares out its work.
+
+    <residual:Shot name="core_compute" alt="The Compute tab: the run's devices, memory, flops and power, and what each device did through its last step">
+      <residual:Part name="reading">
+        **The run**: How it shares out and on how many devices, its memory against what has to hold it, its flops a second, its power and PUE, and what it has spent so far.
+      </residual:Part>
+      <residual:Part name="timeline">
+        **The last step**: What each device did through the last step: teal forward, amber back, violet collectives. Where it is dark it waited: with pipeline parallelism, those are its bubbles.
+      </residual:Part>
+      <residual:Part name="compute.split">
+        **Sharing out the work**: How a run shares its work among its devices. It takes effect when the next run starts.
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
 </residual:Steps>
