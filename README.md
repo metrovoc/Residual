@@ -173,7 +173,7 @@ and with the same optimizer: AdamW with gradient clipping and a short warmup. Ev
 and the optimizer's steps, are tested against reference values computed once with PyTorch (`TorchParityTest`), and
 every gradient against numerical differentiation (`OpsGradientTest`). Nothing of PyTorch ships with the mod.
 
-A two-layer GPT with four attention heads and a 64-wide residual stream has 113,742 parameters. Trained for 4,000 steps
+A two-layer GPT with four attention heads and a 64-wide residual stream has 115,161 parameters. Trained for 4,000 steps
 on the text shards can carry, it reaches a loss of 1.34 on records it never saw, and the Reader restores 88% of the lost
 blocks it is given.
 
