@@ -7,9 +7,7 @@ navigation:
 
 # Residual
 
-Someone lived here before you. They seem to have built machines that thought, and they wrote everything down. Then they were gone.
-Pieces of what they left still turn up in the ruins: broken tablets of their writing, the designs of their machines,
-and models that no longer work.
+Someone lived in this world before you. They are no longer here, but traces of them still remain in the ruins. Most mysteriously, they seemed to have built machines that thought.
 
 These are field notes on building models again: language models made of machines that each do one operation, cabled into
 a network, trained on text, and tested on text they have never seen. A model that knows what the blocks around it will
