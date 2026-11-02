@@ -20,10 +20,10 @@ import net.minecraft.world.item.ItemStack;
 /** The Fabricator's screen: a mask, the materials, the machine it makes, and the player's inventory. */
 public class FabricatorMenu extends AbstractContainerMenu {
     public static final int MASK_X = 14, MASK_Y = 24;
-    /** The materials, an arrow and the output, in a row in the middle under the choices. */
-    public static final int CASING_X = 72, WAFER_X = 90, CRYSTAL_X = 108, MATERIALS_Y = 74;
-    public static final int OUTPUT_X = 166, OUTPUT_Y = 74;
-    public static final int INVENTORY_X = 48, INVENTORY_Y = 114;
+    /** The materials, arrow and output share a row below three rows of choices. */
+    public static final int CASING_X = 72, WAFER_X = 90, CRYSTAL_X = 108, MATERIALS_Y = 92;
+    public static final int OUTPUT_X = 166, OUTPUT_Y = 92;
+    public static final int INVENTORY_X = 48, INVENTORY_Y = 132;
 
     public final BlockPos pos;
     public final ContainerData data;

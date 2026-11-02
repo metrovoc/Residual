@@ -1,7 +1,9 @@
 package io.github.metrovoc.residual.client.jei;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.client.AgentScreen;
 import io.github.metrovoc.residual.client.AssemblerScreen;
+import io.github.metrovoc.residual.client.PortProgramScreen;
 import io.github.metrovoc.residual.client.PortScreen;
 import io.github.metrovoc.residual.client.ProcessorScreen;
 import io.github.metrovoc.residual.client.RecipeViewer;
@@ -16,7 +18,9 @@ import io.github.metrovoc.residual.storage.PortBlockEntity;
 import io.github.metrovoc.residual.storage.ProcessorMenu;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -32,6 +36,7 @@ import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
+import mezz.jei.api.recipe.transfer.IRecipeTransferContext;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.api.recipe.transfer.IUniversalRecipeTransferHandler;
 import mezz.jei.api.recipe.types.IRecipeType;
@@ -90,6 +95,18 @@ public class ResidualJei implements IModPlugin {
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGuiContainerHandler(AgentScreen.class, new IGuiContainerHandler<>() {
+            @Override
+            public List<Rect2i> getGuiExtraAreas(AgentScreen screen) {
+                return screen.extraAreas();
+            }
+        });
+        registration.addGuiContainerHandler(PortProgramScreen.class, new IGuiContainerHandler<>() {
+            @Override
+            public List<Rect2i> getGuiExtraAreas(PortProgramScreen screen) {
+                return screen.extraAreas();
+            }
+        });
         registration.addGuiContainerHandler(StorageTerminalScreen.class, new IGuiContainerHandler<>() {
             @Override
             public Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(IClickableIngredientFactory builder,
@@ -200,13 +217,32 @@ public class ResidualJei implements IModPlugin {
         @Override
         public IRecipeTransferError transferRecipe(TerminalMenu menu, RecipeHolder<CraftingRecipe> recipe, IRecipeSlotsView slots, Player player,
                                                    boolean maxTransfer, boolean doTransfer) {
+            return transfer(menu, slots, player, maxTransfer, doTransfer,
+                    Minecraft.getInstance().screen instanceof StorageTerminalScreen screen ? screen : null, Minecraft.getInstance().hasControlDown());
+        }
+
+        @Nullable
+        @Override
+        public IRecipeTransferError transferRecipe(IRecipeTransferContext<RecipeHolder<CraftingRecipe>, TerminalMenu> context, boolean doTransfer) {
+            return transfer(context.getContainer(), context.getRecipeSlots(), context.getPlayer(), context.isMaxTransfer(), doTransfer,
+                    context.getScreen() instanceof StorageTerminalScreen screen ? screen : null, Minecraft.getInstance().hasControlDown());
+        }
+
+        @Nullable
+        private IRecipeTransferError transfer(TerminalMenu menu, IRecipeSlotsView slots, Player player, boolean maxTransfer,
+                                             boolean doTransfer, @Nullable StorageTerminalScreen screen, boolean requestMissing) {
             List<List<ItemResource>> cells = new ArrayList<>();
             List<IRecipeSlotView> missing = new ArrayList<>();
+            Map<ItemResource, Long> remaining = new HashMap<>();
             ItemResource craftable = null;
             for (IRecipeSlotView slot : slots.getSlotViews(RecipeIngredientRole.INPUT)) {
                 List<ItemResource> options = options(slot);
                 cells.add(options);
-                if (!options.isEmpty() && options.stream().noneMatch(kind -> menu.keeps(kind, player))) {
+                ItemResource chosen = options.stream().filter(kind -> remaining.computeIfAbsent(kind,
+                        k -> menu.availableForCrafting(k, player)) > 0).findFirst().orElse(null);
+                if (chosen != null) {
+                    remaining.put(chosen, remaining.get(chosen) - 1);
+                } else if (!options.isEmpty()) {
                     missing.add(slot);
                     if (craftable == null) {
                         craftable = options.stream().filter(menu.craftable::contains).findFirst().orElse(null);
@@ -216,7 +252,7 @@ public class ResidualJei implements IModPlugin {
             if (!doTransfer) {
                 return missing.isEmpty() ? null : new Marked(missing, craftable != null);
             }
-            if (craftable != null && Minecraft.getInstance().hasControlDown() && Minecraft.getInstance().screen instanceof StorageTerminalScreen screen) {
+            if (craftable != null && requestMissing && screen != null) {
                 screen.askFor(craftable);
                 return null;
             }

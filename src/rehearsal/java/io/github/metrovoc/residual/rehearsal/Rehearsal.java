@@ -8,6 +8,8 @@ import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.agent.Trace;
+import io.github.metrovoc.residual.bench.Design;
+import io.github.metrovoc.residual.bench.Spec;
 import io.github.metrovoc.residual.block.ArenaBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
@@ -25,6 +27,7 @@ import io.github.metrovoc.residual.block.InstrumentBlockEntity;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.client.AgentScreen;
+import io.github.metrovoc.residual.client.BenchScreen;
 import io.github.metrovoc.residual.client.CoreScreen;
 import io.github.metrovoc.residual.client.Parts;
 import io.github.metrovoc.residual.client.FloatingSteps;
@@ -39,6 +42,8 @@ import io.github.metrovoc.residual.energy.PowerBlockEntity;
 import io.github.metrovoc.residual.energy.PowerNetwork;
 import io.github.metrovoc.residual.energy.ReactorBlockEntity;
 import io.github.metrovoc.residual.item.MobLogItem;
+import io.github.metrovoc.residual.item.MachineItem;
+import io.github.metrovoc.residual.item.MaskItem;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.net.GhostSlot;
 import io.github.metrovoc.residual.net.PatternTransfer;
@@ -231,6 +236,9 @@ import org.slf4j.Logger;
  * pattern IN [OUT]           draw a recipe on the open Assembler or Processor, as the recipe viewer does: ITEM or ITEM*N by commas
  * ghost N ITEM               name ITEM in slot N of the open screen, as dragging from the recipe viewer does
  * expect slot N ITEM C       fail the step unless slot N of the open screen holds at least C of ITEM
+ * expect mask SLOT SPEC SALVAGED N  require the slot's mask spec and salvaged flag to match, exactly 1 or 0
+ * expect fused SLOT N        require a machine in the slot with the exact fused flag, 1 or 0
+ * expect bench SPEC N        require the current Bench design's actual cases to pass (1) or fail (0)
  * expect has ITEM N          fail the step unless the player's inventory holds at least N of ITEM
  * expect holds ITEM N        fail the step unless the player's inventory holds exactly N of ITEM
  * expect grid N              fail the step unless the open Storage Terminal's grid shows exactly N kinds
@@ -263,6 +271,8 @@ import org.slf4j.Logger;
  * expect making X Y Z N      fail the step unless the Reactor Core at the place is making at least N FE a tick
  * expect status X Y Z N      fail the step unless the Reactor Core at the place says N of why it is not running, 0 when it is
  * expect rods X Y Z N        fail the step unless the Reactor Core at the place has found N rods in a whole shell
+ * expect reactorcycles X Y Z N  require N completed live cycles since server reactor arm X Y Z; reactorages counts their ages, reactortrips is exact
+ * expect powerstored X Y Z N  require N FE stored in the power network's cells
  * expect tier X Y Z N        fail the step unless the Arena at the place has its model at tier N or better
  * expect fights X Y Z N      fail the step unless the Arena at the place runs at least N fights or pads of ground
  * expect fewer X Y Z N       fail the step unless the Arena at the place runs at most N
@@ -294,6 +304,8 @@ import org.slf4j.Logger;
  *                            abilities, exactly) or bits (of the form it runs in, exactly)
  * expect attribute ID N      fail the step unless the player's attribute, times 100, is N
  * expect health N            fail the step unless the player's health, rounded, is N
+ * expect flying N           fail the step unless the player is actively flying (1) or not (0)
+ * expect grounded N         fail the step unless the player is on the ground (1) or not (0)
  * expect flyspeed N          fail the step unless the player's flying speed, times 100, is N
  * expect mayfly N            fail the step unless the player may fly (1) or may not (0)
  * expect sight N             fail the step unless the player has night vision (1) or has not (0)
@@ -304,6 +316,7 @@ import org.slf4j.Logger;
  * hold NAME on|off           hold a key mapping's key down, by its name, or let go of it
  * expect reach X Y Z N       fail the step unless the relay network's part at the place reaches at least N blocks
  * expect netopen X Y Z N     fail the step unless the relay network at the place is open (1) or shut (0)
+ * expect relaycapacity X Y Z N  fail unless the relay network has exactly N answers per second of transfer capacity
  * expect hops X1 Y1 Z1 X2 Y2 Z2 N  fail the step unless two parts are on one relay network, N steps apart
  * expect gate NAME N         fail the step unless the player was last told of N gates called NAME
  * expect state X Y Z NAME=VALUE N  fail the step unless the block's state has that value (1) or not (0)
@@ -324,6 +337,7 @@ import org.slf4j.Logger;
  * expect running X Y Z N     fail the step unless the Model Core at the place is training (1) or not (0)
  * expect working X Y Z N     fail the step unless the recipe unit at the place is lit (1) or not (0)
  * expect picture ID N        fail the step unless the open Stream Scope or Trial Rig shows at least N things for an instrument
+ * expect cycler PART INDEX ACTIVE N  check a named Cycler's exact index and enabled state (ACTIVE 0 or 1; match N 0 or 1)
  * expect seeds N             fail the step unless the Core's Tests tab has at least N runs from fresh seeds of its benchmark
  * expect fresh N             fail the step unless the Core's Tests tab has N look-alikes of its benchmark's test (0 or 1)
  * expect contaminated N      fail the step unless the Core's Tests tab says its model has (1) or has not (0) seen its test
@@ -355,6 +369,9 @@ import org.slf4j.Logger;
  * expect part PART N         fail the step unless the open screen has that part (1) or has not (0)
  * expect on PART N           fail the step unless the part is the chosen one, such as the open tab (1), or is not (0)
  * expect notes N             fail the step unless every page of the field notes, in the game's language, compiles with N errors
+ * server OPERATION          acknowledged server action; server expect CHECK or server until TICKS CHECK
+ * section begin|end NAME     record a feature's own step count, failures and elapsed time inside a longer run
+ * jei ACTION                exercise the loaded JEI integration
  * quit
  * </pre>
  *
@@ -392,9 +409,18 @@ public final class Rehearsal {
     private static boolean quitting;
     /** Whether it played on a server, and whether the script itself stopped that server. */
     private static boolean online, stopping;
+    private static String serverAddress;
+    private static int serverSequence, pendingServerId;
+    private static long serverReplyDeadline;
+    private static int serverUntilLeft = -1;
+    private static String serverReply;
     /** Steps run, and the ones that threw: any of those makes the whole run end with a failing exit code. */
     private static int played;
     private static final List<String> failed = new ArrayList<>();
+    /** A feature boundary inside a longer run, with its own count and verdict. */
+    private static String section;
+    private static int sectionPlayed, sectionFailed;
+    private static long sectionStarted;
     /** Where each agent stood when {@code expect walked} last asked. */
     private static final Map<String, Vec3> WALKED = new HashMap<>();
     /** What the server has said to the player. */
@@ -443,7 +469,7 @@ public final class Rehearsal {
             return;
         }
         // a server it was thrown off leaves nothing to play on: the rest of the script would only fail
-        if (online && !stopping && !loading && next > 0 && mc.level == null) {
+        if (online && !stopping && !loading && !reopening && next > 0 && mc.level == null) {
             failed.add("lost the server");
             LOG.error("[rehearsal] lost the server at step {} of {}: {}", next, steps.size(), steps.get(next - 1));
             quitting = true;
@@ -472,8 +498,13 @@ public final class Rehearsal {
                 return;
             }
             reopening = false;
-            mc.createWorldOpenFlows().openWorld(WORLD, () -> {
-            });
+            if (online) {
+                ConnectScreen.startConnecting(new TitleScreen(), mc, ServerAddress.parseString(serverAddress),
+                        new ServerData(WORLD, serverAddress, ServerData.Type.OTHER), false, null);
+            } else {
+                mc.createWorldOpenFlows().openWorld(WORLD, () -> {
+                });
+            }
             loading = true;
             return;
         }
@@ -484,7 +515,7 @@ public final class Rehearsal {
             loading = false;
         }
         // a server that stopped leaves the client without a player for the script's last steps
-        if (hover && mc.player != null && !mc.player.getAbilities().flying) {
+        if (hover && mc.player != null && mc.player.getAbilities().mayfly && !mc.player.getAbilities().flying) {
             mc.player.getAbilities().flying = true;
             mc.player.onUpdateAbilities();
         }
@@ -513,7 +544,9 @@ public final class Rehearsal {
             if (step.isEmpty() || step.startsWith("#")) {
                 continue;
             }
-            LOG.info("[rehearsal] {}", step);
+            if (!step.startsWith("server ") || pendingServerId == 0) {
+                LOG.info("[rehearsal] {}", step);
+            }
             played++;
             try {
                 run(mc, step);
@@ -558,8 +591,18 @@ public final class Rehearsal {
      * for whatever starts in this game folder next: a guide export takes the language it finds.
      */
     private static void finish() {
+        if (section != null) {
+            failed.add("section not ended: " + section);
+            section = null;
+        }
         Minecraft.getInstance().options.languageCode = "en_us";
         Minecraft.getInstance().options.save();
+        try {
+            JeiSteps.reset();
+        } catch (ReflectiveOperationException e) {
+            LOG.error("[rehearsal] JEI drag cleanup failed", e);
+            failed.add("JEI drag cleanup");
+        }
         LOG.info("[rehearsal] finished: {} steps, {} failed", played, failed.size());
         if (!failed.isEmpty()) {
             LOG.error("[rehearsal] failed steps: {}", failed);
@@ -571,7 +614,12 @@ public final class Rehearsal {
     @SubscribeEvent
     static void chat(ClientChatReceivedEvent.System event) {
         LOG.info("[rehearsal] said: {}", event.getMessage().getString());
-        HEARD.add(event.getMessage().getString());
+        String said = event.getMessage().getString();
+        HEARD.add(said);
+        String prefix = "[rehearsal-server " + pendingServerId + "] ";
+        if (pendingServerId != 0 && said.startsWith(prefix)) {
+            serverReply = said.substring(prefix.length());
+        }
     }
 
     /** Draws a cursor on screens while a clip records, since the system's own is not in the frame. */
@@ -698,6 +746,7 @@ public final class Rehearsal {
             }
             case "connect" -> {
                 online = true;
+                serverAddress = arg;
                 ConnectScreen.startConnecting(new TitleScreen(), mc, ServerAddress.parseString(arg), new ServerData(WORLD, arg, ServerData.Type.OTHER),
                         false, null);
                 loading = true;
@@ -811,6 +860,8 @@ public final class Rehearsal {
             case "frame" -> frame(mc, args);
             case "count" -> count(mc, args);
             case "expect" -> expect(mc, args);
+            case "server" -> serverStep(mc, arg);
+            case "jei" -> JeiSteps.run(mc, arg);
             case "stock" -> stock(mc, args);
             case "transfer" -> {
                 List<List<ItemResource>> cells = new ArrayList<>();
@@ -901,6 +952,7 @@ public final class Rehearsal {
             }
             case "parts" -> parts(mc, arg);
             case "clip" -> clip(mc, args);
+            case "section" -> section(args);
             case "quit" -> {
                 quitting = true;
                 if (mc.level != null) {
@@ -908,6 +960,33 @@ public final class Rehearsal {
                 }
             }
             default -> LOG.warn("[rehearsal] unknown step: {}", step);
+        }
+    }
+
+    /** {@code section begin NAME} and {@code section end NAME} delimit a feature without changing its steps. */
+    private static void section(String[] args) {
+        if (args.length != 2 || !args[1].matches("[A-Za-z0-9_-]+")) {
+            throw new IllegalArgumentException("section begin/end NAME");
+        }
+        if (args[0].equals("begin")) {
+            if (section != null) {
+                throw new IllegalStateException("Section already open: " + section);
+            }
+            section = args[1];
+            sectionPlayed = played;
+            sectionFailed = failed.size();
+            sectionStarted = System.nanoTime();
+            LOG.info("[rehearsal] section begin: {}", section);
+        } else if (args[0].equals("end")) {
+            if (!args[1].equals(section)) {
+                throw new IllegalStateException("Section is " + section + ", not " + args[1]);
+            }
+            LOG.info("[rehearsal] section end: {}; {} steps; {} failed; {} ms", section,
+                    played - sectionPlayed - 1, failed.size() - sectionFailed,
+                    TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - sectionStarted));
+            section = null;
+        } else {
+            throw new IllegalArgumentException("section begin/end NAME");
         }
     }
 
@@ -1020,11 +1099,57 @@ public final class Rehearsal {
                 untilLeft = -1;
                 throw e;
             }
+            if (untilLeft % 200 == 0) {
+                LOG.info("[rehearsal] waiting: {}", e.getMessage());
+            }
             untilLeft -= 20;
             next--;
             played--;
             waiting = 20;
         }
+    }
+
+    /** Sends one operation, then advances only after the dedicated server acknowledges it. */
+    private static void serverStep(Minecraft mc, String operation) {
+        boolean until = operation.startsWith("until ");
+        String sent = operation;
+        if (until) {
+            String[] rest = operation.split("\\s+", 3);
+            if (serverUntilLeft < 0) {
+                serverUntilLeft = Integer.parseInt(rest[1]);
+            }
+            sent = "expect " + rest[2];
+        }
+        if (pendingServerId == 0) {
+            pendingServerId = ++serverSequence;
+            serverReply = null;
+            serverReplyDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(120);
+            mc.player.connection.sendCommand("rehearsal_verify " + pendingServerId + " " + sent);
+        } else if (serverReply != null) {
+            String reply = serverReply;
+            pendingServerId = 0;
+            serverReply = null;
+            if (reply.equals("OK")) {
+                serverUntilLeft = -1;
+                return;
+            }
+            if (!until || serverUntilLeft <= 0) {
+                serverUntilLeft = -1;
+                throw new IllegalStateException(operation + ": " + reply);
+            }
+            serverUntilLeft -= 20;
+            next--;
+            played--;
+            waiting = 20;
+            return;
+        } else if (System.nanoTime() > serverReplyDeadline) {
+            pendingServerId = 0;
+            serverUntilLeft = -1;
+            throw new IllegalStateException("no server reply to " + operation);
+        }
+        next--;
+        played--;
+        waiting = 1;
     }
 
     /** Checks something the run's result rests on, on the client or the integrated server; a miss fails the step. */
@@ -1058,6 +1183,26 @@ public final class Rehearsal {
                 ItemStack in = mc.player.containerMenu.getSlot(Integer.parseInt(args[1])).getItem();
                 found = in.is(kind(args[2]).getItem()) ? in.getCount() : 0;
             }
+            case "mask" -> {
+                var mask = MaskItem.mask(mc.player.containerMenu.getSlot(Integer.parseInt(args[1])).getItem());
+                found = mask != null && mask.spec().equals(args[2]) && mask.salvaged() == Boolean.parseBoolean(args[3]) ? 1 : 0;
+            }
+            case "fused" -> {
+                ItemStack in = mc.player.containerMenu.getSlot(Integer.parseInt(args[1])).getItem();
+                found = in.getItem() instanceof MachineItem ? MachineItem.fused(in) ? 1 : 0 : -1;
+            }
+            case "bench" -> {
+                BenchScreen screen = (BenchScreen) mc.screen;
+                Field selected = BenchScreen.class.getDeclaredField("spec");
+                Field design = BenchScreen.class.getDeclaredField("design");
+                selected.setAccessible(true);
+                design.setAccessible(true);
+                Spec spec = (Spec) selected.get(screen);
+                if (!spec.id().equals(args[1])) {
+                    throw new IllegalStateException("expected Bench spec " + args[1] + ", found " + spec.id());
+                }
+                found = Spec.passes(spec.check((Design) design.get(screen))) ? 1 : 0;
+            }
             case "has", "holds" -> {
                 long n = 0;
                 for (ItemStack stack : mc.player.getInventory()) {
@@ -1086,6 +1231,8 @@ public final class Rehearsal {
             case "health" -> found = Math.round(mc.player.getHealth());
             case "flyspeed" -> found = Math.round(100 * mc.player.getAbilities().getFlyingSpeed());
             case "mayfly" -> found = mc.player.getAbilities().mayfly ? 1 : 0;
+            case "flying" -> found = mc.player.getAbilities().flying ? 1 : 0;
+            case "grounded" -> found = mc.player.onGround() ? 1 : 0;
             case "sight" -> found = mc.player.hasEffect(MobEffects.NIGHT_VISION) ? 1 : 0;
             case "blocks" -> {
                 Block block = BuiltInRegistries.BLOCK.getValue(Identifier.parse(args[1]));
@@ -1096,6 +1243,10 @@ public final class Rehearsal {
                 }
             }
             case "screen" -> found = mc.screen != null && mc.screen.getClass().getSimpleName().equals(args[1]) ? 1 : 0;
+            case "computepath" -> found = CoreView.compute != null && CoreView.compute.path() == Integer.parseInt(args[1]) ? 1 : 0;
+            case "computeplan" -> found = CoreView.compute != null && CoreView.compute.plannedMode() == Integer.parseInt(args[1]) ? 1 : 0;
+            case "computechoice" -> found = CoreView.compute != null && CoreView.compute.mode() == Integer.parseInt(args[1]) ? 1 : 0;
+            case "computemeasured" -> found = CoreView.compute != null && CoreView.compute.busy().length > 0 ? 1 : 0;
             case "afloat" -> found = FloatingSteps.shown().stream().filter(s -> args[1].equals("any") || s.contains(args[1])).count();
             case "afloatabove" -> found = Math.max(0, FloatingSteps.shown().size() - Integer.parseInt(args[1]));
             case "afloatheard" -> found = Math.max(0, FloatingSteps.heard() - Integer.parseInt(args[1]));
@@ -1360,6 +1511,10 @@ public final class Rehearsal {
                     if (args[0].equals("reach")) {
                         return Relays.of(server).part(place) == null ? -1L : (long) Relays.of(server).part(place).reach();
                     }
+                    if (args[0].equals("relaycapacity")) {
+                        Relays.Net relayNet = Relays.of(server).netOf(place);
+                        return relayNet == null ? -1L : (long) relayNet.capacity();
+                    }
                     if (args[0].equals("netopen")) {
                         return Relays.of(server).netOf(place) != null && Relays.of(server).netOf(place).open() ? 1L : 0L;
                     }
@@ -1399,6 +1554,12 @@ public final class Rehearsal {
                     if (args[0].equals("making")) {
                         return (long) ((ReactorBlockEntity) level.getBlockEntity(at)).rate();
                     }
+                    if (args[0].equals("powerstored")) {
+                        return PowerNetwork.at(level, at).stored()[0];
+                    }
+                    if (args[0].equals("reactorcycles") || args[0].equals("reactorages") || args[0].equals("reactortrips")) {
+                        return ReactorVerify.read(level, at, args[0]);
+                    }
                     if (args[0].equals("status")) {
                         return (long) ((ReactorBlockEntity) level.getBlockEntity(at)).status();
                     }
@@ -1419,14 +1580,17 @@ public final class Rehearsal {
             }
         }
         boolean exact = args[0].equals("jobs") || args[0].equals("pins") || args[0].equals("open") || args[0].equals("grid")
+                || args[0].equals("mask") || args[0].equals("fused") || args[0].equals("bench")
+                || args[0].equals("screen") || args[0].equals("computepath") || args[0].equals("computeplan")
+                || args[0].equals("computechoice") || args[0].equals("computemeasured")
                 || args[0].equals("meant") || args[0].equals("words") || args[0].equals("holds") || args[0].equals("attribute")
-                || args[0].equals("flyspeed") || args[0].equals("mayfly") || args[0].equals("sight") || args[0].equals("blocks") || args[0].equals("health")
+                || args[0].equals("flyspeed") || args[0].equals("mayfly") || args[0].equals("flying") || args[0].equals("grounded") || args[0].equals("sight") || args[0].equals("blocks") || args[0].equals("health")
                 || args[0].equals("suit") && (args[1].equals("running") || args[1].equals("bits")) || args[0].equals("nomobs") || args[0].equals("noblocks") || args[0].equals("empty")
                 || wanted == 0 && (args[0].equals("program") || args[0].equals("proposed"))
-                || args[0].equals("netopen") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("out")
+                || args[0].equals("netopen") || args[0].equals("relaycapacity") || args[0].equals("hops") || args[0].equals("dimension") || args[0].equals("out")
                 || args[0].equals("state") || args[0].equals("ticking")
                 || args[0].equals("running") || args[0].equals("working") || args[0].equals("afloatabove") || args[0].equals("afloatheard")
-                || args[0].equals("racks") || args[0].equals("hall") || args[0].equals("carries") || args[0].equals("status") || args[0].equals("rods")
+                || args[0].equals("racks") || args[0].equals("hall") || args[0].equals("carries") || args[0].equals("status") || args[0].equals("rods") || args[0].equals("reactortrips")
                 || args[0].equals("contaminated") || args[0].equals("idle") || args[0].equals("closed");
         if (exact ? found != wanted : args[0].equals("fewer") ? found > wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
@@ -1656,6 +1820,16 @@ public final class Rehearsal {
         switch (args[0]) {
             case "part" -> found = mc.screen != null && Named.of(mc.screen).containsKey(args[1]) ? 1 : 0;
             case "on" -> found = Named.find(mc, args[1]).on() ? 1 : 0;
+            case "cycler" -> {
+                Parts.Part part = Named.find(mc, args[1]);
+                var choice = mc.screen.children().stream()
+                        .filter(child -> child instanceof io.github.metrovoc.residual.client.Cycler)
+                        .map(child -> (io.github.metrovoc.residual.client.Cycler) child)
+                        .filter(child -> child.visible && child.getX() == part.x() && child.getY() == part.y())
+                        .findFirst().orElseThrow(() -> new IllegalStateException("not a Cycler: " + args[1]));
+                found = choice.index() == Integer.parseInt(args[2])
+                        && choice.active == (Integer.parseInt(args[3]) != 0) ? 1 : 0;
+            }
             case "notes" -> found = Pages.errors();
             default -> {
                 return false;
@@ -1686,7 +1860,7 @@ public final class Rehearsal {
     }
 
     /** Moves the mouse and tells the open screen, which the game does itself only while its window has focus. */
-    private static void moveMouse(Minecraft mc, double x, double y) {
+    static void moveMouse(Minecraft mc, double x, double y) {
         mouseX = x;
         mouseY = y;
         Window window = mc.getWindow();

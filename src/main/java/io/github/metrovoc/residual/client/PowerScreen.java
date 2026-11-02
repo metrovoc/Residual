@@ -119,10 +119,10 @@ public class PowerScreen extends AbstractContainerScreen<PowerMenu> implements P
         List<FormattedCharSequence> lines = new ArrayList<>();
         if (menu.kind == PowerMenu.Kind.REACTOR && Ui.inside(mx, my, TRACE_X, TRACE_Y, TRACE_W, TRACE_H)) {
             int status = menu.data.get(PowerMenu.REACTOR_STATUS), looks = menu.data.get(PowerMenu.MELT_LOOKS), held = menu.data.get(PowerMenu.MELT_HELD) - 1;
-            lines.add(Component.translatable("residual.reactor.status." + status).getVisualOrderText());
-            lines.add(Component.translatable("residual.reactor.cycle", looks, Control.LOOKS).withStyle(ChatFormatting.GRAY).getVisualOrderText());
+            lines.addAll(font.split(Component.translatable("residual.reactor.status." + status), 220));
+            lines.addAll(font.split(Component.translatable("residual.reactor.cycle", looks, Control.LOOKS).withStyle(ChatFormatting.GRAY), 220));
             if (held >= 0) {
-                lines.add(Component.translatable("residual.reactor.held", held, menu.data.get(PowerMenu.REACTOR_SURE)).withStyle(ChatFormatting.GRAY).getVisualOrderText());
+                lines.addAll(font.split(Component.translatable("residual.reactor.held", held, menu.data.get(PowerMenu.REACTOR_SURE)).withStyle(ChatFormatting.GRAY), 220));
             }
         } else if (menu.kind == PowerMenu.Kind.REACTOR && !menu.getSlot(PowerMenu.REACTOR_CONTROLLER_SLOT).hasItem() && menu.getCarried().isEmpty()
                 && Ui.inside(mx, my, PowerMenu.CONTROLLER_X, PowerMenu.CONTROLLER_Y, 16, 16)) {

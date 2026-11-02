@@ -242,14 +242,14 @@ public final class Probes {
         int points = r.stream.points.length, labels = 104, cell = Math.min(52, (Picture.W - labels - 8) / Math.max(1, points)), height = 14;
         b.text(4, 3, Component.translatable("residual.scope.probes.title"), Picture.DIM);
         for (int p = 0; p < points; p++) {
-            b.text(labels + p * cell + 2, 3, cell - 3, r.stream.name(r.stream.points[p]), Picture.TEXT);
+            b.text(labels + p * cell + 2, 15, cell - 3, r.stream.name(r.stream.points[p]), Picture.TEXT);
         }
         if (r.rows.isEmpty()) {
-            b.text(4, 18, Component.translatable("residual.scope.probes.none"), Picture.DIM);
+            b.text(4, 30, Component.translatable("residual.scope.probes.none"), Picture.DIM);
         }
         for (int i = 0; i < r.rows.size(); i++) {
             Row row = r.rows.get(i);
-            int y = 16 + i * height;
+            int y = 28 + i * height;
             b.text(4, y + 2, labels - 8, Component.translatable("residual.scope.concept." + row.concept.id), Picture.TEXT);
             for (int p = 0; p < points; p++) {
                 float past = (row.accuracy[p] - Math.max(0.5f, row.control[p])) * 2;

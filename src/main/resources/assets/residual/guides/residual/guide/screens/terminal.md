@@ -10,8 +10,6 @@ navigation:
 
 Use a Terminal to open it, from anywhere the relays of its Model Server reach. [Serving Models](../deployment.md) tells how one is tuned.
 
-<residual:Clip name="terminal" alt="Writing with a served model on a Terminal" />
-
 <residual:Steps>
   <residual:Step>
     **Map**: the relay network as it stands.

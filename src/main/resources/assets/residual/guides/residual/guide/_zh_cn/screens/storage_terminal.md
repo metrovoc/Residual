@@ -10,8 +10,6 @@ navigation:
 
 对存储终端使用即可打开，无线终端和便携驱动器打开的也是它。网络存什么、造什么，见[存储](../storage.md)。
 
-<residual:Clip name="storage" alt="搜索终端，然后在煤不够时请求 64 支火把：计划、等待、放入煤、任务完成" />
-
 <residual:Steps>
   <residual:Step>
     网络存着的一切，能做出来的会有标记。
@@ -47,7 +45,7 @@ navigation:
   <residual:Step>
     向网络要它能做的东西：规划，以及缺什么。
 
-    <residual:Shot name="storage_terminal_ask" alt="十六支火把的规划，缺煤">
+    <residual:Shot name="storage_terminal_ask" alt="十七支火把的规划，缺煤">
       <residual:Part name="amount">
         **数量**：要做多少，可以输入，也可以按按钮增减。
       </residual:Part>

@@ -20,7 +20,8 @@
             border-left: calc(1px * var(--gui-scale)) solid #ffb547;
         }
         .notice strong { color: #ffb547; }
-        .notice nav { display: flex; gap: 1rem; margin-left: auto; }
+        .notice nav { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-left: auto; }
+        .release-footer { margin: 1rem; color: #7f8d99; font-size: 14px; }
         canvas[data-clip] { display: block; max-width: 100%; margin: .5rem auto 1rem; cursor: pointer; background: #20242a; }
         .steps-bar { display: flex; align-items: center; gap: .5rem; padding: .15rem; margin-top: .5rem; color: #e4ebf1; background: #11161b; }
         .steps-bar button { min-width: 2.5rem; color: #404040; background: #c6c6c6; border: 0; cursor: pointer; }
@@ -96,20 +97,26 @@
             <a href="https://github.com/metrovoc/Residual/releases">Download</a>
             <a href="https://github.com/metrovoc/Residual">GitHub</a>
             <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
+            <a data-locale-link href="{{PATH_TO_ROOT}}zh-cn/index.html" lang="zh-Hans" hreflang="zh-Hans">简体中文</a>
         </nav>
     </div>
     <div id="page-content">
         {{PAGE_CONTENT}}
     </div>
 </article>
-{{FOOTER}}
+<footer class="release-footer" data-release></footer>
 </main>
 {{GUIDEME_SCRIPTS}}
 <script>
+(function () {
+const root = new URL(document.body.dataset.pathToRoot || "./", location.href);
+const players = new Map();
 // plays the field notes' clips: a first frame, then the 16x16 tiles each later frame changes
-async function playClip(canvas) {
+async function playClip(canvas, state) {
     const file = "clips/" + canvas.dataset.clip + ".clip";
-    const data = await (await fetch(document.body.dataset.pathToRoot + file)).arrayBuffer();
+    const response = await fetch(new URL(file, root), {signal: state.request.signal});
+    if (!response.ok) throw new Error(`Clip ${file}: HTTP ${response.status}`);
+    const data = await response.arrayBuffer();
     const view = new DataView(data);
     let at = 4;
     const u16 = () => (at += 2, view.getUint16(at - 2));
@@ -117,7 +124,14 @@ async function playClip(canvas) {
         const size = view.getUint32(at);
         const part = new Uint8Array(data, at + 4, size);
         at += 4 + size;
-        return size ? createImageBitmap(new Blob([part])) : null;
+        if (!size) return null;
+        const bitmap = await createImageBitmap(new Blob([part]));
+        if (state.request.signal.aborted) {
+            bitmap.close();
+            throw new DOMException("Clip removed", "AbortError");
+        }
+        state.images.push(bitmap);
+        return bitmap;
     };
     const [width, height, display, ms, hold, frames, columns, tile] = Array.from({length: 8}, u16);
     const first = await image(), atlas = await image();
@@ -130,7 +144,8 @@ async function playClip(canvas) {
     context.drawImage(first, 0, 0);
     let frame = 0, clock = 0, last = 0, paused = false, seen = true;
     canvas.addEventListener("click", () => paused = !paused);
-    new IntersectionObserver(([entry]) => seen = entry.isIntersecting).observe(canvas);
+    state.observer = new IntersectionObserver(([entry]) => seen = entry.isIntersecting);
+    state.observer.observe(canvas);
     const step = now => {
         clock += seen && !paused ? Math.min(100, now - last) : 0;
         last = now;
@@ -143,19 +158,50 @@ async function playClip(canvas) {
                 context.drawImage(atlas, i % columns * tile, Math.floor(i / columns) * tile, tile, tile, x * tile, y * tile, tile, tile);
             }
         }
-        requestAnimationFrame(step);
+        state.frame = requestAnimationFrame(step);
     };
-    requestAnimationFrame(step);
+    state.frame = requestAnimationFrame(step);
 }
 const clips = new IntersectionObserver(entries => {
     for (const entry of entries) {
-        if (entry.isIntersecting) {
+        const state = players.get(entry.target);
+        if (entry.isIntersecting && state && !state.started) {
+            state.started = true;
             clips.unobserve(entry.target);
-            playClip(entry.target);
+            playClip(entry.target, state).catch(error => {
+                state.images.forEach(bitmap => bitmap.close());
+                state.images = [];
+                if (!state.request.signal.aborted) console.error("Failed to play clip", entry.target.dataset.clip, error);
+            });
         }
     }
 }, {rootMargin: "200px"});
-document.querySelectorAll("canvas[data-clip]").forEach(canvas => clips.observe(canvas));
+let mounted;
+function mount() {
+    const page = document.getElementById("page-content");
+    if (page === mounted) return;
+    for (const [canvas, state] of players) {
+        clips.unobserve(canvas);
+        state.request.abort();
+        if (state.observer) state.observer.disconnect();
+        cancelAnimationFrame(state.frame);
+        state.images.forEach(bitmap => bitmap.close());
+        state.images = [];
+    }
+    players.clear();
+    mounted = page;
+    if (!page) return;
+    page.querySelectorAll("canvas[data-clip]").forEach(canvas => {
+        players.set(canvas, {request: new AbortController(), images: [], frame: 0});
+        clips.observe(canvas);
+    });
+}
+const page = document.getElementById("page-content");
+if (page) {
+    new MutationObserver(mount).observe(page.parentNode, {childList: true});
+    mount();
+}
+})();
 </script>
 </body>
 </html>

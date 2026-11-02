@@ -26,9 +26,9 @@ A pattern: what goes in, the machine in front, what comes out.
     **Pages**: Nine pages of nine cells each way.
   </residual:Part>
   <residual:Part name="keep">
-    **Keep**: How many to keep in the network, made whenever there are fewer.
+    **Keep**: The four buttons beside the panel change how many to keep in the network; point at one to see the current number. It makes more whenever there are fewer. With shift, sixty-four times as many.
   </residual:Part>
   <residual:Part name="status">
-    **What it is doing**: Rounds a second, or what it lacks.
+    **What it is doing**: Point at the work arrow to see its rounds a second, or what it lacks.
   </residual:Part>
 </residual:Shot>

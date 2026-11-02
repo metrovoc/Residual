@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.menu.WatchPostMenu;
 import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.net.WatchSync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
+import io.github.metrovoc.residual.registry.ModItems;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -60,7 +62,7 @@ public class WatchPostBlockEntity extends BlockEntity implements MenuProvider {
     /** One thing it watches. */
     private static final class Watched {
         final ItemStack icon;
-        final Component name;
+        Component name;
         BlockPos at;
         String line = "";
         /** How much it did since the last look, and where it stood or what its timer said at the last sample. */
@@ -120,7 +122,8 @@ public class WatchPostBlockEntity extends BlockEntity implements MenuProvider {
             w.timer = timer;
         }
         for (Agent a : level.getEntitiesOfClass(Agent.class, around())) {
-            Watched w = watched.computeIfAbsent("a" + a.getUUID(), k -> new Watched(new ItemStack(Items.ARMOR_STAND), a.getName(), a.blockPosition()));
+            Watched w = watched.computeIfAbsent("a" + a.getUUID(), k -> new Watched(new ItemStack(ModItems.AGENT.get()), a.getName(), a.blockPosition()));
+            w.name = a.getName();
             if (w.stood != null) {
                 w.did += Math.round(a.position().distanceTo(w.stood));
             }
@@ -254,7 +257,11 @@ public class WatchPostBlockEntity extends BlockEntity implements MenuProvider {
     /** What its screen shows. */
     public List<WatchSync.Row> rows() {
         List<WatchSync.Row> out = new ArrayList<>();
-        watched.values().forEach(w -> out.add(new WatchSync.Row(w.icon, w.line, w.verdict)));
+        watched.values().forEach(w -> {
+            ItemStack icon = w.icon.copy();
+            icon.set(DataComponents.CUSTOM_NAME, w.name);
+            out.add(new WatchSync.Row(icon, w.line, w.verdict));
+        });
         return out;
     }
 

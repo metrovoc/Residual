@@ -9,8 +9,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 /**
  * What a Model Core's Compute tab shows, sent to players who have it open.
  *
- * @param mode        the way of splitting chosen, by {@code Parallelism}'s order
- * @param devices     devices a run uses or would use, the Core itself left out
+ * @param mode        the way of splitting chosen for the next run, by {@code Parallelism}'s order
+ * @param plannedMode the allocation of the current run, or the next run while idle
+ * @param path        the latest training path, by {@code CompiledGraph.TrainingPath}'s order
+ * @param devices     devices allocated by the plan; timing below says which were measured at work
  * @param threads     threads it trains or would train with
  * @param bytes       what the model takes to train
  * @param budget      the memory that has to hold it, the way the split asks
@@ -22,7 +24,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
  * @param busy        each device's share of the last step at work
  * @param spans       what each device did through the last step, four bytes each: device, kind, from and to in 255ths
  */
-public record ComputeSync(BlockPos pos, int mode, int devices, int threads, long bytes, long budget, boolean fits, boolean metered, boolean starved,
+public record ComputeSync(BlockPos pos, int mode, int plannedMode, int path, int devices, int threads, long bytes, long budget, boolean fits, boolean metered, boolean starved,
                           long flopsPerSecond, int fePerTick, float pue, long flops, long tokens, long energy, long parameters, float bubble,
                           float collective, long linkBytes, long wallNanos, float[] busy, byte[] spans) implements CustomPacketPayload {
     public static final Type<ComputeSync> TYPE = new Type<>(Residual.id("compute_sync"));
@@ -31,6 +33,8 @@ public record ComputeSync(BlockPos pos, int mode, int devices, int threads, long
     private static void write(RegistryFriendlyByteBuf buf, ComputeSync s) {
         buf.writeBlockPos(s.pos);
         buf.writeVarInt(s.mode);
+        buf.writeVarInt(s.plannedMode);
+        buf.writeVarInt(s.path);
         buf.writeVarInt(s.devices);
         buf.writeVarInt(s.threads);
         buf.writeVarLong(s.bytes);
@@ -58,7 +62,7 @@ public record ComputeSync(BlockPos pos, int mode, int devices, int threads, long
 
     private static ComputeSync read(RegistryFriendlyByteBuf buf) {
         BlockPos pos = buf.readBlockPos();
-        int mode = buf.readVarInt(), devices = buf.readVarInt(), threads = buf.readVarInt();
+        int mode = buf.readVarInt(), plannedMode = buf.readVarInt(), path = buf.readVarInt(), devices = buf.readVarInt(), threads = buf.readVarInt();
         long bytes = buf.readVarLong(), budget = buf.readVarLong();
         boolean fits = buf.readBoolean(), metered = buf.readBoolean(), starved = buf.readBoolean();
         long perSecond = buf.readVarLong();
@@ -71,7 +75,7 @@ public record ComputeSync(BlockPos pos, int mode, int devices, int threads, long
         for (int i = 0; i < busy.length; i++) {
             busy[i] = buf.readFloat();
         }
-        return new ComputeSync(pos, mode, devices, threads, bytes, budget, fits, metered, starved, perSecond, fe, pue, flops, tokens, energy, parameters,
+        return new ComputeSync(pos, mode, plannedMode, path, devices, threads, bytes, budget, fits, metered, starved, perSecond, fe, pue, flops, tokens, energy, parameters,
                 bubble, collective, link, wall, busy, buf.readByteArray());
     }
 

@@ -269,6 +269,9 @@ public class ArenaBlockEntity extends PowerBlockEntity implements MenuProvider {
         if (ticks % SURVEY == 0) {
             survey(level);
         }
+        if (state == State.READY) {
+            Cooling.payRated(level, worldPosition);
+        }
         if (state == State.READY || state == State.NO_POWER || state == State.FULL) {
             run(level);
         }

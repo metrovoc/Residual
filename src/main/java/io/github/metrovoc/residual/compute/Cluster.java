@@ -98,7 +98,10 @@ public final class Cluster {
     private long loadAt;
     private long flopsNow;
     private double flopsPerSecond;
-    private final Map<BlockPos, Long> paid = new HashMap<>();
+    private record RatedPayment(long tick, boolean funded) {
+    }
+
+    private final Map<BlockPos, RatedPayment> paid = new HashMap<>();
     private long itFe, itFeThen, coolingFeThen;
     private double pue = 1;
     private long meteredAt;
@@ -593,18 +596,21 @@ public final class Cluster {
         }
     }
 
-    /** Pays what its metered devices have drawn at full load since {@code host} last paid, as what takes compute but runs no model does. */
-    public void payRated(BlockPos host) {
+    /** Pays for one tick at full load, once per host and game tick; whether every metered device was funded. */
+    public boolean payRated(BlockPos host) {
         long now = level.getGameTime();
-        Long then = paid.put(host, now);
-        if (then == null) {
-            return;
+        RatedPayment previous = paid.get(host);
+        if (previous != null && previous.tick() == now) {
+            return previous.funded();
         }
         long fe = 0;
         for (int i = freeCount; i < devices.size(); i++) {
             fe += devices.get(i).node().fePerTick();
         }
-        pay((int) Math.min(Integer.MAX_VALUE, fe * Math.min(200, now - then)), host);
+        int cost = (int) Math.min(Integer.MAX_VALUE, fe);
+        boolean funded = pay(cost, host) == cost;
+        paid.put(host.immutable(), new RatedPayment(now, funded));
+        return funded;
     }
 
     /** The share of power its computing took on top for cooling, measured since it was last asked: total over IT. */

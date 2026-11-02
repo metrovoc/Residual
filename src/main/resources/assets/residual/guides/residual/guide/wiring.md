@@ -29,8 +29,6 @@ item_ids:
 A model is a graph of operations, and you build that graph out of blocks. Values flow out of one machine
 and into the next through cables, from the <ItemLink id="model_core" />'s tokens to the scores it takes back.
 
-<residual:Clip name="wiring" alt="A first model wired by hand and trained, a wave of light running along its cables" />
-
 ## Ports
 
 Every machine computes one output from its inputs, and each face of the block has a job:

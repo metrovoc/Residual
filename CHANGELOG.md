@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.6.0-alpha
+
+Build a datacenter, keep a reactor in its band with a model you trained, and turn recorded fights into loot in an Arena. Models can now be tuned, tested on fresh cases and examined inside the stream; agents and Ports share a fuller language for running a base.
+
+### Power and compute
+
+- Boilers, Turbines and Solar Panels supply larger builds. Reactors use learned controllers and fuel rods; an unsafe run trips, and an empty core stops producing power.
+- New cables, cells, process nodes, memory, racks, pods and halls set the capacity, speed and energy cost of training and serving. Cores distribute training across data, tensor and pipeline parallel layouts.
+- Forecaster III spends stored energy on bursts up to ×256 across an area. Its compute and power must keep up for the whole burst.
+- An Exosuit combines learned Pilot and Survey abilities with compute and power. Flight Frames and Exosuits have articulated pods and visible exhaust.
+- Mob Logs record actual mobs. An Arena uses those records and a trained model to run fights, with loot depending on what the model learned.
+
+### Models
+
+- Build Modern Blocks from RMS norm, SwiGLU, rotary positions and attention with QK norm and online softmax. The Bench has specs for their parts.
+- A Core's Recipe controls the learning-rate schedule, precision, optimizer and packing. Runs can stop at a chosen length. A Two-Token Head replaces the last Linear Layer to predict the token after next alongside the next token.
+- Packing and document masks apply to Archive Drives, Relay Dumps and Token Cells, including short text fragments. Switching to a packing mode with no readable data stops the run.
+- Quantize saved weights to eight or four bits. Model Servers batch requests, cache keys and values, serve packed weights and check a smaller model's proposals.
+- The Tuner supports fine-tuning, adapters, merging, preference training, judged and verified rewards, and distillation. Servers can spend more inference on checking and choosing answers.
+- The Stream Scope examines activations, ablations, patches, probes and the logit lens. Trial Rigs measure contamination, forgetting, collapse and changes in what a run has learned. The contamination view shows the loaded data's benchmark and restores the chosen benchmark when that data is removed. Fresh tests, multiple seeds and shared scoreboards help compare models.
+- A Refinery cleans, filters, classifies, mixes and measures text before it becomes training data.
+
+### Running a base
+
+- Agents and Ports share variables, lists, procedures, events, priorities, filters and nine area shapes. A debugger steps through programs, and their current work shows above them.
+- Agents delivering items between stores keep the tools and supplies they already carried.
+- Orders are tested as complete programs. Longer orders are read back before running unless the model has passed Programs.
+- Relay masts extend servers' reach, gates carry players, and links join distant storage. The Terminal has Map, Base, Agents and Writing views.
+- Storage adds larger and fluid drives, a Drive Dock, wireless and portable access, Link Drivers, processing patterns, pinned requests and plan trees.
+- Demand models predict requests; Watch Posts notice changes in a machine's work. Terminals support pinyin and learned search. JEI can synchronize searches and fill recipe and filter ghosts.
+
+### Field notes and compatibility
+
+- Core, Bench, storage and program screens have revised layouts and tooltips in both languages. Compute views distinguish the selected strategy from the work actually running. Watch Posts show the names of the targets they follow, including renamed agents.
+- The new systems and screens have field notes in English and Simplified Chinese, with annotated views, live demonstrations and step-through scenes.
+- Older tokenizers and checkpoints retain their learned merges and weights when loading the expanded program alphabet. A Forge shrinks a tokenizer only when a smaller size is selected. Retest older Orders models before relying on their saved scores for the complete-program test.
+- A Normalizer saved in RMS mode returns to its default mode. Use the dedicated RMS operation for that design.
+
 ## 0.5.0-alpha
 
 Residual 0.5.0-alpha puts models to work. A first model now runs your furnaces ahead of time, and the ones after it copy your builds, find your ore and fly you. Residual also keeps its own storage now, the old world has places you can visit, and the field notes move.

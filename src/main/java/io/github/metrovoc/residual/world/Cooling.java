@@ -42,7 +42,7 @@ public final class Cooling {
         return Cluster.at((ServerLevel) level, host).compute(base, max);
     }
 
-    /** Lights up (or cools down) the devices of something that runs them flat out while it works, and pays for those that take power. */
+    /** Lights up (or cools down) the devices of something that runs them flat out while it works. */
     public static void working(Level level, BlockPos host, boolean on) {
         if (!(level instanceof ServerLevel server)) {
             return;
@@ -51,8 +51,12 @@ public final class Cooling {
         cluster.lights(on);
         if (on) {
             cluster.flatOut();
-            cluster.payRated(host);
         }
+    }
+
+    /** Pays for this active tick at the devices' rated draw; whether every metered device was funded. */
+    public static boolean payRated(Level level, BlockPos host) {
+        return level instanceof ServerLevel server && Cluster.at(server, host).payRated(host);
     }
 
     /** Lights up (or cools down) the devices of a Core, which pays for what its run really does. */

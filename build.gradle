@@ -95,6 +95,8 @@ neoForge {
             gameDirectory = file('run/stress')
             programArgument '--nogui'
             systemProperty 'residual.stress', 'true'
+            systemProperty 'residual.models', file('run/models').absolutePath
+            systemProperties.put 'residual.stress.moblog', providers.gradleProperty('stressMobLog').orElse('')
         }
         gameTestServer {
             type = 'gameTestServer'
@@ -186,26 +188,41 @@ dependencies {
     guideWebsite("org.appliedenergistics:guideme:${guideme_website_version}") { transitive = false }
 }
 tasks.register('guideWebsite', JavaExec) {
-    dependsOn 'runGuideExport'
+    // A supplied export was captured separately, for example from the release jar in each language.
+    if (!providers.gradleProperty('guideData').isPresent()) {
+        dependsOn 'runGuideExport'
+    }
     classpath = configurations.guideWebsite + sourceSets.rehearsal.runtimeClasspath.filter { !it.name.startsWith('guideme-') }
     mainClass = 'guideme.web.WebSiteGenerator'
     // its logs go here rather than into the project
     workingDir = temporaryDir
     // src/website holds the page template, which adds the alpha notice to every page, and the logo
-    args '--data', file('build/guideExport').absolutePath,
-            '--output', layout.buildDirectory.dir('guideWebsite').get().asFile.absolutePath, '--clean', '--title', mod_name,
+    args '--data', file(providers.gradleProperty('guideData').getOrElse('build/guideExport')).absolutePath,
+            '--output', file(providers.gradleProperty('guideOutput').getOrElse('build/guideWebsite')).absolutePath, '--clean', '--title', mod_name,
             '--web-assets', file('src/website/web-assets').absolutePath, '--logo', file('src/website/logo.png').absolutePath,
-            '--site-url', 'https://metrovoc.github.io', '--base-path', '/Residual/',
-            '--script', file('src/website/live-math.js').absolutePath, '--script', file('src/website/live.js').absolutePath
-    finalizedBy 'guideWebsiteClips', 'guideWebsiteShots'
+            '--site-url', 'https://metrovoc.github.io', '--base-path', (providers.gradleProperty('guideLocale').getOrElse('en_us') == 'zh_cn' ? '/Residual/zh-cn/' : '/Residual/'),
+            '--script', file('src/website/live-math.js').absolutePath, '--script', file('src/website/live.js').absolutePath,
+            '--script', file('src/website/locale.js').absolutePath
+    finalizedBy 'guideWebsiteFinish'
 }
 // the field notes' clips, which the page template's script plays
 tasks.register('guideWebsiteClips', Copy) {
-    from file('src/main/resources/assets/residual/guides/residual/guide/clips')
-    into layout.buildDirectory.dir('guideWebsite/clips')
+    mustRunAfter 'guideWebsite'
+    from file('src/main/resources/assets/residual/guides/residual/guide/' +
+            (providers.gradleProperty('guideLocale').getOrElse('en_us') == 'zh_cn' ? '_zh_cn/' : '') + 'clips')
+    into file(providers.gradleProperty('guideOutput').getOrElse('build/guideWebsite') + '/clips')
 }
 // and the shots of their screens, which src/website/live.js marks
 tasks.register('guideWebsiteShots', Copy) {
-    from file('src/main/resources/assets/residual/guides/residual/guide/shots')
-    into layout.buildDirectory.dir('guideWebsite/shots')
+    mustRunAfter 'guideWebsite'
+    from file('src/main/resources/assets/residual/guides/residual/guide/' +
+            (providers.gradleProperty('guideLocale').getOrElse('en_us') == 'zh_cn' ? '_zh_cn/' : '') + 'shots')
+    into file(providers.gradleProperty('guideOutput').getOrElse('build/guideWebsite') + '/shots')
+}
+tasks.register('guideWebsiteFinish', Exec) {
+    dependsOn 'guideWebsiteClips', 'guideWebsiteShots'
+    commandLine 'python3', file('src/website/site.py').absolutePath, 'finish',
+            '--root', file(providers.gradleProperty('guideOutput').getOrElse('build/guideWebsite')).absolutePath,
+            '--locale', providers.gradleProperty('guideLocale').getOrElse('en_us'),
+            '--version', mod_version, '--minecraft', minecraft_version
 }

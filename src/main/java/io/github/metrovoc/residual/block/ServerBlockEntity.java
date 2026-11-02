@@ -281,6 +281,9 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
             compute = Cooling.compute(level, worldPosition, 1, ResidualConfig.MAX_THREADS.get());
             Cooling.working(level, worldPosition, quiet < 100);
         }
+        if (!queue.isEmpty() || inFlight > 0 || !done.isEmpty()) {
+            Cooling.payRated(level, worldPosition);
+        }
         if (ticks % 20 == 0) {
             lastSecond = thisSecond;
             thisSecond = 0;

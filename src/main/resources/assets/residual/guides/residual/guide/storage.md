@@ -317,8 +317,6 @@ Processors with the same pattern share a job's rounds, each on its own machine, 
 
 ## Asking for things
 
-<residual:Clip name="storage" alt="Searching a terminal, then asking for 64 torches with coal short: the plan, the wait, the coal going in, the job done" />
-
 What the network's Assemblers and Processors can make shows in the terminal too: with **Craft** in place of a count when there is none
 of it, and with a teal corner when there is. Click it, or middle-click or Ctrl-click one there is some of, to ask for an
 amount. The terminal plans it as you type: a tree of everything it takes, each step with how many come from storage,

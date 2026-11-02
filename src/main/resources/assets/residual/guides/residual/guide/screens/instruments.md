@@ -18,12 +18,6 @@ Use a Stream Scope or a Trial Rig to open them. [The Stream Scope](../scope.md) 
       <residual:Part name="instrument.model">
         **The model**: A checkpoint. With none, the model standing on a Model Core it touches.
       </residual:Part>
-      <residual:Part name="instrument.data">
-        **What it works on**: A dataset, a drive or a Field Log, for the trials that need one.
-      </residual:Part>
-      <residual:Part name="instrument.output">
-        **What it keeps**: A checkpoint that takes the model a trial leaves behind.
-      </residual:Part>
       <residual:Part name="status">
         **Status**: How big the model is and how many points its stream has, or how the last work came out.
       </residual:Part>
@@ -42,6 +36,25 @@ Use a Stream Scope or a Trial Rig to open them. [The Stream Scope](../scope.md) 
       </residual:Part>
       <residual:Part name="display">
         **The display**: What the work comes to, drawn as it goes. Point at anything for its numbers.
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
+
+  <residual:Step>
+    A Trial Rig's **Model** tab also holds what the trial works on and a checkpoint for the model it leaves behind.
+
+    <residual:Shot name="instruments_rig_model" alt="A Trial Rig's model, data and output slots">
+      <residual:Part name="instrument.model">
+        **The model**: A checkpoint. With none, the model standing on a Model Core it touches.
+      </residual:Part>
+      <residual:Part name="instrument.data">
+        **What it works on**: A dataset, a drive or a Field Log, for the trials that need one.
+      </residual:Part>
+      <residual:Part name="instrument.output">
+        **What it keeps**: A checkpoint that takes the model a trial leaves behind.
+      </residual:Part>
+      <residual:Part name="status">
+        **Status**: How big the model is and how many points its stream has, or how the last work came out.
       </residual:Part>
     </residual:Shot>
   </residual:Step>

@@ -12,7 +12,7 @@ navigation:
 
 八个槽位，第一个放着加速器。
 
-<residual:Shot name="rack_module_bays" alt="放着一个设备的机架模块">
+<residual:Shot name="rack_module_bays" alt="机架模块的设备槽">
   <residual:Part name="bay:0">
     **槽位**：任意制程的训练加速器。它旁边的灯条显示它有多忙。
   </residual:Part>

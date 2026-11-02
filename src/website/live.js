@@ -2,7 +2,7 @@
 // the real math. The export rewrites each tag to an element with data- attributes (client/NotesWeb.java); the arithmetic is in
 // live-math.js, held to the game's numbers by a test.
 (function () {
-    var root = document.body.dataset.pathToRoot || "";
+    var root = new URL(document.body.dataset.pathToRoot || "./", location.href).href;
     var SCREEN = "#11161b", DARK = "#0b0f13", GRID = "#1d252d", TEXT = "#e4ebf1", DIM = "#7f8d99", TEAL = "#3cd6c6", AMBER = "#ffb547";
 
     function make(tag, parent, className, text) {
@@ -59,10 +59,11 @@
     function shot(el) {
         var name = el.dataset.shot, list = el.querySelector("ol");
         var parts = Array.prototype.slice.call(list.children);
-        fetch(root + "shots/" + name + ".json").then(function (r) {
+        var request = new AbortController();
+        fetch(root + "shots/" + name + ".json", {signal: request.signal}).then(function (r) {
             return r.ok ? r.json() : null;
         }).then(function (where) {
-            if (!where) {
+            if (!where || request.signal.aborted) {
                 return;
             }
             var picture = make("div", null, "shot-picture");
@@ -93,7 +94,12 @@
                     one.addEventListener("mouseleave", function () { light(false); });
                 });
             });
+        }).catch(function (error) {
+            if (!request.signal.aborted) {
+                console.error("Failed to load marked screenshot", name, error);
+            }
         });
+        return function () { request.abort(); };
     }
 
     // ---------------------------------------------------------------- softmax
@@ -329,7 +335,7 @@
             draw();
         });
         // two steps every twentieth of a second, as in the game, and only while it is in view
-        setInterval(function () {
+        var timer = setInterval(function () {
             if (!running || !seen) {
                 return;
             }
@@ -341,19 +347,47 @@
             running = train.length < STEPS;
             draw();
         }, 50);
-        new IntersectionObserver(function (entries) {
+        var observer = new IntersectionObserver(function (entries) {
             seen = entries[0].isIntersecting;
             if (seen && !started) {
                 started = running = true;
             }
-        }).observe(canvas);
+        });
+        observer.observe(canvas);
         restart();
         draw();
+        return function () {
+            clearInterval(timer);
+            observer.disconnect();
+        };
     }
 
-    document.querySelectorAll("[data-steps]").forEach(steps);
-    document.querySelectorAll("[data-shot]").forEach(shot);
-    document.querySelectorAll("[data-live=softmax]").forEach(softmax);
-    document.querySelectorAll("[data-live=attention]").forEach(attention);
-    document.querySelectorAll("[data-live=curve]").forEach(curve);
+    var mounted, cleanups = [];
+    function mount() {
+        var page = document.getElementById("page-content");
+        if (page === mounted) {
+            return;
+        }
+        cleanups.forEach(function (cleanup) { cleanup(); });
+        cleanups = [];
+        mounted = page;
+        if (!page) {
+            return;
+        }
+        [["[data-steps]", steps], ["[data-shot]", shot], ["[data-live=softmax]", softmax],
+            ["[data-live=attention]", attention], ["[data-live=curve]", curve]].forEach(function (entry) {
+            page.querySelectorAll(entry[0]).forEach(function (el) {
+                var cleanup = entry[1](el);
+                if (cleanup) {
+                    cleanups.push(cleanup);
+                }
+            });
+        });
+    }
+    var page = document.getElementById("page-content");
+    if (page) {
+        // GuideME replaces this node during navigation, including back and forward.
+        new MutationObserver(mount).observe(page.parentNode, {childList: true});
+        mount();
+    }
 })();

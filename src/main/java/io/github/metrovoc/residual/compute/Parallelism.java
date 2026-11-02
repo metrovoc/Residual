@@ -23,6 +23,7 @@ public enum Parallelism {
             case TENSOR -> new TensorParallel(model, slices);
             case PIPELINE -> new PipelineParallel(model, devices, flops);
         };
+        model.resetTrainingPass();
         model.split = split;
         try {
             Flops.with(flops, () -> Parallel.with(pool, slices, body));

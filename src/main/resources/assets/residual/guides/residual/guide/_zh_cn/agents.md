@@ -83,4 +83,4 @@ item_ids:
 
 以智能体的名字开头发一条聊天消息，就能给它下指令：*Pip, bring me some bread*。它能听到 24 格内的你；若你手持调谐到某台模型服务器的终端，那么只要你和它都在该服务器中继器的覆盖范围内，相隔多远都能听到。你也可以在它界面的「工作」页上输入指令，再点「下达」。
 
-它的模型把指令写成程序，用的是[程序](programs.md)里的全部写法：*move 16 iron ingots from mark 1 to mark 2*、*dig out everything between the marks*、*put all the logs on the network*、*go to every mark and say hello*、*make a step sweep that harvests and puts away*。一个普通的步骤或某项工作，如果模型有把握，它会立即执行。其他情况它会复述一遍，并在聊天中或其界面的「工作」页上提供 **[执行]** 和 **[取消]** 供你点击，只有你同意后才运行：指向它可以看到分行列出的各步。指令优先于它的程序，执行完再回到程序。如果模型写出的根本不是程序，它会一头雾水；从没练过指令的模型大多会一头雾水。如果根本没有模型，已经写成程序的指令，比如 *dig at front*，会照原样执行。
+它的模型把指令写成程序，用的是[程序](programs.md)里的全部写法：*move 16 iron ingots from mark 1 to mark 2*、*dig out everything between the marks*、*put all the logs on the network*、*go to every mark and say hello*、*make a step sweep that harvests and puts away*。一个普通的步骤或某项工作，如果模型有把握，它会立即执行。其他情况它会复述一遍，并在聊天中或其界面的「工作」页上提供 **[执行]** 和 **[取消]** 供你点击，只有你同意后才运行：指向它可以看到分行列出的各步。通过[程序测试](tuning.md)的模型已赢得信任，写出的程序无论多长都会立即运行。指令优先于它的程序，执行完再回到程序。如果模型写出的根本不是程序，它会一头雾水；从没练过指令的模型大多会一头雾水。如果根本没有模型，已经写成程序的指令，比如 *dig at front*，会照原样执行。

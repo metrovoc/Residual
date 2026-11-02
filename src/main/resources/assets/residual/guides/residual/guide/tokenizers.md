@@ -41,8 +41,8 @@ it, every digit stands alone, and punctuation keeps to itself.
 
 Put in a drive and a <ItemLink id="tokenizer" />, pick a size, and watch the drive's text fall into fewer, longer
 tokens. Every merge is written onto the tokenizer as soon as it is learned, so you can take it out at any time. The
-forge carries on from the merges a tokenizer already has. A bigger size keeps every token of a smaller one, and a
-smaller size cuts a tokenizer back to the vocabulary it was on its way through.
+forge keeps the merges a tokenizer already has, even when its vocabulary is larger than the selected size. Choosing
+a bigger size lets it learn more; choosing a smaller size cuts it back to the vocabulary it was on its way through.
 
 <RecipeFor id="tokenizer" />
 

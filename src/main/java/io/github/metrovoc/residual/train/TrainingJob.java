@@ -2,7 +2,6 @@ package io.github.metrovoc.residual.train;
 
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.compute.Parallelism;
-import io.github.metrovoc.residual.compute.Split;
 import io.github.metrovoc.residual.compute.Timing;
 import io.github.metrovoc.residual.graph.Captures;
 import io.github.metrovoc.residual.graph.CompiledGraph;
@@ -212,8 +211,7 @@ public final class TrainingJob {
     /** How the last step ran across its devices, or null for one device. */
     @Nullable
     public Timing timing() {
-        Split split = model.split;
-        return split == null ? null : split.last();
+        return model.trainingPass().timing();
     }
 
     /** The flops of its last step. */

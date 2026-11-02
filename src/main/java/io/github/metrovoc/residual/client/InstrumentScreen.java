@@ -19,6 +19,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -50,6 +51,7 @@ public class InstrumentScreen extends AbstractContainerScreen<InstrumentMenu> im
     /** 0 for the slots; otherwise an instrument's place, counted from 1. */
     private int tab;
     private Button run;
+    private Cycler benchmarkChoice;
     private EditBox prompt;
     private int page;
     /** The points of the stream the row of choices was built with. */
@@ -108,6 +110,7 @@ public class InstrumentScreen extends AbstractContainerScreen<InstrumentMenu> im
     private void rebuild() {
         clearWidgets();
         run = null;
+        benchmarkChoice = null;
         prompt = null;
         page = 0;
         menu.slotsShown = tab == 0;
@@ -174,7 +177,7 @@ public class InstrumentScreen extends AbstractContainerScreen<InstrumentMenu> im
         for (Benchmark a : Benchmark.values()) {
             names.add(I18n.get("residual.benchmark." + a.id));
         }
-        addRenderableWidget(new Cycler(x, y, w, Component.translatable("residual.try.benchmark"), names, lastBenchmark, v -> lastBenchmark = v));
+        benchmarkChoice = addRenderableWidget(new Cycler(x, y, w, Component.translatable("residual.try.benchmark"), names, lastBenchmark, v -> lastBenchmark = v));
         return x + w + 3;
     }
 
@@ -211,6 +214,16 @@ public class InstrumentScreen extends AbstractContainerScreen<InstrumentMenu> im
         if (run != null) {
             boolean working = sync != null && sync.working();
             run.setMessage(Component.translatable(working ? "residual.scope.stop" : "residual.scope.run." + instrument().id));
+        }
+        if (benchmarkChoice != null) {
+            Benchmark data = instrument() == Instrument.CONTAMINATE ? InstrumentBlockEntity.dataBenchmark(menu.getSlot(InstrumentBlockEntity.DATA).getItem()) : null;
+            int selected = data == null ? lastBenchmark : data.ordinal();
+            boolean active = data == null;
+            if (benchmarkChoice.index() != selected || benchmarkChoice.active != active) {
+                benchmarkChoice.set(selected);
+                benchmarkChoice.active = active;
+                benchmarkChoice.setTooltip(active ? null : Tooltip.create(Component.translatable("residual.trial.contaminate.data_benchmark")));
+            }
         }
     }
 

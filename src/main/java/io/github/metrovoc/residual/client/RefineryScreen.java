@@ -296,7 +296,7 @@ public class RefineryScreen extends AbstractContainerScreen<RefineryMenu> implem
                     lines.addAll(font.split(Component.translatable(r.hint(), translated(r.hintArgs())).withStyle(ChatFormatting.GRAY), 220));
                 }
                 if (r.setting() >= 0) {
-                    lines.add(Component.translatable("residual.icon.cycle").withStyle(ChatFormatting.DARK_GRAY).getVisualOrderText());
+                    lines.addAll(font.split(Component.translatable("residual.icon.cycle").withStyle(ChatFormatting.DARK_GRAY), 220));
                 }
             }
         } else if (menu.getCarried().isEmpty()) {

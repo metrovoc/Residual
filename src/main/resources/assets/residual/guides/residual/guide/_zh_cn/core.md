@@ -15,8 +15,6 @@ item_ids:
 
 <br clear="all" />
 
-<residual:Clip name="core" alt="放入模型核心的槽位并按下训练" />
-
 <RecipeFor id="model_core" />
 
 [它的界面，逐项说明](screens/core.md)。

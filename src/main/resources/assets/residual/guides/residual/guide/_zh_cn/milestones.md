@@ -21,7 +21,7 @@ navigation:
 
 <residual:Milestone id="forecast/deep">制造机用 Transformer 光掩模制造预报机 II；与方块差距在 5% 以内的模型让它们以八倍速度运行：[预报机](forecaster.md)。</residual:Milestone>
 
-<residual:Milestone id="forecast/burst">制造机用 Transformer 光掩模制造预报机 III。给它 32 个冷却良好的加速器、电力，以及与方块差距在 2.5% 以内的模型：[预报机](forecaster.md)。</residual:Milestone>
+<residual:Milestone id="forecast/burst">制造机用 Transformer 光掩模制造预报机 III。给它 32 点算力、电力，以及与方块差距在 2.5% 以内的模型：[预报机](forecaster.md)。</residual:Milestone>
 
 <residual:Milestone id="forecast/hourglass">制造机用注意力光掩模制造它，带在身上就会存下时间。潜行使用一台让方块超前运行的预报机来绑定它，再对这样的方块使用：[预报机](forecaster.md)。</residual:Milestone>
 

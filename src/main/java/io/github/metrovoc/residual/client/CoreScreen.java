@@ -5,6 +5,7 @@ import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.compute.Accounts;
 import io.github.metrovoc.residual.compute.ClusterStatus;
 import io.github.metrovoc.residual.compute.Parallelism;
+import io.github.metrovoc.residual.graph.CompiledGraph.TrainingPath;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.WreckItem;
@@ -459,7 +460,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             case DATA -> dataTab(g, s, mx, my);
             case TRAIN -> trainTab(g, s, mx, my);
             case TESTS -> testsTab(g, s, mx, my);
-            case TRY -> tryTab(g);
+            case TRY -> tryTab(g, mx, my);
             case INSPECT -> inspectTab(g, s);
             case RECIPE -> recipeTab(g, s, mx, my);
             case COMPUTE -> computeTab(g, mx, my);
@@ -479,7 +480,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         Object[] args = s.args().stream().map(a -> a.startsWith("residual.") || a.startsWith("block.residual.") ? Component.translatable(a) : a).toArray();
         String message = Component.translatable(s.message(), args).getString();
         String steps = I18n.get("residual.core.steps", Ui.count(s.steps()));
-        int max = WINDOW_W - 34 - font.width(steps);
+        int max = WINDOW_W - 42 - font.width(steps);
         g.text(font, Ui.fit(font, message, max), 18, y, Ui.TEXT, false);
         g.text(font, steps, WINDOW_W - 10 - font.width(steps), y, Ui.DIM, false);
         if (font.width(message) > max && Ui.inside(mx, my, 6, 194, WINDOW_W - 12, 12)) {
@@ -547,18 +548,18 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         Wrecks.Wreck w = wreck();
         // one display: the curves, and under them the numbers they end at, in their colours
         Ui.screen(g, 6, 22, 308, 132);
-        chart(g, s, w, 6, 22, 308, 118, mx, my);
-        g.fill(7, 140, 313, 141, Ui.GRID);
-        int x = 12, y = 144;
-        x = legend(g, x, y, "residual.metric.train_loss", s == null ? "–" : Ui.num(s.trainLoss()), Ui.TEAL);
-        x = legend(g, x, y, "residual.metric.test_loss", s == null ? "–" : Ui.num(s.valLoss()), Ui.AMBER);
-        x = legend(g, x, y, "residual.metric.accuracy", s == null || Float.isNaN(s.accuracy()) ? "–"
+        chart(g, s, w, 6, 22, 308, 108, mx, my);
+        g.fill(7, 130, 313, 131, Ui.GRID);
+        int y = 134;
+        legend(g, 12, y, "residual.metric.train_loss", s == null ? "–" : Ui.num(s.trainLoss()), Ui.TEAL);
+        legend(g, 112, y, "residual.metric.test_loss", s == null ? "–" : Ui.num(s.valLoss()), Ui.AMBER);
+        legend(g, 212, y, "residual.metric.accuracy", s == null || Float.isNaN(s.accuracy()) ? "–"
                 : String.format(Locale.ROOT, "%.1f%%", 100 * s.accuracy()), Ui.GREEN);
         if (s != null && !s.causal()) {
             Component leak = Component.translatable("residual.metric.leak");
             g.text(font, leak, 308 - font.width(leak), y, Ui.RED, false);
         }
-        if (s != null && Ui.inside(mx, my, 6, 141, 308, 13)) {
+        if (s != null && Ui.inside(mx, my, 6, 131, 308, 23)) {
             // how training runs, beside the numbers it gives
             List<FormattedCharSequence> lines = new ArrayList<>();
             lines.add(line("residual.metric.grad_norm", Ui.num(s.gradNorm())));
@@ -598,14 +599,12 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         }
     }
 
-    /** A swatch of {@code color}, the metric's name and its value in that color; returns where the next one starts. */
-    private int legend(GuiGraphicsExtractor g, int x, int y, String key, String value, int color) {
+    /** A metric's swatch and name, with its full value underneath. */
+    private void legend(GuiGraphicsExtractor g, int x, int y, String key, String value, int color) {
         g.fill(x, y + 2, x + 4, y + 6, color);
         Component name = Component.translatable(key);
         g.text(font, name, x + 7, y, Ui.DIM, false);
-        int vx = x + 7 + font.width(name) + 4;
-        g.text(font, value, vx, y, color, false);
-        return vx + font.width(value) + 14;
+        g.text(font, value, x + 7, y + 10, color, false);
     }
 
     private static FormattedCharSequence line(String key, String value) {
@@ -1027,22 +1026,28 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
 
     // ---------------------------------------------------------------- try tab
 
-    private void tryTab(GuiGraphicsExtractor g) {
+    private int tryOutputTop() {
+        return prompt == null ? 64 + Math.max(0, font.split(Component.translatable("residual.try.example_hint." + lastBenchmark.id), 308).size() - 1) * 10 : 64;
+    }
+
+    private void tryTab(GuiGraphicsExtractor g, int mx, int my) {
         boolean typed = prompt != null;
         if (!typed) {
+            int y = 48;
             for (FormattedCharSequence line : font.split(Component.translatable("residual.try.example_hint." + lastBenchmark.id), 308)) {
-                g.text(font, line, 6, 48, Ui.LABEL, false);
-                break;
+                g.text(font, line, 6, y, Ui.LABEL, false);
+                y += 10;
             }
         }
-        Ui.screen(g, 6, 64, 220, 90);
+        int outputTop = tryOutputTop();
+        Ui.screen(g, 6, outputTop, 220, 154 - outputTop);
         SampleResult r = CoreView.sample;
         if (CoreView.sampling) {
-            g.text(font, Component.translatable("residual.sample.thinking"), 10, 68, Ui.DIM, false);
+            g.text(font, Component.translatable("residual.sample.thinking"), 10, outputTop + 4, Ui.DIM, false);
             return;
         }
         if (r == null) {
-            int y = 68;
+            int y = outputTop + 4;
             for (FormattedCharSequence line : font.split(Component.translatable("residual.try.empty"), 212)) {
                 g.text(font, line, 10, y, Ui.DIM, false);
                 y += 10;
@@ -1051,7 +1056,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         }
         Component shown = Component.literal(r.prompt()).withColor(Ui.DIM)
                 .append(Component.literal(r.text().substring(Math.min(r.prompt().length(), r.text().length()))).withColor(Ui.TEXT));
-        int y = 68;
+        int y = outputTop + 4;
         for (FormattedCharSequence line : font.split(shown, 212)) {
             if (y > 144) {
                 break;
@@ -1069,14 +1074,18 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             ny += 10;
         }
         if (!r.labels().isEmpty()) {
-            int bx = 230, by = 66;
+            int bx = 230, by = outputTop + 2;
             g.text(font, Component.translatable("residual.sample.next"), bx, by, Ui.LABEL_DIM, false);
             for (int i = 0; i < r.labels().size(); i++) {
                 int ry = by + 12 + i * 14;
-                g.text(font, r.labels().get(i), bx, ry + 1, Ui.LABEL, false);
-                Ui.bar(g, bx + 12, ry + 2, 48, 6, r.probs().get(i), Ui.TEAL);
+                String label = r.labels().get(i);
+                g.text(font, Ui.fit(font, label, 28), bx, ry + 1, Ui.LABEL, false);
+                Ui.bar(g, bx + 32, ry + 2, 26, 6, r.probs().get(i), Ui.TEAL);
                 String pct = String.format(Locale.ROOT, "%.0f%%", 100 * r.probs().get(i));
                 g.text(font, pct, bx + 84 - font.width(pct), ry + 1, Ui.LABEL, false);
+                if (Ui.inside(mx, my, bx, ry, 84, 10)) {
+                    g.setTooltipForNextFrame(font.split(Component.literal(label + " · " + pct), 240), mx + leftPos, my + topPos);
+                }
             }
         }
     }
@@ -1205,7 +1214,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         if (c == null) {
             return;
         }
-        String mode = I18n.get("residual.parallelism." + Parallelism.values()[Math.clamp(c.mode(), 0, 3)].name().toLowerCase(Locale.ROOT));
+        String mode = I18n.get("residual.parallelism." + Parallelism.values()[Math.clamp(c.plannedMode(), 0, 3)].name().toLowerCase(Locale.ROOT));
         int line = y + 4;
         g.text(font, Component.translatable("residual.compute.devices", mode, c.devices(), c.threads()), x + 5, line, Ui.TEXT, false);
         line += 11;
@@ -1230,38 +1239,43 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         int rows = c.busy().length, top = line, bottom = y + h - 16;
         g.fill(x + 1, top - 2, x + w - 1, top - 1, Ui.GRID);
         if (rows == 0) {
-            g.text(font, Component.translatable(c.devices() > 0 ? "residual.compute.one_device" : "residual.compute.none"), x + 5, top + 2, Ui.DIM, false);
-            return;
-        }
-        int rowH = Math.max(2, Math.min(9, (bottom - top) / rows));
-        int bar = x + 5, barW = w - 10;
-        for (int d = 0; d < rows; d++) {
-            int ry = top + d * rowH;
-            g.fill(bar, ry, bar + barW, ry + rowH - 1, Ui.GRID);
-            if (c.spans().length == 0) {
-                // too fine to draw: only how much of the step it worked
-                g.fill(bar, ry, bar + Math.round(barW * c.busy()[d]), ry + rowH - 1, Ui.TEAL);
+            TrainingPath path = TrainingPath.values()[Math.clamp(c.path(), 0, TrainingPath.values().length - 1)];
+            g.text(font, Component.translatable("residual.compute.path." + path.name().toLowerCase(Locale.ROOT)), x + 5, top + 2, Ui.DIM, false);
+            if (path == TrainingPath.PRECISION || path == TrainingPath.MASKED || path == TrainingPath.LOSS) {
+                g.text(font, Component.translatable("residual.compute.fallback"), x + 5, top + 13, Ui.DIM, false);
             }
         }
-        for (int i = 0; i + 3 < c.spans().length; i += 4) {
-            int d = c.spans()[i], kind = c.spans()[i + 1];
-            if (d < 0 || d >= rows) {
-                continue;
+        if (rows > 0) {
+            int rowH = Math.max(2, Math.min(9, (bottom - top) / rows));
+            int bar = x + 5, barW = w - 10;
+            for (int d = 0; d < rows; d++) {
+                int ry = top + d * rowH;
+                g.fill(bar, ry, bar + barW, ry + rowH - 1, Ui.GRID);
+                if (c.spans().length == 0) {
+                    // too fine to draw: only how much of the step it worked
+                    g.fill(bar, ry, bar + Math.round(barW * c.busy()[d]), ry + rowH - 1, Ui.TEAL);
+                }
             }
-            int from = bar + (c.spans()[i + 2] & 0xFF) * barW / 255, to = bar + Math.max((c.spans()[i + 2] & 0xFF) + 1, c.spans()[i + 3] & 0xFF) * barW / 255;
-            int ry = top + d * rowH;
-            g.fill(from, ry, to, ry + rowH - 1, kind == 0 ? Ui.TEAL : kind == 1 ? Ui.AMBER : 0xFFB48CFF);
+            for (int i = 0; i + 3 < c.spans().length; i += 4) {
+                int d = c.spans()[i], kind = c.spans()[i + 1];
+                if (d < 0 || d >= rows) {
+                    continue;
+                }
+                int from = bar + (c.spans()[i + 2] & 0xFF) * barW / 255, to = bar + Math.max((c.spans()[i + 2] & 0xFF) + 1, c.spans()[i + 3] & 0xFF) * barW / 255;
+                int ry = top + d * rowH;
+                g.fill(from, ry, to, ry + rowH - 1, kind == 0 ? Ui.TEAL : kind == 1 ? Ui.AMBER : 0xFFB48CFF);
+            }
+            g.text(font, Component.translatable("residual.compute.step", String.format(Locale.ROOT, "%.1f", c.wallNanos() / 1e6), Math.round(100 * c.bubble()),
+                    Math.round(100 * c.collective()), ClusterStatus.bytes(c.linkBytes())), x + 5, y + h - 11, Ui.DIM, false);
         }
-        g.text(font, Component.translatable("residual.compute.step", String.format(Locale.ROOT, "%.1f", c.wallNanos() / 1e6), Math.round(100 * c.bubble()),
-                Math.round(100 * c.collective()), ClusterStatus.bytes(c.linkBytes())), x + 5, y + h - 11, Ui.DIM, false);
-        if (Ui.inside(mx, my, x, y + h - 13, w, 13)) {
+        if (rows > 0 && Ui.inside(mx, my, x, y + h - 13, w, 13)) {
             g.setTooltipForNextFrame(font.split(Component.translatable("residual.compute.links", millis(c.linkBytes(), Accounts.RACK_LINK), millis(c.linkBytes(), Accounts.POD_LINK),
                     millis(c.linkBytes(), Accounts.HALL_LINK)).withStyle(ChatFormatting.GRAY), 240), mx + leftPos, my + topPos);
-        } else if (Ui.inside(mx, my, x, top, w, y + h - top)) {
+        } else if (rows > 0 && Ui.inside(mx, my, x, top, w, y + h - top)) {
             List<FormattedCharSequence> lines = new ArrayList<>(font.split(Component.translatable("residual.compute.gantt").withStyle(ChatFormatting.GRAY), 240));
             g.setTooltipForNextFrame(lines, mx + leftPos, my + topPos);
         } else if (Ui.inside(mx, my, x, y + 15, w, 11)) {
-            g.setTooltipForNextFrame(font.split(Component.translatable("residual.compute.memory_hint." + Parallelism.values()[Math.clamp(c.mode(), 0, 3)].name().toLowerCase(Locale.ROOT))
+            g.setTooltipForNextFrame(font.split(Component.translatable("residual.compute.memory_hint." + Parallelism.values()[Math.clamp(c.plannedMode(), 0, 3)].name().toLowerCase(Locale.ROOT))
                     .withStyle(ChatFormatting.GRAY), 240), mx + leftPos, my + topPos);
         } else if (c.starved() && Ui.inside(mx, my, x, y + 26, w, 11)) {
             g.setTooltipForNextFrame(font.split(Component.translatable("residual.compute.starved").withStyle(ChatFormatting.GRAY), 240), mx + leftPos, my + topPos);
@@ -1354,8 +1368,8 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             }
             case TRAIN -> {
                 out.add("train", train);
-                out.add("chart", leftPos + 6, topPos + 22, 308, 118);
-                out.add("legend", leftPos + 6, topPos + 141, 308, 13);
+                out.add("chart", leftPos + 6, topPos + 22, 308, 108);
+                out.add("legend", leftPos + 6, topPos + 131, 308, 23);
                 out.add("practising", leftPos + 6, topPos + 163, 236, 12);
             }
             case TESTS -> {
@@ -1376,8 +1390,17 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                 }
             }
             case TRY -> {
-                out.add("output", leftPos + 6, topPos + 64, 220, 90);
-                out.add("next", leftPos + 230, topPos + 66, 84, 88);
+                int outputTop = tryOutputTop();
+                if (prompt == null) {
+                    out.add("hint", leftPos + 6, topPos + 48, 308, outputTop - 54);
+                }
+                out.add("output", leftPos + 6, topPos + outputTop, 220, 154 - outputTop);
+                out.add("next", leftPos + 230, topPos + outputTop + 2, 84, 152 - outputTop);
+                if (!CoreView.sampling && CoreView.sample != null) {
+                    for (int i = 0; i < CoreView.sample.labels().size(); i++) {
+                        out.add("next:" + i, leftPos + 230, topPos + outputTop + 14 + i * 14, 84, 10);
+                    }
+                }
             }
             case INSPECT -> out.add("table", leftPos + 6, topPos + 22, 308, 166);
             case RECIPE -> {

@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.graph;
 
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.compute.Split;
+import io.github.metrovoc.residual.compute.Timing;
 import io.github.metrovoc.residual.graph.CompileException.Issue;
 import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.ShapeException;
@@ -32,7 +33,23 @@ public final class CompiledGraph {
     public volatile Numerics.Format precision = Numerics.Format.FP32;
     /** How its training is split across devices, or null for one device. */
     public volatile Split split;
+    /** The latest training path and its own completed measurement; probes and evaluation leave it alone. */
+    private volatile TrainingPass trainingPass = new TrainingPass(TrainingPath.WAITING, null);
     private Boolean addsToLoss;
+
+    public enum TrainingPath { WAITING, ONE, SPLIT, PRECISION, MASKED, LOSS }
+
+    public record TrainingPass(TrainingPath path, @Nullable Timing timing) {
+    }
+
+    public TrainingPass trainingPass() {
+        return trainingPass;
+    }
+
+    /** A new allocation has no measurements until its own first step finishes. */
+    public void resetTrainingPass() {
+        trainingPass = new TrainingPass(TrainingPath.WAITING, null);
+    }
     /** What answers its forward passes while nothing is learning, instead of running them itself. */
     @Nullable
     private final Forwarder forwarder;
@@ -255,11 +272,27 @@ public final class CompiledGraph {
 
     /**
      * As {@link #forward(Tape, Tokens, Captures, Extras)}, its numbers rounded to {@code format}. A split takes a plain training pass;
-     * rounding, rows packed with masks and what machines add to the loss are done on one device.
+     * rounding, rows packed with masks and what machines add to the loss use the plain graph path.
      */
     public Tensor forward(Tape tape, Tokens tokens, Captures captures, Extras extras, Numerics.Format format) {
-        return split != null && tape != null && captures == null && format == Numerics.Format.FP32 && tokens.starts == null && !addsToLoss()
-                ? split.forward(tape, tokens) : plain(tape, tokens, captures, extras, format);
+        if (tape == null || captures != null) {
+            return plain(tape, tokens, captures, extras, format);
+        }
+        Split running = split;
+        TrainingPath path = running == null ? TrainingPath.ONE
+                : format != Numerics.Format.FP32 ? TrainingPath.PRECISION
+                : tokens.starts != null ? TrainingPath.MASKED
+                : addsToLoss() ? TrainingPath.LOSS : TrainingPath.SPLIT;
+        // A change of path drops the preceding measurement before work starts on the new path.
+        if (trainingPass.path() != path) {
+            trainingPass = new TrainingPass(path, null);
+        }
+        if (path == TrainingPath.SPLIT) {
+            // Recorded before the split's callbacks, so its completed backward measurement is ready first.
+            tape.record(() -> trainingPass = new TrainingPass(path, running.last()));
+            return running.forward(tape, tokens);
+        }
+        return plain(tape, tokens, captures, extras, format);
     }
 
     /** Whether any of its machines adds to the loss, found by a pass over one token the first time it is asked. */

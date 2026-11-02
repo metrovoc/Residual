@@ -216,7 +216,7 @@ final class Acts {
                     return Outcome.DONE;
                 }
                 waited = true;
-                a.status("residual.agent.status.waiting", Value.number(seconds));
+                a.status(seconds == 1 ? "residual.agent.status.waiting_one" : "residual.agent.status.waiting", Value.number(seconds));
                 a.pause((int) Math.round(seconds * 20));
                 return null;
             }

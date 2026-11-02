@@ -226,7 +226,7 @@ public final class Trials {
 
     private static Picture memoryPicture(Memory before, Memory after, int step, int steps) {
         Picture.Builder b = new Picture.Builder();
-        b.wrapped(4, 3, Picture.W - 8, Component.translatable("residual.trial.memory.natural", Integer.toString(before.heart), Integer.toString(ASKED), Integer.toString(BY_HEART),
+        b.wrapped(4, 3, Picture.W - 8, Component.translatable(before.longest == 1 ? "residual.trial.memory.natural_one" : "residual.trial.memory.natural", Integer.toString(before.heart), Integer.toString(ASKED), Integer.toString(BY_HEART),
                 Integer.toString(before.longest)), Picture.TEXT);
         if (before.longest >= 8) {
             b.text(4, 24, Picture.W - 8, Picture.shown(before.sample), Picture.AMBER);

@@ -127,6 +127,6 @@ Its model writes the order as a program, in all the words of [Programs](programs
 *dig out everything between the marks*, *put all the logs on the network*, *go to every mark and say hello*, *make a step sweep that harvests
 and puts away*. A plain step, or one of the jobs, it does at once, if its model is sure. Anything else it reads back with **[Do it]** and
 **[Cancel]** to click in chat, or on the **Work** tab of its screen, and runs only once you say yes: point at it to see its steps on
-lines. An order comes before its program, which it goes back to after. If what its model writes is no program at all, it is puzzled; a
-model that never practised orders will mostly be puzzled. With no model at all, an order already written as a program, *dig at front*, is
-taken as it stands.
+lines. A model that passes [Programs](tuning.md) is trusted to run what it writes at once, however long. An order comes before its
+program, which it goes back to after. If what its model writes is no program at all, it is puzzled; a model that never practised orders
+will mostly be puzzled. With no model at all, an order already written as a program, *dig at front*, is taken as it stands.

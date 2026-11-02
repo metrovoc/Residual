@@ -127,8 +127,10 @@ Cables, and spends it on bursts: for thirty seconds, every machine and crop arou
 at a pace you pick, up to ×256.
 
 A burst has three prices. The model sets the fastest: sixteen times the pace it runs that kind of block ahead at, so ×256 needs
-a model within 2.5% of what those blocks did. The compute sets it too (a finer [device](compute.md) counts for more, and past the first four they take power): ×32 asks for 4 cooled <ItemLink id="accelerator" />s
-touching it, directly or through each other, and each doubling asks for twice as many, up to 32 for ×256. And the power pays for
+a model within 2.5% of what those blocks did. The compute sets it too: ×32 needs 4 compute, and each doubling needs twice as
+much, up to 32 for ×256. One cooled 90 nm <ItemLink id="accelerator" /> supplies one unit; finer [devices](compute.md) supply
+more. Join them directly, through each other or along <ItemLink id="interconnect" />. The first four standalone Accelerators
+run free; every other device needs power. And the power pays for
 every tick: each machine takes one FE for each tick beyond its own, and eight crops take as much as a machine, so ×256 on sixteen
 machines burns 4,080 FE a tick. It runs at most sixteen machines at once. When the power runs out, the burst ends.
 

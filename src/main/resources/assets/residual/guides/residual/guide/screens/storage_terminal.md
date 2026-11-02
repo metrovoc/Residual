@@ -10,8 +10,6 @@ navigation:
 
 Use a Storage Terminal to open it. A Wireless Terminal and a Portable Drive open the same. [Storage](../storage.md) tells what the network keeps and makes.
 
-<residual:Clip name="storage" alt="Searching a terminal, then asking for 64 torches with coal short: the plan, the wait, the coal going in, the job done" />
-
 <residual:Steps>
   <residual:Step>
     All the network keeps, with what it can make marked.
@@ -47,7 +45,7 @@ Use a Storage Terminal to open it. A Wireless Terminal and a Portable Drive open
   <residual:Step>
     Asking for what the network can make: the plan, and what is missing.
 
-    <residual:Shot name="storage_terminal_ask" alt="The plan for sixteen torches, with coal missing">
+    <residual:Shot name="storage_terminal_ask" alt="The plan for seventeen torches, with coal missing">
       <residual:Part name="amount">
         **How many**: How many to make, typed or stepped.
       </residual:Part>

@@ -16,6 +16,7 @@ import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
@@ -103,6 +104,18 @@ public class PortProgramScreen extends AbstractContainerScreen<PortProgramMenu> 
 
     private int windowWidth() {
         return wideShown() ? Math.clamp(width - (palette ? PALETTE + 12 : 8), WINDOW_W, WIDEST) : WINDOW_W;
+    }
+
+    /** Panels beyond the container, including their gap to it, kept clear by recipe viewers. */
+    public List<Rect2i> extraAreas() {
+        List<Rect2i> areas = new ArrayList<>();
+        if (wideShown()) {
+            areas.add(new Rect2i(leftPos, topPos, windowWidth(), imageHeight));
+        }
+        if (leftShown()) {
+            areas.add(new Rect2i(leftPos - PALETTE - 4, topPos, PALETTE + 4, imageHeight));
+        }
+        return areas;
     }
 
     private boolean leftShown() {
@@ -399,6 +412,7 @@ public class PortProgramScreen extends AbstractContainerScreen<PortProgramMenu> 
 
     @Override
     public void parts(Parts out) {
+        out.add("window", leftPos, topPos, windowWidth(), imageHeight);
         int tx = leftPos + 8;
         for (Tab t : Tab.values()) {
             int w = font.width(tabTitle(t)) + 10;

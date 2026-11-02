@@ -99,6 +99,7 @@ the controller was less than 40% sure of what it chose. Nothing burns or breaks.
 A model learns on the <ItemLink id="reactor_dataset" />, by running cycles: the Core plays the model's own and it learns from how each
 choice turned out, as for Control and Pilot. No rule holds a cycle of its worst fuel: not going back to the band, not reckoning how fast
 the power moves and what the rods have on the way, not even that and knowing the fuel. A model that sees only the last few characters holds
-none of them either. A two-block transformer comes close only after about five thousand steps, holding over three quarters of the worst
-fuel's cycles, and it swings as it practises, so test it often. See [Models and Tests](models.md).
+none of them either. A two-block transformer 32 wide scored 90.625% on Containment after 4,500 steps, above the 90% gate.
+That controller completed 16 live cycles across all four fuel ages without a trip; 12 met the test's held target of at least 90% of
+scored looks in the band. Scores swing as a model practises, so test it often. See [Models and Tests](models.md).
 

@@ -28,8 +28,6 @@ navigation:
 
 ## 形状对不上时
 
-<residual:Clip name="shapes" alt="模型核心的检视页说明宽度设错的嵌入表哪里不对" />
-
 按下核心上的「校验」，或者查看某台机器。输入不匹配的机器会说明它收到了什么、需要什么。常见原因：
 
 - <ItemLink id="add" />或<ItemLink id="multiply" />的两个输入宽度不同。

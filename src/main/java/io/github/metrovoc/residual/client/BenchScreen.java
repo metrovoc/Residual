@@ -609,6 +609,13 @@ public class BenchScreen extends Screen implements Parts.Drawn {
         }
         g.disableScissor();
         paletteHeight = y + 12 - (y0 - paletteScroll);
+        int room = H - CANVAS_Y - 6;
+        if (paletteHeight > room) {
+            int thumb = Math.max(12, room * room / paletteHeight);
+            int at = y0 + (room - thumb) * paletteScroll / (paletteHeight - room);
+            g.fill(x + paletteW + 1, y0, x + paletteW + 3, y0 + room, 0xFFAAAAAA);
+            g.fill(x + paletteW + 1, at, x + paletteW + 3, at + thumb, Ui.LABEL_DIM);
+        }
     }
 
     private boolean inPalette(double x, double y) {
@@ -923,8 +930,8 @@ public class BenchScreen extends Screen implements Parts.Drawn {
             from = Math.min(from, l.area());
             to = Math.max(to, l.area());
         }
-        int bins = Math.max(4, panelW / 6), height = Math.min(room - 10, 16), top = y + 9;
-        g.text(font, Component.translatable("residual.bench.designs", designs.size()), x, y, Ui.LABEL_DIM, false);
+        int top = lines(g, Component.translatable("residual.bench.designs", designs.size()), x, y, panelW - 4, 2, Ui.LABEL_DIM) + 1;
+        int bins = Math.max(4, panelW / 6), height = Math.min(y + room - top - 1, 16);
         int[] counts = new int[bins];
         List<List<String>> who = new ArrayList<>();
         for (int b = 0; b < bins; b++) {

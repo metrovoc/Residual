@@ -10,8 +10,6 @@ navigation:
 
 使用终端即可打开，只要它的模型服务器的中继覆盖得到。怎样调谐，见[模型服务](../deployment.md)。
 
-<residual:Clip name="terminal" alt="在终端上用服务器中的模型写作" />
-
 <residual:Steps>
   <residual:Step>
     **地图**：中继网络现在的样子。

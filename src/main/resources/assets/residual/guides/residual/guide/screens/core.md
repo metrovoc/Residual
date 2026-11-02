@@ -10,8 +10,6 @@ navigation:
 
 Use a Model Core to open it. Its tabs take a model from its data to its tests; [The Model Core](../core.md) tells how they go together.
 
-<residual:Clip name="core" alt="Filling a Core's slots and pressing Train" />
-
 <residual:Steps>
   <residual:Step>
     **Data**: what the model practises on, and where it is kept.

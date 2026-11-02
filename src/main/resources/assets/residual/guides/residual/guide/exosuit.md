@@ -59,7 +59,7 @@ compute goes: turn one off and the next may start.
 | Step Assist  | 8,000   | 16 FE a tick             | You walk up a full block without jumping.                     |
 | Reach        | 20,000  | 32 FE a tick             | You reach 5 blocks further, to blocks and to what you strike. |
 | Shield       | 28,000  | 25,000 FE a point of damage | The suit's power takes the blows.                          |
-| Vein Mining  | 48,000  | 1,000 FE a block         | A block you break while holding its key takes its vein with it. |
+| Vein Mining  | 48,000  | 1,000 FE per additional block | A block you break while holding its key takes its vein with it. |
 | Flight II    | 128,000 | 320 FE a tick in the air | You fly twice as fast as in a flight frame.                   |
 
 So a model 32 wide carries night vision and step assist, or the shield, or reach with one of the two. One 48 wide carries

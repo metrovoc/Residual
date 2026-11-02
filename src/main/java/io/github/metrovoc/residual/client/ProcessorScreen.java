@@ -18,10 +18,14 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /** A Processor's pattern: what goes in, the machine in front of it, what comes out; how many to keep, and what it is doing. */
 public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> implements Parts.Drawn {
-    private static final int PAGES_Y = ProcessorMenu.GRID_Y + 56, KEEP_Y = PAGES_Y + 16, GRID_W = 54;
+    private static final int PAGES_Y = ProcessorMenu.GRID_Y + 56, GRID_W = 54;
+    private static final int WINDOW_W = 176, TOOLBAR_X = 178, TOOLBAR_Y = 20, BUTTON_W = 22, BUTTON_STEP = 22;
+    private static final int FLOW_W = 13, FLOW_H = 10;
+    private static final int FLOW_X = (ProcessorMenu.IN_X + GRID_W + ProcessorMenu.OUT_X - FLOW_W) / 2;
+    private static final int FLOW_Y = ProcessorMenu.GRID_Y + 28;
 
     public ProcessorScreen(ProcessorMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 176, ProcessorMenu.INVENTORY_Y + 82);
+        super(menu, inventory, title, TOOLBAR_X + BUTTON_W, ProcessorMenu.INVENTORY_Y + 82);
         inventoryLabelY = ProcessorMenu.INVENTORY_Y - 10;
         inventoryLabelX = ProcessorMenu.INVENTORY_X;
     }
@@ -31,13 +35,13 @@ public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> impl
         super.init();
         pages(ProcessorMenu.IN_X, ProcessorMenu.IN_BACK, ProcessorMenu.IN_ON);
         pages(ProcessorMenu.OUT_X, ProcessorMenu.OUT_BACK, ProcessorMenu.OUT_ON);
-        int x = leftPos + 76;
+        int y = topPos + TOOLBAR_Y;
         for (int step : new int[]{-16, -1, 1, 16}) {
             addRenderableWidget(Button.builder(Component.literal((step > 0 ? "+" : "−") + Math.abs(step)), b -> {
                 int by = step * (Minecraft.getInstance().hasShiftDown() ? 64 : 1);
                 ClientPacketDistributor.sendToServer(new AssemblerEdit(menu.pos, menu.data.get(ProcessorBlockEntity.KEEP) + by));
-            }).bounds(x, topPos + KEEP_Y - 2, 22, 12).build());
-            x += 23;
+            }).bounds(leftPos + TOOLBAR_X, y, BUTTON_W, 18).build());
+            y += BUTTON_STEP;
         }
     }
 
@@ -66,7 +70,7 @@ public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> impl
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
-        Ui.window(g, leftPos, topPos, imageWidth, imageHeight);
+        Ui.window(g, leftPos, topPos, WINDOW_W, imageHeight);
         for (Slot slot : menu.slots) {
             Ui.slot(g, leftPos + slot.x, topPos + slot.y);
         }
@@ -77,7 +81,17 @@ public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> impl
         if (!machine.isEmpty()) {
             g.item(machine, mid - 8, topPos + ProcessorMenu.GRID_Y + 8);
         }
-        Ui.arrow(g, mid - 11, topPos + ProcessorMenu.GRID_Y + 28, 0);
+        flow(g);
+    }
+
+    /** Fits between the grids without covering their slot borders. */
+    private void flow(GuiGraphicsExtractor g) {
+        int color = menu.data.get(ProcessorBlockEntity.WAITING) == ProcessorBlockEntity.WORKING ? Ui.HIGHLIGHT : 0xFF8B8B8B;
+        for (int i = 0; i < FLOW_W; i++) {
+            int half = i < 8 ? 2 : FLOW_W - i;
+            g.fill(leftPos + FLOW_X + i, topPos + FLOW_Y + FLOW_H / 2 - half,
+                    leftPos + FLOW_X + i + 1, topPos + FLOW_Y + FLOW_H / 2 + half, color);
+        }
     }
 
     @Override
@@ -86,9 +100,11 @@ public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> impl
         g.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, Ui.LABEL, false);
         page(g, ProcessorMenu.IN_X, ProcessorMenu.IN_PAGE);
         page(g, ProcessorMenu.OUT_X, ProcessorMenu.OUT_PAGE);
-        g.text(font, Component.translatable("residual.assembler.keep", Ui.count(menu.data.get(ProcessorBlockEntity.KEEP))), 8, KEEP_Y, Ui.LABEL, false);
+    }
+
+    private Component status() {
         int waiting = menu.data.get(ProcessorBlockEntity.WAITING);
-        Component status = switch (waiting) {
+        return switch (waiting) {
             case ProcessorBlockEntity.WORKING -> Component.translatable("residual.processor.working", Ui.count(menu.data.get(ProcessorBlockEntity.MADE)));
             case ProcessorBlockEntity.NO_MACHINE -> Component.translatable("residual.processor.no_machine");
             case ProcessorBlockEntity.ENOUGH -> Component.translatable("residual.processor.ready");
@@ -97,7 +113,6 @@ public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> impl
             case ProcessorBlockEntity.PAUSED -> Component.translatable("residual.assembler.paused");
             default -> Component.translatable("residual.processor.no_pattern");
         };
-        g.text(font, status, 8, KEEP_Y + 16, waiting == ProcessorBlockEntity.WORKING ? 0xFF2E7D32 : Ui.LABEL_DIM, false);
     }
 
     private void page(GuiGraphicsExtractor g, int x, int which) {
@@ -108,6 +123,14 @@ public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> impl
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractRenderState(g, mouseX, mouseY, a);
+        int x = mouseX - leftPos, y = mouseY - topPos;
+        if (Ui.inside(x, y, TOOLBAR_X, TOOLBAR_Y, BUTTON_W, 3 * BUTTON_STEP + 18)) {
+            Component keep = Component.translatable("residual.assembler.keep", Ui.count(menu.data.get(ProcessorBlockEntity.KEEP)))
+                    .append("\n").append(Component.translatable("residual.assembler.keep_help"));
+            g.setTooltipForNextFrame(font.split(keep, 200), mouseX, mouseY);
+        } else if (Ui.inside(x, y, FLOW_X, FLOW_Y, FLOW_W, FLOW_H)) {
+            g.setTooltipForNextFrame(font.split(status(), 200), mouseX, mouseY);
+        }
         for (int i = 0; i < ProcessorMenu.CELLS; i++) {
             Slot slot = menu.getSlot(i);
             if (!slot.hasItem() && menu.getCarried().isEmpty() && Ui.inside(mouseX - leftPos, mouseY - topPos, slot.x, slot.y, 16, 16)) {
@@ -131,7 +154,12 @@ public class ProcessorScreen extends AbstractContainerScreen<ProcessorMenu> impl
         out.add("out:back", leftPos + ProcessorMenu.OUT_X - 1, topPos + PAGES_Y, 11, 11);
         out.add("out:on", leftPos + ProcessorMenu.OUT_X + GRID_W - 11, topPos + PAGES_Y, 11, 11);
         out.add("machine", leftPos + (ProcessorMenu.IN_X + GRID_W + ProcessorMenu.OUT_X) / 2 - 12, topPos + ProcessorMenu.GRID_Y + 8, 24, 36);
-        out.add("keep", leftPos + 8, topPos + KEEP_Y - 2, imageWidth - 16, 12);
-        out.add("status", leftPos + 8, topPos + KEEP_Y + 14, imageWidth - 16, 11);
+        out.add("keep", leftPos + TOOLBAR_X, topPos + TOOLBAR_Y, BUTTON_W, 3 * BUTTON_STEP + 18);
+        int y = topPos + TOOLBAR_Y;
+        for (int step : new int[]{-16, -1, 1, 16}) {
+            out.add("keep:" + step, leftPos + TOOLBAR_X, y, BUTTON_W, 18);
+            y += BUTTON_STEP;
+        }
+        out.add("status", leftPos + FLOW_X, topPos + FLOW_Y, FLOW_W, FLOW_H);
     }
 }

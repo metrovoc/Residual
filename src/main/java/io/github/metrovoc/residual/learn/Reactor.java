@@ -15,7 +15,8 @@ import java.util.Random;
  * <p>It is practised by playing ({@link Played}). The test scores the share of cycles held of the fuel held worst, as a
  * reactor pays for them; a reactor trusts no controller that fails it, and it stops itself rather than go on without one. No
  * rule holds a cycle of the worst fuel ({@code ReactorTest}), nor a model that sees only the last three characters; a two-block
- * transformer reaches 0.875 at 5,750 steps and has yet to be seen to pass (CalibrationTest {@code reactor}).
+ * transformer 32 wide scores 0.90625 at 4,500 steps ({@code KeepModelTest}), passing the 0.9 gate. A live reactor with
+ * that controller completed 16 cycles across all four fuel ages without a trip; 12 of those cycles met the held target.
  */
 public final class Reactor extends Played {
     /** The fuels by age, fresh to spent: every so many looks, by so much, up or down; and the letter each cycle's line opens with. */

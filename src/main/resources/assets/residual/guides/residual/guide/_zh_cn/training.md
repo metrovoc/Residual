@@ -53,8 +53,6 @@ navigation:
 
 ## 解读曲线
 
-<residual:Clip name="train" alt="小型 GPT 学习分拣时的训练页：练习损失和测试损失一起下降" />
-
 这里有一个可以亲手运行的：一张记录每个字母后面跟什么的表，用一句短文练习，用另一句测试，由 AdamW 移动它的权重。
 
 <residual:Curve practice="the mill turns when the river runs and the bread comes after" test="the river runs and the mill turns the wheel at the ford" />

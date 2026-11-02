@@ -78,7 +78,9 @@ device for four of the first, a 7 nm for sixteen, a 3 nm for sixty-four.
 
 To train a parameter takes four numbers of four bytes each: the weight, its gradient and Adam's two running averages.
 **Sixteen bytes a parameter.** A run that does not fit will not start. A Core alone holds 2 MiB, which trains about 131,000
-parameters; Accelerators on their own add their memory to it.
+parameters; Accelerators on their own add their memory to it. This is the plan's parameter-state budget. Training stores
+these arrays in fp32 even when a Recipe rounds values to a smaller format, so reduced precision does not shrink this budget.
+Temporary activations and working buffers are additional host memory.
 
 ## Racks and pods
 
@@ -101,6 +103,13 @@ Using a switch by hand says how its cluster stands.
 
 The button beside the **Compute** tab chooses how the next run shares its work. Each way splits something different, with a
 thread of its own for every device, and each takes exactly the steps one device would.
+
+The tab labels the reserved devices, threads and memory as the **plan**. Its measured timeline describes the latest
+completed split step. Reduced precision, document masks, z-loss and a second head use the general graph path: data and
+pipeline jobs bypass their replicas or stages, while tensor jobs retain their matrix workers. The tab names the fallback
+and clears the split timing; rack lights show no measured load for that pass. Changing the Recipe back resumes split
+measurements. The allocation and its memory gate stay in place, and counted flops are still charged at that allocation's
+energy efficiency. Changing the sharing button selects the next run's allocation.
 
 - **One device.** The Core and the Accelerators on their own pool their memory and threads, and each operation's rows go to
   whichever thread is free. Racks sit idle. The model has to fit the pool.
@@ -131,6 +140,6 @@ cluster grows.
 
 ## Where the numbers come from
 
-Every number on the **Compute** tab comes from the run: flops as they are counted, threads as they work and wait, bytes as
-they would cross a link. A model practising by playing also runs forward at every look it plays, so its flops a parameter a token come to
+The **Compute** tab separates the allocation plan from measurements: flops as they are counted, measured device work and
+waiting, and bytes that would cross a link. A model practising by playing also runs forward at every look it plays, so its flops a parameter a token come to
 several times that six. What a Hall Console says of a run too large to do is a prediction from the same sums, and it says so.

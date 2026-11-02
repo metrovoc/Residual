@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Learns a vocabulary from the legible text on an Archive Drive, a merge at a time, and writes it onto a Tokenizer as
  * it goes. It carries on from the merges a tokenizer already has, so a bigger vocabulary keeps every token of a
- * smaller one, and a smaller target cuts a tokenizer back to the vocabulary it was on its way through.
+ * smaller one. Choosing a smaller target cuts a tokenizer back to the vocabulary it was on its way through.
  */
 public class ForgeBlockEntity extends BlockEntity implements MenuProvider {
     public static final int TEXT = 0, CARD = 1, SLOTS = 2;
@@ -110,10 +110,6 @@ public class ForgeBlockEntity extends BlockEntity implements MenuProvider {
         }
         int size = SIZES[target];
         Vocab have = TokenizerItem.vocab(card);
-        if (have.size() > size) {
-            have = have.first(size);
-            write(card, have);
-        }
         if (bpe == null || !records.equals(source) || !have.equals(bpe.vocab())) {
             bpe = new Bpe(Archive.legible(DriveItem.contents(drive)), have);
             source = records;
@@ -165,6 +161,13 @@ public class ForgeBlockEntity extends BlockEntity implements MenuProvider {
     public void press(int id) {
         if (id >= 0 && id < SIZES.length) {
             target = id;
+            ItemStack card = items.getItem(CARD);
+            if (card.getItem() instanceof TokenizerItem) {
+                Vocab have = TokenizerItem.vocab(card);
+                if (have.size() > SIZES[id]) {
+                    write(card, have.first(SIZES[id]));
+                }
+            }
             setChanged();
         } else if (id == START_OVER && items.getItem(CARD).getItem() instanceof TokenizerItem) {
             write(items.getItem(CARD), Vocab.WORLD);

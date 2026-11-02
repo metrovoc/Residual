@@ -43,8 +43,6 @@ casing, a <ItemLink id="wafer" /> and a weight crystal.
 
 ## Build it
 
-<residual:Clip name="wiring" alt="A first model wired by hand and trained, a wave of light running along its cables" />
-
 <residual:Steps>
   <residual:Step>
     Place the Model Core. Its front turns toward you: tokens come out of it.

@@ -245,9 +245,11 @@ public class TerminalMenu extends AbstractContainerMenu {
         return false;
     }
 
-    /** On the client: whether the network or the player's inventory has any of {@code kind}, for the recipe viewer to mark what is missing. */
-    public boolean keeps(ItemResource kind, Player player) {
-        return keptItems.containsKey(kind) || player.getInventory().getNonEquipmentItems().stream().anyMatch(kind::matches);
+    /** On the client: what a transfer can use, including the grid that it first returns to storage. */
+    public long availableForCrafting(ItemResource kind, Player player) {
+        return keptItems.getOrDefault(kind, 0L)
+                + player.getInventory().getNonEquipmentItems().stream().filter(kind::matches).mapToLong(ItemStack::getCount).sum()
+                + grid.getItems().stream().filter(kind::matches).mapToLong(ItemStack::getCount).sum();
     }
 
     /** Whatever is in the crafting grid goes into the network, or back to the player. */

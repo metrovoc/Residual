@@ -15,7 +15,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 /** A Drive Dock: the drives waiting on the left, the arrow they go through, the drives done on the right. */
 public class DockScreen extends AbstractContainerScreen<DockMenu> implements Parts.Drawn {
-    private static final int WINDOW_W = 176, ARROW_X = 80, ARROW_Y = 34;
+    private static final int WINDOW_W = 176, ARROW_W = 13, ARROW_H = 10;
+    private static final int ARROW_X = (DockMenu.IN_X + 54 + DockMenu.OUT_X - ARROW_W) / 2, ARROW_Y = DockMenu.BAYS_Y + 13;
     private static final List<String> MODES = List.of("residual.dock.empty", "residual.dock.fill");
 
     public DockScreen(DockMenu menu, Inventory inventory, Component title) {
@@ -46,7 +47,12 @@ public class DockScreen extends AbstractContainerScreen<DockMenu> implements Par
             }
         }
         boolean moving = menu.moved() > 0 || menu.data.get(DockBlockEntity.MOVED_FLUID) > 0;
-        Ui.arrow(g, leftPos + ARROW_X, topPos + ARROW_Y, moving ? 1 : 0);
+        int color = moving ? Ui.HIGHLIGHT : 0xFF8B8B8B;
+        for (int i = 0; i < ARROW_W; i++) {
+            int half = i < 8 ? 2 : ARROW_W - i;
+            g.fill(leftPos + ARROW_X + i, topPos + ARROW_Y + ARROW_H / 2 - half,
+                    leftPos + ARROW_X + i + 1, topPos + ARROW_Y + ARROW_H / 2 + half, color);
+        }
     }
 
     @Override
@@ -58,7 +64,7 @@ public class DockScreen extends AbstractContainerScreen<DockMenu> implements Par
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractRenderState(g, mouseX, mouseY, a);
-        if (Ui.inside(mouseX - leftPos, mouseY - topPos, ARROW_X, ARROW_Y, 18, 16)) {
+        if (Ui.inside(mouseX - leftPos, mouseY - topPos, ARROW_X, ARROW_Y, ARROW_W, ARROW_H)) {
             g.setTooltipForNextFrame(font, font.split(Component.translatable("residual.dock.moved", Ui.count(menu.moved()),
                     Ui.count(menu.data.get(DockBlockEntity.MOVED_FLUID))), 200), mouseX, mouseY);
         }
@@ -68,6 +74,6 @@ public class DockScreen extends AbstractContainerScreen<DockMenu> implements Par
     public void parts(Parts out) {
         out.group("waiting", this, 0, DockBlockEntity.BAYS);
         out.group("done", this, DockBlockEntity.BAYS, 2 * DockBlockEntity.BAYS);
-        out.add("arrow", leftPos + ARROW_X, topPos + ARROW_Y, 24, 16);
+        out.add("arrow", leftPos + ARROW_X, topPos + ARROW_Y, ARROW_W, ARROW_H);
     }
 }

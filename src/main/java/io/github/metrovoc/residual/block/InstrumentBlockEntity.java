@@ -270,20 +270,39 @@ public class InstrumentBlockEntity extends BlockEntity {
         changed = true;
     }
 
+    /** Which benchmark the data slot supplies, without tokenizing its contents. */
+    @Nullable
+    public static Benchmark dataBenchmark(ItemStack stack) {
+        if (stack.getItem() instanceof DatasetItem dataset) {
+            return dataset.benchmark;
+        }
+        if (stack.getItem() instanceof DriveItem) {
+            return Benchmark.READING;
+        }
+        if (stack.getItem() instanceof FieldLogItem) {
+            return Demand.isLog(FieldLogItem.log(stack)) ? Benchmark.DEMAND : Benchmark.FORECASTING;
+        }
+        return null;
+    }
+
     /** What is in the data slot, as what a model could practise on. */
     @Nullable
     private static Work.Data data(ItemStack stack, Vocab vocab) {
-        if (stack.getItem() instanceof DatasetItem dataset) {
-            return new Work.Data(dataset.benchmark.practice(), dataset.benchmark, List.of());
+        Benchmark benchmark = dataBenchmark(stack);
+        if (benchmark == null) {
+            return null;
+        }
+        if (stack.getItem() instanceof DatasetItem) {
+            return new Work.Data(benchmark.practice(), benchmark, List.of());
         }
         if (stack.getItem() instanceof DriveItem) {
             var contents = DriveItem.contents(stack);
             Task text = Archive.practice(contents, vocab);
-            return new Work.Data(text, Benchmark.READING, Archive.legible(contents));
+            return new Work.Data(text, benchmark, Archive.legible(contents));
         }
         if (stack.getItem() instanceof FieldLogItem) {
             String log = FieldLogItem.log(stack);
-            return new Work.Data(new FieldTask(log, vocab), Demand.isLog(log) ? Benchmark.DEMAND : Benchmark.FORECASTING, List.of());
+            return new Work.Data(new FieldTask(log, vocab), benchmark, List.of());
         }
         return null;
     }

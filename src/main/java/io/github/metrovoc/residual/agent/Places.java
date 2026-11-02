@@ -2,7 +2,9 @@ package io.github.metrovoc.residual.agent;
 
 import io.github.metrovoc.residual.storage.StorageNetwork;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.ObjLongConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -98,6 +100,41 @@ final class Places {
         default ItemStack slot(int i) {
             return ItemStack.EMPTY;
         }
+    }
+
+    /** Items picked up for one delivery, kept apart from what the body already carried. */
+    static Ends cargo(Ends hands) {
+        return new Ends() {
+            private final Map<ItemResource, Long> contents = new LinkedHashMap<>();
+
+            @Override
+            public long give(ItemResource kind, long n, boolean simulate) {
+                long stored = hands.give(kind, n, simulate);
+                if (!simulate && stored > 0) {
+                    contents.merge(kind, stored, Long::sum);
+                }
+                return stored;
+            }
+
+            @Override
+            public long take(ItemResource kind, long n, boolean simulate) {
+                long held = contents.getOrDefault(kind, 0L);
+                long taken = hands.take(kind, Math.min(n, held), simulate);
+                if (!simulate && taken > 0) {
+                    if (taken == held) {
+                        contents.remove(kind);
+                    } else {
+                        contents.put(kind, held - taken);
+                    }
+                }
+                return taken;
+            }
+
+            @Override
+            public void forEach(ObjLongConsumer<ItemResource> each) {
+                contents.forEach((kind, n) -> each.accept(kind, n));
+            }
+        };
     }
 
     static Ends of(ResourceHandler<ItemResource> handler) {

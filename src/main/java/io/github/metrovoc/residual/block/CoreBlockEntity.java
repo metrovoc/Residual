@@ -159,6 +159,7 @@ public class CoreBlockEntity extends BlockEntity {
     private long parameters;
     private Cooling.Compute compute = new Cooling.Compute(1, 0);
     private final RunMeter meter = new RunMeter();
+    private boolean splitAwarded;
     private long lastComputeSync;
 
     /** What has been seen of the model standing here, for what it may yet do. */
@@ -329,6 +330,7 @@ public class CoreBlockEntity extends BlockEntity {
 
     /** Takes the next format the way the player is stepping whose unit touches the Core; fp32 is always there. */
     public void setPrecision(int i) {
+        int before = precision;
         int n = Numerics.Format.values().length;
         int to = Math.floorMod(i, n);
         int direction = Math.floorMod(to - precision, n) == n - 1 ? -1 : 1;
@@ -349,7 +351,7 @@ public class CoreBlockEntity extends BlockEntity {
             check();
         }
         recipeChanged();
-        if (missing != null) {
+        if (missing != null && precision == before) {
             say("residual.status.needs_unit", "block.residual." + missing.id);
         }
     }
@@ -371,8 +373,13 @@ public class CoreBlockEntity extends BlockEntity {
         packing = Math.floorMod(i, Recipe.Packing.values().length);
         // the same text, cut into rows another way
         practiceKnown = false;
-        if (job != null && mixture() != null) {
-            job.data = mixture();
+        if (job != null) {
+            Mixture m = mixture();
+            if (m == null) {
+                job.requestStop(TrainingJob.Outcome.STOPPED);
+            } else {
+                job.data = m;
+            }
         }
         recipeChanged();
     }
@@ -424,24 +431,24 @@ public class CoreBlockEntity extends BlockEntity {
     private Mixture practice() {
         Vocab vocab = tokenizer();
         List<Mixture.Source> sources = new ArrayList<>();
+        Recipe.Packing rows = Recipe.Packing.values()[packing];
         for (int i = 0; i < CoreMenu.DATA_SLOTS; i++) {
             ItemStack stack = items.getItem(i);
             if (stack.getItem() instanceof DatasetItem dataset) {
                 sources.add(new Mixture.Source(dataset.benchmark, dataset.benchmark.practice()));
             } else if (stack.getItem() instanceof DriveItem) {
-                TextTask text = Archive.practice(DriveItem.contents(stack), vocab);
-                text.packing = Recipe.Packing.values()[packing];
+                TextTask text = reading(Archive.legible(DriveItem.contents(stack)), vocab, rows);
                 if (!text.isEmpty()) {
                     sources.add(new Mixture.Source(Benchmark.READING, text));
                 }
             } else if (stack.getItem() instanceof DumpItem) {
-                TextTask text = new TextTask(Dump.texts(DumpItem.seed(stack, level.getRandom())), Benchmark.READING.target, vocab);
+                TextTask text = reading(Dump.texts(DumpItem.seed(stack, level.getRandom())), vocab, rows);
                 if (!text.isEmpty()) {
                     sources.add(new Mixture.Source(Benchmark.READING, text));
                 }
             } else if (stack.getItem() instanceof TokenCellItem && TokenCellItem.supply(stack) instanceof TokenSupply supply
                     && level != null && level.getServer() != null) {
-                SupplyTask tokens = Supplies.task(level.getServer(), supply.id(), vocab, this::slotsChanged);
+                SupplyTask tokens = Supplies.task(level.getServer(), supply.id(), vocab, rows, this::slotsChanged);
                 if (tokens != null && !tokens.isEmpty()) {
                     if (practice != null) {
                         // the run goes on where it was, however its slots change
@@ -466,6 +473,11 @@ public class CoreBlockEntity extends BlockEntity {
             }
         }
         return sources.isEmpty() ? null : new Mixture(sources, vocab);
+    }
+
+    /** Reading from recovered text, cut as the Core's recipe asks. */
+    static TextTask reading(List<String> texts, Vocab vocab, Recipe.Packing packing) {
+        return new TextTask(texts, Benchmark.READING.target, vocab).withPacking(packing);
     }
 
     /** The wreck loaded in the data slots, if any. */
@@ -599,9 +611,7 @@ public class CoreBlockEntity extends BlockEntity {
         runStep = 0;
         spikes = 0;
         meter.started(job, plan);
-        if (plan.mode() != Parallelism.ONE && plan.threads() > 1) {
-            Awards.grant(player, "compute/split");
-        }
+        splitAwarded = false;
         jobSteps = steps;
         jobRunSteps = runSteps;
         owner = player.getUUID();
@@ -977,6 +987,14 @@ public class CoreBlockEntity extends BlockEntity {
         }
         if (job != null) {
             meter.tick((ServerLevel) level, worldPosition, job);
+            var timing = job.timing();
+            if (!splitAwarded && timing != null && Arrays.stream(timing.busyNanos()).filter(n -> n > 0).count() > 1) {
+                ServerPlayer player = owner == null ? null : ((ServerLevel) level).getServer().getPlayerList().getPlayer(owner);
+                if (player != null) {
+                    Awards.grant(player, "compute/split");
+                    splitAwarded = true;
+                }
+            }
             for (TrainingJob.Point p : job.drainPoints()) {
                 addPoint(new TrainingJob.Point(jobSteps + p.step(), p.train(), p.val(), p.accuracy(), p.peak(), p.rate()));
             }

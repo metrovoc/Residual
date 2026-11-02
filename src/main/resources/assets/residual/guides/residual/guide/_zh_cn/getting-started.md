@@ -38,8 +38,6 @@ item_ids:
 
 ## 搭建
 
-<residual:Clip name="wiring" alt="亲手接好并开始训练的第一个模型，一道光波沿线缆跑过" />
-
 <residual:Steps>
   <residual:Step>
     放下模型核心。它的正面朝向你：词元从这里出来。

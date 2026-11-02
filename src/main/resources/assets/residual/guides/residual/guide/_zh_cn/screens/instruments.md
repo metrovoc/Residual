@@ -18,12 +18,6 @@ navigation:
       <residual:Part name="instrument.model">
         **模型**：一个检查点。没有的话，就用它接触的模型核心上的模型。
       </residual:Part>
-      <residual:Part name="instrument.data">
-        **处理的内容**：数据集、驱动器或田间日志，供需要的试验使用。
-      </residual:Part>
-      <residual:Part name="instrument.output">
-        **留下的东西**：一个检查点，存下试验留下的模型。
-      </residual:Part>
       <residual:Part name="status">
         **状态**：模型有多大、它的流有几个点，或者上一次工作的结果。
       </residual:Part>
@@ -42,6 +36,25 @@ navigation:
       </residual:Part>
       <residual:Part name="display">
         **显示屏**：工作的结果，边做边画。指向任何东西可看到它的数字。
+      </residual:Part>
+    </residual:Shot>
+  </residual:Step>
+
+  <residual:Step>
+    故障试验架的**模型**页还放着试验处理的内容，以及用来存下试验所得模型的检查点。
+
+    <residual:Shot name="instruments_rig_model" alt="故障试验架的模型、数据和输出槽">
+      <residual:Part name="instrument.model">
+        **模型**：一个检查点。没有的话，就用它接触的模型核心上的模型。
+      </residual:Part>
+      <residual:Part name="instrument.data">
+        **处理的内容**：数据集、驱动器或田间日志，供需要的试验使用。
+      </residual:Part>
+      <residual:Part name="instrument.output">
+        **留下的东西**：一个检查点，存下试验留下的模型。
+      </residual:Part>
+      <residual:Part name="status">
+        **状态**：模型有多大、它的流有几个点，或者上一次工作的结果。
       </residual:Part>
     </residual:Shot>
   </residual:Step>

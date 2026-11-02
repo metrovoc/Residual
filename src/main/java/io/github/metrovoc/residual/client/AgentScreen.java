@@ -22,9 +22,11 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
@@ -34,6 +36,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2i;
 
 /**
  * An agent's screen. Work: its job, what it is doing and the last thing it asked its model, and the order box to tell it
@@ -138,6 +141,22 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> implements P
 
     private int windowWidth() {
         return wideShown() ? Math.clamp(width - (palette ? PALETTE + 12 : 8), WINDOW_W, WIDEST) : WINDOW_W;
+    }
+
+    /** Panels beyond the container, including their gap to it, kept clear by recipe viewers. */
+    public List<Rect2i> extraAreas() {
+        List<Rect2i> areas = new ArrayList<>();
+        if (wideShown()) {
+            areas.add(new Rect2i(leftPos, topPos, windowWidth(), imageHeight));
+        }
+        if (leftShown()) {
+            areas.add(new Rect2i(leftPos - PALETTE - 4, topPos, PALETTE + 4, imageHeight));
+        }
+        if (!wideShown() && menu.carried() > Agent.CARRY) {
+            areas.add(new Rect2i(leftPos + imageWidth, topPos + AgentMenu.MORE_Y - 6,
+                    AgentMenu.MORE_X - 7 + 122 - imageWidth, moreHeight()));
+        }
+        return areas;
     }
 
     private void rebuild() {
@@ -618,7 +637,10 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> implements P
             tip.addAll(font.split(Component.translatable("residual.program.help"), 240));
         }
         if (!tip.isEmpty()) {
-            g.setTooltipForNextFrame(tip, mouseX, mouseY);
+            g.setTooltipForNextFrame(font, tip, (sw, sh, x, y, w, h) -> {
+                var at = DefaultTooltipPositioner.INSTANCE.positionTooltip(width, height, x, y, w, h);
+                return new Vector2i(Math.max(4, Math.min(at.x(), width - w - 8)), Math.max(4, Math.min(at.y(), height - h - 8)));
+            }, mouseX, mouseY, false);
         }
     }
 
@@ -660,19 +682,23 @@ public class AgentScreen extends AbstractContainerScreen<AgentMenu> implements P
 
     @Override
     public void parts(Parts out) {
+        out.add("window", leftPos, topPos, windowWidth(), imageHeight);
         int tx = leftPos + 8;
         for (Tab t : Tab.values()) {
             int w = font.width(tabTitle(t)) + 10;
             out.add("tab:" + t.name().toLowerCase(Locale.ROOT), tx - 4, topPos + 4, w, 14, t == tab);
             tx += w + 2;
         }
-        out.add("model", this, menu.getSlot(Agent.MODEL));
-        out.add("filter", this, menu.getSlot(Agent.FILTER));
+        out.add("model", this, menu.getSlot(AgentMenu.MODEL));
+        out.add("filter", this, menu.getSlot(AgentMenu.FILTER));
         for (int i = 0; i < Agent.CARRY; i++) {
             out.add("carry:" + i, this, menu.getSlot(i));
         }
         if (!wideShown()) {
             out.add("carry", leftPos + AgentMenu.CARRY_X - 1, topPos + AgentMenu.CARRY_Y - 1, 108, 36);
+            if (menu.carried() > Agent.CARRY) {
+                out.add("more_carry", leftPos + AgentMenu.MORE_X - 7, topPos + AgentMenu.MORE_Y - 6, 122, moreHeight());
+            }
         }
         switch (tab) {
             case WORK -> out.add("display", leftPos + 8, topPos + 38, 160, 52);

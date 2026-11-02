@@ -10,8 +10,6 @@ navigation:
 
 对模型核心使用即可打开。各个标签页带着模型从数据走到测试；它们如何配合，见[模型核心](../core.md)。
 
-<residual:Clip name="core" alt="放入模型核心的槽位并按下训练" />
-
 <residual:Steps>
   <residual:Step>
     **数据**：模型用什么练习，又存到哪里。

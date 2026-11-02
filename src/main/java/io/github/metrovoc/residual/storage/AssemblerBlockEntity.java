@@ -237,6 +237,7 @@ public class AssemblerBlockEntity extends BlockEntity implements MenuProvider {
         if (n <= 0) {
             return 0;
         }
+        Cooling.payRated(level, worldPosition);
         if (job != null && n == asked) {
             job.waitingFor = null;
         }

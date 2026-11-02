@@ -135,8 +135,6 @@ item_ids:
 
 ## 终端
 
-<residual:Clip name="terminal" alt="在终端上用服务器中的模型写作" />
-
 <RecipeFor id="terminal" />
 
 用同样的方法把<ItemLink id="terminal" />调谐到模型服务器，然后带着它走到世界各处，在服务器网络覆盖的任何地方使用。它发出的每次调用都和其他问题一样，要在服务器排队。

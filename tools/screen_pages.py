@@ -135,8 +135,7 @@ CORE = screen(
                                                  "它怎样分配工作、用多少设备，内存和要放下它的容量，每秒运算次数、电力和 PUE，以及到目前为止花了多少。")),
             P("timeline", T("The last step", "上一步"), K("residual.compute.gantt")),
             P("compute.split", K("residual.compute.split"), K("residual.compute.split_hint"))],
-           ["click tab:compute", "wait 20"])],
-    clip="core")
+           ["click tab:compute", "wait 20"])])
 
 
 def agent_open(x, z):
@@ -406,7 +405,7 @@ TERMINAL = screen(
             P("model", K("residual.agent.model_slot"), K("residual.search.slot_hint")),
             P("craft", T("A crafting grid", "合成网格"), T("Works as at a crafting table, and draws what it needs from the network.", "和工作台一样用，所需的东西从网络里取。"))]),
      state("ask", T("Asking for what the network can make: the plan, and what is missing.", "向网络要它能做的东西：规划，以及缺什么。"),
-           T("The plan for sixteen torches, with coal missing", "十六支火把的规划，缺煤"),
+           T("The plan for seventeen torches, with coal missing", "十七支火把的规划，缺煤"),
            [P("amount", K("residual.craft.amount"), T("How many to make, typed or stepped.", "要做多少，可以输入，也可以按按钮增减。")),
             P("+16", T("Steps", "增减"), K("residual.craft.step_help")),
             P("plan", T("The plan", "规划"), K("residual.craft.legend")),
@@ -421,8 +420,7 @@ TERMINAL = screen(
      state("tree", T("A job's plan as a tree: each row under the step that needs it.", "任务的规划画成树：每一行都在需要它的那一步下面。"),
            T("A job's plan drawn as a tree", "画成树的任务规划"),
            [P("tree", T("The plan", "规划"), T("How many of each came from storage, how far its crafts have come, and what is still missing.", "每样东西有多少来自存储、合成进行到哪儿，还缺什么。"))],
-           ["click job:0", "wait 20"])],
-    clip="storage")
+           ["click job:0", "wait 20"])])
 
 
 def port_open(x, z):
@@ -435,23 +433,29 @@ PORT = screen(
     "port", "PortScreen", "port", T("Port", "端口"), T("A Port's screen", "端口的界面"),
     T("Use a Port to open it. [Storage](../storage.md) tells how its modes differ.", "对端口使用即可打开。各种模式有什么不同，见[存储](../storage.md)。"),
     port_open,
-    [state("import", T("Its mode, its filter, and what it moved.", "它的模式、过滤和搬动的东西。"),
+    [state("import", T("The filter stays in the window; the mode buttons sit beside it. Point at the arrow to see what moved in the last second.", "过滤留在窗口里，模式按钮在旁边。指向箭头可查看上一秒搬了多少。"),
            T("A Port importing", "正在导入的端口"),
            [P("port.mode.import", K("residual.port.mode.import"), K("residual.port.mode.import.help")),
             P("port.mode.export", K("residual.port.mode.export"), K("residual.port.mode.export.help")),
             P("filter", T("Filter", "过滤"), K("residual.port.filter_hint")),
             P("status", T("What it moved", "搬动的东西"), T("How much in the last second, or that a full link holds it back.", "上一秒搬了多少，或者链路满了挡住了它。")),
             P("model", K("residual.port.model"), K("residual.port.model_hint")),
-            P("target", K("residual.port.target"), K("residual.port.target_hint")),
+            P("target", K("residual.port.target"), T("A model that forecasts what this Port will need. Point at it to see the expected amount above its checkpoint details.", "预测这个端口将要需要什么的模型。指向它，可在检查点详情上方查看预计用量。")),
             P("log", K("residual.port.log"), K("residual.port.log_hint"))]),
-     state("stock", T("Stocking: a number to keep, and asking for what it lacks.", "存量：要保持的数量，以及请求缺的东西。"),
+     state("stock", T("Stocking: point at the number buttons for the amount to keep, and turn on asking for what it lacks.", "存量：指向数量按钮查看要保持的数量，并开启缺货请求。"),
            T("A Port stocking with a filter and a number", "设好过滤和数量、正在维持存量的端口"),
            [P("port.mode.stock", K("residual.port.mode.stock"), K("residual.port.mode.stock.help")),
             P("port.mode.window", K("residual.port.mode.window"), K("residual.port.mode.window.help")),
-            P("more:16", T("The number", "数量"), T("How many of each kind to keep there. With shift, sixty-four times as many.", "每种东西要在那里保持多少。按住 Shift，乘以六十四。")),
+            P("keep", T("The number", "数量"), K("residual.port.amount_help")),
             P("port.craft", K("residual.port.craft"), K("residual.port.craft.off")),
             P("port.programs", K("residual.port.programs"), K("residual.port.programs.help"))],
-           ["click port.mode.stock", "wait 4", "click has:minecraft:raw_iron", "wait 2", "click filter:0", "wait 2", "click more:16", "wait 4"])])
+           ["click port.mode.stock", "wait 4", "click has:minecraft:raw_iron", "wait 2", "click filter:0", "wait 2", "click more:16", "wait 4"]),
+     state("window", T("A window opens the inventory to the network. Point at its number buttons for its priority.", "窗口把容器向网络敞开。指向数量按钮可查看优先级。"),
+           T("A Port's window mode and priority controls", "端口的窗口模式和优先级按钮"),
+           [P("port.mode.window", K("residual.port.mode.window"), K("residual.port.mode.window.help")),
+            P("priority", T("Priority", "优先级"), K("residual.port.priority_help")),
+            P("filter", T("Filter", "过滤"), K("residual.port.filter_hint"))],
+           ["click port.mode.window", "wait 4", "click more:16", "wait 4"])])
 
 
 def rack_open(x, z):
@@ -481,8 +485,8 @@ ASSEMBLER = screen(
            T("An Assembler with a recipe for sticks", "画着木棍配方的装配机"),
            [P("grid", T("The recipe", "配方"), K("residual.assembler.grid_hint")),
             P("result", T("What it makes", "它做的东西"), T("Worked out from the grid.", "由网格算出。")),
-            P("keep", T("Keep", "保持"), T("How many to keep in the network, made whenever there are fewer. With nothing to keep, it makes only what is asked of it. With shift, sixty-four times as many.", "要在网络里保持多少，少于这个数就做。不设保持时，它只做别人要的东西。按住 Shift，乘以六十四。")),
-            P("status", T("What it is doing", "它在做什么"), T("Crafting, with enough, missing something, or with no recipe yet.", "正在合成、已经够了、缺东西，或者还没有配方。"))],
+            P("keep", T("Keep", "保持"), T("The four buttons beside the panel change how many to keep in the network; point at one to see the current number. It makes more whenever there are fewer. With nothing to keep, it makes only what is asked of it. With shift, sixty-four times as many.", "面板旁的四个按钮调整要在网络里保持的数量；指向任一个可查看当前数值。少于这个数就做。不设保持时，它只做别人要的东西。按住 Shift，乘以六十四。")),
+            P("status", T("What it is doing", "它在做什么"), T("Point at the work arrow to see whether it is crafting, has enough, lacks something, or has no recipe yet.", "指向工作箭头，可查看它是正在合成、已经够了、缺东西，还是还没有配方。"))],
            ["click has:minecraft:oak_planks", "wait 2", "click grid:0", "wait 2", "click grid:3", "wait 2", "close", "wait 4", "use {ax} -60 {az} north", "wait 10"])])
 
 
@@ -501,8 +505,8 @@ PROCESSOR = screen(
             P("out", T("What comes out", "出来的"), K("residual.processor.out_hint")),
             P("machine", T("The machine", "机器"), T("What stands in front of the Processor, which it runs the pattern on.", "处理器前面的东西，样式就在它上面运行。")),
             P("in:on", T("Pages", "页"), T("Nine pages of nine cells each way.", "两边各有九页，每页九格。")),
-            P("keep", T("Keep", "保持"), T("How many to keep in the network, made whenever there are fewer.", "要在网络里保持多少，少于这个数就做。")),
-            P("status", T("What it is doing", "它在做什么"), T("Rounds a second, or what it lacks.", "每秒做多少轮，或者缺什么。"))],
+            P("keep", T("Keep", "保持"), T("The four buttons beside the panel change how many to keep in the network; point at one to see the current number. It makes more whenever there are fewer. With shift, sixty-four times as many.", "面板旁的四个按钮调整要在网络里保持的数量；指向任一个可查看当前数值。少于这个数就做。按住 Shift，乘以六十四。")),
+            P("status", T("What it is doing", "它在做什么"), T("Point at the work arrow to see its rounds a second, or what it lacks.", "指向工作箭头，可查看每秒做多少轮，或者缺什么。"))],
            ["click hotbar:0", "wait 2", "click in:0", "wait 2", "click hotbar:0", "wait 2", "click hotbar:1", "wait 2", "click out:0", "wait 2", "click hotbar:1", "wait 4"])])
 
 
@@ -573,8 +577,7 @@ MODEL_TERMINAL = screen(
             P("terminal.write", K("residual.terminal.write"), T("Sends it to the server.", "把它发给服务器。")),
             P("terminal.clear", K("residual.terminal.clear"), T("Clears the prompt and the answer.", "清空提示和回答。")),
             P("answer", T("The answer", "回答"), T("Grey is what you wrote, white what the model wrote.", "灰色是你写的，白色是模型写的。"))],
-           ["click terminal.tab.write", "wait 4"])],
-    clip="terminal")
+           ["click terminal.tab.write", "wait 4"])])
 
 
 def shard_open(x, z):
@@ -747,7 +750,7 @@ RACK_MODULE = screen(
     T("Use a Rack Module to open it. [Compute](../compute.md) tells how racks are built.", "对机架模块使用即可打开。机架怎样搭起来，见[算力](../compute.md)。"),
     rack_module_open,
     [state("bays", T("Eight bays, an Accelerator in the first.", "八个槽位，第一个放着加速器。"),
-           T("A Rack Module with one device", "放着一个设备的机架模块"),
+           T("A Rack Module's device bays", "机架模块的设备槽"),
            [P("bay:0", T("The bays", "槽位"), K("residual.rack_module.bay_hint"))],
            ["shift residual:accelerator", "wait 4"])])
 
@@ -822,8 +825,6 @@ INSTRUMENTS = screen(
     [state("model", T("**Model**: the model it works on, a copy of it each time.", "**模型**：它处理的模型，每次都用一个副本。"),
            T("A Stream Scope with a model in it", "放着模型的流示波器"),
            [P("instrument.model", T("The model", "模型"), T("A checkpoint. With none, the model standing on a Model Core it touches.", "一个检查点。没有的话，就用它接触的模型核心上的模型。")),
-            P("instrument.data", T("What it works on", "处理的内容"), T("A dataset, a drive or a Field Log, for the trials that need one.", "数据集、驱动器或田间日志，供需要的试验使用。")),
-            P("instrument.output", T("What it keeps", "留下的东西"), T("A checkpoint that takes the model a trial leaves behind.", "一个检查点，存下试验留下的模型。")),
             P("status", T("Status", "状态"), T("How big the model is and how many points its stream has, or how the last work came out.", "模型有多大、它的流有几个点，或者上一次工作的结果。"))]),
      state("instrument", T("Every other tab is one instrument: its choices in a row, then one display.", "其他每个标签页都是一件仪器：一排选项，下面一个显示屏。"),
            T("A Stream Scope's logit lens", "流示波器的 logit 透镜"),
@@ -831,12 +832,19 @@ INSTRUMENTS = screen(
             P("instrument.run", T("Start or stop", "开始或停止"), T("Starts the work, and while it runs, stops it.", "开始工作；工作进行时，点它就停止。")),
             P("display", T("The display", "显示屏"), T("What the work comes to, drawn as it goes. Point at anything for its numbers.", "工作的结果，边做边画。指向任何东西可看到它的数字。"))],
            ["click tab:lens", "wait 4", "click instrument.run", "wait 200"]),
+     state("rig_model", T("A Trial Rig's **Model** tab also holds what the trial works on and a checkpoint for the model it leaves behind.", "故障试验架的**模型**页还放着试验处理的内容，以及用来存下试验所得模型的检查点。"),
+           T("A Trial Rig's model, data and output slots", "故障试验架的模型、数据和输出槽"),
+           [P("instrument.model", T("The model", "模型"), T("A checkpoint. With none, the model standing on a Model Core it touches.", "一个检查点。没有的话，就用它接触的模型核心上的模型。")),
+            P("instrument.data", T("What it works on", "处理的内容"), T("A dataset, a drive or a Field Log, for the trials that need one.", "数据集、驱动器或田间日志，供需要的试验使用。")),
+            P("instrument.output", T("What it keeps", "留下的东西"), T("A checkpoint that takes the model a trial leaves behind.", "一个检查点，存下试验留下的模型。")),
+            P("status", T("Status", "状态"), T("How big the model is and how many points its stream has, or how the last work came out.", "模型有多大、它的流有几个点，或者上一次工作的结果。"))],
+           ["close", "wait 4", "use {sx} -60 {sz} north", "wait 10", "click tab:model", "wait 4"]),
      state("trial", T("A Trial Rig's tabs are trials: each trains a copy of the model and charts what comes of it.", "故障试验架的标签页都是试验：每个都训练模型的一个副本，并画出结果。"),
            T("A Trial Rig's contamination trial", "故障试验架的污染试验"),
            [P("tab:contaminate", T("The trials", "试验"), T("Memory, Backdoor, Forgetting, Collapse and Contamination.", "记忆、后门、遗忘、崩塌和污染。")),
             P("instrument.run", T("Start or stop", "开始或停止"), T("Starts the trial, and while it runs, stops it.", "开始试验；试验进行时，点它就停止。")),
             P("display", T("The display", "显示屏"), T("The trial's curves as it goes.", "试验进行时的曲线。"))],
-           ["close", "wait 4", "use {sx} -60 {sz} north", "wait 10", "click tab:contaminate", "wait 4"])])
+           ["click tab:contaminate", "wait 4"])])
 
 SCREENS = [CORE, AGENT, BENCH, FABRICATOR, FORGE, OPERATOR, READER, FORECASTER, SURVEYOR, WATCH, ARENA, POWER, TERMINAL, PORT, PORT_PROGRAM, RACK, ASSEMBLER, PROCESSOR, DOCK, ACCESS,
            MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER, REFINERY, RACK_MODULE, HALL_CONSOLE, SERVER, TUNER, INSTRUMENTS]

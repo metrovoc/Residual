@@ -22,7 +22,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * Bursts last seconds, so they are not saved.
  */
 public final class Bursts {
-    private record Burst(int factor, long until) {
+    private record Burst(int factor, long until, BlockPos source) {
     }
 
     private static final Map<ServerLevel, Map<BlockPos, Burst>> RUNNING = new WeakHashMap<>();
@@ -40,7 +40,31 @@ public final class Bursts {
     }
 
     public static void start(ServerLevel level, BlockPos pos, int factor, int ticks) {
-        RUNNING.computeIfAbsent(level, l -> new HashMap<>()).put(pos.immutable(), new Burst(factor, level.getGameTime() + ticks));
+        start(level, pos, factor, ticks, null);
+    }
+
+    public static void start(ServerLevel level, BlockPos pos, int factor, int ticks, BlockPos source) {
+        RUNNING.computeIfAbsent(level, l -> new HashMap<>()).put(pos.immutable(),
+                new Burst(factor, level.getGameTime() + ticks, source == null ? null : source.immutable()));
+    }
+
+    /** Stops this source's burst without cancelling a later burst from another source. */
+    public static void stop(ServerLevel level, BlockPos pos, BlockPos source) {
+        Map<BlockPos, Burst> running = RUNNING.get(level);
+        if (running != null) {
+            Burst burst = running.get(pos);
+            if (burst != null && java.util.Objects.equals(burst.source, source)) {
+                running.remove(pos);
+            }
+        }
+    }
+
+    /** Cancels every registration still owned by this source, including targets it no longer trusts. */
+    public static void stopOwned(ServerLevel level, BlockPos source) {
+        Map<BlockPos, Burst> running = RUNNING.get(level);
+        if (running != null) {
+            running.values().removeIf(burst -> java.util.Objects.equals(burst.source, source));
+        }
     }
 
     /** The block at {@code p} is being run ahead {@code pace} times as fast. */

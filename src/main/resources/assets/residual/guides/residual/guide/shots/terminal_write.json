@@ -1,0 +1,36 @@
+{
+ "width": 341,
+ "height": 208,
+ "parts": {
+  "terminal.tab.write": [
+   2,
+   66,
+   18,
+   18
+  ],
+  "terminal.prompt": [
+   31,
+   22,
+   300,
+   16
+  ],
+  "terminal.write": [
+   31,
+   42,
+   70,
+   16
+  ],
+  "terminal.clear": [
+   105,
+   42,
+   50,
+   16
+  ],
+  "answer": [
+   31,
+   62,
+   300,
+   136
+  ]
+ }
+}

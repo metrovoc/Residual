@@ -283,6 +283,9 @@ final class Deeds {
         List<Value> froms = places(e, from), tos = places(e, to);
         int most = want > 0 ? want : 64 * a.carry();
         return new Operation(a) {
+            private final Places.Ends hands = Places.hands(a);
+            private final Places.Ends cargo = Places.cargo(hands);
+            private boolean fromHands;
             private int phase;
             private int place;
             private int taken;
@@ -290,7 +293,6 @@ final class Deeds {
 
             @Override
             public Outcome tick(ServerLevel level) {
-                Places.Ends hands = Places.hands(a);
                 while (phase == 0) {
                     if (place >= froms.size() || taken >= most) {
                         phase = 1;
@@ -301,6 +303,7 @@ final class Deeds {
                     BlockPos stand = standing(a, source);
                     if (stand == null) {
                         // it already holds what it holds
+                        fromHands = true;
                         taken = most;
                         continue;
                     }
@@ -318,7 +321,7 @@ final class Deeds {
                     }
                     Places.Ends src = Places.items(a, source);
                     if (src != null) {
-                        int got = Places.move(src, hands, pick, most - taken);
+                        int got = Places.move(src, cargo, pick, most - taken);
                         taken += got;
                         if (got > 0) {
                             a.handle(stand);
@@ -345,7 +348,7 @@ final class Deeds {
                     }
                     Places.Ends dst = Places.items(a, target);
                     if (dst != null) {
-                        int put = Places.move(hands, dst, pick, most - given);
+                        int put = Places.move(fromHands ? hands : cargo, dst, pick, most - given);
                         given += put;
                         if (put > 0) {
                             a.handle(stand);

@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.refine;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.train.Jobs;
 import java.io.BufferedInputStream;
@@ -108,11 +109,16 @@ public final class Supplies {
      * {@code ready} runs on the server thread. A supply whose file is gone never gets ready.
      */
     @Nullable
-    public static synchronized SupplyTask task(MinecraftServer server, UUID id, Vocab vocab, Runnable ready) {
+    public static SupplyTask task(MinecraftServer server, UUID id, Vocab vocab, Runnable ready) {
+        return task(server, id, vocab, Recipe.Packing.WINDOWS, ready);
+    }
+
+    @Nullable
+    public static synchronized SupplyTask task(MinecraftServer server, UUID id, Vocab vocab, Recipe.Packing packing, Runnable ready) {
         Key key = new Key(id, vocab);
         SupplyTask known = READY.get(key);
         if (known != null) {
-            return known.fresh();
+            return known.fresh(packing);
         }
         if (COMING.add(key)) {
             Jobs.EXECUTOR.execute(() -> {

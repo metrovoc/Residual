@@ -26,9 +26,9 @@ navigation:
     **页**：两边各有九页，每页九格。
   </residual:Part>
   <residual:Part name="keep">
-    **保持**：要在网络里保持多少，少于这个数就做。
+    **保持**：面板旁的四个按钮调整要在网络里保持的数量；指向任一个可查看当前数值。少于这个数就做。按住 Shift，乘以六十四。
   </residual:Part>
   <residual:Part name="status">
-    **它在做什么**：每秒做多少轮，或者缺什么。
+    **它在做什么**：指向工作箭头，可查看每秒做多少轮，或者缺什么。
   </residual:Part>
 </residual:Shot>

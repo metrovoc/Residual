@@ -54,7 +54,7 @@ a fiftieth of the memory.
 ## Models
 
 <p>
-<img src="docs/images/train.webp" alt="The Train tab as a small GPT learns to sort: the loss on practice and on the test falling together" width="49%">
+<img src="docs/images/train.jpg" alt="The Train tab after a forecasting run, with practice and test loss" width="49%">
 <img src="docs/images/tests.jpg" alt="The Tests tab: a model's score on each benchmark" width="49%">
 </p>
 
@@ -67,9 +67,9 @@ dark on the way back is hardly learning. Above every machine floats its output a
 shows where each token looks.
 
 Every model is tested on what practice never shows it, and a job asks its model in exactly the test's format, so a test
-score is how often the model will get that job right. A single embedding table can forecast a furnace. Copying a build
-takes two layers of attention. Understanding what you say takes a model too big to carry, until you train it in eight-bit
-numbers.
+score estimates how often the model will get similar jobs right. A single embedding table can forecast a furnace. Copying a build
+takes two layers of attention. Understanding what you say takes a larger model, and how you round its numbers decides
+whether an agent can carry it.
 
 The rest of a run is yours too: how the rate moves over thousands of steps, what the numbers are rounded to, what moves
 the weights, how the text is cut into rows. Take the clip off at a high rate and you watch the loss spike. Round every
@@ -103,6 +103,10 @@ bursts over everything around it that its model is trusted with, up to 256 times
 
 ## The Arena
 
+<p align="center">
+<img src="docs/images/arena.jpg" alt="An Arena chamber with simulated zombies on its floor" width="70%">
+</p>
+
 A mob can be written down too. Carry a Mob Log while you fight something, and it keeps what each one around you did, look by
 look. A model that practises on those lines learns how that kind fights. An Arena checks it on fights it has not read, then
 lets it fight on the floor of a chamber for what the mob drops, from the game's own loot tables, with no mob anywhere and as
@@ -120,7 +124,7 @@ An agent is a frame that runs a program, such as `repeat (mine 4 stone, put)` or
 its screen or clicked together from a palette of pieces, and carried from agent to agent on Program Cards. Walking,
 carrying, mining and laying blocks are its own. Wherever there is a real decision to make (which chest the iron went
 into; what kind of thing this is; what you meant), it asks a model and does what the model answers. Its trace shows every
-step it took, what it checked, and why a step failed. A model that passes its test at 98% decides right 98 times in 100.
+step it took, what it checked, and why a step failed. A test score of 98% means it got 98 of every 100 test cases right.
 
 The language goes as far as you take it: variables, lists, procedures, events and priorities, areas of nine shapes, and
 filters on anything. Ports run it too, and a debugger steps through a program beside its trace, with breakpoints and the
@@ -128,22 +132,22 @@ values you are watching.
 
 Say an order in chat, such as `Pip, bring me some bread`, and every agent named Pip within earshot hears it. Its model
 writes the order as a program; anything longer than one step, or anything it isn't sure of, it reads back, and runs only
-once you click Do it.
+once you click Do it, unless the model has passed Programs and earned that trust.
 
 With a model that can carry on a pattern, an agent copies a build, moves it with everything inside, or keeps building
 it. A Surveyor reads the ground around it with a model, and holding a Survey Rod near it shows you through the ground the
 ores it found, and the chests and barrels the old world filled that nobody has opened. Tell an agent `mine 8 iron` and it
 digs its way to them. Agents mining near each other each take a different block, so they work as a crew.
 
-A Watch Post looks after the rest. It writes down what each machine and agent around it does, and its model, having
-practised only on things going well, is surprised by what goes wrong: a furnace line that stopped, a farm growing slower,
-an agent walking in circles. Then it raises a redstone signal, marks the thing, and tells anyone near.
+A Watch Post looks after the rest. It writes down what each machine and agent around it does. A model that has practised
+on a line running well can notice when it stops behaving as expected, raising a redstone signal, marking what it followed,
+and telling anyone near. Its alarm asks you to check the line: an unfamiliar healthy rhythm can surprise it too.
 
 ## Storage
 
 <p>
 <img src="docs/images/storage.jpg" alt="A Storage Terminal showing what the network keeps, with how many of each" width="49%">
-<img src="docs/images/port.jpg" alt="A Port's screen: its four modes, its filter, and the items moved in the last second" width="49%">
+<img src="docs/images/port.jpg" alt="A Port in Import mode, with filters and model slots" width="49%">
 </p>
 
 Residual keeps its own storage, with no channels and nothing to power. Storage Drives in a Drive Rack keep any number of
@@ -163,7 +167,7 @@ of what it moves asks ahead, before anything runs out.
 ## Power
 
 A Combustion Generator burns furnace fuel, and Power Cables carry the power to Energy Cells and to the machines that run
-on it. It is all Forge Energy, so it works with other mods' cables and machines. A Boiler and its Turbines get six times
+on it. Its power blocks expose Forge Energy. A Boiler and its Turbines get six times
 as much from the same coal, and Solar Panels cost nothing to run. A reactor makes more than all of them together and will
 not hold still: no rule keeps it running, and it starts only for a model that has learned to hold it.
 
@@ -172,6 +176,11 @@ something it learned by playing melts of its own and learning from its choices. 
 the melt at one exact step of the heat, a model makes six.
 
 ## Compute
+
+<p>
+<img src="docs/images/compute.jpg" alt="A Model Core's compute view with work divided across five devices" width="49%">
+<img src="docs/images/datacenter.jpg" alt="Rack Modules and a Load Wall showing their shared work" width="49%">
+</p>
 
 Training a model is multiplying numbers, and a Model Core counts them as it goes. What limits a run is how fast they go,
 how much memory holds them and the energy each one takes, and all three depend on what you build. Accelerators come off
@@ -184,6 +193,10 @@ so a hall needs chillers, coolant and the power to run them, and you can read it
 other.
 
 ## The frame and the suit
+
+<p align="center">
+<img src="docs/images/exosuit.jpg" alt="An exosuit outlining connected iron ore for vein mining" width="70%">
+</p>
 
 A flight frame, worn on the back and charged from an Energy Cell, flies you as freely as creative play while its pilot
 holds it steady: a model that learned to fly the frame on its own flights, reading its speed from the heights before and
@@ -225,7 +238,7 @@ what each machine was really worth.
 ## Serving models
 
 <p align="center">
-<img src="docs/images/terminal.jpg" alt="A Terminal: writing with a model served from a Model Server" width="60%">
+<img src="docs/images/terminal.jpg" alt="A Terminal reading machines across a relay network" width="60%">
 </p>
 
 An agent carries a small model. A bigger one stays in a Model Server and answers over relays, anywhere they reach. Agents,
@@ -243,17 +256,24 @@ programs, carries your orders, and lets you write with the served model.
 
 ## After practice
 
+<p align="center">
+<img src="docs/images/tuning.jpg" alt="A Tuner ready to fine-tune a saved checkpoint" width="60%">
+</p>
+
 A model that has finished practising can still be changed. A Tuner leaves a saved model as it is and makes a new one from
 it: fine-tuned on instructions, holding a second job beside its first, tuned on your own choices between two answers, or
 rewarded for programs a sandbox has run to see whether they work. Reward the wrong thing and you can watch it go wrong:
-mark a program only for failing nowhere, and in 150 steps the reward goes from 88% to 98% while what is really right falls
-from 73% to 48%.
+mark a program only for failing nowhere, and it can earn more by doing less of what was asked.
 
 A server can also think longer. It writes many answers to a question and keeps one, and if a good answer can be told from
-a bad one, the extra tries are worth paying for. Given 64 answers to a sum, the commonest is right 15% of the time, and one
-whose every step checks is right 68%.
+a bad one, the extra tries are worth paying for. It can count how many answers agree, or check each step of a sum before
+choosing which answer to keep.
 
 ## Looking inside
+
+<p align="center">
+<img src="docs/images/scope.jpg" alt="A Stream Scope comparing two attention heads" width="65%">
+</p>
 
 A test tells you what a model can do and nothing of how it does it. A Stream Scope opens one you trained: what each layer
 would answer if it had to answer now, what a probe can read from the stream beside what a control reads, what happens when
@@ -274,9 +294,8 @@ and gradients, and the optimizer's steps, are tested against reference values co
 (`TorchParityTest`), and every gradient against numerical differentiation (`OpsGradientTest`). Nothing of PyTorch ships with
 the mod.
 
-A two-layer GPT with four attention heads and a 64-wide residual stream has 115,161 parameters. Trained for 4,000 steps
-on the text shards can carry, it reaches a loss of 1.34 on records it never saw, and the Reader restores 88% of the lost
-blocks it is given.
+A two-layer GPT with four attention heads and a 64-wide residual stream has 115,161 parameters. The Reader uses a trained
+model to predict missing blocks of archived text.
 
 ## Install
 
@@ -289,7 +308,7 @@ You get the field notes the first time you join a world, and they are also
 
 ### Modpack
 
-`Residual-0.5.0-alpha.mrpack`, also on the Releases page, sets up Residual with Applied Energistics 2, JEI, Jade, Sodium,
+`Residual-0.6.0-alpha.mrpack`, also on the Releases page, sets up Residual with Applied Energistics 2, JEI, Jade, Sodium,
 ModernFix and FerriteCore. Import it in Prism Launcher or the Modrinth App.
 
 ## Building
@@ -297,7 +316,7 @@ ModernFix and FerriteCore. Import it in Prism Launcher or the Modrinth App.
 Building needs Java 25.
 
 ```sh
-./gradlew build       # build/libs/residual-26.1.2-0.5.0-alpha.jar
+./gradlew build       # build/libs/residual-26.1.2-0.6.0-alpha.jar
 ./gradlew runClient
 ```
 

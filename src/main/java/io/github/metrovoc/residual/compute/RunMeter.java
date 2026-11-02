@@ -89,6 +89,8 @@ public final class RunMeter {
         paidFlops = 0;
         perSecond = 0;
         fePerTick = 0;
+        ticks = feThisSecond = 0;
+        secondAgo = 0;
         job.parallelism = plan.mode();
         job.paidFlops = plan.metered() ? 0 : Long.MAX_VALUE;
     }
@@ -132,28 +134,41 @@ public final class RunMeter {
         }
         Timing t = job.timing();
         int[] used = plan.used();
-        double[] busy = new double[used.length];
-        Arrays.fill(busy, 1);
-        if (t != null) {
-            for (int k = 0; k < busy.length && k < t.devices(); k++) {
-                busy[k] = Math.min(1, (double) t.busyNanos()[k] / t.wallNanos());
-            }
-        }
+        double[] busy = activity(plan.mode(), used.length, t);
         cluster.report(used, busy, (long) perSecond);
         if (t != null && t.linkBytes() > 0) {
             // what the step sends runs out along the lines to the racks at work
             for (Cluster.Rack rack : cluster.racks()) {
+                if (Arrays.stream(used).noneMatch(i -> i >= 0 && i < cluster.devices().size() && rack.modules().contains(cluster.devices().get(i).at()))) {
+                    continue;
+                }
                 PacketDistributor.sendToPlayersNear(level, null, core.getX() + 0.5, core.getY() + 0.5, core.getZ() + 0.5, SEEN,
                         new CurrentSync(core, rack.top(), (int) Math.min(Integer.MAX_VALUE, t.linkBytes() >> 10), true));
             }
         }
     }
 
+    /** A split allocation lights only devices for which the pass supplied a measurement. */
+    static double[] activity(Parallelism mode, int devices, @Nullable Timing timing) {
+        double[] busy = new double[devices];
+        if (mode == Parallelism.ONE) {
+            Arrays.fill(busy, 1);
+        }
+        if (timing != null) {
+            for (int k = 0; k < busy.length && k < timing.devices(); k++) {
+                busy[k] = Math.min(1, (double) timing.busyNanos()[k] / Math.max(1, timing.wallNanos()));
+            }
+        }
+        return busy;
+    }
+
     /** What the Core's Compute tab shows. */
     public ComputeSync snapshot(ServerLevel level, BlockPos core, @Nullable TrainingJob job) {
         Cluster cluster = Cluster.at(level, core);
         Cluster.Plan p = job != null && plan != null ? plan : plan(level, core);
-        Timing t = job == null ? null : job.timing();
+        CompiledGraph.TrainingPass pass = job == null ? new CompiledGraph.TrainingPass(CompiledGraph.TrainingPath.WAITING, null)
+                : job.model.trainingPass();
+        Timing t = pass.timing();
         float[] busy = new float[t == null ? 0 : t.devices()];
         for (int i = 0; i < busy.length; i++) {
             busy[i] = (float) Math.min(1, (double) t.busyNanos()[i] / t.wallNanos());
@@ -168,7 +183,7 @@ public final class RunMeter {
             drawn[4 * i + 2] = (byte) Math.clamp(Math.round(s.from() * 255), 0, 255);
             drawn[4 * i + 3] = (byte) Math.clamp(Math.round(s.to() * 255), 0, 255);
         }
-        return new ComputeSync(core, mode.ordinal(), p.used().length, p.threads(), bytes(), p.budget(), p.fits(), p.metered(), job != null && job.starved,
+        return new ComputeSync(core, mode.ordinal(), p.mode().ordinal(), pass.path().ordinal(), p.used().length, p.threads(), bytes(), p.budget(), p.fits(), p.metered(), job != null && job.starved,
                 job == null ? 0 : (long) perSecond, job == null ? 0 : fePerTick, (float) cluster.pue(), flops, tokens, energy, parameters,
                 t == null ? 0 : (float) t.bubble(), t == null ? 0 : (float) ((double) t.collectiveNanos() / t.wallNanos()), t == null ? 0 : t.linkBytes(),
                 t == null ? 0 : t.wallNanos(), busy, drawn);

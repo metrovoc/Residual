@@ -133,13 +133,18 @@ public final class ServerSteps {
 
     /** Gives the player a checkpoint holding a kept model. */
     static void model(ServerPlayer player, String name) throws IOException {
+        player.getInventory().add(checkpoint(player.level().getServer(), name));
+    }
+
+    /** Imports a kept checkpoint and its original metadata into this world. */
+    static ItemStack checkpoint(MinecraftServer server, String name) throws IOException {
         ModelInfo info = ModelInfo.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(Files.readString(KEPT.resolve(name + ".json")))).getOrThrow();
-        Path file = saved(player.level().getServer(), info);
+        Path file = saved(server, info);
         Files.createDirectories(file.getParent());
         Files.copy(KEPT.resolve(name + ".dat"), file, StandardCopyOption.REPLACE_EXISTING);
         ItemStack checkpoint = new ItemStack(ModItems.CHECKPOINT.get());
         checkpoint.set(ModComponents.MODEL.get(), info);
-        player.getInventory().add(checkpoint);
+        return checkpoint;
     }
 
     /** Writes what every Mob Log the player carries holds to {@code DIR/KIND.txt}, for a script that records real mobs. */
@@ -171,13 +176,17 @@ public final class ServerSteps {
 
     /** Gives the player a Mob Log already holding what a file of {@link #mobs} holds, for a script that is not about recording. */
     static void mobLog(ServerPlayer player, String file) throws IOException {
-        Path path = Path.of(file);
+        player.getInventory().add(mobLog(Path.of(file)));
+    }
+
+    /** Loads the lines recorded by a real Mob Log, retaining the specimen kind named by its file. */
+    static ItemStack mobLog(Path path) throws IOException {
         String kind = path.getFileName().toString().replace(".txt", "");
         CompoundTag specimen = new CompoundTag();
         specimen.putString("id", "minecraft:" + kind);
         ItemStack log = new ItemStack(ModItems.MOB_LOG.get());
         log.set(ModComponents.MOB_LOG.get(), new MobLogItem.Log(Identifier.withDefaultNamespace(kind), specimen, Files.readString(path)));
-        player.getInventory().add(log);
+        return log;
     }
 
     private static int kept(CommandContext<CommandSourceStack> c, Step step) throws CommandSyntaxException {

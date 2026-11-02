@@ -575,6 +575,9 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
                 return;
             }
             BlockPos p = BlockPos.of(key);
+            if (Bursts.next(level, p) > 2) {
+                return;
+            }
             BlockEntity be = level.getBlockEntity(p);
             int spend = Math.min(m.budget, m.pace);
             m.budget -= spend;
@@ -653,14 +656,17 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         long machineCount = blocks.stream().filter(p -> machines.containsKey(p.asLong())).count();
         long cost = (burstPace - 1) * (machineCount + (blocks.size() - machineCount + CROPS_A_MACHINE - 1) / CROPS_A_MACHINE);
         int stored = energy().getAmountAsInt();
-        if (blocks.isEmpty() || cost > stored) {
+        compute = Cooling.compute(level, worldPosition, 0, GraphScanner.MAX_ACCELERATORS).threads();
+        if (blocks.isEmpty() || cost > stored || compute < compute(burstPace) || !Cooling.payRated(level, worldPosition)) {
             burstLeft = 0;
+            Bursts.stopOwned(level, worldPosition);
+            Cooling.working(level, worldPosition, false);
             return;
         }
         energy().set((int) (stored - cost));
         burstLeft--;
         for (BlockPos p : blocks) {
-            Bursts.start(level, p, burstPace, 2);
+            Bursts.start(level, p, burstPace, 2, worldPosition);
         }
     }
 

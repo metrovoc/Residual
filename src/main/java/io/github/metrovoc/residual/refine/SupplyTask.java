@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.refine;
 
 import io.github.metrovoc.residual.learn.Batch;
 import io.github.metrovoc.residual.learn.Benchmark;
+import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.TextTask;
 import io.github.metrovoc.residual.learn.Vocab;
@@ -19,40 +20,61 @@ public final class SupplyTask extends Task {
     private final float[] shares;
     private int served;
 
-    /** The same practice with its own count of steps. */
-    private SupplyTask(SupplyTask from) {
+    private final Recipe.Packing packing;
+
+    /** The same encoded text, with its own row settings and count of steps. */
+    private SupplyTask(SupplyTask from, Recipe.Packing packing) {
         super(from.vocab, from.context, from.metric, from.target);
         supply = from.supply;
-        System.arraycopy(from.byDomain, 0, byDomain, 0, byDomain.length);
-        shares = from.shares;
+        this.packing = packing;
+        for (int i = 0; i < byDomain.length; i++) {
+            if (from.byDomain[i] != null) {
+                byDomain[i] = from.byDomain[i].withPacking(packing);
+            }
+        }
+        shares = shares();
     }
 
     public SupplyTask fresh() {
-        return new SupplyTask(this);
+        return fresh(packing);
+    }
+
+    public SupplyTask fresh(Recipe.Packing packing) {
+        return new SupplyTask(this, packing);
     }
 
     public SupplyTask(Supply supply, Vocab vocab) {
+        this(supply, vocab, Recipe.Packing.WINDOWS);
+    }
+
+    public SupplyTask(Supply supply, Vocab vocab, Recipe.Packing packing) {
         super(vocab, Vocab.CONTEXT, Metric.LOSS, Benchmark.READING.target);
         this.supply = supply;
-        float[] chars = new float[byDomain.length];
+        this.packing = packing;
         for (Domain d : Domain.values()) {
             List<String> texts = supply.texts(d);
             if (!texts.isEmpty()) {
-                TextTask t = new TextTask(texts, target, vocab);
-                if (!t.isEmpty()) {
-                    byDomain[d.ordinal()] = t;
-                    chars[d.ordinal()] = t.characters() * supply.mix()[d.ordinal()];
-                }
+                byDomain[d.ordinal()] = new TextTask(texts, target, vocab).withPacking(packing);
             }
         }
+        shares = shares();
+    }
+
+    private float[] shares() {
+        float[] chars = new float[byDomain.length];
         float total = 0;
-        for (float c : chars) {
-            total += c;
+        for (int i = 0; i < chars.length; i++) {
+            TextTask text = byDomain[i];
+            if (text != null && !text.isEmpty()) {
+                chars[i] = text.characters() * supply.mix()[i];
+                total += chars[i];
+            }
         }
-        shares = new float[chars.length];
+        float[] shares = new float[chars.length];
         for (int i = 0; i < chars.length; i++) {
             shares[i] = total == 0 ? 0 : chars[i] / total;
         }
+        return shares;
     }
 
     public boolean isEmpty() {
@@ -65,7 +87,8 @@ public final class SupplyTask extends Task {
     }
 
     public boolean annealing() {
-        return supply.anneal() >= 0 && served >= supply.after() && byDomain[supply.anneal()] != null;
+        return supply.anneal() >= 0 && served >= supply.after() && byDomain[supply.anneal()] != null
+                && !byDomain[supply.anneal()].isEmpty();
     }
 
     @Override

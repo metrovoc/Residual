@@ -17,8 +17,6 @@ machines themselves, so a model keeps what it learned when you leave and come ba
 
 <br clear="all" />
 
-<residual:Clip name="core" alt="Filling a Core's slots and pressing Train" />
-
 <RecipeFor id="model_core" />
 
 [Its screen, part by part](screens/core.md).

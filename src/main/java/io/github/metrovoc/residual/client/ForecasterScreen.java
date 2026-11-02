@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -69,8 +70,22 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> im
         int[] all = ForecasterBlockEntity.PACES;
         for (int i = 0; i < all.length; i++) {
             int id = i;
-            paces.add(addRenderableWidget(Button.builder(Component.literal("×" + all[i]), b -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id))
-                    .bounds(leftPos + ForecasterMenu.PACE_X, topPos + ForecasterMenu.PACE_Y + i * ForecasterMenu.PACE_STEP, ForecasterMenu.PACE_W, ForecasterMenu.PACE_H).build()));
+            paces.add(addRenderableWidget(new PaceButton(leftPos + ForecasterMenu.PACE_X, topPos + ForecasterMenu.PACE_Y + i * ForecasterMenu.PACE_STEP,
+                    Component.literal("×" + all[i]), b -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id))));
+        }
+    }
+
+    /** Centers the full pace label inside the narrow side panel. */
+    private final class PaceButton extends Button {
+        private PaceButton(int x, int y, Component label, OnPress onPress) {
+            super(x, y, ForecasterMenu.PACE_W, ForecasterMenu.PACE_H, label, onPress, DEFAULT_NARRATION);
+        }
+
+        @Override
+        protected void extractContents(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
+            extractDefaultSprite(g);
+            int x = getX() + (getWidth() - font.width(getMessage()) + 1) / 2;
+            g.text(font, getMessage(), x, getY() + (getHeight() - 9) / 2, ARGB.color(alpha, active ? 0xFFFFFF : 0xA0A0A0), false);
         }
     }
 
@@ -396,7 +411,7 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> im
         String share = String.format(Locale.ROOT, "%.0f%%", Math.exp(off) * 100);
         hits.add(new Hit(x, y, ROW_X + ROW_W - x, ROW_H, List.of(Component.translatable(kind == Kind.CROPS
                         ? "residual.forecaster.fit_title" : "residual.forecaster.fit_title_machines", share),
-                Component.translatable("residual.forecaster.fit_hint").withColor(Ui.DIM))));
+                Component.translatable(second() ? "residual.forecaster.fit_hint_ii" : "residual.forecaster.fit_hint").withColor(Ui.DIM))));
     }
 
     private static int at(int x0, int w, double off, double span) {

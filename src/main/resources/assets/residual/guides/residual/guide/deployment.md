@@ -195,8 +195,6 @@ while it carries.
 
 ## The Terminal
 
-<residual:Clip name="terminal" alt="Writing with a served model on a Terminal" />
-
 <RecipeFor id="terminal" />
 
 Tune a <ItemLink id="terminal" /> on a Model Server the same way, then carry it out into the world and use it anywhere

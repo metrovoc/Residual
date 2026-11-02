@@ -27,8 +27,8 @@ about a dozen items; your own field may take a model trained on the Forecaster's
 <residual:Milestone id="forecast/deep">The Fabricator makes Forecaster II from a transformer photomask; a model
 within 5% of its blocks runs them eight times as fast: [The Forecaster](forecaster.md).</residual:Milestone>
 
-<residual:Milestone id="forecast/burst">The Fabricator makes Forecaster III from a transformer photomask. Give it 32 cooled
-Accelerators, power, and a model within 2.5% of its blocks: [The Forecaster](forecaster.md).</residual:Milestone>
+<residual:Milestone id="forecast/burst">The Fabricator makes Forecaster III from a transformer photomask. Give it 32 compute,
+power, and a model within 2.5% of its blocks: [The Forecaster](forecaster.md).</residual:Milestone>
 
 <residual:Milestone id="forecast/hourglass">The Fabricator makes it from an attention photomask, and it keeps time
 while carried. Sneak-use a Forecaster that runs blocks ahead to bind it, then use it on one of those blocks:

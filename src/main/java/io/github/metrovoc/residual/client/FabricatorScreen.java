@@ -213,8 +213,8 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> im
         out.add("output", this, menu.getSlot(FabricatorBlockEntity.OUTPUT));
         out.add("materials", leftPos + FabricatorMenu.CASING_X - 1, topPos + FabricatorMenu.MATERIALS_Y - 1, FabricatorMenu.CRYSTAL_X + 17 - FabricatorMenu.CASING_X + 1, 29);
         out.add("arrow", leftPos + ARROW_X, topPos + FabricatorMenu.OUTPUT_Y, 24, 16);
-        out.add("choices", leftPos + CHOICES_X, topPos + CHOICES_Y, PER_ROW * CELL, 2 * CELL);
         List<Item> choices = choices();
+        out.add("choices", leftPos + CHOICES_X, topPos + CHOICES_Y, PER_ROW * CELL, Math.max(1, (choices.size() + PER_ROW - 1) / PER_ROW) * CELL);
         int chosen = choice();
         for (int i = 0; i < choices.size(); i++) {
             int x = leftPos + CHOICES_X + (i % PER_ROW) * CELL, y = topPos + CHOICES_Y + (i / PER_ROW) * CELL;

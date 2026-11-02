@@ -66,8 +66,6 @@ too large on every step.
 
 ## Reading the curve
 
-<residual:Clip name="train" alt="The Train tab as a small GPT learns to sort: the loss on practice and on the test falling together" />
-
 Here is one to run yourself: a table of what comes after each letter, with one short line to practise on and another to
 be tested on, and AdamW moving its weights.
 
