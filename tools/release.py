@@ -51,6 +51,11 @@ def modrinth(method, path="", body=None, content_type="application/json"):
 def store(markdown, ref):
     """Markdown from GitHub as the stores show it, what it links to and shows coming from GitHub at `ref`. The stores
     allow no downloads but their own, so a link to one keeps its words, and a row of links goes: they show their own."""
+    # Some stores treat Markdown inside an HTML block as literal text.
+    markdown = re.sub(r'(<div[^>]*>)(.*?)(</div>)', lambda m: m[1] +
+                      re.sub(r'^\*\*(.+)\*\*$', r'<strong>\1</strong>', m[2], flags=re.M) + m[3],
+                      markdown, flags=re.S)
+    markdown = re.sub(r'<(div|p) align="center">', r'<\1 style="text-align:center">', markdown)
     markdown = re.sub(r"^\[[^\]]*\]\([^)]*\)(?: · \[[^\]]*\]\([^)]*\))+\n\n", "", markdown, flags=re.M)
     downloads = rf"https://(?:github\.com/{REPO}/releases|modrinth\.com|(?:www\.)?curseforge\.com)\b[^)]*"
     markdown = re.sub(rf"(?<!!)\[([^\]]*)\]\({downloads}\)", r"\1", markdown)
