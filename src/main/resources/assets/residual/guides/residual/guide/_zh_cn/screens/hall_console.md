@@ -3,7 +3,7 @@ navigation:
   title: 机房控制台
   icon: hall_console
   parent: screens/index.md
-  position: 26
+  position: 27
 ---
 
 # 机房控制台的界面

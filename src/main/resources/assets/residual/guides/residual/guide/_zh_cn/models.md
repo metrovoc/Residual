@@ -15,6 +15,8 @@ item_ids:
   - demand_dataset
   - watch_dataset
   - modular_dataset
+  - imitation_dataset
+  - ground_dataset
   - flight_dataset
   - retrieval_dataset
   - reactor_dataset
@@ -47,6 +49,8 @@ item_ids:
 | 质量   | <ItemLink id="archive_drive" />         | 一份份文档，其中一半被坏线路弄坏了                | 90%         | [精炼厂](refinery.md) |
 | 安全壳 | <ItemLink id="reactor_dataset" />       | 每种燃料的周期，90% 的查看保持在带内              | 90%         | 反应堆   |
 | 模加法 | <ItemLink id="modular_dataset" />       | 绕着轮子的加法，练习从未出现的数对                | 90%         | 找到规律 |
+| 模仿   | <ItemLink id="imitation_dataset" />     | 生物真实的举动，来自它没读过的战斗                | 76%         | 竞技场   |
+| 地层   | <ItemLink id="ground_dataset" />        | 它没读过的一行行地层，逐个方块                    | 损失 ≤ 0.97 | 书写地层 |
 
 把鼠标悬停在核心「测试」页上的某项基准上，可以看到准确的格式。「试用」页展示模型回答一个新例子，就像智能体提问那样。
 

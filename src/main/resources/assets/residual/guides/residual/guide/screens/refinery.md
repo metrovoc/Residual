@@ -3,7 +3,7 @@ navigation:
   title: Refinery machines
   icon: refinery_intake
   parent: screens/index.md
-  position: 24
+  position: 25
 ---
 
 # The screens of a Refinery

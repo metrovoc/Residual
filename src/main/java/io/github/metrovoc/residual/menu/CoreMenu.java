@@ -6,6 +6,7 @@ import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
 import io.github.metrovoc.residual.item.DumpItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
+import io.github.metrovoc.residual.item.MobLogItem;
 import io.github.metrovoc.residual.item.TokenCellItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.WreckItem;
@@ -94,7 +95,7 @@ public class CoreMenu extends AbstractContainerMenu {
 
     public static boolean isData(ItemStack stack) {
         return stack.getItem() instanceof DatasetItem || stack.getItem() instanceof DriveItem || stack.getItem() instanceof WreckItem
-                || stack.getItem() instanceof FieldLogItem || stack.getItem() instanceof DumpItem || stack.getItem() instanceof TokenCellItem;
+                || stack.getItem() instanceof FieldLogItem || stack.getItem() instanceof DumpItem || stack.getItem() instanceof TokenCellItem || stack.getItem() instanceof MobLogItem;
     }
 
     private class Shown extends Slot {

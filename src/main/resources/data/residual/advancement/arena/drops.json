@@ -1,0 +1,28 @@
+{
+  "parent": "residual:arena/recorded",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:arena"
+    },
+    "title": {
+      "translate": "advancements.residual.arena.drops.title"
+    },
+    "description": {
+      "translate": "advancements.residual.arena.drops.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

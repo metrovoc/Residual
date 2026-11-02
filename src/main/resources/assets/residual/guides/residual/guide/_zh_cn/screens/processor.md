@@ -3,7 +3,7 @@ navigation:
   title: 处理器
   icon: processor
   parent: screens/index.md
-  position: 16
+  position: 17
 ---
 
 # 处理器的界面

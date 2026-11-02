@@ -5,40 +5,54 @@ import com.google.gson.JsonParser;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.block.ArenaBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DriveItem;
+import io.github.metrovoc.residual.item.MobLogItem;
 import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.learn.Blueprints;
+import io.github.metrovoc.residual.learn.Imitation;
 import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModComponents;
 import io.github.metrovoc.residual.registry.ModItems;
 import io.github.metrovoc.residual.world.CaseBuilder;
+import io.github.metrovoc.residual.world.FrontierTier;
 import io.github.metrovoc.residual.world.CaseLayout;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
+import java.util.TreeMap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.slf4j.Logger;
 
 /**
  * What a script asks of the world through the server, so it works on a dedicated server too:
@@ -50,6 +64,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 public final class ServerSteps {
     /** Trained models kept between worlds: {@code run/models} when run from the build. */
     private static final Path KEPT = Path.of(System.getProperty("residual.models", "models"));
+    private static final Logger LOG = LogUtils.getLogger();
 
     private ServerSteps() {
     }
@@ -127,6 +142,44 @@ public final class ServerSteps {
         player.getInventory().add(checkpoint);
     }
 
+    /** Writes what every Mob Log the player carries holds to {@code DIR/KIND.txt}, for a script that records real mobs. */
+    static void mobs(ServerPlayer player, String dir) throws IOException {
+        Files.createDirectories(Path.of(dir));
+        for (ItemStack stack : player.getInventory()) {
+            MobLogItem.Log log = MobLogItem.log(stack);
+            if (log != null) {
+                Files.writeString(Path.of(dir).resolve(log.kind().getPath() + ".txt"), log.lines());
+            }
+        }
+    }
+
+    /** Logs what a thousand of a kind of mob drop at each of an Arena's tiers, its real loot table rolled as a fight's end rolls it. */
+    static void drops(ServerPlayer player, String kind) {
+        ServerLevel level = player.level();
+        Mob mob = (Mob) EntityType.byString(kind).orElseThrow().create(level, EntitySpawnReason.LOAD);
+        mob.setPos(player.position());
+        for (int tier = 1; tier <= Imitation.TIERS.length; tier++) {
+            Map<String, Integer> totals = new TreeMap<>();
+            for (int i = 0; i < 1000; i++) {
+                for (ItemStack stack : ArenaBlockEntity.drops(level, mob, tier)) {
+                    totals.merge(BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath(), stack.getCount(), Integer::sum);
+                }
+            }
+            LOG.info("[rehearsal] a thousand {} at tier {}: {}", kind, tier, totals);
+        }
+    }
+
+    /** Gives the player a Mob Log already holding what a file of {@link #mobs} holds, for a script that is not about recording. */
+    static void mobLog(ServerPlayer player, String file) throws IOException {
+        Path path = Path.of(file);
+        String kind = path.getFileName().toString().replace(".txt", "");
+        CompoundTag specimen = new CompoundTag();
+        specimen.putString("id", "minecraft:" + kind);
+        ItemStack log = new ItemStack(ModItems.MOB_LOG.get());
+        log.set(ModComponents.MOB_LOG.get(), new MobLogItem.Log(Identifier.withDefaultNamespace(kind), specimen, Files.readString(path)));
+        player.getInventory().add(log);
+    }
+
     private static int kept(CommandContext<CommandSourceStack> c, Step step) throws CommandSyntaxException {
         try {
             step.run(c.getSource().getPlayerOrException(), StringArgumentType.getString(c, "name"));
@@ -155,6 +208,14 @@ public final class ServerSteps {
                     drive(c.getSource().getPlayerOrException(), IntegerArgumentType.getInteger(c, "shards"));
                     return 1;
                 })))
+                .then(Commands.literal("frontier").executes(c -> {
+                    // no run yet says a base has reached the Frontier tier: a script that tests what lies behind it says so itself
+                    FrontierTier.decidedBy((level, owner) -> true);
+                    return 1;
+                }))
+                .then(Commands.literal("drops").then(Commands.argument("name", StringArgumentType.string()).executes(c -> kept(c, ServerSteps::drops))))
+                .then(Commands.literal("moblog").then(Commands.argument("name", StringArgumentType.string()).executes(c -> kept(c, ServerSteps::mobLog))))
+                .then(Commands.literal("mobs").then(Commands.argument("name", StringArgumentType.string()).executes(c -> kept(c, ServerSteps::mobs))))
                 .then(Commands.literal("keep").then(Commands.argument("name", StringArgumentType.word()).executes(c -> kept(c, ServerSteps::keep))))
                 .then(Commands.literal("model").then(Commands.argument("name", StringArgumentType.word()).executes(c -> kept(c, ServerSteps::model)))));
     }

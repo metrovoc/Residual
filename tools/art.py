@@ -1447,6 +1447,49 @@ def watch_post_front(step=None):
     return c
 
 
+# the Arena's hue: what fights
+ARENA = hue_ramp(15)
+# what the mob and its sparring frame do across a working Arena's window: where each stands, and whether a blow lands
+ARENA_FIGHT = [(4, 10, False), (5, 10, False), (6, 9, False), (7, 9, True), (6, 10, False), (5, 10, False)]
+# the chamber's floor from above, on its sides: four pads
+ARENA_PADS = [
+    "###..###",
+    "#+#..#+#",
+    "###..###",
+    "........",
+    "........",
+    "###..###",
+    "#+#..#+#",
+    "###..###",
+]
+
+
+def arena_front(step=None):
+    """The chamber through its window: a lit floor, the mob on the left and its sparring frame on the right, standing apart while
+    it waits. Working, they come together, a blow lands and they part."""
+    c = plate(salt=71)
+    window(c, salt=71)
+    edge(c, 3, 3, 12, 12, ARENA[2], mix(ARENA[2], ARENA[1], .45), 72)
+    mob, frame, blow = ARENA_FIGHT[step] if step is not None else (4, 10, False)
+    floor = TEAL[3] if step is not None else mix(TEAL[2], W1, .4)
+    c.rect(4, 11, 11, 11, floor)
+    for x, tone, head in ((mob, ARENA[4] if step is not None else mix(ARENA[3], W1, .4), ARENA[5] if step is not None else mix(ARENA[4], W1, .4)),
+                          (frame, STEEL[6] if step is not None else STEEL[4], STEEL[7] if step is not None else STEEL[5])):
+        c.rect(x, 8, x + 1, 10, tone)
+        c.rect(x, 7, x + 1, 7, head)
+    if blow:
+        c.rect(8, 5, 8, 6, AMBER[5])
+        c.px(7, 6, AMBER[4])
+        c.px(9, 6, AMBER[4])
+    return c
+
+
+def arena_side():
+    c = plate(salt=73)
+    engraved_glyph(c, ARENA_PADS, ARENA)
+    return c
+
+
 def watch_post_side():
     c = plate(salt=34)
     engraved_glyph(c, WATCH_GLYPH, CORAL)
@@ -2168,7 +2211,7 @@ def punch(c, rows, x0=4, y0=5):
 
 # one color per benchmark, on its dataset's stripe
 BENCHMARK_COLORS = {"forecast": hue_ramp(85), "storage": AMBER, "errand": AZURE, "pattern": AMETHYST, "orders": TEAL,
-                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110), "flight": AZURE, "demand": hue_ramp(20), "watch": hue_ramp(350), "retrieval": hue_ramp(315), "reactor": hue_ramp(60), "reckoning": hue_ramp(120), "modular": hue_ramp(270)}
+                    "sorting": CORAL, "process": GREEN, "survey": hue_ramp(110), "flight": AZURE, "demand": hue_ramp(20), "watch": hue_ramp(350), "retrieval": hue_ramp(315), "reactor": hue_ramp(60), "reckoning": hue_ramp(120), "modular": hue_ramp(270), "imitation": ARENA, "ground": hue_ramp(40)}
 # what each dataset practices, punched into the card
 DATASET_HOLES = {
     "reactor": [
@@ -2197,6 +2240,24 @@ DATASET_HOLES = {
         "...##...",
         "#......#",
         "##.##.##",
+    ],
+    "imitation": [
+        ".#....#.",
+        "###..###",
+        ".#....#.",
+        ".#....#.",
+        "#.#..#.#",
+        "........",
+        "########",
+    ],
+    "ground": [
+        "########",
+        "........",
+        "##.#####",
+        "........",
+        "#####.##",
+        "........",
+        "########",
     ],
     "watch": [
         "..#..#..",
@@ -2422,6 +2483,17 @@ def preference_log():
             for k in range(3):
                 c.px(x + k, y, GREEN[3] if i == chosen else DIM[1])
     outline(c, rgb("2a2b3e"))
+    return c
+
+
+def mob_log():
+    """A clipboard of what a mob did: each row its looks, the blows it struck standing out in its own hue."""
+    c = Canvas()
+    c.stamp(0, 0, FIELD_LOG, {"k": K3, "K": K1, "b": rgb("9b7449"), "d": rgb("6e5131"), "P": K0})
+    for y, looks in ((4, "ccsccs"), (6, "cccss"), (8, "sccsc" + "c"), (10, "ccsc"), (12, "scc")):
+        for i, look in enumerate(looks):
+            c.px(5 + i, y, ARENA[4] if look == "s" else K3)
+    outline(c, rgb("3e2c1a"))
     return c
 
 
@@ -5089,7 +5161,7 @@ def build():
     assert mirrored(FLIGHT_FRAME), FLIGHT_FRAME
     for rows in (EXOSUIT, EXOSUIT_FRONT, EXOSUIT_BACK, EXOSUIT_ARM_OUT, EXOSUIT_ARM):
         assert mirrored(rows), rows
-    for rows in [*GLYPHS.values(), *UNIT_GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, SURVEY_PROBE, *PORT_GLYPHS.values()]:
+    for rows in [*GLYPHS.values(), *UNIT_GLYPHS.values(), SERVER_CRYSTAL, HOURGLASS, SPROUT, TERMINAL_SIDE, ASSEMBLER_SIDE, SURVEY_PROBE, ARENA_PADS, *PORT_GLYPHS.values()]:
         assert not (mirrored(rows) and len(rows[0]) % 2), rows
         assert not (rows == rows[::-1] and len(rows) % 2), rows
     assert [u + 5 for u in RACK_BAY_U] == [15 - u for u in reversed(RACK_BAY_U)]
@@ -5119,6 +5191,7 @@ def build():
             *[f"block/{name}_{face}" for name in REFINERY_GLYPHS for face in ("front", "front_on")],
             "block/stream_scope_front", "block/stream_scope_front_on",
             "block/trial_rig_front", "block/trial_rig_front_on",
+            "block/arena_front", "block/arena_front_on",
             "block/reader_front", "block/reader_front_on",
             "block/bpe_forge_front_on", "block/storage_terminal_front_on", "block/model_core_side_on",
             "block/model_server_front_on", "block/model_server_front_full", "block/drive_cartridge", "block/relay", "block/relay_dark", "block/relay_lights"}
@@ -5163,6 +5236,10 @@ def build():
     lit("block/trial_rig_front_on.png", [trial_rig_front(i) for i in range(4)], [trial_rig_front()], 4)
     trial_rig_side().save("block/trial_rig_side.png")
     machine_top(65).save("block/trial_rig_top.png")
+    arena_front().save("block/arena_front.png")
+    lit("block/arena_front_on.png", [arena_front(i) for i in range(len(ARENA_FIGHT))], [arena_front()], 4)
+    arena_side().save("block/arena_side.png")
+    machine_top(71).save("block/arena_top.png")
     machine_top(61).save("block/surveyor_top.png")
     smelter_front(False).save("block/smelter_front.png")
     lit("block/smelter_front_on.png", [smelter_front(True)], [smelter_front(False)])
@@ -5208,6 +5285,7 @@ def build():
         upgrade(name).save(f"item/{name}_upgrade.png")
     field_log().save("item/field_log.png")
     preference_log().save("item/preference_log.png")
+    mob_log().save("item/mob_log.png")
     hourglass().save("item/hourglass.png")
     archive_shard().save("item/archive_shard.png")
     salvaged_model().save("item/salvaged_model.png")

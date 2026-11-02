@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.menu;
 
 import io.github.metrovoc.residual.block.SurveyorBlockEntity;
+import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.registry.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
@@ -16,14 +17,14 @@ import net.minecraft.world.item.ItemStack;
 /** The Surveyor's screen: its model slot, in a panel beside the window, and the player's inventory. */
 public class SurveyorMenu extends AbstractContainerMenu {
     /** The model slot's panel beside the window, tucked under its edge. */
-    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 28, MODEL_X = 179, MODEL_Y = 10;
+    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 46, MODEL_X = 179, MODEL_Y = 10, LOG_Y = 28;
     public static final int INVENTORY_X = 8, INVENTORY_Y = 100;
 
     public final BlockPos pos;
     public final ContainerData data;
 
     public SurveyorMenu(int id, Inventory inventory, BlockPos pos) {
-        this(id, inventory, pos, new SimpleContainer(1), new SimpleContainerData(SurveyorBlockEntity.DATA));
+        this(id, inventory, pos, new SimpleContainer(2), new SimpleContainerData(SurveyorBlockEntity.DATA));
     }
 
     public SurveyorMenu(int id, Inventory inventory, BlockPos pos, Container items, ContainerData data) {
@@ -34,6 +35,17 @@ public class SurveyorMenu extends AbstractContainerMenu {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return AgentMenu.isModel(stack);
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+        addSlot(new Slot(items, SurveyorBlockEntity.LOG, MODEL_X, LOG_Y) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getItem() instanceof FieldLogItem;
             }
 
             @Override
@@ -65,11 +77,15 @@ public class SurveyorMenu extends AbstractContainerMenu {
         }
         ItemStack stack = slot.getItem();
         ItemStack before = stack.copy();
-        if (index == 0) {
-            if (!moveItemStackTo(stack, 1, slots.size(), true)) {
+        if (index <= SurveyorBlockEntity.LOG) {
+            if (!moveItemStackTo(stack, SurveyorBlockEntity.LOG + 1, slots.size(), true)) {
                 return ItemStack.EMPTY;
             }
-        } else if (!AgentMenu.isModel(stack) || !moveItemStackTo(stack, 0, 1, false)) {
+        } else if (stack.getItem() instanceof FieldLogItem) {
+            if (!moveItemStackTo(stack, SurveyorBlockEntity.LOG, SurveyorBlockEntity.LOG + 1, false)) {
+                return ItemStack.EMPTY;
+            }
+        } else if (!AgentMenu.isModel(stack) || !moveItemStackTo(stack, SurveyorBlockEntity.MODEL, SurveyorBlockEntity.MODEL + 1, false)) {
             return ItemStack.EMPTY;
         }
         if (stack.isEmpty()) {

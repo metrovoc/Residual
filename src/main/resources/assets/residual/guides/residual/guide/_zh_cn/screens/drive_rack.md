@@ -3,7 +3,7 @@ navigation:
   title: 驱动器机架
   icon: drive_rack
   parent: screens/index.md
-  position: 14
+  position: 15
 ---
 
 # 驱动器机架的界面

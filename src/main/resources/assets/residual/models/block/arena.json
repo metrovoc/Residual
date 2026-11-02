@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/arena_side",
+    "north": "residual:block/arena_front",
+    "south": "residual:block/arena_side",
+    "east": "residual:block/arena_side",
+    "west": "residual:block/arena_side",
+    "up": "residual:block/arena_top",
+    "down": "residual:block/machine_back"
+  }
+}

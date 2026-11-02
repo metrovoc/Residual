@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.block;
 import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.graph.CompiledGraph;
+import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.learn.Survey;
 import io.github.metrovoc.residual.menu.SurveyorMenu;
 import io.github.metrovoc.residual.model.ModelInfo;
@@ -10,6 +11,7 @@ import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.model.Models;
 import io.github.metrovoc.residual.net.SurveySync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
+import io.github.metrovoc.residual.registry.ModComponents;
 import io.github.metrovoc.residual.registry.ModItems;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -36,6 +39,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -55,12 +59,14 @@ import org.jetbrains.annotations.Nullable;
  * starts over when done, so what is mined drops out. Players holding a Survey Rod nearby see what it found.
  */
 public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
-    public static final int MODEL = 0;
+    public static final int MODEL = 0, LOG = 1;
     public static final int RADIUS = 16, ABOVE = 15, BELOW = 48;
     /** Rows along x: two to a line of {@code 2 * RADIUS} blocks, a line for every z and every height. */
     public static final int ROWS = (ABOVE + BELOW + 1) * 2 * RADIUS * 2;
     /** Rows read a tick, and questions put to the model at once. */
     private static final int ROWS_PER_TICK = 32, BATCH = 64;
+    /** Rows a Field Log holds, and how often it is brought up to date. */
+    private static final int LOG_ROWS = FieldLogItem.CAPACITY / (Survey.ROW + 1), WRITE_EVERY = 100;
     /**
      * What its screen shows: its state, how far through the survey, why there is no model, then from {@link #FOUND} a
      * count for each of the eight ores and for caches, and how many answers it missed.
@@ -79,7 +85,7 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
     private record Question(BlockPos start, String row, char find) {
     }
 
-    private final SimpleContainer items = new SimpleContainer(1) {
+    private final SimpleContainer items = new SimpleContainer(2) {
         @Override
         public void setChanged() {
             super.setChanged();
@@ -96,6 +102,11 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
     private final Map<BlockPos, Character> found = new HashMap<>();
     private Map<BlockPos, Character> last = Map.of();
     private int missed;
+    /** A fair sample of the rows it has read, for a Field Log, and how many it has read. */
+    private final List<String> sampled = new ArrayList<>();
+    private long rowsRead;
+    private boolean logStale;
+    private final Random rng = new Random();
     private boolean asking;
     private int request;
     private int askedAt;
@@ -200,6 +211,9 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
         if (ticks % 20 == 0) {
             sync(level);
         }
+        if (ticks % WRITE_EVERY == 0 && logStale) {
+            writeLog();
+        }
         ModelLink link = ModelLink.of(level, worldPosition, items.getItem(MODEL));
         if (link instanceof ModelLink.Missing m) {
             problem = Math.max(0, PROBLEMS.indexOf(m.problem()));
@@ -244,10 +258,35 @@ public class SurveyorBlockEntity extends BlockEntity implements MenuProvider {
             row.append(letter(level, start.offset(i, 0, 0)));
         }
         String text = row.toString();
+        keep(text);
         for (char find : Survey.FINDS.toCharArray()) {
             if (text.indexOf(find) >= 0) {
                 waiting.add(new Question(start, text, find));
             }
+        }
+    }
+
+    /** Keeps {@code row} in the sample with the chance every row has had, a cache read as the stone around it. */
+    private void keep(String row) {
+        if (!(items.getItem(LOG).getItem() instanceof FieldLogItem)) {
+            return;
+        }
+        rowsRead++;
+        String kept = row.replace(Survey.CACHE, 'S');
+        if (sampled.size() < LOG_ROWS) {
+            sampled.add(kept);
+            logStale = true;
+        } else if (rng.nextLong(rowsRead) < LOG_ROWS) {
+            sampled.set(rng.nextInt(LOG_ROWS), kept);
+            logStale = true;
+        }
+    }
+
+    private void writeLog() {
+        logStale = false;
+        ItemStack log = items.getItem(LOG);
+        if (log.getItem() instanceof FieldLogItem) {
+            log.set(ModComponents.FIELD_LOG.get(), String.join("\n", sampled) + "\n");
         }
     }
 

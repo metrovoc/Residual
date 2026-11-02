@@ -3,7 +3,7 @@ navigation:
   title: Relay Gate
   icon: relay_gate
   parent: screens/index.md
-  position: 20
+  position: 21
 ---
 
 # A Relay Gate's screen

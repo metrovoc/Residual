@@ -93,7 +93,20 @@ public enum Benchmark {
      * Sums on a wheel: pairs practice never shows, added round a wheel of teeth. A model learns the pairs it is shown long before it
      * learns the rule, and only strong weight decay brings it there.
      */
-    MODULAR(Modular.LENGTH, Task.Metric.ACCURACY, 0.9);
+    MODULAR(Modular.LENGTH, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Imitation: what a mob does next, on lines of what real mobs did, scored by how often the model's likeliest action is the one
+     * the mob took on lines it never practised on, every kind counting alike. Mobs are partly random, so nothing gets near 90%: a
+     * model reading three characters stays at 0.72 and two attention layers at 0.74; two blocks get here in about 2,000 steps and 0.77
+     * in 3,000.
+     */
+    IMITATION(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.76),
+    /**
+     * Ground: the next block of a row of ground, on rows it has never read. A model that holds this can write ground of its own, as
+     * the Arena asks of one at the Frontier tier. A table of last letters stays at 1.04 and a model reading three characters near
+     * 0.98; a two-block transformer gets under 0.97 in about 1,000 steps and reaches 0.95.
+     */
+    GROUND(Survey.ROW, Task.Metric.LOSS, 0.97);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */
@@ -117,7 +130,7 @@ public enum Benchmark {
      * Watch practises on things going well and is tested on things going wrong.
      */
     public Task practice() {
-        return this == CONTROL ? new Control() : this == PILOT ? new Pilot() : this == REACTOR ? new Reactor() : this == WATCH ? new Watching() : this == PROGRAMS ? new Programs() : this == RECKONING ? new Reckoning() : this == PRECISION ? new Precision() : Dataset.of(this);
+        return this == CONTROL ? new Control() : this == PILOT ? new Pilot() : this == REACTOR ? new Reactor() : this == WATCH ? new Watching() : this == PROGRAMS ? new Programs() : this == RECKONING ? new Reckoning() : this == PRECISION ? new Precision() : this == IMITATION ? new Imitating() : Dataset.of(this);
     }
 
     public static Benchmark byId(String id) {

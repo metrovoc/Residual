@@ -1,0 +1,28 @@
+{
+  "parent": "residual:arena/drops",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:arena"
+    },
+    "title": {
+      "translate": "advancements.residual.arena.uncanny.title"
+    },
+    "description": {
+      "translate": "advancements.residual.arena.uncanny.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

@@ -3,7 +3,7 @@ navigation:
   title: Wayfinder
   icon: wayfinder
   parent: screens/index.md
-  position: 23
+  position: 24
 ---
 
 # The Wayfinder's screen

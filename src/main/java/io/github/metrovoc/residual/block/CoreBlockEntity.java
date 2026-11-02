@@ -19,6 +19,7 @@ import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
 import io.github.metrovoc.residual.item.DumpItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
+import io.github.metrovoc.residual.item.MobLogItem;
 import io.github.metrovoc.residual.item.TokenCellItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.WreckItem;
@@ -29,6 +30,8 @@ import io.github.metrovoc.residual.learn.Seeds;
 import io.github.metrovoc.residual.learn.Dataset;
 import io.github.metrovoc.residual.learn.Demand;
 import io.github.metrovoc.residual.learn.FieldTask;
+import io.github.metrovoc.residual.learn.Ground;
+import io.github.metrovoc.residual.learn.Imitating;
 import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Sampler;
@@ -451,7 +454,12 @@ public class CoreBlockEntity extends BlockEntity {
                 String log = FieldLogItem.log(stack);
                 FieldTask field = new FieldTask(log, vocab);
                 if (!field.isEmpty()) {
-                    sources.add(new Mixture.Source(Demand.isLog(log) ? Benchmark.DEMAND : Benchmark.FORECASTING, field));
+                    sources.add(new Mixture.Source(Demand.isLog(log) ? Benchmark.DEMAND : Ground.isLog(log) ? Benchmark.GROUND : Benchmark.FORECASTING, field));
+                }
+            } else if (MobLogItem.log(stack) instanceof MobLogItem.Log log) {
+                Imitating lines = new Imitating(log.lines(), vocab);
+                if (!lines.isEmpty()) {
+                    sources.add(new Mixture.Source(Benchmark.IMITATION, lines));
                 }
             } else if (WreckItem.wreck(stack) instanceof Wrecks.Wreck w) {
                 sources.add(new Mixture.Source(w.benchmark(), w.practice()));

@@ -15,6 +15,8 @@ item_ids:
   - demand_dataset
   - watch_dataset
   - modular_dataset
+  - imitation_dataset
+  - ground_dataset
   - flight_dataset
   - retrieval_dataset
   - reactor_dataset
@@ -48,6 +50,8 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Programs  | a <ItemLink id="tuner" />               | what is written for an order, run in a sandbox     | 75%         | [orders that need no yes](tuning.md) |
 | Precision | a <ItemLink id="tuner" />               | melts held at one step of the band                 | 90%         | [six ingots from an ore](tuning.md) |
 | Modular   | <ItemLink id="modular_dataset" />       | sums round a wheel, pairs practice never shows      | 90%         | finding a rule |
+| Imitation | <ItemLink id="imitation_dataset" />     | what mobs really did, from fights it has not read   | 76%         | the Arena   |
+| Ground    | <ItemLink id="ground_dataset" />        | rows of ground it has not read, block by block      | loss ≤ 0.97 | writing ground |
 
 Hover over a benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
 example, the way an agent would ask it.

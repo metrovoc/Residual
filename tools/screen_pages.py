@@ -294,6 +294,7 @@ SURVEYOR = screen(
            T("A Surveyor with no model yet", "还没有模型的勘测仪"),
            [P("model", K("residual.agent.model_slot"), K("residual.surveyor.model_hint")),
             P("finds", T("What it found", "它找到的东西"), T("Each ore and the caches, with how many its model has found this survey. Point at one for more.", "每种矿石和遗藏，以及模型这一轮找到了多少。指向一项可看到更多。")),
+            P("log", T("A Field Log", "现场日志"), T("A Field Log here keeps a fair sample of the rows it reads, for practice and for an Arena.", "放在这里的现场日志会公平地抽取它读过的行，用于练习和竞技场。")),
             P("progress", T("How far it has gone", "进度"), T("Along the display's foot, how far this survey has gone. Point at it for how far it reaches.", "显示屏底部表示这一轮勘测走了多远。指向它可看到它能勘测多远。"))])],
     clip="survey_screen")
 
@@ -311,6 +312,19 @@ WATCH = screen(
            T("A Watch Post watching a furnace", "正在观察熔炉的哨所"),
            [P("rows", T("What it watches", "它观察的东西"), T("Each thing's line of looks as bars, newest on the right, red while something is wrong with it. Point at a row to hear what it thinks.", "每样东西的查看记录画成柱状，最新的在右边，出问题时变红。指向一行可看到它的判断。")),
             P("model", K("residual.agent.model_slot"), K("residual.watch.model_hint"))])])
+
+
+ARENA = screen(
+    "arena", "ArenaScreen", "arena", T("Arena", "竞技场"), T("The Arena's screen", "竞技场的界面"),
+    T("Use an Arena to open it. [The Arena](../arena.md) tells how a mob is written down and what a model has to do to play it.", "对竞技场使用即可打开。怎样记下一种生物，模型要做到什么才能扮演它，见[竞技场](../arena.md)。"),
+    lambda x, z: block("arena", x, z),
+    [state("waiting", T("With no log or model yet, it says what it needs.", "还没有日志和模型时，它会说明缺什么。"),
+           T("An Arena with nothing in it yet", "还什么都没放的竞技场"),
+           [P("log", T("The log", "日志"), K("residual.arena.log_hint")),
+            P("model", K("residual.agent.model_slot"), K("residual.arena.model_hint")),
+            P("fights", T("The mob", "生物"), T("The mob of the log. Along its foot a mark for each tier of likeness the model has reached; point at it for how the model did, what that earns, and what is in the way.", "日志里的生物。底部每达到一档相似度亮一格；指向它可以看到模型做得如何、能得到什么，以及缺什么。")),
+            P("drops", T("What it won", "战斗所得"), T("What the fights that count have dropped. A hopper can take it from here.", "算数的战斗掉落的东西。漏斗可以从这里取走。")),
+            P("power", T("Power", "电力"), T("What it has stored, filling from the bottom. Point at it for what a fight costs.", "储存的电力，从底部涨起。指向它可以看到一场战斗花费多少。"))])])
 
 
 def power_open(x, z):
@@ -811,5 +825,5 @@ INSTRUMENTS = screen(
             P("display", T("The display", "显示屏"), T("The trial's curves as it goes.", "试验进行时的曲线。"))],
            ["close", "wait 4", "use {sx} -60 {sz} north", "wait 10", "click tab:contaminate", "wait 4"])])
 
-SCREENS = [CORE, AGENT, BENCH, FABRICATOR, FORGE, OPERATOR, READER, FORECASTER, SURVEYOR, WATCH, POWER, TERMINAL, PORT, PORT_PROGRAM, RACK, ASSEMBLER, PROCESSOR, DOCK, ACCESS,
+SCREENS = [CORE, AGENT, BENCH, FABRICATOR, FORGE, OPERATOR, READER, FORECASTER, SURVEYOR, WATCH, ARENA, POWER, TERMINAL, PORT, PORT_PROGRAM, RACK, ASSEMBLER, PROCESSOR, DOCK, ACCESS,
            MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER, REFINERY, RACK_MODULE, HALL_CONSOLE, SERVER, TUNER, INSTRUMENTS]

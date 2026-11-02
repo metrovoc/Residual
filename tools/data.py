@@ -22,13 +22,14 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval", "quality", "reactor", "programs", "reckoning", "precision", "modular"]
+BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval", "quality", "reactor", "programs", "reckoning", "precision", "modular", "imitation", "ground"]
 DATASETS = {"forecast_dataset": "minecraft:clock", "storage_dataset": "minecraft:chest",
             "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
             "orders_dataset": "minecraft:writable_book", "process_dataset": "minecraft:raw_iron", "survey_dataset": "minecraft:flint",
             "flight_dataset": "minecraft:feather", "demand_dataset": "minecraft:hopper", "watch_dataset": "minecraft:spyglass", "retrieval_dataset": "minecraft:map",
             "reactor_dataset": "minecraft:blaze_powder", "reckoning_dataset": "minecraft:paper",
-            "modular_dataset": "minecraft:repeater"}
+            "modular_dataset": "minecraft:repeater",
+            "imitation_dataset": "minecraft:rotten_flesh", "ground_dataset": "minecraft:deepslate"}
 # see refine/Stage.java; the first takes text in, and every other but the tank comes out of the Fabricator
 REFINERY = ["refinery_intake", "duplicate_sieve", "filter_bed", "quality_classifier", "program_press", "domain_mixer", "contamination_check"]
 SCHEMATICS = ["schematic_relays"]
@@ -534,7 +535,7 @@ def storage():
 
 def items():
     flat = (["weight_crystal", "wafer", "wafer_28", "wafer_7", "wafer_3", "reactor_fuel", "checkpoint", "archive_drive", "archive_shard", "salvaged_model", "relay_dump", "token_cell",
-             "agent", "relay_card", "kv_cache", "weight_packer", "terminal", "field_log", "preference_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
+             "agent", "relay_card", "kv_cache", "weight_packer", "terminal", "field_log", "preference_log", "mob_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
              "portable_drive", "wireless_terminal", "hourglass", "flight_frame", "exosuit",
              "speed_upgrade", "stack_upgrade", "range_upgrade", "fluid_upgrade", "energy_upgrade", "carry_upgrade", "lift_upgrade"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
@@ -746,7 +747,7 @@ def compute():
 # see bench/Unit.java
 UNITS = ["scheduler", "bf16_unit", "fp8_unit", "fp4_unit", "orthogonalizer", "packer"]
 MACHINE_BLOCKS = UNITS + ["model_core", "accelerator", "accelerator_28", "accelerator_7", "accelerator_3", "tensor_casing", "model_server", "reader", "relay", "relay_gate", "relay_link", "bench", "fabricator", "stream",
-                  "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "tuner", "stream_scope", "trial_rig", "combustion_generator", "energy_cell", "smelter", "power_cable",
+                  "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "tuner", "stream_scope", "trial_rig", "arena", "combustion_generator", "energy_cell", "smelter", "power_cable",
                   "heavy_cable", "bus_bar", "boiler", "turbine", "solar_panel", "capacitor_bank", "reactor_core", "reactor_casing", "reactor_glass", "fuel_rod",
                   "rack_module", "rack_switch", "pod_switch", "interconnect", "chiller", "coolant_pipe", "hall_console", "load_wall",
                   "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor", "drive_dock", "access_point",
@@ -855,6 +856,7 @@ def recipes():
     shaped("load_wall", ["GGG", "GWG", "KRK"], {"G": "minecraft:tinted_glass", "W": rid("wafer"), "K": rid("tensor_casing"), "R": "minecraft:redstone_lamp"}, 2)
     shapeless("field_log", ["minecraft:paper", "minecraft:paper", "minecraft:wheat", "#minecraft:planks"])
     shapeless("preference_log", ["minecraft:paper", "minecraft:paper", "minecraft:feather", "#minecraft:planks"])
+    shapeless("mob_log", ["minecraft:paper", "minecraft:paper", "minecraft:bone", "#minecraft:planks"])
     shaped("agent", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
     shapeless("program_card", ["minecraft:paper", "minecraft:redstone"], 2)
     shaped("survey_rod", ["  A", " S ", "S  "], {"A": "minecraft:amethyst_shard", "S": "minecraft:stick"})
@@ -1005,6 +1007,10 @@ def advancements():
     advancement("evaluation/contaminated", "failure/rig", "trial_rig", awarded(), frame="goal")
     advancement("evaluation/seeds", "model/saved", "checkpoint", awarded())
     advancement("evaluation/first", "model/saved", "checkpoint", awarded(), frame="goal")
+    advancement("arena/recorded", "root", "mob_log", awarded())
+    advancement("arena/drops", "arena/recorded", "arena", awarded(), frame="goal")
+    advancement("arena/uncanny", "arena/drops", "arena", awarded(), frame="challenge")
+    advancement("arena/materials", "arena/drops", "minecraft:diamond", awarded(), frame="challenge")
     advancement("power/generator", "root", "combustion_generator", placed("combustion_generator"))
     advancement("power/smelter", "power/generator", "smelter", awarded(), frame="goal")
     advancement("power/boiler", "power/generator", "turbine", placed("turbine"))
@@ -1072,6 +1078,7 @@ if __name__ == "__main__":
     forecaster("tuner")
     forecaster("stream_scope")
     forecaster("trial_rig")
+    forecaster("arena")
     power()
     compute()
     storage()

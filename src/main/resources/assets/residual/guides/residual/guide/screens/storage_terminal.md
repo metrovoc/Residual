@@ -3,7 +3,7 @@ navigation:
   title: Storage Terminal
   icon: storage_terminal
   parent: screens/index.md
-  position: 11
+  position: 12
 ---
 
 # A Storage Terminal's screen

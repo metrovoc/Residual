@@ -18,6 +18,7 @@ import io.github.metrovoc.residual.item.HourglassItem;
 import io.github.metrovoc.residual.item.LinkItem;
 import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
+import io.github.metrovoc.residual.item.MobLogItem;
 import io.github.metrovoc.residual.item.PortableDriveItem;
 import io.github.metrovoc.residual.item.ProbeItem;
 import io.github.metrovoc.residual.item.PreferenceLogItem;
@@ -78,6 +79,7 @@ public final class ModItems {
     public static final DeferredItem<TokenCellItem> TOKEN_CELL = ITEMS.registerItem("token_cell", TokenCellItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<TokenizerItem> TOKENIZER = ITEMS.registerItem("tokenizer", TokenizerItem::new, p -> p.stacksTo(16));
     public static final DeferredItem<FieldLogItem> FIELD_LOG = ITEMS.registerItem("field_log", FieldLogItem::new, p -> p.stacksTo(1));
+    public static final DeferredItem<MobLogItem> MOB_LOG = ITEMS.registerItem("mob_log", MobLogItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<HourglassItem> HOURGLASS = ITEMS.registerItem("hourglass", HourglassItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<FlightFrameItem> FLIGHT_FRAME = ITEMS.registerItem("flight_frame", FlightFrameItem::new, p -> p.stacksTo(1)
             .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.CHEST).setEquipSound(SoundEvents.ARMOR_EQUIP_NETHERITE)
@@ -160,6 +162,8 @@ public final class ModItems {
             case REACTOR -> "reactor_dataset";
             case RECKONING -> "reckoning_dataset";
             case MODULAR -> "modular_dataset";
+            case IMITATION -> "imitation_dataset";
+            case GROUND -> "ground_dataset";
             case READING, QUALITY, PROGRAMS, PRECISION -> throw new IllegalArgumentException();
         };
     }

@@ -21,6 +21,9 @@ navigation:
   <residual:Part name="finds">
     **它找到的东西**：每种矿石和遗藏，以及模型这一轮找到了多少。指向一项可看到更多。
   </residual:Part>
+  <residual:Part name="log">
+    **现场日志**：放在这里的现场日志会公平地抽取它读过的行，用于练习和竞技场。
+  </residual:Part>
   <residual:Part name="progress">
     **进度**：显示屏底部表示这一轮勘测走了多远。指向它可看到它能勘测多远。
   </residual:Part>

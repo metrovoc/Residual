@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
+import io.github.metrovoc.residual.block.ArenaBlockEntity;
 import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.FabricatorBlockEntity;
@@ -120,6 +121,8 @@ public final class ModBlockEntities {
                     ModBlocks.REFINERY.values().stream().map(b -> (Block) b.get()).collect(Collectors.toUnmodifiableSet())));
     public static final Supplier<BlockEntityType<InstrumentBlockEntity>> INSTRUMENT = BLOCK_ENTITIES.register("instrument",
             () -> new BlockEntityType<>(InstrumentBlockEntity::new, Set.of(ModBlocks.STREAM_SCOPE.get(), ModBlocks.TRIAL_RIG.get())));
+    public static final Supplier<BlockEntityType<ArenaBlockEntity>> ARENA = BLOCK_ENTITIES.register("arena",
+            () -> new BlockEntityType<>(ArenaBlockEntity::new, Set.of(ModBlocks.ARENA.get())));
     public static final Supplier<BlockEntityType<SmelterBlockEntity>> SMELTER = BLOCK_ENTITIES.register("smelter",
             () -> new BlockEntityType<>(SmelterBlockEntity::new, Set.of(ModBlocks.SMELTER.get())));
 

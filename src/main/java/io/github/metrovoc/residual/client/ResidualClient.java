@@ -19,6 +19,8 @@ import io.github.metrovoc.residual.net.GhostSync;
 import io.github.metrovoc.residual.net.SurveySync;
 import io.github.metrovoc.residual.net.SampleResult;
 import io.github.metrovoc.residual.net.CraftJobsSync;
+import io.github.metrovoc.residual.block.ArenaBlockEntity;
+import io.github.metrovoc.residual.net.ArenaSync;
 import io.github.metrovoc.residual.net.CraftPlanSync;
 import io.github.metrovoc.residual.net.CraftTreeSync;
 import io.github.metrovoc.residual.net.OpenTerminal;
@@ -146,6 +148,7 @@ public final class ResidualClient {
         event.register(ModMenus.SERVER.get(), ServerScreen::new);
         event.register(ModMenus.TUNER.get(), TunerScreen::new);
         event.register(ModMenus.INSTRUMENT.get(), InstrumentScreen::new);
+        event.register(ModMenus.ARENA.get(), ArenaScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
         event.register(ModMenus.POWER.get(), PowerScreen::new);
         event.register(ModMenus.RACK_MODULE.get(), RackModuleScreen::new);
@@ -181,6 +184,11 @@ public final class ResidualClient {
         event.register(GhostSync.TYPE, (ghost, ctx) -> GhostView.receive(ghost));
         event.register(ShimmerSync.TYPE, (shimmer, ctx) -> ShimmerView.receive(shimmer));
         event.register(SurveySync.TYPE, (survey, ctx) -> SurveyView.receive(survey));
+        event.register(ArenaSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().level().getBlockEntity(sync.pos()) instanceof ArenaBlockEntity arena) {
+                arena.receive(sync, ctx.player().level().getGameTime());
+            }
+        });
         event.register(StorageSync.TYPE, (sync, ctx) -> {
             if (ctx.player().containerMenu instanceof TerminalMenu menu && menu.containerId == sync.menu()) {
                 menu.apply(sync);
@@ -283,6 +291,7 @@ public final class ResidualClient {
         event.registerBlockEntityRenderer(ModBlockEntities.RACK_MODULE.get(), context -> new RackModuleRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.SWITCH.get(), context -> new SwitchRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.LOAD_WALL.get(), context -> new LoadWallRenderer());
+        event.registerBlockEntityRenderer(ModBlockEntities.ARENA.get(), ArenaRenderer::new);
         event.registerEntityRenderer(ModEntities.AGENT.get(), AgentRenderer::new);
     }
 

@@ -3,7 +3,7 @@ navigation:
   title: 装配机
   icon: assembler
   parent: screens/index.md
-  position: 15
+  position: 16
 ---
 
 # 装配机的界面

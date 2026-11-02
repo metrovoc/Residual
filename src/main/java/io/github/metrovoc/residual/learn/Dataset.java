@@ -59,6 +59,7 @@ public final class Dataset extends Task {
                 case DEMAND -> demand(rng, seq, answer, test);
                 case RETRIEVAL -> retrieval(rng, seq, answer, test);
                 case MODULAR -> modular(rng, seq, answer, test);
+                case GROUND -> ground(rng, seq, answer);
                 default -> throw new IllegalStateException();
             }
             int o = b * t;
@@ -113,6 +114,16 @@ public final class Dataset extends Task {
         for (int i = 0; i < seq.length; i++) {
             seq[i] = vocab.id(line.looks().charAt(i));
             answer[i] = i >= line.scoredFrom();
+        }
+    }
+
+    /** {@code ⏎SSSIIDDDCCSSSSSS}: a row of ground, each block scored after the blocks before it. */
+    private void ground(Random rng, int[] seq, boolean[] answer) {
+        String row = Survey.row(rng).replace(Survey.CACHE, 'S');
+        seq[0] = vocab.id('\n');
+        for (int i = 1; i < seq.length; i++) {
+            seq[i] = vocab.id(row.charAt(i - 1));
+            answer[i] = true;
         }
     }
 

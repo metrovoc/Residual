@@ -157,6 +157,8 @@ public class FabricatorScreen extends AbstractContainerScreen<FabricatorMenu> im
         } else if (item == ModBlocks.RACK_SWITCH.asItem() || item == ModBlocks.POD_SWITCH.asItem() || item == ModBlocks.HALL_CONSOLE.asItem()
                 || item == ModBlocks.REACTOR_CORE.asItem()) {
             note = Component.translatable("residual.fabricator." + BuiltInRegistries.ITEM.getKey(item).getPath());
+        } else if (item == ModBlocks.ARENA.asItem()) {
+            note = Component.translatable("residual.fabricator.arena");
         } else if (!(item instanceof MachineItem)) {
             note = Component.translatable("residual.fabricator.accelerator");
         } else if (m != null) {

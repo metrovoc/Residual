@@ -165,6 +165,7 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
                 out.add(ModBlocks.TUNER.asItem());
                 out.add(ModBlocks.STREAM_SCOPE.asItem());
                 out.add(ModBlocks.TRIAL_RIG.asItem());
+                out.add(ModBlocks.ARENA.asItem());
             }
         }
         return out;
@@ -240,6 +241,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         }
         if (item == ModBlocks.STREAM_SCOPE.asItem() || item == ModBlocks.TRIAL_RIG.asItem()) {
             return new Cost(8, 32, 16, 800);
+        }
+        if (item == ModBlocks.ARENA.asItem()) {
+            return new Cost(16, 32, 16, 600);
         }
         if (item == ModBlocks.SMELTER.asItem()) {
             return new Cost(2, 6, 2, 160);

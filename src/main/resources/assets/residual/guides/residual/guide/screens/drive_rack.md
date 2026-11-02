@@ -3,7 +3,7 @@ navigation:
   title: Drive Rack
   icon: drive_rack
   parent: screens/index.md
-  position: 14
+  position: 15
 ---
 
 # A Drive Rack's screen

@@ -3,7 +3,7 @@ navigation:
   title: Rack Module
   icon: rack_module
   parent: screens/index.md
-  position: 25
+  position: 26
 ---
 
 # A Rack Module's screen

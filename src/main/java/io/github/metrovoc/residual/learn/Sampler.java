@@ -275,7 +275,7 @@ public final class Sampler {
             return new Demo(ex.line(), ex.line(), labels(vocab, last.topIds()), floats(last.topProbs()), note);
         }
         if (benchmark != Benchmark.READING) {
-            return puzzle(model, Dataset.of(benchmark), rng);
+            return puzzle(model, benchmark.practice(), rng);
         }
         int[] ids = vocab.encode(prompt);
         if (ids.length == 0) {

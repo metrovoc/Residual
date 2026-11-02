@@ -124,6 +124,7 @@ public final class Network {
         r.playToClient(ShimmerSync.TYPE, ShimmerSync.STREAM_CODEC);
         r.playToClient(SuitFlight.TYPE, SuitFlight.STREAM_CODEC);
         r.playToClient(RefinerySync.TYPE, RefinerySync.STREAM_CODEC);
+        r.playToClient(ArenaSync.TYPE, ArenaSync.STREAM_CODEC);
     }
 
     private static void onDockEdit(DockEdit e, IPayloadContext ctx) {

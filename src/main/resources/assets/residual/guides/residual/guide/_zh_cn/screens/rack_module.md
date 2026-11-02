@@ -3,7 +3,7 @@ navigation:
   title: 机架模块
   icon: rack_module
   parent: screens/index.md
-  position: 25
+  position: 26
 ---
 
 # 机架模块的界面

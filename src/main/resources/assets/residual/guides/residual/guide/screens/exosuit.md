@@ -3,7 +3,7 @@ navigation:
   title: Exosuit
   icon: exosuit
   parent: screens/index.md
-  position: 21
+  position: 22
 ---
 
 # An exosuit's screen

@@ -55,6 +55,7 @@
     "residual:tuner",
     "residual:stream_scope",
     "residual:trial_rig",
+    "residual:arena",
     "residual:combustion_generator",
     "residual:energy_cell",
     "residual:smelter",

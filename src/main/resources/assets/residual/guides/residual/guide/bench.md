@@ -74,7 +74,7 @@ concatenator. A matrix multiply photomask also makes the <ItemLink id="accelerat
 <ItemLink id="drive_dock" />, a linear layer photomask the <ItemLink id="dense_drive" /> and the
 <ItemLink id="portable_drive" />, an attention photomask the <ItemLink id="hourglass" />, the
 <ItemLink id="access_point" /> and most [upgrades](programs.md), and a transformer photomask <ItemLink id="forecaster_ii" />,
-<ItemLink id="forecaster_iii" />, the <ItemLink id="smelter" />, the <ItemLink id="stacked_drive" />, and the
+<ItemLink id="forecaster_iii" />, the <ItemLink id="arena" />, the <ItemLink id="smelter" />, the <ItemLink id="stacked_drive" />, and the
 <ItemLink id="energy_upgrade" /> and <ItemLink id="lift_upgrade" />. The photomasks of Schedule, bf16, fp8, fp4, Orthogonalize and
 Document Mask make the units of [the recipe](recipe.md). A cached attention
 photomask makes the <ItemLink id="kv_cache" />, and a rounding photomask the <ItemLink id="weight_packer" />.

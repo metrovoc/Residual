@@ -3,7 +3,7 @@ navigation:
   title: 精炼厂的机器
   icon: refinery_intake
   parent: screens/index.md
-  position: 24
+  position: 25
 ---
 
 # 精炼厂的界面

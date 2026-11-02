@@ -3,7 +3,7 @@ navigation:
   title: 中继门
   icon: relay_gate
   parent: screens/index.md
-  position: 20
+  position: 21
 ---
 
 # 中继门的界面

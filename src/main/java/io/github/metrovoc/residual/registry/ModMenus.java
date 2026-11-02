@@ -2,6 +2,7 @@ package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.menu.AgentMenu;
+import io.github.metrovoc.residual.menu.ArenaMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.FabricatorMenu;
 import io.github.metrovoc.residual.compute.HallConsoleMenu;
@@ -51,6 +52,8 @@ public final class ModMenus {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new WatchPostMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<InstrumentMenu>> INSTRUMENT = MENUS.register("instrument",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new InstrumentMenu(id, inv, buf.readBlockPos(), buf.readBoolean())));
+    public static final Supplier<MenuType<ArenaMenu>> ARENA = MENUS.register("arena",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new ArenaMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<AgentMenu>> AGENT = MENUS.register("agent",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new AgentMenu(id, inv, buf.readVarInt())));
 

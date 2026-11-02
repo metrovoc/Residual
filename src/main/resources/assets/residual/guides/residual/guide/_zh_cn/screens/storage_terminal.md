@@ -3,7 +3,7 @@ navigation:
   title: 存储终端
   icon: storage_terminal
   parent: screens/index.md
-  position: 11
+  position: 12
 ---
 
 # 存储终端的界面

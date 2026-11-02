@@ -4,6 +4,7 @@ import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.agent.SignalBlock;
 import io.github.metrovoc.residual.bench.Unit;
 import io.github.metrovoc.residual.block.AcceleratorBlock;
+import io.github.metrovoc.residual.block.ArenaBlock;
 import io.github.metrovoc.residual.block.BenchBlock;
 import io.github.metrovoc.residual.block.CableBlock;
 import io.github.metrovoc.residual.block.CoreBlock;
@@ -117,6 +118,9 @@ public final class ModBlocks {
     /** The Frontier tier's Trial Rig: does what can go wrong with a model, to a copy of it. */
     public static final DeferredBlock<InstrumentBlock> TRIAL_RIG = BLOCKS.registerBlock("trial_rig", InstrumentBlock::new,
             p -> machine(p).strength(2f, 6f).lightLevel(s -> s.getValue(InstrumentBlock.WORKING) ? 10 : 3));
+    /** The Datacenter tier's Arena: a chamber where a model plays a mob in fights, for what that mob drops. */
+    public static final DeferredBlock<ArenaBlock> ARENA = BLOCKS.registerBlock("arena", ArenaBlock::new,
+            p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(ArenaBlock.WORKING) ? 13 : 3));
     public static final DeferredBlock<StreamBlock> STREAM = BLOCKS.registerBlock("stream", StreamBlock::new,
             p -> p.mapColor(MapColor.COLOR_CYAN).strength(1f, 6f).sound(SoundType.AMETHYST).lightLevel(s -> 7));
     public static final DeferredBlock<RelayBlock> RELAY = BLOCKS.registerBlock("relay", RelayBlock::new,

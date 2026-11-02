@@ -214,6 +214,11 @@ well, until what goes wrong surprises the model.</residual:Milestone>
 stops.</residual:Milestone>
 
 <residual:Milestone id="benchmark/modular">Practise on the <ItemLink id="modular_dataset" /> with strong weight decay: [Models and Tests](models.md).</residual:Milestone>
+<residual:Milestone id="benchmark/imitation">Practise on the <ItemLink id="imitation_dataset" />: at every look of what real mobs did,
+what the mob does next. It takes a model that reads the line back for the rhythm of the fight.</residual:Milestone>
+
+<residual:Milestone id="benchmark/ground">Practise on the <ItemLink id="ground_dataset" />: the next block of a row of ground, at every
+block of it.</residual:Milestone>
 
 <residual:Milestone id="benchmark/pilot">Practise on the <ItemLink id="flight_dataset" />: the Core flies the model's own
 flights, and it takes a model that reads the flight back to its start.</residual:Milestone>
@@ -250,6 +255,18 @@ and masked, and save the model once it passes Reading.</residual:Milestone>
 any test.</residual:Milestone>
 
 ## Putting models to work
+
+<residual:Milestone id="arena/recorded">Use a blank <ItemLink id="mob_log" /> on a mob, and fight a few of them with it on you:
+[The Arena](arena.md).</residual:Milestone>
+
+<residual:Milestone id="arena/drops">Set an <ItemLink id="arena" /> into the wall of a closed room, with a Mob Log and a model that does
+that mob well enough, and stay near until a fight pays out.</residual:Milestone>
+
+<residual:Milestone id="arena/uncanny">Have an Arena call a model's likeness uncanny: as far as the second table or past it, on a log long
+enough to vouch for that. It takes a transformer and a nearly full log of that mob.</residual:Milestone>
+
+<residual:Milestone id="arena/materials">At the Frontier tier, give an Arena a Surveyor's Field Log and a model that passes Ground, and
+stay near until it writes some ore.</residual:Milestone>
 
 <residual:Milestone id="deploy/server">A bigger model stays in a server and answers over relays:
 [Serving Models](deployment.md).</residual:Milestone>

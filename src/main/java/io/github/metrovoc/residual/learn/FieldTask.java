@@ -17,8 +17,10 @@ public final class FieldTask extends Task {
         // digits and line breaks are never merged, so the log reads one token per character with any tokenizer
         ids = vocab.spell(log);
         scored = new boolean[ids.length];
+        // a row of ground has to begin somewhere too; a crop or a machine's first look says nothing of how it goes
+        boolean ground = Ground.isLog(log);
         for (int i = 1; i < log.length(); i++) {
-            scored[i] = log.charAt(i) != '\n' && log.charAt(i - 1) != '\n';
+            scored[i] = log.charAt(i) != '\n' && (ground || log.charAt(i - 1) != '\n');
         }
         split = Math.max(context + 1, ids.length * 9 / 10);
     }

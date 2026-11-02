@@ -3,7 +3,7 @@ navigation:
   title: Hall Console
   icon: hall_console
   parent: screens/index.md
-  position: 26
+  position: 27
 ---
 
 # A Hall Console's screen

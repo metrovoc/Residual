@@ -3,7 +3,7 @@ navigation:
   title: 接入点
   icon: access_point
   parent: screens/index.md
-  position: 18
+  position: 19
 ---
 
 # 接入点的界面

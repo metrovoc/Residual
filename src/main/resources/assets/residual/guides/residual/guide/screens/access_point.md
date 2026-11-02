@@ -3,7 +3,7 @@ navigation:
   title: Access Point
   icon: access_point
   parent: screens/index.md
-  position: 18
+  position: 19
 ---
 
 # An Access Point's screen

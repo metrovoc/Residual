@@ -111,6 +111,11 @@ or lava, or that finds no way round. To mine iron is to mine iron ore: `repeat (
 Agents mining near each other work as a crew: each takes a block no other has picked, so a crew spreads over what a
 Surveyor found instead of crowding the nearest ore.
 
+## What it read
+
+A <ItemLink id="field_log" /> in the slot under its model keeps a fair sample of the rows it reads, up to the 941 a log holds. In a Model
+Core it is practice for Ground, and an [Arena](arena.md) can work from it.
+
 ## Its model
 
 A model learns this on the <ItemLink id="survey_dataset" />, and passes the Survey test by answering 90% of its

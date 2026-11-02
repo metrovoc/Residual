@@ -52,6 +52,9 @@ public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> implem
         if (!menu.getSlot(SurveyorBlockEntity.MODEL).hasItem()) {
             Ui.ghost(g, new ItemStack(ModItems.CHECKPOINT.get()), leftPos + SurveyorMenu.MODEL_X, topPos + SurveyorMenu.MODEL_Y);
         }
+        if (!menu.getSlot(SurveyorBlockEntity.LOG).hasItem()) {
+            Ui.ghost(g, new ItemStack(ModItems.FIELD_LOG.get()), leftPos + SurveyorMenu.MODEL_X, topPos + SurveyorMenu.LOG_Y);
+        }
         int x = leftPos + SHOW_X, y = topPos + SHOW_Y;
         Ui.screen(g, x, y, SHOW_W, SHOW_H);
         if (state() == State.SURVEYING) {
@@ -95,6 +98,10 @@ public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> implem
                 && Ui.inside(mx, my, SurveyorMenu.MODEL_X, SurveyorMenu.MODEL_Y, 16, 16)) {
             lines.add(Component.translatable("residual.agent.model_slot").getVisualOrderText());
             lines.addAll(font.split(Component.translatable("residual.surveyor.model_hint").withStyle(ChatFormatting.GRAY), 200));
+        } else if (!menu.getSlot(SurveyorBlockEntity.LOG).hasItem() && menu.getCarried().isEmpty()
+                && Ui.inside(mx, my, SurveyorMenu.MODEL_X, SurveyorMenu.LOG_Y, 16, 16)) {
+            lines.add(Component.translatable("item.residual.field_log").getVisualOrderText());
+            lines.addAll(font.split(Component.translatable("residual.surveyor.log_hint").withStyle(ChatFormatting.GRAY), 200));
         } else if (state() == State.SURVEYING && Ui.inside(mx, my, SHOW_X, SHOW_Y, SHOW_W, SHOW_H)) {
             int col = (mx - SHOW_X - 2) / COL_W, row = (my - SHOW_Y - 2) / ROW_H;
             int at = col >= 0 && col < 3 && row >= 0 && row < 3 ? row * 3 + col : -1;
@@ -121,6 +128,7 @@ public class SurveyorScreen extends AbstractContainerScreen<SurveyorMenu> implem
     @Override
     public void parts(Parts out) {
         out.add("model", this, menu.getSlot(SurveyorBlockEntity.MODEL));
+        out.add("log", this, menu.getSlot(SurveyorBlockEntity.LOG));
         out.add("finds", leftPos + SHOW_X, topPos + SHOW_Y, SHOW_W, SHOW_H - 2);
         out.add("progress", leftPos + SHOW_X, topPos + SHOW_Y + SHOW_H - 6, SHOW_W, 6);
         for (int i = 0; i < FINDS.length; i++) {

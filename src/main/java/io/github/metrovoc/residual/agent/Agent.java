@@ -1189,7 +1189,7 @@ public class Agent extends PathfinderMob implements Body {
     }
 
     @Override
-    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+    public void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
         Containers.dropContents(level, blockPosition(), items);
         Containers.dropContents(level, blockPosition(), upgrades);

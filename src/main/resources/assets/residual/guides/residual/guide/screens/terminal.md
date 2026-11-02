@@ -3,7 +3,7 @@ navigation:
   title: Terminal
   icon: terminal
   parent: screens/index.md
-  position: 19
+  position: 20
 ---
 
 # A Terminal's screen

@@ -3,7 +3,7 @@ navigation:
   title: 终端
   icon: terminal
   parent: screens/index.md
-  position: 19
+  position: 20
 ---
 
 # 终端的界面

@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.registry;
 import com.mojang.serialization.Codec;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.bench.MaskData;
+import io.github.metrovoc.residual.item.MobLogItem;
 import io.github.metrovoc.residual.item.StorageDriveItem;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.model.Board;
@@ -73,6 +74,9 @@ public final class ModComponents {
     /** A player's choices between answers: a prompt, what was chosen and what was not, a line each. */
     public static final Supplier<DataComponentType<List<String>>> PREFERENCES = COMPONENTS.registerComponentType("preferences",
             b -> b.persistent(Codec.STRING.listOf()).networkSynchronized(ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list())));
+    /** What a Mob Log holds: the kind it follows, a specimen of it, and what mobs of that kind did. */
+    public static final Supplier<DataComponentType<MobLogItem.Log>> MOB_LOG = COMPONENTS.registerComponentType("mob_log",
+            b -> b.persistent(MobLogItem.Log.CODEC).networkSynchronized(MobLogItem.Log.STREAM_CODEC));
     /** False on a machine fabricated from a salvaged design, which runs one primitive at a time. */
     public static final Supplier<DataComponentType<Boolean>> FUSED = COMPONENTS.registerComponentType("fused",
             b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));

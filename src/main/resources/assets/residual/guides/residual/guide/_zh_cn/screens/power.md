@@ -3,7 +3,7 @@ navigation:
   title: 发电机、冶炼炉与反应堆
   icon: combustion_generator
   parent: screens/index.md
-  position: 10
+  position: 11
 ---
 
 # 电力的界面

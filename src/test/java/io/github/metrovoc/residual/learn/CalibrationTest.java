@@ -129,6 +129,46 @@ class CalibrationTest {
         pool.shutdown();
     }
 
+    /**
+     * What a model reaches on real mobs' lines: practised on {@code practice}, scored on what {@code scored} holds out, kind by kind, as an
+     * Arena checks a model on its log's newest tenth or the Imitation test on the lines it keeps back.
+     */
+    static void imitation(String label, Task practice, Imitating scored, GraphSpec spec, Wrecks.Settings st, int steps, int every) throws Exception {
+        CompiledGraph g = CompiledGraph.compile(spec, new Env(practice.vocab, Vocab.CONTEXT), null, 1);
+        Trainer tr = new Trainer(g, practice, 1, st.learningRate(), st.batchSize(), st.clip());
+        ForkJoinPool pool = new ForkJoinPool(4);
+        long t0 = System.nanoTime();
+        Parallel.with(pool, () -> {
+            double ema = Double.NaN;
+            for (int s = 1; s <= steps; s++) {
+                float loss = tr.train();
+                ema = Double.isNaN(ema) ? loss : 0.95 * ema + 0.05 * loss;
+                if (s % every == 0 || s == steps) {
+                    double secs = (System.nanoTime() - t0) / 1e9;
+                    StringBuilder line = new StringBuilder(String.format("%-22s step %5d  train %.3f  score %.3f", label, s, ema, scored.measure(g)[1]));
+                    scored.byKind(g).forEach((kind, score) -> line.append(String.format("  %c %.3f", kind, score)));
+                    System.out.println(line.append(String.format("  %.1fs (%.1f ms/step) params %d", secs, secs * 1000 / s, g.parameterCount())));
+                }
+            }
+            // and how it does when it plays the mob in a bout, going on from what it did itself
+            java.util.Random rng = new java.util.Random(9);
+            for (int i = 0; i < 2; i++) {
+                Bout bout = new Bout(scored.firstKind(), true, rng);
+                while (!bout.over()) {
+                    float[] p = Imitation.actions(g, List.of(bout.prompt()))[0];
+                    float r = rng.nextFloat();
+                    int a = 0;
+                    while (a < p.length - 1 && (r -= p[a]) > 0) {
+                        a++;
+                    }
+                    bout.act(Imitation.ACTIONS.charAt(a), rng);
+                }
+                System.out.println(label + " bout " + bout.line());
+            }
+        });
+        pool.shutdown();
+    }
+
     static void run(String label, GraphSpec spec, Benchmark a, Wrecks.Settings st, int steps, int every) throws Exception {
         Task practice = a == Benchmark.READING ? reading() : a.practice();
         run(label, spec, practice, List.of(a), a.target, st, steps, every);
@@ -491,6 +531,52 @@ class CalibrationTest {
         }
         if (all || runs.contains("watch_gpt32")) {
             run("watch_gpt32", Blueprints.gpt(32, 2, 4), Benchmark.WATCH, st, 3000, 500);
+        }
+        Map<String, GraphSpec> ladder = new java.util.LinkedHashMap<>();
+        ladder.put("bigram", Blueprints.bigram());
+        ladder.put("context", Blueprints.context());
+        ladder.put("recall", Blueprints.recall());
+        ladder.put("reverse", Blueprints.reverse());
+        ladder.put("induction", Blueprints.induction());
+        ladder.put("gpt32", Blueprints.gpt(32, 2, 4));
+        ladder.put("gpt48", Blueprints.gpt(48, 2, 4));
+        ladder.put("gpt64", Blueprints.gpt(64, 2, 4));
+        ladder.put("gpt64x3", Blueprints.gpt(64, 3, 4));
+        ladder.put("gpt96", Blueprints.gpt(96, 2, 4));
+        for (Map.Entry<String, GraphSpec> model : ladder.entrySet()) {
+            // on the benchmark's lines; on each Mob Log of a folder alone; and on the benchmark's lines and each log together, scored on the log
+            if (runs.contains("imitation_" + model.getKey())) {
+                imitation("imitation_" + model.getKey(), new Imitating(), new Imitating(), model.getValue(), st, 3000, 250);
+            }
+            // on all the Mob Logs of a folder together, as a Core's four data slots can hold them, scored on the first
+            if (runs.contains("all_" + model.getKey())) {
+                List<java.nio.file.Path> logs = java.nio.file.Files.list(java.nio.file.Path.of(System.getenv("RESIDUAL_MOB_LINES"))).sorted().toList();
+                List<Mixture.Source> sources = new java.util.ArrayList<>();
+                for (java.nio.file.Path log : logs) {
+                    sources.add(new Mixture.Source(Benchmark.IMITATION, new Imitating(java.nio.file.Files.readString(log), Vocab.WORLD)));
+                }
+                imitation(logs.getFirst().getFileName().toString().replace(".txt", "") + "_all_" + model.getKey(), new Mixture(sources, Vocab.WORLD),
+                        new Imitating(java.nio.file.Files.readString(logs.getFirst()), Vocab.WORLD), model.getValue(), st, 3000, 250);
+            }
+            for (String how : new String[] {"log_", "mix_"}) {
+                if (runs.contains(how + model.getKey())) {
+                    for (java.nio.file.Path log : java.nio.file.Files.list(java.nio.file.Path.of(System.getenv("RESIDUAL_MOB_LINES"))).sorted().toList()) {
+                        Imitating own = new Imitating(java.nio.file.Files.readString(log), Vocab.WORLD);
+                        Task practice = how.equals("log_") ? own : new Mixture(List.of(new Mixture.Source(Benchmark.IMITATION, new Imitating()),
+                                new Mixture.Source(Benchmark.IMITATION, own)), Vocab.WORLD);
+                        imitation(log.getFileName().toString().replace(".txt", "") + "_" + how + model.getKey(), practice, own, model.getValue(), st, 2000, 250);
+                    }
+                }
+            }
+        }
+        if (runs.contains("ground") || runs.contains("ground_bigram")) {
+            run("ground_bigram", Blueprints.bigram(), Benchmark.GROUND, st, 8000, 1000);
+        }
+        if (runs.contains("ground")) {
+            run("ground_context", Blueprints.context(), Benchmark.GROUND, st, 1500, 250);
+            run("ground_induction", Blueprints.induction(), Benchmark.GROUND, st, 1500, 250);
+            run("ground_gpt32", Blueprints.gpt(32, 2, 4), Benchmark.GROUND, st, 2000, 250);
+            run("ground_gpt64", Blueprints.gpt(64, 2, 4), Benchmark.GROUND, st, 2000, 250);
         }
         if (all || runs.contains("survey")) {
             run("survey_context", Blueprints.context(), Benchmark.SURVEY, st, 1500, 250);

@@ -182,6 +182,9 @@ navigation:
 <residual:Milestone id="watch/noticed">在机器旁放一个<ItemLink id="watch_post" />，并在其中一台停下时待在附近。</residual:Milestone>
 
 <residual:Milestone id="benchmark/modular">用<ItemLink id="modular_dataset" />练习，权重衰减要大：[模型与测试](models.md)。</residual:Milestone>
+<residual:Milestone id="benchmark/imitation">用<ItemLink id="imitation_dataset" />练习：在真实生物举动的每次查看中，说出它接下来做什么。这需要模型沿着这一行往回读出战斗的节奏。</residual:Milestone>
+
+<residual:Milestone id="benchmark/ground">用<ItemLink id="ground_dataset" />练习：一行地层的每个方块处，说出下一个方块。</residual:Milestone>
 
 <residual:Milestone id="benchmark/pilot">用<ItemLink id="flight_dataset" />练习：核心用模型自己的选择去飞，需要一个能读回整次飞行的模型。</residual:Milestone>
 
@@ -208,6 +211,14 @@ navigation:
 <residual:Milestone id="recipe/second_head">让模型以<ItemLink id="two_token_head" />结尾，通过任意一项测试后保存。</residual:Milestone>
 
 ## 让模型干活
+
+<residual:Milestone id="arena/recorded">对一只生物使用空白的<ItemLink id="mob_log" />，然后带着它和几只这样的生物打一场：[竞技场](arena.md)。</residual:Milestone>
+
+<residual:Milestone id="arena/drops">把<ItemLink id="arena" />嵌进封闭房间的墙里，放上生物日志和足够像这种生物的模型，并待在附近，直到有一场战斗带来收获。</residual:Milestone>
+
+<residual:Milestone id="arena/uncanny">让竞技场把一个模型的相似度评为以假乱真：走到第二张表或超过它，日志也要长到足以担保。这需要 Transformer 和一本几乎写满的这种生物的日志。</residual:Milestone>
+
+<residual:Milestone id="arena/materials">在前沿层级，给竞技场一本勘测仪的田间日志和一个通过地层测试的模型，并待在附近，直到它写下一些矿石。</residual:Milestone>
 
 <residual:Milestone id="deploy/server">更大的模型留在服务器里，通过中继器作答：[模型服务](deployment.md)。</residual:Milestone>
 

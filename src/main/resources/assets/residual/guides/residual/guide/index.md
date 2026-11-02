@@ -49,6 +49,7 @@ you say into programs for agents, and read what the old world wrote.
 - [The Stream Scope](scope.md): what a model does inside, drawn over its machines.
 - [The Trial Rig](trials.md): what can go wrong with a model, done on purpose to a copy of it.
 - [Comparing Models](evaluation.md): how much of a score is luck, whether it has seen the test, and what everyone else made.
+- [The Arena](arena.md): a model that has learned how a mob fights plays it in a chamber, for what the mob drops.
 - [Serving Models](deployment.md): Model Servers, relays, gates, links and the Terminal.
 - [Tuning](tuning.md): changing a model that has finished practising, by what you choose and what a checker can verify.
 - [Thinking Longer](reasoning.md): many answers to a question, and how to keep the right one.

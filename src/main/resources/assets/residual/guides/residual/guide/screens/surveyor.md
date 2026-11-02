@@ -21,6 +21,9 @@ With no model, it says what it needs; with one, the finds are counted here.
   <residual:Part name="finds">
     **What it found**: Each ore and the caches, with how many its model has found this survey. Point at one for more.
   </residual:Part>
+  <residual:Part name="log">
+    **A Field Log**: A Field Log here keeps a fair sample of the rows it reads, for practice and for an Arena.
+  </residual:Part>
   <residual:Part name="progress">
     **How far it has gone**: Along the display's foot, how far this survey has gone. Point at it for how far it reaches.
   </residual:Part>

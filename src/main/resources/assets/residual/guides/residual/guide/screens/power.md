@@ -3,7 +3,7 @@ navigation:
   title: Generator, Smelter and Reactor
   icon: combustion_generator
   parent: screens/index.md
-  position: 10
+  position: 11
 ---
 
 # The screens of power

@@ -3,7 +3,7 @@ navigation:
   title: 外骨骼
   icon: exosuit
   parent: screens/index.md
-  position: 21
+  position: 22
 ---
 
 # 外骨骼的界面

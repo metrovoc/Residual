@@ -8,6 +8,7 @@ import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.agent.Agent;
 import io.github.metrovoc.residual.agent.Trace;
+import io.github.metrovoc.residual.block.ArenaBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.block.UnitBlock;
@@ -37,6 +38,7 @@ import io.github.metrovoc.residual.compute.Cluster;
 import io.github.metrovoc.residual.energy.PowerBlockEntity;
 import io.github.metrovoc.residual.energy.PowerNetwork;
 import io.github.metrovoc.residual.energy.ReactorBlockEntity;
+import io.github.metrovoc.residual.item.MobLogItem;
 import io.github.metrovoc.residual.item.WayfinderItem;
 import io.github.metrovoc.residual.net.GhostSlot;
 import io.github.metrovoc.residual.net.PatternTransfer;
@@ -52,6 +54,7 @@ import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.scope.Instrument;
 import io.github.metrovoc.residual.scope.Picture;
 import io.github.metrovoc.residual.scope.Records;
+import io.github.metrovoc.residual.learn.Imitation;
 import io.github.metrovoc.residual.storage.CraftingData;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
 import io.github.metrovoc.residual.storage.DockMenu;
@@ -260,6 +263,11 @@ import org.slf4j.Logger;
  * expect making X Y Z N      fail the step unless the Reactor Core at the place is making at least N FE a tick
  * expect status X Y Z N      fail the step unless the Reactor Core at the place says N of why it is not running, 0 when it is
  * expect rods X Y Z N        fail the step unless the Reactor Core at the place has found N rods in a whole shell
+ * expect tier X Y Z N        fail the step unless the Arena at the place has its model at tier N or better
+ * expect fights X Y Z N      fail the step unless the Arena at the place runs at least N fights or pads of ground
+ * expect fewer X Y Z N       fail the step unless the Arena at the place runs at most N
+ * expect closed X Y Z N      fail the step unless the Arena at the place is closed for want of the Frontier tier (1), or not (0)
+ * expect moblog N            fail the step unless the player's Mob Logs hold at least N looks
  * expect pins N              fail the step unless the open Storage Terminal has N kinds pinned
  * expect tree N              fail the step unless the open Storage Terminal has at least N rows of a job's plan
  * expect moved X Y Z N       fail the step unless the Port at the place moved at least N items in the last second
@@ -1029,6 +1037,18 @@ public final class Rehearsal {
         switch (args[0]) {
             case "pins" -> found = ((TerminalMenu) mc.player.containerMenu).pins.size();
             case "tree" -> found = ((TerminalMenu) mc.player.containerMenu).tree.size();
+            case "moblog" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                found = server.submit(() -> {
+                    long looks = 0;
+                    for (ItemStack stack : server.getPlayerList().getPlayer(id).getInventory()) {
+                        MobLogItem.Log log = MobLogItem.log(stack);
+                        looks += log == null ? 0 : Imitation.lines(log.lines()).stream().mapToInt(l -> (l.length() - 1) / 2).sum();
+                    }
+                    return looks;
+                }).get(10, TimeUnit.SECONDS);
+            }
             case "open" -> found = mc.player.containerMenu instanceof TerminalMenu ? 1 : 0;
             case "docked" -> found = ((DockMenu) mc.player.containerMenu).moved();
             case "grid" -> found = ((StorageTerminalScreen) mc.screen).kindsShown();
@@ -1264,6 +1284,16 @@ public final class Rehearsal {
                     if (args[0].equals("spent")) {
                         return (long) ForecasterBlockEntity.POWER - ((ForecasterBlockEntity) level.getBlockEntity(at)).energy().getAmountAsInt();
                     }
+                    if (args[0].equals("tier")) {
+                        ArenaBlockEntity arena = (ArenaBlockEntity) level.getBlockEntity(at);
+                        LOG.info("[rehearsal] the Arena's check: {}", arena.check());
+                        return (long) arena.tier();
+                    }
+                    if (args[0].equals("fights") || args[0].equals("fewer") || args[0].equals("closed")) {
+                        ArenaBlockEntity arena = (ArenaBlockEntity) level.getBlockEntity(at);
+                        LOG.info("[rehearsal] the Arena's state: {}, on {} compute", arena.state(), arena.compute());
+                        return args[0].equals("closed") ? (arena.state() == ArenaBlockEntity.State.CLOSED ? 1L : 0L) : (long) arena.running();
+                    }
                     if (args[0].equals("refined") || args[0].equals("tokens")) {
                         TokenSupply held = ((RefineryBlockEntity) level.getBlockEntity(at)).supply();
                         return held == null ? 0L : args[0].equals("refined") ? held.characters() : held.tokens();
@@ -1397,8 +1427,8 @@ public final class Rehearsal {
                 || args[0].equals("state") || args[0].equals("ticking")
                 || args[0].equals("running") || args[0].equals("working") || args[0].equals("afloatabove") || args[0].equals("afloatheard")
                 || args[0].equals("racks") || args[0].equals("hall") || args[0].equals("carries") || args[0].equals("status") || args[0].equals("rods")
-                || args[0].equals("contaminated") || args[0].equals("idle");
-        if (exact ? found != wanted : found < wanted) {
+                || args[0].equals("contaminated") || args[0].equals("idle") || args[0].equals("closed");
+        if (exact ? found != wanted : args[0].equals("fewer") ? found > wanted : found < wanted) {
             throw new IllegalStateException("expected " + what + ", found " + found);
         }
         LOG.info("[rehearsal] expected {}, found {}", what, found);
