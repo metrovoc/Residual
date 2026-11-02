@@ -43,9 +43,9 @@ class QuantizedTest {
         }
         // a two-block transformer 96 wide: the sizes the field notes give
         CompiledGraph wide = CompiledGraph.compile(Blueprints.gpt(96, 2, 4), Env.WORLD, null, 5);
-        assertEquals(244_302, wide.parameterCount());
-        assertEquals(259_572, Quantized.of(wide, 8).bytes());
-        assertEquals(137_421, Quantized.of(wide, 4).bytes());
+        assertEquals(246_425, wide.parameterCount());
+        assertEquals(261_827, Quantized.of(wide, 8).bytes());
+        assertEquals(138_615, Quantized.of(wide, 4).bytes());
     }
 
     @Test

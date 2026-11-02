@@ -11,7 +11,7 @@ item_ids:
 # Tokens
 
 A model never sees text, only tokens: numbers that each stand for a piece of text. Without a tokenizer, every
-character is a token, 78 in all: the letters, digits and marks, the space and the line break. Reading by the character
+character is a token, 89 in all: the letters, digits and marks, the space and the line break, and the marks only programs are written in. Reading by the character
 is simple but short-sighted. Every word costs several predictions, and the 64 tokens a model reads at once cover only
 64 characters.
 

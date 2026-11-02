@@ -31,10 +31,10 @@ chimes when that is done. Then it runs the more precise form, unless the other d
 
 | Transformer of two blocks | Weights | As floats | At 8 bits | At 4 bits |
 | ------------------------- | ------- | --------- | --------- | --------- |
-| 32 wide                   | 32,334  | 129,336 B | 34,356 B  | 18,189 B  |
-| 48 wide                   | 66,894  | 267,576 B | 71,088 B  | 37,641 B  |
-| 64 wide                   | 113,742 | 454,968 B | 120,852 B | 63,981 B  |
-| 96 wide                   | 244,302 | 977,208 B | 259,572 B | 137,421 B |
+| 32 wide                   | 33,049  | 132,196 B | 35,115 B  | 18,591 B  |
+| 48 wide                   | 67,961  | 271,844 B | 72,223 B  | 38,243 B  |
+| 64 wide                   | 115,161 | 460,644 B | 122,359 B | 64,779 B  |
+| 96 wide                   | 246,425 | 985,700 B | 261,827 B | 138,615 B |
 
 At 8 bits a model loses next to nothing. At 4 it can lose a little, and how much depends on its job: a sorter that gets
 97% right falls to 95%, and a reader's loss goes from 1.49 to 1.56. It is the shared scales that save them: with one

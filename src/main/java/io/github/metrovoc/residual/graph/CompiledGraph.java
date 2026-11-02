@@ -1,5 +1,6 @@
 package io.github.metrovoc.residual.graph;
 
+import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.graph.CompileException.Issue;
 import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.ShapeException;
@@ -138,8 +139,9 @@ public final class CompiledGraph {
             for (ParamSpec ps : specs) {
                 Tensor prior = old == null ? null : old.get(ps.name());
                 Tensor init = ps.create(rng);
-                if (prior != null && Arrays.equals(prior.shape, ps.shape())) {
-                    System.arraycopy(prior.data, 0, init.data, 0, init.data.length);
+                Tensor saved = prior == null || Arrays.equals(prior.shape, ps.shape()) ? prior : grown(prior, ps.shape(), env.vocab());
+                if (saved != null) {
+                    System.arraycopy(saved.data, 0, init.data, 0, init.data.length);
                 }
                 fresh.put(ps.name(), init);
             }
@@ -175,6 +177,41 @@ public final class CompiledGraph {
     static Component label(GraphSpec.Node nd) {
         Component title = Component.translatable("block.residual." + nd.op.id);
         return nd.name == null || nd.name.isEmpty() ? title : Component.translatable("residual.graph.named", title, nd.name);
+    }
+
+    /**
+     * A table saved when the alphabet was shorter, in the shape it has now, or null if that is not what kept it from fitting.
+     * The new characters go in after the old ones and before any merges. As something read, one starts at zero. As something
+     * scored, it takes the mean of the others, so its score is the mean of theirs: it can never come out on top, and whatever
+     * the model answered before it answers still, until it practises on them.
+     */
+    private static Tensor grown(Tensor saved, int[] want, int vocab) {
+        if (saved.shape.length != want.length || want.length < 1 || want.length > 2) {
+            return null;
+        }
+        for (int d = 0; d < want.length; d++) {
+            int more = want[d] - saved.shape[d];
+            if (more != 0 && (want[d] != vocab || more != Vocab.CHARACTERS - Vocab.TEXT)) {
+                return null;
+            }
+        }
+        int[] was = want.length == 1 ? new int[]{1, saved.shape[0]} : saved.shape;
+        int[] now = want.length == 1 ? new int[]{1, want[0]} : want;
+        int rowsAt = Vocab.CHARACTERS - (now[0] - was[0]), columnsAt = Vocab.CHARACTERS - (now[1] - was[1]);
+        float[] data = new float[now[0] * now[1]];
+        for (int r = 0; r < was[0]; r++) {
+            int row = r < rowsAt || now[0] == was[0] ? r : r + now[0] - was[0];
+            float mean = 0;
+            for (int c = 0; c < was[1]; c++) {
+                float v = saved.data[r * was[1] + c];
+                mean += v / was[1];
+                data[row * now[1] + (c < columnsAt || now[1] == was[1] ? c : c + now[1] - was[1])] = v;
+            }
+            for (int c = 0; c < now[1] - was[1]; c++) {
+                data[row * now[1] + columnsAt + c] = mean;
+            }
+        }
+        return Tensor.of(want, data);
     }
 
     /** Runs the model on a token batch and returns logits [B, T, V]. */

@@ -17,10 +17,17 @@ import net.minecraft.network.codec.StreamCodec;
  * characters, and merge i joins two earlier tokens into id {@code CHARACTERS + i}. Text is cut into chunks before
  * merging (a word with the space before it, a single digit, a run of punctuation with the space before it, a
  * newline), and no merge crosses a chunk's edge.
+ * <p>
+ * Text is read in the first {@link #TEXT} characters. Those after them are only ever spelled, in what programs are written
+ * in, so no merge holds one. That is what lets the alphabet grow: merges are kept counted from {@link #TEXT} ({@link #saved}),
+ * which reads the same whatever comes after it, and a model's tables are brought up to the new size as they load (see
+ * {@code CompiledGraph}).
  */
 public final class Vocab {
-    private static final String ALPHABET = "\n !\"'(),-.0123456789:;=>?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz|";
+    private static final String ALPHABET = "\n !\"'(),-.0123456789:;=>?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz|" + "$@#[]<+*/%_";
     private static final int[] INDEX = new int[65536];
+    /** How many of the characters text is read in. New characters go on the end of the alphabet, after these. */
+    public static final int TEXT = 78;
     /** How many single characters every vocabulary starts with. */
     public static final int CHARACTERS = ALPHABET.length();
     /** Characters only: the vocabulary of a model without a tokenizer, and the one task formats are spelled in. */
@@ -30,7 +37,7 @@ public final class Vocab {
     /** Chunks remembered per vocabulary, so common words are merged once. */
     private static final int CACHE = 1 << 17;
 
-    public static final Codec<Vocab> CODEC = Codec.INT_STREAM.xmap(s -> of(s.toArray()), v -> IntStream.of(v.merges));
+    public static final Codec<Vocab> CODEC = Codec.INT_STREAM.xmap(s -> ofSaved(s.toArray()), v -> IntStream.of(v.saved()));
     public static final StreamCodec<ByteBuf, Vocab> STREAM_CODEC = StreamCodec.of((buf, v) -> {
         VarInt.write(buf, v.merges.length);
         for (int m : v.merges) {
@@ -83,6 +90,27 @@ public final class Vocab {
         return n == 0 ? WORLD : new Vocab(Arrays.copyOf(merges, 2 * n));
     }
 
+    /** The vocabulary merges kept by {@link #saved} make. */
+    public static Vocab ofSaved(int[] saved) {
+        int[] merges = saved.clone();
+        for (int i = 0; i < merges.length; i++) {
+            merges[i] += merges[i] >= TEXT ? CHARACTERS - TEXT : 0;
+        }
+        return of(merges);
+    }
+
+    /**
+     * Its merges as they are kept, with a merged token counted from {@link #TEXT}: what was saved when the alphabet was
+     * shorter reads the same now, and what is saved now will when it grows again.
+     */
+    public int[] saved() {
+        int[] kept = merges.clone();
+        for (int i = 0; i < kept.length; i++) {
+            kept[i] -= kept[i] >= CHARACTERS ? CHARACTERS - TEXT : 0;
+        }
+        return kept;
+    }
+
     private static boolean known(int id, int merged) {
         return id >= 0 && id < CHARACTERS + merged;
     }
@@ -127,6 +155,11 @@ public final class Vocab {
         return INDEX[c] >= 0;
     }
 
+    /** Whether text can hold this character: it is in the alphabet, and not only there to spell programs. */
+    public boolean reads(char c) {
+        return INDEX[c] >= 0 && INDEX[c] < TEXT;
+    }
+
     /** The text a token stands for. */
     public String piece(int id) {
         return pieces[id];
@@ -137,10 +170,16 @@ public final class Vocab {
         return pieces[id].replace("\n", "⏎").replace(' ', '␣');
     }
 
-    /** Encodes text as tokens, merging what it can and skipping characters outside the alphabet. */
+    /** Encodes text as tokens, merging what it can and skipping characters text is not read in. */
     public int[] encode(String text) {
         if (merges.length == 0) {
-            return spell(text);
+            StringBuilder s = new StringBuilder(text.length());
+            for (int i = 0; i < text.length(); i++) {
+                if (reads(text.charAt(i))) {
+                    s.append(text.charAt(i));
+                }
+            }
+            return spell(s.toString());
         }
         IntArrayList out = new IntArrayList(text.length() / 2 + 1);
         chunks(text, c -> {
@@ -229,12 +268,12 @@ public final class Vocab {
         return w;
     }
 
-    /** Cuts text into the chunks merges stay within, dropping characters outside the alphabet. */
+    /** Cuts text into the chunks merges stay within, dropping characters text is not read in. */
     static void chunks(String text, Consumer<String> out) {
         StringBuilder s = new StringBuilder(text.length());
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            if (INDEX[c] >= 0) {
+            if (INDEX[c] >= 0 && INDEX[c] < TEXT) {
                 s.append(c);
             }
         }
