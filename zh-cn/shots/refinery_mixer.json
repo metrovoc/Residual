@@ -1,0 +1,24 @@
+{
+ "width": 280,
+ "height": 208,
+ "parts": {
+  "rows": [
+   30,
+   20,
+   240,
+   90
+  ],
+  "refinery.setting.anneal": [
+   2,
+   6,
+   18,
+   18
+  ],
+  "refinery.setting.after": [
+   2,
+   25,
+   18,
+   18
+  ]
+ }
+}

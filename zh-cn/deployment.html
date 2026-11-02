@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型服务 - Residual for Minecraft 26.1</title>
+    <link rel="stylesheet" href="assets/bundle-FU6KDTWS.css"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/zh-cn/deployment.html"/><link rel="icon" href="web-assets/files/logo.tF46QTkooRQs.png"/><script src="web-assets/files/live-math.ML8ug8GZ1aHS.js" defer></script><script src="web-assets/files/live.CmytM48j15tA.js" defer></script><script src="web-assets/files/locale.gww1rSsbKt0b.js" defer></script>
+    <style>
+        .logo > img { height: 32px; }
+        .notice {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: .25rem 1rem;
+            margin-bottom: 1rem;
+            padding: .5rem .75rem;
+            font-size: 16px;
+            background-color: #00000040;
+            border-left: calc(1px * var(--gui-scale)) solid #ffb547;
+        }
+        .notice strong { color: #ffb547; }
+        .notice nav { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-left: auto; }
+        .release-footer { margin: 1rem; color: #7f8d99; font-size: 14px; }
+        canvas[data-clip] { display: block; max-width: 100%; margin: .5rem auto 1rem; cursor: pointer; background: #20242a; }
+        .game-scene-wrapper { max-width: 100%; }
+        .game-scene-wrapper .root { min-width: 0; max-width: 100%; }
+        .game-scene-wrapper .root > .viewport { width: 100%; }
+        .steps-bar { display: flex; align-items: center; gap: .5rem; padding: .15rem; margin-top: .5rem; color: #e4ebf1; background: #11161b; }
+        .steps-bar button { min-width: 2.5rem; color: #404040; background: #c6c6c6; border: 0; cursor: pointer; }
+        .steps-bar button:hover:enabled { background: #3cd6c6; }
+        .steps-bar button:disabled { color: #7f8d99; background: #1d252d; cursor: default; }
+        .steps-marks { display: flex; flex: 1; gap: 2px; max-width: 16rem; }
+        .steps-marks i { flex: 1; height: 4px; background: #1d252d; }
+        .steps-marks i.lit { background: #3cd6c6; }
+        .steps-stack { display: grid; margin-bottom: 1rem; }
+        .steps-stack > section { grid-area: 1 / 1; min-width: 0; visibility: hidden; }
+        .steps-stack > section.shown { visibility: visible; }
+        figure[data-shot] { margin: .5rem 0 1rem; }
+        figure[data-shot] li.lit { color: #3cd6c6; }
+        .shot-picture { position: relative; margin-bottom: .5rem; line-height: 0; }
+        .shot-picture img { width: 100%; image-rendering: pixelated; }
+        .shot-part { position: absolute; }
+        .shot-part.lit { outline: 2px solid #3cd6c6; }
+        .shot-part b { position: absolute; left: -2px; top: -2px; padding: 0 3px; font: 12px/14px monospace; color: #ffb547; background: #11161b; }
+        .shot-part.lit b { color: #11161b; background: #3cd6c6; }
+        .live { max-width: 100%; margin: .5rem 0 1rem; padding: .5rem; font-size: 14px; color: #e4ebf1; background: #11161b; border: 1px solid #373737; box-sizing: border-box; }
+        .live button { padding: .1rem .5rem; color: #404040; background: #c6c6c6; border: 0; cursor: pointer; }
+        .live input[type=range] { width: 100%; accent-color: #ffb547; }
+        .live-dim { color: #7f8d99; }
+        .live-input { color: #ffb547; text-align: right; }
+        .live-output { color: #3cd6c6; text-align: right; }
+        .live-softmax { width: 34rem; }
+        .live-row { display: grid; grid-template-columns: 4rem 1fr 3rem 1fr 3rem; gap: .5rem; align-items: center; }
+        .live-rule { margin-top: .25rem; padding-top: .25rem; border-top: 1px solid #1d252d; }
+        .live-bar { height: .5rem; background: #1d252d; }
+        .live-bar i { display: block; height: 100%; background: #3cd6c6; }
+        .live-attention { display: flex; flex-wrap: wrap; gap: .75rem; width: fit-content; }
+        .live-attention canvas { width: 208px; touch-action: none; cursor: grab; }
+        .live-attention table { border-collapse: separate; border-spacing: 1px; margin: 0 0 .5rem; }
+        .live-attention th, .live-attention td { min-width: 2.75rem; padding: 0 .2rem; font-weight: normal; text-align: left; color: #7f8d99; background: none; border: 0; }
+        .live-attention tr { cursor: pointer; }
+        .live-attention tr.chosen th { color: #ffb547; }
+        .live-attention tr.chosen td { outline: 1px solid #ffb547; }
+        .live-curve { width: 38rem; }
+        .live-curve canvas { display: block; width: 100%; }
+        .live-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: .25rem 0; }
+        .live-controls { display: flex; gap: .25rem; }
+    </style>
+<link rel="alternate" hreflang="en" href="https://metrovoc.github.io/Residual/deployment.html"/>
+<link rel="alternate" hreflang="zh-Hans" href="https://metrovoc.github.io/Residual/zh-cn/deployment.html"/>
+<link rel="alternate" hreflang="x-default" href="https://metrovoc.github.io/Residual/deployment.html"/>
+</head>
+<body data-path-to-root="">
+
+<main>
+<div class="topLogoBar">
+    <a href="./" class="logo">
+        <img src="web-assets/files/logo.tF46QTkooRQs.png" alt="" />
+        Residual
+    </a>
+    <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
+    <a
+            role="button"
+            class="navbar-burger"
+            aria-label="菜单"
+    >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    </a>
+</div>
+<div class="page-title"><h1>模型服务</h1></div>
+<aside>
+    <span class="search-slot"></span>
+    <div class="navbar"><a href="index.html"><img class="item-icon" src="!items/residual/add.Lr6K4QXQblDi.png" alt=""/>Residual</a><a href="getting-started.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>入门</a><a href="milestones.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>里程碑</a><a href="forecaster.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>预报机</a><a href="storage.html"><img class="item-icon" src="!items/residual/drive_rack.wHpvJhn652xX.png" alt=""/>存储</a><a href="ruins.html"><img class="item-icon" src="!items/residual/archive_shard.KUqqYvbFhI9w.png" alt=""/>遗迹</a><a href="archive.html"><img class="item-icon" src="!items/residual/archive_drive.MJ1td1FfQz82.png" alt=""/>档案</a><a href="tokenizers.html"><img class="item-icon" src="!items/residual/tokenizer.xdwcXWUIJd7o.png" alt=""/>词元</a><a href="refinery.html"><img class="item-icon" src="!items/residual/token_tank.jiIwFe68t8Wg.png" alt=""/>精炼厂</a><a href="bench.html"><img class="item-icon" src="!items/residual/bench.D3mxsQ90zr52.png" alt=""/>试验台与制造机</a><a href="core.html"><img class="item-icon" src="!items/residual/model_core.pA2CY0pBsFXw.png" alt=""/>模型核心</a><a href="training.html"><img class="item-icon" src="!items/residual/accelerator.U9YxoZU82yMm.png" alt=""/>训练</a><a href="recipe.html"><img class="item-icon" src="!items/residual/scheduler.VR5YdkzADL9Y.png" alt=""/>配方</a><a href="models.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>模型与测试</a><a href="evaluation.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>比较模型</a><a href="modern.html"><img class="item-icon" src="!items/residual/modern_block.QtxVfyqFw9fm.png" alt=""/>现代块</a><a href="salvage.html"><img class="item-icon" src="!items/residual/salvaged_model.xitO1aiz78IX.png" alt=""/>打捞模型</a><a href="agents.html"><img class="item-icon" src="!items/residual/agent.cVkfsPTpTRXK.png" alt=""/>智能体</a><a href="programs.html"><img class="item-icon" src="!items/residual/program_card.ogsWi2qbrw3l.png" alt=""/>程序</a><a href="architect.html"><img class="item-icon" src="!items/residual/survey_rod.XyPNqiiYShYc.png" alt=""/>建筑师</a><a href="surveyor.html"><img class="item-icon" src="!items/residual/surveyor.lWhdXfyJ9yxx.png" alt=""/>勘测仪</a><a href="watch.html"><img class="item-icon" src="!items/residual/watch_post.Ai3Wqrg3mI7k.png" alt=""/>哨所</a><a href="power.html"><img class="item-icon" src="!items/residual/combustion_generator.H7EsONecqXkK.png" alt=""/>电力</a><a href="reactor.html"><img class="item-icon" src="!items/residual/reactor_core.W2Fy3Xkh1MoI.png" alt=""/>反应堆</a><a href="exosuit.html"><img class="item-icon" src="!items/residual/exosuit.Cwc2EyLflCqt.png" alt=""/>外骨骼</a><a href="flight.html"><img class="item-icon" src="!items/residual/flight_frame.DJQHRgkSUK6C.png" alt=""/>飞行</a><a class="active" href="deployment.html"><img class="item-icon" src="!items/residual/model_server.ZJtMt5OPPf3R.png" alt=""/>模型服务</a><a href="arena.html"><img class="item-icon" src="!items/residual/arena.m8bNPH2kx7fH.png" alt=""/>竞技场</a><a href="compute.html"><img class="item-icon" src="!items/residual/rack_switch.JKyZ7bG2LJ2v.png" alt=""/>算力</a><a href="datacenter.html"><img class="item-icon" src="!items/residual/hall_console.8bAbupi1QqhR.png" alt=""/>机房</a><a href="tuning.html"><img class="item-icon" src="!items/residual/tuner.oi2CINnopIf1.png" alt=""/>调校</a><a href="reasoning.html"><img class="item-icon" src="!items/residual/reckoning_dataset.j5ljKCg2yM1h.png" alt=""/>多想想</a><a href="scope.html"><img class="item-icon" src="!items/residual/stream_scope.Vq437THpDY26.png" alt=""/>流示波器</a><a href="trials.html"><img class="item-icon" src="!items/residual/trial_rig.bfJYIJWnNb4Y.png" alt=""/>故障试验架</a><a href="wiring.html"><img class="item-icon" src="!items/residual/cable.vV5IAga6F3Ns.png" alt=""/>机器与线缆</a><a href="stream.html"><img class="item-icon" src="!items/residual/stream.Ip1xvFHTCKx5.webp" alt=""/>残差流</a><a href="shapes.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>形状</a><details><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="screens/index.html"><img class="item-icon" src="!items/residual/bench.D3mxsQ90zr52.png" alt=""/>界面</a></summary><div class="sublevel"><a href="screens/core.html"><img class="item-icon" src="!items/residual/model_core.pA2CY0pBsFXw.png" alt=""/>模型核心</a><a href="screens/agent.html"><img class="item-icon" src="!items/residual/agent.cVkfsPTpTRXK.png" alt=""/>智能体</a><a href="screens/bench.html"><img class="item-icon" src="!items/residual/bench.D3mxsQ90zr52.png" alt=""/>试验台</a><a href="screens/fabricator.html"><img class="item-icon" src="!items/residual/fabricator.5MgdvTPYjxro.png" alt=""/>制造机</a><a href="screens/forge.html"><img class="item-icon" src="!items/residual/bpe_forge.xMiWpBYWyUGL.png" alt=""/>BPE 锻炉</a><a href="screens/operator.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>机器</a><a href="screens/reader.html"><img class="item-icon" src="!items/residual/reader.1Iw3KiINgOog.png" alt=""/>阅读器</a><a href="screens/forecaster.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>预报机</a><a href="screens/surveyor.html"><img class="item-icon" src="!items/residual/surveyor.lWhdXfyJ9yxx.png" alt=""/>勘测仪</a><a href="screens/watch_post.html"><img class="item-icon" src="!items/residual/watch_post.Ai3Wqrg3mI7k.png" alt=""/>哨所</a><a href="screens/arena.html"><img class="item-icon" src="!items/residual/arena.m8bNPH2kx7fH.png" alt=""/>竞技场</a><a href="screens/power.html"><img class="item-icon" src="!items/residual/combustion_generator.H7EsONecqXkK.png" alt=""/>发电机、冶炼炉与反应堆</a><a href="screens/storage_terminal.html"><img class="item-icon" src="!items/residual/storage_terminal.O4uYRauzlFrS.png" alt=""/>存储终端</a><a href="screens/port.html"><img class="item-icon" src="!items/residual/port.x94HodgzSAFC.png" alt=""/>端口</a><a href="screens/port_program.html"><img class="item-icon" src="!items/residual/port.x94HodgzSAFC.png" alt=""/>端口的程序</a><a href="screens/drive_rack.html"><img class="item-icon" src="!items/residual/drive_rack.wHpvJhn652xX.png" alt=""/>驱动器机架</a><a href="screens/assembler.html"><img class="item-icon" src="!items/residual/assembler.SrLpkBTtfBs1.png" alt=""/>装配机</a><a href="screens/processor.html"><img class="item-icon" src="!items/residual/processor.mjRGKLBzkUi7.png" alt=""/>处理器</a><a href="screens/drive_dock.html"><img class="item-icon" src="!items/residual/drive_dock.wsfzWAsfymKB.png" alt=""/>驱动器坞</a><a href="screens/access_point.html"><img class="item-icon" src="!items/residual/access_point.oPg03TkwBED5.png" alt=""/>接入点</a><a href="screens/terminal.html"><img class="item-icon" src="!items/residual/terminal.VjKUQtlTbfSo.png" alt=""/>终端</a><a href="screens/relay_gate.html"><img class="item-icon" src="!items/residual/relay_gate.kkga8jTDlIxW.png" alt=""/>中继门</a><a href="screens/exosuit.html"><img class="item-icon" src="!items/residual/exosuit.Cwc2EyLflCqt.png" alt=""/>外骨骼</a><a href="screens/archive_shard.html"><img class="item-icon" src="!items/residual/archive_shard.KUqqYvbFhI9w.png" alt=""/>档案残片</a><a href="screens/wayfinder.html"><img class="item-icon" src="!items/residual/wayfinder.oiD9E82n1C2x.png" alt=""/>寻路仪</a><a href="screens/refinery.html"><img class="item-icon" src="!items/residual/refinery_intake.Rkx8zPIJyEPB.png" alt=""/>精炼厂的机器</a><a href="screens/rack_module.html"><img class="item-icon" src="!items/residual/rack_module.VxKFW0w62UPf.png" alt=""/>机架模块</a><a href="screens/hall_console.html"><img class="item-icon" src="!items/residual/hall_console.8bAbupi1QqhR.png" alt=""/>机房控制台</a><a href="screens/model_server.html"><img class="item-icon" src="!items/residual/model_server.ZJtMt5OPPf3R.png" alt=""/>模型服务器</a><a href="screens/tuner.html"><img class="item-icon" src="!items/residual/tuner.oi2CINnopIf1.png" alt=""/>调校台</a><a href="screens/instruments.html"><img class="item-icon" src="!items/residual/stream_scope.Vq437THpDY26.png" alt=""/>流示波器与故障试验架</a></div></details><details><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="machines/index.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>机器</a></summary><div class="sublevel"><a href="machines/embedding.html"><img class="item-icon" src="!items/residual/embedding.ik1JEaoae79T.png" alt=""/>嵌入表</a><a href="machines/linear.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>线性层</a><a href="machines/activation.html"><img class="item-icon" src="!items/residual/activation.IHidptOtMwBZ.png" alt=""/>激活层</a><a href="machines/shift.html"><img class="item-icon" src="!items/residual/shift.rGaNRcUfvNew.png" alt=""/>延迟线</a><a href="machines/concat.html"><img class="item-icon" src="!items/residual/concat.XGUBFfrMlQdK.png" alt=""/>拼接器</a><a href="machines/matmul.html"><img class="item-icon" src="!items/residual/matmul.bO8gBDbp1ssA.png" alt=""/>矩阵乘法器</a><a href="machines/scale.html"><img class="item-icon" src="!items/residual/scale.boeU25ZPeDTr.png" alt=""/>缩放器</a><a href="machines/causal_mask.html"><img class="item-icon" src="!items/residual/causal_mask.Z1aUsqtDV87g.png" alt=""/>因果掩码</a><a href="machines/softmax.html"><img class="item-icon" src="!items/residual/softmax.pl0FcHzNbhH5.png" alt=""/>Softmax</a><a href="machines/position.html"><img class="item-icon" src="!items/residual/position.xbRrpM1AWSvn.png" alt=""/>位置表</a><a href="machines/add.html"><img class="item-icon" src="!items/residual/add.Lr6K4QXQblDi.png" alt=""/>残差汇合点</a><a href="machines/norm.html"><img class="item-icon" src="!items/residual/norm.JOMFuSH9RRKX.png" alt=""/>归一化器</a><a href="machines/attention.html"><img class="item-icon" src="!items/residual/attention.f1QeGssP4m4P.png" alt=""/>注意力头</a><a href="machines/mlp.html"><img class="item-icon" src="!items/residual/mlp.eF2J60kIJ802.png" alt=""/>前馈块</a><a href="machines/transformer.html"><img class="item-icon" src="!items/residual/transformer.lhXT0vgBfS4P.png" alt=""/>Transformer 块</a><a href="machines/multiply.html"><img class="item-icon" src="!items/residual/multiply.SZA2VnBJ1u89.png" alt=""/>门控</a><a href="machines/split_heads.html"><img class="item-icon" src="!items/residual/split_heads.pPcyJL6fB5KY.png" alt=""/>分头器</a><a href="machines/merge_heads.html"><img class="item-icon" src="!items/residual/merge_heads.7hTEsRd49AnK.png" alt=""/>合头器</a><a href="machines/rms_norm.html"><img class="item-icon" src="!items/residual/rms_norm.sZ6L8Waoj0i7.png" alt=""/>RMS 归一化器</a><a href="machines/swiglu.html"><img class="item-icon" src="!items/residual/swiglu.WNZbpYMz9N4U.png" alt=""/>门控前馈块</a><a href="machines/rotary.html"><img class="item-icon" src="!items/residual/rotary.egeSw5xro5DU.png" alt=""/>旋转位置</a><a href="machines/qk_norm.html"><img class="item-icon" src="!items/residual/qk_norm.5YS7bbjZPK1n.png" alt=""/>QK 归一化器</a><a href="machines/z_loss.html"><img class="item-icon" src="!items/residual/z_loss.eXPDXZ6OBuEv.png" alt=""/>Z 损失调节器</a><a href="machines/modern_attention.html"><img class="item-icon" src="!items/residual/modern_attention.5eHEfJcf2Bcq.png" alt=""/>现代注意力头</a><a href="machines/modern_block.html"><img class="item-icon" src="!items/residual/modern_block.QtxVfyqFw9fm.png" alt=""/>现代块</a><a href="machines/two_token_head.html"><img class="item-icon" src="!items/residual/two_token_head.hEyN3UJCNbmD.png" alt=""/>双词元头</a></div></details></div>
+</aside>
+<article>
+    <div class="notice">
+        <span><strong>实验性 Alpha 版本。</strong>可能有破坏性变更和严重问题。欢迎<a href="https://github.com/metrovoc/Residual/issues">反馈</a>。</span>
+        <nav>
+            <a href="https://github.com/metrovoc/Residual/releases/tag/v0.6.0-alpha">下载</a>
+            <a href="https://github.com/metrovoc/Residual">GitHub</a>
+            <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
+            <a data-locale-link href="../deployment.html" lang="en" hreflang="en">English</a>
+        </nav>
+    </div>
+    <div id="page-content">
+        <div class="inlinePageTitle"><h1>模型服务</h1></div><p>模型大到装不进智能体的脑袋，也照样能为它干活。模型服务器存放模型，并在中继器所及的范围内，为所有调谐到它的设备回答问题。中继网络不只传递问题：没有人在时，它让基地继续运转；它把你送往网络上的各座门；它让世界两端的存储和电力连成一体；你走到它覆盖的任何地方，都能查看和指挥基地。</p><p><a href="screens/terminal.html">终端的界面</a>、<a href="screens/relay_gate.html">中继门的界面</a>。</p><h2>模型服务器</h2><div class="recipe-container"><div class="recipe-container"><div class="minecraft-frame"><div class="recipeBoxLayout"><div title="模型服务器"><img class="item-icon" src="!items/minecraft/crafting_table.xxwaNp1XJwGN.png" alt="" aria-description="工作台"/>无序合成</div><div class="ingredients-box-shapeless-3col"><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-1"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="张量机壳"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-1"><a href="getting-started.html"><img class="item-icon" src="!items/residual/tensor_casing.Dvlrs8ZoSan9.png" alt="" aria-description="张量机壳"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-2"><a href="getting-started.html"><img class="item-icon" src="!items/residual/weight_crystal.eGeSUmFfp2pZ.png" alt="" aria-description="权重晶体"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-2"><a href="getting-started.html"><img class="item-icon" src="!items/residual/weight_crystal.eGeSUmFfp2pZ.png" alt="" aria-description="权重晶体"/></a></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-3"><span class="item-link"><img class="item-icon" src="!items/minecraft/gold_ingot.maFXqqq5RQx6.png" alt="" aria-description="金锭"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-4"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone_block.vyx4VUVAm1eJ.png" alt="" aria-description="红石块"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-5"><a href="ruins.html"><img class="item-icon" src="!items/residual/schematic_relays.kXRIQz0FJJzd.png" alt="" aria-description="图纸：中继"/></a></span></div></div><svg class="recipe-arrow" viewBox="0 0 85 50"><path d="M 0 20 H 60 V 0 L 85 25 L 60 50 L 60 30 L 0 30 Z" fill="#8b8b8b"></path></svg><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-6"><span class="item-link"><img class="item-icon" src="!items/residual/model_server.ZJtMt5OPPf3R.png" alt="" aria-description="模型服务器"/></span></span></div></div></div></div></div><p>对<span class="minecraft-tooltip" data-template="tmpl-7"><span class="item-link">模型服务器</span></span>使用一个保存好的<span class="minecraft-tooltip" data-template="tmpl-8"><a href="models.html">检查点</a></span>来加载模型；空手潜行使用服务器可以取回检查点。空手使用服务器会打开它的屏幕：正在服务的模型、每秒能给出多少回答以及用掉了多少、内存里放着什么、谁在用它。鼠标移到每一行上可以看到更多。<a href="screens/model_server.html">模型服务器的界面，一部分一部分地看</a>。</p><h2>服务器能花多少</h2><p>服务器每秒有固定的运算量可花：自身 1.42 亿次，每台与它相邻的<span class="minecraft-tooltip" data-template="tmpl-9"><a href="compute.html">训练加速器</a></span>再加同样多，过热时只加一半。一个词元走过模型，每个权重要花两次运算，所以模型越大，回答越少。屏幕上按“读 16 个词元、写 8 个”的回答来计数：</p><table><thead><tr><th>两个块的 Transformer</th><th>权重</th><th>自身每秒回答数</th></tr></thead><tbody><tr><td>宽 32</td><td>33,049</td><td>14</td></tr><tr><td>宽 64</td><td>115,161</td><td>4</td></tr><tr><td>宽 96</td><td>246,425</td><td>1.9</td></tr></tbody></table><p>调谐到它的一切都在花这份运算量：智能体、终端、预报机、阅读器、冶炼炉、勘测仪、端口和哨所。一个问题的开销就是模型为它实际算出的东西，服务器攒够这么多运算量，答案才到，所以长回答比短回答等得久，还会拖住后面的问题。手持调谐过的终端或中继卡时，屏幕一角会显示服务器的状况。</p><p>等待的问题超过 64 个时，新问题会被拒绝，前面板的灯变红，附近的人会收到通知。提问的一方在有空位之前不用模型继续干活：智能体停下并说明原因，预报机不再让方块跑在前面，冶炼炉的熔炼失去控制、只出两块锭，端口退回自己的规则。服务器的屏幕会显示谁用得最多。多放加速器是一条路。让更小的模型干同样的活是另一条：见<a href="tuning.html">蒸馏</a>。本页其余部分讲第三条：让每个问题花得更少。</p><h2>KV 缓存</h2><p>不加处理时，模型每写一个词元，都要把前面的内容重读一遍。读 16 个词元、写 8 个的回答要算 156 行。可是新词元并不改变它之前的任何一行：注意力从它们那里需要的，只有每一行的键和值。把这些留住，每个词元就只读一次。同样的回答只算 23 行，结果分毫不差。</p><p>制造机用「带缓存的注意力」光掩模制造<span class="minecraft-tooltip" data-template="tmpl-10"><span class="item-link">KV 缓存</span></span>，这项规格在验证 Transformer 块后开放。把它放进服务器窗口旁边的面板。宽 64 的服务器从每秒 4 个回答升到 26 个，回答越长收益越大：40 个词元快三十倍。同一个问题再问一次完全不花运算，而开头和别的问题相同的问题，从分叉处算起。</p><p>留下的东西占内存。一个词元在每个注意力里占两行模型宽度的浮点数，两个块、宽 64 的模型是 1,024 字节，再加上要回读的少量内容。服务器连同权重一共 1 MiB，每枚 KV 缓存加 256 KiB，最多叠 64 枚。内存不够时，最久没用的序列被忘掉，再要时无非多算几行。</p><p>模型最多读 64 个词元的窗口。超过之后，无论有没有缓存，窗口每次前移 16 个词元，窗口里的内容要全部重读：位置是学来的，留下的东西属于已经移动的位置。</p><h2>批次</h2><p>面板下方的按钮设定一次前向最多走几条序列。同时等待的一起走，一条序列写完，下一次前向就能让下一条补上。前向本身有开销，不管载了多少，批次把它分摊掉。普通浮点权重的这份开销几乎为零，所以批次收益很小；打包的权重就大不一样了。</p><h2>打包</h2><p>制造机用「权重取整」光掩模制造<span class="minecraft-tooltip" data-template="tmpl-11"><span class="item-link">权重打包器</span></span>，这项规格同样在那时开放。放进面板后，另一个按钮可以把权重存成 8 位或 4 位，打包方式和<a href="exosuit.html">外骨骼的主板</a>一样：宽 64 的 460,644 字节变成 122,359 或 64,779 字节。省下的是空间：宽 96 的模型用浮点数几乎占满一台没加卡的服务器，只剩 62,876 字节；用 8 位则剩 约 786,000  字节，能留下六倍的词元。</p><p>它有两项代价，服务器都会实测。每次前向都要从打包的字节里读出权重，8 位大约相当于多算一行，4 位大约相当于多算两行。而且取整可能改变模型的回答，所以它通过的每项测试都会用这种形式重测：服务器的屏幕显示每个分数，提问的一方也按这些分数判断。某种形式没通过某项测试，那项测试开启的东西就关闭。</p><table><thead><tr><th>宽 64 的模型，一个线程的运算量</th><th>每秒回答数</th></tr></thead><tbody><tr><td>浮点</td><td>4</td></tr><tr><td>浮点，KV 缓存</td><td>26</td></tr><tr><td>8 位，KV 缓存</td><td>20</td></tr><tr><td>8 位，KV 缓存，批次 32</td><td>26</td></tr><tr><td>4 位，KV 缓存</td><td>15</td></tr><tr><td>4 位，KV 缓存，批次 32</td><td>24</td></tr></tbody></table><h2>草稿模型</h2><p>面板最后一个槽放第二枚检查点：一个读法相同的小模型。它提议接下来四个词元，被服务的模型一次前向把四个都读完。提议留下的概率是 p ÷ q（p 是被服务的模型给它的概率，q 是草稿模型给的），p 更大时必定留下；第一个没留下的词元，从被服务的模型比草稿模型多出来的那部分概率里重抽，后面的全部丢弃。写出来的东西严格服从被服务的模型自己的概率，不管草稿模型是什么样。好草稿只意味着前向更少。</p><p>所以草稿模型只在前向昂贵、且大多数提议能留下时才划算。它自己的行也有开销，而浮点权重的前向太便宜，草稿模型只会增加工作。一个跟着 64 宽模型<a href="tuning.html">蒸馏</a>了 800 步的 32 宽草稿模型，提议有 26% 留下，反而让那个模型从每秒 12 个回答降到 9 个（浮点），从 12 个降到 8 个（4 位）。服务器的屏幕会统计留下了多少。</p><h2>中继器</h2><img class="game-scene interactive" style="width: calc(241px * var(--gui-scale)); height: calc(220px * var(--gui-scale))" src="residual/deployment_scene1.Ls7y63WbH14Q.png" data-scene-src="residual/deployment_scene1.s0raS1kTVpKj.scene.gz" data-scene-width="241" data-scene-height="220" data-scene-zoom="4.0" data-scene-interactive="true" data-scene-in-world-annotations="[{&quot;type&quot;:&quot;box&quot;,&quot;minCorner&quot;:[0.0,0.0,0.0],&quot;maxCorner&quot;:[1.0,4.0,1.0],&quot;color&quot;:&quot;#3CD6C6&quot;,&quot;thickness&quot;:0.03125,&quot;contentTemplateId&quot;:&quot;tmpl-12&quot;,&quot;alwaysOnTop&quot;:false},{&quot;type&quot;:&quot;box&quot;,&quot;minCorner&quot;:[-2.0,0.0,0.0],&quot;maxCorner&quot;:[-1.0,1.0,1.0],&quot;color&quot;:&quot;#3EB8FF&quot;,&quot;thickness&quot;:0.03125,&quot;contentTemplateId&quot;:&quot;tmpl-13&quot;,&quot;alwaysOnTop&quot;:false},{&quot;type&quot;:&quot;box&quot;,&quot;minCorner&quot;:[2.0,0.0,0.0],&quot;maxCorner&quot;:[3.0,0.25,1.0],&quot;color&quot;:&quot;#FFB547&quot;,&quot;thickness&quot;:0.03125,&quot;contentTemplateId&quot;:&quot;tmpl-14&quot;,&quot;alwaysOnTop&quot;:false},{&quot;type&quot;:&quot;box&quot;,&quot;minCorner&quot;:[2.0,0.0,-2.0],&quot;maxCorner&quot;:[3.0,1.0,-1.0],&quot;color&quot;:&quot;#84E08A&quot;,&quot;thickness&quot;:0.03125,&quot;contentTemplateId&quot;:&quot;tmpl-15&quot;,&quot;alwaysOnTop&quot;:false}]" data-scene-overlay-annotations="[]" data-scene-asset-prefix="./"/><div class="recipe-container"><div class="recipe-container"><div class="minecraft-frame"><div class="recipeBoxLayout"><div title="中继器"><img class="item-icon" src="!items/minecraft/crafting_table.xxwaNp1XJwGN.png" alt="" aria-description="工作台"/>无序合成</div><div class="ingredients-box-shapeless-3col"><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-16"><span class="item-link"><img class="item-icon" src="!items/minecraft/lightning_rod.G0UES3eTNNhx.png" alt="" aria-description="避雷针"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-17"><span class="item-link"><img class="item-icon" src="!items/minecraft/lantern.qdqIGiDSS1eW.png" alt="" aria-description="灯笼"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-18"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="铜锭"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-19"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone.DmtFdzo6Uxue.png" alt="" aria-description="红石粉"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-5"><a href="ruins.html"><img class="item-icon" src="!items/residual/schematic_relays.kXRIQz0FJJzd.png" alt="" aria-description="图纸：中继"/></a></span></div></div><svg class="recipe-arrow" viewBox="0 0 85 50"><path d="M 0 20 H 60 V 0 L 85 25 L 60 50 L 60 30 L 0 30 Z" fill="#8b8b8b"></path></svg><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-20"><span class="item-link"><img class="item-icon" src="!items/residual/relay.AnQCa2JMPDso.png" alt="" aria-description="中继器"/></span></span></div></div></div></div></div><p>模型服务器自身覆盖 16 格，<span class="minecraft-tooltip" data-template="tmpl-21"><span class="item-link">中继器</span></span>覆盖 32 格。覆盖范围相接的两者就会连接：距服务器不超过 48 格的中继器在它的网络上，距那个中继器不超过 64 格的中继器也在，所以网络覆盖的地面没有缺口。覆盖只按水平距离计算，你站得多高多深都一样。</p><p>把中继器叠起来就成了中继塔，每格塔身覆盖 32 格，32 格高的中继塔最多覆盖 1,024 格。使用它可查看覆盖多远，以及网络上有什么。</p><p>网络上有模型在服务时，塔顶的灯亮起，这样的网络会让周围的地面继续运转。它的每个中继器、门和链路所在的区块及周围八个区块保持加载，即使附近没有人：机器继续工作，智能体继续走动，服务器继续回答。想让基地的哪一部分保持运转，就在那里放一个中继器。</p><h2>中继卡</h2><div class="recipe-container"><div class="recipe-container"><div class="minecraft-frame"><div class="recipeBoxLayout"><div title="中继卡"><img class="item-icon" src="!items/minecraft/crafting_table.xxwaNp1XJwGN.png" alt="" aria-description="工作台"/>无序合成</div><div class="ingredients-box-shapeless-3col"><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-22"><span class="item-link"><img class="item-icon" src="!items/minecraft/paper.3n0NCE9kp4bd.png" alt="" aria-description="纸"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-18"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="铜锭"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-19"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone.DmtFdzo6Uxue.png" alt="" aria-description="红石粉"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-5"><a href="ruins.html"><img class="item-icon" src="!items/residual/schematic_relays.kXRIQz0FJJzd.png" alt="" aria-description="图纸：中继"/></a></span></div></div><svg class="recipe-arrow" viewBox="0 0 85 50"><path d="M 0 20 H 60 V 0 L 85 25 L 60 50 L 60 30 L 0 30 Z" fill="#8b8b8b"></path></svg><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-23"><span class="item-link"><img class="item-icon" src="!items/residual/relay_card.mMO1AwIsEs2q.png" alt="" aria-description="中继卡"/></span></span></div></div></div></div></div><p>对模型服务器使用<span class="minecraft-tooltip" data-template="tmpl-24"><span class="item-link">中继卡</span></span>即可把它调谐到这台服务器。放进智能体或阅读器的模型槽后，这张卡不携带模型，而是向服务器提问：模型多大都行，只要在服务器网络覆盖之内。调谐到同一台服务器的所有智能体共享它每秒的回答数。</p><p>放进<span class="minecraft-tooltip" data-template="tmpl-25"><a href="storage.html">接入点</a></span>时，只要这张卡连得到服务器，存储网络的无线终端就能到服务器的中继器覆盖的任何地方（<a href="storage.html">存储</a>）。</p><h2>中继门</h2><p><span class="minecraft-tooltip" data-template="tmpl-26"><span class="item-link">中继门</span></span>是一块可以站上去的平台，必须放在中继器的覆盖范围内。制造机用 Transformer 光掩模制造它，需要 8 个张量机壳、16 片晶圆和 8 颗权重晶体。网络能把你送过去时它才开启：网络上服务的模型通过了指令测试，并且每秒至少给出 16 个回答，也就是一台服务器加三个冷却良好的加速器。开启的门上有一道光柱。</p><p>使用门可以在地图上看到它的网络，点击地图上或旁边列表里的另一座门即可前往。传送和其他问题一样是一次请求。沿途从中继器到中继器的每一步要用一个回答，每个回答都要在服务器排队，等在它前面的问题答完，所以加速器越多传送越快，基地越忙传送越慢。走开的话传送就会取消。</p><p>在门的界面顶部的输入框里可以为它命名，也可以在放置之前用铁砧命名。</p><p>网络不必连成一片。对一座门使用<span class="minecraft-tooltip" data-template="tmpl-24"><span class="item-link">中继卡</span></span>，卡就带上了这座门的位置；再对另一座门使用，无论多远、在哪个维度，两座门都会互相调谐。从此它们的网络合而为一：传送、覆盖和链路都是如此。潜行时对门使用中继卡可以解除调谐。</p><h2>中继链路</h2><p><span class="minecraft-tooltip" data-template="tmpl-27"><span class="item-link">中继链路</span></span>用同样的光掩模制造，需要 4 个张量机壳、8 片晶圆和 4 颗权重晶体。它的每一面都能连接接触到的东西：<span class="minecraft-tooltip" data-template="tmpl-28"><a href="storage.html">存储链路</a></span>、驱动器机架、<span class="minecraft-tooltip" data-template="tmpl-29"><a href="power.html">电缆</a></span>和机器。在开启的网络上，所有链路处的存储网络和电力网络连成一体。远端的存储终端能看到近端驱动器里的东西，那里的端口能从中取用，那里的机器能用家里发电机的电。装配机和处理器会为同一维度内任何地方发出的请求工作。</p><p>网络每秒每多给出一个回答，它的所有链路合计每刻就能多传输 4 个物品和 50,000 FE：每秒 16 个回答时，是每秒 1,280 个物品、每刻 800,000 FE；服务器上每多一个冷却良好的加速器，就再加每秒 320 个物品和每刻 200,000 FE。流体也计入物品的份额，一桶算 8 个。使用链路可查看它正在传输多少。传输时它的各面会亮起。</p><h2>终端</h2><div class="recipe-container"><div class="recipe-container"><div class="minecraft-frame"><div class="recipeBoxLayout"><div title="终端"><img class="item-icon" src="!items/minecraft/crafting_table.xxwaNp1XJwGN.png" alt="" aria-description="工作台"/>无序合成</div><div class="ingredients-box-shapeless-3col"><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-23"><span class="item-link"><img class="item-icon" src="!items/residual/relay_card.mMO1AwIsEs2q.png" alt="" aria-description="中继卡"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-30"><span class="item-link"><img class="item-icon" src="!items/minecraft/glass_pane.t9cBj0Qtdwoa.png" alt="" aria-description="玻璃板"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-18"><span class="item-link"><img class="item-icon" src="!items/minecraft/copper_ingot.ArxG0l4CwaxO.png" alt="" aria-description="铜锭"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-19"><span class="item-link"><img class="item-icon" src="!items/minecraft/redstone.DmtFdzo6Uxue.png" alt="" aria-description="红石粉"/></span></span></div></div><svg class="recipe-arrow" viewBox="0 0 85 50"><path d="M 0 20 H 60 V 0 L 85 25 L 60 50 L 60 30 L 0 30 Z" fill="#8b8b8b"></path></svg><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-31"><span class="item-link"><img class="item-icon" src="!items/residual/terminal.VjKUQtlTbfSo.png" alt="" aria-description="终端"/></span></span></div></div></div></div></div><p>用同样的方法把<span class="minecraft-tooltip" data-template="tmpl-32"><span class="item-link">终端</span></span>调谐到模型服务器，然后带着它走到世界各处，在服务器网络覆盖的任何地方使用。它发出的每次调用都和其他问题一样，要在服务器排队。</p><ul><li><strong>地图</strong>从上方显示网络，并在你看得到的范围内显示地面：它的覆盖范围、中继塔、门和智能体。点击一座门即可从你所在之处前往：比从门出发多用 8 个回答。</li><li><strong>基地</strong>显示存储网络里存着什么，机器在做什么。点击存储网络，就像站在它的存储终端前一样打开它：搜索、取出、放入，也可以请它制造东西。</li><li><strong>智能体</strong>显示覆盖范围内每个智能体在做什么。选中一个，可以让它停下、重新开始，把你带着的任何<span class="minecraft-tooltip" data-template="tmpl-33"><a href="agents.html">程序卡</a></span>上的程序交给它，或者下达指令。写好的程序照原样运行。其他内容由服务中的模型写成程序，所以智能体自己不需要模型，通过指令测试的模型写得最好。单个普通步骤或一项工作它立刻去做；说明了在哪里或怎么做的、更长的，或者模型把握不足 60% 的，要在这里等你同意：指向它可以看到分行列出的各步。</li><li><strong>续写</strong>就是服务中的模型本身：写下开头，它接着写下去。</li></ul><p>手持已调谐的终端时，屏幕角落的信号格显示你在覆盖范围内多深，服务器回答时，光点在中继塔之间奔跑；走近覆盖范围的边缘时，一排光柱标出它的尽头。服务器覆盖的每个智能体也都会听到你在聊天栏里点名下达的指令。</p><h2>热量</h2><p>加速器会发热，前四个之外还要供电（<a href="compute.html">算力</a>）。与水、冰或雪相邻，或处在寒冷生物群系中的加速器，能为核心提供一整条线程，或为服务器提供一整份回答数；没有东西冷却的只能提供一半，并在工作时冒烟。</p><template id="tmpl-1"><span class="item-name" data-rarity="common">张量机壳</span></template><template id="tmpl-2"><span class="item-name" data-rarity="common">权重晶体</span></template><template id="tmpl-3"><span class="item-name" data-rarity="common">金锭</span></template><template id="tmpl-4"><span class="item-name" data-rarity="common">红石块</span></template><template id="tmpl-5"><span class="item-name" data-rarity="uncommon">图纸：中继</span></template><template id="tmpl-6"><span class="item-name" data-rarity="common">模型服务器</span></template><template id="tmpl-7"><img class="item-icon" src="!items/residual/model_server.ZJtMt5OPPf3R.png" alt="" aria-description="模型服务器"/></template><template id="tmpl-8"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt="" aria-description="检查点"/></template><template id="tmpl-9"><img class="item-icon" src="!items/residual/accelerator.U9YxoZU82yMm.png" alt="" aria-description="训练加速器"/></template><template id="tmpl-10"><img class="item-icon" src="!items/residual/kv_cache.KgNbmK61oMWR.png" alt="" aria-description="KV 缓存"/></template><template id="tmpl-11"><img class="item-icon" src="!items/residual/weight_packer.hhuS5KG37FOy.png" alt="" aria-description="权重打包器"/></template><template id="tmpl-12"><p>一座四个中继器高的中继塔：覆盖 128 格。</p></template><template id="tmpl-13"><p>一台正在服务的模型服务器。</p></template><template id="tmpl-14"><p>一座开启的中继门。</p></template><template id="tmpl-15"><p>一个中继链路。</p></template><template id="tmpl-16"><span class="item-name" data-rarity="common">避雷针</span></template><template id="tmpl-17"><span class="item-name" data-rarity="common">灯笼</span></template><template id="tmpl-18"><span class="item-name" data-rarity="common">铜锭</span></template><template id="tmpl-19"><span class="item-name" data-rarity="common">红石粉</span></template><template id="tmpl-20"><span class="item-name" data-rarity="common">中继器</span></template><template id="tmpl-21"><img class="item-icon" src="!items/residual/relay.AnQCa2JMPDso.png" alt="" aria-description="中继器"/></template><template id="tmpl-22"><span class="item-name" data-rarity="common">纸</span></template><template id="tmpl-23"><span class="item-name" data-rarity="common">中继卡</span></template><template id="tmpl-24"><img class="item-icon" src="!items/residual/relay_card.mMO1AwIsEs2q.png" alt="" aria-description="中继卡"/></template><template id="tmpl-25"><img class="item-icon" src="!items/residual/access_point.oPg03TkwBED5.png" alt="" aria-description="接入点"/></template><template id="tmpl-26"><img class="item-icon" src="!items/residual/relay_gate.kkga8jTDlIxW.png" alt="" aria-description="中继门"/></template><template id="tmpl-27"><img class="item-icon" src="!items/residual/relay_link.4rln2gTTeggJ.png" alt="" aria-description="中继链路"/></template><template id="tmpl-28"><img class="item-icon" src="!items/residual/storage_link.nCHHVpPNOXyt.png" alt="" aria-description="存储链路"/></template><template id="tmpl-29"><img class="item-icon" src="!items/residual/power_cable.Aril4eA1VjzZ.png" alt="" aria-description="电缆"/></template><template id="tmpl-30"><span class="item-name" data-rarity="common">玻璃板</span></template><template id="tmpl-31"><span class="item-name" data-rarity="common">终端</span></template><template id="tmpl-32"><img class="item-icon" src="!items/residual/terminal.VjKUQtlTbfSo.png" alt="" aria-description="终端"/></template><template id="tmpl-33"><img class="item-icon" src="!items/residual/program_card.ogsWi2qbrw3l.png" alt="" aria-description="程序卡"/></template>
+    </div>
+</article>
+<footer class="release-footer" data-release>Residual 0.6.0-alpha · Minecraft 26.1.2</footer>
+</main>
+<script src="assets/bundle-JKIV4HLD.js" defer type="module"></script>
+<script>
+(function () {
+const root = new URL(document.body.dataset.pathToRoot || "./", location.href);
+const players = new Map();
+// plays the field notes' clips: a first frame, then the 16x16 tiles each later frame changes
+async function playClip(canvas, state) {
+    const file = "clips/" + canvas.dataset.clip + ".clip";
+    const response = await fetch(new URL(file, root), {signal: state.request.signal});
+    if (!response.ok) throw new Error(`Clip ${file}: HTTP ${response.status}`);
+    const data = await response.arrayBuffer();
+    const view = new DataView(data);
+    let at = 4;
+    const u16 = () => (at += 2, view.getUint16(at - 2));
+    const image = async () => {
+        const size = view.getUint32(at);
+        const part = new Uint8Array(data, at + 4, size);
+        at += 4 + size;
+        if (!size) return null;
+        const bitmap = await createImageBitmap(new Blob([part]));
+        if (state.request.signal.aborted) {
+            bitmap.close();
+            throw new DOMException("Clip removed", "AbortError");
+        }
+        state.images.push(bitmap);
+        return bitmap;
+    };
+    const [width, height, display, ms, hold, frames, columns, tile] = Array.from({length: 8}, u16);
+    const first = await image(), atlas = await image();
+    const counts = Array.from({length: frames - 1}, u16);
+    const placed = counts.map(n => Array.from({length: n}, () => [u16(), u16(), u16()]));
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `calc(${display}px * var(--gui-scale, 2))`;
+    const context = canvas.getContext("2d");
+    context.drawImage(first, 0, 0);
+    let frame = 0, clock = 0, last = 0, paused = false, seen = true;
+    canvas.addEventListener("click", () => paused = !paused);
+    state.observer = new IntersectionObserver(([entry]) => seen = entry.isIntersecting);
+    state.observer.observe(canvas);
+    const step = now => {
+        clock += seen && !paused ? Math.min(100, now - last) : 0;
+        last = now;
+        if (clock >= (frames - 1) * ms + hold) {
+            clock = frame = 0;
+            context.drawImage(first, 0, 0);
+        }
+        for (const target = Math.min(frames - 1, Math.floor(clock / ms)); frame < target; frame++) {
+            for (const [x, y, i] of placed[frame]) {
+                context.drawImage(atlas, i % columns * tile, Math.floor(i / columns) * tile, tile, tile, x * tile, y * tile, tile, tile);
+            }
+        }
+        state.frame = requestAnimationFrame(step);
+    };
+    state.frame = requestAnimationFrame(step);
+}
+const clips = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+        const state = players.get(entry.target);
+        if (entry.isIntersecting && state && !state.started) {
+            state.started = true;
+            clips.unobserve(entry.target);
+            playClip(entry.target, state).catch(error => {
+                state.images.forEach(bitmap => bitmap.close());
+                state.images = [];
+                if (!state.request.signal.aborted) console.error("Failed to play clip", entry.target.dataset.clip, error);
+            });
+        }
+    }
+}, {rootMargin: "200px"});
+let mounted;
+function mount() {
+    const page = document.getElementById("page-content");
+    if (page === mounted) return;
+    for (const [canvas, state] of players) {
+        clips.unobserve(canvas);
+        state.request.abort();
+        if (state.observer) state.observer.disconnect();
+        cancelAnimationFrame(state.frame);
+        state.images.forEach(bitmap => bitmap.close());
+        state.images = [];
+    }
+    players.clear();
+    mounted = page;
+    if (!page) return;
+    page.querySelectorAll("canvas[data-clip]").forEach(canvas => {
+        players.set(canvas, {request: new AbortController(), images: [], frame: 0});
+        clips.observe(canvas);
+    });
+}
+const page = document.getElementById("page-content");
+if (page) {
+    new MutationObserver(mount).observe(page.parentNode, {childList: true});
+    mount();
+}
+})();
+</script>
+</body>
+</html>

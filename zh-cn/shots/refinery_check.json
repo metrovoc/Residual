@@ -1,0 +1,18 @@
+{
+ "width": 280,
+ "height": 208,
+ "parts": {
+  "rows": [
+   30,
+   20,
+   240,
+   90
+  ],
+  "refinery.setting.remove": [
+   2,
+   6,
+   18,
+   18
+  ]
+ }
+}

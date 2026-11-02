@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z 损失调节器 - Residual for Minecraft 26.1</title>
+    <link rel="stylesheet" href="../assets/bundle-FU6KDTWS.css"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/zh-cn/machines/z_loss.html"/><link rel="icon" href="../web-assets/files/logo.tF46QTkooRQs.png"/><script src="../web-assets/files/live-math.ML8ug8GZ1aHS.js" defer></script><script src="../web-assets/files/live.CmytM48j15tA.js" defer></script><script src="../web-assets/files/locale.gww1rSsbKt0b.js" defer></script>
+    <style>
+        .logo > img { height: 32px; }
+        .notice {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: .25rem 1rem;
+            margin-bottom: 1rem;
+            padding: .5rem .75rem;
+            font-size: 16px;
+            background-color: #00000040;
+            border-left: calc(1px * var(--gui-scale)) solid #ffb547;
+        }
+        .notice strong { color: #ffb547; }
+        .notice nav { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-left: auto; }
+        .release-footer { margin: 1rem; color: #7f8d99; font-size: 14px; }
+        canvas[data-clip] { display: block; max-width: 100%; margin: .5rem auto 1rem; cursor: pointer; background: #20242a; }
+        .game-scene-wrapper { max-width: 100%; }
+        .game-scene-wrapper .root { min-width: 0; max-width: 100%; }
+        .game-scene-wrapper .root > .viewport { width: 100%; }
+        .steps-bar { display: flex; align-items: center; gap: .5rem; padding: .15rem; margin-top: .5rem; color: #e4ebf1; background: #11161b; }
+        .steps-bar button { min-width: 2.5rem; color: #404040; background: #c6c6c6; border: 0; cursor: pointer; }
+        .steps-bar button:hover:enabled { background: #3cd6c6; }
+        .steps-bar button:disabled { color: #7f8d99; background: #1d252d; cursor: default; }
+        .steps-marks { display: flex; flex: 1; gap: 2px; max-width: 16rem; }
+        .steps-marks i { flex: 1; height: 4px; background: #1d252d; }
+        .steps-marks i.lit { background: #3cd6c6; }
+        .steps-stack { display: grid; margin-bottom: 1rem; }
+        .steps-stack > section { grid-area: 1 / 1; min-width: 0; visibility: hidden; }
+        .steps-stack > section.shown { visibility: visible; }
+        figure[data-shot] { margin: .5rem 0 1rem; }
+        figure[data-shot] li.lit { color: #3cd6c6; }
+        .shot-picture { position: relative; margin-bottom: .5rem; line-height: 0; }
+        .shot-picture img { width: 100%; image-rendering: pixelated; }
+        .shot-part { position: absolute; }
+        .shot-part.lit { outline: 2px solid #3cd6c6; }
+        .shot-part b { position: absolute; left: -2px; top: -2px; padding: 0 3px; font: 12px/14px monospace; color: #ffb547; background: #11161b; }
+        .shot-part.lit b { color: #11161b; background: #3cd6c6; }
+        .live { max-width: 100%; margin: .5rem 0 1rem; padding: .5rem; font-size: 14px; color: #e4ebf1; background: #11161b; border: 1px solid #373737; box-sizing: border-box; }
+        .live button { padding: .1rem .5rem; color: #404040; background: #c6c6c6; border: 0; cursor: pointer; }
+        .live input[type=range] { width: 100%; accent-color: #ffb547; }
+        .live-dim { color: #7f8d99; }
+        .live-input { color: #ffb547; text-align: right; }
+        .live-output { color: #3cd6c6; text-align: right; }
+        .live-softmax { width: 34rem; }
+        .live-row { display: grid; grid-template-columns: 4rem 1fr 3rem 1fr 3rem; gap: .5rem; align-items: center; }
+        .live-rule { margin-top: .25rem; padding-top: .25rem; border-top: 1px solid #1d252d; }
+        .live-bar { height: .5rem; background: #1d252d; }
+        .live-bar i { display: block; height: 100%; background: #3cd6c6; }
+        .live-attention { display: flex; flex-wrap: wrap; gap: .75rem; width: fit-content; }
+        .live-attention canvas { width: 208px; touch-action: none; cursor: grab; }
+        .live-attention table { border-collapse: separate; border-spacing: 1px; margin: 0 0 .5rem; }
+        .live-attention th, .live-attention td { min-width: 2.75rem; padding: 0 .2rem; font-weight: normal; text-align: left; color: #7f8d99; background: none; border: 0; }
+        .live-attention tr { cursor: pointer; }
+        .live-attention tr.chosen th { color: #ffb547; }
+        .live-attention tr.chosen td { outline: 1px solid #ffb547; }
+        .live-curve { width: 38rem; }
+        .live-curve canvas { display: block; width: 100%; }
+        .live-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: .25rem 0; }
+        .live-controls { display: flex; gap: .25rem; }
+    </style>
+<link rel="alternate" hreflang="en" href="https://metrovoc.github.io/Residual/machines/z_loss.html"/>
+<link rel="alternate" hreflang="zh-Hans" href="https://metrovoc.github.io/Residual/zh-cn/machines/z_loss.html"/>
+<link rel="alternate" hreflang="x-default" href="https://metrovoc.github.io/Residual/machines/z_loss.html"/>
+</head>
+<body data-path-to-root="../">
+
+<main>
+<div class="topLogoBar">
+    <a href="../" class="logo">
+        <img src="../web-assets/files/logo.tF46QTkooRQs.png" alt="" />
+        Residual
+    </a>
+    <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
+    <a
+            role="button"
+            class="navbar-burger"
+            aria-label="菜单"
+    >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    </a>
+</div>
+<div class="page-title"><h1>Z 损失调节器</h1></div>
+<aside>
+    <span class="search-slot"></span>
+    <div class="navbar"><a href="../index.html"><img class="item-icon" src="../!items/residual/add.Lr6K4QXQblDi.png" alt=""/>Residual</a><a href="../getting-started.html"><img class="item-icon" src="../!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>入门</a><a href="../milestones.html"><img class="item-icon" src="../!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>里程碑</a><a href="../forecaster.html"><img class="item-icon" src="../!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>预报机</a><a href="../storage.html"><img class="item-icon" src="../!items/residual/drive_rack.wHpvJhn652xX.png" alt=""/>存储</a><a href="../ruins.html"><img class="item-icon" src="../!items/residual/archive_shard.KUqqYvbFhI9w.png" alt=""/>遗迹</a><a href="../archive.html"><img class="item-icon" src="../!items/residual/archive_drive.MJ1td1FfQz82.png" alt=""/>档案</a><a href="../tokenizers.html"><img class="item-icon" src="../!items/residual/tokenizer.xdwcXWUIJd7o.png" alt=""/>词元</a><a href="../refinery.html"><img class="item-icon" src="../!items/residual/token_tank.jiIwFe68t8Wg.png" alt=""/>精炼厂</a><a href="../bench.html"><img class="item-icon" src="../!items/residual/bench.D3mxsQ90zr52.png" alt=""/>试验台与制造机</a><a href="../core.html"><img class="item-icon" src="../!items/residual/model_core.pA2CY0pBsFXw.png" alt=""/>模型核心</a><a href="../training.html"><img class="item-icon" src="../!items/residual/accelerator.U9YxoZU82yMm.png" alt=""/>训练</a><a href="../recipe.html"><img class="item-icon" src="../!items/residual/scheduler.VR5YdkzADL9Y.png" alt=""/>配方</a><a href="../models.html"><img class="item-icon" src="../!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>模型与测试</a><a href="../evaluation.html"><img class="item-icon" src="../!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>比较模型</a><a href="../modern.html"><img class="item-icon" src="../!items/residual/modern_block.QtxVfyqFw9fm.png" alt=""/>现代块</a><a href="../salvage.html"><img class="item-icon" src="../!items/residual/salvaged_model.xitO1aiz78IX.png" alt=""/>打捞模型</a><a href="../agents.html"><img class="item-icon" src="../!items/residual/agent.cVkfsPTpTRXK.png" alt=""/>智能体</a><a href="../programs.html"><img class="item-icon" src="../!items/residual/program_card.ogsWi2qbrw3l.png" alt=""/>程序</a><a href="../architect.html"><img class="item-icon" src="../!items/residual/survey_rod.XyPNqiiYShYc.png" alt=""/>建筑师</a><a href="../surveyor.html"><img class="item-icon" src="../!items/residual/surveyor.lWhdXfyJ9yxx.png" alt=""/>勘测仪</a><a href="../watch.html"><img class="item-icon" src="../!items/residual/watch_post.Ai3Wqrg3mI7k.png" alt=""/>哨所</a><a href="../power.html"><img class="item-icon" src="../!items/residual/combustion_generator.H7EsONecqXkK.png" alt=""/>电力</a><a href="../reactor.html"><img class="item-icon" src="../!items/residual/reactor_core.W2Fy3Xkh1MoI.png" alt=""/>反应堆</a><a href="../exosuit.html"><img class="item-icon" src="../!items/residual/exosuit.Cwc2EyLflCqt.png" alt=""/>外骨骼</a><a href="../flight.html"><img class="item-icon" src="../!items/residual/flight_frame.DJQHRgkSUK6C.png" alt=""/>飞行</a><a href="../deployment.html"><img class="item-icon" src="../!items/residual/model_server.ZJtMt5OPPf3R.png" alt=""/>模型服务</a><a href="../arena.html"><img class="item-icon" src="../!items/residual/arena.m8bNPH2kx7fH.png" alt=""/>竞技场</a><a href="../compute.html"><img class="item-icon" src="../!items/residual/rack_switch.JKyZ7bG2LJ2v.png" alt=""/>算力</a><a href="../datacenter.html"><img class="item-icon" src="../!items/residual/hall_console.8bAbupi1QqhR.png" alt=""/>机房</a><a href="../tuning.html"><img class="item-icon" src="../!items/residual/tuner.oi2CINnopIf1.png" alt=""/>调校</a><a href="../reasoning.html"><img class="item-icon" src="../!items/residual/reckoning_dataset.j5ljKCg2yM1h.png" alt=""/>多想想</a><a href="../scope.html"><img class="item-icon" src="../!items/residual/stream_scope.Vq437THpDY26.png" alt=""/>流示波器</a><a href="../trials.html"><img class="item-icon" src="../!items/residual/trial_rig.bfJYIJWnNb4Y.png" alt=""/>故障试验架</a><a href="../wiring.html"><img class="item-icon" src="../!items/residual/cable.vV5IAga6F3Ns.png" alt=""/>机器与线缆</a><a href="../stream.html"><img class="item-icon" src="../!items/residual/stream.Ip1xvFHTCKx5.webp" alt=""/>残差流</a><a href="../shapes.html"><img class="item-icon" src="../!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>形状</a><details><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="../screens/index.html"><img class="item-icon" src="../!items/residual/bench.D3mxsQ90zr52.png" alt=""/>界面</a></summary><div class="sublevel"><a href="../screens/core.html"><img class="item-icon" src="../!items/residual/model_core.pA2CY0pBsFXw.png" alt=""/>模型核心</a><a href="../screens/agent.html"><img class="item-icon" src="../!items/residual/agent.cVkfsPTpTRXK.png" alt=""/>智能体</a><a href="../screens/bench.html"><img class="item-icon" src="../!items/residual/bench.D3mxsQ90zr52.png" alt=""/>试验台</a><a href="../screens/fabricator.html"><img class="item-icon" src="../!items/residual/fabricator.5MgdvTPYjxro.png" alt=""/>制造机</a><a href="../screens/forge.html"><img class="item-icon" src="../!items/residual/bpe_forge.xMiWpBYWyUGL.png" alt=""/>BPE 锻炉</a><a href="../screens/operator.html"><img class="item-icon" src="../!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>机器</a><a href="../screens/reader.html"><img class="item-icon" src="../!items/residual/reader.1Iw3KiINgOog.png" alt=""/>阅读器</a><a href="../screens/forecaster.html"><img class="item-icon" src="../!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>预报机</a><a href="../screens/surveyor.html"><img class="item-icon" src="../!items/residual/surveyor.lWhdXfyJ9yxx.png" alt=""/>勘测仪</a><a href="../screens/watch_post.html"><img class="item-icon" src="../!items/residual/watch_post.Ai3Wqrg3mI7k.png" alt=""/>哨所</a><a href="../screens/arena.html"><img class="item-icon" src="../!items/residual/arena.m8bNPH2kx7fH.png" alt=""/>竞技场</a><a href="../screens/power.html"><img class="item-icon" src="../!items/residual/combustion_generator.H7EsONecqXkK.png" alt=""/>发电机、冶炼炉与反应堆</a><a href="../screens/storage_terminal.html"><img class="item-icon" src="../!items/residual/storage_terminal.O4uYRauzlFrS.png" alt=""/>存储终端</a><a href="../screens/port.html"><img class="item-icon" src="../!items/residual/port.x94HodgzSAFC.png" alt=""/>端口</a><a href="../screens/port_program.html"><img class="item-icon" src="../!items/residual/port.x94HodgzSAFC.png" alt=""/>端口的程序</a><a href="../screens/drive_rack.html"><img class="item-icon" src="../!items/residual/drive_rack.wHpvJhn652xX.png" alt=""/>驱动器机架</a><a href="../screens/assembler.html"><img class="item-icon" src="../!items/residual/assembler.SrLpkBTtfBs1.png" alt=""/>装配机</a><a href="../screens/processor.html"><img class="item-icon" src="../!items/residual/processor.mjRGKLBzkUi7.png" alt=""/>处理器</a><a href="../screens/drive_dock.html"><img class="item-icon" src="../!items/residual/drive_dock.wsfzWAsfymKB.png" alt=""/>驱动器坞</a><a href="../screens/access_point.html"><img class="item-icon" src="../!items/residual/access_point.oPg03TkwBED5.png" alt=""/>接入点</a><a href="../screens/terminal.html"><img class="item-icon" src="../!items/residual/terminal.VjKUQtlTbfSo.png" alt=""/>终端</a><a href="../screens/relay_gate.html"><img class="item-icon" src="../!items/residual/relay_gate.kkga8jTDlIxW.png" alt=""/>中继门</a><a href="../screens/exosuit.html"><img class="item-icon" src="../!items/residual/exosuit.Cwc2EyLflCqt.png" alt=""/>外骨骼</a><a href="../screens/archive_shard.html"><img class="item-icon" src="../!items/residual/archive_shard.KUqqYvbFhI9w.png" alt=""/>档案残片</a><a href="../screens/wayfinder.html"><img class="item-icon" src="../!items/residual/wayfinder.oiD9E82n1C2x.png" alt=""/>寻路仪</a><a href="../screens/refinery.html"><img class="item-icon" src="../!items/residual/refinery_intake.Rkx8zPIJyEPB.png" alt=""/>精炼厂的机器</a><a href="../screens/rack_module.html"><img class="item-icon" src="../!items/residual/rack_module.VxKFW0w62UPf.png" alt=""/>机架模块</a><a href="../screens/hall_console.html"><img class="item-icon" src="../!items/residual/hall_console.8bAbupi1QqhR.png" alt=""/>机房控制台</a><a href="../screens/model_server.html"><img class="item-icon" src="../!items/residual/model_server.ZJtMt5OPPf3R.png" alt=""/>模型服务器</a><a href="../screens/tuner.html"><img class="item-icon" src="../!items/residual/tuner.oi2CINnopIf1.png" alt=""/>调校台</a><a href="../screens/instruments.html"><img class="item-icon" src="../!items/residual/stream_scope.Vq437THpDY26.png" alt=""/>流示波器与故障试验架</a></div></details><details open><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="../machines/index.html"><img class="item-icon" src="../!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>机器</a></summary><div class="sublevel"><a href="../machines/embedding.html"><img class="item-icon" src="../!items/residual/embedding.ik1JEaoae79T.png" alt=""/>嵌入表</a><a href="../machines/linear.html"><img class="item-icon" src="../!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>线性层</a><a href="../machines/activation.html"><img class="item-icon" src="../!items/residual/activation.IHidptOtMwBZ.png" alt=""/>激活层</a><a href="../machines/shift.html"><img class="item-icon" src="../!items/residual/shift.rGaNRcUfvNew.png" alt=""/>延迟线</a><a href="../machines/concat.html"><img class="item-icon" src="../!items/residual/concat.XGUBFfrMlQdK.png" alt=""/>拼接器</a><a href="../machines/matmul.html"><img class="item-icon" src="../!items/residual/matmul.bO8gBDbp1ssA.png" alt=""/>矩阵乘法器</a><a href="../machines/scale.html"><img class="item-icon" src="../!items/residual/scale.boeU25ZPeDTr.png" alt=""/>缩放器</a><a href="../machines/causal_mask.html"><img class="item-icon" src="../!items/residual/causal_mask.Z1aUsqtDV87g.png" alt=""/>因果掩码</a><a href="../machines/softmax.html"><img class="item-icon" src="../!items/residual/softmax.pl0FcHzNbhH5.png" alt=""/>Softmax</a><a href="../machines/position.html"><img class="item-icon" src="../!items/residual/position.xbRrpM1AWSvn.png" alt=""/>位置表</a><a href="../machines/add.html"><img class="item-icon" src="../!items/residual/add.Lr6K4QXQblDi.png" alt=""/>残差汇合点</a><a href="../machines/norm.html"><img class="item-icon" src="../!items/residual/norm.JOMFuSH9RRKX.png" alt=""/>归一化器</a><a href="../machines/attention.html"><img class="item-icon" src="../!items/residual/attention.f1QeGssP4m4P.png" alt=""/>注意力头</a><a href="../machines/mlp.html"><img class="item-icon" src="../!items/residual/mlp.eF2J60kIJ802.png" alt=""/>前馈块</a><a href="../machines/transformer.html"><img class="item-icon" src="../!items/residual/transformer.lhXT0vgBfS4P.png" alt=""/>Transformer 块</a><a href="../machines/multiply.html"><img class="item-icon" src="../!items/residual/multiply.SZA2VnBJ1u89.png" alt=""/>门控</a><a href="../machines/split_heads.html"><img class="item-icon" src="../!items/residual/split_heads.pPcyJL6fB5KY.png" alt=""/>分头器</a><a href="../machines/merge_heads.html"><img class="item-icon" src="../!items/residual/merge_heads.7hTEsRd49AnK.png" alt=""/>合头器</a><a href="../machines/rms_norm.html"><img class="item-icon" src="../!items/residual/rms_norm.sZ6L8Waoj0i7.png" alt=""/>RMS 归一化器</a><a href="../machines/swiglu.html"><img class="item-icon" src="../!items/residual/swiglu.WNZbpYMz9N4U.png" alt=""/>门控前馈块</a><a href="../machines/rotary.html"><img class="item-icon" src="../!items/residual/rotary.egeSw5xro5DU.png" alt=""/>旋转位置</a><a href="../machines/qk_norm.html"><img class="item-icon" src="../!items/residual/qk_norm.5YS7bbjZPK1n.png" alt=""/>QK 归一化器</a><a class="active" href="../machines/z_loss.html"><img class="item-icon" src="../!items/residual/z_loss.eXPDXZ6OBuEv.png" alt=""/>Z 损失调节器</a><a href="../machines/modern_attention.html"><img class="item-icon" src="../!items/residual/modern_attention.5eHEfJcf2Bcq.png" alt=""/>现代注意力头</a><a href="../machines/modern_block.html"><img class="item-icon" src="../!items/residual/modern_block.QtxVfyqFw9fm.png" alt=""/>现代块</a><a href="../machines/two_token_head.html"><img class="item-icon" src="../!items/residual/two_token_head.hEyN3UJCNbmD.png" alt=""/>双词元头</a></div></details></div>
+</aside>
+<article>
+    <div class="notice">
+        <span><strong>实验性 Alpha 版本。</strong>可能有破坏性变更和严重问题。欢迎<a href="https://github.com/metrovoc/Residual/issues">反馈</a>。</span>
+        <nav>
+            <a href="https://github.com/metrovoc/Residual/releases/tag/v0.6.0-alpha">下载</a>
+            <a href="https://github.com/metrovoc/Residual">GitHub</a>
+            <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
+            <a data-locale-link href="../../machines/z_loss.html" lang="en" hreflang="en">English</a>
+        </nav>
+    </div>
+    <div id="page-content">
+        <div class="inlinePageTitle"><h1>Z 损失调节器</h1></div><img class="block-image" srcset="../residual/machines/z_loss_blockimage1@2.gI6K7l2OEVnw.png, ../residual/machines/z_loss_blockimage1@4.fe1sIjPESpy5.png 2x, ../residual/machines/z_loss_blockimage1@8.pHIRjsZ5TK82.png 4x" src="../residual/machines/z_loss_blockimage1@2.gI6K7l2OEVnw.png" alt="" style="width: calc(43.0px * var(--gui-scale)); height: calc(48.0px * var(--gui-scale))"/><p>放在模型的最后一层和<span class="minecraft-tooltip" data-template="tmpl-1"><a href="../core.html">模型核心</a></span>之间。它把分数原样交出去，并在模型训练时，为偏离零的分数在损失里加一点惩罚：分数漂得太远，softmax 就不再精确，训练也开始散架。</p><p><img src="../residual/formulas/zloss.MhSF7TkcqJin.png" alt="z 损失"/></p><h2>形状</h2><p>输入模型的分数 [B×T×V]，输出相同形状。</p><h2>参数</h2><p>没有。惩罚的权重是 0.0001。</p><h2>在 PyTorch 中</h2><blockquote><p><code>loss = ce + 1e-4 * logits.logsumexp(-1).pow(2).mean()</code></p></blockquote><h2>制造</h2><p><span class="minecraft-tooltip" data-template="tmpl-2"><a href="../bench.html">制造机</a></span>用<strong>Z 损失</strong>光掩模制造它：在<span class="minecraft-tooltip" data-template="tmpl-3"><a href="../bench.html">试验台</a></span>上验证规格，或者在<a href="../ruins.html">遗迹</a>里找到打捞的光掩模（造出的是未融合的）。见<a href="../bench.html">试验台与制造机</a>。</p><template id="tmpl-1"><img class="item-icon" src="../!items/residual/model_core.pA2CY0pBsFXw.png" alt="" aria-description="模型核心"/></template><template id="tmpl-2"><img class="item-icon" src="../!items/residual/fabricator.5MgdvTPYjxro.png" alt="" aria-description="制造机"/></template><template id="tmpl-3"><img class="item-icon" src="../!items/residual/bench.D3mxsQ90zr52.png" alt="" aria-description="试验台"/></template>
+    </div>
+</article>
+<footer class="release-footer" data-release>Residual 0.6.0-alpha · Minecraft 26.1.2</footer>
+</main>
+<script src="../assets/bundle-JKIV4HLD.js" defer type="module"></script>
+<script>
+(function () {
+const root = new URL(document.body.dataset.pathToRoot || "./", location.href);
+const players = new Map();
+// plays the field notes' clips: a first frame, then the 16x16 tiles each later frame changes
+async function playClip(canvas, state) {
+    const file = "clips/" + canvas.dataset.clip + ".clip";
+    const response = await fetch(new URL(file, root), {signal: state.request.signal});
+    if (!response.ok) throw new Error(`Clip ${file}: HTTP ${response.status}`);
+    const data = await response.arrayBuffer();
+    const view = new DataView(data);
+    let at = 4;
+    const u16 = () => (at += 2, view.getUint16(at - 2));
+    const image = async () => {
+        const size = view.getUint32(at);
+        const part = new Uint8Array(data, at + 4, size);
+        at += 4 + size;
+        if (!size) return null;
+        const bitmap = await createImageBitmap(new Blob([part]));
+        if (state.request.signal.aborted) {
+            bitmap.close();
+            throw new DOMException("Clip removed", "AbortError");
+        }
+        state.images.push(bitmap);
+        return bitmap;
+    };
+    const [width, height, display, ms, hold, frames, columns, tile] = Array.from({length: 8}, u16);
+    const first = await image(), atlas = await image();
+    const counts = Array.from({length: frames - 1}, u16);
+    const placed = counts.map(n => Array.from({length: n}, () => [u16(), u16(), u16()]));
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `calc(${display}px * var(--gui-scale, 2))`;
+    const context = canvas.getContext("2d");
+    context.drawImage(first, 0, 0);
+    let frame = 0, clock = 0, last = 0, paused = false, seen = true;
+    canvas.addEventListener("click", () => paused = !paused);
+    state.observer = new IntersectionObserver(([entry]) => seen = entry.isIntersecting);
+    state.observer.observe(canvas);
+    const step = now => {
+        clock += seen && !paused ? Math.min(100, now - last) : 0;
+        last = now;
+        if (clock >= (frames - 1) * ms + hold) {
+            clock = frame = 0;
+            context.drawImage(first, 0, 0);
+        }
+        for (const target = Math.min(frames - 1, Math.floor(clock / ms)); frame < target; frame++) {
+            for (const [x, y, i] of placed[frame]) {
+                context.drawImage(atlas, i % columns * tile, Math.floor(i / columns) * tile, tile, tile, x * tile, y * tile, tile, tile);
+            }
+        }
+        state.frame = requestAnimationFrame(step);
+    };
+    state.frame = requestAnimationFrame(step);
+}
+const clips = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+        const state = players.get(entry.target);
+        if (entry.isIntersecting && state && !state.started) {
+            state.started = true;
+            clips.unobserve(entry.target);
+            playClip(entry.target, state).catch(error => {
+                state.images.forEach(bitmap => bitmap.close());
+                state.images = [];
+                if (!state.request.signal.aborted) console.error("Failed to play clip", entry.target.dataset.clip, error);
+            });
+        }
+    }
+}, {rootMargin: "200px"});
+let mounted;
+function mount() {
+    const page = document.getElementById("page-content");
+    if (page === mounted) return;
+    for (const [canvas, state] of players) {
+        clips.unobserve(canvas);
+        state.request.abort();
+        if (state.observer) state.observer.disconnect();
+        cancelAnimationFrame(state.frame);
+        state.images.forEach(bitmap => bitmap.close());
+        state.images = [];
+    }
+    players.clear();
+    mounted = page;
+    if (!page) return;
+    page.querySelectorAll("canvas[data-clip]").forEach(canvas => {
+        players.set(canvas, {request: new AbortController(), images: [], frame: 0});
+        clips.observe(canvas);
+    });
+}
+const page = document.getElementById("page-content");
+if (page) {
+    new MutationObserver(mount).observe(page.parentNode, {childList: true});
+    mount();
+}
+})();
+</script>
+</body>
+</html>

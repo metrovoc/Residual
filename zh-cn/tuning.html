@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调校 - Residual for Minecraft 26.1</title>
+    <link rel="stylesheet" href="assets/bundle-FU6KDTWS.css"/>
+    <link rel="canonical" href="https://metrovoc.github.io/Residual/zh-cn/tuning.html"/><link rel="icon" href="web-assets/files/logo.tF46QTkooRQs.png"/><script src="web-assets/files/live-math.ML8ug8GZ1aHS.js" defer></script><script src="web-assets/files/live.CmytM48j15tA.js" defer></script><script src="web-assets/files/locale.gww1rSsbKt0b.js" defer></script>
+    <style>
+        .logo > img { height: 32px; }
+        .notice {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: .25rem 1rem;
+            margin-bottom: 1rem;
+            padding: .5rem .75rem;
+            font-size: 16px;
+            background-color: #00000040;
+            border-left: calc(1px * var(--gui-scale)) solid #ffb547;
+        }
+        .notice strong { color: #ffb547; }
+        .notice nav { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-left: auto; }
+        .release-footer { margin: 1rem; color: #7f8d99; font-size: 14px; }
+        canvas[data-clip] { display: block; max-width: 100%; margin: .5rem auto 1rem; cursor: pointer; background: #20242a; }
+        .game-scene-wrapper { max-width: 100%; }
+        .game-scene-wrapper .root { min-width: 0; max-width: 100%; }
+        .game-scene-wrapper .root > .viewport { width: 100%; }
+        .steps-bar { display: flex; align-items: center; gap: .5rem; padding: .15rem; margin-top: .5rem; color: #e4ebf1; background: #11161b; }
+        .steps-bar button { min-width: 2.5rem; color: #404040; background: #c6c6c6; border: 0; cursor: pointer; }
+        .steps-bar button:hover:enabled { background: #3cd6c6; }
+        .steps-bar button:disabled { color: #7f8d99; background: #1d252d; cursor: default; }
+        .steps-marks { display: flex; flex: 1; gap: 2px; max-width: 16rem; }
+        .steps-marks i { flex: 1; height: 4px; background: #1d252d; }
+        .steps-marks i.lit { background: #3cd6c6; }
+        .steps-stack { display: grid; margin-bottom: 1rem; }
+        .steps-stack > section { grid-area: 1 / 1; min-width: 0; visibility: hidden; }
+        .steps-stack > section.shown { visibility: visible; }
+        figure[data-shot] { margin: .5rem 0 1rem; }
+        figure[data-shot] li.lit { color: #3cd6c6; }
+        .shot-picture { position: relative; margin-bottom: .5rem; line-height: 0; }
+        .shot-picture img { width: 100%; image-rendering: pixelated; }
+        .shot-part { position: absolute; }
+        .shot-part.lit { outline: 2px solid #3cd6c6; }
+        .shot-part b { position: absolute; left: -2px; top: -2px; padding: 0 3px; font: 12px/14px monospace; color: #ffb547; background: #11161b; }
+        .shot-part.lit b { color: #11161b; background: #3cd6c6; }
+        .live { max-width: 100%; margin: .5rem 0 1rem; padding: .5rem; font-size: 14px; color: #e4ebf1; background: #11161b; border: 1px solid #373737; box-sizing: border-box; }
+        .live button { padding: .1rem .5rem; color: #404040; background: #c6c6c6; border: 0; cursor: pointer; }
+        .live input[type=range] { width: 100%; accent-color: #ffb547; }
+        .live-dim { color: #7f8d99; }
+        .live-input { color: #ffb547; text-align: right; }
+        .live-output { color: #3cd6c6; text-align: right; }
+        .live-softmax { width: 34rem; }
+        .live-row { display: grid; grid-template-columns: 4rem 1fr 3rem 1fr 3rem; gap: .5rem; align-items: center; }
+        .live-rule { margin-top: .25rem; padding-top: .25rem; border-top: 1px solid #1d252d; }
+        .live-bar { height: .5rem; background: #1d252d; }
+        .live-bar i { display: block; height: 100%; background: #3cd6c6; }
+        .live-attention { display: flex; flex-wrap: wrap; gap: .75rem; width: fit-content; }
+        .live-attention canvas { width: 208px; touch-action: none; cursor: grab; }
+        .live-attention table { border-collapse: separate; border-spacing: 1px; margin: 0 0 .5rem; }
+        .live-attention th, .live-attention td { min-width: 2.75rem; padding: 0 .2rem; font-weight: normal; text-align: left; color: #7f8d99; background: none; border: 0; }
+        .live-attention tr { cursor: pointer; }
+        .live-attention tr.chosen th { color: #ffb547; }
+        .live-attention tr.chosen td { outline: 1px solid #ffb547; }
+        .live-curve { width: 38rem; }
+        .live-curve canvas { display: block; width: 100%; }
+        .live-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin: .25rem 0; }
+        .live-controls { display: flex; gap: .25rem; }
+    </style>
+<link rel="alternate" hreflang="en" href="https://metrovoc.github.io/Residual/tuning.html"/>
+<link rel="alternate" hreflang="zh-Hans" href="https://metrovoc.github.io/Residual/zh-cn/tuning.html"/>
+<link rel="alternate" hreflang="x-default" href="https://metrovoc.github.io/Residual/tuning.html"/>
+</head>
+<body data-path-to-root="">
+
+<main>
+<div class="topLogoBar">
+    <a href="./" class="logo">
+        <img src="web-assets/files/logo.tF46QTkooRQs.png" alt="" />
+        Residual
+    </a>
+    <!-- burger menu used on mobile devices when the actual navigation bar is hidden -->
+    <a
+            role="button"
+            class="navbar-burger"
+            aria-label="菜单"
+    >
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    <span aria-hidden="true"></span>
+    </a>
+</div>
+<div class="page-title"><h1>调校</h1></div>
+<aside>
+    <span class="search-slot"></span>
+    <div class="navbar"><a href="index.html"><img class="item-icon" src="!items/residual/add.Lr6K4QXQblDi.png" alt=""/>Residual</a><a href="getting-started.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>入门</a><a href="milestones.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>里程碑</a><a href="forecaster.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>预报机</a><a href="storage.html"><img class="item-icon" src="!items/residual/drive_rack.wHpvJhn652xX.png" alt=""/>存储</a><a href="ruins.html"><img class="item-icon" src="!items/residual/archive_shard.KUqqYvbFhI9w.png" alt=""/>遗迹</a><a href="archive.html"><img class="item-icon" src="!items/residual/archive_drive.MJ1td1FfQz82.png" alt=""/>档案</a><a href="tokenizers.html"><img class="item-icon" src="!items/residual/tokenizer.xdwcXWUIJd7o.png" alt=""/>词元</a><a href="refinery.html"><img class="item-icon" src="!items/residual/token_tank.jiIwFe68t8Wg.png" alt=""/>精炼厂</a><a href="bench.html"><img class="item-icon" src="!items/residual/bench.D3mxsQ90zr52.png" alt=""/>试验台与制造机</a><a href="core.html"><img class="item-icon" src="!items/residual/model_core.pA2CY0pBsFXw.png" alt=""/>模型核心</a><a href="training.html"><img class="item-icon" src="!items/residual/accelerator.U9YxoZU82yMm.png" alt=""/>训练</a><a href="recipe.html"><img class="item-icon" src="!items/residual/scheduler.VR5YdkzADL9Y.png" alt=""/>配方</a><a href="models.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>模型与测试</a><a href="evaluation.html"><img class="item-icon" src="!items/residual/checkpoint.TIdYvZsR2OMe.png" alt=""/>比较模型</a><a href="modern.html"><img class="item-icon" src="!items/residual/modern_block.QtxVfyqFw9fm.png" alt=""/>现代块</a><a href="salvage.html"><img class="item-icon" src="!items/residual/salvaged_model.xitO1aiz78IX.png" alt=""/>打捞模型</a><a href="agents.html"><img class="item-icon" src="!items/residual/agent.cVkfsPTpTRXK.png" alt=""/>智能体</a><a href="programs.html"><img class="item-icon" src="!items/residual/program_card.ogsWi2qbrw3l.png" alt=""/>程序</a><a href="architect.html"><img class="item-icon" src="!items/residual/survey_rod.XyPNqiiYShYc.png" alt=""/>建筑师</a><a href="surveyor.html"><img class="item-icon" src="!items/residual/surveyor.lWhdXfyJ9yxx.png" alt=""/>勘测仪</a><a href="watch.html"><img class="item-icon" src="!items/residual/watch_post.Ai3Wqrg3mI7k.png" alt=""/>哨所</a><a href="power.html"><img class="item-icon" src="!items/residual/combustion_generator.H7EsONecqXkK.png" alt=""/>电力</a><a href="reactor.html"><img class="item-icon" src="!items/residual/reactor_core.W2Fy3Xkh1MoI.png" alt=""/>反应堆</a><a href="exosuit.html"><img class="item-icon" src="!items/residual/exosuit.Cwc2EyLflCqt.png" alt=""/>外骨骼</a><a href="flight.html"><img class="item-icon" src="!items/residual/flight_frame.DJQHRgkSUK6C.png" alt=""/>飞行</a><a href="deployment.html"><img class="item-icon" src="!items/residual/model_server.ZJtMt5OPPf3R.png" alt=""/>模型服务</a><a href="arena.html"><img class="item-icon" src="!items/residual/arena.m8bNPH2kx7fH.png" alt=""/>竞技场</a><a href="compute.html"><img class="item-icon" src="!items/residual/rack_switch.JKyZ7bG2LJ2v.png" alt=""/>算力</a><a href="datacenter.html"><img class="item-icon" src="!items/residual/hall_console.8bAbupi1QqhR.png" alt=""/>机房</a><a class="active" href="tuning.html"><img class="item-icon" src="!items/residual/tuner.oi2CINnopIf1.png" alt=""/>调校</a><a href="reasoning.html"><img class="item-icon" src="!items/residual/reckoning_dataset.j5ljKCg2yM1h.png" alt=""/>多想想</a><a href="scope.html"><img class="item-icon" src="!items/residual/stream_scope.Vq437THpDY26.png" alt=""/>流示波器</a><a href="trials.html"><img class="item-icon" src="!items/residual/trial_rig.bfJYIJWnNb4Y.png" alt=""/>故障试验架</a><a href="wiring.html"><img class="item-icon" src="!items/residual/cable.vV5IAga6F3Ns.png" alt=""/>机器与线缆</a><a href="stream.html"><img class="item-icon" src="!items/residual/stream.Ip1xvFHTCKx5.webp" alt=""/>残差流</a><a href="shapes.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>形状</a><details><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="screens/index.html"><img class="item-icon" src="!items/residual/bench.D3mxsQ90zr52.png" alt=""/>界面</a></summary><div class="sublevel"><a href="screens/core.html"><img class="item-icon" src="!items/residual/model_core.pA2CY0pBsFXw.png" alt=""/>模型核心</a><a href="screens/agent.html"><img class="item-icon" src="!items/residual/agent.cVkfsPTpTRXK.png" alt=""/>智能体</a><a href="screens/bench.html"><img class="item-icon" src="!items/residual/bench.D3mxsQ90zr52.png" alt=""/>试验台</a><a href="screens/fabricator.html"><img class="item-icon" src="!items/residual/fabricator.5MgdvTPYjxro.png" alt=""/>制造机</a><a href="screens/forge.html"><img class="item-icon" src="!items/residual/bpe_forge.xMiWpBYWyUGL.png" alt=""/>BPE 锻炉</a><a href="screens/operator.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>机器</a><a href="screens/reader.html"><img class="item-icon" src="!items/residual/reader.1Iw3KiINgOog.png" alt=""/>阅读器</a><a href="screens/forecaster.html"><img class="item-icon" src="!items/residual/forecaster.AULEVhpGt8XN.png" alt=""/>预报机</a><a href="screens/surveyor.html"><img class="item-icon" src="!items/residual/surveyor.lWhdXfyJ9yxx.png" alt=""/>勘测仪</a><a href="screens/watch_post.html"><img class="item-icon" src="!items/residual/watch_post.Ai3Wqrg3mI7k.png" alt=""/>哨所</a><a href="screens/arena.html"><img class="item-icon" src="!items/residual/arena.m8bNPH2kx7fH.png" alt=""/>竞技场</a><a href="screens/power.html"><img class="item-icon" src="!items/residual/combustion_generator.H7EsONecqXkK.png" alt=""/>发电机、冶炼炉与反应堆</a><a href="screens/storage_terminal.html"><img class="item-icon" src="!items/residual/storage_terminal.O4uYRauzlFrS.png" alt=""/>存储终端</a><a href="screens/port.html"><img class="item-icon" src="!items/residual/port.x94HodgzSAFC.png" alt=""/>端口</a><a href="screens/port_program.html"><img class="item-icon" src="!items/residual/port.x94HodgzSAFC.png" alt=""/>端口的程序</a><a href="screens/drive_rack.html"><img class="item-icon" src="!items/residual/drive_rack.wHpvJhn652xX.png" alt=""/>驱动器机架</a><a href="screens/assembler.html"><img class="item-icon" src="!items/residual/assembler.SrLpkBTtfBs1.png" alt=""/>装配机</a><a href="screens/processor.html"><img class="item-icon" src="!items/residual/processor.mjRGKLBzkUi7.png" alt=""/>处理器</a><a href="screens/drive_dock.html"><img class="item-icon" src="!items/residual/drive_dock.wsfzWAsfymKB.png" alt=""/>驱动器坞</a><a href="screens/access_point.html"><img class="item-icon" src="!items/residual/access_point.oPg03TkwBED5.png" alt=""/>接入点</a><a href="screens/terminal.html"><img class="item-icon" src="!items/residual/terminal.VjKUQtlTbfSo.png" alt=""/>终端</a><a href="screens/relay_gate.html"><img class="item-icon" src="!items/residual/relay_gate.kkga8jTDlIxW.png" alt=""/>中继门</a><a href="screens/exosuit.html"><img class="item-icon" src="!items/residual/exosuit.Cwc2EyLflCqt.png" alt=""/>外骨骼</a><a href="screens/archive_shard.html"><img class="item-icon" src="!items/residual/archive_shard.KUqqYvbFhI9w.png" alt=""/>档案残片</a><a href="screens/wayfinder.html"><img class="item-icon" src="!items/residual/wayfinder.oiD9E82n1C2x.png" alt=""/>寻路仪</a><a href="screens/refinery.html"><img class="item-icon" src="!items/residual/refinery_intake.Rkx8zPIJyEPB.png" alt=""/>精炼厂的机器</a><a href="screens/rack_module.html"><img class="item-icon" src="!items/residual/rack_module.VxKFW0w62UPf.png" alt=""/>机架模块</a><a href="screens/hall_console.html"><img class="item-icon" src="!items/residual/hall_console.8bAbupi1QqhR.png" alt=""/>机房控制台</a><a href="screens/model_server.html"><img class="item-icon" src="!items/residual/model_server.ZJtMt5OPPf3R.png" alt=""/>模型服务器</a><a href="screens/tuner.html"><img class="item-icon" src="!items/residual/tuner.oi2CINnopIf1.png" alt=""/>调校台</a><a href="screens/instruments.html"><img class="item-icon" src="!items/residual/stream_scope.Vq437THpDY26.png" alt=""/>流示波器与故障试验架</a></div></details><details><summary><span class="nav-toggle" aria-hidden="true"><svg viewBox="0 0 7 7"><path d="M1.5 0h1v1h1v1h1v1h1v1h-1v1h-1v1h-1v1h-1v-2h1v-1h1v-1h-1v-1h-1z"></path></svg></span><a href="machines/index.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>机器</a></summary><div class="sublevel"><a href="machines/embedding.html"><img class="item-icon" src="!items/residual/embedding.ik1JEaoae79T.png" alt=""/>嵌入表</a><a href="machines/linear.html"><img class="item-icon" src="!items/residual/linear.UKFk60Q8vpO7.png" alt=""/>线性层</a><a href="machines/activation.html"><img class="item-icon" src="!items/residual/activation.IHidptOtMwBZ.png" alt=""/>激活层</a><a href="machines/shift.html"><img class="item-icon" src="!items/residual/shift.rGaNRcUfvNew.png" alt=""/>延迟线</a><a href="machines/concat.html"><img class="item-icon" src="!items/residual/concat.XGUBFfrMlQdK.png" alt=""/>拼接器</a><a href="machines/matmul.html"><img class="item-icon" src="!items/residual/matmul.bO8gBDbp1ssA.png" alt=""/>矩阵乘法器</a><a href="machines/scale.html"><img class="item-icon" src="!items/residual/scale.boeU25ZPeDTr.png" alt=""/>缩放器</a><a href="machines/causal_mask.html"><img class="item-icon" src="!items/residual/causal_mask.Z1aUsqtDV87g.png" alt=""/>因果掩码</a><a href="machines/softmax.html"><img class="item-icon" src="!items/residual/softmax.pl0FcHzNbhH5.png" alt=""/>Softmax</a><a href="machines/position.html"><img class="item-icon" src="!items/residual/position.xbRrpM1AWSvn.png" alt=""/>位置表</a><a href="machines/add.html"><img class="item-icon" src="!items/residual/add.Lr6K4QXQblDi.png" alt=""/>残差汇合点</a><a href="machines/norm.html"><img class="item-icon" src="!items/residual/norm.JOMFuSH9RRKX.png" alt=""/>归一化器</a><a href="machines/attention.html"><img class="item-icon" src="!items/residual/attention.f1QeGssP4m4P.png" alt=""/>注意力头</a><a href="machines/mlp.html"><img class="item-icon" src="!items/residual/mlp.eF2J60kIJ802.png" alt=""/>前馈块</a><a href="machines/transformer.html"><img class="item-icon" src="!items/residual/transformer.lhXT0vgBfS4P.png" alt=""/>Transformer 块</a><a href="machines/multiply.html"><img class="item-icon" src="!items/residual/multiply.SZA2VnBJ1u89.png" alt=""/>门控</a><a href="machines/split_heads.html"><img class="item-icon" src="!items/residual/split_heads.pPcyJL6fB5KY.png" alt=""/>分头器</a><a href="machines/merge_heads.html"><img class="item-icon" src="!items/residual/merge_heads.7hTEsRd49AnK.png" alt=""/>合头器</a><a href="machines/rms_norm.html"><img class="item-icon" src="!items/residual/rms_norm.sZ6L8Waoj0i7.png" alt=""/>RMS 归一化器</a><a href="machines/swiglu.html"><img class="item-icon" src="!items/residual/swiglu.WNZbpYMz9N4U.png" alt=""/>门控前馈块</a><a href="machines/rotary.html"><img class="item-icon" src="!items/residual/rotary.egeSw5xro5DU.png" alt=""/>旋转位置</a><a href="machines/qk_norm.html"><img class="item-icon" src="!items/residual/qk_norm.5YS7bbjZPK1n.png" alt=""/>QK 归一化器</a><a href="machines/z_loss.html"><img class="item-icon" src="!items/residual/z_loss.eXPDXZ6OBuEv.png" alt=""/>Z 损失调节器</a><a href="machines/modern_attention.html"><img class="item-icon" src="!items/residual/modern_attention.5eHEfJcf2Bcq.png" alt=""/>现代注意力头</a><a href="machines/modern_block.html"><img class="item-icon" src="!items/residual/modern_block.QtxVfyqFw9fm.png" alt=""/>现代块</a><a href="machines/two_token_head.html"><img class="item-icon" src="!items/residual/two_token_head.hEyN3UJCNbmD.png" alt=""/>双词元头</a></div></details></div>
+</aside>
+<article>
+    <div class="notice">
+        <span><strong>实验性 Alpha 版本。</strong>可能有破坏性变更和严重问题。欢迎<a href="https://github.com/metrovoc/Residual/issues">反馈</a>。</span>
+        <nav>
+            <a href="https://github.com/metrovoc/Residual/releases/tag/v0.6.0-alpha">下载</a>
+            <a href="https://github.com/metrovoc/Residual">GitHub</a>
+            <a href="https://discord.gg/UuV4hEYVFy">Discord</a>
+            <a data-locale-link href="../tuning.html" lang="en" hreflang="en">English</a>
+        </nav>
+    </div>
+    <div id="page-content">
+        <div class="inlinePageTitle"><h1>调校</h1></div><p>一个练完的模型还可以改。调校台拿一个已保存的模型，原样留着它，再从它做出一个新的：更接近你的意思，多担一份工作，或者小到能随身带走。</p><h2>调校台</h2><p>制造机用 Transformer 光掩模制造<span class="minecraft-tooltip" data-template="tmpl-1"><span class="item-link">调校台</span></span>。左边放已保存的模型，右边放空白检查点，模型下面放这种调校方式需要的东西，然后启动。显示屏上，青色是奖励，琥珀色是真正对了多少，下面是每次尝试的标记，还有模型最后写的东西。产出的模型跑过每一项测试，上面的分数是它自己的。<a href="screens/tuner.html">调校台的界面，一部分一部分地看</a>。</p><p>打开<strong>自动开始</strong>后，只要基础模型和空白检查点都在，它就开始，做好的东西从下面的漏斗出去，所以调校台和漏斗可以连成一条线。</p><h2>微调</h2><p>设为<strong>微调</strong>，旁边放数据集或档案驱动器，它就以一个不断下降的低学习率继续练习。问模型的任何问题都是一种形式：<code>&gt; </code> 加所说的话，换行，<code>= </code> 加答案，只有 <code>=</code> 之后的部分才算数。</p><p>产出的模型保留自己的测试成绩。选定要留下哪一个之前，先和基础模型比一比。</p><p>旁边放两样，它就把两者混起来，这样模型能学新东西，又留得住原来的。</p><h2>适配器与合并</h2><p><strong>适配器</strong>不动模型的任何矩阵，只在每个矩阵旁边教两个细长的矩阵该加多少。学习的数字少得多。第三个按钮决定它们有多细。最后它们会加进去，产出的是一个和别的没有两样的模型。</p><p><strong>合并</strong>把同一个模型的两次调校合在一起。第二个放在基础模型旁边，取两者的平均。再在下面放它们共同的来源，就取那个模型，加上两者各自的改动，这样一个模型能担两份工作。</p><h2>你自己的话</h2><div class="recipe-container"><div class="recipe-container"><div class="minecraft-frame"><div class="recipeBoxLayout"><div title="偏好记录"><img class="item-icon" src="!items/minecraft/crafting_table.xxwaNp1XJwGN.png" alt="" aria-description="工作台"/>无序合成</div><div class="ingredients-box-shapeless-3col"><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-2"><span class="item-link"><img class="item-icon" src="!items/minecraft/paper.3n0NCE9kp4bd.png" alt="" aria-description="纸"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-2"><span class="item-link"><img class="item-icon" src="!items/minecraft/paper.3n0NCE9kp4bd.png" alt="" aria-description="纸"/></span></span></div><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-3"><span class="item-link"><img class="item-icon" src="!items/minecraft/feather.E3Ukyb6pP0Yb.png" alt="" aria-description="羽毛"/></span></span></div><div class="ingredient-box cycling"><span class="minecraft-tooltip" data-template="tmpl-4"><span class="item-link"><img class="item-icon" src="!items/minecraft/oak_planks.NEQmxziakGUZ.png" alt="" aria-description="橡木木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-5"><span class="item-link"><img class="item-icon" src="!items/minecraft/spruce_planks.GO8Jl9MdqAc6.png" alt="" aria-description="云杉木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-6"><span class="item-link"><img class="item-icon" src="!items/minecraft/birch_planks.VTb93WVOqJMy.png" alt="" aria-description="白桦木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-7"><span class="item-link"><img class="item-icon" src="!items/minecraft/jungle_planks.Z6iAtu7DRqG5.png" alt="" aria-description="丛林木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-8"><span class="item-link"><img class="item-icon" src="!items/minecraft/acacia_planks.C5chBHK6OvdQ.png" alt="" aria-description="金合欢木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-9"><span class="item-link"><img class="item-icon" src="!items/minecraft/dark_oak_planks.FZ7RApals9Zm.png" alt="" aria-description="深色橡木木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-10"><span class="item-link"><img class="item-icon" src="!items/minecraft/pale_oak_planks.ECUiyl1POnRX.png" alt="" aria-description="苍白橡木木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-11"><span class="item-link"><img class="item-icon" src="!items/minecraft/crimson_planks.IvL3MftpFYkO.png" alt="" aria-description="绯红木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-12"><span class="item-link"><img class="item-icon" src="!items/minecraft/warped_planks.r5OHBtNhdO2Z.png" alt="" aria-description="诡异木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-13"><span class="item-link"><img class="item-icon" src="!items/minecraft/mangrove_planks.6s5fGgvI2d1p.png" alt="" aria-description="红树木板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-14"><span class="item-link"><img class="item-icon" src="!items/minecraft/bamboo_planks.4cEbroFIgF0S.png" alt="" aria-description="竹板"/></span></span><span class="minecraft-tooltip" data-template="tmpl-15"><span class="item-link"><img class="item-icon" src="!items/minecraft/cherry_planks.83oqceNO4S3F.png" alt="" aria-description="樱花木板"/></span></span></div></div><svg class="recipe-arrow" viewBox="0 0 85 50"><path d="M 0 20 H 60 V 0 L 85 25 L 60 50 L 60 30 L 0 30 Z" fill="#8b8b8b"></path></svg><div class="ingredient-box"><span class="minecraft-tooltip" data-template="tmpl-16"><span class="item-link"><img class="item-icon" src="!items/residual/preference_log.18BTvT4O9XR1.png" alt="" aria-description="偏好记录"/></span></span></div></div></div></div></div><p>设为<strong>选择</strong>，旁边放<span class="minecraft-tooltip" data-template="tmpl-17"><span class="item-link">偏好记录</span></span>，它会显示基础模型对一条指令写的两个答案，你选一个，或者都不选。也可以输入你自己的指令，让它就这条来问。每次选择都记进记录。记录里至少有四次选择后，启动调校台，它就让你选的比没选的更可能出现。</p><p>你的选择能让熟悉的词带上你自己的意思。也拿其他指令试试新模型：学会这些偏好，可能会改变它对那些你没选过的说法的理解。</p><h2>裁判</h2><p><strong>培养裁判</strong>教基础模型按偏好记录给答案打分，让被选中的分数高过没被选中的。</p><p><strong>对着裁判练</strong>让基础模型针对指令写答案，由那位裁判打分，把高于其他答案的那些一点点提高。第三个按钮决定把它拉住的力度，不让它离原来太远。拉得太松，它可能学会骗裁判。裁判也可以放进服务器的面板，在多个答案里挑一个：<a href="reasoning.html">多想想</a>。</p><h2>验证</h2><p>设为<strong>验证</strong>，基础模型对每个问题试八次，由检查器给每次打分。胜过其他的更可能出现，其余的相反。从来没有东西告诉它正确答案。第三个按钮决定试什么、怎么打分。</p><p><em>程序：实际效果</em>会在沙盒里运行每个程序：一个编造出来的小地方，有仓库、田地和标记，分三种状态：指令要的东西在仓库里或者不在，白天或者夜里。程序的结果符合原意就算过，不管怎么写的。它碰不到世界。</p><p><strong>程序</strong>测试用的是同样的检查，指令里的东西都没练过。达到 75% 的模型就算可信：它写的东西立刻运行，不再问你同不同意，不管多长。</p><h3>检查器放过什么</h3><p>检查器放过什么，模型就学什么，琥珀线会显示出来。<em>程序：没有步骤失败</em>只看程序有没有失败。像 <code>stay</code> 这样的程序，可以拿到奖励，却没有做指令要求的事。所以青线往上时，琥珀线也可能往下。</p><p><em>程序：读得通</em>只看程序能不能读通。一个程序可以完全读得通，却做错了事。</p><h2>精准熔炼</h2><p><em>精准熔炼</em>用基础模型玩完整的熔炼，按它在温区的那一档停留多久来打分，把停得最好的那些提高。这是通往<strong>精准</strong>测试的唯一途径：没有数据集能教它，因为练习只能告诉控制器它的选择有多好。要把熔炼稳在那一档，就得摸清矿石的节奏，在它漂走之前动手。精准测试按它最不拿手的矿石计分，达到 90% 才通过。针对这一档调校，可能会削弱普通控制；产出的模型同时保留两项测试成绩。</p><p>控制器通过这项测试后，冶炼炉一份矿石出六个锭：<a href="power.html">电力</a>。</p><h2>蒸馏</h2><p><strong>蒸馏</strong>让基础模型（一个小模型）向一个更大的被服务模型学习，学它对每个下一个词元的看法：旁边放一张调谐到那台服务器的<span class="minecraft-tooltip" data-template="tmpl-18"><a href="deployment.html">中继卡</a></span>。每一批都是向那台服务器提的一个普通问题，也要排队，所以服务器的界面能看到调校台用了多少。第三个按钮决定大模型对错误答案的看法显露多少。不放数据集时，它就从老师已通过的测试中选取练习，阅读除外。产出的模型也要独立接受测试。</p><p>小到放得下的模型可以放进智能体的脑袋，不再占用服务器。它能做什么，由它自己的成绩决定。它也可以当服务器的<a href="deployment.html">草稿模型</a>。</p><template id="tmpl-1"><img class="item-icon" src="!items/residual/tuner.oi2CINnopIf1.png" alt="" aria-description="调校台"/></template><template id="tmpl-2"><span class="item-name" data-rarity="common">纸</span></template><template id="tmpl-3"><span class="item-name" data-rarity="common">羽毛</span></template><template id="tmpl-4"><span class="item-name" data-rarity="common">橡木木板</span></template><template id="tmpl-5"><span class="item-name" data-rarity="common">云杉木板</span></template><template id="tmpl-6"><span class="item-name" data-rarity="common">白桦木板</span></template><template id="tmpl-7"><span class="item-name" data-rarity="common">丛林木板</span></template><template id="tmpl-8"><span class="item-name" data-rarity="common">金合欢木板</span></template><template id="tmpl-9"><span class="item-name" data-rarity="common">深色橡木木板</span></template><template id="tmpl-10"><span class="item-name" data-rarity="common">苍白橡木木板</span></template><template id="tmpl-11"><span class="item-name" data-rarity="common">绯红木板</span></template><template id="tmpl-12"><span class="item-name" data-rarity="common">诡异木板</span></template><template id="tmpl-13"><span class="item-name" data-rarity="common">红树木板</span></template><template id="tmpl-14"><span class="item-name" data-rarity="common">竹板</span></template><template id="tmpl-15"><span class="item-name" data-rarity="common">樱花木板</span></template><template id="tmpl-16"><span class="item-name" data-rarity="common">偏好记录</span></template><template id="tmpl-17"><img class="item-icon" src="!items/residual/preference_log.18BTvT4O9XR1.png" alt="" aria-description="偏好记录"/></template><template id="tmpl-18"><img class="item-icon" src="!items/residual/relay_card.mMO1AwIsEs2q.png" alt="" aria-description="中继卡"/></template>
+    </div>
+</article>
+<footer class="release-footer" data-release>Residual 0.6.0-alpha · Minecraft 26.1.2</footer>
+</main>
+<script src="assets/bundle-JKIV4HLD.js" defer type="module"></script>
+<script>
+(function () {
+const root = new URL(document.body.dataset.pathToRoot || "./", location.href);
+const players = new Map();
+// plays the field notes' clips: a first frame, then the 16x16 tiles each later frame changes
+async function playClip(canvas, state) {
+    const file = "clips/" + canvas.dataset.clip + ".clip";
+    const response = await fetch(new URL(file, root), {signal: state.request.signal});
+    if (!response.ok) throw new Error(`Clip ${file}: HTTP ${response.status}`);
+    const data = await response.arrayBuffer();
+    const view = new DataView(data);
+    let at = 4;
+    const u16 = () => (at += 2, view.getUint16(at - 2));
+    const image = async () => {
+        const size = view.getUint32(at);
+        const part = new Uint8Array(data, at + 4, size);
+        at += 4 + size;
+        if (!size) return null;
+        const bitmap = await createImageBitmap(new Blob([part]));
+        if (state.request.signal.aborted) {
+            bitmap.close();
+            throw new DOMException("Clip removed", "AbortError");
+        }
+        state.images.push(bitmap);
+        return bitmap;
+    };
+    const [width, height, display, ms, hold, frames, columns, tile] = Array.from({length: 8}, u16);
+    const first = await image(), atlas = await image();
+    const counts = Array.from({length: frames - 1}, u16);
+    const placed = counts.map(n => Array.from({length: n}, () => [u16(), u16(), u16()]));
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = `calc(${display}px * var(--gui-scale, 2))`;
+    const context = canvas.getContext("2d");
+    context.drawImage(first, 0, 0);
+    let frame = 0, clock = 0, last = 0, paused = false, seen = true;
+    canvas.addEventListener("click", () => paused = !paused);
+    state.observer = new IntersectionObserver(([entry]) => seen = entry.isIntersecting);
+    state.observer.observe(canvas);
+    const step = now => {
+        clock += seen && !paused ? Math.min(100, now - last) : 0;
+        last = now;
+        if (clock >= (frames - 1) * ms + hold) {
+            clock = frame = 0;
+            context.drawImage(first, 0, 0);
+        }
+        for (const target = Math.min(frames - 1, Math.floor(clock / ms)); frame < target; frame++) {
+            for (const [x, y, i] of placed[frame]) {
+                context.drawImage(atlas, i % columns * tile, Math.floor(i / columns) * tile, tile, tile, x * tile, y * tile, tile, tile);
+            }
+        }
+        state.frame = requestAnimationFrame(step);
+    };
+    state.frame = requestAnimationFrame(step);
+}
+const clips = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+        const state = players.get(entry.target);
+        if (entry.isIntersecting && state && !state.started) {
+            state.started = true;
+            clips.unobserve(entry.target);
+            playClip(entry.target, state).catch(error => {
+                state.images.forEach(bitmap => bitmap.close());
+                state.images = [];
+                if (!state.request.signal.aborted) console.error("Failed to play clip", entry.target.dataset.clip, error);
+            });
+        }
+    }
+}, {rootMargin: "200px"});
+let mounted;
+function mount() {
+    const page = document.getElementById("page-content");
+    if (page === mounted) return;
+    for (const [canvas, state] of players) {
+        clips.unobserve(canvas);
+        state.request.abort();
+        if (state.observer) state.observer.disconnect();
+        cancelAnimationFrame(state.frame);
+        state.images.forEach(bitmap => bitmap.close());
+        state.images = [];
+    }
+    players.clear();
+    mounted = page;
+    if (!page) return;
+    page.querySelectorAll("canvas[data-clip]").forEach(canvas => {
+        players.set(canvas, {request: new AbortController(), images: [], frame: 0});
+        clips.observe(canvas);
+    });
+}
+const page = document.getElementById("page-content");
+if (page) {
+    new MutationObserver(mount).observe(page.parentNode, {childList: true});
+    mount();
+}
+})();
+</script>
+</body>
+</html>

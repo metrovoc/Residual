@@ -1,0 +1,42 @@
+{
+ "width": 280,
+ "height": 208,
+ "parts": {
+  "rows": [
+   30,
+   20,
+   240,
+   90
+  ],
+  "refinery.setting.short": [
+   2,
+   6,
+   18,
+   18
+  ],
+  "refinery.setting.symbols": [
+   2,
+   25,
+   18,
+   18
+  ],
+  "refinery.setting.words": [
+   2,
+   44,
+   18,
+   18
+  ],
+  "refinery.setting.repeats": [
+   2,
+   63,
+   18,
+   18
+  ],
+  "refinery.setting.endings": [
+   2,
+   82,
+   18,
+   18
+  ]
+ }
+}
