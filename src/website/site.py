@@ -7,6 +7,7 @@ English keeps the existing root; Simplified Chinese lives in zh-cn/. Guide page 
 between languages. Clips, screenshots, search indexes and scene assets stay inside each locale.
 """
 import argparse
+import json
 from html import escape
 from html.parser import HTMLParser
 import posixpath
@@ -47,7 +48,15 @@ def finish(root, locale, version, minecraft):
             text = text.replace('<strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your\n            <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.',
                 '<strong>实验性 Alpha 版本。</strong>可能有破坏性变更和严重问题。欢迎<a href="https://github.com/metrovoc/Residual/issues">反馈</a>。')
             text = text.replace('>Download</a>', '>下载</a>')
+            text = text.replace('>Crafting (Shapeless)</div>', '>无序合成</div>')
+            text = text.replace('>Crafting</div>', '>合成</div>')
         path.write_text(text)
+    if chinese:
+        index = root / 'search-index.json'
+        entries = json.loads(index.read_text())
+        for entry in entries:
+            entry['text'] = entry['text'].replace('Crafting (Shapeless)', '无序合成').replace('Crafting', '合成')
+        index.write_text(json.dumps(entries, ensure_ascii=False))
     print(f"Finished {locale}: {len(pages)} HTML files")
 
 
@@ -82,7 +91,8 @@ def check(root, version):
             text = path.read_text()
             if f'<html lang="{lang}">' not in text or f'{RELEASES}/tag/v{version}' not in text or 'data-locale-link' not in text:
                 errors.append(f"{prefix}{name}: missing locale or release navigation")
-            if locale == 'zh_cn' and ('Experimental alpha.' in text or '>Download</a>' in text):
+            if locale == 'zh_cn' and any(label in text for label in
+                    ['Experimental alpha.', '>Download</a>', '>Crafting</div>', '>Crafting (Shapeless)</div>']):
                 errors.append(f"{prefix}{name}: untranslated website labels")
             parsed = Links(); parsed.feed(text)
             for url in parsed.links:
