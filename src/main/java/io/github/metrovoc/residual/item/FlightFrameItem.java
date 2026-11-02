@@ -6,6 +6,7 @@ import io.github.metrovoc.residual.energy.CellBlockEntity;
 import io.github.metrovoc.residual.energy.PowerNetwork;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.model.ModelInfo;
+import io.github.metrovoc.residual.registry.ModAttachments;
 import io.github.metrovoc.residual.registry.ModComponents;
 import io.github.metrovoc.residual.registry.ModItems;
 import java.util.HashSet;
@@ -14,7 +15,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,7 +34,6 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -153,11 +152,18 @@ public class FlightFrameItem extends Item {
 
     /** Lets a player fly while the frame on their back holds them, spends its charge while they do, and lets go after. */
     public static void tick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || player.isCreative() || player.isSpectator()) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
         ItemStack frame = player.getItemBySlot(EquipmentSlot.CHEST);
         Abilities abilities = player.getAbilities();
+        boolean thrust = !player.isSpectator() && player.isAlive() && holds(frame) && abilities.flying;
+        if (player.getData(ModAttachments.FRAME_FLYING) != thrust) {
+            player.setData(ModAttachments.FRAME_FLYING, thrust);
+        }
+        if (player.isCreative() || player.isSpectator()) {
+            return;
+        }
         if (!holds(frame)) {
             if (HELD.remove(player.getUUID())) {
                 abilities.mayfly = false;
@@ -175,10 +181,5 @@ public class FlightFrameItem extends Item {
         }
         frame.set(ModComponents.CHARGE.get(), Math.max(0, charge(frame) - DRAIN));
         Awards.grant(player, "flight/frame");
-        if (player.tickCount % 2 == 0) {
-            // sparks from the thrusters on its back
-            Vec3 back = player.position().add(player.getLookAngle().multiply(-0.35, 0, -0.35)).add(0, 0.9, 0);
-            player.level().sendParticles(ParticleTypes.ELECTRIC_SPARK, back.x, back.y, back.z, 2, 0.12, 0.08, 0.12, 0.02);
-        }
     }
 }

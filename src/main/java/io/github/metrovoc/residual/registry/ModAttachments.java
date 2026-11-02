@@ -35,6 +35,10 @@ public final class ModAttachments {
                     .sync((holder, to) -> holder == to, ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()))
                     .build());
 
+    /** Transient server-authoritative thrust state, including clients that start tracking mid-flight. */
+    public static final Supplier<AttachmentType<Boolean>> FRAME_FLYING = ATTACHMENTS.register("frame_flying",
+            () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());
+
     private ModAttachments() {
     }
 }

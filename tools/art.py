@@ -1103,38 +1103,9 @@ def wayfinder(k):
     return c
 
 
-# the frame worn, on the back face of the chestplate's body box: the item's two pods, joined across
-FLIGHT_FRAME_BACK = [
-    "e#e..e#e",
-    "#+#..#+#",
-    "#+#ee#+#",
-    "#+####+#",
-    "#+#ee#+#",
-    "#+#..#+#",
-    "#+#..#+#",
-    "###..###",
-    "#*#..#*#",
-    "e*e..e*e",
-    ".e....e.",
-    "........",
-]
-
-
 def flight_frame_worn():
-    """The frame as the chestplate's model maps it: a body box 8 wide, 12 tall and 4 deep, its faces from (16, 16).
-    Straps over the shoulders and down the front, joined across the chest; the pods on the back, their tops along the
-    back edge of the top face and their sides on the columns of the side faces next to the back."""
-    c = Canvas(64, 32)
-    strap, edge = SLATE[1], STEEL[4]
-    c.rect(20, 16, 22, 16, edge)
-    c.rect(25, 16, 27, 16, edge)
-    for x in (21, 26):
-        c.rect(x, 17, x, 31, strap)
-    c.rect(22, 26, 25, 26, strap)
-    c.stamp(32, 20, FLIGHT_FRAME_BACK, {"e": edge, "#": STEEL[6], "+": TEAL[3], "*": AMBER[3]})
-    for x in (16, 31):
-        c.rect(x, 20, x, 29, edge)
-    return c
+    """Transparent equipment atlas: FlightFrameLayer supplies the articulated model and harness."""
+    return Canvas(64, 32)
 
 
 # the exosuit worn, on the chestplate's body box: the plates and core on its front, the frame's pods with more nozzles on its back
@@ -1190,6 +1161,23 @@ def exosuit_worn():
     c.stamp(40, 20, EXOSUIT_ARM_OUT, pal)
     for x in (44, 48, 52):
         c.stamp(x, 20, EXOSUIT_ARM, pal)
+    return c
+
+
+
+def flight_frame_model():
+    """Material tiles for the frame's cuboids, with one texel per model pixel."""
+    c = Canvas(128, 64)
+    colors = ("b9c5cb", "7f929d", "33414b", "49b8ad", "e9ac56", "ffe3a0")
+    for tile, color in enumerate(colors):
+        base = rgb(color)
+        for y in range(32):
+            for x in range(32):
+                # Small, deterministic clusters; geometry carries the edge shading.
+                k = (x // 2 * 13 + y // 2 * 7 + tile * 3) % 11
+                delta = -4 if k < 2 else 3 if k == 8 else 0
+                c.px(tile % 4 * 32 + x, tile // 4 * 32 + y,
+                     tuple(max(0, min(255, v + delta)) for v in base[:3]) + (255,))
     return c
 
 
@@ -3591,6 +3579,7 @@ def build():
     machine_top(58).save("block/combustion_generator_top.png")
     flight_frame().save("item/flight_frame.png")
     flight_frame_worn().save("entity/equipment/humanoid/flight_frame.png")
+    flight_frame_model().save("entity/flight_frame.png")
     exosuit().save("item/exosuit.png")
     exosuit_worn().save("entity/equipment/humanoid/exosuit.png")
     assert mirrored(WAYFINDER_CASE), WAYFINDER_CASE

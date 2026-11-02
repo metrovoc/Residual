@@ -60,6 +60,8 @@ public final class ResidualClient {
         modBus.addListener(ResidualClient::renderers);
         modBus.addListener(ResidualClient::layers);
         modBus.addListener(ResidualClient::models);
+        modBus.addListener((EntityRenderersEvent.AddLayers event) -> FlightFrameLayer.addLayers(event));
+        modBus.addListener((net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent event) -> FlightFrameLayer.modifiers(event));
         modBus.addListener(ResidualClient::keys);
         NeoForge.EVENT_BUS.addListener(ResidualClient::openTerminalKey);
         modBus.addListener(ExosuitScreen::keys);
@@ -199,6 +201,9 @@ public final class ResidualClient {
 
     private static void models(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(AgentFrameModel.LAYER, AgentFrameModel::createLayer);
+        event.registerLayerDefinition(FlightFrameModel.BODY, () -> FlightFrameModel.createLayer(0));
+        event.registerLayerDefinition(FlightFrameModel.LIGHTS, () -> FlightFrameModel.createLayer(1));
+        event.registerLayerDefinition(FlightFrameModel.EXHAUST, () -> FlightFrameModel.createLayer(2));
     }
 
     private static void layers(RegisterGuiLayersEvent event) {
