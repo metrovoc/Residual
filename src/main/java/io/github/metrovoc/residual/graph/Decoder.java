@@ -6,6 +6,7 @@ import io.github.metrovoc.residual.tensor.Tokens;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Runs a model a few new rows at a time instead of all of them: only what a new token changes is worked out, and each sequence
@@ -19,6 +20,22 @@ import java.util.Map;
 public final class Decoder {
     /** Rows of a sequence's buffers are added this many at a time. */
     private static final int PAGE = 16;
+
+    /** Told of every pass: before it starts, for what must not run at once, and after, with how many rows it ran. */
+    public interface Watcher {
+        void before();
+
+        void after(int rows);
+    }
+
+    @Nullable
+    private Watcher watcher;
+
+    /** This decoder's passes are told to {@code watcher} from now on. */
+    public Decoder watched(Watcher watcher) {
+        this.watcher = watcher;
+        return this;
+    }
 
     /** Where a pass finds a machine's weights: good until {@link #done}. */
     public interface Weights {
@@ -203,6 +220,19 @@ public final class Decoder {
 
     /** Adds {@code r} tokens to each of {@code seqs} in one pass: {@code ids} holds {@code r} for each sequence in turn. */
     public void pass(List<Sequence> seqs, int[] ids, int r) {
+        if (watcher == null) {
+            run(seqs, ids, r);
+            return;
+        }
+        watcher.before();
+        try {
+            run(seqs, ids, r);
+        } finally {
+            watcher.after(seqs.size() * r);
+        }
+    }
+
+    private void run(List<Sequence> seqs, int[] ids, int r) {
         int b = seqs.size();
         for (Sequence s : seqs) {
             s.grow(r);

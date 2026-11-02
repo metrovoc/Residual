@@ -176,6 +176,10 @@ ten of every ore the test plays. The slot is in the panel beside the Smelter's s
 the screen draws the melt look by look, the band shaded, and pointing at it tells how much of the last melt was held. A
 model learns this on the <ItemLink id="process_dataset" />: see [Models and Tests](models.md).
 
+A controller that passes Precision holds each melt not in the band but at one step of it, and a melt held there at 70% of its
+looks makes six. No dataset teaches that: see [Tuning](tuning.md). One that also passes Reckoning is handed an assay off each such
+melt, a line of numbers to add up, and if it gets that right the melt makes nine: see [Thinking Longer](reasoning.md).
+
 ## Other blocks
 
 Hoppers and Ports feed the generators and the Smelter from any side and take the Smelter's ingots out. Other mods'

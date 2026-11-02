@@ -43,6 +43,9 @@ exactly the test's format, so a test score is how often an agent will decide rig
 | Retrieval | <ItemLink id="retrieval_dataset" />     | things named and asked for, and what each is for   | 90%         | a terminal's search |
 | Quality   | <ItemLink id="archive_drive" />         | documents, half of them spoiled by bad lines        | 90%         | the [Refinery](refinery.md) |
 | Containment | <ItemLink id="reactor_dataset" />     | cycles of each fuel, held at 90% of their looks    | 90%         | the Reactor |
+| Reckoning | <ItemLink id="reckoning_dataset" />     | a line of numbers added up, each running sum       | 70%         | an assay: [nine ingots from an ore](reasoning.md) |
+| Programs  | a <ItemLink id="tuner" />               | what is written for an order, run in a sandbox     | 75%         | [orders that need no yes](tuning.md) |
+| Precision | a <ItemLink id="tuner" />               | melts held at one step of the band                 | 90%         | [six ingots from an ore](tuning.md) |
 
 Hover over a benchmark on the Core's **Tests** tab for the exact format. The **Try** tab shows the model answering a fresh
 example, the way an agent would ask it.

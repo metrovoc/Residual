@@ -69,5 +69,12 @@ public class MaskItem extends Item {
             out.accept(Component.translatable("residual.mask.makes", Component.translatable("block.residual.accelerator"))
                     .withStyle(ChatFormatting.DARK_GRAY));
         }
+        if (spec.id().equals("cached_attention") || spec.id().equals("round_weights")) {
+            out.accept(Component.translatable("residual.mask.makes", Component.translatable(spec.id().equals("cached_attention") ? "item.residual.kv_cache" : "item.residual.weight_packer"))
+                    .withStyle(ChatFormatting.DARK_GRAY));
+        }
+        if (spec.id().equals("transformer")) {
+            out.accept(Component.translatable("residual.mask.makes", Component.translatable("block.residual.tuner")).withStyle(ChatFormatting.DARK_GRAY));
+        }
     }
 }

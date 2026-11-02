@@ -13,6 +13,11 @@ import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.block.UnitBlock;
 import io.github.metrovoc.residual.block.ServerBlock;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
+import io.github.metrovoc.residual.block.TunerBlockEntity;
+import io.github.metrovoc.residual.item.CrystalItem;
+import io.github.metrovoc.residual.net.TunerSync;
+import io.github.metrovoc.residual.energy.SmelterBlockEntity;
+import io.github.metrovoc.residual.learn.Reckoning;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.net.ServerSync;
 import io.github.metrovoc.residual.block.WatchPostBlockEntity;
@@ -56,6 +61,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -200,7 +206,11 @@ import org.slf4j.Logger;
  * expect server X Y Z KIND N fail the step unless the Model Server at the place says at least N: rate (answers a second), answered,
  *                            waiting, turned (turned away), full (1 if it is turning questions away), strained (1 if its lights say so),
  *                            weights (bytes), most (the most its weights may take), saved (rows a cache saved), rows, batch (the most
- *                            sequences it has run in one pass), proposed, accepted (a draft's tokens), passes (tests its form passes)
+ *                            sequences it has run in one pass), proposed, accepted (a draft's tokens), passes (tests its form passes), slow (100 over its rate)
+ * expect tuner X Y Z KIND N  fail the step unless the Tuner at the place says at least N: running (1), steps, saved (1 if its right slot holds a model),
+ *                            choices (in its log), or waiting (1 if it has two answers to choose between)
+ * expect smelter X Y Z KIND N  fail the step unless the Smelter at the place says at least N: gave (how many its last ore gave), assessed (assays it asked about), assayed (reckoned right)
+ * sums X Y Z N               put N sums to the Model Server at the place, as an assay asks them
  * ask X Y Z N [TOKENS]       put N questions to the Model Server at the place, writing TOKENS tokens (16) each after a prompt of its own
  * stock X Y Z ITEM N         put N of ITEM into the storage network at the place, all at once
  * kinds X Y Z N              put one each of N made-up kinds into the storage network at the place, all at once
@@ -781,6 +791,20 @@ public final class Rehearsal {
             }
             case "pattern" -> ClientPacketDistributor.sendToServer(new PatternTransfer(mc.player.containerMenu.containerId,
                     stacks(args[0]), args.length > 1 ? stacks(args[1]) : List.of()));
+            case "sums" -> {
+                MinecraftServer server = mc.getSingleplayerServer();
+                UUID id = mc.player.getUUID();
+                BlockPos at = new BlockPos(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+                server.execute(() -> {
+                    ServerBlockEntity be = (ServerBlockEntity) server.getPlayerList().getPlayer(id).level().getBlockEntity(at);
+                    Random rng = new Random(1);
+                    for (int i = 0; i < Integer.parseInt(args[3]); i++) {
+                        String prompt = Reckoning.prompt(Reckoning.sum(rng, true));
+                        be.ask(prompt, Reckoning.WRITTEN, '\n', r -> {
+                        });
+                    }
+                });
+            }
             case "ask" -> {
                 MinecraftServer server = mc.getSingleplayerServer();
                 UUID id = mc.player.getUUID();
@@ -1140,6 +1164,27 @@ public final class Rehearsal {
                     if (args[0].equals("server")) {
                         return serverSays((ServerBlockEntity) level.getBlockEntity(at), args[4]);
                     }
+                    if (args[0].equals("smelter")) {
+                        SmelterBlockEntity be = (SmelterBlockEntity) level.getBlockEntity(at);
+                        return switch (args[4]) {
+                            case "gave" -> (long) be.lastGave();
+                            case "assessed" -> (long) be.assessed();
+                            case "assayed" -> (long) be.assayed();
+                            default -> throw new IllegalArgumentException(args[4]);
+                        };
+                    }
+                    if (args[0].equals("tuner")) {
+                        TunerBlockEntity be = (TunerBlockEntity) level.getBlockEntity(at);
+                        TunerSync s = be.sync(0);
+                        return switch (args[4]) {
+                            case "running" -> s.running() ? 1L : 0L;
+                            case "steps" -> (long) s.steps();
+                            case "saved" -> CrystalItem.model(be.items().getItem(TunerBlockEntity.OUT)) != null ? 1L : 0L;
+                            case "choices" -> (long) s.choices();
+                            case "waiting" -> s.first().isEmpty() ? 0L : 1L;
+                            default -> throw new IllegalArgumentException(args[4]);
+                        };
+                    }
                     if (args[0].equals("watching")) {
                         return (long) ((WatchPostBlockEntity) level.getBlockEntity(at)).rows().size();
                     }
@@ -1306,6 +1351,7 @@ public final class Rehearsal {
             case "proposed" -> s.proposed();
             case "accepted" -> s.accepted();
             case "passes" -> s.scores().stream().filter(ServerSync.Scored::passes).count();
+            case "slow" -> Math.round(100 / Math.max(s.rate(), 0.01));
             default -> throw new IllegalArgumentException(what);
         };
     }

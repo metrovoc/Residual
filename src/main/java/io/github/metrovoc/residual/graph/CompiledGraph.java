@@ -356,6 +356,21 @@ public final class CompiledGraph {
         }
     }
 
+    /** As {@link #forward}, its weights being what {@code weights} says, so that what they are made from can learn instead. */
+    public Tensor forwardWith(Tape tape, Tokens tokens, Decoder.Weights weights) {
+        Object[] values = new Object[spec.size()];
+        for (int node : order) {
+            GraphSpec.Node nd = spec.node(node);
+            Object[] in = new Object[nd.op.arity];
+            for (int i = 0; i < in.length; i++) {
+                int src = nd.inputs[i];
+                in[i] = src == GraphSpec.TOKENS ? tokens : values[src];
+            }
+            values[node] = nd.op.run(tape, in, weights.of(node), nd.config, new Op.Frame(node, tokens.time, null, nd.fused, null));
+        }
+        return (Tensor) values[spec.output];
+    }
+
     public Map<String, Tensor> params(int node) {
         return params.get(node);
     }

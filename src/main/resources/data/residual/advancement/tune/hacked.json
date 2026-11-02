@@ -1,0 +1,28 @@
+{
+  "parent": "residual:tune/verified",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "minecraft:paper"
+    },
+    "title": {
+      "translate": "advancements.residual.tune.hacked.title"
+    },
+    "description": {
+      "translate": "advancements.residual.tune.hacked.description"
+    },
+    "frame": "task",
+    "hidden": true,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

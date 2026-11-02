@@ -30,7 +30,7 @@ lets you read and steer the base from wherever it reaches.
 Use a saved <ItemLink id="checkpoint" /> on a <ItemLink id="model_server" /> to load its model; sneak-use the server with
 an empty hand to take the checkpoint back. Use it with an empty hand to open its screen: the model it serves, how many answers
 a second it can give and how much of that is in use, what its memory holds, and who has been drawing on it. Each line says
-more under the pointer.
+more under the pointer. [A Model Server's screen, part by part](screens/model_server.md).
 
 ## What a server can spend
 
@@ -40,9 +40,9 @@ for each of its weights, so a bigger model answers less. Its screen counts in an
 
 | Transformer of two blocks | Weights | Answers a second, by itself |
 | ------------------------- | ------- | --------------------------- |
-| 32 wide                   | 32,334  | 14                          |
-| 64 wide                   | 113,742 | 4                           |
-| 96 wide                   | 244,302 | 1.9                         |
+| 32 wide                   | 33,049  | 14                          |
+| 64 wide                   | 115,161 | 4                           |
+| 96 wide                   | 246,425 | 1.9                         |
 
 Everything tuned to it draws on those operations: agents, Terminals, Forecasters, Readers, Smelters, Surveyors, Ports and Watch
 Posts. A question costs what its model really worked out for it, and its answer comes when the server has that much to spend, so
@@ -61,7 +61,7 @@ Left to itself, a model writing a token reads everything before it again. An ans
 rows. Yet a new token changes nothing about the rows before it: all an attention needs from them is each one's key and value.
 Keep those, and every token is read once. The same answer takes 23 rows and comes out the same to the last digit.
 
-The Fabricator makes a <ItemLink id="kv_cache" /> from a photomask of Cached Attention, a spec that opens once attention is verified.
+The Fabricator makes a <ItemLink id="kv_cache" /> from a photomask of Cached Attention, a spec that opens once the transformer block is verified.
 Put it in the panel beside the server's window. A 64-wide server goes from 4 answers a second to 26, and
 the longer the answer the bigger the gain: 40 tokens come thirty times as fast. A question asked again costs nothing at all, and one
 that starts as another did starts from where they part.
@@ -81,12 +81,12 @@ shares that. On plain floats that is next to nothing, so batches earn little. On
 
 ## Packing
 
-The Fabricator makes a <ItemLink id="weight_packer" /> from a photomask of Rounding Weights. In the panel, it lets the other button keep the weights in 8 or 4 bits, packed as an
-[exosuit's board](exosuit.md) packs them: 64 wide, 454,968 bytes become 120,852 or 63,981. That is room: a model 96 wide takes all but
-71,368 bytes of a bare server at floats, and leaves 788,004 at 8 bits, enough to keep six times the tokens.
+The Fabricator makes a <ItemLink id="weight_packer" /> from a photomask of Rounding Weights, which opens at the same point. In the panel, it lets the other button keep the weights in 8 or 4 bits, packed as an
+[exosuit's board](exosuit.md) packs them: 64 wide, 460,644 bytes become 122,359 or 64,779. That is room: a model 96 wide takes all but
+62,876 bytes of a bare server at floats, and leaves about 786,000 at 8 bits, enough to keep six times the tokens.
 
 It has two costs, and the server measures both. The weights are read out of the packed bytes on each pass, which costs as much as
-working out 0.8 of a row at 8 bits and 1.9 at 4. And rounding them can change what the model says, so everything it passes is tested
+working out about one row at 8 bits and about two at 4. And rounding them can change what the model says, so everything it passes is tested
 again in that form: the server's screen shows each score, and whatever asks it goes by those scores. A form that fails a test
 closes what that test opens.
 
@@ -95,9 +95,9 @@ closes what that test opens.
 | Floats                                      | 4                |
 | Floats, KV Cache                            | 26               |
 | 8 bits, KV Cache                            | 20               |
-| 8 bits, KV Cache, batches of 32             | 25               |
-| 4 bits, KV Cache                            | 16               |
-| 4 bits, KV Cache, batches of 32             | 26               |
+| 8 bits, KV Cache, batches of 32             | 26               |
+| 4 bits, KV Cache                            | 15               |
+| 4 bits, KV Cache, batches of 32             | 24               |
 
 ## Drafts
 
@@ -107,9 +107,9 @@ and q the draft, or for certain if p is the larger; the first that doesn't stand
 beyond what the draft gave it, and the rest are dropped. What comes out follows the served model's own probabilities exactly,
 whatever the draft is like. A good draft only means fewer passes.
 
-So a draft pays when passes are dear and its proposals stand. Its own rows cost something, and on floats a pass is so cheap that a
-draft only adds work. On packed weights, with a draft that has practised what the served model does, one pass does the work of
-several. The server's screen counts how many stood.
+So a draft pays only when passes are dear and most of its proposals stand. Its own rows cost something, and on floats a pass is so
+cheap that a draft only adds work. A 32-wide draft [distilled](tuning.md) for 800 steps from a 64-wide model had 26% of its proposals
+stand, and took that model down from 12 answers a second to 9 on floats, and from 12 to 8 at 4 bits. The server's screen counts how many stood.
 
 ## Relays
 

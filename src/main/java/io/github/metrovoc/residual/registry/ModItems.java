@@ -20,6 +20,7 @@ import io.github.metrovoc.residual.item.MachineItem;
 import io.github.metrovoc.residual.item.MaskItem;
 import io.github.metrovoc.residual.item.PortableDriveItem;
 import io.github.metrovoc.residual.item.ProbeItem;
+import io.github.metrovoc.residual.item.PreferenceLogItem;
 import io.github.metrovoc.residual.item.ProgramCardItem;
 import io.github.metrovoc.residual.item.SchematicItem;
 import io.github.metrovoc.residual.item.ShardItem;
@@ -93,6 +94,7 @@ public final class ModItems {
     /** What makes a body that runs programs faster, stronger or longer in reach, by kind. */
     public static final Map<Upgrades.Kind, DeferredItem<UpgradeItem>> UPGRADES = new EnumMap<>(Upgrades.Kind.class);
     public static final DeferredItem<LinkItem> RELAY_CARD = ITEMS.registerItem("relay_card", LinkItem::new, p -> p.stacksTo(16));
+    public static final DeferredItem<PreferenceLogItem> PREFERENCE_LOG = ITEMS.registerItem("preference_log", PreferenceLogItem::new, p -> p.stacksTo(1));
     public static final DeferredItem<Item> KV_CACHE = ITEMS.registerSimpleItem("kv_cache");
     public static final DeferredItem<Item> WEIGHT_PACKER = ITEMS.registerItem("weight_packer", Item::new, p -> p.stacksTo(1));
     public static final DeferredItem<TerminalItem> TERMINAL = ITEMS.registerItem("terminal", TerminalItem::new, p -> p.stacksTo(1));
@@ -132,7 +134,7 @@ public final class ModItems {
             SCHEMATICS.put(id, ITEMS.registerItem(id, SchematicItem::new, p -> p.stacksTo(1).rarity(Rarity.UNCOMMON)));
         }
         for (Benchmark a : Benchmark.values()) {
-            if (a != Benchmark.READING && a != Benchmark.QUALITY) {
+            if (a != Benchmark.READING && a != Benchmark.QUALITY && a != Benchmark.PROGRAMS && a != Benchmark.PRECISION) {
                 DATASETS.put(a, ITEMS.registerItem(datasetId(a), p -> new DatasetItem(a, p), p -> p.stacksTo(1)));
             }
         }
@@ -156,7 +158,8 @@ public final class ModItems {
             case WATCH -> "watch_dataset";
             case RETRIEVAL -> "retrieval_dataset";
             case REACTOR -> "reactor_dataset";
-            case READING, QUALITY -> throw new IllegalArgumentException();
+            case RECKONING -> "reckoning_dataset";
+            case READING, QUALITY, PROGRAMS, PRECISION -> throw new IllegalArgumentException();
         };
     }
 }

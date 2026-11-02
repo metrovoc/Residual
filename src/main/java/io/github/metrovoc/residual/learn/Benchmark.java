@@ -74,7 +74,21 @@ public enum Benchmark {
      * Containment: holding a reactor at its power with rods that answer late, practised by playing cycles, scored by the share
      * of cycles held of the fuel held worst.
      */
-    REACTOR(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
+    REACTOR(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9),
+    /**
+     * Programs: whether what a model writes for an order, run in a sandbox, does what was meant, on names practice never gives. Marking whole
+     * programs by what they do is what practice by verified reward works on.
+     */
+    PROGRAMS(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.75),
+    /**
+     * Reckoning: adding up a line of numbers, writing each running sum, on sums practice never shows. Each step can be checked by itself, so it is
+     * what thinking longer pays best on.
+     */
+    RECKONING(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.7),
+    /**
+     * Precision: holding a melt at one step of the band, which takes knowing an ore's rhythm and acting before it. Nothing practises it but a checker's word on whole melts.
+     */
+    PRECISION(Vocab.CONTEXT, Task.Metric.ACCURACY, 0.9);
 
     public final String id = name().toLowerCase(Locale.ROOT);
     /** Length of the test's sequences. */
@@ -98,7 +112,7 @@ public enum Benchmark {
      * Watch practises on things going well and is tested on things going wrong.
      */
     public Task practice() {
-        return this == CONTROL ? new Control() : this == PILOT ? new Pilot() : this == REACTOR ? new Reactor() : this == WATCH ? new Watching() : Dataset.of(this);
+        return this == CONTROL ? new Control() : this == PILOT ? new Pilot() : this == REACTOR ? new Reactor() : this == WATCH ? new Watching() : this == PROGRAMS ? new Programs() : this == RECKONING ? new Reckoning() : this == PRECISION ? new Precision() : Dataset.of(this);
     }
 
     public static Benchmark byId(String id) {

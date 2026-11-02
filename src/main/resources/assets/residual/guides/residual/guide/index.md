@@ -47,6 +47,8 @@ you say into programs for agents, and read what the old world wrote.
 - [The Architect](architect.md): agents that copy, move and repeat builds, read as letters a slice at a time.
 - [The Surveyor](surveyor.md): a model that finds the ores in the ground around it, read a row at a time.
 - [Serving Models](deployment.md): Model Servers, relays, gates, links and the Terminal.
+- [Tuning](tuning.md): changing a model that has finished practising, by what you choose and what a checker can verify.
+- [Thinking Longer](reasoning.md): many answers to a question, and how to keep the right one.
 
 ## The base
 

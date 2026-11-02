@@ -1,0 +1,28 @@
+{
+  "parent": "residual:tune/distill",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:agent"
+    },
+    "title": {
+      "translate": "advancements.residual.tune.carried.title"
+    },
+    "description": {
+      "translate": "advancements.residual.tune.carried.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

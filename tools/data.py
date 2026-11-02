@@ -22,12 +22,12 @@ DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "g
         "blue", "brown", "green", "red", "black"]
 CABLES = ["cable"] + [f"{d}_cable" for d in DYES]
 # see learn/Benchmark.java and registry/ModItems.java
-BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval", "quality", "reactor"]
+BENCHMARKS = ["forecasting", "recall", "reversal", "induction", "sorting", "orders", "reading", "control", "survey", "pilot", "demand", "watch", "retrieval", "quality", "reactor", "programs", "reckoning", "precision"]
 DATASETS = {"forecast_dataset": "minecraft:clock", "storage_dataset": "minecraft:chest",
             "errand_dataset": "minecraft:compass", "pattern_dataset": "minecraft:bricks", "sorting_dataset": "#minecraft:signs",
             "orders_dataset": "minecraft:writable_book", "process_dataset": "minecraft:raw_iron", "survey_dataset": "minecraft:flint",
             "flight_dataset": "minecraft:feather", "demand_dataset": "minecraft:hopper", "watch_dataset": "minecraft:spyglass", "retrieval_dataset": "minecraft:map",
-            "reactor_dataset": "minecraft:blaze_powder"}
+            "reactor_dataset": "minecraft:blaze_powder", "reckoning_dataset": "minecraft:paper"}
 # see refine/Stage.java; the first takes text in, and every other but the tank comes out of the Fabricator
 REFINERY = ["refinery_intake", "duplicate_sieve", "filter_bed", "quality_classifier", "program_press", "domain_mixer", "contamination_check"]
 SCHEMATICS = ["schematic_relays"]
@@ -40,7 +40,7 @@ SPECS = {"mean": None, "softmax": None, "matmul": None, "linear": "matmul", "gel
          "rotary": "attention", "qk_norm": "rotary", "online_softmax": "softmax", "z_loss": "softmax",
          "modern_attention": "qk_norm", "modern_block": "modern_attention", "fp32": "mean", "bf16": "fp32", "fp8": "fp32", "fp4": "fp8",
          "schedule": "transformer", "grad_clip": "schedule", "newton_step": "matmul", "orthogonalize": "newton_step",
-         "document_mask": "attention", "cross_entropy": "softmax", "multi_token": "cross_entropy", "cached_attention": "attention", "round_weights": "matmul"}
+         "document_mask": "attention", "cross_entropy": "softmax", "multi_token": "cross_entropy", "cached_attention": "transformer", "round_weights": "transformer"}
 WRECKS = ruins.WRECKS
 
 FACING = {"north": {}, "south": {"y": 180}, "east": {"y": 90}, "west": {"y": 270}, "up": {"x": 270}, "down": {"x": 90}}
@@ -533,7 +533,7 @@ def storage():
 
 def items():
     flat = (["weight_crystal", "wafer", "wafer_28", "wafer_7", "wafer_3", "reactor_fuel", "checkpoint", "archive_drive", "archive_shard", "salvaged_model", "relay_dump", "token_cell",
-             "agent", "relay_card", "kv_cache", "weight_packer", "terminal", "field_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
+             "agent", "relay_card", "kv_cache", "weight_packer", "terminal", "field_log", "preference_log", "storage_drive", "dense_drive", "stacked_drive", "deep_drive",
              "portable_drive", "wireless_terminal", "hourglass", "flight_frame", "exosuit",
              "speed_upgrade", "stack_upgrade", "range_upgrade", "fluid_upgrade", "energy_upgrade", "carry_upgrade", "lift_upgrade"] + list(DATASETS) + SCHEMATICS)
     for name in flat:
@@ -745,7 +745,7 @@ def compute():
 # see bench/Unit.java
 UNITS = ["scheduler", "bf16_unit", "fp8_unit", "fp4_unit", "orthogonalizer", "packer"]
 MACHINE_BLOCKS = UNITS + ["model_core", "accelerator", "accelerator_28", "accelerator_7", "accelerator_3", "tensor_casing", "model_server", "reader", "relay", "relay_gate", "relay_link", "bench", "fabricator", "stream",
-                  "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "combustion_generator", "energy_cell", "smelter", "power_cable",
+                  "bpe_forge", "forecaster", "forecaster_ii", "forecaster_iii", "surveyor", "watch_post", "tuner", "combustion_generator", "energy_cell", "smelter", "power_cable",
                   "heavy_cable", "bus_bar", "boiler", "turbine", "solar_panel", "capacitor_bank", "reactor_core", "reactor_casing", "reactor_glass", "fuel_rod",
                   "rack_module", "rack_switch", "pod_switch", "interconnect", "chiller", "coolant_pipe", "hall_console", "load_wall",
                   "drive_rack", "storage_terminal", "port", "storage_link", "assembler", "processor", "drive_dock", "access_point",
@@ -853,6 +853,7 @@ def recipes():
     shaped("coolant_pipe", ["ICI", "G G", "ICI"], {"I": "minecraft:iron_ingot", "C": "minecraft:copper_ingot", "G": "minecraft:glass_pane"}, 8)
     shaped("load_wall", ["GGG", "GWG", "KRK"], {"G": "minecraft:tinted_glass", "W": rid("wafer"), "K": rid("tensor_casing"), "R": "minecraft:redstone_lamp"}, 2)
     shapeless("field_log", ["minecraft:paper", "minecraft:paper", "minecraft:wheat", "#minecraft:planks"])
+    shapeless("preference_log", ["minecraft:paper", "minecraft:paper", "minecraft:feather", "#minecraft:planks"])
     shaped("agent", [" L ", "CRC", "C C"], {"L": "minecraft:lantern", "C": "minecraft:copper_ingot", "R": "minecraft:redstone"})
     shapeless("program_card", ["minecraft:paper", "minecraft:redstone"], 2)
     shaped("survey_rod", ["  A", " S ", "S  "], {"A": "minecraft:amethyst_shard", "S": "minecraft:stick"})
@@ -954,6 +955,18 @@ def advancements():
     advancement("deploy/link", "deploy/mast", "relay_link", awarded(), frame="goal")
     advancement("deploy/api", "deploy/relay", "terminal", awarded(), frame="goal")
     advancement("deploy/reader", "archive/drive", "reader", placed("reader"))
+    advancement("tune/fine_tune", "model/saved", "tuner", awarded())
+    advancement("tune/adapter", "tune/fine_tune", "tuner", awarded())
+    advancement("tune/merge", "tune/fine_tune", "tuner", awarded())
+    advancement("tune/choose", "tune/fine_tune", "preference_log", awarded(), frame="goal")
+    advancement("tune/judge", "tune/choose", "preference_log", awarded())
+    advancement("tune/against_judge", "tune/judge", "preference_log", awarded())
+    advancement("tune/verified", "tune/fine_tune", "tuner", awarded(), frame="goal")
+    advancement("tune/hacked", "tune/verified", "minecraft:paper", awarded(), hidden=True)
+    advancement("tune/distill", "tune/fine_tune", "tuner", awarded())
+    advancement("tune/carried", "tune/distill", "agent", awarded(), frame="goal")
+    advancement("reason/effort", "tune/verified", "model_server", awarded())
+    advancement("reason/nine", "reason/effort", "smelter", awarded(), frame="challenge")
     advancement("serve/cache", "deploy/server", "kv_cache", awarded(), frame="goal")
     advancement("serve/batch", "serve/cache", "kv_cache", awarded())
     advancement("serve/packed", "deploy/server", "weight_packer", awarded(), frame="goal")
@@ -1039,6 +1052,7 @@ if __name__ == "__main__":
     for name in REFINERY:
         forecaster(name)
     token_tank()
+    forecaster("tuner")
     power()
     compute()
     storage()

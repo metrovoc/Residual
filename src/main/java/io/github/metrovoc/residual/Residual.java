@@ -130,5 +130,6 @@ public final class Residual {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BOILER.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.REACTOR.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SMELTER.get(), (be, side) -> new WorldlyContainerWrapper(be.items(), side));
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.TUNER.get(), (be, side) -> new WorldlyContainerWrapper(be, side));
     }
 }

@@ -6,6 +6,7 @@ import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.learn.Archive;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Blueprints;
+import io.github.metrovoc.residual.learn.Orders;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.TextTask;
 import io.github.metrovoc.residual.learn.Trainer;
@@ -186,6 +187,49 @@ class ServingCalibrationTest {
         Arrays.sort(answers);
         Serving.Cost c = s.cost();
         System.out.printf("  %-28s %7.1f answers a second (%.1f to %.1f); a pass %.2f rows, a row %.2f rows; %,d B of weights%n", label, answers[2], answers[0], answers[4], c.pass(), c.row(), s.weightBytes());
+    }
+
+    /**
+     * What a draft does for a served model on questions they both know: {@code RESIDUAL_SERVING_DRAFT} is {@code TARGET:DRAFT}, in {@code RESIDUAL_SERVING}, and the draft proposes on real orders. Acceptance is
+     * of proposals, at no temperature and at one; answers a second are for one thread, measured as the server measures them.
+     */
+    @Test
+    @EnabledIfEnvironmentVariable(named = "RESIDUAL_SERVING_DRAFT", matches = ".+")
+    void drafts() throws Exception {
+        String[] names = System.getenv("RESIDUAL_SERVING_DRAFT").split(":");
+        Path folder = Path.of(System.getenv("RESIDUAL_SERVING"));
+        CompiledGraph model = Checkpoints.load(folder.resolve(names[0] + ".dat")), draft = Checkpoints.load(folder.resolve(names[1] + ".dat"));
+        List<int[]> prompts = new ArrayList<>();
+        Random rng = new Random(9);
+        List<String> orders = new ArrayList<>();
+        for (int i = 0; i < 64; i++) {
+            String prompt = Orders.prompt(Orders.example(rng, true).said());
+            orders.add(prompt);
+            if (i < 8) {
+                prompts.add(Vocab.WORLD.spell(prompt));
+            }
+        }
+        System.out.printf("%s (%,d weights) served, %s (%,d weights) drafting%n", names[0], model.parameterCount(), names[1], draft.parameterCount());
+        for (int bits : new int[]{32, 8, 4}) {
+            for (int batch : new int[]{1, 8}) {
+                for (boolean drafted : new boolean[]{false, true}) {
+                    Serving s = new Serving(model, new Serving.Stack(bits, 1 << 22, batch, drafted ? draft : null));
+                    s.measure(prompts);
+                    double rate = BUDGET / s.answerFlops();
+                    Random r = new Random(1);
+                    for (String prompt : orders) {
+                        s.run(m -> Sampler.answer(m, prompt, Orders.WRITTEN, '\n'));
+                    }
+                    long greedyProposed = s.proposed(), greedyStood = s.accepted();
+                    for (String prompt : orders) {
+                        s.run(m -> Sampler.generate(m, Vocab.WORLD.spell(prompt), 16, 1f, r));
+                    }
+                    System.out.printf("  int%d batch %d %s: %.1f answers a second; %.0f%% of proposals stood greedy, %.0f%% drawn%n", bits, batch, drafted ? "draft" : "alone", rate,
+                            100.0 * greedyStood / Math.max(1, greedyProposed), 100.0 * (s.accepted() - greedyStood) / Math.max(1, s.proposed() - greedyProposed));
+                }
+            }
+        }
+        System.out.flush();
     }
 
     /** What each stack gives one thread of a server on each size of model, measured as the server measures it. */

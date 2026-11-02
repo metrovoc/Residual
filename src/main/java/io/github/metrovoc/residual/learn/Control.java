@@ -64,8 +64,14 @@ public final class Control extends Played {
 
         @Override
         protected double move(int power, Random rng, int look) {
+            level = next(level, power, kind, look, rng);
+            return level == 3 || level == 4 ? 1 : 0;
+        }
+
+        /** Where a melt of {@code ore} at {@code level} ends up under {@code power}, at the {@code look}th look. */
+        static int next(int level, int power, int ore, int look, Random rng) {
             level += power - 1;
-            int[] drift = DRIFTS[kind];
+            int[] drift = DRIFTS[ore];
             if (look % drift[0] == drift[0] - 1) {
                 level += drift[1];
             }
@@ -75,8 +81,7 @@ public final class Control extends Played {
             if (rng.nextDouble() < JUMP) {
                 level += rng.nextBoolean() ? 1 : -1;
             }
-            level = Math.clamp(level, 0, 7);
-            return level == 3 || level == 4 ? 1 : 0;
+            return Math.clamp(level, 0, 7);
         }
     }
 }

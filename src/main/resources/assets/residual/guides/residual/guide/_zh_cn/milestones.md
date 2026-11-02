@@ -97,9 +97,9 @@ navigation:
 
 <residual:Milestone id="bench/mlp">验证线性层后开放。</residual:Milestone>
 
-<residual:Milestone id="bench/cached_attention">被服务的注意力对新词元要做的事。验证注意力后开放。</residual:Milestone>
+<residual:Milestone id="bench/cached_attention">被服务的注意力对新词元要做的事。验证 Transformer 块后开放。</residual:Milestone>
 
-<residual:Milestone id="bench/round_weights">打包时对一串权重做的事。验证矩阵乘法后开放。</residual:Milestone>
+<residual:Milestone id="bench/round_weights">打包时对一串权重做的事。验证 Transformer 块后开放。</residual:Milestone>
 
 <residual:Milestone id="bench/mean"></residual:Milestone>
 
@@ -228,6 +228,40 @@ navigation:
 <residual:Milestone id="serve/draft">在服务器面板里放一个练过被服务模型同样事情的草稿模型，问一些回答不止一个词元的问题。</residual:Milestone>
 
 <residual:Milestone id="serve/turned_away">等待的问题超过 64 个。</residual:Milestone>
+
+## 调校模型
+
+<residual:Milestone id="tune/fine_tune">制造机用 Transformer 光掩模制造调校台。给它一个已保存的模型、一枚空白检查点和一个数据集：[调校](tuning.md)。</residual:Milestone>
+
+<residual:Milestone id="tune/adapter">同样的东西，设为「适配器」。</residual:Milestone>
+
+<residual:Milestone id="tune/merge">同一模型的两份调校，一份放基础槽，一份放旁边。</residual:Milestone>
+
+<residual:Milestone id="tune/choose">在设为「选择」的调校台旁放一本偏好记录，从回答里挑选，然后调校。</residual:Milestone>
+
+<residual:Milestone id="tune/judge">同一本记录，设为「培养裁判」。</residual:Milestone>
+
+<residual:Milestone id="tune/against_judge">把那个裁判放旁边，设为「对着裁判练」。</residual:Milestone>
+
+<residual:Milestone id="tune/verified">设为「验证」。</residual:Milestone>
+
+<residual:Milestone id="tune/hacked">让检查器放过无关紧要的东西，再让模型发现这一点。</residual:Milestone>
+
+<residual:Milestone id="tune/distill">基础槽放小模型，旁边放一张调谐到大模型所在服务器的中继卡。</residual:Milestone>
+
+<residual:Milestone id="tune/carried">小模型要通过它之前没通过的测试，而且小到能放进智能体脑袋。</residual:Milestone>
+
+<residual:Milestone id="benchmark/programs">调校一个写指令的模型，直到它写的 75% 确实符合本意：[调校](tuning.md)。</residual:Milestone>
+
+<residual:Milestone id="benchmark/precision">用精准熔炼调校控制器：[调校](tuning.md)。</residual:Milestone>
+
+## 多想想
+
+<residual:Milestone id="benchmark/reckoning">用算账数据集练习：[多想想](reasoning.md)。</residual:Milestone>
+
+<residual:Milestone id="reason/effort">服务器里放一枚 KV 缓存，第三个按钮设为大于一。</residual:Milestone>
+
+<residual:Milestone id="reason/nine">把按服务器的服务方式通过「精准」和「算账」的控制器放进冶炼炉。</residual:Milestone>
 
 <residual:Milestone id="agent/order">以它的名字开头发一条聊天消息，例如 *Pip, bring me some bread*。它的模型必须练过指令。</residual:Milestone>
 

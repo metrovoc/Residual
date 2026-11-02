@@ -13,6 +13,7 @@ import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.ReaderMenu;
 import io.github.metrovoc.residual.menu.ServerMenu;
 import io.github.metrovoc.residual.menu.SurveyorMenu;
+import io.github.metrovoc.residual.menu.TunerMenu;
 import io.github.metrovoc.residual.menu.WatchPostMenu;
 import io.github.metrovoc.residual.refine.RefineryMenu;
 import io.github.metrovoc.residual.refine.Stage;
@@ -41,6 +42,8 @@ public final class ModMenus {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ReaderMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<SurveyorMenu>> SURVEYOR = MENUS.register("surveyor",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new SurveyorMenu(id, inv, buf.readBlockPos())));
+    public static final Supplier<MenuType<TunerMenu>> TUNER = MENUS.register("tuner",
+            () -> IMenuTypeExtension.create((id, inv, buf) -> new TunerMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<ServerMenu>> SERVER = MENUS.register("model_server",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ServerMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<WatchPostMenu>> WATCH_POST = MENUS.register("watch_post",

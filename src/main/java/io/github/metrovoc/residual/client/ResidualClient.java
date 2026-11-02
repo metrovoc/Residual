@@ -31,6 +31,7 @@ import io.github.metrovoc.residual.net.TerminalAgentsSync;
 import io.github.metrovoc.residual.net.TerminalAnswer;
 import io.github.metrovoc.residual.net.ServerLoad;
 import io.github.metrovoc.residual.net.ServerSync;
+import io.github.metrovoc.residual.net.TunerSync;
 import io.github.metrovoc.residual.net.WatchSync;
 import io.github.metrovoc.residual.net.TerminalBaseSync;
 import io.github.metrovoc.residual.net.WaveSync;
@@ -40,6 +41,7 @@ import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModEntities;
 import io.github.metrovoc.residual.registry.ModMenus;
 import io.github.metrovoc.residual.menu.ServerMenu;
+import io.github.metrovoc.residual.menu.TunerMenu;
 import io.github.metrovoc.residual.menu.WatchPostMenu;
 import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.List;
@@ -133,6 +135,7 @@ public final class ResidualClient {
         event.register(ModMenus.SURVEYOR.get(), SurveyorScreen::new);
         event.register(ModMenus.WATCH_POST.get(), WatchPostScreen::new);
         event.register(ModMenus.SERVER.get(), ServerScreen::new);
+        event.register(ModMenus.TUNER.get(), TunerScreen::new);
         event.register(ModMenus.FABRICATOR.get(), FabricatorScreen::new);
         event.register(ModMenus.POWER.get(), PowerScreen::new);
         event.register(ModMenus.RACK_MODULE.get(), RackModuleScreen::new);
@@ -228,6 +231,11 @@ public final class ResidualClient {
             }
         });
         event.register(ServerLoad.TYPE, (load, ctx) -> ServerHud.receive(load));
+        event.register(TunerSync.TYPE, (sync, ctx) -> {
+            if (ctx.player().containerMenu instanceof TunerMenu menu && menu.containerId == sync.menu()) {
+                menu.sync = sync;
+            }
+        });
         event.register(TerminalAnswer.TYPE, (answer, ctx) -> {
             AgentView.answer = answer;
             AgentView.asking = false;

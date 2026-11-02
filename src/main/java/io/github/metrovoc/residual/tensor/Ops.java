@@ -1135,6 +1135,96 @@ public final class Ops {
         return out;
     }
 
+    /**
+     * Cross-entropy against whole distributions {@code soft} [rows, V], at {@code temperature}, over the rows whose weight isn't zero, as a small model
+     * learns from a larger one's probabilities. Multiplied by the square of the temperature, as is usual, so its size doesn't depend on it.
+     */
+    public static Tensor softCrossEntropy(Tape tape, Tensor logits, float[] soft, float[] weights, float temperature) {
+        int v = logits.dim(-1);
+        int rows = logits.rows();
+        float[] probs = new float[logits.size()];
+        double total = 0, count = 0;
+        for (int r = 0; r < rows; r++) {
+            float w = weights == null ? 1f : weights[r];
+            if (w == 0f) {
+                continue;
+            }
+            int off = r * v;
+            float max = Float.NEGATIVE_INFINITY;
+            for (int j = 0; j < v; j++) {
+                max = Math.max(max, logits.data[off + j]);
+            }
+            double sum = 0;
+            for (int j = 0; j < v; j++) {
+                float e = (float) Math.exp((logits.data[off + j] - max) / temperature);
+                probs[off + j] = e;
+                sum += e;
+            }
+            float inv = (float) (1.0 / sum);
+            double row = 0;
+            for (int j = 0; j < v; j++) {
+                probs[off + j] *= inv;
+                if (soft[off + j] > 0) {
+                    row -= soft[off + j] * Math.log(Math.max(probs[off + j], 1e-30f));
+                }
+            }
+            total += w * row;
+            count += w;
+        }
+        float scale = temperature * temperature;
+        float loss = count == 0 ? 0f : (float) (scale * total / count);
+        Tensor out = new Tensor(new int[]{1}, new float[]{loss}, tracks(tape, logits));
+        final double norm = count;
+        if (out.requiresGrad && norm > 0) {
+            tape.record(() -> {
+                float gl = out.grad()[0];
+                float[] gx = logits.grad();
+                for (int r = 0; r < rows; r++) {
+                    float w = weights == null ? 1f : weights[r];
+                    if (w == 0f) {
+                        continue;
+                    }
+                    float c = (float) (gl * w * scale / norm / temperature);
+                    int off = r * v;
+                    for (int j = 0; j < v; j++) {
+                        gx[off + j] += c * (probs[off + j] - soft[off + j]);
+                    }
+                }
+            });
+        }
+        return out;
+    }
+
+    /**
+     * The chance of the preference falling the other way, as {@code -log σ(score(better) − score(worse))}, a pair for each entry: a score being what a row of
+     * logits gives token {@code up} over token {@code down}, at the row named.
+     */
+    public static Tensor preferenceLoss(Tape tape, Tensor logits, int[] better, int[] worse, int up, int down) {
+        int v = logits.dim(-1);
+        double total = 0;
+        float[] pull = new float[better.length];
+        for (int i = 0; i < better.length; i++) {
+            double z = logits.data[better[i] * v + up] - logits.data[better[i] * v + down] - logits.data[worse[i] * v + up] + logits.data[worse[i] * v + down];
+            total += Math.log1p(Math.exp(-z));
+            pull[i] = (float) (1 / (1 + Math.exp(z)));
+        }
+        Tensor out = new Tensor(new int[]{1}, new float[]{(float) (total / better.length)}, tracks(tape, logits));
+        if (out.requiresGrad) {
+            tape.record(() -> {
+                float gl = out.grad()[0] / better.length;
+                float[] gx = logits.grad();
+                for (int i = 0; i < better.length; i++) {
+                    float c = gl * pull[i];
+                    gx[better[i] * v + up] -= c;
+                    gx[better[i] * v + down] += c;
+                    gx[worse[i] * v + up] += c;
+                    gx[worse[i] * v + down] -= c;
+                }
+            });
+        }
+        return out;
+    }
+
     // ------------------------------------------------------------------ reshaping
 
     /** [B, T, H*dh] -> [B, H, T, dh], i.e. {@code x.view(B, T, H, dh).transpose(1, 2)}. */

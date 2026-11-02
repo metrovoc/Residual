@@ -26,6 +26,7 @@ import io.github.metrovoc.residual.block.RelayBlockEntity;
 import io.github.metrovoc.residual.block.RelayLinkBlockEntity;
 import io.github.metrovoc.residual.block.ServerBlockEntity;
 import io.github.metrovoc.residual.refine.RefineryBlockEntity;
+import io.github.metrovoc.residual.block.TunerBlockEntity;
 import io.github.metrovoc.residual.storage.AccessPointBlockEntity;
 import io.github.metrovoc.residual.storage.DockBlockEntity;
 import io.github.metrovoc.residual.storage.LinkDriverBlockEntity;
@@ -50,6 +51,8 @@ public final class ModBlockEntities {
                     ModBlocks.OPERATORS.values().stream().map(b -> (Block) b.get()).collect(Collectors.toUnmodifiableSet())));
     public static final Supplier<BlockEntityType<CoreBlockEntity>> CORE = BLOCK_ENTITIES.register("model_core",
             () -> new BlockEntityType<>(CoreBlockEntity::new, Set.of(ModBlocks.CORE.get())));
+    public static final Supplier<BlockEntityType<TunerBlockEntity>> TUNER = BLOCK_ENTITIES.register("tuner",
+            () -> new BlockEntityType<>(TunerBlockEntity::new, Set.of(ModBlocks.TUNER.get())));
     public static final Supplier<BlockEntityType<ServerBlockEntity>> SERVER = BLOCK_ENTITIES.register("model_server",
             () -> new BlockEntityType<>(ServerBlockEntity::new, Set.of(ModBlocks.SERVER.get())));
     public static final Supplier<BlockEntityType<ReaderBlockEntity>> READER = BLOCK_ENTITIES.register("reader",

@@ -120,10 +120,9 @@ instead of letters: [Tokens](tokenizers.md).</residual:Milestone>
 
 <residual:Milestone id="bench/mlp">It opens once the linear layer is verified.</residual:Milestone>
 
-<residual:Milestone id="bench/cached_attention">What a served attention does with a new token. It opens once attention is
-verified.</residual:Milestone>
+<residual:Milestone id="bench/cached_attention">What a served attention does with a new token. It opens once the transformer block is verified.</residual:Milestone>
 
-<residual:Milestone id="bench/round_weights">What packing does to a run of weights. It opens once matrix multiply is verified.</residual:Milestone>
+<residual:Milestone id="bench/round_weights">What packing does to a run of weights. It opens once the transformer block is verified.</residual:Milestone>
 
 <residual:Milestone id="bench/mean"></residual:Milestone>
 
@@ -275,6 +274,41 @@ storage network.</residual:Milestone>
 take more than a token.</residual:Milestone>
 
 <residual:Milestone id="serve/turned_away">More than 64 questions waiting.</residual:Milestone>
+
+## Tuning models
+
+<residual:Milestone id="tune/fine_tune">The Fabricator makes a Tuner from a transformer photomask. Give it a saved model, a blank checkpoint and a dataset:
+[Tuning](tuning.md).</residual:Milestone>
+
+<residual:Milestone id="tune/adapter">The same, set to Adapter.</residual:Milestone>
+
+<residual:Milestone id="tune/merge">Two tunings of one model, one in the base slot and one beside it.</residual:Milestone>
+
+<residual:Milestone id="tune/choose">Put a Preference Log beside a Tuner set to Choose, pick between answers, and tune.</residual:Milestone>
+
+<residual:Milestone id="tune/judge">The same log, set to Teach a judge.</residual:Milestone>
+
+<residual:Milestone id="tune/against_judge">That judge beside it, set to Against a judge.</residual:Milestone>
+
+<residual:Milestone id="tune/verified">Set to Verified.</residual:Milestone>
+
+<residual:Milestone id="tune/hacked">Let a checker pass what doesn't matter, and let the model find out.</residual:Milestone>
+
+<residual:Milestone id="tune/distill">A small model in the base slot, and a Relay Card tuned to the server of a larger one beside it.</residual:Milestone>
+
+<residual:Milestone id="tune/carried">The small model has to pass a test it did not pass before, and fit in an agent's head.</residual:Milestone>
+
+<residual:Milestone id="benchmark/programs">Tune a model that writes orders until 75% of what it writes does what was meant: [Tuning](tuning.md).</residual:Milestone>
+
+<residual:Milestone id="benchmark/precision">Tune a controller on melts at the mark: [Tuning](tuning.md).</residual:Milestone>
+
+## Thinking longer
+
+<residual:Milestone id="benchmark/reckoning">Practise on a Reckoning Dataset: [Thinking Longer](reasoning.md).</residual:Milestone>
+
+<residual:Milestone id="reason/effort">A KV Cache in a server, and its third button set above one.</residual:Milestone>
+
+<residual:Milestone id="reason/nine">A controller that passes Precision and Reckoning, as its server serves it, in a Smelter.</residual:Milestone>
 
 <residual:Milestone id="agent/order">Start a chat message with its name, such as *Pip, bring me some bread*. Its model
 has to have practised orders.</residual:Milestone>

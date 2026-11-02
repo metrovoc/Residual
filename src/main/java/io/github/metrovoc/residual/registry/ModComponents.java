@@ -70,6 +70,9 @@ public final class ModComponents {
     /** What a Field Log recorded: one line per crop, its age at every look. */
     public static final Supplier<DataComponentType<String>> FIELD_LOG = COMPONENTS.registerComponentType("field_log",
             b -> b.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+    /** A player's choices between answers: a prompt, what was chosen and what was not, a line each. */
+    public static final Supplier<DataComponentType<List<String>>> PREFERENCES = COMPONENTS.registerComponentType("preferences",
+            b -> b.persistent(Codec.STRING.listOf()).networkSynchronized(ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list())));
     /** False on a machine fabricated from a salvaged design, which runs one primitive at a time. */
     public static final Supplier<DataComponentType<Boolean>> FUSED = COMPONENTS.registerComponentType("fused",
             b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));

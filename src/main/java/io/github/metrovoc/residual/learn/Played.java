@@ -124,7 +124,7 @@ public abstract class Played extends Task {
      * Plays one look of every episode at once: the model reads each prompt and chooses a power, the likeliest one or one
      * drawn from its probabilities.
      */
-    private static void look(CompiledGraph model, List<? extends Episode> episodes, Random rng, boolean draw) {
+    private static void look(CompiledGraph model, List<? extends Episode> episodes, Random rng, boolean draw, double explore) {
         int n = episodes.size();
         // every episode is at the same look, so its prompt is as long as the others: the model reads only that far
         int t = Math.min(Vocab.CONTEXT, prompt(episodes.getFirst()).length());
@@ -140,7 +140,7 @@ public abstract class Played extends Task {
         int v = logits.dim(-1);
         for (int i = 0; i < n; i++) {
             // while practising, now and then a power at random, so it keeps finding out what each one does
-            int power = draw && rng.nextDouble() < EXPLORE ? rng.nextInt(3) : choose(logits.data, (i * t + t - 1) * v, rng, draw);
+            int power = draw && rng.nextDouble() < explore ? rng.nextInt(3) : choose(logits.data, (i * t + t - 1) * v, rng, draw);
             episodes.get(i).act(power, rng);
         }
     }
@@ -177,12 +177,16 @@ public abstract class Played extends Task {
 
     /** Plays {@code n} episodes to the end, the kind of each from {@code kind}. */
     private List<Episode> play(CompiledGraph model, int n, IntUnaryOperator kind, Random rng, boolean draw) {
+        return play(model, n, kind, rng, draw, EXPLORE);
+    }
+
+    private List<Episode> play(CompiledGraph model, int n, IntUnaryOperator kind, Random rng, boolean draw, double explore) {
         List<Episode> episodes = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
             episodes.add(episode(kind.applyAsInt(i), rng));
         }
         for (int k = 0; k < LOOKS; k++) {
-            look(model, episodes, rng, draw);
+            look(model, episodes, rng, draw, explore);
         }
         return episodes;
     }
@@ -307,6 +311,57 @@ public abstract class Played extends Task {
             }
         }
         return new Batch(new Tokens(in, size, t), tg, w, 1);
+    }
+
+    /** Episodes played for a checker: a batch whose weights are how each choice's episode stood among those of its kind, its mean reward and an episode to show. */
+    public record Rewarded(Batch batch, int scored, double reward, String line, boolean[] marks) {
+    }
+
+    /**
+     * Several episodes of each kind, played with the model's own choices, each marked only by the share of its looks it held. Within each kind, what did better than the mean
+     * counts for its choices and what did worse against them, by how far it stood from the mean in standard deviations.
+     */
+    public Rewarded rewarded(CompiledGraph model, int attempts, Random rng) {
+        int kinds = kinds(), size = kinds * attempts, t = context;
+        // only what it would choose by itself: a checker's word is about its own choices
+        List<Episode> episodes = play(model, size, i -> i % kinds, rng, true, 0);
+        int[] in = new int[size * t];
+        int[] tg = new int[size * t];
+        float[] w = new float[size * t];
+        Arrays.fill(in, Vocab.WORLD.id('\n'));
+        Arrays.fill(tg, Vocab.WORLD.id('\n'));
+        double all = 0;
+        int scored = 0;
+        for (int kind = 0; kind < kinds; kind++) {
+            double mean = 0, var = 0;
+            for (int i = kind; i < size; i += kinds) {
+                mean += episodes.get(i).score() / attempts;
+            }
+            for (int i = kind; i < size; i += kinds) {
+                var += Math.pow(episodes.get(i).score() - mean, 2) / attempts;
+            }
+            double std = Math.sqrt(var);
+            all += mean / kinds;
+            for (int i = kind; i < size; i += kinds) {
+                Episode e = episodes.get(i);
+                String text = "\n" + e.line;
+                for (int k = 0; k + 1 < text.length() && k < t; k++) {
+                    in[i * t + k] = Vocab.WORLD.id(text.charAt(k));
+                    tg[i * t + k] = Vocab.WORLD.id(text.charAt(k + 1));
+                }
+                if (std > 0) {
+                    for (int look = 0; look < LOOKS; look++) {
+                        w[i * t + 2 + 2 * look] = (float) ((e.score() - mean) / std);
+                        scored++;
+                    }
+                }
+            }
+        }
+        boolean[] marks = new boolean[Math.min(8, size)];
+        for (int i = 0; i < marks.length; i++) {
+            marks[i] = episodes.get(i).held();
+        }
+        return new Rewarded(new Batch(new Tokens(in, size, t), tg, w), scored, all, episodes.getFirst().line.toString(), marks);
     }
 
     /**

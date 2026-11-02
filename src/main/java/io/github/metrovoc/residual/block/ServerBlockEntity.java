@@ -7,6 +7,7 @@ import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.Task;
+import io.github.metrovoc.residual.learn.Thinking;
 import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.menu.ServerMenu;
 import io.github.metrovoc.residual.model.Checkpoints;
@@ -62,13 +63,14 @@ import org.jetbrains.annotations.Nullable;
  * KV Cache, a batch, a form for its weights and a draft ({@link Serving}), all of them measured on the model it holds.
  */
 public class ServerBlockEntity extends BlockEntity implements MenuProvider {
-    public static final int MODEL = 0, CACHE = 1, PACKER = 2, DRAFT = 3, SLOTS = 4;
+    public static final int MODEL = 0, CACHE = 1, PACKER = 2, DRAFT = 3, JUDGE = 4, SLOTS = 5;
     /** Questions waiting beyond this many are turned away. */
     public static final int QUEUE = 64;
     /** What it holds without a card, and what each KV Cache adds. */
     public static final long MEMORY = 1 << 20, CARD = 1 << 18;
     public static final int[] BATCHES = {1, 2, 4, 8, 16, 32};
     public static final int[] FORMS = {32, 8, 4};
+    public static final int[] EFFORTS = {1, 2, 4, 8, 16, 32, 64};
     private static final int NOTICE_EVERY = 1200;
 
     private final SimpleContainer items = new SimpleContainer(SLOTS) {
@@ -87,6 +89,7 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
     private Cooling.Compute compute = new Cooling.Compute(1, 0);
     private int bits = 32;
     private int batch = 1;
+    private int effort = 1;
     /** What everything but the crystal's own scores hang on: what it runs and what that was measured to be. */
     @Nullable
     private volatile Serving serving;
@@ -154,6 +157,16 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
 
     public void setBits(int value) {
         bits = items.getItem(PACKER).isEmpty() ? 32 : value == 8 || value == 4 ? value : 32;
+        stackChanged();
+        setChanged();
+    }
+
+    public int effort() {
+        return effort;
+    }
+
+    public void setEffort(int value) {
+        effort = Math.clamp(value, 1, EFFORTS[EFFORTS.length - 1]);
         stackChanged();
         setChanged();
     }
@@ -318,6 +331,9 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
             if (s.proposed() >= 100 && s.accepted() * 2 >= s.proposed()) {
                 earned.add("serve/draft");
             }
+            if (s.thinks() && answered > 0) {
+                earned.add("reason/effort");
+            }
             ModelInfo plain = CrystalItem.model(crystal());
             if (s.stack.bits() == 4 && form != null && plain != null && Arrays.stream(Benchmark.values()).filter(plain::passes).findAny().isPresent()
                     && Arrays.stream(Benchmark.values()).filter(plain::passes).allMatch(form::passes)) {
@@ -365,8 +381,8 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
         MinecraftServer server = level.getServer();
         int cards = items.getItem(CACHE).getCount();
         int wanted = items.getItem(PACKER).isEmpty() ? 32 : bits;
-        ModelInfo draftInfo = CrystalItem.model(items.getItem(DRAFT));
-        int asked = cards > 0 ? batch : 1;
+        ModelInfo draftInfo = CrystalItem.model(items.getItem(DRAFT)), judgeInfo = CrystalItem.model(items.getItem(JUDGE));
+        int asked = cards > 0 ? batch : 1, thought = cards > 0 ? effort : 1;
         int at = revision;
         Jobs.EXECUTOR.execute(() -> {
             CompiledGraph model = Checkpoints.load(server, info.id());
@@ -379,16 +395,17 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
                 draft = null;
             }
             long weights = wanted == 32 ? model.parameterCount() * Float.BYTES : Quantized.of(model, wanted).bytes();
-            long room = MEMORY + cards * CARD - weights - (draft == null ? 0 : draft.parameterCount() * Float.BYTES);
+            CompiledGraph judge = judgeInfo == null || thought == 1 ? null : Checkpoints.load(server, judgeInfo.id());
+            long room = MEMORY + cards * CARD - weights - (draft == null ? 0 : draft.parameterCount() * Float.BYTES) - (judge == null ? 0 : judge.parameterCount() * Float.BYTES);
             if (room < 0) {
                 Jobs.back(server, () -> built(at, null, "residual.server.no_room", null));
                 return;
             }
-            Serving s = new Serving(model, new Serving.Stack(wanted, cards > 0 ? room : 0, asked, draft));
+            Serving s = new Serving(model, new Serving.Stack(wanted, cards > 0 ? room : 0, asked, draft, thought, judge));
             s.measure(prompts(info, model));
             Jobs.back(server, () -> built(at, s, "", null));
-            if (wanted != 32) {
-                ModelInfo scored = scored(info, Quantized.of(model, wanted).restore());
+            if (wanted != 32 || thought > 1) {
+                ModelInfo scored = scored(info, wanted == 32 ? model : Quantized.of(model, wanted).restore(), thought, judge);
                 Jobs.back(server, () -> built(at, s, "", scored));
             }
         });
@@ -422,11 +439,18 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
         return out;
     }
 
-    /** {@code info} with what it passes tested again on {@code model}, as a form of it. */
-    private static ModelInfo scored(ModelInfo info, CompiledGraph model) {
+    /**
+     * {@code info} with what it passes tested again on {@code model}, as a form of it; and at more than one answer a question, what can be thought longer about tested at that many
+     * whether it passed before or not, since that is what thinking longer buys.
+     */
+    private static ModelInfo scored(ModelInfo info, CompiledGraph model, int effort, @Nullable CompiledGraph judge) {
         Map<String, Float> scores = new LinkedHashMap<>(info.scores());
         for (Benchmark a : Benchmark.values()) {
-            if (info.passes(a)) {
+            if (effort > 1 && a == Benchmark.PROGRAMS) {
+                scores.put(a.id, (float) Thinking.programs(model, 128, effort, judge != null ? Thinking.Way.JUDGED : Thinking.Way.VERIFIED, 5151, judge));
+            } else if (effort > 1 && a == Benchmark.RECKONING) {
+                scores.put(a.id, (float) Thinking.sums(model, 128, effort, Thinking.Way.VERIFIED, 909, null));
+            } else if (info.passes(a)) {
                 Task test = a.test(model.env.tokenizer());
                 Trainer.Eval eval = Trainer.evaluate(model, test, 8);
                 scores.put(a.id, (float) test.score(eval.loss(), eval.accuracy()));
@@ -459,7 +483,8 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
         busyUntil = Math.max(busyUntil, ticks) + cost / perTick;
         spentThisSecond += cost;
         drawn.merge(r.who(), (float) cost, Float::sum);
-        done.add(new Done(busyUntil, () -> {
+        // whatever it comes to, an answer doesn't keep its asker past their patience: what is left of it holds up what comes next
+        done.add(new Done(Math.min(busyUntil, ticks + Models.PATIENCE / 2.0), () -> {
             boolean current = at == revision && !isRemoved();
             if (current && out != null) {
                 answered++;
@@ -515,7 +540,7 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
         ModelInfo plain = CrystalItem.model(crystal()), now = model();
         if (plain != null) {
             for (Benchmark a : Benchmark.values()) {
-                if (plain.passes(a)) {
+                if (plain.passes(a) || now != null && now.passes(a) || effort > 1 && (a == Benchmark.PROGRAMS || a == Benchmark.RECKONING)) {
                     scores.add(new ServerSync.Scored(a.id, plain.score(a), Objects.requireNonNullElse(now, plain).score(a), now != null && now.passes(a)));
                 }
             }
@@ -523,7 +548,7 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
         return new ServerSync(menu, rate(), load, queue.size(), turnedAway, answered, compute.threads(), compute.hot(), memory,
                 s == null ? 0 : s.weightBytes(), s == null ? 0 : s.draftBytes(), s == null ? 0 : s.cachedBytes(), (float) cost.pass(), (float) cost.row(),
                 (float) cost.plainNanos(), (float) cost.passNanos(), (float) cost.rowNanos(), s == null ? 0 : s.passes(), s == null ? 0 : s.rows(), s == null ? 0 : s.saved(),
-                s == null ? 0 : s.proposed(), s == null ? 0 : s.accepted(), s != null && s.decodes(), who, scores, problem, bits, batch);
+                s == null ? 0 : s.proposed(), s == null ? 0 : s.accepted(), s != null && s.decodes(), who, scores, problem, bits, batch, effort);
     }
 
     @Override
@@ -579,6 +604,7 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
         ContainerHelper.saveAllItems(out, items.getItems());
         out.putInt("bits", bits);
         out.putInt("batch", batch);
+        out.putInt("effort", effort);
         out.putInt("answered", answered);
     }
 
@@ -594,6 +620,7 @@ public class ServerBlockEntity extends BlockEntity implements MenuProvider {
         });
         bits = in.getIntOr("bits", 32);
         batch = in.getIntOr("batch", 1);
+        effort = in.getIntOr("effort", 1);
         answered = in.getIntOr("answered", 0);
     }
 }

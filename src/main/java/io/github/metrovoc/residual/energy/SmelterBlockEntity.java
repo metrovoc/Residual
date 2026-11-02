@@ -4,7 +4,12 @@ import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.LinkItem;
+import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Control;
+import io.github.metrovoc.residual.learn.Played;
+import io.github.metrovoc.residual.learn.Precision;
+import io.github.metrovoc.residual.learn.Reckoning;
+import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.model.Models;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
@@ -54,10 +59,19 @@ public class SmelterBlockEntity extends PowerBlockEntity implements MenuProvider
     private int progress;
     /** The melt its controller is holding, while it smelts an ore with one. */
     @Nullable
-    private Control.Melt melt;
+    private Played.Episode melt;
+    /** An assay waiting for its controller's reckoning, once a melt at the mark has run its course. */
+    @Nullable
+    private Reckoning.Sum assay;
+    private final Random assays = new Random();
     private final Random rng = new Random();
     private boolean asking;
     private int request;
+    /** The most an ore can give, and what the melt under way has been told it gives; 0 until then. */
+    public static final int MOST = 9;
+    private int factor;
+    /** Assays reckoned right, of all it has asked about since it loaded, and how many an ore gave last. */
+    private int assayed, assessed, lastGave;
     /** How much of its last melt the controller held in the band, in percent; -1 for none. */
     private int lastHeld = -1;
     private final ContainerData data = PowerMenu.data(this, () -> progress, () -> TIME, () -> progress > 0 ? RATE : 0,
@@ -81,18 +95,21 @@ public class SmelterBlockEntity extends PowerBlockEntity implements MenuProvider
         return melt == null || melt.look() == 0 ? -1 : melt.band(melt.look() - 1);
     }
 
-    /** What smelting {@code stack} gives here: twice the ingots for an ore, or three times from a melt held in its band. */
-    ItemStack result(ServerLevel level, ItemStack stack, boolean held) {
+    /**
+     * What smelting {@code stack} gives here, {@code factor} of what a furnace gives from an ore: two with no melt or one that got away, three from a melt held in its band, six from one
+     * held at its mark, nine if the assay after that was reckoned right.
+     */
+    ItemStack result(ServerLevel level, ItemStack stack, int factor) {
         if (stack.isEmpty()) {
             return ItemStack.EMPTY;
         }
         SingleRecipeInput input = new SingleRecipeInput(stack);
         Optional<ItemStack> made = RECIPES.getRecipeFor(input, level).map(r -> r.value().assemble(input));
-        return made.map(out -> doubled(stack) ? out.copyWithCount(out.getCount() * (held ? 3 : 2)) : out).orElse(ItemStack.EMPTY);
+        return made.map(out -> doubled(stack) ? out.copyWithCount(out.getCount() * factor) : out).orElse(ItemStack.EMPTY);
     }
 
     ItemStack result(ServerLevel level, ItemStack stack) {
-        return result(level, stack, false);
+        return result(level, stack, 2);
     }
 
     private static boolean doubled(ItemStack stack) {
@@ -105,7 +122,7 @@ public class SmelterBlockEntity extends PowerBlockEntity implements MenuProvider
         super.tick(level);
         ItemStack in = items.getItem(IN), out = items.getItem(OUT);
         // room for the most a melt could make, so a held melt never stalls
-        ItemStack most = result(level, in, true);
+        ItemStack most = result(level, in, MOST);
         boolean room = !most.isEmpty() && (out.isEmpty() || ItemStack.isSameItemSameComponents(out, most)
                 && out.getCount() + most.getCount() <= out.getMaxStackSize());
         int stored = energy().getAmountAsInt();
@@ -114,7 +131,8 @@ public class SmelterBlockEntity extends PowerBlockEntity implements MenuProvider
             melt = null;
         } else if (stored >= RATE) {
             if (progress == 0 && melt == null && doubled(in) && !items.getItem(CONTROLLER).isEmpty()) {
-                melt = new Control.Melt(Control.ore(in));
+                ModelInfo info = ModelLink.of(level, worldPosition, items.getItem(CONTROLLER)).info();
+                melt = info != null && info.passes(Benchmark.PRECISION) ? new Precision.Melt(Control.ore(in)) : new Control.Melt(Control.ore(in));
             }
             if (melt != null && !melt.over() && progress == melt.look() * LOOK_EVERY) {
                 // the melt needs its next power before it goes on
@@ -124,13 +142,24 @@ public class SmelterBlockEntity extends PowerBlockEntity implements MenuProvider
                 working(true);
                 return;
             }
+            if (progress + 1 >= TIME && melt instanceof Precision.Melt && melt.held() && factor == 0) {
+                // at the mark: one thing more decides how much it gives, if the controller can reckon
+                if (!asking) {
+                    assess(level);
+                }
+                working(true);
+                return;
+            }
             energy().set(stored - RATE);
             if (++progress >= TIME) {
                 progress = 0;
                 boolean held = melt != null && melt.held();
+                int gives = !held ? 2 : melt instanceof Precision.Melt ? Math.max(factor, 6) : 3;
+                lastGave = doubled(in) ? gives : 0;
                 lastHeld = melt == null ? -1 : (int) Math.round(100 * melt.score());
                 melt = null;
-                ItemStack made = result(level, in, held);
+                factor = 0;
+                ItemStack made = result(level, in, gives);
                 if (doubled(in)) {
                     for (ServerPlayer player : level.players()) {
                         if (player.distanceToSqr(worldPosition.getCenter()) < 16 * 16) {
@@ -148,6 +177,39 @@ public class SmelterBlockEntity extends PowerBlockEntity implements MenuProvider
             }
         }
         working(room && stored >= RATE);
+    }
+
+    /**
+     * An assay comes off a melt held at its mark, a line of numbers to add up, and a controller that reckons can use it: if it does, the melt gives nine for an ore. Anything else gives six.
+     * A controller of Reckoning's standard is asked; its answer is checked, here, against the sum.
+     */
+    private void assess(ServerLevel level) {
+        ModelLink link = ModelLink.of(level, worldPosition, items.getItem(CONTROLLER));
+        ModelInfo info = link.info();
+        if (link instanceof ModelLink.Missing || info == null || !info.passes(Benchmark.RECKONING)) {
+            factor = 6;
+            return;
+        }
+        asking = true;
+        int id = ++request;
+        Reckoning.Sum sum = Reckoning.sum(assays, false);
+        link.ask(level, Reckoning.prompt(sum), Reckoning.WRITTEN, '\n', answer -> {
+            if (id != request || isRemoved()) {
+                return;
+            }
+            asking = false;
+            boolean right = answer != null && Reckoning.right(sum, answer.text());
+            factor = right ? MOST : 6;
+            assayed += right ? 1 : 0;
+            assessed++;
+            if (right) {
+                for (ServerPlayer player : level.players()) {
+                    if (player.distanceToSqr(worldPosition.getCenter()) < 16 * 16) {
+                        Awards.grant(player, "reason/nine");
+                    }
+                }
+            }
+        });
     }
 
     /** Asks its controller for the melt's next power; with no controller to ask, the melt goes on uncontrolled. */
@@ -183,6 +245,21 @@ public class SmelterBlockEntity extends PowerBlockEntity implements MenuProvider
      * The melt for its screen: looks taken, the last melt's share held (+1, 0 for none), then the temperatures so far,
      * five 3-bit bands to a data slot.
      */
+    /** How many of what a furnace makes its last ore gave, 0 if none has yet. */
+    public int lastGave() {
+        return lastGave;
+    }
+
+    /** Assays reckoned right since it loaded. */
+    public int assayed() {
+        return assayed;
+    }
+
+    /** Assays asked about since it loaded. */
+    public int assessed() {
+        return assessed;
+    }
+
     /** Ticks into the ingot it is making, for a Forecaster's look. */
     public int progress() {
         return progress;

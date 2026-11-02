@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "residual:block/tuner_side",
+    "north": "residual:block/tuner_front",
+    "south": "residual:block/tuner_side",
+    "east": "residual:block/tuner_side",
+    "west": "residual:block/tuner_side",
+    "up": "residual:block/tuner_top",
+    "down": "residual:block/machine_back"
+  }
+}

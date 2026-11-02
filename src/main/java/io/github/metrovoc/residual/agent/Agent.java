@@ -3,6 +3,7 @@ package io.github.metrovoc.residual.agent;
 import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.learn.Kinds;
+import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Orders;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.menu.AgentMenu;
@@ -571,8 +572,10 @@ public class Agent extends PathfinderMob implements Body {
             if (player != null) {
                 Awards.grant(player, "agent/order");
             }
-            // only a plain step or a job goes without a yes, and only if the model is sure of it
-            if (!program.atOnce() && Job.of(program.toString()) == null || lastConfidence < Kinds.SURE) {
+            // only a plain step or a job goes without a yes, and only if the model is sure of it; a model that passes Programs is trusted with whatever it writes
+            ModelInfo writer = model().info();
+            boolean trusted = writer != null && writer.passes(Benchmark.PROGRAMS);
+            if (!trusted && (!program.atOnce() && Job.of(program.toString()) == null || lastConfidence < Kinds.SURE)) {
                 proposal = new Proposal(program, o.player(), tickCount);
                 Component written = Component.literal(program.toString()).withStyle(s -> s.withHoverEvent(new HoverEvent.ShowText(Component.literal(program.pretty()))));
                 tell(decided(written).copy().append(" ").append(choice(true)).append(" ").append(choice(false)), player);

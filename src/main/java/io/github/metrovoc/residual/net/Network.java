@@ -10,6 +10,7 @@ import io.github.metrovoc.residual.bench.Spec;
 import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.block.BenchBlockEntity;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
+import io.github.metrovoc.residual.block.TunerBlockEntity;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.item.ExosuitItem;
 import io.github.metrovoc.residual.item.ProgramCardItem;
@@ -23,6 +24,7 @@ import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.menu.AgentMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
+import io.github.metrovoc.residual.menu.TunerMenu;
 import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.refine.RefinerySync;
 import io.github.metrovoc.residual.registry.ModItems;
@@ -107,6 +109,8 @@ public final class Network {
         r.playToClient(CraftTreeSync.TYPE, CraftTreeSync.STREAM_CODEC);
         r.playToClient(WatchSync.TYPE, WatchSync.STREAM_CODEC);
         r.playToClient(ServerSync.TYPE, ServerSync.STREAM_CODEC);
+        r.playToClient(TunerSync.TYPE, TunerSync.STREAM_CODEC);
+        r.playToServer(TunerAsk.TYPE, TunerAsk.STREAM_CODEC, Network::onTunerAsk);
         r.playToClient(ServerLoad.TYPE, ServerLoad.STREAM_CODEC);
         r.playToClient(ShimmerSync.TYPE, ShimmerSync.STREAM_CODEC);
         r.playToClient(SuitFlight.TYPE, SuitFlight.STREAM_CODEC);
@@ -148,6 +152,13 @@ public final class Network {
     private static void onSuitVein(SuitVein v, IPayloadContext ctx) {
         if (ctx.player() instanceof ServerPlayer player) {
             Vein.hold(player, v.held());
+        }
+    }
+
+    private static void onTunerAsk(TunerAsk a, IPayloadContext ctx) {
+        if (ctx.player() instanceof ServerPlayer player && player.containerMenu instanceof TunerMenu menu && menu.pos.equals(a.pos()) && menu.stillValid(player)
+                && player.level().getBlockEntity(a.pos()) instanceof TunerBlockEntity tuner) {
+            tuner.ask(a.said());
         }
     }
 

@@ -736,5 +736,51 @@ HALL_CONSOLE = screen(
             P("largest", T("The largest run", "最大的一次训练"), K("residual.hall.prediction")),
             P("racks", T("Its racks", "它的机架"), T("A column for each rack, as tall as that rack is busy.", "每个机架一列，机架越忙，这一列越高。"))])])
 
+def server_open(x, z):
+    return block("model_server", x, z)
+
+
+SERVER = screen(
+    "model_server", "ServerScreen", "model_server", T("Model Server", "模型服务器"), T("A Model Server's screen", "模型服务器的界面"),
+    T("Use a Model Server with an empty hand to open it. [Serving Models](../deployment.md) tells what each thing in its panel earns.",
+      "空手对模型服务器使用即可打开。面板里每样东西能换来什么，见[模型服务](../deployment.md)。"),
+    server_open,
+    [state("empty", T("What it serves and what that costs, its panel beside it, and its settings under that.", "它在服务什么、代价如何，旁边是面板，面板下面是设置。"),
+           T("A Model Server with nothing in it", "空的模型服务器"),
+           [P("model", K("residual.server.model_slot"), T("A saved checkpoint. Sneak-use the server with an empty hand to take it back.", "一枚已保存的检查点。潜行空手对服务器使用可以取回。")),
+            P("rate", T("Answers a second", "每秒回答数"), T("Answers that read 16 tokens and write 8, as its model and what is in its panel were measured to cost. The bar is how much of its operations is in use.",
+                                                             "读 16 个词元、写 8 个的回答，按这个模型和面板里的东西实测的代价算。条形表示它的运算用掉了多少。")),
+            P("memory", K("residual.server.memory"), T("Its weights, its draft and what it keeps, of all it holds.", "权重、草稿模型和保留的序列，占它全部内存的多少。")),
+            P("drawn", K("residual.server.drawn"), K("residual.server.drawn.title")),
+            P("cache", K("item.residual.kv_cache"), K("residual.server.cache_slot")),
+            P("packer", K("item.residual.weight_packer"), K("residual.server.packer_slot")),
+            P("draft", K("residual.server.draft"), K("residual.server.draft_slot")),
+            P("judge", K("residual.server.judge"), K("residual.server.judge_slot")),
+            P("server.form", K("residual.server.form"), K("residual.server.form.hint")),
+            P("server.batch", K("residual.server.batch"), K("residual.server.batch.hint")),
+            P("server.effort", K("residual.server.effort"), K("residual.server.effort.hint"))])])
+
+
+def tuner_open(x, z):
+    return block("tuner", x, z)
+
+
+TUNER = screen(
+    "tuner", "TunerScreen", "tuner", T("Tuner", "调校台"), T("A Tuner's screen", "调校台的界面"),
+    T("Use a Tuner to open it. [Tuning](../tuning.md) tells what each way of tuning does and what it earns.", "对调校台使用即可打开。每种调校方式做什么、能换来什么，见[调校](../tuning.md)。"),
+    tuner_open,
+    [state("idle", T("A saved model on the left, what it needs beside it under that, and a blank checkpoint on the right; the toolbar sets how.", "左边是已保存的模型，下面放它需要的东西，右边是空白检查点；工具栏决定怎么调校。"),
+           T("A Tuner with nothing in it", "空的调校台"),
+           [P("base", T("The base", "基础模型"), K("residual.tuner.base_slot")),
+            P("aid", T("Beside it", "放在旁边的"), K("residual.tuner.method.fine_tune.needs")),
+            P("out", T("What comes out", "产出"), K("residual.tuner.out_slot")),
+            P("show", T("The display", "显示屏"), T("Before it starts, what the way it is set to does. While it runs, the reward in teal against what was really right in amber, each try's mark, and what the model last wrote.",
+                                                    "开始之前，显示当前方式做什么。运行时，青色是奖励，琥珀色是真正对了多少，还有每次尝试的标记，以及模型最后写的东西。")),
+            P("tuner.run", K("residual.tuner.run"), K("residual.tuner.run.hint")),
+            P("tuner.method", K("residual.tuner.method"), K("residual.tuner.method.hint")),
+            P("tuner.budget", K("residual.tuner.budget"), K("residual.tuner.budget.hint")),
+            P("tuner.auto", K("residual.tuner.auto"), K("residual.tuner.auto.hint"))])])
+
+
 SCREENS = [CORE, AGENT, BENCH, FABRICATOR, FORGE, OPERATOR, READER, FORECASTER, SURVEYOR, WATCH, POWER, TERMINAL, PORT, PORT_PROGRAM, RACK, ASSEMBLER, PROCESSOR, DOCK, ACCESS,
-           MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER, REFINERY, RACK_MODULE, HALL_CONSOLE]
+           MODEL_TERMINAL, GATE, EXOSUIT, SHARD, WAYFINDER, REFINERY, RACK_MODULE, HALL_CONSOLE, SERVER, TUNER]

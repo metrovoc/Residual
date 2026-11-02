@@ -2,8 +2,10 @@ package io.github.metrovoc.residual.model;
 
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Decoder;
+import io.github.metrovoc.residual.learn.Preferences;
 import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.learn.Speculative;
+import io.github.metrovoc.residual.learn.Thinking;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.tensor.Tokens;
 import java.util.ArrayList;
@@ -44,12 +46,18 @@ public final class Serving implements CompiledGraph.Forwarder {
      * @param memory bytes for cached sequences; 0 for no cache
      * @param batch  most sequences in one pass
      * @param draft  a smaller model that proposes tokens, or null
+     * @param effort answers it writes for each question that can have several, to keep one
+     * @param judge  a model that scores answers, for picking among them, or null
      */
-    public record Stack(int bits, long memory, int batch, @Nullable CompiledGraph draft) {
-        public static final Stack PLAIN = new Stack(32, 0, 1, null);
+    public record Stack(int bits, long memory, int batch, @Nullable CompiledGraph draft, int effort, @Nullable CompiledGraph judge) {
+        public static final Stack PLAIN = new Stack(32, 0, 1, null, 1, null);
+
+        public Stack(int bits, long memory, int batch, @Nullable CompiledGraph draft) {
+            this(bits, memory, batch, draft, 1, null);
+        }
 
         public boolean plain() {
-            return bits == 32 && memory == 0 && batch == 1 && draft == null;
+            return bits == 32 && memory == 0 && batch == 1 && draft == null && effort == 1;
         }
     }
 
@@ -105,6 +113,9 @@ public final class Serving implements CompiledGraph.Forwarder {
     private final Decoder decoder;
     @Nullable
     private final Decoder draftDecoder;
+    /** What thinking longer writes with, whose passes are charged as they go. */
+    @Nullable
+    private final Decoder thinker;
     private final double rowFlops;
     private final double draftRowFlops;
     private volatile Cost cost = Cost.PLAIN;
@@ -140,6 +151,26 @@ public final class Serving implements CompiledGraph.Forwarder {
         }
         decoder = floats.agrees(probe) ? d : null;
         draftDecoder = stack.draft() == null || decoder == null ? null : new Decoder(stack.draft(), Decoder.floats(stack.draft()));
+        thinker = stack.effort() <= 1 || decoder == null ? null : new Decoder(model, packed == null ? Decoder.floats(model) : packed.unpacked()).watched(new Decoder.Watcher() {
+            @Override
+            public void before() {
+                synchronized (lock) {
+                    while (leading) {
+                        await();
+                    }
+                    leading = true;
+                }
+            }
+
+            @Override
+            public void after(int rows) {
+                synchronized (lock) {
+                    leading = false;
+                    lock.notifyAll();
+                }
+                meter(charge(rows, cost));
+            }
+        });
         answerFlops = PLAIN_ROWS * rowFlops;
     }
 
@@ -159,6 +190,29 @@ public final class Serving implements CompiledGraph.Forwarder {
 
     public boolean drafts() {
         return draftDecoder != null;
+    }
+
+    /** Whether it writes several answers to a question that can have several, and keeps one. */
+    public boolean thinks() {
+        return thinker != null;
+    }
+
+    /**
+     * Writes as many answers as it thinks long enough to, for an order or a sum, and keeps one: for a sum the one whose steps all check, for an order what a judge likes best if it has one, or
+     * else what most of those that run in a sandbox come to. The answer's one probability is the share of its answers that agree with it. Null for any other question.
+     */
+    @Nullable
+    public Sampler.Answer think(String prompt) {
+        if (thinker == null || !prompt.startsWith("> ") || !prompt.endsWith("\n= ")) {
+            return null;
+        }
+        boolean sum = prompt.substring(2, prompt.indexOf('\n')).matches("[0-9,]+");
+        Random rng = new Random(prompt.hashCode() * 31L + passes.sum());
+        CompiledGraph judge = stack.judge();
+        Thinking.Picked kept = sum ? Thinking.pick(thinker, prompt, stack.effort(), Thinking.Way.VERIFIED, rng, Thinking::sumKey, Thinking::sumChecks, null)
+                : Thinking.pick(thinker, prompt, stack.effort(), judge != null ? Thinking.Way.JUDGED : Thinking.Way.VERIFIED, rng, Thinking::programKey, Thinking::programRuns,
+                judge == null ? null : (p, a) -> Preferences.judged(judge, p, a));
+        return new Sampler.Answer(kept.text(), new float[]{kept.share()});
     }
 
     /** The bytes its weights take as it holds them. */
@@ -585,6 +639,10 @@ public final class Serving implements CompiledGraph.Forwarder {
         // a full pass shares what passes cost among all it carries
         double shared = passesRun * cost.pass() * rowFlops * (1 - 1.0 / stack.batch());
         answerFlops = (spent - shared) / prompts.size();
+        if (stack.effort() > 1) {
+            // what thinking longer does to that answer: it is read once, and each of its tokens is written that many times over, in one pass
+            answerFlops = (cost.row() * (READS + WRITES * stack.effort()) + cost.pass() * (WRITES + 1)) * rowFlops;
+        }
         charged.add(before);
     }
 

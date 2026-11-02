@@ -1,0 +1,28 @@
+{
+  "parent": "residual:tune/fine_tune",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:preference_log"
+    },
+    "title": {
+      "translate": "advancements.residual.tune.choose.title"
+    },
+    "description": {
+      "translate": "advancements.residual.tune.choose.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

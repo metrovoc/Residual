@@ -451,7 +451,7 @@ public final class Specs {
      * What a served attention does with a new row: it reads the keys kept so far and mixes the values kept with them. The score grid is a
      * row by however many keys, so a causal mask has nothing to do here and would hide what it came for.
      */
-    public static final Spec CACHED_ATTENTION = add("cached_attention", ports("q", "K", "V"), List.of("softmax", "matmul"), List.of(),
+    public static final Spec CACHED_ATTENTION = add("cached_attention", ports("q", "K", "V"), List.of("softmax", "matmul", "transformer"), List.of(),
             in -> cachedAttention(in[0], in[1], in[2]),
             (tape, in) -> {
                 Tensor scores = Ops.scale(tape, Prims.matmul(tape, in[0], Prims.transpose(tape, in[1])), (float) (1.0 / Math.sqrt(in[0].dim(-1))));
@@ -469,7 +469,7 @@ public final class Specs {
      * What packing does to a run of weights: every one becomes the whole number of scales nearest to it, the scale being what makes the
      * largest of them, by size, come out at 127. A run of zeros has no largest, and must stay zeros.
      */
-    public static final Spec ROUND_WEIGHTS = add("round_weights", ports("x"), List.of(), List.of(),
+    public static final Spec ROUND_WEIGHTS = add("round_weights", ports("x"), List.of("transformer"), List.of(),
             in -> roundWeights(in[0]),
             (tape, in) -> {
                 Tensor size = Prims.binary(tape, Binary.MAX, in[0], Prims.unary(tape, Prims.Unary.NEG, in[0]));

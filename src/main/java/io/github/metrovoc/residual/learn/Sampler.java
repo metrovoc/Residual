@@ -148,6 +148,12 @@ public final class Sampler {
         StringBuilder out = new StringBuilder();
         float[] probs = new float[max];
         int n = 0;
+        if (model.forwarder() instanceof Serving serving && serving.thinks() && stop == '\n') {
+            Answer thought = serving.think(prompt);
+            if (thought != null) {
+                return thought;
+            }
+        }
         if (model.forwarder() instanceof Serving serving && serving.drafts()) {
             int[] count = {0};
             Speculative.write(serving, seq, 1f, true, new Random(0), step -> {
@@ -188,7 +194,23 @@ public final class Sampler {
 
     public static Demo demo(CompiledGraph model, Benchmark benchmark, String prompt, float temperature, Random rng) {
         Vocab vocab = model.env.tokenizer();
-        if (benchmark == Benchmark.ORDERS) {
+        if (benchmark == Benchmark.RECKONING) {
+            Reckoning.Sum sum = Reckoning.sum(rng, true);
+            String given = Reckoning.prompt(sum);
+            StringBuilder out = new StringBuilder();
+            List<Step> steps = generate(model, vocab.spell(given), Reckoning.WRITTEN, 0f, rng);
+            for (Step s : steps) {
+                String piece = vocab.piece(s.token());
+                int end = piece.indexOf('\n');
+                out.append(piece, 0, end < 0 ? piece.length() : end);
+                if (end >= 0) {
+                    break;
+                }
+            }
+            return new Demo(given, given + out, labels(vocab, steps.getFirst().topIds()), floats(steps.getFirst().topProbs()),
+                    Component.translatable(Reckoning.right(sum, out.toString()) ? "residual.sample.reckoning.right" : "residual.sample.reckoning.wrong", sum.worked()));
+        }
+        if (benchmark == Benchmark.ORDERS || benchmark == Benchmark.PROGRAMS) {
             Orders.Example example = prompt.isBlank() ? Orders.example(rng, true) : null;
             String given = Orders.prompt(example == null ? prompt : example.said());
             List<Step> steps = generate(model, vocab.spell(given), Orders.WRITTEN, 0f, rng, true);
@@ -237,8 +259,8 @@ public final class Sampler {
         if (benchmark == Benchmark.FORECASTING) {
             return forecast(model, rng);
         }
-        if (benchmark == Benchmark.CONTROL || benchmark == Benchmark.PILOT || benchmark == Benchmark.REACTOR) {
-            Played played = benchmark == Benchmark.CONTROL ? new Control() : benchmark == Benchmark.PILOT ? new Pilot() : new Reactor();
+        if (benchmark == Benchmark.CONTROL || benchmark == Benchmark.PILOT || benchmark == Benchmark.REACTOR || benchmark == Benchmark.PRECISION) {
+            Played played = benchmark == Benchmark.CONTROL ? new Control() : benchmark == Benchmark.PILOT ? new Pilot() : benchmark == Benchmark.REACTOR ? new Reactor() : new Precision();
             Played.Episode episode = played.demo(model, rng);
             return new Demo("", episode.line.toString(), List.of("0", "1", "2"), played.first(model, 1),
                     Component.translatable("residual.sample." + benchmark.id, Math.round(100 * episode.score())));

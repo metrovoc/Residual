@@ -21,11 +21,11 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A Model Server's screen: the model it serves on the window, its KV Caches, its packer and its draft in a panel beside it, the player's
- * inventory, and what it is doing. A button sets the form of its weights, the other the size of a batch.
+ * inventory, and what it is doing. Buttons set the form of its weights, the size of a batch, and how many answers it writes to a question.
  */
 public class ServerMenu extends AbstractContainerMenu {
     public static final int MODEL_X = 8, MODEL_Y = 36;
-    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 64, CARD_X = 179, CARD_Y = 10, CARD_STEP = 18;
+    public static final int SIDE_X = 172, SIDE_Y = 4, SIDE_W = 29, SIDE_H = 82, CARD_X = 179, CARD_Y = 10, CARD_STEP = 18;
     public static final int INVENTORY_X = 8, INVENTORY_Y = 100;
     private static final int EVERY = 10;
 
@@ -83,6 +83,17 @@ public class ServerMenu extends AbstractContainerMenu {
                 return 1;
             }
         });
+        addSlot(new Slot(items, ServerBlockEntity.JUDGE, CARD_X, CARD_Y + 3 * CARD_STEP) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return CrystalItem.model(stack) != null;
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 addSlot(new Slot(inventory, 9 + row * 9 + col, INVENTORY_X + col * 18, INVENTORY_Y + row * 18));
@@ -109,8 +120,10 @@ public class ServerMenu extends AbstractContainerMenu {
         }
         if (id < ServerBlockEntity.FORMS.length) {
             be.setBits(ServerBlockEntity.FORMS[id]);
-        } else {
+        } else if (id < ServerBlockEntity.FORMS.length + ServerBlockEntity.BATCHES.length) {
             be.setBatch(ServerBlockEntity.BATCHES[id - ServerBlockEntity.FORMS.length]);
+        } else {
+            be.setEffort(ServerBlockEntity.EFFORTS[id - ServerBlockEntity.FORMS.length - ServerBlockEntity.BATCHES.length]);
         }
         return true;
     }
@@ -137,7 +150,9 @@ public class ServerMenu extends AbstractContainerMenu {
             moveItemStackTo(stack, ServerBlockEntity.PACKER, ServerBlockEntity.PACKER + 1, false);
         } else if (CrystalItem.model(stack) != null) {
             if (!moveItemStackTo(stack, ServerBlockEntity.MODEL, ServerBlockEntity.MODEL + 1, false)) {
-                moveItemStackTo(stack, ServerBlockEntity.DRAFT, ServerBlockEntity.DRAFT + 1, false);
+                if (!moveItemStackTo(stack, ServerBlockEntity.DRAFT, ServerBlockEntity.DRAFT + 1, false)) {
+                    moveItemStackTo(stack, ServerBlockEntity.JUDGE, ServerBlockEntity.JUDGE + 1, false);
+                }
             }
         }
         slots.get(index).setChanged();

@@ -21,7 +21,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
  */
 public record ServerSync(int menu, float rate, float load, int waiting, int turnedAway, int answered, int threads, int hot, long memory, long weights, long draft, long cached,
                          float passCost, float rowCost, float plainNanos, float passNanos, float rowNanos, long passes, long rows, long saved, long proposed, long accepted,
-                         boolean decodes, List<Drawn> drawn, List<Scored> scores, String problem, int bits, int batch) implements CustomPacketPayload {
+                         boolean decodes, List<Drawn> drawn, List<Scored> scores, String problem, int bits, int batch, int effort) implements CustomPacketPayload {
     public static final Type<ServerSync> TYPE = new Type<>(Residual.id("server_sync"));
 
     /** Who has drawn on it lately, and what share of it. */
@@ -71,6 +71,7 @@ public record ServerSync(int menu, float rate, float load, int waiting, int turn
         buf.writeUtf(s.problem);
         buf.writeVarInt(s.bits);
         buf.writeVarInt(s.batch);
+        buf.writeVarInt(s.effort);
     }
 
     private static ServerSync read(RegistryFriendlyByteBuf buf) {
@@ -79,7 +80,7 @@ public record ServerSync(int menu, float rate, float load, int waiting, int turn
                 buf.readVarLong(), buf.readVarLong(), buf.readVarLong(), buf.readVarLong(), buf.readVarLong(), buf.readBoolean(),
                 buf.readList(b -> new Drawn(b.readUtf(), b.readFloat())),
                 buf.readList(b -> new Scored(b.readUtf(), b.readFloat(), b.readFloat(), b.readBoolean())),
-                buf.readUtf(), buf.readVarInt(), buf.readVarInt());
+                buf.readUtf(), buf.readVarInt(), buf.readVarInt(), buf.readVarInt());
     }
 
     @Override

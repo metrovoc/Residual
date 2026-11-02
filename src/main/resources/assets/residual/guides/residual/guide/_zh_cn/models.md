@@ -39,6 +39,9 @@ item_ids:
 | 驾驶   | <ItemLink id="flight_dataset" />        | 每种风里的飞行，90% 的查看停在原来的高度      | 90%         | 飞行背架、[外骨骼](exosuit.md) |
 | 需求   | <ItemLink id="demand_dataset" />        | 端口每次查看送出了多少，有节奏                    | 90%         | 端口的目标 |
 | 看守   | <ItemLink id="watch_dataset" />         | 一切正常的情况；测试里有的出了问题                | 90%         | 哨所     |
+| 算账   | <ItemLink id="reckoning_dataset" />     | 把一行数相加，写出每一步累计 | 70% | 化验：[一矿出九](reasoning.md) |
+| 程序   | <ItemLink id="tuner" />               | 为指令写的程序，放进沙盒运行 | 75% | [不用点头的指令](tuning.md) |
+| 精准   | <ItemLink id="tuner" />               | 熔炼保持在区间中的一格 | 90% | [一矿出六](tuning.md) |
 | 检索   | <ItemLink id="retrieval_dataset" />     | 说出名字和想要的东西，以及各自的用途      | 90%         | 终端的搜索 |
 | 质量   | <ItemLink id="archive_drive" />         | 一份份文档，其中一半被坏线路弄坏了                | 90%         | [精炼厂](refinery.md) |
 | 安全壳 | <ItemLink id="reactor_dataset" />       | 每种燃料的周期，90% 的查看保持在带内              | 90%         | 反应堆   |

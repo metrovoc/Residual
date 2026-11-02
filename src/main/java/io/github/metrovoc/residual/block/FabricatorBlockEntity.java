@@ -162,6 +162,7 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
                 out.add(ModBlocks.POD_SWITCH.asItem());
                 out.add(ModBlocks.HALL_CONSOLE.asItem());
                 out.add(ModBlocks.REACTOR_CORE.asItem());
+                out.add(ModBlocks.TUNER.asItem());
             }
         }
         return out;
@@ -261,6 +262,9 @@ public class FabricatorBlockEntity extends BlockEntity implements MenuProvider {
         }
         if (item instanceof BlockItem b && b.getBlock() instanceof RefineryBlock) {
             return new Cost(2, 4, 2, 160);
+        }
+        if (item == ModBlocks.TUNER.asItem()) {
+            return new Cost(4, 12, 4, 240);
         }
         if (item == ModItems.KV_CACHE.get()) {
             return new Cost(1, 8, 2, 120);

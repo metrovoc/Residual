@@ -42,6 +42,7 @@ import io.github.metrovoc.residual.block.SurveyorBlock;
 import io.github.metrovoc.residual.block.UnitBlock;
 import io.github.metrovoc.residual.refine.RefineryBlock;
 import io.github.metrovoc.residual.refine.Stage;
+import io.github.metrovoc.residual.block.TunerBlock;
 import io.github.metrovoc.residual.block.WatchPostBlock;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.storage.AccessPointBlock;
@@ -85,6 +86,8 @@ public final class ModBlocks {
     public static final DeferredBlock<Block> CASING = BLOCKS.registerSimpleBlock("tensor_casing", ModBlocks::machine);
     public static final DeferredBlock<ServerBlock> SERVER = BLOCKS.registerBlock("model_server", ServerBlock::new,
             p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(ServerBlock.SERVING) ? 10 : s.getValue(ServerBlock.LOADED) ? 5 : 2));
+    public static final DeferredBlock<TunerBlock> TUNER = BLOCKS.registerBlock("tuner", TunerBlock::new,
+            p -> machine(p).strength(3f, 8f).lightLevel(s -> s.getValue(TunerBlock.WORKING) ? 10 : 3));
     public static final DeferredBlock<ReaderBlock> READER = BLOCKS.registerBlock("reader", ReaderBlock::new,
             p -> machine(p).noOcclusion().lightLevel(s -> s.getValue(ReaderBlock.READING) ? 8 : 0));
     public static final DeferredBlock<BenchBlock> BENCH = BLOCKS.registerBlock("bench", BenchBlock::new,
