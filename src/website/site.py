@@ -17,6 +17,7 @@ from urllib.parse import unquote, urlsplit
 
 ORIGIN = "https://metrovoc.github.io/Residual/"
 RELEASES = "https://github.com/metrovoc/Residual/releases"
+QQ_GROUP = "https://qm.qq.com/q/igZQIv0JKU"
 
 
 def finish(root, locale, version, minecraft):
@@ -48,6 +49,8 @@ def finish(root, locale, version, minecraft):
             text = text.replace('<strong>Experimental alpha.</strong> Expect breaking changes and major bugs. Your\n            <a href="https://github.com/metrovoc/Residual/issues">feedback</a> is much appreciated.',
                 '<strong>实验性 Alpha 版本。</strong>可能有破坏性变更和严重问题。欢迎<a href="https://github.com/metrovoc/Residual/issues">反馈</a>。')
             text = text.replace('>Download</a>', '>下载</a>')
+            if QQ_GROUP not in text:
+                text = text.replace('<a href="https://discord.gg/', f'<a href="{QQ_GROUP}">QQ 群</a>\n            <a href="https://discord.gg/', 1)
             text = text.replace('>Crafting (Shapeless)</div>', '>无序合成</div>')
             text = text.replace('>Crafting</div>', '>合成</div>')
         path.write_text(text)
@@ -94,6 +97,8 @@ def check(root, version):
             if locale == 'zh_cn' and any(label in text for label in
                     ['Experimental alpha.', '>Download</a>', '>Crafting</div>', '>Crafting (Shapeless)</div>']):
                 errors.append(f"{prefix}{name}: untranslated website labels")
+            if (QQ_GROUP in text) != (locale == 'zh_cn'):
+                errors.append(f"{prefix}{name}: the QQ group belongs on the Chinese pages only")
             parsed = Links(); parsed.feed(text)
             for url in parsed.links:
                 split = urlsplit(url)

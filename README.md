@@ -4,7 +4,7 @@
 
 **Rediscover the lost art of building intelligence from scratch.**
 
-[Website](https://metrovoc.github.io/Residual/) · [Download](https://github.com/metrovoc/Residual/releases) · [Discord](https://discord.gg/UuV4hEYVFy)
+[Website](https://metrovoc.github.io/Residual/) · [Download](https://github.com/metrovoc/Residual/releases) · [Discord](https://discord.gg/UuV4hEYVFy) · [QQ 群](https://qm.qq.com/q/igZQIv0JKU)
 
 </div>
 
