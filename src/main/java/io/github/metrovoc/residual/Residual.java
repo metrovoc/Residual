@@ -48,6 +48,7 @@ public final class Residual {
         ModStructures.TYPES.register(modBus);
         ModStructures.PROCESSORS.register(modBus);
         modBus.addListener(Network::register);
+        io.github.metrovoc.residual.interior.HallSetup.register(modBus);
         container.registerConfig(ModConfig.Type.SERVER, ResidualConfig.SPEC);
 
         NeoForge.EVENT_BUS.addListener(Residual::onServerStopping);

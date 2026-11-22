@@ -42,6 +42,7 @@ public final class ResidualClient {
         modBus.addListener(ResidualClient::layers);
         NeoForge.EVENT_BUS.addListener(Waves::extract);
         NeoForge.EVENT_BUS.addListener(Waves::submit);
+        HallView.register(modBus);
         NeoForge.EVENT_BUS.addListener(ShimmerView::extract);
         NeoForge.EVENT_BUS.addListener(ShimmerView::submit);
         NeoForge.EVENT_BUS.addListener(StreamView::extract);
