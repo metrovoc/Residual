@@ -27,7 +27,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -50,6 +55,9 @@ public final class Halls extends SavedData {
     private static final int FLOOR = 64;
     /** Ticks a hall stays awake with nobody in it. */
     private static final int LINGER = 200;
+    /** How far from a model's middle a player arrives, and how far out they may drift before being brought back. */
+    public static final int VIEW = 40, EDGE = 300;
+    private static final Identifier FLOATING = Residual.id("inside");
 
     /** One model's hall. */
     public static final class Hall {
@@ -218,9 +226,28 @@ public final class Halls extends SavedData {
         return true;
     }
 
+    /** Puts a player where the whole model is in view, looking at its middle. */
     private static void arrive(ServerPlayer player, ServerLevel level, Hall hall) {
         BlockPos o = hall.origin();
-        player.teleport(new TeleportTransition(level, new Vec3(o.getX() + 2.5, o.getY() + 1, o.getZ() + 1.5), Vec3.ZERO, 0, 0, TeleportTransition.DO_NOTHING));
+        player.teleport(new TeleportTransition(level, new Vec3(o.getX() + 0.5, o.getY() + 6, o.getZ() + 0.5 - VIEW), Vec3.ZERO, 0, 6, TeleportTransition.DO_NOTHING));
+        floating(player, true);
+        player.getAbilities().flying = true;
+        player.onUpdateAbilities();
+    }
+
+    /** Inside a model nothing falls: a player there flies, and loses that on the way out. */
+    private static void floating(ServerPlayer player, boolean on) {
+        AttributeInstance fly = player.getAttribute(NeoForgeMod.CREATIVE_FLIGHT), gravity = player.getAttribute(Attributes.GRAVITY);
+        if (fly == null || gravity == null || fly.hasModifier(FLOATING) == on) {
+            return;
+        }
+        if (on) {
+            fly.addTransientModifier(new AttributeModifier(FLOATING, 1, AttributeModifier.Operation.ADD_VALUE));
+            gravity.addTransientModifier(new AttributeModifier(FLOATING, -1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        } else {
+            fly.removeModifier(FLOATING);
+            gravity.removeModifier(FLOATING);
+        }
     }
 
     /** Takes a player back to where they stepped in from. */
@@ -255,6 +282,8 @@ public final class Halls extends SavedData {
         if (saved != null) {
             Arch.keep(saved, hall.bank);
         }
+        // a hall that was built here before models were shown as space
+        HallBuilder.clear(level, hall.origin(), hall.plan());
         rebuild(level, hall, false, false);
     }
 
@@ -330,44 +359,29 @@ public final class Halls extends SavedData {
         hall.run.pace(hall.pace);
         hall.run.running(running);
         hall.run.start();
-        HallPlan plan = hall.plan();
-        if (!plan.equals(hall.built)) {
-            BlockPos origin = hall.origin();
-            if (hall.built != null) {
-                HallBuilder.clear(level, origin, hall.built);
-            }
-            HallBuilder.build(level, origin, plan);
-            hall.built = plan;
-            // nobody is left standing past the end of a hall that grew shorter
-            for (ServerPlayer p : level.players()) {
-                if (at(p.blockPosition()) == hall && p.getZ() - origin.getZ() > plan.length()) {
-                    arrive(p, level, hall);
-                }
-            }
-        }
         hall.told.clear();
         setDirty();
     }
 
-    /** A console at {@code pos} was used. */
-    public void use(ServerPlayer player, BlockPos pos, HallPlan.Role role, boolean back) {
+    /** A player inside a model does something to it. */
+    public void act(ServerPlayer player, SpaceAct act) {
         if (!(player.level() instanceof ServerLevel level) || level.dimension() != LEVEL) {
             return;
         }
-        Hall hall = at(pos);
-        if (hall == null || hall.run == null || hall.built == null) {
+        Hall hall = at(player.blockPosition());
+        if (hall == null || hall.run == null) {
             return;
         }
-        BlockPos o = hall.origin();
-        HallPlan.Console console = null;
-        for (HallPlan.Console c : hall.built.consoles()) {
-            if (c.role() == role && c.x() == pos.getX() - o.getX() && c.z() == pos.getZ() - o.getZ()) {
-                console = c;
-            }
-        }
-        if (console == null) {
+        if (act.role() == SpaceAct.HOME) {
+            arrive(player, level, hall);
             return;
         }
+        if (act.role() < 0 || act.role() >= HallPlan.Role.values().length) {
+            return;
+        }
+        HallPlan.Role role = HallPlan.Role.values()[act.role()];
+        boolean back = act.back();
+        int part = act.part();
         Run run = hall.run;
         Arch arch = hall.arch;
         switch (role) {
@@ -397,16 +411,16 @@ public final class Halls extends SavedData {
             case NORM -> change(level, hall, arch.withNorm(!arch.norm()), false);
             case ADD_ATTENTION -> {
                 if (hall.stage.allowsAttention(arch)) {
-                    change(level, hall, arch.insert(console.part(), Arch.Kind.ATTENTION), false);
+                    change(level, hall, arch.insert(part, Arch.Kind.ATTENTION), false);
                 } else {
                     player.sendOverlayMessage(Component.translatable("residual.inside.limit.attention", hall.stage.attention));
                 }
             }
-            case ADD_FEED_FORWARD -> change(level, hall, arch.insert(console.part(), Arch.Kind.FEED_FORWARD), false);
-            case SWITCH -> change(level, hall, arch.toggle(console.part()), false);
+            case ADD_FEED_FORWARD -> change(level, hall, arch.insert(part, Arch.Kind.FEED_FORWARD), false);
+            case SWITCH -> change(level, hall, arch.toggle(part), false);
             case REMOVE -> {
-                hall.bank.remove(Arch.part(console.part()));
-                change(level, hall, arch.remove(console.part()), false);
+                hall.bank.remove(Arch.part(part));
+                change(level, hall, arch.remove(part), false);
             }
         }
         setDirty();
@@ -444,6 +458,11 @@ public final class Halls extends SavedData {
             return;
         }
         Halls halls = get(event.getServer());
+        for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
+            if (player.level() != level) {
+                floating(player, false);
+            }
+        }
         Map<Hall, List<ServerPlayer>> inside = new HashMap<>();
         for (ServerPlayer player : List.copyOf(level.players())) {
             Hall hall = halls.at(player.blockPosition());
@@ -452,7 +471,8 @@ public final class Halls extends SavedData {
                 continue;
             }
             halls.wake(level, hall);
-            if (player.getY() < FLOOR - 16) {
+            floating(player, true);
+            if (!hall.origin().closerToCenterThan(player.position(), EDGE)) {
                 arrive(player, level, hall);
             }
             inside.computeIfAbsent(hall, h -> new ArrayList<>()).add(player);

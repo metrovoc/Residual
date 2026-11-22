@@ -70,6 +70,10 @@ public record HallSync(BlockPos origin, Arch arch, Stage stage, Snapshot shot) i
             optional(buf, s.tables().places());
             optional(buf, s.tables().follows());
             buf.writeVarIntArray(s.tables().written() == null ? new int[0] : s.tables().written());
+            buf.writeVarInt(s.tables().basis().length);
+            for (float f : s.tables().basis()) {
+                buf.writeFloat(f);
+            }
         }
         buf.writeVarInt(s.curve().size());
         for (Snapshot.Point p : s.curve()) {
@@ -119,7 +123,11 @@ public record HallSync(BlockPos origin, Arch arch, Stage stage, Snapshot shot) i
             Snapshot.Grid e = grid(buf), r = grid(buf);
             Snapshot.Grid places = optional(buf), follows = optional(buf);
             int[] written = buf.readVarIntArray();
-            tables = new Snapshot.Tables(e, r, places, follows, written.length == 0 ? null : written);
+            float[] basis = new float[buf.readVarInt()];
+            for (int i = 0; i < basis.length; i++) {
+                basis[i] = buf.readFloat();
+            }
+            tables = new Snapshot.Tables(e, r, places, follows, written.length == 0 ? null : written, basis);
         }
         int points = buf.readVarInt();
         List<Snapshot.Point> curve = new ArrayList<>();

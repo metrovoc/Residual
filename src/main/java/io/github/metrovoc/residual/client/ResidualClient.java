@@ -17,7 +17,7 @@ import net.neoforged.neoforge.common.NeoForge;
 @Mod(value = Residual.MOD_ID, dist = Dist.CLIENT)
 public final class ResidualClient {
     public ResidualClient(IEventBus modBus) {
-        HallView.register(modBus);
+        SpaceView.register(modBus);
         NeoForge.EVENT_BUS.addListener(Clips::tick);
         // the field notes
         Guide.builder(Residual.GUIDE)

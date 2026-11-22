@@ -27,7 +27,12 @@ public final class HallSetup {
 
     public static void register(IEventBus modBus) {
         BLOCKS.register(modBus);
-        modBus.addListener((RegisterPayloadHandlersEvent event) -> event.registrar("1").playToClient(HallSync.TYPE, HallSync.STREAM_CODEC));
+        modBus.addListener((RegisterPayloadHandlersEvent event) -> event.registrar("1").playToClient(HallSync.TYPE, HallSync.STREAM_CODEC)
+                .playToServer(SpaceAct.TYPE, SpaceAct.STREAM_CODEC, (act, ctx) -> {
+                    if (ctx.player() instanceof ServerPlayer player) {
+                        Halls.get(player.level().getServer()).act(player, act);
+                    }
+                }));
         NeoForge.EVENT_BUS.addListener(Halls::tick);
         NeoForge.EVENT_BUS.addListener(Halls::stopping);
         NeoForge.EVENT_BUS.addListener(Halls::breaking);

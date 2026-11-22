@@ -28,9 +28,7 @@ public class ConsoleBlock extends Block {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (level instanceof ServerLevel server && player instanceof ServerPlayer p) {
-            Halls.get(server.getServer()).use(p, pos, state.getValue(ROLE), player.isSecondaryUseActive());
-        }
-        return InteractionResult.SUCCESS;
+        // consoles stood in the halls that models were shown as; nothing places one now
+        return InteractionResult.PASS;
     }
 }

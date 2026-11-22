@@ -87,8 +87,10 @@ public record Snapshot(int step, State state, int pace, float rate, float trainL
      *                a row for the letter before; or null
      * @param written for writing: what the model writes on from the example's first token, each token drawn by the
      *                chances it gives, always with the same draws; or null
+     * @param basis   three directions of the stream, each {@code width} numbers, along which the tokens' vectors spread
+     *                most: where a vector is drawn in space is its length along each
      */
-    public record Tables(Grid embed, Grid readout, @Nullable Grid places, @Nullable Grid follows, @Nullable int[] written) {
+    public record Tables(Grid embed, Grid readout, @Nullable Grid places, @Nullable Grid follows, @Nullable int[] written, float[] basis) {
     }
 
     /** The tokens a table's wall shows: the small letters and the space. */

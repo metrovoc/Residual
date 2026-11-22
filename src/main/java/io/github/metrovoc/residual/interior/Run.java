@@ -62,6 +62,7 @@ public final class Run {
     private volatile double lossGoal;
     private float trainLoss = Float.NaN;
     private double stepNanos;
+    private float[] basis;
 
     /**
      * @param model   the weights to go on from
@@ -339,7 +340,8 @@ public final class Run {
                 follows = Snapshot.Grid.of(cells, 0, letters.length, letters.length);
             }
             int[] written = test instanceof io.github.metrovoc.residual.learn.TextTask ? write(one.input().ids[0], vocab) : null;
-            tables = new Snapshot.Tables(Snapshot.Grid.of(e.data, 0, vocab, width), Snapshot.Grid.of(turned, 0, vocab, width), places, follows, written);
+            tables = new Snapshot.Tables(Snapshot.Grid.of(e.data, 0, vocab, width), Snapshot.Grid.of(turned, 0, vocab, width), places, follows, written,
+                    basis(e.data, turned, vocab, width));
         }
         Snapshot.State state = diverged ? Snapshot.State.DIVERGED : running || owed.get() > 0 ? Snapshot.State.RUNNING : Snapshot.State.PAUSED;
         return new Snapshot(steps(), state, pace, rate, trainLoss, testLoss, score, passed, model.parameterCount(), (float) (stepNanos / 1e6),
@@ -371,6 +373,65 @@ public final class Run {
             ids[n] = pick;
         }
         return ids;
+    }
+
+    /**
+     * The three directions along which the tokens' vectors, as read and as answers, spread most, each one going on
+     * from where it pointed last time so that the picture turns slowly. A stream three wide or less is shown as it is.
+     */
+    private float[] basis(float[] embed, float[] readout, int vocab, int width) {
+        if (basis == null) {
+            basis = new float[3 * width];
+            for (int a = 0; a < Math.min(3, width); a++) {
+                basis[a * width + a] = 1;
+            }
+        }
+        if (width <= 3) {
+            return basis.clone();
+        }
+        double[] spread = new double[width * width];
+        for (float[] rows : new float[][] {embed, readout}) {
+            for (int v = 0; v < vocab; v++) {
+                for (int i = 0; i < width; i++) {
+                    double x = rows[v * width + i];
+                    for (int j = 0; j < width; j++) {
+                        spread[i * width + j] += x * rows[v * width + j];
+                    }
+                }
+            }
+        }
+        double[] next = new double[width];
+        for (int round = 0; round < 3; round++) {
+            for (int a = 0; a < 3; a++) {
+                for (int i = 0; i < width; i++) {
+                    double sum = 0;
+                    for (int j = 0; j < width; j++) {
+                        sum += spread[i * width + j] * basis[a * width + j];
+                    }
+                    next[i] = sum;
+                }
+                for (int b = 0; b < a; b++) {
+                    double along = 0;
+                    for (int i = 0; i < width; i++) {
+                        along += next[i] * basis[b * width + i];
+                    }
+                    for (int i = 0; i < width; i++) {
+                        next[i] -= along * basis[b * width + i];
+                    }
+                }
+                double length = 0;
+                for (int i = 0; i < width; i++) {
+                    length += next[i] * next[i];
+                }
+                length = Math.sqrt(length);
+                if (length > 1e-12) {
+                    for (int i = 0; i < width; i++) {
+                        basis[a * width + i] = (float) (next[i] / length);
+                    }
+                }
+            }
+        }
+        return basis.clone();
     }
 
     private Snapshot.Grid grid(Captures seen, String name, int lanes, int width) {

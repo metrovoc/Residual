@@ -6,7 +6,7 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
-import io.github.metrovoc.residual.client.HallView;
+import io.github.metrovoc.residual.client.SpaceView;
 import io.github.metrovoc.residual.client.Parts;
 import io.github.metrovoc.residual.interior.HallSync;
 import io.github.metrovoc.residual.interior.Snapshot;
@@ -674,6 +674,7 @@ public final class Rehearsal {
                 BlockPos pos = new BlockPos(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
                 server.execute(() -> server.getPlayerList().getPlayer(id).gameMode.destroyBlock(pos));
             }
+            case "wheel" -> io.github.metrovoc.residual.client.SpaceView.wheel(arg.equals("up"));
             case "bound" -> KeyMapping.click(KeyMapping.get(arg).getDefaultKey());
             case "hold" -> KeyMapping.get(args[0]).setDown(args[1].equals("on"));
             case "until" -> until(mc, args);
@@ -946,7 +947,7 @@ public final class Rehearsal {
             case "said" -> found = HEARD.stream().filter(line -> line.contains(args[1])).count();
             case "near" -> found = mc.player.position().distanceTo(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]))) <= wanted ? wanted : 0;
             case "hall", "hallmost" -> {
-                HallSync hall = HallView.shown();
+                HallSync hall = SpaceView.shown();
                 found = hall == null ? -1 : hall.shot().step();
                 LOG.info("the hall shows step {}", found);
                 if (args[0].equals("hallmost")) {
@@ -957,7 +958,7 @@ public final class Rehearsal {
                 }
             }
             case "training" -> {
-                HallSync hall = HallView.shown();
+                HallSync hall = SpaceView.shown();
                 found = hall == null ? -1 : hall.shot().state() == Snapshot.State.RUNNING ? 1 : 0;
             }
             case "made" -> {
