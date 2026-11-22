@@ -546,7 +546,7 @@ GUIDE = [
 
 
 def guide():
-    """The field notes: a teal-bound book with the Junction's sign on its cover."""
+    """The guide: a teal-bound book with the Junction's sign on its cover."""
     c = Canvas()
     c.stamp(0, 0, GUIDE, {"o": TEAL[0], "K": TEAL[1], "C": TEAL[2], "k": TEAL[1], "P": K0})
     tone = {"#": TEAL[4], "-": TEAL[1], "+": TEAL[5]}

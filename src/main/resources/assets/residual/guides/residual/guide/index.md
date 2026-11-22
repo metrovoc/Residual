@@ -9,7 +9,7 @@ navigation:
 
 Someone lived in this world before you. They are no longer here, but traces of them still remain in the ruins. Most mysteriously, they seemed to have built machines that thought.
 
-These are field notes on building models again: a model is kept on a drive, a Model Core holds the drive, and the
+This guide is about building models again: a model is kept on a drive, a Model Core holds the drive, and the
 model is a hall you can step into, walk through and train.
 
 ## Start here

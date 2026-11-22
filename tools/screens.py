@@ -1,4 +1,4 @@
-"""The field notes' page for every screen, made from tools/screen_pages.py, which says what each part of a screen is for.
+"""The guide's page for every screen, made from tools/screen_pages.py, which says what each part of a screen is for.
 
     python3 tools/screens.py pages               # writes guide/screens/ in both languages
     python3 tools/screens.py script en|zh > S    # a rehearsal script that opens every screen in every state and shoots it
@@ -103,7 +103,7 @@ def pages():
 
 
 def script(code):
-    lines = ["# Every screen in every state, shot, for the field notes' pages: tools/screens.py wrote this, and takes the shots from here.",
+    lines = ["# Every screen in every state, shot, for the guide's pages: tools/screens.py wrote this, and takes the shots from here.",
              "# Each part a page names is checked before the shot, so a part renamed or gone fails the run.",
              "world", "gui 2", "cmd gamerule send_command_feedback false", "cmd gamerule show_advancement_messages false", "cmd gamerule advance_time false",
              "cmd gamerule spawn_mobs false", "fly on", "cmd time set noon", "wait 40", "cmd clear @s"]

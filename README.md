@@ -303,7 +303,7 @@ Residual needs Minecraft 26.1.2, NeoForge 26.1.2.124 or newer, and [GuideME](htt
 26.1.16-beta or newer. Put the jar from [Releases](https://github.com/metrovoc/Residual/releases) in your `mods` folder
 next to GuideME.
 
-You get the field notes the first time you join a world, and they are also
+You get the guide the first time you join a world, and they are also
 [online](https://metrovoc.github.io/Residual/). Hold **G** over any Residual item to open its page.
 
 ### Modpack
@@ -330,7 +330,7 @@ uv run --with matplotlib python tools/formulas.py
 ```
 
 `uv run python tools/pack.py` builds the modpack around the jar in `build/libs`, and `./gradlew guideWebsite` builds
-the field notes as a website in `build/guideWebsite`.
+the guide as a website in `build/guideWebsite`.
 
 ## Credits
 
