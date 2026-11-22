@@ -203,9 +203,6 @@ class FirstLoopCalibrationTest {
         if (!wanted("hostile")) {
             return;
         }
-        System.out.println("== Induction with one layer, pushed ==");
-        run("1 layer 8 heads dim 64 mlp, 10000", stack(64, 1, 8, true, true, true), Benchmark.INDUCTION, 0.003f, 10000, 500);
-        run("1 layer 4 heads dim 64 mlp, rate .001", stack(64, 1, 4, true, true, true), Benchmark.INDUCTION, 0.001f, 10000, 500);
         System.out.println("== Reversal without attention, pushed ==");
         run("feed-forward x3 dim 64 pos", noAttention(64, 3), Benchmark.REVERSAL, 0.003f, 5000, 250);
         System.out.println("== Reading: a table through a stream ==");
@@ -213,6 +210,9 @@ class FirstLoopCalibrationTest {
             run("embed " + dim + " read out", stack(dim, 0, 1, false, true, false), Benchmark.READING, 0.01f, 1000, 250);
         }
         run("feed-forward x2 dim 32", noAttention(32, 2), Benchmark.READING, 0.01f, 1000, 250);
+        System.out.println("== Induction with one layer, pushed ==");
+        run("1 layer 8 heads dim 64 mlp, 10000", stack(64, 1, 8, true, true, true), Benchmark.INDUCTION, 0.003f, 10000, 500);
+        run("1 layer 4 heads dim 64 mlp, rate .001", stack(64, 1, 4, true, true, true), Benchmark.INDUCTION, 0.001f, 10000, 500);
     }
 
     /** Positions and feed-forward parts only: nothing carries one token's stream to another's. */
