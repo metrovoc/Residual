@@ -7,16 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "residual:concat",
-          "functions": [
-            {
-              "function": "minecraft:copy_components",
-              "source": "block_entity",
-              "include": [
-                "residual:fused"
-              ]
-            }
-          ]
+          "name": "residual:concat"
         }
       ],
       "conditions": [

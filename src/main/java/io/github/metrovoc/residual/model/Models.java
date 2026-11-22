@@ -2,7 +2,6 @@ package io.github.metrovoc.residual.model;
 
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.graph.CompiledGraph;
-import io.github.metrovoc.residual.learn.Sampler;
 import io.github.metrovoc.residual.train.Jobs;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -12,33 +11,16 @@ import org.jetbrains.annotations.Nullable;
 
 /** Puts questions to saved models off the server thread and hands the answers back on it. */
 public final class Models {
-    /** Ticks to wait for an answer: a served model's request is lost if its server's chunk unloads. */
+    /** Ticks to wait for an answer before asking again. */
     public static final int PATIENCE = 600;
 
     private Models() {
-    }
-
-    /**
-     * Asks the saved model {@code id} to continue {@code prompt} with its most likely characters, up to {@code stop} or {@code max}
-     * characters. {@code reply} runs on the server thread, with null if the model can't be loaded.
-     */
-    public static void ask(MinecraftServer server, UUID id, String prompt, int max, char stop, Consumer<Sampler.@Nullable Answer> reply) {
-        submit(server, id, model -> Sampler.answer(model, prompt, max, stop), reply);
     }
 
     /** Runs saved-model work off-thread and completes failed requests with null. */
     public static <T> void submit(MinecraftServer server, UUID id, Function<CompiledGraph, T> work, Consumer<@Nullable T> reply) {
         Jobs.EXECUTOR.execute(() -> {
             CompiledGraph model = Checkpoints.load(server, id);
-            T answer = evaluate(model, work);
-            Jobs.back(server, () -> reply.accept(answer));
-        });
-    }
-
-    /** As {@link #submit(MinecraftServer, UUID, Function, Consumer)}, with the model's weights in {@code bits} bits. */
-    public static <T> void submit(MinecraftServer server, UUID id, int bits, Function<CompiledGraph, T> work, Consumer<@Nullable T> reply) {
-        Jobs.EXECUTOR.execute(() -> {
-            CompiledGraph model = Checkpoints.quantized(server, id, bits);
             T answer = evaluate(model, work);
             Jobs.back(server, () -> reply.accept(answer));
         });

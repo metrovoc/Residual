@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, int speed, boolean running,
                        int steps, int runSteps, float trainLoss, float valLoss, float accuracy, boolean causal, float gradNorm,
                        String message, List<String> args, List<TrainingJob.Point> history, List<Issue> issues,
-                       List<Node> nodes, int threads, int throttled, long parameters, List<Score> tests,
+                       List<Node> nodes, int threads, long parameters, List<Score> tests,
                        List<Boolean> practising, int budgetLeft, boolean busy, Plan plan, int weightDecay) implements CustomPacketPayload {
     public static final Type<CoreSync> TYPE = new Type<>(Residual.id("core_sync"));
 
@@ -32,7 +32,6 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
      * The recipe as the Train tab's Recipe page shows it.
      *
      * @param schedule, warmup, length, precision, moves, packing each setting's place in its list
-     * @param units       which units touch the Core, a bit each by {@code Unit} ordinal
      * @param step        steps this run has taken
      * @param rate        the learning rate of the latest step
      * @param spikes      steps of this run whose loss leapt far above its recent average
@@ -41,25 +40,23 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
      * @param secondRight how often a second head's first choice is right, or NaN
      * @param weightBytes what the model's weights take in this precision
      * @param readShare   the share of the loaded text its rows ever read, or NaN with none loaded
-     * @param onboardBytes the most an agent can carry
      */
-    public record Plan(int schedule, int warmup, int length, int precision, int moves, int packing, int units, int step, float rate,
-                       int spikes, float topScore, float topLogit, float secondRight, long weightBytes, float readShare, long onboardBytes) {
-        public static final Plan NONE = new Plan(0, 1, 0, 0, 0, 0, 0, 0, Float.NaN, 0, Float.NaN, Float.NaN, Float.NaN, 0, Float.NaN, 0);
+    public record Plan(int schedule, int warmup, int length, int precision, int moves, int packing, int step, float rate,
+                       int spikes, float topScore, float topLogit, float secondRight, long weightBytes, float readShare) {
+        public static final Plan NONE = new Plan(0, 1, 0, 0, 0, 0, 0, Float.NaN, 0, Float.NaN, Float.NaN, Float.NaN, 0, Float.NaN);
 
         void write(RegistryFriendlyByteBuf buf) {
-            for (int v : new int[]{schedule, warmup, length, precision, moves, packing, units, step, spikes}) {
+            for (int v : new int[]{schedule, warmup, length, precision, moves, packing, step, spikes}) {
                 buf.writeVarInt(v);
             }
             for (float v : new float[]{rate, topScore, topLogit, secondRight, readShare}) {
                 buf.writeFloat(v);
             }
             buf.writeVarLong(weightBytes);
-            buf.writeVarLong(onboardBytes);
         }
 
         static Plan read(RegistryFriendlyByteBuf buf) {
-            int[] i = new int[9];
+            int[] i = new int[8];
             for (int k = 0; k < i.length; k++) {
                 i[k] = buf.readVarInt();
             }
@@ -68,8 +65,7 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
                 f[k] = buf.readFloat();
             }
             long weightBytes = buf.readVarLong();
-            long onboardBytes = buf.readVarLong();
-            return new Plan(i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7], f[0], i[8], f[1], f[2], f[3], weightBytes, f[4], onboardBytes);
+            return new Plan(i[0], i[1], i[2], i[3], i[4], i[5], i[6], f[0], i[7], f[1], f[2], f[3], weightBytes, f[4]);
         }
     }
 
@@ -132,7 +128,6 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
             buf.writeBoolean(n.active);
         }
         buf.writeVarInt(s.threads);
-        buf.writeVarInt(s.throttled);
         buf.writeVarLong(s.parameters);
         buf.writeVarInt(s.tests.size());
         for (Score t : s.tests) {
@@ -180,7 +175,6 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
             nodes.add(new Node(buf.readBlockPos(), buf.readUtf(), buf.readUtf(), buf.readUtf(), buf.readVarLong(), buf.readFloat(), buf.readBoolean()));
         }
         int threads = buf.readVarInt();
-        int throttled = buf.readVarInt();
         long parameters = buf.readVarLong();
         n = buf.readVarInt();
         List<Score> tests = new ArrayList<>(n);
@@ -192,7 +186,7 @@ public record CoreSync(BlockPos pos, int learningRate, int batchSize, int clip, 
         boolean busy = buf.readBoolean();
         int weightDecay = buf.readVarInt();
         return new CoreSync(pos, lr, batch, clip, speed, running, steps, runSteps, train, val, acc, causal, grad, message, args,
-                history, issues, nodes, threads, throttled, parameters, tests, practising, budgetLeft, busy, Plan.read(buf), weightDecay);
+                history, issues, nodes, threads, parameters, tests, practising, budgetLeft, busy, Plan.read(buf), weightDecay);
     }
 
     @Override

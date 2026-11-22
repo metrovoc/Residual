@@ -10,7 +10,6 @@ import io.github.metrovoc.residual.item.DriveItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
 import io.github.metrovoc.residual.learn.Archive;
 import io.github.metrovoc.residual.learn.Benchmark;
-import io.github.metrovoc.residual.learn.Demand;
 import io.github.metrovoc.residual.learn.FieldTask;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Trainer;
@@ -33,8 +32,6 @@ import io.github.metrovoc.residual.scope.Stream;
 import io.github.metrovoc.residual.scope.Work;
 import io.github.metrovoc.residual.tensor.Parallel;
 import io.github.metrovoc.residual.train.Jobs;
-import io.github.metrovoc.residual.world.Cooling;
-import io.github.metrovoc.residual.world.GraphScanner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -241,7 +238,7 @@ public class InstrumentBlockEntity extends BlockEntity {
         ItemStack dataSlot = items.getItem(DATA).copy();
         long seed = level.getRandom().nextLong();
         Map<Integer, Features.Dictionary> kept = dictionaries;
-        int threads = Cooling.compute(level, worldPosition, ResidualConfig.BASE_THREADS.get(), ResidualConfig.MAX_THREADS.get()).threads();
+        int threads = ResidualConfig.THREADS.get();
         MinecraftServer server = level.getServer();
         Jobs.EXECUTOR.execute(() -> {
             Work.Result result = null;
@@ -280,7 +277,7 @@ public class InstrumentBlockEntity extends BlockEntity {
             return Benchmark.READING;
         }
         if (stack.getItem() instanceof FieldLogItem) {
-            return Demand.isLog(FieldLogItem.log(stack)) ? Benchmark.DEMAND : Benchmark.FORECASTING;
+            return Benchmark.FORECASTING;
         }
         return null;
     }

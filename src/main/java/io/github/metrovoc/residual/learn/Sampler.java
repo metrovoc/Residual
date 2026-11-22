@@ -1,16 +1,12 @@
 package io.github.metrovoc.residual.learn;
 
-import io.github.metrovoc.residual.agent.Job;
-import io.github.metrovoc.residual.agent.Program;
 import io.github.metrovoc.residual.graph.CompiledGraph;
-import io.github.metrovoc.residual.model.Serving;
 import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.tensor.Tokens;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 import net.minecraft.network.chat.Component;
 
@@ -56,59 +52,13 @@ public final class Sampler {
         return Ops.softmax(null, Tensor.of(new int[]{v}, last)).data;
     }
 
-    /** How much of what it has written goes out of view at a time, when what it reads has filled the window. */
-    public static int stride(int promptLength) {
-        return Math.max(1, (Vocab.CONTEXT - promptLength) / 2);
-    }
-
-    /** Whether a prompt leaves room to go on writing in view of it. */
-    private static boolean keeps(int promptLength) {
-        return Vocab.CONTEXT - promptLength >= 8;
-    }
-
-    /** Where in what it has written the part in view starts, when it has written {@code written} tokens after a prompt. */
-    public static int inView(int promptLength, int written) {
-        int room = Vocab.CONTEXT - promptLength;
-        return written <= room ? 0 : stride(promptLength) * Math.ceilDiv(written - room, stride(promptLength));
-    }
-
-    /**
-     * What a model reads to go on after a prompt it has to keep in view: the prompt, whole, and as much of what it has
-     * written since as fits, which goes out of view a stretch at a time. So a program can be longer than the window, with the
-     * order in sight to the last letter. A prompt with no room beside it slides out of view like anything else.
-     */
-    public static int[] window(int[] seq, int promptLength) {
-        if (seq.length <= Vocab.CONTEXT || !keeps(promptLength)) {
-            return seq;
-        }
-        int from = inView(promptLength, seq.length - promptLength);
-        int[] window = new int[seq.length - from];
-        System.arraycopy(seq, 0, window, 0, promptLength);
-        System.arraycopy(seq, promptLength + from, window, promptLength, seq.length - promptLength - from);
-        return window;
-    }
-
     /** Writes after {@code prompt} until it has written at least {@code chars} characters. */
     public static List<Step> generate(CompiledGraph model, int[] prompt, int chars, float temperature, Random rng) {
-        return generate(model, prompt, chars, temperature, rng, false);
-    }
-
-    /** Writes after {@code prompt} until it has written at least {@code chars} characters, keeping the prompt in view if {@code keep}. */
-    public static List<Step> generate(CompiledGraph model, int[] prompt, int chars, float temperature, Random rng, boolean keep) {
         Vocab vocab = model.env.tokenizer();
         List<Step> steps = new ArrayList<>();
-        if (model.forwarder() instanceof Serving serving && serving.drafts()) {
-            int[] written = {0};
-            Speculative.write(serving, prompt, temperature, temperature <= 0.01f, rng, step -> {
-                steps.add(step);
-                written[0] += vocab.piece(step.token()).length();
-                return written[0] < chars;
-            });
-            return steps;
-        }
         int[] seq = prompt.clone();
         for (int n = 0; n < chars; n += vocab.piece(steps.getLast().token()).length()) {
-            float[] p = nextProbs(model, keep ? window(seq, prompt.length) : seq, Vocab.CONTEXT, temperature);
+            float[] p = nextProbs(model, seq, Vocab.CONTEXT, temperature);
             int token = temperature <= 0.01f ? Trainer.argmax(p, 0, p.length) : draw(p, rng);
             int[] top = top(p, 5);
             float[] topP = new float[top.length];
@@ -118,72 +68,13 @@ public final class Sampler {
             steps.add(new Step(token, p[token], top, topP));
             seq = Arrays.copyOf(seq, seq.length + 1);
             seq[seq.length - 1] = token;
-            if (keep && vocab.piece(token).indexOf('\n') >= 0) {
-                break;
-            }
         }
         return steps;
     }
 
-    /** A greedy answer: what a model wrote and how sure it was of each token. */
-    public record Answer(String text, float[] probs) {
-        /** How sure it was of its least sure token. */
-        public float confidence() {
-            float min = 1f;
-            for (float p : probs) {
-                min = Math.min(min, p);
-            }
-            return min;
-        }
-    }
-
-    /**
-     * Writes the most likely next tokens after {@code prompt}, a task format and so spelled out and kept in view, stopping at
-     * {@code stop} or after {@code max} characters.
-     */
-    public static Answer answer(CompiledGraph model, String prompt, int max, char stop) {
-        Vocab vocab = model.env.tokenizer();
-        int[] seq = vocab.spell(prompt);
-        int promptLength = seq.length;
-        StringBuilder out = new StringBuilder();
-        float[] probs = new float[max];
-        int n = 0;
-        if (model.forwarder() instanceof Serving serving && serving.thinks() && stop == '\n') {
-            Answer thought = serving.think(prompt);
-            if (thought != null) {
-                return thought;
-            }
-        }
-        if (model.forwarder() instanceof Serving serving && serving.drafts()) {
-            int[] count = {0};
-            Speculative.write(serving, seq, 1f, true, new Random(0), step -> {
-                probs[count[0]++] = step.prob();
-                String piece = vocab.piece(step.token());
-                int end = piece.indexOf(stop);
-                out.append(piece, 0, end < 0 ? piece.length() : end);
-                return end < 0 && out.length() < max;
-            });
-            return new Answer(out.length() > max ? out.substring(0, max) : out.toString(), Arrays.copyOf(probs, count[0]));
-        }
-        while (out.length() < max) {
-            float[] p = nextProbs(model, window(seq, promptLength), Vocab.CONTEXT, 1f);
-            int token = Trainer.argmax(p, 0, p.length);
-            probs[n++] = p[token];
-            String piece = vocab.piece(token);
-            int end = piece.indexOf(stop);
-            out.append(piece, 0, end < 0 ? piece.length() : end);
-            if (end >= 0) {
-                break;
-            }
-            seq = Arrays.copyOf(seq, seq.length + 1);
-            seq[seq.length - 1] = token;
-        }
-        return new Answer(out.length() > max ? out.substring(0, max) : out.toString(), Arrays.copyOf(probs, n));
-    }
-
     /**
      * What the Tests tab shows: for reading, a continuation of {@code prompt} (or of unseen archive text when it is
-     * empty); for orders with a prompt, what the model takes it to mean; otherwise its answers to a fresh test
+     * empty); otherwise its answers to a fresh test
      * example next to the right ones.
      *
      * @param labels the most likely tokens at the first generated (or answered) position
@@ -194,45 +85,6 @@ public final class Sampler {
 
     public static Demo demo(CompiledGraph model, Benchmark benchmark, String prompt, float temperature, Random rng) {
         Vocab vocab = model.env.tokenizer();
-        if (benchmark == Benchmark.RECKONING) {
-            Reckoning.Sum sum = Reckoning.sum(rng, true);
-            String given = Reckoning.prompt(sum);
-            StringBuilder out = new StringBuilder();
-            List<Step> steps = generate(model, vocab.spell(given), Reckoning.WRITTEN, 0f, rng);
-            for (Step s : steps) {
-                String piece = vocab.piece(s.token());
-                int end = piece.indexOf('\n');
-                out.append(piece, 0, end < 0 ? piece.length() : end);
-                if (end >= 0) {
-                    break;
-                }
-            }
-            return new Demo(given, given + out, labels(vocab, steps.getFirst().topIds()), floats(steps.getFirst().topProbs()),
-                    Component.translatable(Reckoning.right(sum, out.toString()) ? "residual.sample.reckoning.right" : "residual.sample.reckoning.wrong", sum.worked()));
-        }
-        if (benchmark == Benchmark.ORDERS || benchmark == Benchmark.PROGRAMS) {
-            Orders.Example example = prompt.isBlank() ? Orders.example(rng, true) : null;
-            String given = Orders.prompt(example == null ? prompt : example.said());
-            List<Step> steps = generate(model, vocab.spell(given), Orders.WRITTEN, 0f, rng, true);
-            StringBuilder out = new StringBuilder(given);
-            float sure = 1f;
-            for (Step s : steps) {
-                String piece = vocab.piece(s.token());
-                int end = piece.indexOf('\n');
-                out.append(piece, 0, end < 0 ? piece.length() : end);
-                sure = Math.min(sure, s.prob());
-                if (end >= 0) {
-                    break;
-                }
-            }
-            Program.Parsed p = Program.parse(out.substring(given.length()));
-            Component note = (example == null ? Component.empty() : Component.translatable("residual.sample.meant", example.meant()))
-                    .append(Component.translatable(!p.ok() || p.program().steps().isEmpty() ? "residual.sample.orders.lost"
-                            : !p.program().atOnce() && Job.of(p.program().toString()) == null || sure < Kinds.SURE ? "residual.sample.orders.confirm"
-                            : p.program().endless() ? "residual.sample.orders.program"
-                            : "residual.sample.orders.now"));
-            return new Demo(given, out.toString(), labels(vocab, steps.getFirst().topIds()), floats(steps.getFirst().topProbs()), note);
-        }
         if (benchmark == Benchmark.SORTING) {
             Kinds.Example example = prompt.isBlank() ? Kinds.example(rng, true) : null;
             String given = Kinds.prompt(example == null ? prompt : example.name());
@@ -245,34 +97,8 @@ public final class Sampler {
                             : Component.translatable("residual.sample.sorting.chest", kind.id));
             return new Demo(given, given + letter, labels(vocab, step.topIds()), floats(step.topProbs()), note);
         }
-        if (benchmark == Benchmark.RETRIEVAL) {
-            Retrieval.Example example = prompt.isBlank() ? Retrieval.example(rng, true) : null;
-            String given = Retrieval.prompt(example == null ? prompt : example.said());
-            Step step = generate(model, vocab.spell(given), 1, 0f, rng).getFirst();
-            char letter = vocab.piece(step.token()).charAt(0);
-            Retrieval.Use use = Retrieval.Use.of(letter);
-            Component note = (example == null ? Component.empty() : Component.translatable("residual.sample.really", example.use().id))
-                    .append(use == null || use == Retrieval.Use.OTHER ? Component.translatable("residual.sample.retrieval.nothing")
-                            : Component.translatable("residual.sample.retrieval.use", use.id));
-            return new Demo(given, given + letter, labels(vocab, step.topIds()), floats(step.topProbs()), note);
-        }
         if (benchmark == Benchmark.FORECASTING) {
             return forecast(model, rng);
-        }
-        if (benchmark == Benchmark.CONTROL || benchmark == Benchmark.PILOT || benchmark == Benchmark.REACTOR || benchmark == Benchmark.PRECISION) {
-            Played played = benchmark == Benchmark.CONTROL ? new Control() : benchmark == Benchmark.PILOT ? new Pilot() : benchmark == Benchmark.REACTOR ? new Reactor() : new Precision();
-            Played.Episode episode = played.demo(model, rng);
-            return new Demo("", episode.line.toString(), List.of("0", "1", "2"), played.first(model, 1),
-                    Component.translatable("residual.sample." + benchmark.id, Math.round(100 * episode.score())));
-        }
-        if (benchmark == Benchmark.WATCH) {
-            Watch.Example ex = Watch.example(rng, true);
-            int[] ids = vocab.spell(ex.line());
-            Step last = generate(model, ids, 1, 0f, rng).getFirst();
-            String says = Watch.judge(Watch.surprise(model, ex.line())).name().toLowerCase(Locale.ROOT);
-            Component note = Component.translatable(ex.fault() == null ? "residual.sample.watch.really_fine" : "residual.sample.watch.really_wrong")
-                    .append(" ").append(Component.translatable("residual.sample.watch." + says));
-            return new Demo(ex.line(), ex.line(), labels(vocab, last.topIds()), floats(last.topProbs()), note);
         }
         if (benchmark != Benchmark.READING) {
             return puzzle(model, benchmark.practice(), rng);

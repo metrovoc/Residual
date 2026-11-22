@@ -1,17 +1,13 @@
 package io.github.metrovoc.residual.learn;
 
-import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.tensor.Tokens;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import org.jetbrains.annotations.Nullable;
 
 /**
- * Synthetic practice for one benchmark, scored only on its answer positions. Agents ask their models in these same
- * formats, so practice, test and work are one thing.
+ * Synthetic practice for one benchmark, scored only on its answer positions.
  */
 public final class Dataset extends Task {
     /** Kinds of goods in a storage question, and the chests they can be in. */
@@ -54,12 +50,7 @@ public final class Dataset extends Task {
                 case REVERSAL -> errand(rng, seq, answer);
                 case INDUCTION -> pattern(rng, seq, answer);
                 case SORTING -> sorting(rng, seq, answer, test);
-                case ORDERS -> orders(rng, seq, answer, test);
-                case SURVEY -> survey(rng, seq, answer);
-                case DEMAND -> demand(rng, seq, answer, test);
-                case RETRIEVAL -> retrieval(rng, seq, answer, test);
                 case MODULAR -> modular(rng, seq, answer, test);
-                case GROUND -> ground(rng, seq, answer);
                 default -> throw new IllegalStateException();
             }
             int o = b * t;
@@ -106,36 +97,6 @@ public final class Dataset extends Task {
         seq[2 * PAIRS + 1] = vocab.id(GOODS.charAt(keys[q]));
         seq[2 * PAIRS + 2] = vocab.id(CHESTS.charAt(vals[q]));
         answer[2 * PAIRS + 2] = true;
-    }
-
-    /** {@code 0020020020020…}: how much a Port moved out at each look, scored once the rhythm has come round twice. */
-    private void demand(Random rng, int[] seq, boolean[] answer, boolean test) {
-        Demand.Line line = Demand.line(rng, seq.length, test);
-        for (int i = 0; i < seq.length; i++) {
-            seq[i] = vocab.id(line.looks().charAt(i));
-            answer[i] = i >= line.scoredFrom();
-        }
-    }
-
-    /** {@code ⏎SSSIIDDDCCSSSSSS}: a row of ground, each block scored after the blocks before it. */
-    private void ground(Random rng, int[] seq, boolean[] answer) {
-        String row = Survey.row(rng).replace(Survey.CACHE, 'S');
-        seq[0] = vocab.id('\n');
-        for (int i = 1; i < seq.length; i++) {
-            seq[i] = vocab.id(row.charAt(i - 1));
-            answer[i] = true;
-        }
-    }
-
-    /** {@code SSSIIDDDCCSSSSSS>C:i}: where in a row of ground the first of an ore lies, or {@code -} for none. */
-    private void survey(Random rng, int[] seq, boolean[] answer) {
-        String row = Survey.row(rng);
-        char ore = Survey.asked(rng, row);
-        String text = Survey.prompt(row, ore) + Survey.answer(row, ore);
-        for (int i = 0; i < seq.length; i++) {
-            seq[i] = vocab.id(text.charAt(i));
-        }
-        answer[seq.length - 1] = true;
     }
 
     /** {@code 381925|529183}: the landmarks of one leg, then the same landmarks in reverse. */
@@ -195,51 +156,6 @@ public final class Dataset extends Task {
         }
     }
 
-    /** {@code soul lantern? l⏎something to eat? f⏎}, repeated: what each thing or query is for is the answer. */
-    private void retrieval(Random rng, int[] seq, boolean[] answer, boolean test) {
-        StringBuilder text = new StringBuilder();
-        while (text.length() < seq.length) {
-            Retrieval.Example ex = Retrieval.example(rng, test);
-            text.append(Retrieval.prompt(ex.said()));
-            if (text.length() < seq.length) {
-                answer[text.length()] = true;
-            }
-            text.append(ex.use().letter).append('\n');
-        }
-        for (int i = 0; i < seq.length; i++) {
-            seq[i] = vocab.id(text.charAt(i));
-        }
-    }
-
-    /**
-     * {@code > bring me some bread⏎= fetch bread⏎}, repeated: the meaning of each order is the answer. The first program may be
-     * too long for the window, so the window shows a stretch of it as a model writing it would see that stretch, and only the
-     * letters a model would write while seeing that much are scored.
-     */
-    private void orders(Random rng, int[] seq, boolean[] answer, boolean test) {
-        Orders.Example ex = Orders.example(rng, test);
-        List<Orders.Window> windows = Orders.windows(ex);
-        Orders.Window w = windows.get(rng.nextInt(windows.size()));
-        boolean[] meant = new boolean[seq.length + 2 * Orders.WRITTEN + Orders.LONGEST];
-        StringBuilder text = new StringBuilder(w.text());
-        for (int i = w.scoredFrom(); i < w.scoredTo(); i++) {
-            meant[i] = true;
-        }
-        while (text.length() < seq.length) {
-            ex = Orders.example(rng, test);
-            text.append(Orders.prompt(ex.said()));
-            int start = text.length();
-            text.append(ex.meant()).append('\n');
-            for (int i = start; i < Math.min(text.length(), meant.length); i++) {
-                meant[i] = true;
-            }
-        }
-        for (int i = 0; i < seq.length; i++) {
-            seq[i] = vocab.id(text.charAt(i));
-            answer[i] = meant[i];
-        }
-    }
-
     /** {@code ab=c}: what a and b add up to on a wheel; the test asks only pairs practice never shows. */
     private void modular(Random rng, int[] seq, boolean[] answer, boolean test) {
         int[] pairs = Modular.pairs(test);
@@ -248,11 +164,6 @@ public final class Dataset extends Task {
             seq[i] = vocab.id(line.charAt(i));
         }
         answer[seq.length - 1] = true;
-    }
-
-    @Override
-    public double @Nullable [] measure(CompiledGraph model) {
-        return benchmark == Benchmark.ORDERS ? Orders.measure(model) : null;
     }
 
     public static int[] distinct(Random rng, int range, int n) {

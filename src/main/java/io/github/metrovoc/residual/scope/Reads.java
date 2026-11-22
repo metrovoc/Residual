@@ -4,7 +4,6 @@ import io.github.metrovoc.residual.graph.Captures;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.learn.Batch;
 import io.github.metrovoc.residual.learn.Benchmark;
-import io.github.metrovoc.residual.learn.Played;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.tensor.Tensor;
@@ -20,17 +19,12 @@ public final class Reads {
 
     /** A benchmark's held-out test, as the model reads it. */
     public static Task test(CompiledGraph model, Benchmark benchmark) {
-        Task task = benchmark.test(model.env.tokenizer());
-        if (task instanceof Played played) {
-            played.policy(model);
-        }
-        return task;
+        return benchmark.test(model.env.tokenizer());
     }
 
-    /** {@code size} stretches of a benchmark's test. A played test has no stretches of its own, so it reads what it practises on. */
+    /** {@code size} stretches of a benchmark's test. */
     public static Batch stretches(CompiledGraph model, Benchmark benchmark, Random rng, int size) {
-        Task task = test(model, benchmark);
-        return task.batch(rng, size, !(task instanceof Played));
+        return test(model, benchmark).batch(rng, size, true);
     }
 
     /** One line of what the player typed, at most as long as a model reads; null when nothing of it can be read. */

@@ -155,10 +155,8 @@ class Template:
             self.blocks[(x + ox, y + oy, z + oz)] = block
 
     def apprentice(self, x, y, z, yaw):
-        """An apprentice standing still where its work stopped, facing yaw degrees (0 south, 90 west)."""
-        self.entities.append({"pos": [x + 0.5, float(y), z + 0.5], "blockPos": [x, y, z], "nbt": {
-            "id": "residual:agent", "NoAI": Byte(1), "PersistenceRequired": Byte(1), "program": "",
-            "stopped": Byte(1), "Rotation": [Float(yaw), Float(0)]}})
+        """An apprentice standing still where its work stopped, its copper gone green, facing yaw degrees (0 south, 90 west)."""
+        self.set(x, y, z, "oxidized_copper_golem_statue", {"facing": {0: "south", 90: "west", 180: "north", 270: "east"}[yaw]})
 
     def connect(self):
         """Joins fences, panes, bars and walls to what stands beside them, as placing them by hand would."""
@@ -741,7 +739,7 @@ def relay_mast(variant=0):
             for k in (1, 2, 3):
                 copper(7 + d * k, 23, 7, "lightning_rod", {"facing": f, "powered": "false", "waterlogged": "false"})
             copper(7 + d * 4, 23, 7, "copper_bulb", {"lit": "false", "powered": "false"})
-        t.set(7, top, 7, "residual:relay")
+        t.set(7, top, 7, "oxidized_lightning_rod")
         copper(7, top + 1, 7, "lightning_rod", {"facing": "up", "powered": "false", "waterlogged": "false"})
     else:
         # broken off: the legs torn short at different heights, the top lying in the grass to the east with its relay
@@ -753,7 +751,7 @@ def relay_mast(variant=0):
             copper(5 + k, 1, 11, "cut_copper")
             if k % 2 == 0:
                 copper(5 + k, 2, 12, "cut_copper_slab", {"type": "bottom", "waterlogged": "false"})
-        t.set(14, 1, 12, "residual:relay")
+        t.set(14, 1, 12, "oxidized_lightning_rod")
         for x in (12, 13):
             copper(x, 1, 10, "lightning_rod", {"facing": "north", "powered": "false", "waterlogged": "false"})
         for x, z in ((4, 12), (3, 10)):
@@ -852,7 +850,7 @@ def buried_vault(variant=0):
         if x in (5, 7, 9):
             continue
         t.set(x, 1, z1 - 1, "residual:tensor_casing")
-        t.set(x, 2, z1 - 1, "residual:accelerator" if x in (4, 10) else "residual:tensor_casing")
+        t.set(x, 2, z1 - 1, "copper_bulb" if x in (4, 10) else "residual:tensor_casing")
         t.set(x, 1, z1 - 2, "residual:cable", {d: str(d in ("east", "west", "south")).lower()
                                               for d in ("north", "south", "east", "west", "up", "down")})
     t.chest(x0 + 1, 1, 11, "east", "residual:chests/buried_vault")
@@ -1427,9 +1425,9 @@ def relay_tower(variant=0):
     t.lantern(7, 4, 15, hanging=True)
     # the big mind's side: its stand, the crystal gone, ringed by quickeners sunk in the floor with their cooling water
     t.set(12, 0, 15, "stone_bricks")
-    t.set(12, 1, 15, "residual:model_server", {"facing": "west", "loaded": "false", "serving": "false"})
+    t.set(12, 1, 15, "lectern", {"facing": "west"})
     for x, z in ((11, 14), (13, 14), (11, 16), (13, 16)):
-        t.set(x, 0, z, "residual:accelerator")
+        t.set(x, 0, z, "copper_bulb")
     for x, z in ((12, 14), (12, 16), (11, 15), (13, 15)):
         t.set(x, 0, z, "water", {"level": "0"})
     t.lantern(12, 4, 15, hanging=True)
@@ -2013,13 +2011,13 @@ def tutor_house(variant=0):
         for z in range(10, 13):
             t.slab(x, 4, z, "weathered_cut_copper_slab")
     # the relay on the roof, its bulbs at the corners of the parapet
-    t.set(8, 8, 5, "residual:relay")
+    t.set(8, 8, 5, "oxidized_lightning_rod")
     for x, z in ((x0, z0), (x1, z0), (x0, z1), (x1, z1)):
         t.set(x, 9, z, "oxidized_copper_bulb", {"lit": "false", "powered": "false"})
     # the drill hall: the apprentices in their row, the tutor's bench with the drill box and the crystal
     for x in range(4, 14, 2):
         t.apprentice(x, 1, 4, 0)
-    t.set(12, 1, 7, "residual:bench")
+    t.set(12, 1, 7, "crafting_table")
     t.barrel(11, 1, 7, "up", "residual:chests/tutor_house")
     t.set(13, 1, 7, "polished_tuff")
     t.set(13, 2, 7, "amethyst_cluster", {"facing": "up", "waterlogged": "false"})
@@ -2176,7 +2174,7 @@ def fallen_relay_mast(variant=0):
                                                                      "waterlogged": "false"})
     copper(17, floor(17, 10) + 7, 10, "copper_bulb", {"lit": "false", "powered": "false"})
     copper(17, floor(17, 6), 5, "copper_bulb", {"lit": "false", "powered": "false"})
-    t.set(19, fz, 10, "residual:relay")
+    t.set(19, fz, 10, "oxidized_lightning_rod")
     # guy chains lying in the grass, torn pieces of the stand
     for z in range(2, 8):
         t.set(5, floor(5, z) + 1 if floor(5, z) is not None else ground + 1, z, "chain", {"axis": "z", "waterlogged": "false"})
@@ -3092,7 +3090,7 @@ def deep_works(variant=0):
             t.set(x, y, hz0 + 1, "polished_deepslate")
     cable = {d: str(d in ("east", "west", "south")).lower() for d in ("north", "south", "east", "west", "up", "down")}
     for x in range(hx0 + 2, hx1 - 1, 2):
-        t.set(x, 2, hz1 - 1, "residual:accelerator")
+        t.set(x, 2, hz1 - 1, "copper_bulb")
         t.set(x, 3, hz1 - 1, "residual:tensor_casing")
         t.set(x, 2, hz1 - 2, "residual:cable", cable)
     for x, y, z, face in ((hx0 + 1, 4, 18, "west"), (hx1 - 1, 5, 20, "east"), (10, 6, hz0 + 1, "north"),
@@ -3525,29 +3523,20 @@ def pool(rolls, entries):
     return {"rolls": {"type": "minecraft:uniform", "min": rolls[0], "max": rolls[1]}, "bonus_rolls": 0.0, "entries": entries}
 
 
-def mask(spec, weight=1):
-    """A photomask carrying the old salvaged design for a spec: it fabricates working but unfused machines."""
-    return item("photomask", weight, components={"residual:mask": {"spec": spec, "salvaged": True}})
-
-
 WRECKS = ["shape", "diverge", "leak", "order", "depth"]
 
 
 LOOT = {
     "chests/archive_house": [pool((2, 4), [
-        item("archive_shard", 10, (1, 3)), item("weight_crystal", 4, (1, 3)), mask("linear", 2), mask("softmax", 1),
-        mask("gelu", 1), item("wafer", 3, (2, 5)), item("minecraft:paper", 4, (2, 6)), item("minecraft:book", 2, (1, 2))])],
+        item("archive_shard", 10, (1, 3)), item("weight_crystal", 4, (1, 3)), item("minecraft:paper", 4, (2, 6)), item("minecraft:book", 2, (1, 2))])],
     "chests/archive_shelf": [pool((1, 3), [item("archive_shard", 8), item("minecraft:paper", 5, (1, 4)),
                                            item("minecraft:ink_sac", 2, (1, 2)), item("minecraft:candle", 2, (1, 2))])],
     "chests/relay_mast": [pool((2, 3), [
-        item("archive_shard", 8, (1, 2)), item("relay_card", 4), item("schematic_relays", 2),
-        item("minecraft:copper_ingot", 6, (2, 6)), item("minecraft:redstone", 5, (2, 5))])],
+        item("archive_shard", 8, (1, 2)), item("minecraft:copper_ingot", 6, (2, 6)), item("minecraft:redstone", 5, (2, 5))])],
     "chests/buried_vault": [
         pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS]),
         pool((2, 4), [
-            mask("attention", 2), mask("layer_norm", 2), mask("mlp", 2), mask("transformer", 1), mask("swiglu", 1), mask("qk_norm", 1),
-            mask("fp8", 1), mask("orthogonalize", 1), mask("multi_token", 1),
-            item("schematic_relays", 1), item("checkpoint", 3), item("weight_crystal", 5, (2, 4)),
+            item("checkpoint", 3), item("weight_crystal", 5, (2, 4)),
             item("archive_shard", 6, (1, 3)), item("minecraft:diamond", 1), item("minecraft:gold_ingot", 3, (1, 3))])],
     "chests/relay_tower_store": [pool((2, 4), [
         item("minecraft:coal", 8, (3, 9)), item("minecraft:potato", 8, (2, 6)), item("minecraft:bread", 3, (1, 3)),
@@ -3556,8 +3545,7 @@ LOOT = {
         item("minecraft:baked_potato", 6, (1, 4)), item("minecraft:rabbit_stew", 2), item("minecraft:bowl", 3, (1, 2)),
         item("minecraft:cooked_rabbit", 3, (1, 2)), item("archive_shard", 2, about=RELAYS)])],
     "chests/relay_tower_keeper": [pool((2, 4), [
-        item("archive_shard", 10, (1, 3), about=RELAYS), item("relay_card", 4), item("schematic_relays", 2),
-        item("minecraft:paper", 4, (1, 4)), item("minecraft:book", 2), item("minecraft:candle", 2),
+        item("archive_shard", 10, (1, 3), about=RELAYS), item("minecraft:paper", 4, (1, 4)), item("minecraft:book", 2), item("minecraft:candle", 2),
         item("minecraft:redstone", 3, (2, 4))])],
     "chests/windmill": [pool((2, 4), [
         item("minecraft:wheat", 8, (3, 9)), item("minecraft:bread", 5, (1, 4)), item("minecraft:wheat_seeds", 4, (2, 6)),
@@ -3593,8 +3581,6 @@ LOOT = {
         item("archive_shard", 6, about=ROADS), item("minecraft:emerald", 2), item("minecraft:flint", 2)]}],
     "chests/tutor_house": [pool((2, 4), [
         item("archive_shard", 10, (1, 3), about=TUTORS), item("checkpoint", 4), item("weight_crystal", 4, (1, 3)),
-        mask("linear", 2), mask("softmax", 1), mask("rms_norm", 1), mask("rotary", 1), mask("z_loss", 1), mask("schedule", 2),
-        mask("bf16", 1), mask("document_mask", 1),
         item("minecraft:paper", 3, (1, 4)), item("minecraft:book", 2), item("minecraft:amethyst_shard", 3, (1, 3))])],
     "chests/tutor_dry_box": [
         pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS] + [item("checkpoint", 5)]),
@@ -3602,8 +3588,7 @@ LOOT = {
                       item("minecraft:honeycomb", 3, (1, 3)), item("archive_shard", 3, about=TUTORS)])],
     "chests/fallen_relay_mast": [
         pool((2, 3), [item("archive_drive", 1, drive=(10, ["relay", "message", "tower", "keeper"]))]),
-        pool((1, 2), [item("relay_dump")]),
-        pool((1, 3), [item("relay_card", 4), item("archive_shard", 6, (1, 3), about=["relay", "message"]),
+        pool((1, 3), [item("archive_shard", 6, (1, 3), about=["relay", "message"]),
                       item("minecraft:copper_ingot", 4, (2, 6)), item("minecraft:redstone", 3, (2, 5))])],
     "chests/sealed_stacks": [
         pool((1, 2), [item("archive_drive", 1, drive=(14, ["archive", "clerk", "Vell", "record"]))]),
@@ -3638,9 +3623,7 @@ LOOT = {
         item("minecraft:copper_ingot", 3, (2, 6)), item("minecraft:lantern", 2), item("archive_shard", 4, (1, 2), about=DEEP)])],
     "chests/deep_works_hall": [
         pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS]),
-        pool((2, 4), [mask("attention", 2), mask("transformer", 2), mask("layer_norm", 1), mask("mlp", 1),
-                      mask("modern_attention", 2), mask("modern_block", 1), mask("swiglu", 1), mask("fp4", 2), mask("fp8", 1),
-                      item("weight_crystal", 4, (2, 5)), item("minecraft:amethyst_shard", 3, (2, 6)),
+        pool((2, 4), [item("weight_crystal", 4, (2, 5)), item("minecraft:amethyst_shard", 3, (2, 6)),
                       item("archive_drive", 2, drive=(12, ["Deep Works", "warm", "humming", "ninth"]))])],
     "chests/archive_copying": [pool((2, 4), [
         item("minecraft:paper", 6, (4, 12)), item("minecraft:ink_sac", 4, (2, 6)), item("minecraft:feather", 3, (2, 5)),
@@ -3651,9 +3634,9 @@ LOOT = {
             "title": {"raw": "The founders' page"}, "author": "the first keepers", "resolved": True,
             "pages": [{"raw": p} for p in FOUNDERS_PAGE]}})]),
         pool((2, 3), [item("archive_drive", 1, drive=(24, ["founding", "first", "archive"])), item("weight_crystal", 3, (2, 4)),
-                      mask("transformer", 1), mask("modern_block", 1), item("archive_shard", 4, (2, 4))])],
+                      item("archive_shard", 4, (2, 4))])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
-        item("archive_shard", 9), mask("matmul", 1), item("weight_crystal", 2)]}],
+        item("archive_shard", 9), item("weight_crystal", 2)]}],
 }
 
 

@@ -6,7 +6,6 @@ import io.github.metrovoc.residual.learn.Batch;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Contamination;
 import io.github.metrovoc.residual.learn.Kinds;
-import io.github.metrovoc.residual.learn.Played;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.TextTask;
 import io.github.metrovoc.residual.learn.Trainer;
@@ -429,8 +428,6 @@ public final class Trials {
         Task newTest = Reads.test(model, narrow);
         // reading's own practice is what shards carry, which only a drive holds: it stays out of this
         List<Task> old = known == Benchmark.READING ? List.of() : List.of(known.practice());
-        bind(old, model);
-        bind(List.of(r.data().task()), model);
         Task task = new Replayed(r.data().task(), old, share);
         Trainer tr = new Trainer(model, task, r.seed(), rate, BATCH, CLIP);
         List<float[]> curve = new ArrayList<>();
@@ -447,15 +444,6 @@ public final class Trials {
         float end = curve.getLast()[1];
         boolean forgot = passedBefore && !(known.metric == Task.Metric.LOSS ? end <= known.target : end >= known.target);
         return new Work.Result(forgetPicture(curve, known, narrow, share), Component.empty(), List.of(), List.of(), forgot ? "failure/forgot" : null, w.stopped() ? null : model);
-    }
-
-    /** A task practised by playing plays with the model being tuned. */
-    private static void bind(List<Task> tasks, CompiledGraph model) {
-        for (Task t : tasks) {
-            if (t instanceof Played played) {
-                played.policy(model);
-            }
-        }
     }
 
     private static double progress(Benchmark b, Trainer.Eval e) {
@@ -671,9 +659,6 @@ public final class Trials {
         Benchmark benchmark = r.data() == null ? r.benchmark() : r.data().benchmark();
         CompiledGraph model = r.model().fresh(r.seed());
         Task test = Reads.test(model, benchmark);
-        if (test.measure(model) != null) {
-            return new Work.Result(Picture.NONE, Component.translatable("residual.trial.contaminate.played"));
-        }
         if (r.data() == null && benchmark == Benchmark.READING) {
             return new Work.Result(Picture.NONE, Component.translatable("residual.trial.needs_text"));
         }

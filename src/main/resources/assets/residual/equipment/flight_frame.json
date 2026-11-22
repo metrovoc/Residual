@@ -1,9 +1,0 @@
-{
-  "layers": {
-    "humanoid": [
-      {
-        "texture": "residual:flight_frame"
-      }
-    ]
-  }
-}

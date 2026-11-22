@@ -3,10 +3,6 @@ package io.github.metrovoc.residual.block;
 import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.Residual;
 import io.github.metrovoc.residual.ResidualConfig;
-import io.github.metrovoc.residual.bench.Unit;
-import io.github.metrovoc.residual.compute.Cluster;
-import io.github.metrovoc.residual.compute.ClusterStatus;
-import io.github.metrovoc.residual.compute.Parallelism;
 import io.github.metrovoc.residual.compute.RunMeter;
 import io.github.metrovoc.residual.graph.CompileException;
 import io.github.metrovoc.residual.graph.CompiledGraph;
@@ -17,24 +13,17 @@ import io.github.metrovoc.residual.graph.Sym;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.DatasetItem;
 import io.github.metrovoc.residual.item.DriveItem;
-import io.github.metrovoc.residual.item.DumpItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
-import io.github.metrovoc.residual.item.MobLogItem;
-import io.github.metrovoc.residual.item.TokenCellItem;
 import io.github.metrovoc.residual.item.TokenizerItem;
 import io.github.metrovoc.residual.item.WreckItem;
-import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Archive;
+import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Contamination;
-import io.github.metrovoc.residual.learn.Seeds;
-import io.github.metrovoc.residual.learn.Dataset;
-import io.github.metrovoc.residual.learn.Demand;
 import io.github.metrovoc.residual.learn.FieldTask;
-import io.github.metrovoc.residual.learn.Ground;
-import io.github.metrovoc.residual.learn.Imitating;
 import io.github.metrovoc.residual.learn.Mixture;
 import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Sampler;
+import io.github.metrovoc.residual.learn.Seeds;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.TextTask;
 import io.github.metrovoc.residual.learn.Trainer;
@@ -46,24 +35,19 @@ import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.net.ComputeSync;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.EvaluationSync;
-import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.net.SampleResult;
-import io.github.metrovoc.residual.refine.Dump;
-import io.github.metrovoc.residual.refine.Supplies;
-import io.github.metrovoc.residual.refine.SupplyTask;
-import io.github.metrovoc.residual.refine.TokenSupply;
+import io.github.metrovoc.residual.net.WaveSync;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
 import io.github.metrovoc.residual.registry.ModComponents;
-import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.scope.Discoveries;
 import io.github.metrovoc.residual.scope.Records;
+import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.Parallel;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.train.Jobs;
 import io.github.metrovoc.residual.train.TrainingJob;
 import io.github.metrovoc.residual.world.CaseBuilder;
 import io.github.metrovoc.residual.world.CaseLayout;
-import io.github.metrovoc.residual.world.Cooling;
 import io.github.metrovoc.residual.world.GraphScanner;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,8 +71,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.Containers;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
@@ -135,10 +119,8 @@ public class CoreBlockEntity extends BlockEntity {
     private int clip;
     private int weightDecay;
     private TrainingJob.Speed speed = TrainingJob.Speed.NORMAL;
-    /** The recipe: each setting's place in its list. A setting away from the plain recipe needs its unit touching the Core. */
+    /** The recipe: each setting's place in its list. */
     private int schedule, warmup = 1, length, precision, moves, packing;
-    /** The units touching the Core at the last check, a bit each. */
-    private int units;
     private int runStep, spikes;
     private float rate = Float.NaN, topScore = Float.NaN, topLogit = Float.NaN, secondRight = Float.NaN;
     private long weightBytes;
@@ -157,9 +139,7 @@ public class CoreBlockEntity extends BlockEntity {
     private List<CoreSync.Issue> issues = List.of();
     private List<CoreSync.Node> nodes = List.of();
     private long parameters;
-    private Cooling.Compute compute = new Cooling.Compute(1, 0);
     private final RunMeter meter = new RunMeter();
-    private boolean splitAwarded;
     private long lastComputeSync;
 
     /** What has been seen of the model standing here, for what it may yet do. */
@@ -199,17 +179,9 @@ public class CoreBlockEntity extends BlockEntity {
         applySettings(Wrecks.Settings.DEFAULT);
     }
 
-    /** Steps it has trained, and the loss it had at the last of them, for a Terminal to read. */
+    /** Steps it has trained. */
     public int steps() {
         return steps;
-    }
-
-    public float trainLoss() {
-        return trainLoss;
-    }
-
-    public boolean running() {
-        return job != null;
     }
 
     /** How a run trains, as the settings stand. */
@@ -218,132 +190,38 @@ public class CoreBlockEntity extends BlockEntity {
                 Numerics.Format.values()[precision], Recipe.Moves.values()[moves], Recipe.Packing.values()[packing]);
     }
 
-    private boolean has(Unit unit) {
-        return (units >> unit.ordinal() & 1) != 0;
-    }
-
-    /** The unit a format takes, or null for fp32. */
-    @Nullable
-    private static Unit unitFor(Numerics.Format format) {
-        return switch (format) {
-            case FP32 -> null;
-            case BF16 -> Unit.BF16_UNIT;
-            case FP8 -> Unit.FP8_UNIT;
-            case FP4, FP4_FLAT -> Unit.FP4_UNIT;
-        };
-    }
-
-    /** Which units this run's recipe is using. */
-    private boolean uses(Unit unit) {
-        return switch (unit) {
-            case SCHEDULER -> schedule != 0 || warmup != 1 || length != 0;
-            case BF16_UNIT, FP8_UNIT, FP4_UNIT -> unitFor(Numerics.Format.values()[precision]) == unit;
-            case ORTHOGONALIZER -> moves != 0;
-            case PACKER -> packing != 0;
-        };
-    }
-
-    /** Finds which units touch the Core, and takes back whatever a unit no longer there allowed. */
-    private void findUnits() {
-        int found = 0;
-        for (BlockPos p : GraphScanner.units(level, worldPosition)) {
-            if (level.getBlockState(p).getBlock() instanceof UnitBlock u) {
-                found |= 1 << u.unit.ordinal();
-            }
-        }
-        units = found;
-        if (!has(Unit.SCHEDULER)) {
-            schedule = 0;
-            warmup = 1;
-            length = 0;
-        }
-        Unit format = unitFor(Numerics.Format.values()[precision]);
-        if (format != null && !has(format)) {
-            precision = 0;
-        }
-        if (!has(Unit.ORTHOGONALIZER)) {
-            moves = 0;
-        }
-        if (!has(Unit.PACKER) && packing != 0) {
-            packing = 0;
-            practiceKnown = false;
-        }
-    }
-
-    /** Lights the units a run is using, and puts out the others. */
-    private void lightUnits(boolean running) {
-        for (BlockPos p : GraphScanner.units(level, worldPosition)) {
-            BlockState s = level.getBlockState(p);
-            if (s.getBlock() instanceof UnitBlock u && s.getValue(UnitBlock.WORKING) != (running && uses(u.unit))) {
-                level.setBlock(p, s.setValue(UnitBlock.WORKING, running && uses(u.unit)), Block.UPDATE_CLIENTS);
-            }
-        }
-    }
-
     /** A recipe setting has changed: a running job takes it from its next step. */
     private void recipeChanged() {
         if (job != null) {
             job.recipe = recipe();
-            lightUnits(true);
-        }
-        if (message.equals("residual.status.needs_unit")) {
-            say("residual.status.ready");
         }
         touch();
     }
 
-    /** Whether the Scheduler is there to allow a change; says so if not. */
-    private boolean scheduled() {
-        if (!has(Unit.SCHEDULER)) {
-            say("residual.status.needs_unit", "block.residual." + Unit.SCHEDULER.id);
-        }
-        return has(Unit.SCHEDULER);
-    }
-
     public void setSchedule(int i) {
-        if (scheduled()) {
-            schedule = Math.floorMod(i, Recipe.Schedule.values().length);
-            // a schedule that falls has to know where it ends
-            if (schedule != 0 && length == 0) {
-                length = 3;
-            }
-            recipeChanged();
+        schedule = Math.floorMod(i, Recipe.Schedule.values().length);
+        // a schedule that falls has to know where it ends
+        if (schedule != 0 && length == 0) {
+            length = 3;
         }
+        recipeChanged();
     }
 
     public void setWarmup(int i) {
-        if (scheduled()) {
-            warmup = Math.floorMod(i, Recipe.WARMUPS.length);
-            recipeChanged();
-        }
+        warmup = Math.floorMod(i, Recipe.WARMUPS.length);
+        recipeChanged();
     }
 
     public void setLength(int i) {
-        if (scheduled()) {
-            length = Math.floorMod(i, Recipe.LENGTHS.length);
-            if (length == 0) {
-                schedule = 0;
-            }
-            recipeChanged();
+        length = Math.floorMod(i, Recipe.LENGTHS.length);
+        if (length == 0) {
+            schedule = 0;
         }
+        recipeChanged();
     }
 
-    /** Takes the next format the way the player is stepping whose unit touches the Core; fp32 is always there. */
     public void setPrecision(int i) {
-        int before = precision;
-        int n = Numerics.Format.values().length;
-        int to = Math.floorMod(i, n);
-        int direction = Math.floorMod(to - precision, n) == n - 1 ? -1 : 1;
-        Unit missing = null;
-        for (int k = 0; k < n; k++) {
-            int at = Math.floorMod(to + direction * k, n);
-            Unit needs = unitFor(Numerics.Format.values()[at]);
-            if (needs == null || has(needs)) {
-                precision = at;
-                break;
-            }
-            missing = missing == null ? needs : missing;
-        }
+        precision = Math.floorMod(i, Numerics.Format.values().length);
         // what the weights take changes with it
         if (job != null) {
             weightBytes = job.model.weightBytes(Numerics.Format.values()[precision]);
@@ -351,25 +229,14 @@ public class CoreBlockEntity extends BlockEntity {
             check();
         }
         recipeChanged();
-        if (missing != null && precision == before) {
-            say("residual.status.needs_unit", "block.residual." + missing.id);
-        }
     }
 
     public void setMoves(int i) {
-        if (!has(Unit.ORTHOGONALIZER)) {
-            say("residual.status.needs_unit", "block.residual." + Unit.ORTHOGONALIZER.id);
-            return;
-        }
         moves = Math.floorMod(i, Recipe.Moves.values().length);
         recipeChanged();
     }
 
     public void setPacking(int i) {
-        if (!has(Unit.PACKER)) {
-            say("residual.status.needs_unit", "block.residual." + Unit.PACKER.id);
-            return;
-        }
         packing = Math.floorMod(i, Recipe.Packing.values().length);
         // the same text, cut into rows another way
         practiceKnown = false;
@@ -441,32 +308,11 @@ public class CoreBlockEntity extends BlockEntity {
                 if (!text.isEmpty()) {
                     sources.add(new Mixture.Source(Benchmark.READING, text));
                 }
-            } else if (stack.getItem() instanceof DumpItem) {
-                TextTask text = reading(Dump.texts(DumpItem.seed(stack, level.getRandom())), vocab, rows);
-                if (!text.isEmpty()) {
-                    sources.add(new Mixture.Source(Benchmark.READING, text));
-                }
-            } else if (stack.getItem() instanceof TokenCellItem && TokenCellItem.supply(stack) instanceof TokenSupply supply
-                    && level != null && level.getServer() != null) {
-                SupplyTask tokens = Supplies.task(level.getServer(), supply.id(), vocab, rows, this::slotsChanged);
-                if (tokens != null && !tokens.isEmpty()) {
-                    if (practice != null) {
-                        // the run goes on where it was, however its slots change
-                        practice.sources.stream().filter(s -> s.data() instanceof SupplyTask old && old.supply() == tokens.supply())
-                                .findFirst().ifPresent(s -> tokens.carryOn((SupplyTask) s.data()));
-                    }
-                    sources.add(new Mixture.Source(Benchmark.READING, tokens));
-                }
             } else if (stack.getItem() instanceof FieldLogItem) {
                 String log = FieldLogItem.log(stack);
                 FieldTask field = new FieldTask(log, vocab);
                 if (!field.isEmpty()) {
-                    sources.add(new Mixture.Source(Demand.isLog(log) ? Benchmark.DEMAND : Ground.isLog(log) ? Benchmark.GROUND : Benchmark.FORECASTING, field));
-                }
-            } else if (MobLogItem.log(stack) instanceof MobLogItem.Log log) {
-                Imitating lines = new Imitating(log.lines(), vocab);
-                if (!lines.isEmpty()) {
-                    sources.add(new Mixture.Source(Benchmark.IMITATION, lines));
+                    sources.add(new Mixture.Source(Benchmark.FORECASTING, field));
                 }
             } else if (WreckItem.wreck(stack) instanceof Wrecks.Wreck w) {
                 sources.add(new Mixture.Source(w.benchmark(), w.practice()));
@@ -596,29 +442,19 @@ public class CoreBlockEntity extends BlockEntity {
         if (checked == null) {
             return;
         }
-        meter.model(checked.model, checked.model.parameterCount());
-        Cluster.Plan plan = meter.plan(server, worldPosition);
-        if (!plan.fits()) {
-            say("residual.status.no_memory", ClusterStatus.bytes(meter.bytes()), ClusterStatus.bytes(plan.budget()));
-            return;
-        }
-        compute = new Cooling.Compute(plan.threads(), plan.hot());
         job = new TrainingJob(server, worldPosition, checked.scan, checked.model, data, w, server.getRandom().nextLong(),
-                compute.threads(), remaining, speed, LEARNING_RATES[learningRate], BATCH_SIZES[batchSize], CLIPS[clip], recipe());
+                ResidualConfig.THREADS.get(), remaining, speed, LEARNING_RATES[learningRate], BATCH_SIZES[batchSize], CLIPS[clip], recipe());
         job.weightDecay = WEIGHT_DECAYS[weightDecay];
         job.seen = seen;
         job.stepsBefore = steps;
         runStep = 0;
         spikes = 0;
-        meter.started(job, plan);
-        splitAwarded = false;
+        meter.started();
         jobSteps = steps;
         jobRunSteps = runSteps;
         owner = player.getUUID();
         Jobs.start(job);
         setRunning(true);
-        Cooling.lights(level, worldPosition, true);
-        lightUnits(true);
         say(w != null ? "residual.status.repairing" : "residual.status.training");
     }
 
@@ -838,23 +674,6 @@ public class CoreBlockEntity extends BlockEntity {
         }
     }
 
-    private Cooling.Compute compute() {
-        Cluster.Plan plan = meter.plan((ServerLevel) level, worldPosition);
-        return new Cooling.Compute(plan.threads(), plan.hot());
-    }
-
-    /** What its training has really done and how it shares out the work. */
-    public RunMeter meter() {
-        return meter;
-    }
-
-    /** Picks how a run shares out its work, for the next run. */
-    public void setParallelism(int i) {
-        meter.mode(Parallelism.values()[Math.floorMod(i, Parallelism.values().length)]);
-        computeSync();
-        setChanged();
-    }
-
     /** Sends the Compute tab what it shows, to whoever has it open. */
     private void computeSync() {
         if (level instanceof ServerLevel server) {
@@ -862,7 +681,7 @@ public class CoreBlockEntity extends BlockEntity {
             for (ServerPlayer p : server.players()) {
                 if (p.containerMenu instanceof CoreMenu m && m.pos.equals(worldPosition)) {
                     if (msg == null) {
-                        msg = meter.snapshot(server, worldPosition, job);
+                        msg = meter.snapshot(worldPosition, ResidualConfig.THREADS.get(), job);
                     }
                     PacketDistributor.sendToPlayer(p, msg);
                 }
@@ -888,9 +707,6 @@ public class CoreBlockEntity extends BlockEntity {
         }
         Env env = new Env(tokenizer(), Vocab.CONTEXT);
         GraphScanner.Scan scan = GraphScanner.scan(level, worldPosition);
-        if (job == null) {
-            findUnits();
-        }
         List<CoreSync.Issue> found = new ArrayList<>();
         if (scan.problem() != null) {
             found.add(new CoreSync.Issue(null, scan.problem()));
@@ -914,8 +730,7 @@ public class CoreBlockEntity extends BlockEntity {
         }
         publish(scan, model, shapes, env, found);
         if (job == null) {
-            meter.model(model, parameters);
-            compute = compute();
+            meter.model(parameters);
         }
         return found.isEmpty() && model != null ? new Checked(scan, model) : null;
     }
@@ -981,20 +796,8 @@ public class CoreBlockEntity extends BlockEntity {
 
     /** Takes in whatever the training thread produced; also called while the server stops. */
     public void tick() {
-        if (ticks++ == 0 && job == null) {
-            // accelerators left smoking by a Core that was unloaded mid-run
-            Cooling.lights(level, worldPosition, false);
-        }
         if (job != null) {
-            meter.tick((ServerLevel) level, worldPosition, job);
-            var timing = job.timing();
-            if (!splitAwarded && timing != null && Arrays.stream(timing.busyNanos()).filter(n -> n > 0).count() > 1) {
-                ServerPlayer player = owner == null ? null : ((ServerLevel) level).getServer().getPlayerList().getPlayer(owner);
-                if (player != null) {
-                    Awards.grant(player, "compute/split");
-                    splitAwarded = true;
-                }
-            }
+            meter.tick(job);
             for (TrainingJob.Point p : job.drainPoints()) {
                 addPoint(new TrainingJob.Point(jobSteps + p.step(), p.train(), p.val(), p.accuracy(), p.peak(), p.rate()));
             }
@@ -1008,11 +811,7 @@ public class CoreBlockEntity extends BlockEntity {
                 Jobs.forget(job);
                 job = null;
                 setRunning(false);
-                Cooling.lights(level, worldPosition, false);
-                lightUnits(false);
                 touch();
-            } else if (job != null && ticks % 100 == 0) {
-                Cooling.lights(level, worldPosition, true);
             }
         } else if (getBlockState().getValue(CoreBlock.RUNNING)) {
             setRunning(false);
@@ -1276,7 +1075,7 @@ public class CoreBlockEntity extends BlockEntity {
         int length = Seeds.STEPS[Math.floorMod(stepsIndex, Seeds.STEPS.length)];
         long design = Records.hash(checked.model().spec);
         float rate = LEARNING_RATES[learningRate], decay = WEIGHT_DECAYS[weightDecay], cut = CLIPS[clip];
-        int batch = BATCH_SIZES[batchSize], threads = compute().threads();
+        int batch = BATCH_SIZES[batchSize], threads = ResidualConfig.THREADS.get();
         Recipe recipe = recipe();
         long seed = level.getRandom().nextLong();
         MinecraftServer mc = level.getServer();
@@ -1377,9 +1176,9 @@ public class CoreBlockEntity extends BlockEntity {
         int budgetLeft = wreck() == null ? -1 : Math.max(0, Wrecks.BUDGET - runSteps);
         return new CoreSync(worldPosition, learningRate, batchSize, clip, speed.ordinal(), job != null, steps, runSteps,
                 trainLoss, valLoss, accuracy, causal, gradNorm, message, args, List.copyOf(history), issues, nodes,
-                job != null ? job.threads : compute.threads(), compute.hot(), parameters, scores, practising, budgetLeft, busy,
-                new CoreSync.Plan(schedule, warmup, length, precision, moves, packing, units, runStep, rate, spikes, topScore, topLogit,
-                        secondRight, weightBytes, readShare(m), ResidualConfig.ONBOARD_PARAMETERS.get() * 4), weightDecay);
+                job != null ? job.threads : ResidualConfig.THREADS.get(), parameters, scores, practising, budgetLeft, busy,
+                new CoreSync.Plan(schedule, warmup, length, precision, moves, packing, runStep, rate, spikes, topScore, topLogit,
+                        secondRight, weightBytes, readShare(m)), weightDecay);
     }
 
     /** The share of the text in the data slots that its rows ever read. */
@@ -1416,9 +1215,6 @@ public class CoreBlockEntity extends BlockEntity {
         super.preRemoveSideEffects(pos, state);
         if (level != null) {
             Containers.dropContents(level, pos, items);
-            if (job != null) {
-                Cooling.lights(level, pos, false);
-            }
         }
     }
 

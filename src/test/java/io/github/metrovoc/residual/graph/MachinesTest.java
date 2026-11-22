@@ -2,8 +2,6 @@ package io.github.metrovoc.residual.graph;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.github.metrovoc.residual.bench.Spec;
-import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Tape;
 import io.github.metrovoc.residual.tensor.Tensor;
@@ -26,69 +24,6 @@ class MachinesTest {
 
     private static Tensor run(Op op, Config c, Map<String, Tensor> p, boolean fused, Tape tape, Tensor... in) {
         return op.run(tape, in, p, c, new Op.Frame(0, in[0].dim(-2), null, fused, null));
-    }
-
-    private static void assertMatches(Spec.Case c, Tensor got, String what) {
-        for (int i = 0; i < got.size(); i++) {
-            assertEquals(c.expected().data[i], got.data[i], Spec.ABS + Spec.REL * Math.abs(c.expected().data[i]), what + " " + c.id() + " " + i);
-        }
-    }
-
-    private static Map<String, Tensor> blockParams(Tensor[] in) {
-        Map<String, Tensor> p = new LinkedHashMap<>();
-        String[] names = {"rms1.weight", "attn.q", "attn.k", "attn.v", "attn.o", "attn.t", "rms2.weight", "mlp.w1", "mlp.w2", "mlp.w3"};
-        for (int i = 0; i < names.length; i++) {
-            p.put(names[i], param(in[i + 1]));
-        }
-        return p;
-    }
-
-    @Test
-    void theModernBlockIsItsSpec() {
-        Config c = Config.of(Op.MODERN_BLOCK, "heads", "1");
-        for (Spec.Case k : Specs.MODERN_BLOCK.cases()) {
-            for (boolean fused : new boolean[]{true, false}) {
-                assertMatches(k, run(Op.MODERN_BLOCK, c, blockParams(k.inputs()), fused, null, batched(k.inputs()[0])), "fused " + fused);
-            }
-        }
-    }
-
-    @Test
-    void theModernHeadIsItsSpec() {
-        Config c = Config.of(Op.MODERN_ATTENTION, "heads", "1");
-        for (Spec.Case k : Specs.MODERN_ATTENTION.cases()) {
-            Map<String, Tensor> p = new LinkedHashMap<>();
-            String[] names = {"q", "k", "v", "o", "t"};
-            for (int i = 0; i < names.length; i++) {
-                p.put(names[i], param(k.inputs()[i + 1]));
-            }
-            for (boolean fused : new boolean[]{true, false}) {
-                assertMatches(k, run(Op.MODERN_ATTENTION, c, p, fused, null, batched(k.inputs()[0])), "fused " + fused);
-            }
-        }
-    }
-
-    @Test
-    void theGatedBlockIsItsSpec() {
-        for (Spec.Case k : Specs.SWIGLU.cases()) {
-            Map<String, Tensor> p = new LinkedHashMap<>();
-            p.put("w1", param(k.inputs()[1]));
-            p.put("w2", param(k.inputs()[2]));
-            p.put("w3", param(k.inputs()[3]));
-            for (boolean fused : new boolean[]{true, false}) {
-                assertMatches(k, run(Op.SWIGLU, new Config(Op.SWIGLU), p, fused, null, batched(k.inputs()[0])), "fused " + fused);
-            }
-        }
-    }
-
-    @Test
-    void theNormalizedScoresAreTheirSpec() {
-        for (Spec.Case k : Specs.QK_NORM.cases()) {
-            Map<String, Tensor> p = Map.of("t", param(k.inputs()[2]));
-            for (boolean fused : new boolean[]{true, false}) {
-                assertMatches(k, run(Op.QK_NORM, new Config(Op.QK_NORM), p, fused, null, batched(k.inputs()[0]), batched(k.inputs()[1])), "fused " + fused);
-            }
-        }
     }
 
     /** A score can't exceed t·√d, however loud the queries and keys. */

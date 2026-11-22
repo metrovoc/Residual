@@ -1,5 +1,5 @@
 {
-  "parent": "residual:bench/orthogonalize",
+  "parent": "residual:model/saved",
   "criteria": {
     "done": {
       "trigger": "minecraft:impossible"
@@ -7,7 +7,7 @@
   },
   "display": {
     "icon": {
-      "id": "residual:orthogonalizer"
+      "id": "minecraft:compass"
     },
     "title": {
       "translate": "advancements.residual.recipe.muon.title"

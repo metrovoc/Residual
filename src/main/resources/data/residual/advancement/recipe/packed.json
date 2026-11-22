@@ -1,5 +1,5 @@
 {
-  "parent": "residual:bench/document_mask",
+  "parent": "residual:model/saved",
   "criteria": {
     "done": {
       "trigger": "minecraft:impossible"
@@ -7,7 +7,7 @@
   },
   "display": {
     "icon": {
-      "id": "residual:packer"
+      "id": "minecraft:bundle"
     },
     "title": {
       "translate": "advancements.residual.recipe.packed.title"

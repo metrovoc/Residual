@@ -1,11 +1,9 @@
 package io.github.metrovoc.residual.learn;
 
-import io.github.metrovoc.residual.graph.CompiledGraph;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A source of examples, plus the bar a model has to clear on it. Losses are per character, so models that read with
@@ -31,14 +29,6 @@ public abstract class Task {
 
     /** A batch of {@code size} sequences of length {@link #context}; {@code test} draws from held-out examples. */
     public abstract Batch batch(Random rng, int size, boolean test);
-
-    /**
-     * Its own loss and accuracy for {@code model}, for a task scored by playing rather than by held-out examples; null
-     * to be scored on test batches.
-     */
-    public double @Nullable [] measure(CompiledGraph model) {
-        return null;
-    }
 
     /** What the learning rate is multiplied by for the next step: a task that changes as a run goes may ask for less. */
     public float rateScale() {

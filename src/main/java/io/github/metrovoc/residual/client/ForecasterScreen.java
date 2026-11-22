@@ -1,23 +1,19 @@
 package io.github.metrovoc.residual.client;
 
-import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.block.ForecasterBlockEntity.Phase;
-import io.github.metrovoc.residual.learn.Forecast;
+import io.github.metrovoc.residual.block.ForecasterBlockEntity;
 import io.github.metrovoc.residual.learn.Forecast.Kind;
+import io.github.metrovoc.residual.learn.Forecast;
 import io.github.metrovoc.residual.learn.Growth;
 import io.github.metrovoc.residual.menu.ForecasterMenu;
-import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModItems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -40,7 +36,7 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> im
             0xFFD9B44A};
     private static final int MACHINE = 0xFF6F7880, FIRE = 0xFFFF8A3D;
     /** The gauge runs from half the progress the blocks showed to twice it. */
-    private static final double SPAN = Math.log(2), SPAN_II = Math.log(1.43);
+    private static final double SPAN = Math.log(2);
     /** The bands of {@link Forecast#BANDS}: sixteen, eight and four looks per look in greens, two in amber. */
     private static final int[] BAND_COLORS = {0xFF3F9A62, 0xFF357A4A, 0xFF2E5E33, 0xFF6B5320};
     private static final double CLOSE = Math.log(1.11), NEAR = Math.log(1.25);
@@ -50,7 +46,6 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> im
     }
 
     private final List<Hit> hits = new ArrayList<>();
-    private final List<Button> paces = new ArrayList<>();
     /** The kind of block the bars show, once a tab is clicked. */
     private Kind shown;
 
@@ -58,50 +53,6 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> im
         super(menu, inventory, title, ForecasterMenu.SIDE_X + ForecasterMenu.SIDE_W, ForecasterMenu.INVENTORY_Y + 82);
         inventoryLabelY = ForecasterMenu.INVENTORY_Y - 10;
         inventoryLabelX = ForecasterMenu.INVENTORY_X;
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        paces.clear();
-        if (!third()) {
-            return;
-        }
-        int[] all = ForecasterBlockEntity.PACES;
-        for (int i = 0; i < all.length; i++) {
-            int id = i;
-            paces.add(addRenderableWidget(new PaceButton(leftPos + ForecasterMenu.PACE_X, topPos + ForecasterMenu.PACE_Y + i * ForecasterMenu.PACE_STEP,
-                    Component.literal("×" + all[i]), b -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, id))));
-        }
-    }
-
-    /** Centers the full pace label inside the narrow side panel. */
-    private final class PaceButton extends Button {
-        private PaceButton(int x, int y, Component label, OnPress onPress) {
-            super(x, y, ForecasterMenu.PACE_W, ForecasterMenu.PACE_H, label, onPress, DEFAULT_NARRATION);
-        }
-
-        @Override
-        protected void extractContents(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
-            extractDefaultSprite(g);
-            int x = getX() + (getWidth() - font.width(getMessage()) + 1) / 2;
-            g.text(font, getMessage(), x, getY() + (getHeight() - 9) / 2, ARGB.color(alpha, active ? 0xFFFFFF : 0xA0A0A0), false);
-        }
-    }
-
-    /** What each pace would ask, with the compute it has, and whether it can start one. */
-    @Override
-    protected void containerTick() {
-        super.containerTick();
-        int[] all = ForecasterBlockEntity.PACES;
-        for (int i = 0; i < paces.size(); i++) {
-            int pace = all[i], asks = ForecasterBlockEntity.compute(pace);
-            long blocks = kind(Kind.MACHINES, ForecasterBlockEntity.COUNT) + kind(Kind.CROPS, ForecasterBlockEntity.COUNT) / ForecasterBlockEntity.CROPS_A_MACHINE;
-            Button b = paces.get(i);
-            b.active = data(ForecasterBlockEntity.PACE) == 0 && data(ForecasterBlockEntity.COMPUTE) >= asks && data(ForecasterBlockEntity.FASTEST) >= pace;
-            b.setTooltip(Tooltip.create(Component.translatable("residual.forecaster.burst_help", pace, Ui.count((pace - 1) * Math.max(1, blocks)), asks,
-                    data(ForecasterBlockEntity.COMPUTE), data(ForecasterBlockEntity.FASTEST))));
-        }
     }
 
     private int data(int i) {
@@ -141,24 +92,13 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> im
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         super.extractBackground(g, mouseX, mouseY, a);
         // the slots' panel, tucked under the window's edge
-        Ui.window(g, leftPos + ForecasterMenu.SIDE_X, topPos + ForecasterMenu.SIDE_Y, ForecasterMenu.SIDE_W, third() ? ForecasterMenu.SIDE_H_III : ForecasterMenu.SIDE_H);
+        Ui.window(g, leftPos + ForecasterMenu.SIDE_X, topPos + ForecasterMenu.SIDE_Y, ForecasterMenu.SIDE_W, ForecasterMenu.SIDE_H);
         Ui.window(g, leftPos, topPos, WINDOW_W, imageHeight);
         for (Slot slot : menu.slots) {
             Ui.slot(g, leftPos + slot.x, topPos + slot.y);
         }
         ghost(g, ForecasterBlockEntity.LOG, new ItemStack(ModItems.FIELD_LOG.get()));
         ghost(g, ForecasterBlockEntity.MODEL, new ItemStack(ModItems.CHECKPOINT.get()));
-        if (third()) {
-            // its power, and while a burst runs the button at its pace is underlined
-            Ui.bar(g, leftPos + ForecasterMenu.PACE_X, topPos + ForecasterMenu.POWER_Y, ForecasterMenu.PACE_W, 4, data(ForecasterBlockEntity.POWER_SHOWN) / 1000f, Ui.AMBER);
-            int[] all = ForecasterBlockEntity.PACES;
-            for (int i = 0; i < all.length; i++) {
-                if (data(ForecasterBlockEntity.PACE) == all[i]) {
-                    int y = topPos + ForecasterMenu.PACE_Y + i * ForecasterMenu.PACE_STEP + ForecasterMenu.PACE_H;
-                    g.fill(leftPos + ForecasterMenu.PACE_X + 2, y, leftPos + ForecasterMenu.PACE_X + ForecasterMenu.PACE_W - 2, y + 1, Ui.TEAL);
-                }
-            }
-        }
         Ui.screen(g, leftPos + MAP_X, topPos + MAP_Y, MAP_W, MAP_W);
         Ui.screen(g, leftPos + BARS_X, topPos + BARS_Y, BARS_W, BARS_H);
         Ui.screen(g, leftPos + 8, topPos + STATE_Y - 4, WINDOW_W - 16, ROW_Y + 2 * ROW_STEP + 2 - (STATE_Y - 4));
@@ -386,15 +326,14 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> im
 
     /**
      * How much progress the model expects against how much there was, on a log scale: red where it is refused, amber
-     * where it runs the blocks two looks per look, greens where it runs them four, and on Forecaster II, closer in, eight
-     * and sixteen. Forecaster II's scale is drawn closer, from 70% to 143%, so its narrow bands show.
+     * where it runs the blocks two looks per look, green where it runs them four.
      */
     private void gauge(GuiGraphicsExtractor g, Kind kind, int x, int y, double off, int ahead) {
         String shown = ahead > 0 ? "×" + ahead : Component.translatable("residual.forecaster.refused_short").getString();
         int x0 = x + 4, x1 = ROW_X + ROW_W - 8 - Math.max(font.width("×16"), font.width(shown));
         int w = x1 - x0 - 4;
-        double span = second() ? SPAN_II : SPAN;
-        int bands = second() ? Forecast.BANDS.length : 2;
+        double span = SPAN;
+        int bands = 2;
         // from the outside in: refused, then each band a factor faster
         g.fill(x0, y + 4, x0 + w, y + 8, 0xFF5E2A2A);
         for (int i = Forecast.BANDS.length - 1; i >= Forecast.BANDS.length - bands; i--) {
@@ -411,20 +350,11 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> im
         String share = String.format(Locale.ROOT, "%.0f%%", Math.exp(off) * 100);
         hits.add(new Hit(x, y, ROW_X + ROW_W - x, ROW_H, List.of(Component.translatable(kind == Kind.CROPS
                         ? "residual.forecaster.fit_title" : "residual.forecaster.fit_title_machines", share),
-                Component.translatable(second() ? "residual.forecaster.fit_hint_ii" : "residual.forecaster.fit_hint").withColor(Ui.DIM))));
+                Component.translatable("residual.forecaster.fit_hint").withColor(Ui.DIM))));
     }
 
     private static int at(int x0, int w, double off, double span) {
         return x0 + (int) Math.round((off + span) / (2 * span) * w);
-    }
-
-    /** Whether this is Forecaster II or III, which run blocks up to sixteen times as fast. */
-    private boolean second() {
-        return minecraft != null && minecraft.level != null && !minecraft.level.getBlockState(menu.pos).is(ModBlocks.FORECASTER.get());
-    }
-
-    private boolean third() {
-        return minecraft != null && minecraft.level != null && minecraft.level.getBlockState(menu.pos).is(ModBlocks.FORECASTER_III.get());
     }
 
     private static void outline(GuiGraphicsExtractor g, int x, int y, int w, int h, int color) {
@@ -463,12 +393,6 @@ public class ForecasterScreen extends AbstractContainerScreen<ForecasterMenu> im
             out.add("tab:" + id, x, topPos + BARS_Y - 11, w, 11, shown() == kind);
             out.add("row:" + id, leftPos + ROW_X, topPos + ROW_Y + kind.ordinal() * ROW_STEP, ROW_W, ROW_H);
             x += w + 10;
-        }
-        if (third()) {
-            out.add("power", leftPos + ForecasterMenu.PACE_X, topPos + ForecasterMenu.POWER_Y, ForecasterMenu.PACE_W, 4);
-            for (int i = 0; i < paces.size(); i++) {
-                out.add("pace:" + ForecasterBlockEntity.PACES[i], paces.get(i));
-            }
         }
     }
 }

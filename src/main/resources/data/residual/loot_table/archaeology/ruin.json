@@ -12,22 +12,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "residual:photomask",
-          "weight": 1,
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "residual:mask": {
-                  "spec": "matmul",
-                  "salvaged": true
-                }
-              }
-            }
-          ]
-        },
-        {
-          "type": "minecraft:item",
           "name": "residual:weight_crystal",
           "weight": 2
         }

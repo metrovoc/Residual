@@ -19,8 +19,8 @@ public final class Forecast {
     /** How close a model's expected progress must come to the blocks', as a ratio either way, to run them this fast. */
     public static final double[] BANDS = {1.025, 1.05, 1.11, 1.25};
     public static final int[] FACTORS = {16, 8, 4, 2};
-    /** The fastest the Forecaster runs blocks, and Forecaster II. */
-    public static final int MOST = 4, MOST_II = 16;
+    /** The fastest the Forecaster runs blocks. */
+    public static final int MOST = 4;
     private static final int BATCH = 32;
 
     /** What a Forecaster watches: crops by their age, machines by their progress through their items. */

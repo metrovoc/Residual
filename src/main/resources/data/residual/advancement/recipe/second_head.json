@@ -1,5 +1,5 @@
 {
-  "parent": "residual:bench/multi_token",
+  "parent": "residual:model/saved",
   "criteria": {
     "done": {
       "trigger": "minecraft:impossible"

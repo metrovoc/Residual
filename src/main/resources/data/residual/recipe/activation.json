@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "residual:tensor_casing",
+    "minecraft:redstone",
+    "minecraft:redstone_torch"
+  ],
+  "result": {
+    "id": "residual:activation"
+  }
+}

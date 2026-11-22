@@ -81,7 +81,6 @@ public final class Trainer {
             moves = r.moves();
             optimizer = r.optimizer(model);
         }
-        bind(task, model);
         Batch b = task.batch(rng, batchSize, false);
         lastTokens = b.input().ids.length;
         Tape tape = new Tape();
@@ -160,20 +159,7 @@ public final class Trainer {
         return evaluate(model, task, batches);
     }
 
-    /** A task that plays its own examples, such as Control, plays them with the model being practised. */
-    private static void bind(Task task, CompiledGraph model) {
-        if (task instanceof Played played) {
-            played.policy(model);
-        } else if (task instanceof Mixture mixture) {
-            mixture.sources.forEach(s -> bind(s.data(), model));
-        }
-    }
-
     public static Eval evaluate(CompiledGraph model, Task task, int batches) {
-        double[] own = task.measure(model);
-        if (own != null) {
-            return new Eval(own[0], own[1], isCausal(model, task));
-        }
         Random rng = new Random(TEST_SEED);
         double loss = 0;
         long correct = 0;

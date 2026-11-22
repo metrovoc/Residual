@@ -1,32 +1,12 @@
 package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
-import io.github.metrovoc.residual.menu.AgentMenu;
-import io.github.metrovoc.residual.menu.ArenaMenu;
 import io.github.metrovoc.residual.menu.CoreMenu;
-import io.github.metrovoc.residual.menu.FabricatorMenu;
-import io.github.metrovoc.residual.compute.HallConsoleMenu;
-import io.github.metrovoc.residual.compute.RackModuleMenu;
-import io.github.metrovoc.residual.energy.PowerMenu;
 import io.github.metrovoc.residual.menu.ForecasterMenu;
 import io.github.metrovoc.residual.menu.ForgeMenu;
 import io.github.metrovoc.residual.menu.InstrumentMenu;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.menu.ReaderMenu;
-import io.github.metrovoc.residual.menu.ServerMenu;
-import io.github.metrovoc.residual.menu.SurveyorMenu;
-import io.github.metrovoc.residual.menu.TunerMenu;
-import io.github.metrovoc.residual.menu.WatchPostMenu;
-import io.github.metrovoc.residual.refine.RefineryMenu;
-import io.github.metrovoc.residual.refine.Stage;
-import io.github.metrovoc.residual.storage.AccessPointMenu;
-import io.github.metrovoc.residual.storage.AssemblerMenu;
-import io.github.metrovoc.residual.storage.DockMenu;
-import io.github.metrovoc.residual.storage.PortMenu;
-import io.github.metrovoc.residual.storage.PortProgramMenu;
-import io.github.metrovoc.residual.storage.ProcessorMenu;
-import io.github.metrovoc.residual.storage.RackMenu;
-import io.github.metrovoc.residual.storage.TerminalMenu;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
@@ -42,55 +22,18 @@ public final class ModMenus {
             () -> IMenuTypeExtension.create((id, inv, buf) -> new OperatorMenu(id, buf.readBlockPos())));
     public static final Supplier<MenuType<ReaderMenu>> READER = MENUS.register("reader",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ReaderMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<SurveyorMenu>> SURVEYOR = MENUS.register("surveyor",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new SurveyorMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<TunerMenu>> TUNER = MENUS.register("tuner",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new TunerMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<ServerMenu>> SERVER = MENUS.register("model_server",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new ServerMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<WatchPostMenu>> WATCH_POST = MENUS.register("watch_post",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new WatchPostMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<InstrumentMenu>> INSTRUMENT = MENUS.register("instrument",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new InstrumentMenu(id, inv, buf.readBlockPos(), buf.readBoolean())));
-    public static final Supplier<MenuType<ArenaMenu>> ARENA = MENUS.register("arena",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new ArenaMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<AgentMenu>> AGENT = MENUS.register("agent",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new AgentMenu(id, inv, buf.readVarInt())));
 
-    public static final Supplier<MenuType<FabricatorMenu>> FABRICATOR = MENUS.register("fabricator",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new FabricatorMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<ForgeMenu>> FORGE = MENUS.register("bpe_forge",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ForgeMenu(id, inv, buf.readBlockPos())));
     public static final Supplier<MenuType<ForecasterMenu>> FORECASTER = MENUS.register("forecaster",
             () -> IMenuTypeExtension.create((id, inv, buf) -> new ForecasterMenu(id, inv, buf.readBlockPos())));
 
-    public static final Supplier<MenuType<RackMenu>> RACK = MENUS.register("drive_rack",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new RackMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<TerminalMenu>> TERMINAL = MENUS.register("storage_terminal",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new TerminalMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<PortMenu>> PORT = MENUS.register("port",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new PortMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<PortProgramMenu>> PORT_PROGRAM = MENUS.register("port_program",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new PortProgramMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<PowerMenu>> POWER = MENUS.register("power", () -> IMenuTypeExtension.create(PowerMenu::new));
-    public static final Supplier<MenuType<RackModuleMenu>> RACK_MODULE = MENUS.register("rack_module",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new RackModuleMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<HallConsoleMenu>> HALL_CONSOLE = MENUS.register("hall_console",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new HallConsoleMenu(id, inv, buf.readBlockPos())));
 
-    public static final Supplier<MenuType<AssemblerMenu>> ASSEMBLER = MENUS.register("assembler",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new AssemblerMenu(id, inv, buf.readBlockPos())));
 
-    public static final Supplier<MenuType<ProcessorMenu>> PROCESSOR = MENUS.register("processor",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new ProcessorMenu(id, inv, buf.readBlockPos())));
 
-    public static final Supplier<MenuType<DockMenu>> DOCK = MENUS.register("drive_dock",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new DockMenu(id, inv, buf.readBlockPos())));
 
-    public static final Supplier<MenuType<AccessPointMenu>> ACCESS_POINT = MENUS.register("access_point",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new AccessPointMenu(id, inv, buf.readBlockPos())));
-    public static final Supplier<MenuType<RefineryMenu>> REFINERY = MENUS.register("refinery",
-            () -> IMenuTypeExtension.create((id, inv, buf) -> new RefineryMenu(id, inv, buf.readBlockPos(), buf.readEnum(Stage.class))));
 
     private ModMenus() {
     }

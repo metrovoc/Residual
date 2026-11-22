@@ -1,18 +1,12 @@
 package io.github.metrovoc.residual.client;
 
-import io.github.metrovoc.residual.bench.Unit;
 import io.github.metrovoc.residual.block.CoreBlockEntity;
-import io.github.metrovoc.residual.compute.Accounts;
-import io.github.metrovoc.residual.compute.ClusterStatus;
-import io.github.metrovoc.residual.compute.Parallelism;
-import io.github.metrovoc.residual.graph.CompiledGraph.TrainingPath;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.WreckItem;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Kinds;
 import io.github.metrovoc.residual.learn.Recipe;
-import io.github.metrovoc.residual.learn.Retrieval;
 import io.github.metrovoc.residual.learn.Seeds;
 import io.github.metrovoc.residual.learn.Task;
 import io.github.metrovoc.residual.learn.Vocab;
@@ -24,10 +18,9 @@ import io.github.metrovoc.residual.net.CoreAction;
 import io.github.metrovoc.residual.net.CoreSync;
 import io.github.metrovoc.residual.net.EvaluationSync;
 import io.github.metrovoc.residual.net.SampleResult;
-import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModItems;
-import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.scope.Records;
+import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.train.TrainingJob;
 import java.util.ArrayList;
 import java.util.List;
@@ -191,19 +184,15 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                     CoreView.sample = null;
                     rebuild();
                 }));
-                boolean typed = lastBenchmark == Benchmark.ORDERS || lastBenchmark == Benchmark.SORTING || lastBenchmark == Benchmark.READING
-                        || lastBenchmark == Benchmark.RETRIEVAL;
+                boolean typed = lastBenchmark == Benchmark.SORTING || lastBenchmark == Benchmark.READING;
                 if (lastBenchmark == Benchmark.READING) {
                     addRenderableWidget(new Cycler(x + 150, y + 24, 76, Component.translatable("residual.sample.temperature"),
                             TEMPERATURES, lastTemperature, i -> lastTemperature = i));
                 }
                 if (typed) {
                     prompt = addRenderableWidget(new EditBox(font, x + 6, y + 44, 308, 16, Component.translatable("residual.sample.prompt")));
-                    prompt.setMaxLength(lastBenchmark == Benchmark.ORDERS ? 60 : lastBenchmark == Benchmark.SORTING ? Kinds.LONGEST
-                            : lastBenchmark == Benchmark.RETRIEVAL ? Retrieval.LONGEST : 200);
-                    prompt.setHint(Component.translatable(lastBenchmark == Benchmark.ORDERS ? "residual.try.order_hint"
-                            : lastBenchmark == Benchmark.SORTING ? "residual.try.thing_hint"
-                            : lastBenchmark == Benchmark.RETRIEVAL ? "residual.try.want_hint" : "residual.try.text_hint").withColor(Ui.DIM));
+                    prompt.setMaxLength(lastBenchmark == Benchmark.SORTING ? Kinds.LONGEST : 200);
+                    prompt.setHint(Component.translatable(lastBenchmark == Benchmark.SORTING ? "residual.try.thing_hint" : "residual.try.text_hint").withColor(Ui.DIM));
                 }
                 String label = lastBenchmark == Benchmark.READING ? "residual.try.write" : typed ? "residual.try.ask" : "residual.try.example";
                 generate = addRenderableWidget(Button.builder(Component.translatable(label), b -> {
@@ -227,7 +216,6 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                 moves = addRenderableWidget(recipeSetting(tx, ty + 4 * step, "moves", MOVES, p.moves(), CoreAction.Kind.MOVES));
                 packing = addRenderableWidget(recipeSetting(tx, ty + 5 * step, "packing", PACKINGS, p.packing(), CoreAction.Kind.PACKING));
             }
-            case COMPUTE -> computeToolbar(x + TOOLBAR_X, y + 22);
         }
         refresh();
     }
@@ -463,7 +451,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             case TRY -> tryTab(g, mx, my);
             case INSPECT -> inspectTab(g, s);
             case RECIPE -> recipeTab(g, s, mx, my);
-            case COMPUTE -> computeTab(g, mx, my);
+            case COMPUTE -> computeTab(g);
         }
         statusLine(g, s, mx, my);
     }
@@ -564,11 +552,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             List<FormattedCharSequence> lines = new ArrayList<>();
             lines.add(line("residual.metric.grad_norm", Ui.num(s.gradNorm())));
             lines.add(line("residual.metric.parameters", Ui.count(s.parameters())));
-            lines.add(line("residual.metric.threads", s.throttled() > 0
-                    ? I18n.get("residual.metric.threads_hot", s.threads(), s.throttled()) : Integer.toString(s.threads())));
-            if (s.throttled() > 0) {
-                lines.addAll(font.split(Component.translatable("residual.metric.hot_help").withStyle(ChatFormatting.GRAY), 220));
-            }
+            lines.add(line("residual.metric.threads", Integer.toString(s.threads())));
             if (w != null) {
                 lines.add(line("residual.metric.budget", Ui.count(Math.max(0, s.budgetLeft()))));
             }
@@ -1099,22 +1083,22 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
 
     // ---------------------------------------------------------------- recipe tab
 
-    /** The recipe: each setting a line, what it comes to in numbers a line each, the rate over the run, and the units there. */
+    /** The recipe: each setting a line, what it comes to in numbers a line each, and the rate over the run. */
     private void recipeTab(GuiGraphicsExtractor g, CoreSync s, int mx, int my) {
         Ui.screen(g, 6, 22, 308, 166);
         CoreSync.Plan p = s == null ? CoreSync.Plan.NONE : s.plan();
         int x = 12, y = 26;
-        y = setting(g, x, y, "schedule", I18n.get(SCHEDULES.get(p.schedule())), Unit.SCHEDULER, p);
-        y = setting(g, x, y, "warmup", shown(warmups().get(p.warmup())), Unit.SCHEDULER, p);
-        y = setting(g, x, y, "length", shown(lengths().get(p.length())), Unit.SCHEDULER, p);
-        y = setting(g, x, y, "precision", I18n.get(PRECISIONS.get(p.precision())), null, p);
-        y = setting(g, x, y, "moves", I18n.get(MOVES.get(p.moves())), Unit.ORTHOGONALIZER, p);
-        y = setting(g, x, y, "packing", I18n.get(PACKINGS.get(p.packing())), Unit.PACKER, p);
+        y = setting(g, x, y, "schedule", I18n.get(SCHEDULES.get(p.schedule())));
+        y = setting(g, x, y, "warmup", shown(warmups().get(p.warmup())));
+        y = setting(g, x, y, "length", shown(lengths().get(p.length())));
+        y = setting(g, x, y, "precision", I18n.get(PRECISIONS.get(p.precision())));
+        y = setting(g, x, y, "moves", I18n.get(MOVES.get(p.moves())));
+        y = setting(g, x, y, "packing", I18n.get(PACKINGS.get(p.packing())));
         y += 4;
         g.fill(x, y - 3, 154, y - 2, Ui.GRID);
         List<FormattedCharSequence> tip = null;
         for (String[] row : new String[][]{{"rate", Float.isNaN(p.rate()) ? "–" : Ui.num(p.rate())},
-                {"weights", bytes(p.weightBytes()) + " / " + bytes(p.onboardBytes())},
+                {"weights", bytes(p.weightBytes())},
                 {"read", Float.isNaN(p.readShare()) ? "–" : String.format(Locale.ROOT, "%.0f%%", 100 * p.readShare())},
                 {"spikes", Integer.toString(p.spikes())},
                 {"top_score", Float.isNaN(p.topScore()) ? "–" : Ui.num(p.topScore())},
@@ -1128,21 +1112,6 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
             y += 11;
         }
         ratePlot(g, p, 164, 38, 144, 60);
-        int ux = 164;
-        for (Unit unit : Unit.values()) {
-            boolean there = (p.units() >> unit.ordinal() & 1) != 0;
-            g.item(new ItemStack(ModBlocks.UNITS.get(unit).get()), ux, 118);
-            if (!there) {
-                g.fill(ux, 118, ux + 16, 134, 0xC011161B);
-            }
-            if (Ui.inside(mx, my, ux, 118, 16, 16)) {
-                tip = new ArrayList<>();
-                tip.add(Component.translatable("block.residual." + unit.id).withColor(there ? Ui.TEAL : Ui.DIM).getVisualOrderText());
-                tip.addAll(font.split(Component.translatable("residual.unit." + unit.id + ".opens").withStyle(ChatFormatting.GRAY), 200));
-                tip.addAll(font.split(Component.translatable(there ? "residual.recipe.unit_here" : "residual.recipe.unit_missing").withStyle(ChatFormatting.GRAY), 200));
-            }
-            ux += 24;
-        }
         if (tip != null) {
             g.setTooltipForNextFrame(tip, mx + leftPos, my + topPos);
         }
@@ -1152,11 +1121,9 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
         return value.startsWith("residual.") ? I18n.get(value) : value;
     }
 
-    /** A setting's line: dimmed when the unit that opens it isn't there. */
-    private int setting(GuiGraphicsExtractor g, int x, int y, String name, String value, @Nullable Unit unit, CoreSync.Plan p) {
-        boolean open = unit == null || (p.units() >> unit.ordinal() & 1) != 0;
+    private int setting(GuiGraphicsExtractor g, int x, int y, String name, String value) {
         g.text(font, Component.translatable("residual.recipe." + name), x, y, Ui.DIM, false);
-        g.text(font, Ui.fit(font, value, 84), 154 - Math.min(84, font.width(value)), y, open ? Ui.TEAL : Ui.DIM, false);
+        g.text(font, Ui.fit(font, value, 84), 154 - Math.min(84, font.width(value)), y, Ui.TEAL, false);
         return y + 11;
     }
 
@@ -1190,100 +1157,28 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
 
     // ---------------------------------------------------------------- inspect tab
 
-    private void computeToolbar(int tx, int ty) {
-        ComputeSync c = CoreView.compute;
-        List<String> names = new ArrayList<>();
-        List<String> icons = new ArrayList<>();
-        for (Parallelism p : Parallelism.values()) {
-            String id = p.name().toLowerCase(Locale.ROOT);
-            names.add(I18n.get("residual.parallelism." + id));
-            icons.add("split_" + id);
-        }
-        addRenderableWidget(IconButton.setting(tx, ty, icons, Component.translatable("residual.compute.split"), names, c == null ? 0 : c.mode(),
-                Component.translatable("residual.compute.split_hint"), i -> send(CoreAction.Kind.PARALLELISM, i)));
-    }
-
-    /**
-     * What the run really costs and how it shares out: one display, a line an idea, then what each device did through the
-     * last step, with the bubbles left dark.
-     */
-    private void computeTab(GuiGraphicsExtractor g, int mx, int my) {
+    /** What the run really costs: the threads it trains on, the memory it takes, and the flops and tokens counted as they happen. */
+    private void computeTab(GuiGraphicsExtractor g) {
         ComputeSync c = CoreView.compute;
         int x = 6, y = 22, w = 308, h = 154;
         Ui.screen(g, x, y, w, h);
         if (c == null) {
             return;
         }
-        String mode = I18n.get("residual.parallelism." + Parallelism.values()[Math.clamp(c.plannedMode(), 0, 3)].name().toLowerCase(Locale.ROOT));
         int line = y + 4;
-        g.text(font, Component.translatable("residual.compute.devices", mode, c.devices(), c.threads()), x + 5, line, Ui.TEXT, false);
+        g.text(font, Component.translatable("residual.compute.threads", c.threads()), x + 5, line, Ui.TEXT, false);
         line += 11;
-        // memory: what the model takes against what has to hold it
-        Component memory = Component.translatable("residual.compute.memory", ClusterStatus.bytes(c.bytes()), ClusterStatus.bytes(c.budget()));
-        g.text(font, memory, x + 5, line, c.fits() ? Ui.TEXT : Ui.RED, false);
-        int bx = x + 10 + font.width(memory);
-        Ui.bar(g, bx, line + 1, x + w - 6 - bx, 6, c.budget() == 0 ? 1 : (float) ((double) c.bytes() / c.budget()), c.fits() ? Ui.TEAL : Ui.RED);
+        g.text(font, Component.translatable("residual.compute.memory", Ui.bytes(c.bytes())), x + 5, line, Ui.TEXT, false);
         line += 11;
-        g.text(font, Component.translatable("residual.compute.rate", ClusterStatus.flops(c.flopsPerSecond()), String.format(Locale.ROOT, "%,d", c.fePerTick()),
-                String.format(Locale.ROOT, "%.2f", c.pue())), x + 5, line, c.starved() ? Ui.AMBER : Ui.TEXT, false);
+        g.text(font, Component.translatable("residual.compute.rate", Ui.flops(c.flopsPerSecond())), x + 5, line, Ui.TEXT, false);
         line += 11;
-        g.text(font, Component.translatable("residual.compute.totals", ClusterStatus.flops(c.flops()), String.format(Locale.ROOT, "%,d", c.tokens()), ClusterStatus.flops(c.energy())),
-                x + 5, line, Ui.DIM, false);
+        g.text(font, Component.translatable("residual.compute.totals", Ui.flops(c.flops()), Ui.count(c.tokens())), x + 5, line, Ui.DIM, false);
         line += 11;
         // 6ND beside what was counted, once there is anything to set it beside
         if (c.tokens() > 0 && c.parameters() > 0) {
             g.text(font, Component.translatable("residual.compute.six", String.format(Locale.ROOT, "%.1f", (double) c.flops() / c.tokens() / c.parameters())),
                     x + 5, line, Ui.DIM, false);
         }
-        line += 13;
-        int rows = c.busy().length, top = line, bottom = y + h - 16;
-        g.fill(x + 1, top - 2, x + w - 1, top - 1, Ui.GRID);
-        if (rows == 0) {
-            TrainingPath path = TrainingPath.values()[Math.clamp(c.path(), 0, TrainingPath.values().length - 1)];
-            g.text(font, Component.translatable("residual.compute.path." + path.name().toLowerCase(Locale.ROOT)), x + 5, top + 2, Ui.DIM, false);
-            if (path == TrainingPath.PRECISION || path == TrainingPath.MASKED || path == TrainingPath.LOSS) {
-                g.text(font, Component.translatable("residual.compute.fallback"), x + 5, top + 13, Ui.DIM, false);
-            }
-        }
-        if (rows > 0) {
-            int rowH = Math.max(2, Math.min(9, (bottom - top) / rows));
-            int bar = x + 5, barW = w - 10;
-            for (int d = 0; d < rows; d++) {
-                int ry = top + d * rowH;
-                g.fill(bar, ry, bar + barW, ry + rowH - 1, Ui.GRID);
-                if (c.spans().length == 0) {
-                    // too fine to draw: only how much of the step it worked
-                    g.fill(bar, ry, bar + Math.round(barW * c.busy()[d]), ry + rowH - 1, Ui.TEAL);
-                }
-            }
-            for (int i = 0; i + 3 < c.spans().length; i += 4) {
-                int d = c.spans()[i], kind = c.spans()[i + 1];
-                if (d < 0 || d >= rows) {
-                    continue;
-                }
-                int from = bar + (c.spans()[i + 2] & 0xFF) * barW / 255, to = bar + Math.max((c.spans()[i + 2] & 0xFF) + 1, c.spans()[i + 3] & 0xFF) * barW / 255;
-                int ry = top + d * rowH;
-                g.fill(from, ry, to, ry + rowH - 1, kind == 0 ? Ui.TEAL : kind == 1 ? Ui.AMBER : 0xFFB48CFF);
-            }
-            g.text(font, Component.translatable("residual.compute.step", String.format(Locale.ROOT, "%.1f", c.wallNanos() / 1e6), Math.round(100 * c.bubble()),
-                    Math.round(100 * c.collective()), ClusterStatus.bytes(c.linkBytes())), x + 5, y + h - 11, Ui.DIM, false);
-        }
-        if (rows > 0 && Ui.inside(mx, my, x, y + h - 13, w, 13)) {
-            g.setTooltipForNextFrame(font.split(Component.translatable("residual.compute.links", millis(c.linkBytes(), Accounts.RACK_LINK), millis(c.linkBytes(), Accounts.POD_LINK),
-                    millis(c.linkBytes(), Accounts.HALL_LINK)).withStyle(ChatFormatting.GRAY), 240), mx + leftPos, my + topPos);
-        } else if (rows > 0 && Ui.inside(mx, my, x, top, w, y + h - top)) {
-            List<FormattedCharSequence> lines = new ArrayList<>(font.split(Component.translatable("residual.compute.gantt").withStyle(ChatFormatting.GRAY), 240));
-            g.setTooltipForNextFrame(lines, mx + leftPos, my + topPos);
-        } else if (Ui.inside(mx, my, x, y + 15, w, 11)) {
-            g.setTooltipForNextFrame(font.split(Component.translatable("residual.compute.memory_hint." + Parallelism.values()[Math.clamp(c.plannedMode(), 0, 3)].name().toLowerCase(Locale.ROOT))
-                    .withStyle(ChatFormatting.GRAY), 240), mx + leftPos, my + topPos);
-        } else if (c.starved() && Ui.inside(mx, my, x, y + 26, w, 11)) {
-            g.setTooltipForNextFrame(font.split(Component.translatable("residual.compute.starved").withStyle(ChatFormatting.GRAY), 240), mx + leftPos, my + topPos);
-        }
-    }
-
-    private static String millis(long bytes, double perSecond) {
-        return String.format(Locale.ROOT, "%.2f", Accounts.linkMillis(bytes, perSecond));
     }
 
     private void inspectTab(GuiGraphicsExtractor g, CoreSync s) {
@@ -1407,7 +1302,6 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                 out.add("settings", leftPos + 8, topPos + 24, 150, 68);
                 out.add("readings", leftPos + 8, topPos + 94, 150, 80);
                 out.add("rate", leftPos + 160, topPos + 24, 152, 88);
-                out.add("units", leftPos + 160, topPos + 114, 148, 24);
             }
             case COMPUTE -> {
                 out.add("reading", leftPos + 6, topPos + 22, 308, 59);

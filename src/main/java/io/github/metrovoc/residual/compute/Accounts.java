@@ -12,8 +12,6 @@ public final class Accounts {
     public static final int WEIGHT_BYTES = 4;
     /** Flops a parameter takes per token: two forward and four back. */
     public static final int FLOPS_PER_PARAMETER_TOKEN = 6;
-    /** Bytes a second the links between devices carry: in a rack, across a pod, across a hall. */
-    public static final double RACK_LINK = 100e9, POD_LINK = 25e9, HALL_LINK = 6e9;
     private static final double SECONDS_A_DAY = 86_400;
 
     private Accounts() {
@@ -70,15 +68,5 @@ public final class Accounts {
         long bytes = trainingBytes(parameters);
         return new Booking(parameters, tokens, flops, bytes, bytes <= at.memoryBytes(), energy(flops, at.flopsPerFe(), at.pue()),
                 at.flopsPerSecond() <= 0 ? Double.POSITIVE_INFINITY : flops / at.flopsPerSecond() / SECONDS_A_DAY);
-    }
-
-    /** Milliseconds {@code bytes} take over a link of {@code bytesPerSecond}: a prediction, for devices that share no memory. */
-    public static double linkMillis(long bytes, double bytesPerSecond) {
-        return 1000.0 * bytes / bytesPerSecond;
-    }
-
-    /** Pipeline parallelism's bubbles with level stages: a prediction, which real stages never quite meet. */
-    public static double levelBubble(int stages, int microbatches) {
-        return PipelineParallel.levelBubble(stages, microbatches);
     }
 }

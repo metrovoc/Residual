@@ -17,7 +17,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 import org.junit.jupiter.api.Test;
@@ -79,32 +78,6 @@ class KeepModelTest {
 
     private static void point(Path dir, String pointer, String snapshot) throws IOException {
         atomic(dir.resolve(pointer), snapshot.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-    }
-
-    /** Fresh cycles, separate from the fixed test: held shares and trips under the Reactor Core's actual rules. */
-    private static void fuels(CompiledGraph model) {
-        Random rng = new Random(77);
-        StringBuilder line = new StringBuilder("    fresh fuel checks (32 each):");
-        for (int fuel = 0; fuel < Reactor.AGES.length(); fuel++) {
-            int held = 0, tripped = 0;
-            double share = 0;
-            for (int i = 0; i < 32; i++) {
-                Reactor.Cycle cycle = Reactor.cycle(fuel, rng);
-                int unsure = 0;
-                boolean trip = false;
-                while (!cycle.over()) {
-                    Played.Choice choice = Played.choose(model, Played.prompt(cycle));
-                    unsure = choice.sure() < io.github.metrovoc.residual.energy.ReactorBlockEntity.SURE ? unsure + 1 : 0;
-                    cycle.act(choice.power(), rng);
-                    trip |= unsure >= 3 || cycle.power() == 0 || cycle.power() == 7;
-                }
-                held += cycle.held() ? 1 : 0;
-                tripped += trip ? 1 : 0;
-                share += cycle.score() / 32;
-            }
-            line.append(String.format(Locale.ROOT, " %c held %d/32, looks %.3f, trips %d;", Reactor.AGES.charAt(fuel), held, share, tripped));
-        }
-        System.out.println(line);
     }
 
     @Test
@@ -176,9 +149,6 @@ class KeepModelTest {
                         }
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
-                    }
-                    if (benchmark == Benchmark.REACTOR) {
-                        fuels(model);
                     }
                     System.out.flush();
                 }

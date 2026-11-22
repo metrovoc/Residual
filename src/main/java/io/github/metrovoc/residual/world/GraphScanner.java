@@ -1,13 +1,11 @@
 package io.github.metrovoc.residual.world;
 
-import io.github.metrovoc.residual.block.AcceleratorBlock;
 import io.github.metrovoc.residual.block.CableBlock;
 import io.github.metrovoc.residual.block.CoreBlock;
 import io.github.metrovoc.residual.block.OperatorBlock;
 import io.github.metrovoc.residual.block.OperatorBlockEntity;
 import io.github.metrovoc.residual.block.Port;
 import io.github.metrovoc.residual.block.StreamBlock;
-import io.github.metrovoc.residual.block.UnitBlock;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
 import java.util.ArrayDeque;
@@ -21,9 +19,9 @@ import java.util.Map;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -35,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 public final class GraphScanner {
     public static final int MAX_MACHINES = 256;
     public static final int MAX_CABLES = 8192;
-    public static final int MAX_ACCELERATORS = 64;
     public static final int MAX_STREAM = 4096;
 
     /**
@@ -92,7 +89,7 @@ public final class GraphScanner {
         GraphSpec spec = new GraphSpec();
         for (BlockPos p : nodes) {
             OperatorBlockEntity be = (OperatorBlockEntity) level.getBlockEntity(p);
-            spec.node(spec.addUnwired(be.name(), be.op(), be.config().copy(), p.asLong())).fused = be.fused();
+            spec.node(spec.addUnwired(be.name(), be.op(), be.config().copy(), p.asLong()));
         }
         int machines = nodes.size();
         if (problem == null) {
@@ -378,40 +375,5 @@ public final class GraphScanner {
             out.add(new Touch(a.pos, a.port));
         }
         return out;
-    }
-
-    /** Accelerators touching the Core, directly or through each other. */
-    public static Set<BlockPos> accelerators(Level level, BlockPos core) {
-        Set<BlockPos> found = around(level, core);
-        found.removeIf(p -> !(level.getBlockState(p).getBlock() instanceof AcceleratorBlock));
-        return found;
-    }
-
-    /** The recipe units joined to a Core. */
-    public static Set<BlockPos> units(Level level, BlockPos core) {
-        Set<BlockPos> found = around(level, core);
-        found.removeIf(p -> !(level.getBlockState(p).getBlock() instanceof UnitBlock));
-        return found;
-    }
-
-    /** Every accelerator and unit touching the Core, directly or through one another. */
-    private static Set<BlockPos> around(Level level, BlockPos core) {
-        Set<BlockPos> seen = new HashSet<>();
-        Deque<BlockPos> todo = new ArrayDeque<>();
-        todo.add(core);
-        while (!todo.isEmpty() && seen.size() < MAX_ACCELERATORS) {
-            BlockPos p = todo.poll();
-            for (Direction d : Direction.values()) {
-                BlockPos n = p.relative(d);
-                if (level.isLoaded(n) && (level.getBlockState(n).getBlock() instanceof AcceleratorBlock
-                        || level.getBlockState(n).getBlock() instanceof UnitBlock) && seen.add(n)) {
-                    if (seen.size() == MAX_ACCELERATORS) {
-                        return seen;
-                    }
-                    todo.add(n);
-                }
-            }
-        }
-        return seen;
     }
 }

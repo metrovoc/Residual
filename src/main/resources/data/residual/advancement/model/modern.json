@@ -1,5 +1,5 @@
 {
-  "parent": "residual:bench/modern_block",
+  "parent": "residual:model/saved",
   "criteria": {
     "done": {
       "trigger": "minecraft:impossible"

@@ -184,7 +184,7 @@ public class ReaderScreen extends AbstractContainerScreen<ReaderMenu> implements
         if (!menu.getSlot(ReaderBlockEntity.SHARD).hasItem() && Ui.inside(mx, my, ReaderMenu.SHARD_X, ReaderMenu.SHARD_Y, 16, 16)) {
             g.setTooltipForNextFrame(font, Component.translatable("residual.reader.shard"), mouseX, mouseY);
         } else if (!menu.getSlot(ReaderBlockEntity.MODEL).hasItem() && Ui.inside(mx, my, ReaderMenu.MODEL_X, ReaderMenu.MODEL_Y, 16, 16)) {
-            g.setTooltipForNextFrame(font, Component.translatable("residual.agent.model_slot"), mouseX, mouseY);
+            g.setTooltipForNextFrame(font, Component.translatable("residual.reader.model_slot"), mouseX, mouseY);
         }
     }
 

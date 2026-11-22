@@ -1,17 +1,12 @@
 package io.github.metrovoc.residual.learn;
 
-import com.mojang.serialization.JsonOps;
 import io.github.metrovoc.residual.graph.CompileException;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.Config;
 import io.github.metrovoc.residual.graph.Env;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.graph.Op;
-import io.github.metrovoc.residual.model.Checkpoints;
-import io.github.metrovoc.residual.model.ModelInfo;
 import io.github.metrovoc.residual.tensor.Parallel;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -19,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.ForkJoinPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -61,109 +55,6 @@ class CalibrationTest {
                     line.append(String.format("  %.1fs (%.1f ms/step) params %d", secs, secs * 1000 / s, g.parameterCount()));
                     System.out.println(line);
                 }
-            }
-        });
-        pool.shutdown();
-    }
-
-    /** Control, practised by playing melts: the share of looks a model's own melts hold in the band as it learns. */
-    static void control(String label, GraphSpec spec, Wrecks.Settings st, int steps, int every) throws Exception {
-        control(label, spec, st, steps, every, 1, 4);
-    }
-
-    static void control(String label, GraphSpec spec, Wrecks.Settings st, int steps, int every, long seed, int threads)
-            throws Exception {
-        Control task = new Control();
-        CompiledGraph g = CompiledGraph.compile(spec, new Env(task.vocab, Vocab.CONTEXT), null, seed);
-        Trainer tr = new Trainer(g, task, seed, st.learningRate(), st.batchSize(), st.clip());
-        ForkJoinPool pool = new ForkJoinPool(threads);
-        long t0 = System.nanoTime();
-        Parallel.with(pool, () -> {
-            for (int s = 1; s <= steps; s++) {
-                tr.train();
-                if (s % every == 0 || s == steps) {
-                    double secs = (System.nanoTime() - t0) / 1e9;
-                    double held = Trainer.evaluate(g, task, 1).accuracy();
-                    StringBuilder line = new StringBuilder(String.format("%-18s step %5d  held %.3f%s", label, s, held,
-                            held >= task.target ? "✔" : ""));
-                    // melts as a Smelter plays them, one look at a time: per ore, the share held and the melts held to 90%
-                    for (int ore = 0; ore < Control.ORES.length(); ore++) {
-                        Random rng = new Random(77 + ore);
-                        double sum = 0;
-                        int full = 0;
-                        for (int i = 0; i < 32; i++) {
-                            Control.Melt m = new Control.Melt(ore);
-                            while (!m.over()) {
-                                m.act(Control.act(g, Control.prompt(m)), rng);
-                            }
-                            sum += m.score();
-                            full += m.score() >= 0.9 ? 1 : 0;
-                        }
-                        line.append(String.format("  %c %.3f/%2d", Control.ORES.charAt(ore), sum / 32, full));
-                    }
-                    System.out.println(line.append(String.format("  %.1fs (%.1f ms/step)", secs, secs * 1000 / s)));
-                }
-            }
-        });
-        pool.shutdown();
-    }
-
-    /** Any task practised by playing: its test score as it learns. */
-    static void played(String label, Played task, GraphSpec spec, Wrecks.Settings st, int steps, int every, long seed, int threads)
-            throws Exception {
-        CompiledGraph g = CompiledGraph.compile(spec, new Env(task.vocab, Vocab.CONTEXT), null, seed);
-        Trainer tr = new Trainer(g, task, seed, st.learningRate(), st.batchSize(), st.clip());
-        ForkJoinPool pool = new ForkJoinPool(threads);
-        long t0 = System.nanoTime();
-        Parallel.with(pool, () -> {
-            for (int s = 1; s <= steps; s++) {
-                tr.train();
-                if (s % every == 0 || s == steps) {
-                    double secs = (System.nanoTime() - t0) / 1e9;
-                    double held = Trainer.evaluate(g, task, 1).accuracy();
-                    System.out.println(String.format("%-18s step %5d  held %.3f%s  %.1fs (%.1f ms/step)", label, s, held,
-                            held >= task.target ? "✔" : "", secs, secs * 1000 / s));
-                }
-            }
-        });
-        pool.shutdown();
-    }
-
-    /**
-     * What a model reaches on real mobs' lines: practised on {@code practice}, scored on what {@code scored} holds out, kind by kind, as an
-     * Arena checks a model on its log's newest tenth or the Imitation test on the lines it keeps back.
-     */
-    static void imitation(String label, Task practice, Imitating scored, GraphSpec spec, Wrecks.Settings st, int steps, int every) throws Exception {
-        CompiledGraph g = CompiledGraph.compile(spec, new Env(practice.vocab, Vocab.CONTEXT), null, 1);
-        Trainer tr = new Trainer(g, practice, 1, st.learningRate(), st.batchSize(), st.clip());
-        ForkJoinPool pool = new ForkJoinPool(4);
-        long t0 = System.nanoTime();
-        Parallel.with(pool, () -> {
-            double ema = Double.NaN;
-            for (int s = 1; s <= steps; s++) {
-                float loss = tr.train();
-                ema = Double.isNaN(ema) ? loss : 0.95 * ema + 0.05 * loss;
-                if (s % every == 0 || s == steps) {
-                    double secs = (System.nanoTime() - t0) / 1e9;
-                    StringBuilder line = new StringBuilder(String.format("%-22s step %5d  train %.3f  score %.3f", label, s, ema, scored.measure(g)[1]));
-                    scored.byKind(g).forEach((kind, score) -> line.append(String.format("  %c %.3f", kind, score)));
-                    System.out.println(line.append(String.format("  %.1fs (%.1f ms/step) params %d", secs, secs * 1000 / s, g.parameterCount())));
-                }
-            }
-            // and how it does when it plays the mob in a bout, going on from what it did itself
-            java.util.Random rng = new java.util.Random(9);
-            for (int i = 0; i < 2; i++) {
-                Bout bout = new Bout(scored.firstKind(), true, rng);
-                while (!bout.over()) {
-                    float[] p = Imitation.actions(g, List.of(bout.prompt()))[0];
-                    float r = rng.nextFloat();
-                    int a = 0;
-                    while (a < p.length - 1 && (r -= p[a]) > 0) {
-                        a++;
-                    }
-                    bout.act(Imitation.ACTIONS.charAt(a), rng);
-                }
-                System.out.println(label + " bout " + bout.line());
             }
         });
         pool.shutdown();
@@ -316,273 +207,12 @@ class CalibrationTest {
         return g;
     }
 
-    /**
-     * Trains the Retrieval model a terminal's search slot would hold, prints how well a search does at each threshold among
-     * things it never practised and how long placing a thing takes, and keeps it where {@code /rehearsal model retrieval} finds it.
-     */
-    static void retrievalKept() throws Exception {
-        GraphSpec spec = Blueprints.gpt(32, 2, 4);
-        Task practice = Dataset.of(Benchmark.RETRIEVAL);
-        CompiledGraph g = CompiledGraph.compile(spec, new Env(practice.vocab, Vocab.CONTEXT), null, 1);
-        Wrecks.Settings st = Wrecks.Settings.DEFAULT;
-        Trainer tr = new Trainer(g, practice, 1, st.learningRate(), st.batchSize(), st.clip());
-        ForkJoinPool pool = new ForkJoinPool(4);
-        Trainer.Eval[] last = new Trainer.Eval[1];
-        int steps = Integer.parseInt(System.getenv().getOrDefault("RESIDUAL_STEPS", "4000"));
-        Parallel.with(pool, () -> {
-            for (int s = 1; s <= steps; s++) {
-                tr.train();
-                if (s % 250 == 0 || s == steps) {
-                    last[0] = Trainer.evaluate(g, practice, 8);
-                    System.out.printf("retrieval step %5d test %.3f%n", s, last[0].accuracy());
-                }
-            }
-        });
-        pool.shutdown();
-        // a search as a terminal does it: one query against things of every use, half of them never practised
-        Random rng = new Random(99);
-        float[] at = {0.2f, 0.3f, 0.36f, 0.5f, 0.7f};
-        int[] shownRight = new int[at.length], shownWrong = new int[at.length];
-        int fitting = 0, asked = 4000;
-        long t0 = System.nanoTime();
-        for (int i = 0; i < asked; i++) {
-            Retrieval.Example query, thing;
-            do {
-                query = Retrieval.example(rng, true);
-            } while (query.use() == Retrieval.Use.OTHER || !Retrieval.known(query.said()).isEmpty());
-            do {
-                thing = Retrieval.example(rng, true);
-            } while (thing.said().contains(" a ") || thing.said().startsWith("something"));
-            boolean fits = query.use() == thing.use() && thing.use() != Retrieval.Use.OTHER;
-            float fit = Retrieval.fit(Retrieval.place(g, query.said()), Retrieval.place(g, thing.said()));
-            fitting += fits ? 1 : 0;
-            for (int k = 0; k < at.length; k++) {
-                if (fit >= at[k]) {
-                    if (fits) {
-                        shownRight[k]++;
-                    } else {
-                        shownWrong[k]++;
-                    }
-                }
-            }
-        }
-        System.out.printf("one thread: %.2f ms a place%n", (System.nanoTime() - t0) / 1e6 / (2 * asked));
-        for (int k = 0; k < at.length; k++) {
-            System.out.printf("threshold %.2f: precision %.3f, recall %.3f (%d fitting of %d)%n", at[k],
-                    shownRight[k] / (double) Math.max(1, shownRight[k] + shownWrong[k]), shownRight[k] / (double) Math.max(1, fitting), fitting, asked);
-        }
-        for (String[] q : new String[][]{{"something to light a cave", "torch"}, {"something to light a cave", "soul lantern"}, {"something to light a cave", "lantern"},
-                {"something to light a cave", "cobblestone"}, {"something to light a cave", "iron pickaxe"}, {"something to light a cave", "copper lamp"},
-                {"something to eat", "baked potato"}, {"something to eat", "oak planks"}, {"cross the sea", "mangrove boat"}, {"something to mine with", "mithril pickaxe"}}) {
-            System.out.printf("%s / %s -> %.2f%n", q[0], q[1], Retrieval.fit(Retrieval.place(g, q[0]), Retrieval.place(g, q[1])));
-        }
-        Path kept = Path.of(System.getenv().getOrDefault("RESIDUAL_KEEP", "kept"));
-        Files.createDirectories(kept);
-        UUID id = UUID.randomUUID();
-        Files.write(kept.resolve("retrieval.dat"), Checkpoints.encode(g));
-        Map<String, Float> scores = new HashMap<>();
-        for (Benchmark a : Benchmark.values()) {
-            scores.put(a.id, a == Benchmark.RETRIEVAL ? (float) last[0].accuracy() : a.metric == Task.Metric.LOSS ? 99f : 0f);
-        }
-        ModelInfo info = new ModelInfo(id, g.parameterCount(), steps, scores, true);
-        Files.writeString(kept.resolve("retrieval.json"), ModelInfo.CODEC.encodeStart(JsonOps.INSTANCE, info).getOrThrow().toString());
-        System.out.println("kept in " + kept.toAbsolutePath());
-    }
-
-    /**
-     * Trains a model on Orders and keeps it, as {@link #retrievalKept} does, then has it write out programs for orders it has
-     * never seen, the way an agent asks: whether they read, whether they are what was meant, and how sure it was of them.
-     */
-    static void ordersKept(GraphSpec spec, int steps) throws Exception {
-        Task practice = Benchmark.ORDERS.practice();
-        CompiledGraph g = CompiledGraph.compile(spec, new Env(practice.vocab, Vocab.CONTEXT), null, 1);
-        Wrecks.Settings st = Wrecks.Settings.DEFAULT;
-        Trainer tr = new Trainer(g, practice, 1, st.learningRate(), st.batchSize(), st.clip());
-        ForkJoinPool pool = new ForkJoinPool(4);
-        Trainer.Eval[] last = new Trainer.Eval[1];
-        Parallel.with(pool, () -> {
-            long t0 = System.nanoTime();
-            for (int s = 1; s <= steps; s++) {
-                // as a player does when the curve flattens
-                if (s == steps / 2) {
-                    tr.learningRate = 1e-3f;
-                }
-                tr.train();
-                if (s % 500 == 0 || s == steps) {
-                    last[0] = Trainer.evaluate(g, practice, 8);
-                    System.out.printf("orders_keep step %d: %.3f right whole, loss %.3f, %.0f ms a step%n", s, last[0].accuracy(), last[0].loss(), (System.nanoTime() - t0) / 1e6 / s);
-                }
-            }
-        });
-        pool.shutdown();
-        Random rng = new Random(12345);
-        int n = 256, reads = 0, right = 0, sure = 0, sureRight = 0, longer = 0, longerRight = 0;
-        for (int i = 0; i < n; i++) {
-            Orders.Example ex = Orders.example(rng, true);
-            Sampler.Answer answer = Sampler.answer(g, Orders.prompt(ex.said()), Orders.WRITTEN, '\n');
-            io.github.metrovoc.residual.agent.Program.Parsed parsed = io.github.metrovoc.residual.agent.Program.parse(answer.text());
-            boolean ok = parsed.ok() && parsed.program().toString().equals(ex.meant());
-            reads += parsed.ok() ? 1 : 0;
-            right += ok ? 1 : 0;
-            if (answer.confidence() >= Kinds.SURE) {
-                sure++;
-                sureRight += ok ? 1 : 0;
-            }
-            if (ex.meant().length() > 40) {
-                longer++;
-                longerRight += ok ? 1 : 0;
-            }
-            if (i < 24) {
-                System.out.printf("%s -> %s · %.0f%% %s%n", ex.said(), answer.text(), 100 * answer.confidence(), ok ? "" : "(meant " + ex.meant() + ")");
-            }
-        }
-        System.out.printf("of %d orders written out: %d read as programs, %d right whole; sure of %d, %d of them right; over 40 letters %d, %d right%n",
-                n, reads, right, sure, sureRight, longer, longerRight);
-        Path kept = Path.of(System.getenv().getOrDefault("RESIDUAL_KEEP", "kept"));
-        Files.createDirectories(kept);
-        Files.write(kept.resolve("orders.dat"), Checkpoints.encode(g));
-        Map<String, Float> scores = new HashMap<>();
-        for (Benchmark a : Benchmark.values()) {
-            scores.put(a.id, a == Benchmark.ORDERS ? (float) last[0].accuracy() : a.metric == Task.Metric.LOSS ? 99f : 0f);
-        }
-        ModelInfo info = new ModelInfo(UUID.randomUUID(), g.parameterCount(), steps, scores, true);
-        Files.writeString(kept.resolve("orders.json"), ModelInfo.CODEC.encodeStart(JsonOps.INSTANCE, info).getOrThrow().toString());
-        System.out.println("kept in " + kept.toAbsolutePath());
-    }
-
     @Test
     void calibrate() throws Exception {
         String which = System.getenv("RESIDUAL_CALIBRATE");
         List<String> runs = List.of(which.split("[ ,]+"));
         boolean all = runs.contains("all");
         Wrecks.Settings st = Wrecks.Settings.DEFAULT;
-        if (runs.contains("pilot_winds")) {
-            // which winds a two-block transformer can learn to meet and a model reading three characters cannot
-            int[][] threes = {{3, -1}, {3, 1}}, slower = {{3, -1}, {4, -1}, {3, 1}, {4, 1}};
-            List<Thread> runs2 = new ArrayList<>();
-            for (Object[] r : new Object[][] {{"threes_context", threes, Blueprints.context()}, {"threes_gpt32", threes, Blueprints.gpt(32, 2, 4)},
-                    {"slower_context", slower, Blueprints.context()}, {"slower_gpt32", slower, Blueprints.gpt(32, 2, 4)}}) {
-                runs2.add(Thread.ofPlatform().start(() -> {
-                    try {
-                        played((String) r[0], new Pilot((int[][]) r[1], 2), (GraphSpec) r[2], st, 1500, 150, 1, 3);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }));
-            }
-            for (Thread t : runs2) {
-                t.join();
-            }
-        }
-        if (runs.contains("pilot")) {
-            List<Thread> pilots = new ArrayList<>();
-            for (Object[] r : new Object[][] {{"pilot_context", Blueprints.context()}, {"pilot_gpt32", Blueprints.gpt(32, 2, 4)}}) {
-                pilots.add(Thread.ofPlatform().start(() -> {
-                    try {
-                        played((String) r[0], new Pilot(), (GraphSpec) r[1], st, 1500, 150, 1, 4);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }));
-            }
-            for (Thread t : pilots) {
-                t.join();
-            }
-        }
-        if (runs.contains("reactor")) {
-            played("reactor_context", new Reactor(), Blueprints.context(), st, 1500, 150, 1, 1);
-            played("reactor_gpt32", new Reactor(), Blueprints.gpt(32, 2, 4), st, 4000, 250, 1, 1);
-        }
-        if (runs.contains("control_gpt32")) {
-            control("control_gpt32", Blueprints.gpt(32, 2, 4), st, 500, 50);
-        }
-        if (runs.contains("control_seeds")) {
-            // how much practice varies from run to run: gpt32 from five seeds at once
-            List<Thread> seeds = new ArrayList<>();
-            for (long seed = 2; seed <= 6; seed++) {
-                long sd = seed;
-                seeds.add(Thread.ofPlatform().start(() -> {
-                    try {
-                        control("control_seed" + sd, Blueprints.gpt(32, 2, 4), st, 800, 100, sd, 3);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }));
-            }
-            for (Thread t : seeds) {
-                t.join();
-            }
-        }
-        if (all || runs.contains("control")) {
-            control("control_context", Blueprints.context(), st, 400, 100);
-            control("control_gpt32", Blueprints.gpt(32, 2, 4), st, 800, 100);
-            control("control_induction", Blueprints.induction(), st, 800, 100);
-        }
-        if (all || runs.contains("demand")) {
-            run("demand_bigram", Blueprints.bigram(), Benchmark.DEMAND, st, 1000, 250);
-            run("demand_context", Blueprints.context(), Benchmark.DEMAND, st, 1500, 250);
-            run("demand_recall", Blueprints.recall(), Benchmark.DEMAND, st, 2000, 250);
-            run("demand_induction", Blueprints.induction(), Benchmark.DEMAND, st, 2000, 250);
-            run("demand_gpt32", Blueprints.gpt(32, 2, 4), Benchmark.DEMAND, st, 2000, 250);
-        }
-        if (all || runs.contains("watch")) {
-            run("watch_recall", Blueprints.recall(), Benchmark.WATCH, st, 1000, 500);
-            run("watch_induction", Blueprints.induction(), Benchmark.WATCH, st, 2000, 500);
-        }
-        if (all || runs.contains("watch_gpt32")) {
-            run("watch_gpt32", Blueprints.gpt(32, 2, 4), Benchmark.WATCH, st, 3000, 500);
-        }
-        Map<String, GraphSpec> ladder = new java.util.LinkedHashMap<>();
-        ladder.put("bigram", Blueprints.bigram());
-        ladder.put("context", Blueprints.context());
-        ladder.put("recall", Blueprints.recall());
-        ladder.put("reverse", Blueprints.reverse());
-        ladder.put("induction", Blueprints.induction());
-        ladder.put("gpt32", Blueprints.gpt(32, 2, 4));
-        ladder.put("gpt48", Blueprints.gpt(48, 2, 4));
-        ladder.put("gpt64", Blueprints.gpt(64, 2, 4));
-        ladder.put("gpt64x3", Blueprints.gpt(64, 3, 4));
-        ladder.put("gpt96", Blueprints.gpt(96, 2, 4));
-        for (Map.Entry<String, GraphSpec> model : ladder.entrySet()) {
-            // on the benchmark's lines; on each Mob Log of a folder alone; and on the benchmark's lines and each log together, scored on the log
-            if (runs.contains("imitation_" + model.getKey())) {
-                imitation("imitation_" + model.getKey(), new Imitating(), new Imitating(), model.getValue(), st, 3000, 250);
-            }
-            // on all the Mob Logs of a folder together, as a Core's four data slots can hold them, scored on the first
-            if (runs.contains("all_" + model.getKey())) {
-                List<java.nio.file.Path> logs = java.nio.file.Files.list(java.nio.file.Path.of(System.getenv("RESIDUAL_MOB_LINES"))).sorted().toList();
-                List<Mixture.Source> sources = new java.util.ArrayList<>();
-                for (java.nio.file.Path log : logs) {
-                    sources.add(new Mixture.Source(Benchmark.IMITATION, new Imitating(java.nio.file.Files.readString(log), Vocab.WORLD)));
-                }
-                imitation(logs.getFirst().getFileName().toString().replace(".txt", "") + "_all_" + model.getKey(), new Mixture(sources, Vocab.WORLD),
-                        new Imitating(java.nio.file.Files.readString(logs.getFirst()), Vocab.WORLD), model.getValue(), st, 3000, 250);
-            }
-            for (String how : new String[] {"log_", "mix_"}) {
-                if (runs.contains(how + model.getKey())) {
-                    for (java.nio.file.Path log : java.nio.file.Files.list(java.nio.file.Path.of(System.getenv("RESIDUAL_MOB_LINES"))).sorted().toList()) {
-                        Imitating own = new Imitating(java.nio.file.Files.readString(log), Vocab.WORLD);
-                        Task practice = how.equals("log_") ? own : new Mixture(List.of(new Mixture.Source(Benchmark.IMITATION, new Imitating()),
-                                new Mixture.Source(Benchmark.IMITATION, own)), Vocab.WORLD);
-                        imitation(log.getFileName().toString().replace(".txt", "") + "_" + how + model.getKey(), practice, own, model.getValue(), st, 2000, 250);
-                    }
-                }
-            }
-        }
-        if (runs.contains("ground") || runs.contains("ground_bigram")) {
-            run("ground_bigram", Blueprints.bigram(), Benchmark.GROUND, st, 8000, 1000);
-        }
-        if (runs.contains("ground")) {
-            run("ground_context", Blueprints.context(), Benchmark.GROUND, st, 1500, 250);
-            run("ground_induction", Blueprints.induction(), Benchmark.GROUND, st, 1500, 250);
-            run("ground_gpt32", Blueprints.gpt(32, 2, 4), Benchmark.GROUND, st, 2000, 250);
-            run("ground_gpt64", Blueprints.gpt(64, 2, 4), Benchmark.GROUND, st, 2000, 250);
-        }
-        if (all || runs.contains("survey")) {
-            run("survey_context", Blueprints.context(), Benchmark.SURVEY, st, 1500, 250);
-            run("survey_recall", Blueprints.recall(), Benchmark.SURVEY, st, 3000, 250);
-            run("survey_gpt32", Blueprints.gpt(32, 2, 4), Benchmark.SURVEY, st, 3000, 250);
-        }
         if (all || runs.contains("forecasting")) {
             run("forecasting", Blueprints.bigram(), Benchmark.FORECASTING, st, 3000, 250);
         }
@@ -598,30 +228,8 @@ class CalibrationTest {
         if (all || runs.contains("sorting")) {
             run("sorting", Blueprints.gpt(32, 2, 4), Benchmark.SORTING, st, 3000, 250);
         }
-        if (all || runs.contains("retrieval")) {
-            run("retrieval32", Blueprints.gpt(32, 2, 4), Benchmark.RETRIEVAL, st, 4000, 250);
-        }
-        if (runs.contains("small_retrieval")) {
-            run("retrieval_rev", Blueprints.reverse(), Benchmark.RETRIEVAL, st, 3000, 500);
-            run("retrieval_ctx", Blueprints.context(), Benchmark.RETRIEVAL, st, 3000, 500);
-        }
-        if (runs.contains("retrieval_keep")) {
-            retrievalKept();
-        }
         if (runs.contains("small_sorting")) {
             run("sorting_rev", Blueprints.reverse(), Benchmark.SORTING, st, 3000, 500);
-        }
-        if (all || runs.contains("orders")) {
-            run("orders", Blueprints.gpt(64, 2, 4), Benchmark.ORDERS, st, 6000, 500);
-        }
-        if (runs.contains("small_orders")) {
-            run("orders32", Blueprints.gpt(32, 2, 4), Benchmark.ORDERS, st, 4000, 500);
-        }
-        if (runs.contains("orders_keep")) {
-            ordersKept(Blueprints.gpt(64, 2, 4), Integer.parseInt(System.getenv().getOrDefault("RESIDUAL_STEPS", "6000")));
-        }
-        if (runs.contains("big_orders")) {
-            run("orders96", Blueprints.gpt(96, 3, 4), Benchmark.ORDERS, st, 6000, 500);
         }
         if (all || runs.contains("reading")) {
             run("reading", Blueprints.gpt(64, 2, 4), Benchmark.READING, st, 4000, 250);

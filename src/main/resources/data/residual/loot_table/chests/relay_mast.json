@@ -26,16 +26,6 @@
         },
         {
           "type": "minecraft:item",
-          "name": "residual:relay_card",
-          "weight": 4
-        },
-        {
-          "type": "minecraft:item",
-          "name": "residual:schematic_relays",
-          "weight": 2
-        },
-        {
-          "type": "minecraft:item",
           "name": "minecraft:copper_ingot",
           "weight": 6,
           "functions": [

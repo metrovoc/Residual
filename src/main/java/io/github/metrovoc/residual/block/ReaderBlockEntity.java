@@ -1,11 +1,11 @@
 package io.github.metrovoc.residual.block;
 
 import io.github.metrovoc.residual.graph.CompiledGraph;
+import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.learn.Reading;
 import io.github.metrovoc.residual.menu.ReaderMenu;
 import io.github.metrovoc.residual.model.ModelInfo;
-import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.model.Models;
 import io.github.metrovoc.residual.model.Recovered;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
@@ -46,9 +46,7 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
     /** What its screen shows, as container data. */
     public static final int STATE = 0, BLOCK = 1, ACCURACY = 2, RESTORED = 3, PROBLEM = 4, DATA = 5;
     /** Why there is no model to read with, in the order {@link #PROBLEM} counts them. */
-    public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.unbound",
-            "residual.model.out_of_range", "residual.model.no_server", "residual.model.server_empty", "residual.reader.too_big",
-            "residual.model.failed", "residual.model.busy", "residual.server.no_room");
+    public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.failed");
 
     public enum State { NO_SHARD, NO_MODEL, PEEKS, READING, WHOLE, STUCK }
 
@@ -132,13 +130,13 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
             show(State.WHOLE);
             return;
         }
-        ModelLink link = ModelLink.of(level, worldPosition, items.getItem(MODEL));
-        if (link instanceof ModelLink.Missing m) {
-            problem = Math.max(0, PROBLEMS.indexOf(m.problem().equals("residual.model.too_big") ? "residual.reader.too_big" : m.problem()));
+        ItemStack slot = items.getItem(MODEL);
+        ModelInfo info = CrystalItem.model(slot);
+        if (info == null) {
+            problem = PROBLEMS.indexOf(slot.isEmpty() ? "residual.model.none" : "residual.model.blank");
             show(State.NO_MODEL);
             return;
         }
-        ModelInfo info = link.info();
         if (!info.causal()) {
             show(State.PEEKS);
             return;
@@ -169,11 +167,7 @@ public class ReaderBlockEntity extends BlockEntity implements MenuProvider {
                 read(level, which, acc);
             }
         };
-        switch (link) {
-            case ModelLink.Served s -> s.server().submit(read, done);
-            case ModelLink.Onboard o -> Models.submit(level.getServer(), info.id(), read, done);
-            case ModelLink.Missing m -> busy = false;
-        }
+        Models.submit(level.getServer(), info.id(), read, done);
     }
 
     private void read(ServerLevel level, int which, @Nullable Float acc) {

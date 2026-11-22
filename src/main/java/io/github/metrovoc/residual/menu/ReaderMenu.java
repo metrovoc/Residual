@@ -1,6 +1,7 @@
 package io.github.metrovoc.residual.menu;
 
 import io.github.metrovoc.residual.block.ReaderBlockEntity;
+import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.ShardItem;
 import io.github.metrovoc.residual.registry.ModMenus;
 import net.minecraft.core.BlockPos;
@@ -46,7 +47,7 @@ public class ReaderMenu extends AbstractContainerMenu {
         addSlot(new Slot(items, ReaderBlockEntity.MODEL, MODEL_X, MODEL_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return AgentMenu.isModel(stack);
+                return stack.getItem() instanceof CrystalItem;
             }
 
             @Override

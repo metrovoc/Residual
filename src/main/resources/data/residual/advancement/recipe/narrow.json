@@ -1,5 +1,5 @@
 {
-  "parent": "residual:bench/fp8",
+  "parent": "residual:model/saved",
   "criteria": {
     "done": {
       "trigger": "minecraft:impossible"
@@ -7,7 +7,7 @@
   },
   "display": {
     "icon": {
-      "id": "residual:fp8_unit"
+      "id": "residual:weight_crystal"
     },
     "title": {
       "translate": "advancements.residual.recipe.narrow.title"

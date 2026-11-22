@@ -2,7 +2,6 @@ package io.github.metrovoc.residual.model;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.metrovoc.residual.ResidualConfig;
 import io.github.metrovoc.residual.learn.Benchmark;
 import io.github.metrovoc.residual.learn.Task;
 import io.netty.buffer.ByteBuf;
@@ -45,11 +44,6 @@ public record ModelInfo(UUID id, long parameters, int steps, Map<String, Float> 
     /** What its weights take; a checkpoint from before anything narrower holds fp32. */
     public long weightBytes() {
         return bytes > 0 ? bytes : parameters * 4;
-    }
-
-    /** Whether an agent or a frame can carry it: the limit is in fp32 weights, 4 bytes each. */
-    public boolean fitsOnboard() {
-        return weightBytes() <= ResidualConfig.ONBOARD_PARAMETERS.get() * 4;
     }
 
     /** The test score for {@code a}, or NaN if it was never tested. */

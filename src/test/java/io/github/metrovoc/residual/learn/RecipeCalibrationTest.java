@@ -383,10 +383,6 @@ class RecipeCalibrationTest {
             run("gpt32 adamw", RecipeCalibrationTest::gpt32, reading, Benchmark.READING, 1e-2f, 1f, moved(Recipe.Moves.ADAMW), 1000, 1);
             run("gpt32 adamw", RecipeCalibrationTest::gpt32, sorting, Benchmark.SORTING, 1e-2f, 1f, moved(Recipe.Moves.ADAMW), 600, 1);
         }
-        if (runs.contains("orders")) {
-            // the model too big to carry in fp32, in the format that fits: does it still pass?
-            run("gpt64 fp8", () -> Blueprints.gpt(64, 2, 4), Benchmark.ORDERS::practice, Benchmark.ORDERS, 3e-3f, 1f, plain(Numerics.Format.FP8), 3000, 1);
-        }
     }
 
     private static GraphSpec noQk() {

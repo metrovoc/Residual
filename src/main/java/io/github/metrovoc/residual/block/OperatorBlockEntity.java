@@ -4,7 +4,6 @@ import io.github.metrovoc.residual.graph.Config;
 import io.github.metrovoc.residual.graph.Op;
 import io.github.metrovoc.residual.menu.OperatorMenu;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
-import io.github.metrovoc.residual.registry.ModComponents;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.train.Jobs;
 import io.github.metrovoc.residual.view.Heatmap;
@@ -12,8 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -81,7 +78,6 @@ public class OperatorBlockEntity extends BlockEntity implements MenuProvider {
     /** Built by a case rather than crafted: breaking it gives nothing back. */
     private boolean provided;
     /** False when fabricated from a salvaged design: it runs one primitive at a time. */
-    private boolean fused = true;
 
     public OperatorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.OPERATOR.get(), pos, state);
@@ -120,10 +116,6 @@ public class OperatorBlockEntity extends BlockEntity implements MenuProvider {
 
     public boolean provided() {
         return provided;
-    }
-
-    public boolean fused() {
-        return fused;
     }
 
     public void markProvided() {
@@ -205,21 +197,6 @@ public class OperatorBlockEntity extends BlockEntity implements MenuProvider {
         }
         status.write(out.child("status"));
         out.putBoolean("provided", provided);
-        out.putBoolean("fused", fused);
-    }
-
-    @Override
-    protected void applyImplicitComponents(DataComponentGetter components) {
-        super.applyImplicitComponents(components);
-        fused = components.getOrDefault(ModComponents.FUSED.get(), true);
-    }
-
-    @Override
-    protected void collectImplicitComponents(DataComponentMap.Builder components) {
-        super.collectImplicitComponents(components);
-        if (!fused) {
-            components.set(ModComponents.FUSED.get(), false);
-        }
     }
 
     @Override
@@ -253,7 +230,6 @@ public class OperatorBlockEntity extends BlockEntity implements MenuProvider {
         weights = in.child("weights").map(Heatmap::read).orElse(null);
         status = in.child("status").map(Status::read).orElse(Status.NONE);
         provided = in.getBooleanOr("provided", false);
-        fused = in.getBooleanOr("fused", true);
         // update packets carry no weights; only a full load replaces them
         in.childrenList("params").ifPresent(list -> {
             Map<String, Tensor> loaded = new LinkedHashMap<>();

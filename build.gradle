@@ -15,11 +15,6 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 repositories {
     mavenCentral()
-    maven {
-        // JEI's API, compiled against only: the plugin stays unloaded without JEI
-        url = 'https://maven.blamejared.com/'
-        content { includeGroup 'mezz.jei' }
-    }
 }
 
 sourceSets.main.resources {
@@ -88,16 +83,6 @@ neoForge {
             programArgument '--nogui'
             systemProperty 'residual.models', file('run/models').absolutePath
         }
-        // ./gradlew runStress: a large base on a dedicated server, its tick times in the log; see Stress
-        stress {
-            server()
-            sourceSet = sourceSets.rehearsal
-            gameDirectory = file('run/stress')
-            programArgument '--nogui'
-            systemProperty 'residual.stress', 'true'
-            systemProperty 'residual.models', file('run/models').absolutePath
-            systemProperties.put 'residual.stress.moblog', providers.gradleProperty('stressMobLog').orElse('')
-        }
         gameTestServer {
             type = 'gameTestServer'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
@@ -119,7 +104,6 @@ neoForge {
 
 dependencies {
     implementation "org.appliedenergistics:guideme:${guideme_version}"
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     rehearsalImplementation sourceSets.main.output
     rehearsalImplementation "org.appliedenergistics:guideme:${guideme_version}"
     // GuideME's guide export encodes animated icons with FFmpeg, here the build for this machine

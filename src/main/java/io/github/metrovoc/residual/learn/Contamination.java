@@ -36,15 +36,9 @@ public final class Contamination {
     }
 
     /**
-     * Scores a model on the test's own items and on as many others. A test that is played afresh has no items of its own to have seen, so
-     * it has nothing to say.
+     * Scores a model on the test's own items and on as many others.
      */
     public static Check check(CompiledGraph model, Task test, Benchmark benchmark) {
-        double[] played = test.measure(model);
-        if (played != null) {
-            float s = (float) (benchmark.metric == Task.Metric.LOSS ? played[0] : played[1]);
-            return new Check(s, s, false);
-        }
         double[] own = scores(model, test, benchmark, Trainer.TEST_SEED);
         double[] other = scores(model, test, benchmark, FRESH);
         double a = mean(own), b = mean(other);

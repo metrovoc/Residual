@@ -1,9 +1,7 @@
 package io.github.metrovoc.residual.graph;
 
-import io.github.metrovoc.residual.learn.Vocab;
-import io.github.metrovoc.residual.compute.Split;
-import io.github.metrovoc.residual.compute.Timing;
 import io.github.metrovoc.residual.graph.CompileException.Issue;
+import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.tensor.Numerics;
 import io.github.metrovoc.residual.tensor.ShapeException;
 import io.github.metrovoc.residual.tensor.Tape;
@@ -18,7 +16,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.IntFunction;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
 
 /** A checked graph in execution order, owning its parameter tensors. */
 public final class CompiledGraph {
@@ -31,53 +28,12 @@ public final class CompiledGraph {
     private final List<Map<String, Tensor>> params;
     /** What its numbers are rounded to on the way through it. */
     public volatile Numerics.Format precision = Numerics.Format.FP32;
-    /** How its training is split across devices, or null for one device. */
-    public volatile Split split;
-    /** The latest training path and its own completed measurement; probes and evaluation leave it alone. */
-    private volatile TrainingPass trainingPass = new TrainingPass(TrainingPath.WAITING, null);
-    private Boolean addsToLoss;
-
-    public enum TrainingPath { WAITING, ONE, SPLIT, PRECISION, MASKED, LOSS }
-
-    public record TrainingPass(TrainingPath path, @Nullable Timing timing) {
-    }
-
-    public TrainingPass trainingPass() {
-        return trainingPass;
-    }
-
-    /** A new allocation has no measurements until its own first step finishes. */
-    public void resetTrainingPass() {
-        trainingPass = new TrainingPass(TrainingPath.WAITING, null);
-    }
-    /** What answers its forward passes while nothing is learning, instead of running them itself. */
-    @Nullable
-    private final Forwarder forwarder;
-
-    /** Answers a model's forward passes, with no tape and nothing captured. */
-    @FunctionalInterface
-    public interface Forwarder {
-        Tensor forward(Tokens tokens);
-    }
-
-    private CompiledGraph(GraphSpec spec, Env env, int[] order, Sym[] shapes, List<Map<String, Tensor>> params, @Nullable Forwarder forwarder) {
+    private CompiledGraph(GraphSpec spec, Env env, int[] order, Sym[] shapes, List<Map<String, Tensor>> params) {
         this.spec = spec;
         this.env = env;
         this.order = order;
         this.shapes = shapes;
         this.params = params;
-        this.forwarder = forwarder;
-    }
-
-    /** This model with the same weights, whose forward passes go to {@code forwarder}. */
-    public CompiledGraph through(Forwarder forwarder) {
-        return new CompiledGraph(spec, env, order, shapes, params, forwarder);
-    }
-
-    /** What its forward passes go to, or null if it runs them itself. */
-    @Nullable
-    public Forwarder forwarder() {
-        return forwarder;
     }
 
     /**
@@ -191,7 +147,7 @@ public final class CompiledGraph {
             params.set(node, fresh);
         }
         int[] ord = order.stream().mapToInt(Integer::intValue).toArray();
-        return new CompiledGraph(spec, env, ord, shapes, params, null);
+        return new CompiledGraph(spec, env, ord, shapes, params);
     }
 
     private static void visit(GraphSpec spec, int node, int[] state, List<Integer> order, List<Issue> issues, boolean[] cyclic) {
@@ -259,9 +215,6 @@ public final class CompiledGraph {
 
     /** Runs the model on a token batch and returns logits [B, T, V]. */
     public Tensor forward(Tape tape, Tokens tokens, Captures captures) {
-        if (forwarder != null && tape == null && captures == null) {
-            return forwarder.forward(tokens);
-        }
         return forward(tape, tokens, captures, null);
     }
 
@@ -270,42 +223,12 @@ public final class CompiledGraph {
         return forward(tape, tokens, captures, extras, precision);
     }
 
-    /**
-     * As {@link #forward(Tape, Tokens, Captures, Extras)}, its numbers rounded to {@code format}. A split takes a plain training pass;
-     * rounding, rows packed with masks and what machines add to the loss use the plain graph path.
-     */
+    /** As {@link #forward(Tape, Tokens, Captures, Extras)}, its numbers rounded to {@code format}. */
     public Tensor forward(Tape tape, Tokens tokens, Captures captures, Extras extras, Numerics.Format format) {
-        if (tape == null || captures != null) {
-            return plain(tape, tokens, captures, extras, format);
-        }
-        Split running = split;
-        TrainingPath path = running == null ? TrainingPath.ONE
-                : format != Numerics.Format.FP32 ? TrainingPath.PRECISION
-                : tokens.starts != null ? TrainingPath.MASKED
-                : addsToLoss() ? TrainingPath.LOSS : TrainingPath.SPLIT;
-        // A change of path drops the preceding measurement before work starts on the new path.
-        if (trainingPass.path() != path) {
-            trainingPass = new TrainingPass(path, null);
-        }
-        if (path == TrainingPath.SPLIT) {
-            // Recorded before the split's callbacks, so its completed backward measurement is ready first.
-            tape.record(() -> trainingPass = new TrainingPass(path, running.last()));
-            return running.forward(tape, tokens);
-        }
         return plain(tape, tokens, captures, extras, format);
     }
 
-    /** Whether any of its machines adds to the loss, found by a pass over one token the first time it is asked. */
-    private boolean addsToLoss() {
-        if (addsToLoss == null) {
-            Extras probe = new Extras();
-            plain(null, new Tokens(new int[1], 1, 1), null, probe, Numerics.Format.FP32);
-            addsToLoss = !probe.penalties.isEmpty() || probe.second != null;
-        }
-        return addsToLoss;
-    }
-
-    /** {@link #forward} on this thread alone, whatever its split. */
+    /** {@link #forward} with nothing added to the loss, in fp32 whatever its precision. */
     public Tensor plain(Tape tape, Tokens tokens, Captures captures) {
         return plain(tape, tokens, captures, null, Numerics.Format.FP32);
     }
@@ -390,21 +313,6 @@ public final class CompiledGraph {
             captures.output(node, out);
         }
         values[node] = out;
-    }
-
-    /** As {@link #forward}, its weights being what {@code weights} says, so that what they are made from can learn instead. */
-    public Tensor forwardWith(Tape tape, Tokens tokens, Decoder.Weights weights) {
-        Object[] values = new Object[spec.size()];
-        for (int node : order) {
-            GraphSpec.Node nd = spec.node(node);
-            Object[] in = new Object[nd.op.arity];
-            for (int i = 0; i < in.length; i++) {
-                int src = nd.inputs[i];
-                in[i] = src == GraphSpec.TOKENS ? tokens : values[src];
-            }
-            values[node] = nd.op.run(tape, in, weights.of(node), nd.config, new Op.Frame(node, tokens.time, null, nd.fused, null));
-        }
-        return (Tensor) values[spec.output];
     }
 
     /** Runs one-input nodes in turn, the first reading {@code x}: what comes after a point of the model, without what came before it. */

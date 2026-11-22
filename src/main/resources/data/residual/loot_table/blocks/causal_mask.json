@@ -7,16 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "residual:causal_mask",
-          "functions": [
-            {
-              "function": "minecraft:copy_components",
-              "source": "block_entity",
-              "include": [
-                "residual:fused"
-              ]
-            }
-          ]
+          "name": "residual:causal_mask"
         }
       ],
       "conditions": [

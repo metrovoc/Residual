@@ -203,16 +203,54 @@ public final class Kinds {
 
     /** What a model is shown to sort a thing called {@code name}, in the format it practised. */
     public static String prompt(String name) {
-        String n = Orders.clean(name);
+        String n = clean(name);
         return (n.length() > LONGEST ? n.substring(0, LONGEST).strip() : n) + "? ";
     }
 
     private static String madeUp(Random rng, Kind kind) {
         List<String> forms = FORMS.get(kind);
-        return forms.get(rng.nextInt(forms.size())).formatted(Orders.madeUp(rng));
+        return forms.get(rng.nextInt(forms.size())).formatted(madeUp(rng));
     }
 
     private static String pick(Random rng, List<String> names) {
         return names.get(rng.nextInt(names.size()));
+    }
+
+    /** A name as a model reads it: lower case, only letters it knows, one space at a time. */
+    private static String clean(String said) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : said.toLowerCase(Locale.ROOT).toCharArray()) {
+            if (Character.isWhitespace(c)) {
+                c = ' ';
+            }
+            if (Vocab.WORLD.reads(c) && c != '\n' && c != '>' && c != '=' && c != '|' && !(c == ' ' && (sb.isEmpty()
+                    || sb.charAt(sb.length() - 1) == ' '))) {
+                sb.append(c);
+            }
+        }
+        return sb.toString().strip();
+    }
+
+    private static final String[] SYLLABLES = {"ba", "be", "bo", "da", "di", "do", "fa", "fi", "ga", "go", "ka", "ki",
+            "ko", "la", "li", "lo", "ma", "mi", "mo", "na", "ni", "no", "pa", "pi", "po", "ra", "ri", "ro", "sa", "si",
+            "so", "ta", "ti", "to", "va", "vi", "wa", "wi", "za", "zo"};
+
+    /** A word that names nothing, like "kodari" or "mipo sanis". */
+    private static String madeUp(Random rng) {
+        StringBuilder sb = new StringBuilder();
+        int words = rng.nextFloat() < 0.25f ? 2 : 1;
+        for (int w = 0; w < words; w++) {
+            if (w > 0) {
+                sb.append(' ');
+            }
+            int n = 2 + rng.nextInt(2);
+            for (int i = 0; i < n; i++) {
+                sb.append(SYLLABLES[rng.nextInt(SYLLABLES.length)]);
+            }
+            if (rng.nextFloat() < 0.3f) {
+                sb.append(rng.nextBoolean() ? 's' : 'n');
+            }
+        }
+        return sb.toString();
     }
 }

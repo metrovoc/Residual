@@ -10,7 +10,6 @@ import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Parallel;
 import io.github.metrovoc.residual.tensor.Tape;
 import io.github.metrovoc.residual.tensor.Tensor;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -221,7 +220,7 @@ class ModernCalibrationTest {
             }
         }
         if (runs.contains("seeds")) {
-            for (Benchmark a : List.of(Benchmark.READING, Benchmark.INDUCTION, Benchmark.SORTING, Benchmark.RECALL, Benchmark.REVERSAL, Benchmark.SURVEY)) {
+            for (Benchmark a : List.of(Benchmark.READING, Benchmark.INDUCTION, Benchmark.SORTING, Benchmark.RECALL, Benchmark.REVERSAL)) {
                 int steps = a == Benchmark.READING ? 2000 : a == Benchmark.INDUCTION || a == Benchmark.SORTING ? 1600 : 1000;
                 seeds("gpt32", () -> Blueprints.gpt(32, 2, 4), a, 3e-3f, steps, steps / 4, 3);
                 seeds("modern32", () -> Blueprints.modern(32, 2, 4), a, 3e-3f, steps, steps / 4, 3);

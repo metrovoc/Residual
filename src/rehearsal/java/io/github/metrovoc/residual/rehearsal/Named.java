@@ -11,10 +11,9 @@ import guideme.document.block.LytNode;
 import guideme.internal.screen.DocumentScreen;
 import guideme.internal.screen.IndepentScaleScreen;
 import guideme.ui.GuideUiHost;
-import io.github.metrovoc.residual.client.BenchScreen;
 import io.github.metrovoc.residual.client.CoreScreen;
-import io.github.metrovoc.residual.client.Parts;
 import io.github.metrovoc.residual.client.Parts.Part;
+import io.github.metrovoc.residual.client.Parts;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -161,9 +160,6 @@ final class Named {
         }
         if (mc.screen instanceof CoreScreen core && name.startsWith("row:")) {
             core.revealBenchmark(name.substring(4));
-        }
-        if (mc.screen instanceof BenchScreen bench && name.startsWith("spec:")) {
-            bench.revealSpec(name.substring(5));
         }
         Part part = of(mc.screen).get(name);
         if (part == null) {

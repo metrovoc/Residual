@@ -15,7 +15,6 @@ import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.learn.Vocab;
 import io.github.metrovoc.residual.tensor.AdamW;
 import io.github.metrovoc.residual.tensor.Tensor;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.atomic.LongAdder;
 import org.junit.jupiter.api.Test;
@@ -65,10 +64,6 @@ class AccountsTest {
         CompiledGraph model = model(Blueprints.gpt(32, 2, 4));
         assertEquals(16 * model.parameterCount(), Accounts.trainingBytes(model.parameterCount()));
         assertEquals(model.parameterCount(), Accounts.largestModel(16 * model.parameterCount()));
-        // a pipeline's stages between them hold the whole of it
-        for (int devices : new int[] {1, 2, 3, 8}) {
-            assertEquals(Accounts.trainingBytes(model.parameterCount()), Arrays.stream(PipelineParallel.stageBytes(model, devices)).sum(), "on " + devices);
-        }
     }
 
     @Test
@@ -81,22 +76,6 @@ class AccountsTest {
         assertEquals(run.flops() / 1e8 * 1.25, run.energy(), 1e3);
         assertEquals(run.flops() / 1e15 / 86_400, run.days(), 1e-6);
         assertTrue(!Accounts.book(1L << 40, 1, hall).fits());
-    }
-
-    @Test
-    void aFinerNodeHoldsMoreAndRunsFartherOnAUnitOfEnergy() {
-        ProcessNode last = null;
-        for (ProcessNode node : ProcessNode.ALL) {
-            if (last != null) {
-                assertEquals(8 * last.memoryBytes(), node.memoryBytes());
-                assertEquals(4 * last.flopsPerSecond(), node.flopsPerSecond(), 1);
-                assertEquals(2 * last.flopsPerFe(), node.flopsPerFe(), 1);
-                assertEquals(2 * last.fePerTick(), node.fePerTick());
-            }
-            last = node;
-        }
-        assertEquals(80, ProcessNode.N90.fePerTick());
-        assertEquals(64, ProcessNode.N3.units());
     }
 
     /** What the rules read on real models, and the memory a parameter really takes to train. */

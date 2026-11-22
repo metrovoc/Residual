@@ -1,23 +1,17 @@
 package io.github.metrovoc.residual.block;
 
 import io.github.metrovoc.residual.Awards;
-import io.github.metrovoc.residual.energy.PowerBlockEntity;
-import io.github.metrovoc.residual.energy.PowerNetwork;
-import io.github.metrovoc.residual.energy.SmelterBlockEntity;
 import io.github.metrovoc.residual.graph.CompiledGraph;
+import io.github.metrovoc.residual.item.CrystalItem;
 import io.github.metrovoc.residual.item.FieldLogItem;
-import io.github.metrovoc.residual.learn.Forecast;
 import io.github.metrovoc.residual.learn.Forecast.Kind;
+import io.github.metrovoc.residual.learn.Forecast;
 import io.github.metrovoc.residual.learn.Growth;
 import io.github.metrovoc.residual.menu.ForecasterMenu;
 import io.github.metrovoc.residual.model.ModelInfo;
-import io.github.metrovoc.residual.model.ModelLink;
 import io.github.metrovoc.residual.model.Models;
 import io.github.metrovoc.residual.registry.ModBlockEntities;
-import io.github.metrovoc.residual.registry.ModBlocks;
 import io.github.metrovoc.residual.registry.ModComponents;
-import io.github.metrovoc.residual.world.Cooling;
-import io.github.metrovoc.residual.world.GraphScanner;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,8 +43,8 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.CocoaBlock;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.StemBlock;
@@ -69,13 +63,11 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Watches the blocks around it that make progress and writes down what they do, a line per block. It looks at each
  * crop every {@link Growth#OBSERVE} ticks, and only growth the game's own random ticks made counts; a crop harvested,
- * trampled or fed bone meal starts a new line. It looks at each furnace, smoker, blast furnace, brewing stand, Fabricator and
- * Smelter eight times an item. With a model whose forecasts match what a kind of block did, it runs those blocks ahead: crops grow
- * to the ages the model draws, and machines work through the progress the model draws. Forecaster III also keeps power, and
- * spends it on bursts: everything its model is trusted with at ×16 runs up to ×256 for thirty seconds, as many cooled
- * Accelerators touching it allow.
+ * trampled or fed bone meal starts a new line. It looks at each furnace, smoker, blast furnace and brewing stand eight
+ * times an item. With a model whose forecasts match what a kind of block did, it runs those blocks ahead: crops grow
+ * to the ages the model draws, and machines work through the progress the model draws.
  */
-public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvider {
+public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
     public static final int LOG = 0, MODEL = 1, SLOTS = 2;
     public static final int RADIUS = 4, SIDE = 2 * RADIUS + 1;
     /** Its first look at crops comes a second after it loads, then one every {@link Growth#OBSERVE} ticks. */
@@ -84,30 +76,15 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
     private static final int SURVEY = 20;
     /** A brewing stand's brew, in ticks. */
     private static final int BREW = 400;
-    /** A Fabricator making nothing is looked at as if it made something of middling size. */
-    private static final int FABRICATING = 100;
-    /** The paces of Forecaster III's bursts; a burst lasts thirty seconds. */
-    public static final int[] PACES = {32, 64, 128, 256};
-    public static final int BURST = 30 * 20;
-    /** The most machines a burst runs at once, so that a burst costs a tick no more than 4,080 machine ticks. */
-    public static final int BURST_MACHINES = 16;
-    /** Crops a burst takes for the price of one machine: a crop's tick is only a chance of a random tick. */
-    public static final int CROPS_A_MACHINE = 8;
-    /** Power it keeps, and takes in a tick. A full burst at ×256 on 16 machines costs 2,448,000 FE. */
-    public static final int POWER = 4_000_000, POWER_IN = 8_000;
     /** Container data per kind of block: how many it watches, progress seen, the model's fit, and its phase. */
     public static final int COUNT = 0, GROWN = 1, RATIO = 2, AHEAD = 3, PHASE = 4, PER_KIND = 5;
     /** What its screen shows, as container data: four map cells or sixteen flashes to a value. */
     public static final int STATE = 0, PROBLEM = 1, KINDS = 2, SEEN = KINDS + PER_KIND * 2, EXPECTS = SEEN + Growth.RIPE + Growth.EIGHTHS,
-            MAP = EXPECTS + Growth.RIPE + Growth.EIGHTHS, FLASH = MAP + (SIDE * SIDE + 3) / 4, THIRD = FLASH + (SIDE * SIDE + 15) / 16;
-    /** Forecaster III's: its power in thousandths, cooled Accelerators' worth of compute, the pace of its burst or 0, seconds left, and the fastest burst its model allows. */
-    public static final int POWER_SHOWN = THIRD, COMPUTE = THIRD + 1, PACE = THIRD + 2, LEFT = THIRD + 3, FASTEST = THIRD + 4, DATA = THIRD + 5;
+            MAP = EXPECTS + Growth.RIPE + Growth.EIGHTHS, FLASH = MAP + (SIDE * SIDE + 3) / 4, DATA = FLASH + (SIDE * SIDE + 15) / 16;
     /** Map cells: nothing, a crop's age plus one, an idle machine, a working one. */
     public static final int IDLE_MACHINE = Growth.RIPE + 2, WORKING_MACHINE = IDLE_MACHINE + 1;
     /** Why there is no model to run, in the order {@link #PROBLEM} counts them. */
-    public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.unbound",
-            "residual.model.out_of_range", "residual.model.no_server", "residual.model.server_empty", "residual.model.too_big",
-            "residual.model.failed", "residual.model.busy", "residual.server.no_room");
+    public static final List<String> PROBLEMS = List.of("residual.model.none", "residual.model.blank", "residual.model.failed");
 
     public enum State { NOTHING, WATCHING, NO_MODEL, PEEKS, READY }
 
@@ -123,7 +100,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         final int ripe;
         int age;
         int ripeLooks;
-        /** Its line holds looks a model drew or an Hourglass hurried, so it is never written down. */
+        /** Its line holds looks a model drew, so it is never written down. */
         boolean drawn;
         boolean closed;
 
@@ -152,7 +129,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         int next;
         /** Looks taken so far, so a forecast that comes back after a newer look is not written into the line. */
         int looks;
-        /** Its line holds looks a model drew or an Hourglass hurried, so it is never written down. */
+        /** Its line holds looks a model drew, so it is never written down. */
         boolean drawn;
         int budget;
         int pace;
@@ -208,10 +185,9 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
     /** Crops due to be run ahead, and machines waiting for a forecast. */
     private boolean cropsDue;
     private final Map<Long, Due> due = new LinkedHashMap<>();
+    /** The model in its slot, or null when there is none to run or nothing to run it on. */
     @Nullable
-    private ModelLink link;
-    /** Forecaster III's burst: how fast, ticks left, and the compute it has, found again every second. */
-    private int burstPace, burstLeft, compute;
+    private ModelInfo model;
     private final BitSet flashed = new BitSet(SIDE * SIDE);
     private final int[] map = new int[SIDE * SIDE];
     private final Random rng = new Random();
@@ -219,15 +195,6 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int i) {
-            if (i >= THIRD) {
-                return switch (i) {
-                    case POWER_SHOWN -> (int) ((long) energy().getAmountAsInt() * 1000 / POWER);
-                    case COMPUTE -> compute;
-                    case PACE -> burstLeft > 0 ? burstPace : 0;
-                    case LEFT -> burstLeft / 20;
-                    default -> Math.max(burstsUpTo(Kind.MACHINES), burstsUpTo(Kind.CROPS));
-                };
-            }
             if (i >= FLASH) {
                 int bits = 0;
                 for (int b = 0; b < 16; b++) {
@@ -261,7 +228,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
                         double r = check == null ? Double.NaN : check.of(kind).ratio();
                         yield Double.isNaN(r) ? -1 : (int) Math.min(Short.MAX_VALUE, Math.round(r * 1000));
                     }
-                    case AHEAD -> phases[k] == Phase.AHEAD && check != null ? check.of(kind).ahead(most()) : 0;
+                    case AHEAD -> phases[k] == Phase.AHEAD && check != null ? check.of(kind).ahead(Forecast.MOST) : 0;
                     default -> phases[k].ordinal();
                 };
             }
@@ -283,17 +250,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
     };
 
     public ForecasterBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.FORECASTER.get(), pos, state, POWER, POWER_IN, 0);
-    }
-
-    @Override
-    public Role role() {
-        return Role.MACHINE;
-    }
-
-    /** Whether this is Forecaster III, which keeps power and runs bursts. */
-    public boolean third() {
-        return getBlockState().is(ModBlocks.FORECASTER_III.get());
+        super(ModBlockEntities.FORECASTER.get(), pos, state);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, ForecasterBlockEntity be) {
@@ -311,22 +268,6 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         }
     }
 
-    /** An Hourglass ran the block at {@code p} this tick: the lines watching it no longer hold what it did by itself. */
-    public static void hurried(ServerLevel level, BlockPos p) {
-        for (ForecasterBlockEntity f : LOADED) {
-            if (f.level == level && f.covers(p)) {
-                Watch w = f.watches.get(p.asLong());
-                if (w != null) {
-                    w.drawn = true;
-                }
-                Machine m = f.machines.get(p.asLong());
-                if (m != null) {
-                    m.drawn = true;
-                }
-            }
-        }
-    }
-
     private boolean covers(BlockPos p) {
         return Math.abs(p.getX() - worldPosition.getX()) <= RADIUS && Math.abs(p.getZ() - worldPosition.getZ()) <= RADIUS
                 && Math.abs(p.getY() - worldPosition.getY()) <= 1;
@@ -336,28 +277,15 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
     public void setRemoved() {
         super.setRemoved();
         LOADED.remove(this);
-        powerChanged();
     }
 
     @Override
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
         LOADED.remove(this);
-        powerChanged();
     }
 
-    private void powerChanged() {
-        if (level instanceof ServerLevel server) {
-            PowerNetwork.changed(server);
-        }
-    }
-
-    @Override
-    protected void tick(ServerLevel level) {
-        if (third()) {
-            super.tick(level);
-            burst(level);
-        }
+    private void tick(ServerLevel level) {
         ticks++;
         if (busy && ticks - askedAt > Models.PATIENCE) {
             busy = false;
@@ -378,16 +306,17 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
             }
             decide(level);
         }
-        if (!busy && link != null && !(link instanceof ModelLink.Missing)) {
-            work(level, link);
+        if (!busy && model != null) {
+            work(level, model);
         }
     }
 
     /** Settles what it can do with the model it holds, and with each kind of block. */
     private void decide(ServerLevel level) {
         boolean anything = !watches.isEmpty() || !machines.isEmpty();
-        link = anything ? ModelLink.of(level, worldPosition, items.getItem(MODEL)) : null;
-        ModelInfo info = link == null ? null : link.info();
+        ItemStack slot = items.getItem(MODEL);
+        ModelInfo info = anything ? CrystalItem.model(slot) : null;
+        model = info;
         boolean usable = info != null && info.causal();
         if (!usable) {
             check = null;
@@ -404,18 +333,17 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         }
         if (!anything) {
             show(State.NOTHING);
-        } else if (link instanceof ModelLink.Missing m) {
-            problem = Math.max(0, PROBLEMS.indexOf(m.problem()));
-            show(items.getItem(MODEL).isEmpty() ? State.WATCHING : State.NO_MODEL);
+        } else if (info == null) {
+            problem = PROBLEMS.indexOf(slot.isEmpty() ? "residual.model.none" : "residual.model.blank");
+            show(slot.isEmpty() ? State.WATCHING : State.NO_MODEL);
         } else {
             show(usable ? State.READY : State.PEEKS);
         }
     }
 
     /** Hands the model its next job: a check that is due, crops to run ahead, then machines waiting for a forecast. */
-    private void work(ServerLevel level, ModelLink link) {
-        ModelInfo info = link.info();
-        if (state != State.READY || info == null) {
+    private void work(ServerLevel level, ModelInfo info) {
+        if (state != State.READY) {
             return;
         }
         if (stale(info)) {
@@ -426,14 +354,14 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
                     phases[kind.ordinal()] = Phase.CHECKING;
                 }
             }
-            submit(level, link, model -> Forecast.check(model, text), result -> checked(info, growth, result));
+            submit(level, info, model -> Forecast.check(model, text), result -> checked(info, growth, result));
         } else if (cropsDue) {
             cropsDue = false;
             if (phases[Kind.CROPS.ordinal()] == Phase.AHEAD && check != null) {
-                aheadCrops(level, link, check.crops().ahead(most()) - 1);
+                aheadCrops(level, info, check.crops().ahead(Forecast.MOST) - 1);
             }
         } else if (!due.isEmpty()) {
-            aheadMachines(level, link);
+            aheadMachines(level, info);
         }
     }
 
@@ -547,7 +475,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
             }
             int every = Growth.every(cook(be));
             if (every != m.every) {
-                // a Fabricator set to make something else: its looks keep to eighths of the new item
+                // its looks keep to eighths of the item it makes now
                 close(m);
                 m.line.setLength(0);
                 m.drawn = false;
@@ -575,9 +503,6 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
                 return;
             }
             BlockPos p = BlockPos.of(key);
-            if (Bursts.next(level, p) > 2) {
-                return;
-            }
             BlockEntity be = level.getBlockEntity(p);
             int spend = Math.min(m.budget, m.pace);
             m.budget -= spend;
@@ -588,7 +513,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
             for (int i = 0; i < spend; i++) {
                 tickOnce(level, p, be);
             }
-            Bursts.shimmer(level, p, spend + 1);
+            Shimmer.at(level, p, spend + 1);
             if (ticks % 4 == 0) {
                 level.sendParticles(ParticleTypes.ELECTRIC_SPARK, p.getX() + 0.5, p.getY() + 1.05, p.getZ() + 0.5, 1, 0.3, 0.05, 0.3, 0);
             }
@@ -596,106 +521,16 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         });
     }
 
-    /** The fastest it runs blocks ahead: Forecaster II and III four times as fast as the Forecaster. */
-    public int most() {
-        return getBlockState().is(ModBlocks.FORECASTER.get()) ? Forecast.MOST : Forecast.MOST_II;
-    }
-
-    /** Cooled Accelerators a burst at {@code pace} asks of Forecaster III: 4 for ×32, up to 32 for ×256. */
-    public static int compute(int pace) {
-        return pace / 8;
-    }
-
-    /** The fastest burst its model is trusted with on a kind: sixteen times the pace it runs that kind ahead at. */
-    private int burstsUpTo(Kind kind) {
-        return trusts(kind) && check != null ? check.of(kind).ahead(Forecast.MOST_II) * 16 : 0;
-    }
-
-    /** What a burst at {@code pace} runs: every machine, up to {@link #BURST_MACHINES}, and crop of a kind its model is trusted with that fast. */
-    private List<BlockPos> bursting(int pace) {
-        List<BlockPos> out = new ArrayList<>();
-        if (burstsUpTo(Kind.MACHINES) >= pace) {
-            machines.keySet().stream().limit(BURST_MACHINES).forEach(k -> out.add(BlockPos.of(k)));
-        }
-        if (burstsUpTo(Kind.CROPS) >= pace) {
-            watches.forEach((k, w) -> {
-                if (w.age < w.ripe) {
-                    out.add(BlockPos.of(k));
-                }
-            });
-        }
-        return out;
-    }
-
-    /** Starts a burst at {@code pace}, if it has the compute and at least a tick of it paid for. */
-    public void startBurst(int pace) {
-        if (third() && level instanceof ServerLevel server && compute >= compute(pace) && !bursting(pace).isEmpty()) {
-            burstPace = pace;
-            burstLeft = BURST;
-            burst(server);
-            if (burstLeft > 0) {
-                for (ServerPlayer player : server.players()) {
-                    if (pace == PACES[PACES.length - 1] && player.distanceToSqr(worldPosition.getCenter()) < 32 * 32) {
-                        Awards.grant(player, "forecast/burst");
-                    }
-                }
-            }
-        }
-    }
-
-    /** A tick of its burst: it pays for every block it runs, and stops when it cannot. */
-    private void burst(ServerLevel level) {
-        if (ticks % 20 == 0) {
-            compute = Cooling.compute(level, worldPosition, 0, GraphScanner.MAX_ACCELERATORS).threads();
-            Cooling.working(level, worldPosition, burstLeft > 0);
-        }
-        if (burstLeft <= 0) {
-            return;
-        }
-        List<BlockPos> blocks = bursting(burstPace);
-        long machineCount = blocks.stream().filter(p -> machines.containsKey(p.asLong())).count();
-        long cost = (burstPace - 1) * (machineCount + (blocks.size() - machineCount + CROPS_A_MACHINE - 1) / CROPS_A_MACHINE);
-        int stored = energy().getAmountAsInt();
-        compute = Cooling.compute(level, worldPosition, 0, GraphScanner.MAX_ACCELERATORS).threads();
-        if (blocks.isEmpty() || cost > stored || compute < compute(burstPace) || !Cooling.payRated(level, worldPosition)) {
-            burstLeft = 0;
-            Bursts.stopOwned(level, worldPosition);
-            Cooling.working(level, worldPosition, false);
-            return;
-        }
-        energy().set((int) (stored - cost));
-        burstLeft--;
-        for (BlockPos p : blocks) {
-            Bursts.start(level, p, burstPace, 2, worldPosition);
-        }
-    }
-
     @Override
     public void onLoad() {
         super.onLoad();
         if (level != null && !level.isClientSide()) {
             LOADED.add(this);
-            powerChanged();
         }
-    }
-
-    /** Whether its model is trusted to run blocks of this kind ahead: it passed its last check on them. */
-    public boolean trusts(Kind kind) {
-        return phases[kind.ordinal()] == Phase.AHEAD;
-    }
-
-    /** The kind of block a Forecaster could run ahead at {@code p}: a machine it watches, a crop of seven ages, or null. */
-    @Nullable
-    public static Kind kindOf(ServerLevel level, BlockPos p) {
-        BlockEntity be = level.getBlockEntity(p);
-        if (be != null && cook(be) >= 0) {
-            return Kind.MACHINES;
-        }
-        return age(level.getBlockState(p)) >= 0 ? Kind.CROPS : null;
     }
 
     @SuppressWarnings("unchecked")
-    public static void tickOnce(ServerLevel level, BlockPos p, BlockEntity be) {
+    private static void tickOnce(ServerLevel level, BlockPos p, BlockEntity be) {
         BlockState s = level.getBlockState(p);
         BlockEntityTicker<BlockEntity> ticker = (BlockEntityTicker<BlockEntity>) s.getTicker(level, be.getType());
         if (ticker != null) {
@@ -708,12 +543,6 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         if (be instanceof AbstractFurnaceBlockEntity furnace) {
             int total = furnace.dataAccess.get(AbstractFurnaceBlockEntity.DATA_COOKING_TOTAL_TIME);
             return total > 0 ? total : be.getType() == BlockEntityType.FURNACE ? 200 : 100;
-        }
-        if (be instanceof FabricatorBlockEntity fabricator) {
-            return fabricator.total() > 0 ? fabricator.total() : FABRICATING;
-        }
-        if (be instanceof SmelterBlockEntity) {
-            return SmelterBlockEntity.TIME;
         }
         return be instanceof BrewingStandBlockEntity ? BREW : -1;
     }
@@ -767,10 +596,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
             int left = stand.dataAccess.get(BrewingStandBlockEntity.DATA_BREW_TIME);
             return left > 0 ? BREW - left : 0;
         }
-        if (be instanceof SmelterBlockEntity smelter) {
-            return smelter.progress();
-        }
-        return be instanceof FabricatorBlockEntity fabricator ? fabricator.progress() : 0;
+        return 0;
     }
 
     /** The lines it is still writing, crops' then machines', that hold only what the blocks did by themselves. */
@@ -851,7 +677,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
             int k = kind.ordinal();
             checkedGrowth[k] = growth[k];
             if (growth[k] >= Forecast.MIN_GROWTH) {
-                phases[k] = result.of(kind).ahead(most()) > 0 ? Phase.AHEAD : Phase.REFUSED;
+                phases[k] = result.of(kind).ahead(Forecast.MOST) > 0 ? Phase.AHEAD : Phase.REFUSED;
             }
         }
         boolean now = phases[0] == Phase.AHEAD || phases[1] == Phase.AHEAD;
@@ -865,7 +691,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
     }
 
     /** Draws the next {@code steps} looks of every growing crop from the model, and makes them so. */
-    private void aheadCrops(ServerLevel level, ModelLink link, int steps) {
+    private void aheadCrops(ServerLevel level, ModelInfo info, int steps) {
         List<Long> keys = new ArrayList<>();
         List<String> lines = new ArrayList<>();
         watches.forEach((key, w) -> {
@@ -879,7 +705,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         }
         long seed = rng.nextLong();
         String field = watched;
-        submit(level, link, model -> Forecast.ahead(model, field, lines, steps, new Random(seed)), drawn -> {
+        submit(level, info, model -> Forecast.ahead(model, field, lines, steps, new Random(seed)), drawn -> {
             if (drawn != null) {
                 grow(level, keys, drawn);
             }
@@ -902,7 +728,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
             w.drawn = true;
             if (w.age > was) {
                 level.setBlock(p, aged(s, w.age), Block.UPDATE_CLIENTS);
-                Bursts.shimmer(level, p, 2);
+                Shimmer.at(level, p, 2);
                 level.sendParticles(ParticleTypes.HAPPY_VILLAGER, p.getX() + 0.5, p.getY() + 0.4, p.getZ() + 0.5, 3, 0.25, 0.2, 0.25, 0);
                 flashed.set((p.getZ() - worldPosition.getZ() + RADIUS) * SIDE + p.getX() - worldPosition.getX() + RADIUS);
                 grew++;
@@ -912,7 +738,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
             }
         }
         if (grew > 0) {
-            ahead(level, check == null ? 0 : check.crops().ahead(most()));
+            ahead(level, check == null ? 0 : check.crops().ahead(Forecast.MOST));
         }
     }
 
@@ -920,12 +746,12 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
      * Draws the next looks of every machine waiting for a forecast, and lets each run on through the progress drawn:
      * a forecaster at ×4 draws three looks for every one the world takes.
      */
-    private void aheadMachines(ServerLevel level, ModelLink link) {
+    private void aheadMachines(ServerLevel level, ModelInfo info) {
         if (check == null) {
             due.clear();
             return;
         }
-        int steps = check.machines().ahead(most()) - 1;
+        int steps = check.machines().ahead(Forecast.MOST) - 1;
         List<Long> keys = new ArrayList<>(due.keySet());
         List<Due> sent = new ArrayList<>(due.values());
         due.clear();
@@ -935,7 +761,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         List<String> lines = sent.stream().map(Due::line).toList();
         long seed = rng.nextLong();
         String field = watched;
-        submit(level, link, model -> Forecast.ahead(model, field, lines, steps, new Random(seed)), drawn -> {
+        submit(level, info, model -> Forecast.ahead(model, field, lines, steps, new Random(seed)), drawn -> {
             if (drawn == null) {
                 return;
             }
@@ -980,7 +806,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
         }
     }
 
-    private <T> void submit(ServerLevel level, ModelLink link, Function<CompiledGraph, T> work, Consumer<@Nullable T> done) {
+    private <T> void submit(ServerLevel level, ModelInfo info, Function<CompiledGraph, T> work, Consumer<@Nullable T> done) {
         busy = true;
         askedAt = ticks;
         int id = ++request;
@@ -990,11 +816,7 @@ public class ForecasterBlockEntity extends PowerBlockEntity implements MenuProvi
                 done.accept(result);
             }
         };
-        switch (link) {
-            case ModelLink.Served s -> s.server().submit(work, reply);
-            case ModelLink.Onboard o -> Models.submit(level.getServer(), o.info().id(), work, reply);
-            case ModelLink.Missing m -> busy = false;
-        }
+        Models.submit(level.getServer(), info.id(), work, reply);
     }
 
     private void slotsChanged() {

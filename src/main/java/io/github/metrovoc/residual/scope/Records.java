@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.metrovoc.residual.Awards;
 import io.github.metrovoc.residual.Residual;
-import io.github.metrovoc.residual.bench.Design;
 import io.github.metrovoc.residual.graph.CompiledGraph;
 import io.github.metrovoc.residual.graph.GraphSpec;
 import io.github.metrovoc.residual.learn.Benchmark;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,8 +23,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
 /**
- * What everyone on this server has made: for each benchmark, every player's saved designs and what they scored; for each spec, every
- * player's verified designs and what they take to lay down. Kept with the world, so friends can compare what they built.
+ * What everyone on this server has made: for each benchmark, every player's saved designs and what they scored. Kept with the world, so friends can compare what they built.
  */
 public final class Records extends SavedData {
     /** The most a board keeps. */
@@ -69,40 +66,26 @@ public final class Records extends SavedData {
         };
     }
 
-    /** One player's verified design for one spec: what it takes to lay down, and how many parts it has. */
-    public record Laid(String player, int area, int parts) {
-        static final Codec<Laid> CODEC = RecordCodecBuilder.create(i -> i.group(
-                Codec.STRING.fieldOf("player").forGetter(Laid::player),
-                Codec.INT.fieldOf("area").forGetter(Laid::area),
-                Codec.INT.fieldOf("parts").forGetter(Laid::parts)
-        ).apply(i, Laid::new));
-        public static final StreamCodec<RegistryFriendlyByteBuf, Laid> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.STRING_UTF8, Laid::player, ByteBufCodecs.VAR_INT, Laid::area, ByteBufCodecs.VAR_INT, Laid::parts, Laid::new);
-    }
-
     /** What is about to go on the boards, worked out off the server thread. */
     public record Submission(long parameters, String design, long hash, Map<Benchmark, Contamination.Check> checks, Map<String, Float> scores, boolean causal) {
     }
 
-    private record Saved(Map<String, List<Entry>> boards, Map<String, List<Laid>> designs) {
+    private record Saved(Map<String, List<Entry>> boards) {
         static final Codec<Saved> CODEC = RecordCodecBuilder.create(i -> i.group(
-                Codec.unboundedMap(Codec.STRING, Entry.CODEC.listOf()).fieldOf("boards").forGetter(Saved::boards),
-                Codec.unboundedMap(Codec.STRING, Laid.CODEC.listOf()).fieldOf("designs").forGetter(Saved::designs)
+                Codec.unboundedMap(Codec.STRING, Entry.CODEC.listOf()).fieldOf("boards").forGetter(Saved::boards)
         ).apply(i, Saved::new));
     }
 
-    private static final Codec<Records> CODEC = Saved.CODEC.xmap(Records::new, r -> new Saved(r.boards, r.designs));
+    private static final Codec<Records> CODEC = Saved.CODEC.xmap(Records::new, r -> new Saved(r.boards));
     public static final SavedDataType<Records> TYPE = new SavedDataType<>(Residual.id("records"), Records::new, CODEC);
 
     private final Map<String, List<Entry>> boards = new HashMap<>();
-    private final Map<String, List<Laid>> designs = new HashMap<>();
 
     private Records() {
     }
 
     private Records(Saved saved) {
         saved.boards.forEach((k, v) -> boards.put(k, new ArrayList<>(v)));
-        saved.designs.forEach((k, v) -> designs.put(k, new ArrayList<>(v)));
     }
 
     public static Records of(MinecraftServer server) {
@@ -190,28 +173,5 @@ public final class Records extends SavedData {
 
     public List<Entry> board(Benchmark a) {
         return List.copyOf(boards.getOrDefault(a.id, List.of()));
-    }
-
-    /** Puts a verified design on its spec's list: each player's smallest. */
-    public void laid(ServerPlayer player, String spec, Design design) {
-        String name = player.getName().getString();
-        List<Laid> list = designs.computeIfAbsent(spec, k -> new ArrayList<>());
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).player().equals(name)) {
-                if (design.area() < list.get(i).area()) {
-                    list.set(i, new Laid(name, design.area(), design.parts()));
-                    list.sort(Comparator.comparingInt(Laid::area));
-                    setDirty();
-                }
-                return;
-            }
-        }
-        list.add(new Laid(name, design.area(), design.parts()));
-        list.sort(Comparator.comparingInt(Laid::area));
-        setDirty();
-    }
-
-    public List<Laid> designs(String spec) {
-        return List.copyOf(designs.getOrDefault(spec, List.of()));
     }
 }

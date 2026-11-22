@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "T": "minecraft:target",
+    "K": "residual:tensor_casing",
+    "W": "residual:weight_crystal",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    "GTG",
+    "KWK",
+    "KRK"
+  ],
+  "result": {
+    "id": "residual:trial_rig"
+  }
+}

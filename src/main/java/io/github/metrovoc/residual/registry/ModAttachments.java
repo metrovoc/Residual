@@ -19,13 +19,6 @@ public final class ModAttachments {
                     .copyOnDeath()
                     .build());
 
-    /** The specs this player has verified a design for, whose modules their Bench offers as parts. */
-    public static final Supplier<AttachmentType<List<String>>> VERIFIED = ATTACHMENTS.register("verified",
-            () -> AttachmentType.<List<String>>builder(() -> List.of())
-                    .serialize(Codec.STRING.listOf().fieldOf("specs"))
-                    .copyOnDeath()
-                    .sync((holder, to) -> holder == to, ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()))
-                    .build());
 
     /** The kinds of ruin this player has read of in a shard, which a Wayfinder can look for. */
     public static final Supplier<AttachmentType<List<String>>> KNOWN_RUINS = ATTACHMENTS.register("known_ruins",
@@ -35,9 +28,6 @@ public final class ModAttachments {
                     .sync((holder, to) -> holder == to, ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()))
                     .build());
 
-    /** Transient server-authoritative thrust state, including clients that start tracking mid-flight. */
-    public static final Supplier<AttachmentType<Boolean>> FRAME_FLYING = ATTACHMENTS.register("frame_flying",
-            () -> AttachmentType.builder(() -> false).sync(ByteBufCodecs.BOOL).build());
 
     private ModAttachments() {
     }

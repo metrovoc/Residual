@@ -1,5 +1,5 @@
 {
-  "parent": "residual:bench/schedule",
+  "parent": "residual:model/saved",
   "criteria": {
     "done": {
       "trigger": "minecraft:impossible"
@@ -7,7 +7,7 @@
   },
   "display": {
     "icon": {
-      "id": "residual:scheduler"
+      "id": "minecraft:clock"
     },
     "title": {
       "translate": "advancements.residual.recipe.planned.title"

@@ -3,9 +3,6 @@ package io.github.metrovoc.residual.tensor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.github.metrovoc.residual.bench.Design;
-import io.github.metrovoc.residual.bench.Prim;
-import io.github.metrovoc.residual.bench.Specs;
 import io.github.metrovoc.residual.tensor.Numerics.Format;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
@@ -72,25 +69,6 @@ class NumericsTest {
             for (int i = 0; i < x.length; i++) {
                 assertEquals(once[i], twice[i], 1e-3f * Math.abs(once[i]), f.id + " element " + i);
             }
-        }
-    }
-
-    /** The engine's fp8 and fp4 are what the Bench's designs compute. */
-    @Test
-    void theEngineDoesWhatTheBenchVerifies() {
-        Random rng = new Random(3);
-        float[] x = new float[16 * 4];
-        for (int i = 0; i < x.length; i++) {
-            x[i] = (float) rng.nextGaussian() * (i < 16 ? 100f : 1f);
-        }
-        Tensor t = new Tensor(new int[]{4, 16}, x, false);
-        Tensor fp8 = Specs.FP8.salvagedDesign().run(null, new Tensor[]{t}).result();
-        float[] engine8 = Numerics.forward(x, Format.FP8);
-        Tensor fp4 = Specs.FP4.salvagedDesign().run(null, new Tensor[]{t}).result();
-        float[] engine4 = Numerics.forward(x, Format.FP4);
-        for (int i = 0; i < x.length; i++) {
-            assertEquals(engine8[i], fp8.data[i], 1e-3f + 1e-3f * Math.abs(x[i]), "fp8 element " + i);
-            assertEquals(engine4[i], fp4.data[i], 1e-3f + 1e-3f * Math.abs(x[i]), "fp4 element " + i);
         }
     }
 
