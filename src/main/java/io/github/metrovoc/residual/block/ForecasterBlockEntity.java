@@ -738,7 +738,7 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
         if (grew > 0) {
-            ahead(level, check == null ? 0 : check.crops().ahead(Forecast.MOST));
+            ahead(level);
         }
     }
 
@@ -789,19 +789,16 @@ public class ForecasterBlockEntity extends BlockEntity implements MenuProvider {
                 any |= eighths > 0;
             }
             if (any) {
-                ahead(level, steps + 1);
+                ahead(level);
             }
         });
     }
 
     /** Players nearby have seen a Forecaster run blocks ahead. */
-    private void ahead(ServerLevel level, int factor) {
+    private void ahead(ServerLevel level) {
         for (ServerPlayer player : level.players()) {
             if (player.distanceToSqr(worldPosition.getCenter()) < 32 * 32) {
                 Awards.grant(player, "forecast/ahead");
-                if (factor >= 8) {
-                    Awards.grant(player, "forecast/deep");
-                }
             }
         }
     }

@@ -53,7 +53,7 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Advancements on guide pages: {@code <residual:Milestone id="agent/made">how to</residual:Milestone>} shows one as a
+ * Advancements on guide pages: {@code <residual:Milestone id="model/saved">how to</residual:Milestone>} shows one as a
  * paragraph, its icon in the frame the advancement screen gives it, lit once it is made, then its title, what it asks
  * and how to go about it.
  */

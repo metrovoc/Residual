@@ -27,7 +27,6 @@ public final class Ui {
     public static final int GREEN = 0xFF84E08A;
     /** The negative end of {@link #heat}. */
     public static final int BLUE = 0xFF3EB8FF;
-    public static final int SELECTION = 0xFF263440;
 
     private Ui() {
     }

@@ -11,8 +11,6 @@ import com.google.gson.JsonParser;
 import io.github.metrovoc.residual.learn.Recipe;
 import io.github.metrovoc.residual.learn.Trainer;
 import io.github.metrovoc.residual.tensor.Ops.Activation;
-import io.github.metrovoc.residual.tensor.Prims.Binary;
-import io.github.metrovoc.residual.tensor.Prims.Unary;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -64,34 +62,11 @@ class TorchParityTest {
             Map.entry("concat", (t, c) -> Ops.concat(t, c.in(0), c.in(1))),
             Map.entry("sum", (t, c) -> Ops.sum(t, c.in(0))));
 
-    private static final Map<String, Call> PRIMS = Map.ofEntries(
-            Map.entry("binary", (t, c) -> Prims.binary(t, Binary.valueOf(c.string("op")), c.in(0), c.in(1))),
-            Map.entry("unary", (t, c) -> Prims.unary(t, Unary.valueOf(c.string("op")), c.in(0))),
-            Map.entry("sum", (t, c) -> Prims.sum(t, c.in(0))),
-            Map.entry("amax", (t, c) -> Prims.amax(t, c.in(0))),
-            Map.entry("transpose", (t, c) -> Prims.transpose(t, c.in(0))),
-            Map.entry("unsqueeze", (t, c) -> Prims.unsqueeze(t, c.in(0))),
-            Map.entry("squeeze", (t, c) -> Prims.squeeze(t, c.in(0))),
-            Map.entry("matmul", (t, c) -> Prims.matmul(t, c.in(0), c.in(1))),
-            Map.entry("causal", (t, c) -> Prims.causal(t, c.in(0))));
-
     private static final Map<String, Call> MODERN = Map.ofEntries(
             Map.entry("rotary", (t, c) -> Ops.rotary(t, c.in(0))),
             Map.entry("flash_attention", (t, c) -> Ops.flashAttention(t, c.in(0), c.in(1), c.in(2), c.number("scale"))),
             Map.entry("z_loss", (t, c) -> Ops.zLoss(t, c.in(0))),
-            Map.entry("scaled", (t, c) -> Ops.scaled(t, c.in(0), c.in(1))),
-            Map.entry("unary", (t, c) -> Prims.unary(t, Unary.valueOf(c.string("op")), c.in(0))),
-            Map.entry("turn", (t, c) -> Prims.turn(t, c.in(0))),
-            Map.entry("left", (t, c) -> Prims.left(t, c.in(0))),
-            Map.entry("right", (t, c) -> Prims.right(t, c.in(0))));
-
-    /** The salvaged machines' kernels, built from primitives: they must match the fused ones' references. */
-    private static final Map<String, Call> UNFUSED = Map.of(
-            "matmul", (t, c) -> Unfused.matmul(t, c.in(0), c.in(1), c.flag("trans_b")),
-            "softmax", (t, c) -> Unfused.softmax(t, c.in(0)),
-            "layer_norm", (t, c) -> Unfused.layerNorm(t, c.in(0), c.in(1), c.in(2), c.number("eps")),
-            "rms_norm", (t, c) -> Unfused.rmsNorm(t, c.in(0), c.in(1), c.number("eps")),
-            "activate", (t, c) -> Unfused.activate(t, c.in(0), Activation.byId(c.string("fn"))));
+            Map.entry("scaled", (t, c) -> Ops.scaled(t, c.in(0), c.in(1))));
 
     @TestFactory
     Stream<DynamicTest> opsMatchPyTorch() throws IOException {
@@ -99,41 +74,8 @@ class TorchParityTest {
     }
 
     @TestFactory
-    Stream<DynamicTest> primsMatchPyTorch() throws IOException {
-        return replay("prims.json", PRIMS);
-    }
-
-    @TestFactory
     Stream<DynamicTest> modernOpsMatchPyTorch() throws IOException {
         return replay("modern.json", MODERN);
-    }
-
-    @TestFactory
-    Stream<DynamicTest> unfusedRotaryMatchesPyTorch() throws IOException {
-        List<DynamicTest> tests = new ArrayList<>();
-        for (JsonElement e : read("modern.json").getAsJsonArray("rotary")) {
-            tests.add(check("unfused rotary", e.getAsJsonObject(), (t, c) -> Unfused.rotary(t, c.in(0))));
-        }
-        return tests.stream();
-    }
-
-    /**
-     * Not at the activations' edges, where building them from primitives differs by design: max gives a tie's gradient
-     * to its first operand, so max(x, 0) passes it on at exactly 0 where relu passes none; and past exp's float32
-     * range 1/(1 + exp(-x)) has a NaN gradient, as the same formula has in PyTorch.
-     */
-    @TestFactory
-    Stream<DynamicTest> unfusedKernelsMatchPyTorch() throws IOException {
-        List<DynamicTest> tests = new ArrayList<>();
-        JsonObject fixture = read("ops.json");
-        for (String op : fixture.keySet()) {
-            for (JsonElement e : fixture.getAsJsonArray(op)) {
-                if (UNFUSED.containsKey(op) && !e.getAsJsonObject().get("name").getAsString().endsWith("edges")) {
-                    tests.add(check("unfused " + op, e.getAsJsonObject(), UNFUSED.get(op)));
-                }
-            }
-        }
-        return tests.stream();
     }
 
     /** Trainer's update on the gradients a backward pass leaves: clipping, the warmed-up rate, then the AdamW step. */

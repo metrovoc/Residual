@@ -80,13 +80,13 @@
   "residual.benchmark.forecasting.job": "to run ahead",
   "residual.benchmark.forecasting.test": "Blocks a Forecaster watched, a line each: a crop's age at every look, from seedling (0) to ripe (7), or a machine's progress through the items it makes, from a (just begun) to h (seven eighths done). Scored by loss on each next look. Even knowing each field and machine exactly leaves about 0.19.",
   "residual.benchmark.recall": "Recall",
-  "residual.benchmark.recall.job": "for storing",
+  "residual.benchmark.recall.job": "to recall a pair",
   "residual.benchmark.recall.test": "Eight kinds of goods, each followed by the chest it went into. Then one kind is asked again: which chest?",
   "residual.benchmark.reversal": "Reversal",
-  "residual.benchmark.reversal.job": "for hauling",
+  "residual.benchmark.reversal.job": "to keep places",
   "residual.benchmark.reversal.test": "Six waymarks passed on the way out, then the same six named in reverse: the way home.",
   "residual.benchmark.induction": "Induction",
-  "residual.benchmark.induction.job": "for the Architect",
+  "residual.benchmark.induction.job": "for patterns",
   "residual.benchmark.induction.test": "Letters in which a run comes round again. Once it does, continue it. Only looking back at what followed the same letter last time works.",
   "residual.benchmark.sorting": "Sorting",
   "residual.benchmark.sorting.job": "for sorting",
@@ -143,7 +143,7 @@
   "residual.tokenizer.blank": "Blank: a model that reads with it sees one character at a time. A BPE Forge writes a vocabulary onto it.",
   "residual.tokenizer.size": "%s tokens: %s characters and %s merges",
   "residual.tokenizer.longest": "Longest: %s",
-  "residual.field_log.blank": "Blank. In a Forecaster, it keeps a copy of everything the Forecaster watched, a line per crop or machine; in a Port, what the Port moves out, a line per thing; in a Surveyor, a fair sample of the rows of ground it reads.",
+  "residual.field_log.blank": "Blank. In a Forecaster, it keeps a copy of everything the Forecaster watched, a line per crop or machine.",
   "residual.trial.needs_text": "This trial needs an Archive Drive with text on it, in the middle slot.",
   "residual.trial.needs_data": "This trial needs something to work on, in the middle slot.",
   "residual.trial.steps": "Steps",
@@ -870,5 +870,5 @@
   "residual.scan.machines": "This model has more than %s machines.",
   "residual.scan.stream_merge": "Two residual streams flow into the block at %s. A stream can't merge.",
   "residual.scan.stream_loop": "A residual stream runs in a circle. It must start somewhere: at the embedding.",
-  "fml.menu.mods.info.description.residual": "Rediscover the lost art of building intelligence from scratch.\n\nSomeone lived in this world before you, and they seem to have built machines that thought. Find what is left of them, design those machines again from the smallest operations there are, cable them into a real language model, train it on real text with real gradients, and put it to work in the body of an agent."
+  "fml.menu.mods.info.description.residual": "Rediscover the lost art of building intelligence from scratch.\n\nSomeone lived in this world before you, and they seem to have built machines that thought. Find what is left of them, design those machines again from the smallest operations there are, cable them into a real language model, train it on real text with real gradients, and put it to work."
 }

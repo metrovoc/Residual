@@ -77,7 +77,6 @@ public class OperatorBlockEntity extends BlockEntity implements MenuProvider {
     private Status status = Status.NONE;
     /** Built by a case rather than crafted: breaking it gives nothing back. */
     private boolean provided;
-    /** False when fabricated from a salvaged design: it runs one primitive at a time. */
 
     public OperatorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.OPERATOR.get(), pos, state);

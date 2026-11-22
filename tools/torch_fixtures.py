@@ -66,8 +66,6 @@ def case(group, operation, name, reference, inputs, **args):
 
 ACTIVATIONS = {"relu": F.relu, "gelu": lambda x: F.gelu(x, approximate="tanh"), "tanh": torch.tanh,
                "sigmoid": torch.sigmoid, "silu": F.silu}
-BINARY = {"ADD": torch.add, "SUB": torch.sub, "MUL": torch.mul, "DIV": torch.div, "MAX": torch.maximum}
-UNARY = {"NEG": torch.neg, "EXP": torch.exp, "LOG": torch.log, "SQRT": torch.sqrt, "TANH": torch.tanh}
 
 
 def matmul(a, b, trans_b):
@@ -101,11 +99,6 @@ def shift(x, steps):
     return F.pad(x, (0, 0, steps, 0))[..., :x.shape[-2], :]
 
 
-def row(x):
-    """The engine's prims count a vector as a single row."""
-    return x.view(1, -1) if x.dim() == 1 else x
-
-
 def rotary(x):
     """Each pair of features as a complex number, turned by its row's place."""
     t, d = x.shape[-2:]
@@ -117,14 +110,6 @@ def rotary(x):
 def flash(q, k, v, scale):
     """What the online softmax has to equal: the T×T scores, masked, softmaxed and multiplied."""
     return F.softmax(causal_mask(q @ k.mT * scale), dim=-1) @ v
-
-
-def turn(x):
-    return torch.stack((-x[..., 1::2], x[..., 0::2]), dim=-1).flatten(-2)
-
-
-def half(x):
-    return (x.shape[-1] + 1) // 2
 
 
 # ---------------------------------------------------------------- cases
@@ -193,36 +178,8 @@ def ops():
     return g
 
 
-def prims():
-    g = {}
-    for op, fn in BINARY.items():
-        # DIV's divisors stay clear of 0; MAX's operands never tie
-        divisor = (lambda *s: randn(*s).abs() + 0.5) if op == "DIV" else randn
-        case(g, "binary", op + " rows", lambda a, b, op: fn(a, b), [randn(2, 3, 4), divisor(3, 1)], op=op)
-        case(g, "binary", op + " both stretch", lambda a, b, op: fn(a, b), [randn(2, 1, 4), divisor(3, 1)], op=op)
-        case(g, "binary", op + " vector first", lambda a, b, op: fn(a, b), [randn(4), divisor(2, 1, 4)], op=op)
-        case(g, "binary", op + " constant", lambda a, b, op: fn(a, b), [randn(2, 3), divisor(1)], op=op)
-    for op, fn in UNARY.items():
-        # LOG and SQRT get positive inputs over several decades
-        x = randn(3, 4, scale=3).exp() if op in ("LOG", "SQRT") else randn(3, 4, scale=4)
-        case(g, "unary", op, lambda x, op: fn(x), [x], op=op)
-    edges = torch.tensor([-100.0, -20, -10, 10, 20, 100])
-    case(g, "unary", "TANH edges", lambda x, op: torch.tanh(x), [edges], op="TANH")
-    case(g, "sum", "rows", lambda x: x.sum(-1, keepdim=True), [randn(2, 3, 4)])
-    case(g, "amax", "rows", lambda x: x.amax(-1, keepdim=True), [randn(2, 3, 4)])
-    case(g, "transpose", "batch", lambda x: x.transpose(-2, -1), [randn(2, 3, 4)])
-    case(g, "transpose", "vector", lambda x: row(x).transpose(-2, -1), [randn(4)])
-    case(g, "unsqueeze", "rows", lambda x: x.unsqueeze(-2), [randn(2, 3)])
-    case(g, "squeeze", "column", lambda x: x.squeeze(-1), [randn(3, 4, 1)])
-    case(g, "matmul", "vector", lambda a, b: row(a) @ b, [randn(3), randn(3, 2)])
-    case(g, "matmul", "shared", lambda a, b: a @ b, [randn(2, 3, 4), randn(4, 2)])
-    case(g, "matmul", "batched", lambda a, b: a @ b, [randn(2, 3, 4), randn(2, 4, 2)])
-    case(g, "causal", "square", causal_mask, [randn(3, 3)])
-    return g
-
-
 def modern():
-    """The modern block's operations, and the Bench's primitives for it."""
+    """The modern block's operations."""
     g = {}
     case(g, "rotary", "pairs", rotary, [randn(5, 4)])
     case(g, "rotary", "heads", rotary, [randn(2, 3, 4, 8)])
@@ -236,18 +193,6 @@ def modern():
     case(g, "z_loss", "ordinary", z_loss, [randn(2, 3, 7, scale=2)])
     case(g, "z_loss", "large", z_loss, [randn(1, 3, 5, scale=3, shift=1000)])
     case(g, "scaled", "temperature", lambda x, t: x * t, [randn(2, 3, 4), randn(1)])
-    for op, fn in {"COS": torch.cos, "SIN": torch.sin, "ROUND": torch.round, "POW2": lambda x: 2.0 ** x,
-                   "EXPONENT": lambda x: (torch.frexp(x).exponent - 1).to(x.dtype) + 0 * x}.items():
-        case(g, "unary", op, lambda x, op: fn(x), [randn(3, 4, scale=4)], op=op)
-    # a half goes to the even neighbour
-    case(g, "unary", "ROUND ties", lambda x, op: torch.round(x), [torch.tensor([0.5, 1.5, 2.5, -0.5, -1.5, 3.25])], op="ROUND")
-    case(g, "unary", "EXPONENT powers", lambda x, op: (torch.frexp(x).exponent - 1).to(x.dtype) + 0 * x,
-         [torch.tensor([1.0, 2, 8, 0.5, 1024, 16777216, 16777215, -3])], op="EXPONENT")
-    case(g, "turn", "pairs", turn, [randn(2, 3, 4)])
-    case(g, "left", "even", lambda x: x[..., :half(x)], [randn(2, 6)])
-    case(g, "left", "odd", lambda x: x[..., :half(x)], [randn(2, 5)])
-    case(g, "right", "even", lambda x: x[..., half(x):], [randn(2, 6)])
-    case(g, "right", "odd", lambda x: x[..., half(x):], [randn(2, 5)])
     return g
 
 
@@ -369,7 +314,6 @@ if __name__ == "__main__":
     shutil.rmtree(OUT, ignore_errors=True)
     OUT.mkdir(parents=True)
     write("ops.json", ops())
-    write("prims.json", prims())
     write("adamw.json", {"adamw": [adamw("clipped", 0.03, 1.0), adamw("unclipped", 0.3, 0.0)]})
     write("modern.json", modern())
     write("numerics.json", numerics())

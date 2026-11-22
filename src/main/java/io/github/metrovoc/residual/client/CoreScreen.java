@@ -1303,10 +1303,7 @@ public class CoreScreen extends AbstractContainerScreen<CoreMenu> implements Par
                 out.add("readings", leftPos + 8, topPos + 94, 150, 80);
                 out.add("rate", leftPos + 160, topPos + 24, 152, 88);
             }
-            case COMPUTE -> {
-                out.add("reading", leftPos + 6, topPos + 22, 308, 59);
-                out.add("timeline", leftPos + 11, topPos + 83, 298, 77);
-            }
+            case COMPUTE -> out.add("reading", leftPos + 6, topPos + 22, 308, 59);
         }
     }
 }

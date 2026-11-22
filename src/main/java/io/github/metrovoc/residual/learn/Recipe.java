@@ -50,7 +50,7 @@ public record Recipe(Schedule schedule, int warmup, int length, Numerics.Format 
         return multiplier(step, warmup, schedule == Schedule.COSINE ? warmup : length * 4 / 5, length);
     }
 
-    /** The Bench's Schedule spec: warmup to step {@code w}, then a half cosine from step {@code s} down to 0 at step {@code t}. */
+    /** The schedule: warmup to step {@code w}, then a half cosine from step {@code s} down to 0 at step {@code t}. */
     public static float multiplier(int step, int w, int s, int t) {
         float rise = Math.min(1f, (step + 1f) / w);
         double along = Math.max(0, Math.min(1, (double) (step - s) / Math.max(t - s, 1)));

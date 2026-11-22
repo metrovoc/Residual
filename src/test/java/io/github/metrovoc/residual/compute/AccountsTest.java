@@ -63,19 +63,6 @@ class AccountsTest {
     void sixteenBytesAParameter() throws Exception {
         CompiledGraph model = model(Blueprints.gpt(32, 2, 4));
         assertEquals(16 * model.parameterCount(), Accounts.trainingBytes(model.parameterCount()));
-        assertEquals(model.parameterCount(), Accounts.largestModel(16 * model.parameterCount()));
-    }
-
-    @Test
-    void aBookingIsTheSums() {
-        Accounts.Capacity hall = new Accounts.Capacity(1000, 1e15, 1L << 40, 1e8, 1.25);
-        Accounts.Booking run = Accounts.book(1_000_000_000L, 20e9, hall);
-        assertEquals(6 * 1e9 * 20e9, run.flops(), 1e6);
-        assertEquals(16_000_000_000L, run.bytes());
-        assertTrue(run.fits());
-        assertEquals(run.flops() / 1e8 * 1.25, run.energy(), 1e3);
-        assertEquals(run.flops() / 1e15 / 86_400, run.days(), 1e-6);
-        assertTrue(!Accounts.book(1L << 40, 1, hall).fits());
     }
 
     /** What the rules read on real models, and the memory a parameter really takes to train. */

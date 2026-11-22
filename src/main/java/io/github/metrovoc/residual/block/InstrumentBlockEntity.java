@@ -67,8 +67,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * A Stream Scope or a Trial Rig. It works on a copy of a model: the one in its crystal, or with none, the one standing on the Model Core
- * it touches, whose machines it can then draw over. The work runs off the server thread, one piece at a time, with the threads the
- * Accelerators touching it lend, and what it comes to is sent to whoever has its screen open.
+ * it touches, whose machines it can then draw over. The work runs off the server thread, one piece at a time, and what it comes to is sent to whoever has its screen open.
  */
 public class InstrumentBlockEntity extends BlockEntity {
     public static final int MODEL = 0, DATA = 1, OUTPUT = 2, SLOTS = 3;

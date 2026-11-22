@@ -305,7 +305,7 @@ public final class CompiledGraph {
             in[i] = src == GraphSpec.TOKENS ? tokens : values[src];
         }
         Tensor out = nd.op.run(tape, in, narrowed(tape, params.get(node), format), nd.config, new Op.Frame(node, tokens.time, captures,
-                nd.fused, extras, format(node, format), tokens.starts, tokens.batch));
+                extras, format(node, format), tokens.starts, tokens.batch));
         if (captures != null) {
             if (captures.edit != null) {
                 out = captures.edit.apply(tape, node, out);
@@ -320,7 +320,7 @@ public final class CompiledGraph {
         Tensor out = x;
         for (int node : nodes) {
             GraphSpec.Node nd = spec.node(node);
-            out = nd.op.run(tape, new Object[]{out}, params.get(node), nd.config, new Op.Frame(node, x.dim(-2), null, nd.fused, null));
+            out = nd.op.run(tape, new Object[]{out}, params.get(node), nd.config, new Op.Frame(node, x.dim(-2), null, null));
         }
         return out;
     }

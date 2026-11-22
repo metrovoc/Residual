@@ -16,7 +16,7 @@ public enum Benchmark {
     RECALL(18, Task.Metric.ACCURACY, 0.9),
     /** Errands: the landmarks passed on the way out, named again in reverse. */
     REVERSAL(12, Task.Metric.ACCURACY, 0.9),
-    /** Building: continue the pattern seen so far. */
+    /** Patterns: continue the pattern seen so far. */
     INDUCTION(24, Task.Metric.ACCURACY, 0.9),
     /**
      * Sorting: what kind a thing is, by its name. The test names only things practice never does, some of them made

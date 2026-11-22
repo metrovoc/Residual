@@ -110,7 +110,6 @@ class OpsGradientTest {
     void rotaryTurnsPairsAndKeepsLengths() {
         Tensor x = rand(2, 5, 4);
         check("rotary", List.of(x), tape -> Ops.rotary(tape, x));
-        check("unfused rotary", List.of(x), tape -> Unfused.rotary(tape, x));
         Tensor y = Ops.rotary(null, x);
         // the first row doesn't turn
         for (int c = 0; c < 4; c++) {

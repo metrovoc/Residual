@@ -75,10 +75,7 @@ class ModernCalibrationTest {
     }
 
     /** How long a training step takes, on the Reading test's model sizes. */
-    private static void steps(String label, GraphSpec spec, boolean fused, int threads, int count) throws Exception {
-        for (GraphSpec.Node n : spec.nodes) {
-            n.fused = fused;
-        }
+    private static void steps(String label, GraphSpec spec, int threads, int count) throws Exception {
         TextTask text = reading();
         CompiledGraph g = CompiledGraph.compile(spec, Env.WORLD, null, 1);
         Trainer tr = new Trainer(g, text, 1, 3e-3f, 32, 1f);
@@ -211,12 +208,10 @@ class ModernCalibrationTest {
         }
         if (runs.contains("steps")) {
             for (int threads : new int[]{1, 4}) {
-                steps("gpt32", Blueprints.gpt(32, 2, 4), true, threads, 300);
-                steps("gpt32 unfused", Blueprints.gpt(32, 2, 4), false, threads, 100);
-                steps("modern32", Blueprints.modern(32, 2, 4), true, threads, 300);
-                steps("modern32 unfused", Blueprints.modern(32, 2, 4), false, threads, 100);
-                steps("gpt64", Blueprints.gpt(64, 2, 4), true, threads, 200);
-                steps("modern64", Blueprints.modern(64, 2, 4), true, threads, 200);
+                steps("gpt32", Blueprints.gpt(32, 2, 4), threads, 300);
+                steps("modern32", Blueprints.modern(32, 2, 4), threads, 300);
+                steps("gpt64", Blueprints.gpt(64, 2, 4), threads, 200);
+                steps("modern64", Blueprints.modern(64, 2, 4), threads, 200);
             }
         }
         if (runs.contains("seeds")) {

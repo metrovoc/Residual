@@ -12,12 +12,12 @@ import org.junit.jupiter.api.Test;
 
 class KindsTest {
     @Test
-    void everyThingIsNamedTheWayAgentsAsk() {
+    void everyThingIsNamedTheWayItIsAsked() {
         Random rng = new Random(1);
         for (int i = 0; i < 20000; i++) {
             Kinds.Example ex = Kinds.example(rng, i % 2 == 0);
             assertTrue(ex.name().length() <= Kinds.LONGEST, ex.toString());
-            assertEquals(ex.name() + "? ", Kinds.prompt(ex.name()), "named as an agent names it: " + ex);
+            assertEquals(ex.name() + "? ", Kinds.prompt(ex.name()), "named as it is asked: " + ex);
             Kinds.Kind known = Kinds.known(ex.name());
             assertTrue(known == null || known == ex.kind(), ex.toString());
         }

@@ -58,7 +58,7 @@ public final class Kinds {
 
     /** The longest name a model is shown. */
     public static final int LONGEST = 28;
-    /** How sure a model must be of a kind for an agent to go by it. */
+    /** How sure a model must be of a kind to go by it. */
     public static final float SURE = 0.6f;
 
     /** Names of one kind, every material in every form; {@code %s} in a form stands for the material. */

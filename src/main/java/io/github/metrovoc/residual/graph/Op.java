@@ -2,13 +2,12 @@ package io.github.metrovoc.residual.graph;
 
 import io.github.metrovoc.residual.graph.ParamSpec.Init;
 import io.github.metrovoc.residual.tensor.Numerics;
-import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.Ops.Activation;
+import io.github.metrovoc.residual.tensor.Ops;
 import io.github.metrovoc.residual.tensor.ShapeException;
 import io.github.metrovoc.residual.tensor.Tape;
 import io.github.metrovoc.residual.tensor.Tensor;
 import io.github.metrovoc.residual.tensor.Tokens;
-import io.github.metrovoc.residual.tensor.Unfused;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -585,14 +584,13 @@ public enum Op {
     abstract Tensor run(Tape tape, Object[] in, Map<String, Tensor> p, Config c, Frame f);
 
     /**
-     * Per-call context: the node being run, the sequence length, an optional capture sink, whether the machine was
-     * fabricated from a verified design (fused kernels) or a salvaged one (one primitive at a time), and, while
+     * Per-call context: the node being run, the sequence length, an optional capture sink, and, while
      * training, what it adds to the loss; what its matrices are rounded to, and for rows packed with masks between
      * documents, where each token's document begins.
      */
-    record Frame(int node, int time, Captures captures, boolean fused, Extras extras, Numerics.Format format, int[] starts, int batch) {
-        Frame(int node, int time, Captures captures, boolean fused, Extras extras) {
-            this(node, time, captures, fused, extras, Numerics.Format.FP32, null, 1);
+    record Frame(int node, int time, Captures captures, Extras extras, Numerics.Format format, int[] starts, int batch) {
+        Frame(int node, int time, Captures captures, Extras extras) {
+            this(node, time, captures, extras, Numerics.Format.FP32, null, 1);
         }
     }
 
@@ -725,8 +723,8 @@ public enum Op {
 
     /**
      * Attention as the late designs do it: queries and keys turned by their rows' places, then normalized with one learned
-     * temperature, so a score can't exceed t·√d however large they grow. A verified machine never holds the T×T scores
-     * ({@link Ops#flashAttention}); the plain path is the salvaged machine's, and what a picture of the pattern needs.
+     * temperature, so a score can't exceed t·√d however large they grow. The machine never holds the T×T scores
+     * ({@link Ops#flashAttention}); the plain path is what a picture of the pattern needs.
      */
     static Tensor modernAttention(Tape tape, Tensor x, Map<String, Tensor> p, String prefix, Config c, Frame f) {
         int heads = c.integer("heads");
@@ -744,7 +742,7 @@ public enum Op {
             k = unit(tape, k, f);
         }
         Tensor y;
-        if (f.fused() && f.captures() == null) {
+        if (f.captures() == null) {
             y = Numerics.product(tape, Ops.flashAttention(tape, Numerics.cast(tape, q, f.format()), Numerics.cast(tape, k, f.format()),
                     Numerics.cast(tape, v, f.format()), scale, f.starts(), f.batch()), f.format());
         } else {
@@ -765,26 +763,26 @@ public enum Op {
         return Ops.add(tape, matmul(tape, h, p.get(prefix + "w2"), false, f), p.get(prefix + "b2"));
     }
 
-    // ------------------------------------------------------------------ fused or not
+    // ------------------------------------------------------------------ kernels
 
     static Tensor matmul(Tape tape, Tensor a, Tensor b, boolean transB, Frame f) {
         Tensor x = Numerics.cast(tape, a, f.format());
         Tensor y = Numerics.cast(tape, b, f.format());
-        return Numerics.product(tape, f.fused() ? Ops.matmul(tape, x, y, transB) : Unfused.matmul(tape, x, y, transB), f.format());
+        return Numerics.product(tape, Ops.matmul(tape, x, y, transB), f.format());
     }
 
     static Tensor softmax(Tape tape, Tensor x, Frame f) {
         if (f.captures() != null) {
             f.captures().score(x);
         }
-        return f.fused() ? Ops.softmax(tape, x) : Unfused.softmax(tape, x);
+        return Ops.softmax(tape, x);
     }
 
     static Tensor layerNorm(Tape tape, Tensor x, Tensor gamma, Tensor beta, Frame f) {
         if (f.captures() != null && f.captures().frozen && tape != null) {
             return frozenLayerNorm(tape, x, gamma, beta);
         }
-        return f.fused() ? Ops.layerNorm(tape, x, gamma, beta, EPS) : Unfused.layerNorm(tape, x, gamma, beta, EPS);
+        return Ops.layerNorm(tape, x, gamma, beta, EPS);
     }
 
     /** The same numbers as a layer norm, with each row's mean and scale held constant, so what passes through it passes linearly. */
@@ -812,7 +810,7 @@ public enum Op {
     }
 
     static Tensor rmsNorm(Tape tape, Tensor x, Tensor gamma, Frame f) {
-        return f.fused() ? Ops.rmsNorm(tape, x, gamma, EPS) : Unfused.rmsNorm(tape, x, gamma, EPS);
+        return Ops.rmsNorm(tape, x, gamma, EPS);
     }
 
     /** RMS norm with no gain: every vector's numbers come out with a root mean square of 1. */
@@ -823,10 +821,10 @@ public enum Op {
     }
 
     static Tensor rotary(Tape tape, Tensor x, Frame f) {
-        return f.fused() ? Ops.rotary(tape, x) : Unfused.rotary(tape, x);
+        return Ops.rotary(tape, x);
     }
 
     static Tensor activate(Tape tape, Tensor x, Activation fn, Frame f) {
-        return f.fused() ? Ops.activate(tape, x, fn) : Unfused.activate(tape, x, fn);
+        return Ops.activate(tape, x, fn);
     }
 }

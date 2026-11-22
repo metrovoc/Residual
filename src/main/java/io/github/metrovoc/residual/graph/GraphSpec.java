@@ -22,8 +22,6 @@ public final class GraphSpec {
         public String name;
         /** Where the node lives in the world (a packed block position), or 0. */
         public long origin;
-        /** Whether its machine runs fused kernels (a verified design) or one primitive at a time (a salvaged one). */
-        public boolean fused = true;
 
         Node(Op op, Config config, int[] inputs, String name, long origin) {
             this.op = op;

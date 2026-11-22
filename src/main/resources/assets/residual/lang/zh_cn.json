@@ -80,13 +80,13 @@
   "residual.benchmark.forecasting.job": "用于超前运行",
   "residual.benchmark.forecasting.test": "预报机看过的方块，每个一行：作物每次查看时的生长阶段，从幼苗（0）到成熟（7）；或机器做每件东西的进度，从 a（刚开始）到 h（完成八分之七）。按每个下一次查看的损失打分。即使对每块田和每台机器了如指掌，损失也还剩约 0.19。",
   "residual.benchmark.recall": "回忆",
-  "residual.benchmark.recall.job": "用于储物",
+  "residual.benchmark.recall.job": "用于回忆一对",
   "residual.benchmark.recall.test": "八种货物，每种后面跟着它放进了哪个箱子。然后再问其中一种：在哪个箱子里？",
   "residual.benchmark.reversal": "倒序",
-  "residual.benchmark.reversal.job": "用于搬运",
+  "residual.benchmark.reversal.job": "用于记住位置",
   "residual.benchmark.reversal.test": "出门路上经过的六个路标，然后倒着再报一遍这六个：这就是回家的路。",
   "residual.benchmark.induction": "归纳",
-  "residual.benchmark.induction.job": "用于建筑师",
+  "residual.benchmark.induction.job": "用于规律",
   "residual.benchmark.induction.test": "一串字母，其中某一段会再次出现。一旦出现，就把它接下去。唯一的办法是回头看：上次同一个字母后面跟的是什么。",
   "residual.benchmark.sorting": "分拣",
   "residual.benchmark.sorting.job": "用于分拣",
@@ -143,7 +143,7 @@
   "residual.tokenizer.blank": "空白：用它阅读的模型一次只看一个字符。BPE 锻炉可以把词表写入其中。",
   "residual.tokenizer.size": "%s 个词元：%s 个字符和 %s 次合并",
   "residual.tokenizer.longest": "最长：%s",
-  "residual.field_log.blank": "空白。放进预报机后，它会抄下预报机看到的一切，每株作物或每台机器一行；放进端口后，它会抄下端口送出的东西，每样一行；放进勘测仪后，它会公平地抽取勘测仪读过的地层行。",
+  "residual.field_log.blank": "空白。放进预报机后，它会抄下预报机看到的一切，每株作物或每台机器一行。",
   "residual.trial.needs_text": "这个试验需要中间格子里有一个写了文字的档案驱动器。",
   "residual.trial.needs_data": "这个试验需要中间格子里有要处理的东西。",
   "residual.trial.steps": "步数",
@@ -870,5 +870,5 @@
   "residual.scan.machines": "这个模型有超过 %s 台机器。",
   "residual.scan.stream_merge": "有两条残差流流进 %s 处的方块。残差流不能汇合。",
   "residual.scan.stream_loop": "有一条残差流绕成了圈。它必须有个起点：嵌入。",
-  "fml.menu.mods.info.description.residual": "重新发现从零构建智能的失传技艺。\n\n在你之前，有人在这个世界生活过，他们似乎还造出了会思考的机器。找到它们留下的东西，从最基本的运算重新设计这些机器，用线缆把它们连成一个真正的语言模型，用真实的文本和真实的梯度训练它，再让它在智能体的躯壳里工作。"
+  "fml.menu.mods.info.description.residual": "重新发现从零构建智能的失传技艺。\n\n在你之前，有人在这个世界生活过，他们似乎还造出了会思考的机器。找到它们留下的东西，从最基本的运算重新设计这些机器，用线缆把它们连成一个真正的语言模型，用真实的文本和真实的梯度训练它，再让它去工作。"
 }
