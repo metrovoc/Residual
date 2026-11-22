@@ -849,13 +849,12 @@ def buried_vault(variant=0):
     for x in range(x0 + 2, x1 - 1):
         if x in (5, 7, 9):
             continue
-        t.set(x, 1, z1 - 1, "residual:tensor_casing")
-        t.set(x, 2, z1 - 1, "copper_bulb" if x in (4, 10) else "residual:tensor_casing")
-        t.set(x, 1, z1 - 2, "residual:cable", {d: str(d in ("east", "west", "south")).lower()
-                                              for d in ("north", "south", "east", "west", "up", "down")})
+        t.set(x, 1, z1 - 1, "chiseled_copper")
+        t.set(x, 2, z1 - 1, "copper_bulb" if x in (4, 10) else "chiseled_copper")
+        t.set(x, 1, z1 - 2, "copper_chain", {"axis": "x", "waterlogged": "false"})
     t.chest(x0 + 1, 1, 11, "east", "residual:chests/buried_vault")
     t.chest(x1 - 1, 1, 11, "west", "residual:chests/buried_vault")
-    t.set(7, 1, 7, "residual:tensor_casing")
+    t.set(7, 1, 7, "polished_deepslate")
     t.set(7, 2, 7, "lectern", {"facing": "north", "has_book": "false", "powered": "false"})
     for x, z in ((x0 + 1, z0 + 1), (x1 - 1, z0 + 1), (x0 + 1, z1 - 1), (x1 - 1, z1 - 1)):
         t.set(x, h, z, "oxidized_copper_bulb", {"lit": str(variant == 0).lower(), "powered": "false"})
@@ -3088,11 +3087,10 @@ def deep_works(variant=0):
     for x in range(hx0 + 2, hx1 - 1, 3):
         for y in range(2, 7):
             t.set(x, y, hz0 + 1, "polished_deepslate")
-    cable = {d: str(d in ("east", "west", "south")).lower() for d in ("north", "south", "east", "west", "up", "down")}
     for x in range(hx0 + 2, hx1 - 1, 2):
         t.set(x, 2, hz1 - 1, "copper_bulb")
-        t.set(x, 3, hz1 - 1, "residual:tensor_casing")
-        t.set(x, 2, hz1 - 2, "residual:cable", cable)
+        t.set(x, 3, hz1 - 1, "chiseled_copper")
+        t.set(x, 2, hz1 - 2, "copper_chain", {"axis": "x", "waterlogged": "false"})
     for x, y, z, face in ((hx0 + 1, 4, 18, "west"), (hx1 - 1, 5, 20, "east"), (10, 6, hz0 + 1, "north"),
                           (14, 3, hz1 - 1, "south")):
         t.set(x, y, z, "sculk_vein", {d: str(d == face).lower() for d in ("down", "up", "north", "south", "east", "west")}
@@ -3523,20 +3521,17 @@ def pool(rolls, entries):
     return {"rolls": {"type": "minecraft:uniform", "min": rolls[0], "max": rolls[1]}, "bonus_rolls": 0.0, "entries": entries}
 
 
-WRECKS = ["shape", "diverge", "leak", "order", "depth"]
-
-
 LOOT = {
     "chests/archive_house": [pool((2, 4), [
-        item("archive_shard", 10, (1, 3)), item("weight_crystal", 4, (1, 3)), item("minecraft:paper", 4, (2, 6)), item("minecraft:book", 2, (1, 2))])],
+        item("archive_shard", 10, (1, 3)), item("minecraft:amethyst_shard", 4, (1, 3)), item("minecraft:paper", 4, (2, 6)), item("minecraft:book", 2, (1, 2))])],
     "chests/archive_shelf": [pool((1, 3), [item("archive_shard", 8), item("minecraft:paper", 5, (1, 4)),
                                            item("minecraft:ink_sac", 2, (1, 2)), item("minecraft:candle", 2, (1, 2))])],
     "chests/relay_mast": [pool((2, 3), [
         item("archive_shard", 8, (1, 2)), item("minecraft:copper_ingot", 6, (2, 6)), item("minecraft:redstone", 5, (2, 5))])],
     "chests/buried_vault": [
-        pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS]),
+        pool((0, 1), [item("model_drive")]),
         pool((2, 4), [
-            item("checkpoint", 3), item("weight_crystal", 5, (2, 4)),
+            item("minecraft:amethyst_shard", 5, (2, 4)),
             item("archive_shard", 6, (1, 3)), item("minecraft:diamond", 1), item("minecraft:gold_ingot", 3, (1, 3))])],
     "chests/relay_tower_store": [pool((2, 4), [
         item("minecraft:coal", 8, (3, 9)), item("minecraft:potato", 8, (2, 6)), item("minecraft:bread", 3, (1, 3)),
@@ -3580,11 +3575,11 @@ LOOT = {
     "archaeology/waymark": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
         item("archive_shard", 6, about=ROADS), item("minecraft:emerald", 2), item("minecraft:flint", 2)]}],
     "chests/tutor_house": [pool((2, 4), [
-        item("archive_shard", 10, (1, 3), about=TUTORS), item("checkpoint", 4), item("weight_crystal", 4, (1, 3)),
+        item("archive_shard", 10, (1, 3), about=TUTORS), item("model_drive", 2),
         item("minecraft:paper", 3, (1, 4)), item("minecraft:book", 2), item("minecraft:amethyst_shard", 3, (1, 3))])],
     "chests/tutor_dry_box": [
-        pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS] + [item("checkpoint", 5)]),
-        pool((2, 3), [item("checkpoint", 4, (1, 2)), item("weight_crystal", 5, (2, 4)),
+        pool((0, 1), [item("model_drive")]),
+        pool((2, 3), [item("minecraft:amethyst_shard", 5, (2, 4)),
                       item("minecraft:honeycomb", 3, (1, 3)), item("archive_shard", 3, about=TUTORS)])],
     "chests/fallen_relay_mast": [
         pool((2, 3), [item("archive_drive", 1, drive=(10, ["relay", "message", "tower", "keeper"]))]),
@@ -3622,8 +3617,8 @@ LOOT = {
         item("minecraft:rail", 4, (4, 12)), item("minecraft:powered_rail", 2, (1, 3)), item("minecraft:honeycomb", 3, (1, 4)),
         item("minecraft:copper_ingot", 3, (2, 6)), item("minecraft:lantern", 2), item("archive_shard", 4, (1, 2), about=DEEP)])],
     "chests/deep_works_hall": [
-        pool((1, 1), [item("salvaged_model", 1, components={"residual:wreck": w}) for w in WRECKS]),
-        pool((2, 4), [item("weight_crystal", 4, (2, 5)), item("minecraft:amethyst_shard", 3, (2, 6)),
+        pool((1, 1), [item("model_drive")]),
+        pool((2, 4), [item("minecraft:amethyst_shard", 3, (2, 6)),
                       item("archive_drive", 2, drive=(12, ["Deep Works", "warm", "humming", "ninth"]))])],
     "chests/archive_copying": [pool((2, 4), [
         item("minecraft:paper", 6, (4, 12)), item("minecraft:ink_sac", 4, (2, 6)), item("minecraft:feather", 3, (2, 5)),
@@ -3633,10 +3628,10 @@ LOOT = {
         pool((1, 1), [item("minecraft:written_book", 1, components={"minecraft:written_book_content": {
             "title": {"raw": "The founders' page"}, "author": "the first keepers", "resolved": True,
             "pages": [{"raw": p} for p in FOUNDERS_PAGE]}})]),
-        pool((2, 3), [item("archive_drive", 1, drive=(24, ["founding", "first", "archive"])), item("weight_crystal", 3, (2, 4)),
+        pool((2, 3), [item("archive_drive", 1, drive=(24, ["founding", "first", "archive"])), item("minecraft:amethyst_shard", 3, (2, 4)),
                       item("archive_shard", 4, (2, 4))])],
     "archaeology/ruin": [{"rolls": 1.0, "bonus_rolls": 0.0, "entries": [
-        item("archive_shard", 9), item("weight_crystal", 2)]}],
+        item("archive_shard", 9), item("minecraft:amethyst_shard", 2)]}],
 }
 
 

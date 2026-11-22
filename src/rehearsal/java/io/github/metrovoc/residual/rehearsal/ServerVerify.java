@@ -4,11 +4,6 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
-import io.github.metrovoc.residual.block.CoreBlockEntity;
-import io.github.metrovoc.residual.block.InstrumentBlockEntity;
-import io.github.metrovoc.residual.item.CrystalItem;
-import io.github.metrovoc.residual.learn.Benchmark;
-import io.github.metrovoc.residual.scope.Records;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,7 +12,6 @@ import java.util.UUID;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -44,7 +38,7 @@ import org.slf4j.Logger;
 public final class ServerVerify {
     private static final Logger LOG = LogUtils.getLogger();
     private static final Map<String, Set<UUID>> SIGNALS = new HashMap<>();
-    private static final Set<String> EXACT = Set.of("nomobs", "noblocks", "empty", "state", "ticking", "running", "operator", "menu", "distinct");
+    private static final Set<String> EXACT = Set.of("nomobs", "noblocks", "empty", "state", "ticking", "operator", "menu", "distinct");
 
     private ServerVerify() {
     }
@@ -86,7 +80,6 @@ public final class ServerVerify {
         switch (words[0]) {
             case "expect" -> check(player, a);
             case "signal" -> SIGNALS.computeIfAbsent(a[0], key -> new HashSet<>()).add(player.getUUID());
-            case "blueprint" -> ServerSteps.blueprint(level, a[0], at(a, 1), Direction.byName(a[4]));
             case "drive" -> ServerSteps.drive(player, Integer.parseInt(a[0]));
             case "mine" -> {
                 if (!player.gameMode.destroyBlock(at(a, 0))) {
@@ -142,18 +135,9 @@ public final class ServerVerify {
                 AdvancementHolder holder = server.getAdvancements().get(Residual.id(args[1]));
                 return holder != null && player.getAdvancements().getOrStartProgress(holder).isDone() ? 1 : 0;
             }
-            case "board": return Records.of(server).board(Benchmark.byId(args[1])).size();
-            case "boardplayer": return Records.of(server).board(Benchmark.byId(args[1])).stream().filter(e -> e.player().equals(args[2])).count();
-            case "kept": return CrystalItem.model(((InstrumentBlockEntity) level.getBlockEntity(at(args, 1))).items().getItem(InstrumentBlockEntity.OUTPUT)) != null ? 1 : 0;
             default: break;
         }
         BlockPos at = at(args, 1);
-        if (args[0].equals("steps")) {
-            return (long) ((CoreBlockEntity) level.getBlockEntity(at)).snapshot().steps();
-        }
-        if (args[0].equals("running")) {
-            return ((CoreBlockEntity) level.getBlockEntity(at)).snapshot().running() ? 1L : 0L;
-        }
         if (args[0].equals("empty")) {
             ResourceHandler<ItemResource> inv = level.getCapability(Capabilities.Item.BLOCK, at, null);
             long n = 0;

@@ -11,68 +11,8 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "residual:salvaged_model",
-          "weight": 1,
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "residual:wreck": "shape"
-              }
-            }
-          ]
-        },
-        {
-          "type": "minecraft:item",
-          "name": "residual:salvaged_model",
-          "weight": 1,
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "residual:wreck": "diverge"
-              }
-            }
-          ]
-        },
-        {
-          "type": "minecraft:item",
-          "name": "residual:salvaged_model",
-          "weight": 1,
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "residual:wreck": "leak"
-              }
-            }
-          ]
-        },
-        {
-          "type": "minecraft:item",
-          "name": "residual:salvaged_model",
-          "weight": 1,
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "residual:wreck": "order"
-              }
-            }
-          ]
-        },
-        {
-          "type": "minecraft:item",
-          "name": "residual:salvaged_model",
-          "weight": 1,
-          "functions": [
-            {
-              "function": "minecraft:set_components",
-              "components": {
-                "residual:wreck": "depth"
-              }
-            }
-          ]
+          "name": "residual:model_drive",
+          "weight": 1
         }
       ]
     },
@@ -84,21 +24,6 @@
       },
       "bonus_rolls": 0.0,
       "entries": [
-        {
-          "type": "minecraft:item",
-          "name": "residual:weight_crystal",
-          "weight": 4,
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": {
-                "type": "minecraft:uniform",
-                "min": 2,
-                "max": 5
-              }
-            }
-          ]
-        },
         {
           "type": "minecraft:item",
           "name": "minecraft:amethyst_shard",

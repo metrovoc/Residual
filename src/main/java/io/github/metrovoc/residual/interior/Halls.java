@@ -40,7 +40,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The halls of a world: a place for every model, in a dimension of their own, each built from its model and rebuilt
- * when the model changes. A hall is awake while somebody stands in it; its model trains only then.
+ * when the model changes. A hall is awake while somebody stands in it or a Core holds its drive; its model trains only
+ * then.
  */
 public final class Halls extends SavedData {
     public static final ResourceKey<Level> LEVEL = ResourceKey.create(Registries.DIMENSION, Residual.id("interior"));
@@ -255,6 +256,14 @@ public final class Halls extends SavedData {
             Arch.keep(saved, hall.bank);
         }
         rebuild(level, hall, false, false);
+    }
+
+    /** A loaded Core holds the drive of model {@code id}: its hall wakes if it slept, and stays awake with nobody in it. */
+    public void keepAwake(MinecraftServer server, UUID id) {
+        ServerLevel level = server.getLevel(LEVEL);
+        if (level != null) {
+            wake(level, hall(id));
+        }
     }
 
     /** Saves a hall's model and stops its run. */

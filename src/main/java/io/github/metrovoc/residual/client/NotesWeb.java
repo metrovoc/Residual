@@ -7,9 +7,9 @@ import com.google.gson.JsonPrimitive;
 import guideme.siteexport.ExportPostProcessor;
 
 /**
- * The website's side of the field notes' tags of their own: the export rewrites steps, shots and live widgets to plain elements
- * with what they need in {@code data-} attributes, the generator passes those through as HTML, and {@code src/website/live.js}
- * brings them to life.
+ * The website's side of the field notes' shots: the export rewrites a shot and its parts to plain elements with what they
+ * need in {@code data-} attributes, the generator passes those through as HTML, and {@code src/website/live.js} marks the
+ * parts on the picture.
  */
 final class NotesWeb implements ExportPostProcessor {
     @Override
@@ -27,11 +27,8 @@ final class NotesWeb implements ExportPostProcessor {
             JsonObject child = element.getAsJsonObject();
             if (child.get("name") instanceof JsonPrimitive name) {
                 switch (name.getAsString()) {
-                    case "residual:Steps" -> become(child, "div", "data-steps", "");
-                    case "residual:Step" -> become(child, "section", "data-step", "");
                     case "residual:Part" -> become(child, "li", "data-part", attribute(child, "name"));
                     case "residual:Shot" -> shot(child);
-                    case "residual:Softmax", "residual:Attention", "residual:Curve" -> widget(child, name.getAsString());
                     default -> {
                     }
                 }
@@ -53,20 +50,6 @@ final class NotesWeb implements ExportPostProcessor {
         become(shot, "figure", "data-shot", name);
         shot.getAsJsonArray("attributes").add(pair("aria-label", alt));
         shot.add("children", children);
-    }
-
-    /** What a widget's tag says, its words in the export's language, and which widget it is. */
-    private static void widget(JsonObject widget, String tag) {
-        JsonArray old = widget.getAsJsonArray("attributes");
-        become(widget, "div", "data-live", tag.substring("residual:".length()).toLowerCase(java.util.Locale.ROOT));
-        JsonArray attributes = widget.getAsJsonArray("attributes");
-        for (JsonElement attribute : old) {
-            JsonObject a = attribute.getAsJsonObject();
-            attributes.add(pair("data-" + a.get("name").getAsString(), a.get("value").getAsString()));
-        }
-        for (String[] words : Live.webText(tag)) {
-            attributes.add(pair(words[0], words[1]));
-        }
     }
 
     private static void become(JsonObject node, String name, String attribute, String value) {

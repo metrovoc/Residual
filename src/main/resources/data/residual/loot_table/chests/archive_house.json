@@ -26,7 +26,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "residual:weight_crystal",
+          "name": "minecraft:amethyst_shard",
           "weight": 4,
           "functions": [
             {

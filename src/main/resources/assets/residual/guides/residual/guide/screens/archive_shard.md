@@ -3,12 +3,12 @@ navigation:
   title: Archive Shard
   icon: archive_shard
   parent: screens/index.md
-  position: 5
+  position: 0
 ---
 
 # An Archive Shard, read
 
-Use an Archive Shard to read it. [The Archive](../archive.md) tells where its lost text goes.
+Use an Archive Shard to read it. [The Archive](../archive.md) tells what a shard is a piece of.
 
 A record of the old world, as far as it can still be read.
 

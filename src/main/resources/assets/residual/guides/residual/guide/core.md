@@ -2,82 +2,39 @@
 navigation:
   title: The Model Core
   icon: model_core
-  position: 40
+  position: 10
 item_ids:
   - model_core
 ---
 
 # The Model Core
 
-<BlockImage id="model_core" scale="3" float="left" />
-
-The Model Core feeds text into your machines and judges what comes back. Its front sends out tokens; every other face
-takes in the model's scores. It trains the model, tests it, and saves it as a model. The trained weights stay in the
-machines themselves, so a model keeps what it learned when you leave and come back.
-
-<br clear="all" />
+A <ItemLink id="model_core" /> holds one [model drive](model-drive.md), and is the way into the model on it.
 
 <RecipeFor id="model_core" />
 
-[Its screen, part by part](screens/core.md).
+It stands with its front toward whoever sets it down. Empty, it is dark; holding a drive, its faces light.
 
-## Data
+## Using it
 
-Four slots for what the model practises on: datasets, archive drives, or a salvaged model. Everything in them is
-practised together, a batch from each in turn. Beside them are the tokenizer slot, for the [tokens](tokenizers.md) the
-model reads and writes, and the checkpoint slot. An empty slot shows faintly what goes in it; point at a checkpoint for
-what it holds. **Save to checkpoint** tests the model on every benchmark and saves it into that checkpoint. With a
-salvaged model loaded, **Rebuild** builds its machines in front of the Core: see [Salvaged Models](salvage.md).
+- With a model drive in your hand, use an empty Core to put the drive in. A blank drive gets its model at that moment.
+- With an empty hand, use a Core that holds a drive to step inside the model.
+- Sneak and use it with an empty hand to take the drive out, into that hand.
+- Break the Core and the drive drops beside it.
 
-## Train
+## Inside
 
-The learning curve, with the numbers it ends at beneath it: train loss, test loss and accuracy. Point at them for
-**Parameters**, the model's weights, **Grad norm**, the size of the last gradient, and **Threads**, how many threads the
-Core trains with. **Train** starts training and stops it. Beside the window, a toolbar holds **Reset** and **Check**,
-then the settings: **Speed**, **Learning rate**, **Batch**, **Clip** and **Weight decay**. Point at one for its value and what it does;
-click for the next value, right-click for the one before. See [Training](training.md) for what each one means.
+A model is a hall, and you arrive at its near end. A row of consoles stands there; use one to work it:
 
-## Tests
+- **Leave** takes you back to where you stood when you stepped in.
+- **Task** changes what the model is asked to do: Reading, Reversal, Pattern or Recall.
+- **Train** starts the model training, and pauses it again.
+- **One step** trains it by a single step.
+- **Pace** and **Learning rate** set how fast it steps and how far each step moves it.
+- **Start over** gives it new weights.
 
-Every benchmark on a line, with its score at the last test; a full green bar passes. The test of each benchmark is taken
-while the model trains on it; **Test all** runs every test now. Point at a line for the job it is used for, the score
-that passes, when it was tested and the format its test uses. See [Models and Tests](models.md).
+## While a Core holds the drive
 
-Click a line to look closer: the test beside a look-alike of it, runs of this design from fresh seeds, and what everyone on the
-server has made: see [Comparing Models](evaluation.md).
-
-## Try
-
-Runs the model. Choose a benchmark: **Example** draws a fresh test example and shows the model answering it. For
-Sorting, name a thing and **Ask**; for Reading, type the start of something and **Write**:
-the model carries it on one letter at a time, drawing each from its predicted probabilities. **Temp** (temperature)
-sharpens or flattens those probabilities before drawing:
-
-![temperature](/formulas/temperature.png)
-
-Low temperatures repeat the model's favourite continuations; high ones take more risks. The bars show how likely the
-model found each candidate for the first letter it wrote.
-
-## Inspect
-
-Every machine of the model in the order data reaches it, with its output shape, its number of weights and the size of
-its last gradient. Problems found by Check are listed here too. A bar that shrinks to nothing as you go down the list
-is a gradient that never arrives.
-
-## Recipe
-
-How a run goes beside its learning rate: **Schedule**, **Warmup** and **Length**, **Precision**, **Optimizer** and
-**Packing**. The toolbar beside the window sets them: point at one for its value and what it does, click for the next
-value. Under them is what the run is doing: the rate now, what the weights take, the share of the text it ever reads, its spikes, the largest scores inside the
-model and how often a second head is right. Beside them is the rate over the whole run. See
-[The Recipe](recipe.md).
-
-## Compute
-
-What a run costs. Training a model is multiplying numbers, and the numbers can be counted. A flop is one multiply or one
-add. A model of N parameters reading D tokens takes about 6ND of them: two for each parameter on each token going
-forward, four coming back. The Core counts them as they happen, and the tab sets what it counted beside that six.
-
-Above that are the threads the Core trains on, its flops a second, and the memory the run takes. To train a parameter
-takes four numbers of four bytes each: the weight, its gradient and Adam's two running averages. **Sixteen bytes a
-parameter.**
+A model that is training goes on training after you leave, with nobody inside, for as long as a Core holds its drive
+and the land the Core stands on is loaded. Take the drive out and about ten seconds later the model is put away as it
+is. Put the drive back in any Core and the model is there again, paused: step inside and use **Train**.

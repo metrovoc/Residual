@@ -44,8 +44,8 @@ import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
 
 /**
- * Animations on guide pages: {@code <residual:Clip name="forecaster" alt="what it shows" />} plays
- * {@code clips/forecaster.clip} in a loop, and a click pauses it. A clip holds its first frame whole, then the tiles each
+ * Animations on guide pages: {@code <residual:Clip name="wayfinder" alt="what it shows" />} plays
+ * {@code clips/wayfinder.clip} in a loop, and a click pauses it. A clip holds its first frame whole, then the tiles each
  * later frame changes, so a screen or a still camera stays small; the website plays the same file in a canvas
  * ({@code src/website/web-assets/templates/layout.html}).
  */

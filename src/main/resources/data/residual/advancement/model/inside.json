@@ -1,0 +1,36 @@
+{
+  "parent": "residual:model/drive",
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:model_drive",
+      "components": {
+        "residual:model": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "title": {
+      "translate": "advancements.residual.model.inside.title"
+    },
+    "description": {
+      "translate": "advancements.residual.model.inside.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

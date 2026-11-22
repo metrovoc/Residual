@@ -31,7 +31,7 @@ import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Saved models: each one's machines and weights, as a file in the world folder. A crystal only names its model;
+ * Saved models: each one's parts and weights, as a file in the world folder. A drive only names its model;
  * models that were asked something recently stay loaded.
  */
 public final class Checkpoints {

@@ -135,13 +135,13 @@ book on its lectern, and a lamp left on the long table; roots have come down thr
 
 Small houses of calcite between pillars of tuff under roofs of deepslate tiles, one corner usually fallen in, that kept
 records; open masts of green copper on stepped tuff footings, an old relay still on top of most of them; and, under a
-lantern on a post beside a hatch, deep rooms with a bank of old quickeners and two chests, every one holding a
-[salvaged model](salvage.md). At most one in each region 56 chunks across, the vaults 64.
+lantern on a post beside a hatch, deep rooms with a bank of old quickeners and two chests. At most one in each region 56 chunks across, the vaults 64.
 
 ## What they hold
 
 - <ItemLink id="archive_shard" />: pieces of the archive, mostly of what was written about the place they lie in: a
   relay tower's shards are mostly its keepers' writing. See [The Archive](archive.md).
 - What each place kept: coal and food in the towers, flour and seed on the farms, remedies in the marsh, timber and
-  tools at the slips; <ItemLink id="weight_crystal" />, blank <ItemLink id="checkpoint" />s and a little gold.
-- <ItemLink id="salvaged_model" />: see [Salvaged Models](salvage.md).
+  tools at the slips; amethyst and a little gold.
+- Blank <ItemLink id="model_drive" />s, now and then, in the buried vaults, the tutor houses and the Deep Works: see
+  [Model Drives](model-drive.md).

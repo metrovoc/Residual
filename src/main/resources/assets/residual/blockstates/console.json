@@ -1,5 +1,7 @@
 {
   "variants": {
-    "": { "model": "residual:block/console" }
+    "": {
+      "model": "residual:block/console"
+    }
   }
 }

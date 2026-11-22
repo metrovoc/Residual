@@ -26,8 +26,8 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A piece of the archive dug out of a ruin: one record, with some of its text lost. Read it, file it into an Archive
- * Drive, or have a Reader restore what is missing. A shard learns which record it is the first time it is held.
+ * A piece of the archive dug out of a ruin: one record, with some of its text lost. Read it, or file it into an Archive
+ * Drive. A shard learns which record it is the first time it is held.
  */
 public class ShardItem extends Item {
     public ShardItem(Properties properties) {

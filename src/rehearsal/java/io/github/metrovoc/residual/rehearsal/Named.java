@@ -11,7 +11,6 @@ import guideme.document.block.LytNode;
 import guideme.internal.screen.DocumentScreen;
 import guideme.internal.screen.IndepentScaleScreen;
 import guideme.ui.GuideUiHost;
-import io.github.metrovoc.residual.client.CoreScreen;
 import io.github.metrovoc.residual.client.Parts.Part;
 import io.github.metrovoc.residual.client.Parts;
 import java.io.IOException;
@@ -73,11 +72,6 @@ final class Named {
         Component message = widget.getMessage();
         if (message.getContents() instanceof TranslatableContents t) {
             String key = t.getKey();
-            // a Cycler's or a setting's label is "name: value"
-            if (key.equals("residual.cycler") && t.getArgs().length > 0 && t.getArgs()[0] instanceof Component label
-                    && label.getContents() instanceof TranslatableContents named) {
-                key = named.getKey();
-            }
             return key.startsWith("residual.") ? key.substring("residual.".length()) : key;
         }
         String words = message.getString().strip().replace(' ', '_').toLowerCase(Locale.ROOT);
@@ -157,9 +151,6 @@ final class Named {
     private static Part part(Minecraft mc, String name) {
         if (mc.screen == null) {
             throw new IllegalStateException("no screen is open, so no part " + name);
-        }
-        if (mc.screen instanceof CoreScreen core && name.startsWith("row:")) {
-            core.revealBenchmark(name.substring(4));
         }
         Part part = of(mc.screen).get(name);
         if (part == null) {

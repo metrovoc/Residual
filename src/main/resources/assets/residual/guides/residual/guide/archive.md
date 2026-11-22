@@ -6,7 +6,7 @@ navigation:
 item_ids:
   - archive_shard
   - archive_drive
-  - reader
+  - field_log
 ---
 
 # The Archive
@@ -14,7 +14,7 @@ item_ids:
 The old world wrote letters, journals, stories, songs, recipes, manuals and notices, and kept a copy of everything.
 What survives is in <ItemLink id="archive_shard" />s, each a piece of one record with some of its text lost.
 
-[The Reader's screen](screens/reader.md), [a shard as it reads](screens/archive_shard.md).
+[A shard as it reads](screens/archive_shard.md).
 
 ## Shards
 
@@ -27,21 +27,9 @@ A shard learns which record it is the first time you hold it. Use it to read wha
 Use an <ItemLink id="archive_drive" /> to file every shard you carry into it. Shards of the same record make one better
 copy: whatever any of them kept is kept. The drive's tooltip counts its records and its legible letters.
 
-In a Model Core's **Data** slots, a drive is practice for **Reading**: the model learns to predict the next letter of
-everything legible on it, or the next token with a [tokenizer](tokenizers.md), so the more you recover, the more it has
-to learn from. Reading is tested on records no shard ever carries. A model can only pass by learning how the old world
-wrote, not by remembering what it read.
+## Field logs
 
-## The Reader
+<RecipeFor id="field_log" />
 
-<residual:Clip name="reader" alt="The Reader restoring a record's lost text, block by block" />
-
-<RecipeFor id="reader" />
-
-A <ItemLink id="reader" /> restores lost text. Put a shard in its tray and a checkpoint in its model slot. The Reader goes
-through the lost blocks one by one. For each, the model reads the text just before the block and then guesses the block letter by letter, seeing each true
-letter after its guess. If it guesses at least half of them, the block was predictable enough to restore, and it
-comes back.
-
-A block the model cannot restore stays lost until a better model tries. A model that reads ahead, seeing the letter it is
-asked to guess, is turned away: it would only copy.
+A <ItemLink id="field_log" /> is ruled for a line per crop or machine. It stays blank until something that watches a
+field is there to write in it.

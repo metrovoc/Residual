@@ -9,14 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 
-/**
- * What a Forecaster has watched a field do, one line per crop, its age at every look. In a Model Core's data slot it is
- * practice for Forecasting.
- */
+/** What was watched of a field, one line per crop, its age at every look. Nothing writes one now. */
 public class FieldLogItem extends Item {
-    /** The most a log holds; a Forecaster keeps its newest lines. */
-    public static final int CAPACITY = 16_000;
-
     public FieldLogItem(Properties properties) {
         super(properties);
     }

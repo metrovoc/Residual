@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from screen_pages import INDEX, SCREENS, K, T  # noqa: E402
+from screen_pages import INDEX, SCREENS, K  # noqa: E402
 
 RES = ROOT / "src/main/resources/assets/residual"
 GUIDE = RES / "guides/residual/guide"
@@ -78,12 +78,8 @@ def page(screen, position, code):
              f"  position: {position}", "---", "", f'# {say(screen["title"], code)}', "", say(screen["intro"], code), ""]
     if screen.get("clip"):
         lines += [f'<residual:Clip name="{screen["clip"]}" alt="{clip_alt(screen, code)}" />', ""]
-    states = screen["states"]
-    if len(states) == 1:
-        lines += [state_text(states[0], screen, code), ""]
-    else:
-        steps = "\n\n".join(f'  <residual:Step>\n{indent(state_text(s, screen, code), "    ")}\n  </residual:Step>' for s in states)
-        lines += ["<residual:Steps>", steps, "</residual:Steps>", ""]
+    for state in screen["states"]:
+        lines += [state_text(state, screen, code), ""]
     return "\n".join(lines)
 
 

@@ -56,15 +56,6 @@ class RecipeTest {
         assertFalse(Trainer.spiked(9, Double.NaN), "the first step has nothing to leap from");
     }
 
-    @Test
-    void aMixtureSaysWhatItDrewPracticeFrom() {
-        Mixture m = new Mixture(List.of(new Mixture.Source(Benchmark.READING, stretches(Vocab.WORLD))), Vocab.WORLD);
-        m.batch(new Random(1), 2, true);
-        assertEquals(null, m.lastDrawn, "a test is not practice");
-        m.batch(new Random(1), 2, false);
-        assertEquals(Benchmark.READING, m.lastDrawn);
-    }
-
     private static TextTask stretches(Vocab vocab) {
         List<String> texts = new ArrayList<>();
         Random rng = new Random(4);

@@ -1,0 +1,35 @@
+{
+  "parent": "residual:root",
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "residual:model_core"
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "residual:model_core"
+    },
+    "title": {
+      "translate": "advancements.residual.model.core.title"
+    },
+    "description": {
+      "translate": "advancements.residual.model.core.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ]
+}

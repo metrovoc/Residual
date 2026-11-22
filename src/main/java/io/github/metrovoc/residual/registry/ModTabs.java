@@ -1,14 +1,10 @@
 package io.github.metrovoc.residual.registry;
 
 import io.github.metrovoc.residual.Residual;
-import io.github.metrovoc.residual.graph.Op;
-import io.github.metrovoc.residual.item.WreckItem;
-import io.github.metrovoc.residual.learn.Wrecks;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -17,35 +13,14 @@ public final class ModTabs {
 
     public static final Supplier<CreativeModeTab> MAIN = TABS.register("main", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.residual"))
-            .icon(() -> new ItemStack(ModItems.MACHINES.get(Op.ADD).get()))
+            .icon(() -> new ItemStack(ModItems.CORE.get()))
             .displayItems((params, out) -> {
-                out.accept(ModBlocks.CORE.get());
-                out.accept(ModBlocks.CASING.get());
-                out.accept(ModItems.PROBE.get());
-                out.accept(ModItems.WEIGHT_CRYSTAL.get());
-                out.accept(ModBlocks.CABLE.get());
-                for (DyeColor color : DyeColor.values()) {
-                    out.accept(ModBlocks.COLORED_CABLES.get(color).get());
-                }
-                out.accept(ModBlocks.STREAM.get());
-                for (Op op : Op.values()) {
-                    out.accept(ModItems.MACHINES.get(op).get());
-                }
-                out.accept(ModItems.CHECKPOINT.get());
-                out.accept(ModItems.ARCHIVE_DRIVE.get());
-                out.accept(ModBlocks.FORGE.get());
-                out.accept(ModItems.TOKENIZER.get());
+                out.accept(ModItems.CORE.get());
+                out.accept(ModItems.MODEL_DRIVE.get());
                 out.accept(ModItems.SHARD.get());
-                out.accept(ModBlocks.READER.get());
-                out.accept(ModBlocks.FORECASTER.get());
-                out.accept(ModItems.FIELD_LOG.get());
-                out.accept(ModBlocks.STREAM_SCOPE.get());
-                out.accept(ModBlocks.TRIAL_RIG.get());
-                ModItems.DATASETS.values().forEach(dataset -> out.accept(dataset.get()));
-                for (Wrecks.Wreck w : Wrecks.ALL) {
-                    out.accept(WreckItem.of(ModItems.WRECK.get(), w));
-                }
+                out.accept(ModItems.ARCHIVE_DRIVE.get());
                 out.accept(ModItems.WAYFINDER.get());
+                out.accept(ModItems.FIELD_LOG.get());
             })
             .build());
 

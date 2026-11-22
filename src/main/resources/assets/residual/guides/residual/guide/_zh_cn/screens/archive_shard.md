@@ -3,12 +3,12 @@ navigation:
   title: 档案残片
   icon: archive_shard
   parent: screens/index.md
-  position: 5
+  position: 0
 ---
 
 # 读档案残片
 
-使用档案残片即可阅读。失落的文字怎样回来，见[档案](../archive.md)。
+用一块档案残片来读取它。[档案](../archive.md)会说明一块残片是什么的一部分。
 
 旧世界的一份记录，能读多少算多少。
 

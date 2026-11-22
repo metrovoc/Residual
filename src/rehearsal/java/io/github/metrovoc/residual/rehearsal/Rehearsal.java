@@ -6,18 +6,11 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import io.github.metrovoc.residual.Residual;
-import io.github.metrovoc.residual.block.CoreBlockEntity;
-import io.github.metrovoc.residual.block.InstrumentBlockEntity;
-import io.github.metrovoc.residual.client.CoreScreen;
-import io.github.metrovoc.residual.client.CoreView;
-import io.github.metrovoc.residual.client.InstrumentScreen;
+import io.github.metrovoc.residual.client.HallView;
 import io.github.metrovoc.residual.client.Parts;
-import io.github.metrovoc.residual.item.CrystalItem;
+import io.github.metrovoc.residual.interior.HallSync;
+import io.github.metrovoc.residual.interior.Snapshot;
 import io.github.metrovoc.residual.item.WayfinderItem;
-import io.github.metrovoc.residual.learn.Benchmark;
-import io.github.metrovoc.residual.scope.Instrument;
-import io.github.metrovoc.residual.scope.Picture;
-import io.github.metrovoc.residual.scope.Records;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -119,8 +112,8 @@ import org.slf4j.Logger;
  * world [SEED]               create a fresh creative world and wait until it has loaded: flat, or with SEED a
  *                            normal world with structures; any world open before is left first, so one client can
  *                            play many scripts in a row
- * connect HOST               join a server and wait until its world has loaded; blueprint and drive then have to be
- *                            their /rehearsal commands, and the steps that reach into the world directly are out
+ * connect HOST               join a server and wait until its world has loaded; drive then has to be its /rehearsal
+ *                            command, and the steps that reach into the world directly are out
  * reopen                     save and leave the world, then open it again and wait until it has loaded, to see
  *                            what a save keeps
  * cmd COMMAND                run a command as the player
@@ -159,7 +152,6 @@ import org.slf4j.Logger;
  * expect has ITEM N          fail the step unless the player's inventory holds at least N of ITEM
  * expect holds ITEM N        fail the step unless the player's inventory holds exactly N of ITEM
  * expect carried ITEM N      fail the step unless the cursor holds at least N of ITEM
- * expect trained X Y Z N     fail the step unless the Model Core at the place has trained at least N steps
  * expect placed X1 Y1 Z1 X2 Y2 Z2 BLOCK N  fail the step unless the box holds at least N of a block
  * expect noblocks X1 Y1 Z1 X2 Y2 Z2 BLOCK 0  fail the step unless the box holds none of a block
  * expect empty X Y Z 0       fail the step unless the inventory at the place holds nothing
@@ -184,32 +176,22 @@ import org.slf4j.Logger;
  * expect near X Y Z N        fail the step unless the player stands within N blocks of the place
  * expect dimension NAME N    fail the step unless the player is in the dimension whose path is NAME (1) or not (0)
  * expect said TEXT N         fail the step unless at least N messages since the world began held TEXT (no spaces)
- * expect steps X Y Z N       fail the step unless the Model Core at the place has trained at least N steps
- * expect running X Y Z N     fail the step unless the Model Core at the place is training (1) or not (0)
- * expect picture ID N        fail the step unless the open Stream Scope or Trial Rig shows at least N things for an instrument
- * expect cycler PART INDEX ACTIVE N  check a named Cycler's exact index and enabled state (ACTIVE 0 or 1; match N 0 or 1)
- * expect seeds N             fail the step unless the Core's Tests tab has at least N runs from fresh seeds of its benchmark
- * expect fresh N             fail the step unless the Core's Tests tab has N look-alikes of its benchmark's test (0 or 1)
- * expect contaminated N      fail the step unless the Core's Tests tab says its model has (1) or has not (0) seen its test
  * expect made PATH N         fail the step unless the player has made the advancement (N is 1)
- * expect board BENCHMARK N   fail the step unless the server's board for the benchmark has at least N designs
- * expect kept X Y Z N        fail the step unless the Trial Rig at the place holds a model in its output slot (N is 1)
- * expect idle N              fail the step unless the open Stream Scope or Trial Rig is resting (1) or at work (0)
+ * expect hall N              fail the step unless the hall the player stands in shows a run of at least N steps
+ * expect hallmost N          fail the step unless that run has taken at most N steps
+ * expect training N          fail the step unless that run is going (1) or is not (0)
  * until TICKS EXPECT         repeat that expect every second until it holds; fail the step after TICKS
  * seek STRUCTURE             search for the nearest STRUCTURE as far as a Wayfinder looks, all at once, and log
  *                            how long that took on the server thread and how far it found one
  * survey X Z RADIUS          log the ground's height around a column, to find level ground for a scene (~ water,
  *                            T a tree)
  * close                      close the screen if one is open, as a script's last step may leave one or not
- * fresh                      forget what screens remember, as the world step does, for a script that joins a server
  * fly on|off                 hover in place (creative), so the camera stays where cmd tp put it
  * sneak on|off               hold the sneak key, to place blocks against machines and turn them (flying, it sinks)
  * hud on|off
  * view first|back|front      the camera: first person, or behind or in front of the player
  * gui SCALE                  set the GUI scale (0 = auto)
  * lang CODE                  switch the game's language (zh_cn) and reload; every script starts in en_us
- * blueprint NAME X Y Z FACING  place a Model Core and build a reference model in front of it, as a player would
- *                            (bigram, context, recall, reverse, induction, gpt, gpt32, modern32)
  * shot NAME                  save screenshots/NAME.png in the game directory
  * clip NAME EVERY            save a half-size frame every EVERY ticks, as screenshots/NAME/0000.png and on, while
  *                            the script goes on; meanwhile a cursor is drawn on screens and toasts are kept away
@@ -271,7 +253,7 @@ public final class Rehearsal {
     private static long sectionStarted;
     /** The checks that want exactly their number, where the others want at least it. */
     private static final Set<String> EXACT = Set.of("screen", "holds", "attribute", "flyspeed", "mayfly", "flying", "grounded", "sight", "blocks", "health",
-            "nomobs", "noblocks", "empty", "dimension", "state", "ticking", "running", "contaminated", "idle");
+            "nomobs", "noblocks", "empty", "dimension", "state", "ticking", "training");
     /** What the server has said to the player. */
     private static final List<String> HEARD = new ArrayList<>();
     /** Keeps the player flying: creative flight ends whenever the player touches the ground. */
@@ -330,8 +312,6 @@ public final class Rehearsal {
             }
             String seed = nextWorld;
             nextWorld = null;
-            // what the script before left set
-            forgetScreens();
             hover = false;
             mc.options.hideGui = false;
             mc.options.setCameraType(CameraType.FIRST_PERSON);
@@ -404,28 +384,6 @@ public final class Rehearsal {
                 LOG.error("[rehearsal] step failed: {}", step, e);
             }
             return;
-        }
-    }
-
-    /**
-     * What screens remember while the game runs, a Core's tab, as a player who just started the game
-     * would find it: one client plays many scripts, and the next one's clicks count on that.
-     */
-    private static void forgetScreens() {
-        remember(CoreScreen.class, "lastTab", "DATA");
-        remember(CoreScreen.class, "lastTemperature", 2);
-        remember(CoreScreen.class, "lastBenchmark", "FORECASTING");
-        InstrumentScreen.forget();
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private static void remember(Class<?> screen, String field, Object value) {
-        try {
-            Field f = screen.getDeclaredField(field);
-            f.setAccessible(true);
-            f.set(null, f.getType().isEnum() ? Enum.valueOf((Class<Enum>) f.getType(), (String) value) : value);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(e);
         }
     }
 
@@ -679,7 +637,6 @@ public final class Rehearsal {
                 glide(to[0], to[1], args.length > used ? Integer.parseInt(args[used]) : 4);
             }
             case "scroll" -> mc.screen.mouseScrolled(mouseX, mouseY, 0, Double.parseDouble(arg));
-            case "fresh" -> forgetScreens();
             case "close" -> {
                 if (mc.screen != null) {
                     mc.screen.onClose();
@@ -739,7 +696,6 @@ public final class Rehearsal {
                 mc.resizeGui();
             }
             case "lang" -> language(mc, arg);
-            case "blueprint" -> blueprint(mc, args);
             case "shot" -> {
                 Screenshot.grab(mc.gameDirectory, arg + ".png", mc.getMainRenderTarget(), 1,
                         message -> LOG.info("[rehearsal] {}", message.getString()));
@@ -834,12 +790,6 @@ public final class Rehearsal {
                     WorldPresets::createNormalWorldDimensions, mc.screen);
         }
         loading = true;
-    }
-
-    private static void blueprint(Minecraft mc, String[] args) {
-        BlockPos core = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
-        MinecraftServer server = mc.getSingleplayerServer();
-        server.execute(() -> ServerSteps.blueprint(server.overworld(), args[0], core, Direction.byName(args[4])));
     }
 
     private static void frame(Minecraft mc, String[] args) {
@@ -995,30 +945,27 @@ public final class Rehearsal {
             case "dimension" -> found = mc.player.level().dimension().identifier().getPath().equals(args[1]) ? 1 : 0;
             case "said" -> found = HEARD.stream().filter(line -> line.contains(args[1])).count();
             case "near" -> found = mc.player.position().distanceTo(new Vec3(Double.parseDouble(args[1]), Double.parseDouble(args[2]), Double.parseDouble(args[3]))) <= wanted ? wanted : 0;
-            case "picture" -> {
-                Picture picture = InstrumentScreen.PICTURES.get(Instrument.valueOf(args[1].toUpperCase(Locale.ROOT)));
-                found = picture == null ? 0 : picture.boxes().size() + picture.lines().size() + picture.texts().size();
+            case "hall", "hallmost" -> {
+                HallSync hall = HallView.shown();
+                found = hall == null ? -1 : hall.shot().step();
+                LOG.info("the hall shows step {}", found);
+                if (args[0].equals("hallmost")) {
+                    if (found < 0 || found > wanted) {
+                        throw new IllegalStateException("expected " + what + ", found " + found);
+                    }
+                    found = wanted;
+                }
             }
-            case "idle" -> found = InstrumentScreen.sync != null && !InstrumentScreen.sync.working() ? 1 : 0;
-            case "seeds" -> found = CoreView.evaluation == null ? 0 : CoreView.evaluation.seeds().length;
-            case "fresh" -> found = CoreView.evaluation == null || Float.isNaN(CoreView.evaluation.fresh()) ? 0 : 1;
-            case "contaminated" -> found = CoreView.evaluation != null && CoreView.evaluation.contaminated() ? 1 : 0;
-            case "made", "board", "kept" -> {
+            case "training" -> {
+                HallSync hall = HallView.shown();
+                found = hall == null ? -1 : hall.shot().state() == Snapshot.State.RUNNING ? 1 : 0;
+            }
+            case "made" -> {
                 MinecraftServer server = mc.getSingleplayerServer();
                 UUID id = mc.player.getUUID();
                 found = server.submit(() -> {
-                    ServerPlayer player = server.getPlayerList().getPlayer(id);
-                    return switch (args[0]) {
-                        case "made" -> {
-                            AdvancementHolder holder = server.getAdvancements().get(Residual.id(args[1]));
-                            yield holder != null && player.getAdvancements().getOrStartProgress(holder).isDone() ? 1L : 0L;
-                        }
-                        case "board" -> (long) Records.of(server).board(Benchmark.byId(args[1])).size();
-                        default -> {
-                            BlockPos at = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
-                            yield CrystalItem.model(((InstrumentBlockEntity) player.level().getBlockEntity(at)).items().getItem(InstrumentBlockEntity.OUTPUT)) != null ? 1L : 0L;
-                        }
-                    };
+                    AdvancementHolder holder = server.getAdvancements().get(Residual.id(args[1]));
+                    return holder != null && server.getPlayerList().getPlayer(id).getAdvancements().getOrStartProgress(holder).isDone() ? 1L : 0L;
                 }).get(10, TimeUnit.SECONDS);
             }
             default -> {
@@ -1027,15 +974,6 @@ public final class Rehearsal {
                 BlockPos at = new BlockPos(Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
                 found = server.submit(() -> {
                     ServerLevel level = server.getPlayerList().getPlayer(id).level();
-                    if (args[0].equals("steps")) {
-                        return (long) ((CoreBlockEntity) level.getBlockEntity(at)).snapshot().steps();
-                    }
-                    if (args[0].equals("running")) {
-                        return ((CoreBlockEntity) level.getBlockEntity(at)).snapshot().running() ? 1L : 0L;
-                    }
-                    if (args[0].equals("trained")) {
-                        return (long) ((CoreBlockEntity) level.getBlockEntity(at)).snapshot().steps();
-                    }
                     if (args[0].equals("empty")) {
                         ResourceHandler<ItemResource> inv = level.getCapability(Capabilities.Item.BLOCK, at, null);
                         long n = 0;
@@ -1226,16 +1164,6 @@ public final class Rehearsal {
         switch (args[0]) {
             case "part" -> found = mc.screen != null && Named.of(mc.screen).containsKey(args[1]) ? 1 : 0;
             case "on" -> found = Named.find(mc, args[1]).on() ? 1 : 0;
-            case "cycler" -> {
-                Parts.Part part = Named.find(mc, args[1]);
-                var choice = mc.screen.children().stream()
-                        .filter(child -> child instanceof io.github.metrovoc.residual.client.Cycler)
-                        .map(child -> (io.github.metrovoc.residual.client.Cycler) child)
-                        .filter(child -> child.visible && child.getX() == part.x() && child.getY() == part.y())
-                        .findFirst().orElseThrow(() -> new IllegalStateException("not a Cycler: " + args[1]));
-                found = choice.index() == Integer.parseInt(args[2])
-                        && choice.active == (Integer.parseInt(args[3]) != 0) ? 1 : 0;
-            }
             case "notes" -> found = Pages.errors();
             default -> {
                 return false;

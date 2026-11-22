@@ -116,16 +116,13 @@ dependencies {
 
     testImplementation "org.junit.jupiter:junit-jupiter:${junit_version}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    // runs the website's arithmetic in LiveMathTest
-    testImplementation 'org.mozilla:rhino:1.7.15'
 }
 
 test {
     useJUnitPlatform()
     maxHeapSize = '2G'
-    // the tests run in the game's folder; TranslationsTest reads the sources, and LiveMathTest the website's arithmetic
+    // the tests run in the game's folder; TranslationsTest reads the sources
     systemProperty 'residual.resources', file('src/main/resources').absolutePath
-    inputs.dir('src/website')
     testLogging {
         events 'failed'
         exceptionFormat 'full'
@@ -185,7 +182,7 @@ tasks.register('guideWebsite', JavaExec) {
             '--output', file(providers.gradleProperty('guideOutput').getOrElse('build/guideWebsite')).absolutePath, '--clean', '--title', mod_name,
             '--web-assets', file('src/website/web-assets').absolutePath, '--logo', file('src/website/logo.png').absolutePath,
             '--site-url', 'https://metrovoc.github.io', '--base-path', (providers.gradleProperty('guideLocale').getOrElse('en_us') == 'zh_cn' ? '/Residual/zh-cn/' : '/Residual/'),
-            '--script', file('src/website/live-math.js').absolutePath, '--script', file('src/website/live.js').absolutePath,
+            '--script', file('src/website/live.js').absolutePath,
             '--script', file('src/website/locale.js').absolutePath
     finalizedBy 'guideWebsiteFinish'
 }

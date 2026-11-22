@@ -2,15 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "K": "residual:tensor_casing",
+    "I": "minecraft:iron_ingot",
     "G": "minecraft:gold_ingot",
-    "W": "residual:weight_crystal",
+    "C": "minecraft:copper_ingot",
     "B": "minecraft:redstone_block"
   },
   "pattern": [
-    "KGK",
-    "WBW",
-    "KGK"
+    "IGI",
+    "CBC",
+    "IGI"
   ],
   "result": {
     "id": "residual:model_core"
