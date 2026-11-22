@@ -305,6 +305,45 @@ def lit(rel, on, off, frametime=None):
     SAVED.pop(glow)
 
 
+# ---------------------------------------------------------------- a hall's consoles
+
+LEAF = hue_ramp(145)
+
+# what each console does, as a sign on its screen; the hue says what it works on: teal the run, amber the model's shape,
+# amethyst attention, green the feed-forward part, coral what takes away
+CONSOLES = {
+    "exit": (CORAL, ["...#....", "..##....", ".#######", "########", ".#######", "..##....", "...#....", "........"]),
+    "task": (TEAL, ["........", "#.#####.", "........", "#.#####.", "........", "#.#####.", "........", "........"]),
+    "run": (TEAL, ["..#.....", "..##....", "..###...", "..####..", "..###...", "..##....", "..#.....", "........"]),
+    "step": (TEAL, [".#...##.", ".##..##.", ".###.##.", ".######.", ".###.##.", ".##..##.", ".#...##.", "........"]),
+    "pace": (TEAL, ["#...#...", "##..##..", "###.###.", "########", "###.###.", "##..##..", "#...#...", "........"]),
+    "rate": (TEAL, ["......##", ".....##.", "....##..", "...##...", "..##....", ".##.....", "########", "........"]),
+    "restart": (TEAL, ["..####..", ".#....#.", "#......#", "#......#", "#...#..#", ".#..##..", "..#####.", "....##.."]),
+    "example": (TEAL, ["#..#....", ".#..#...", "..#..#..", "...#..#.", "..#..#..", ".#..#...", "#..#....", "........"]),
+    "width": (AMBER, ["........", "..#..#..", ".#....#.", "########", ".#....#.", "..#..#..", "........", "........"]),
+    "positions": (AMBER, ["........", "......#.", "......#.", "...#..#.", "...#..#.", "#..#..#.", "#..#..#.", "........"]),
+    "heads": (AMETHYST, ["........", "##.##.##", "##.##.##", "........", ".#.#..#.", ".#.#..#.", ".#.#..#.", "........"]),
+    "norm": (AMBER, ["........", "########", "........", ".######.", "........", "########", "........", "........"]),
+    "add_attention": (AMETHYST, ["...##...", "...##...", "########", "########", "...##...", "...##...", "........", "........"]),
+    "add_feed_forward": (LEAF, ["...##...", "...##...", "########", "########", "...##...", "...##...", "........", "........"]),
+    "switch": (AMBER, ["...##...", ".#.##.#.", "#..##..#", "#..##..#", "#......#", ".#....#.", "..####..", "........"]),
+    "remove": (CORAL, ["#......#", ".#....#.", "..#..#..", "...##...", "..#..#..", ".#....#.", "#......#", "........"]),
+}
+
+
+def console_side():
+    return core_base(salt=7)
+
+
+def console_front(role=None):
+    """The face toward the walkway: a screen, dark, or lit with what the console does."""
+    c = core_base(salt=8)
+    window(c, ramp=CONSOLES[role][0] if role else None, salt=8)
+    if role:
+        glow_glyph(c, CONSOLES[role][1], CONSOLES[role][0])
+    return c
+
+
 # ---------------------------------------------------------------- items
 
 # the Wayfinder: a copper case, a dark glass face, an amethyst pivot, and a needle lit at its tip
@@ -635,9 +674,12 @@ def build():
     core_side().save("block/model_core_side.png")
     lit("block/model_core_front_on.png", [core_front(i) for i in range(2)], [core_front()], 4)
     lit("block/model_core_side_on.png", [core_side(i) for i in range(5)], [core_side()], 3)
-    # every face mirrors left to right but the one that shows data
+    console_side().save("block/console_side.png")
+    for role in CONSOLES:
+        lit(f"block/console_{role}.png", [console_front(role)], [console_front()])
+    # every face mirrors left to right but those that show data or a sign
     for rel, im in SAVED.items():
-        if str(rel).startswith("block/") and im.size == (16, 16) and rel != "block/model_core_side_on.png":
+        if str(rel).startswith("block/") and im.size == (16, 16) and rel != "block/model_core_side_on.png" and "console_" not in rel:
             px = im.load()
             assert all(px[x, y] == px[15 - x, y] for y in range(16) for x in range(8)), f"{rel} is not mirrored"
     assert mirrored(WAYFINDER_CASE), WAYFINDER_CASE

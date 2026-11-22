@@ -74,10 +74,14 @@ def core():
 
 
 def console():
-    """A console in a model's hall: one block of the hall's stone whatever it does; its label is drawn by the client."""
-    write(f"assets/{NS}/models/block/console.json", {"parent": "minecraft:block/cube_all",
-                                                     "textures": {"all": "minecraft:block/chiseled_polished_blackstone"}})
-    write(f"assets/{NS}/blockstates/console.json", {"variants": {"": {"model": rid("block/console")}}})
+    """A console in a model's hall: its screen, toward the walkway (east), shows what it does."""
+    roles = ["exit", "task", "run", "step", "pace", "rate", "restart", "example", "width", "positions", "heads", "norm",
+             "add_attention", "add_feed_forward", "switch", "remove"]
+    variants = {}
+    for role in roles:
+        cube(f"console_{role}", rid(f"block/console_{role}"), rid("block/console_side"))
+        variants[f"role={role}"] = {"model": rid(f"block/console_{role}"), **HORIZONTAL["east"]}
+    write(f"assets/{NS}/blockstates/console.json", {"variants": variants})
 
 
 def items():

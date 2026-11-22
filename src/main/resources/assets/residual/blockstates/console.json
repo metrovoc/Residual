@@ -1,7 +1,68 @@
 {
   "variants": {
-    "": {
-      "model": "residual:block/console"
+    "role=exit": {
+      "model": "residual:block/console_exit",
+      "y": 90
+    },
+    "role=task": {
+      "model": "residual:block/console_task",
+      "y": 90
+    },
+    "role=run": {
+      "model": "residual:block/console_run",
+      "y": 90
+    },
+    "role=step": {
+      "model": "residual:block/console_step",
+      "y": 90
+    },
+    "role=pace": {
+      "model": "residual:block/console_pace",
+      "y": 90
+    },
+    "role=rate": {
+      "model": "residual:block/console_rate",
+      "y": 90
+    },
+    "role=restart": {
+      "model": "residual:block/console_restart",
+      "y": 90
+    },
+    "role=example": {
+      "model": "residual:block/console_example",
+      "y": 90
+    },
+    "role=width": {
+      "model": "residual:block/console_width",
+      "y": 90
+    },
+    "role=positions": {
+      "model": "residual:block/console_positions",
+      "y": 90
+    },
+    "role=heads": {
+      "model": "residual:block/console_heads",
+      "y": 90
+    },
+    "role=norm": {
+      "model": "residual:block/console_norm",
+      "y": 90
+    },
+    "role=add_attention": {
+      "model": "residual:block/console_add_attention",
+      "y": 90
+    },
+    "role=add_feed_forward": {
+      "model": "residual:block/console_add_feed_forward",
+      "y": 90
+    },
+    "role=switch": {
+      "model": "residual:block/console_switch",
+      "y": 90
+    },
+    "role=remove": {
+      "model": "residual:block/console_remove",
+      "y": 90
     }
   }
 }
