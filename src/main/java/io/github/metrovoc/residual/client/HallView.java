@@ -8,6 +8,7 @@ import io.github.metrovoc.residual.interior.HallPlan;
 import io.github.metrovoc.residual.interior.HallSync;
 import io.github.metrovoc.residual.interior.Halls;
 import io.github.metrovoc.residual.interior.Snapshot;
+import io.github.metrovoc.residual.interior.Stage;
 import io.github.metrovoc.residual.learn.Vocab;
 import java.util.ArrayList;
 import java.util.List;
@@ -205,7 +206,10 @@ public final class HallView {
             for (Pane p : panes) {
                 panes(q, plan, p.grid, p.z);
             }
-            readout(q, plan, s, plan.first(HallPlan.Type.READOUT));
+            readout(q, plan, s, plan.first(HallPlan.Type.READOUT), sync.stage().rightGoal() > 0);
+            if (tables != null && tables.follows() != null && sync.arch().parts().isEmpty()) {
+                follows(q, plan, tables.follows());
+            }
             curve(q, plan, s, plan.first(HallPlan.Type.END));
             scoredLanes(q, plan, s);
             if (looked != null) {
@@ -240,9 +244,9 @@ public final class HallView {
                 }
             }
             boolean right = best == s.targets()[t];
-            int color = !s.scored()[t] ? DIM : right ? GREEN : RED;
+            int color = !s.scored()[t] ? DIM : sync.stage().rightGoal() == 0 ? 0xFFFFFF : right ? GREEN : RED;
             labels.add(new Label(new Vec3(plan.lane(t), LIFT + PANE + 1.1, readout.mid() + 1), Component.literal(show(vocab, best)).withColor(color), 0.7f, Facing.VIEWER));
-            if (s.scored()[t] && !right) {
+            if (s.scored()[t] && !right && sync.stage().rightGoal() > 0) {
                 labels.add(new Label(new Vec3(plan.lane(t), LIFT + PANE + 0.4, readout.mid() + 1), Component.literal(show(vocab, s.targets()[t])).withColor(DIM), 0.4f, Facing.VIEWER));
             }
         }
@@ -251,7 +255,19 @@ public final class HallView {
         }
         HallPlan.Station end = plan.first(HallPlan.Type.END);
         labels.add(new Label(new Vec3(HallPlan.WALK + plan.lanes() * plan.pitch() / 2.0, 9.6, end.end() - 0.6), status(sync), 0.9f, Facing.ENTRANCE));
+        labels.add(new Label(new Vec3(HallPlan.WALK + plan.lanes() * plan.pitch() / 2.0, 10.7, end.end() - 0.6), goal(sync.stage()), 0.55f, Facing.ENTRANCE));
 
+        if (tables != null && tables.follows() != null && sync.arch().parts().isEmpty()) {
+            float x = wallX(plan) + 0.05f, z0 = plan.first(HallPlan.Type.TOKENS).z();
+            int[] letters = Snapshot.letters(vocab);
+            int n = letters.length;
+            for (int i = 0; i < n; i++) {
+                Component letter = Component.literal(show(vocab, letters[i])).withColor(DIM);
+                labels.add(new Label(new Vec3(x, WALL_Y + (n - i - 0.5) * CELL, z0 + n * CELL + 0.3), letter, 0.24f, Facing.WALKWAY));
+                labels.add(new Label(new Vec3(x, WALL_Y + n * CELL + 0.25, z0 + (n - i - 0.5) * CELL), letter, 0.24f, Facing.WALKWAY));
+            }
+            labels.add(new Label(new Vec3(x, WALL_Y + n * CELL + 0.8, z0 + n * CELL / 2.0), Component.translatable("residual.inside.follows"), 0.3f, Facing.WALKWAY));
+        }
         PoseStack pose = event.getPoseStack();
         Font font = Minecraft.getInstance().font;
         for (Label l : labels) {
@@ -331,15 +347,41 @@ public final class HallView {
     }
 
     /** At the far end, a bar on each lane as tall as the chance the model gave to what really follows. */
-    private static void readout(Quads q, HallPlan plan, Snapshot s, HallPlan.Station st) {
+    private static void readout(Quads q, HallPlan plan, Snapshot s, HallPlan.Station st, boolean graded) {
         float z = (float) st.mid() + 1;
         float half = plan.pitch() * 0.3f;
         for (int t = 0; t < s.lanes(); t++) {
             float x = (float) plan.lane(t);
             float chance = s.chance(t, s.targets()[t]);
-            int color = s.scored()[t] ? chance > 0.5f ? GREEN : RED : DIM;
+            // where the loss decides, a low bar is no mistake: the chance is all there is to show
+            int color = !s.scored()[t] ? DIM : !graded ? TEAL : chance > 0.5f ? GREEN : RED;
             q.wall(x - half, LIFT, x + half, LIFT + PANE, z, 0x50101418);
             q.wall(x - half, LIFT, x + half, LIFT + PANE * chance, z - 0.01f, (s.scored()[t] ? 0xE6000000 : 0x80000000) | color);
+        }
+    }
+
+    /** How large a cell of the table's wall is, and where the wall begins. */
+    private static final float CELL = 0.3f, WALL_Y = 3.1f;
+
+    /** Just behind the consoles, where it is read from the walkway. */
+    private static float wallX(HallPlan plan) {
+        return -0.3f;
+    }
+
+    /** Behind the consoles, a table model's whole content: after each letter, the chance of each. */
+    private static void follows(Quads q, HallPlan plan, Snapshot.Grid grid) {
+        float x = wallX(plan), z0 = plan.first(HallPlan.Type.TOKENS).z();
+        int n = grid.rows();
+        q.side(x - 0.02f, WALL_Y, z0, WALL_Y + n * CELL, z0 + n * CELL, 0xD0080B0E);
+        for (int a = 0; a < n; a++) {
+            for (int b = 0; b < n; b++) {
+                float chance = grid.at(a, b);
+                if (chance < 0.02f) {
+                    continue;
+                }
+                float top = WALL_Y + (n - a) * CELL, z = z0 + (n - 1 - b) * CELL;
+                q.side(x, top - CELL * 0.94f, z, top, z + CELL * 0.94f, Math.round(Math.min(1f, (float) Math.sqrt(chance) * 1.3f) * 255) << 24 | TEAL);
+            }
         }
     }
 
@@ -449,6 +491,16 @@ public final class HallView {
         };
     }
 
+    /** What the task asks, and what it holds a model to. */
+    private static Component goal(Stage stage) {
+        Component name = Component.translatable("residual.stage." + stage.id());
+        Component goal = stage.lossGoal() > 0
+                ? Component.translatable("residual.inside.goal.loss", name, String.format(Locale.ROOT, "%.2f", stage.lossGoal()))
+                : Component.translatable("residual.inside.goal.right", name, Math.round(stage.rightGoal() * 100));
+        return stage.attention == 0 ? goal.copy().withColor(DIM)
+                : goal.copy().append(" · ").append(Component.translatable("residual.inside.limit.attention", stage.attention)).withColor(DIM);
+    }
+
     private static Component onOff(boolean on) {
         return Component.translatable(on ? "residual.inside.on" : "residual.inside.off");
     }
@@ -475,6 +527,11 @@ public final class HallView {
         /** Upright, facing along the hall. */
         void wall(float x0, float y0, float x1, float y1, float z, int argb) {
             quad(x0, y0, z, x1, y0, z, x1, y1, z, x0, y1, z, argb);
+        }
+
+        /** Upright, along the hall, facing across it. */
+        void side(float x, float y0, float z0, float y1, float z1, int argb) {
+            quad(x, y0, z0, x, y0, z1, x, y1, z1, x, y1, z0, argb);
         }
 
         /** Flat, at height {@code y}. */

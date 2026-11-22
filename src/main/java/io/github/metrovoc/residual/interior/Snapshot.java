@@ -83,8 +83,24 @@ public record Snapshot(int step, State state, int pace, float rate, float trainL
      * @param embed  the vector of every token, vocabulary by width
      * @param readout what the stream is compared with to score every token, vocabulary by width
      * @param places the vector of every place, or null
+     * @param follows for a model that is only a table: the chance it gives each of {@link #letters} after each of them,
+     *                a row for the letter before; or null
      */
-    public record Tables(Grid embed, Grid readout, @Nullable Grid places) {
+    public record Tables(Grid embed, Grid readout, @Nullable Grid places, @Nullable Grid follows) {
+    }
+
+    /** The tokens a table's wall shows: the small letters and the space. */
+    public static int[] letters(io.github.metrovoc.residual.learn.Vocab vocab) {
+        String wanted = "abcdefghijklmnopqrstuvwxyz ";
+        int[] ids = new int[wanted.length()];
+        for (int id = 0; id < vocab.size(); id++) {
+            String piece = vocab.piece(id);
+            int at = piece.length() == 1 ? wanted.indexOf(piece.charAt(0)) : -1;
+            if (at >= 0) {
+                ids[at] = id;
+            }
+        }
+        return ids;
     }
 
     public record Point(int step, float train, float test, float score) {

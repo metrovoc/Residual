@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
@@ -112,7 +113,7 @@ public final class Halls extends SavedData {
         }
 
         static Hall load(CompoundTag tag) {
-            Stage stage = Stage.REVERSAL;
+            Stage stage = Stage.TABLE;
             for (Stage s : Stage.values()) {
                 if (s.name().equals(tag.getStringOr("stage", ""))) {
                     stage = s;
@@ -185,7 +186,7 @@ public final class Halls extends SavedData {
     public Hall hall(UUID id) {
         Hall hall = halls.get(id);
         if (hall == null) {
-            hall = new Hall(id, next++, Arch.table(), Stage.REVERSAL, 0.003f, Run.PACES[2], 1, 1, 0);
+            hall = new Hall(id, next++, Arch.table(), Stage.TABLE, 0.003f, Run.PACES[2], 1, 1, 0);
             halls.put(id, hall);
             byCell.put(hall.cell, hall);
             setDirty();
@@ -316,6 +317,7 @@ public final class Halls extends SavedData {
         }
         hall.run = new Run(hall.arch, model, hall.stage.practice(), hall.stage.test(), hall.seed, hall.rate, hall.example, hall.stage.lanes(), hall.steps,
                 curve, Math.clamp(Runtime.getRuntime().availableProcessors() / 2, 1, 4));
+        hall.run.lossGoal(hall.stage.loss);
         hall.run.pace(hall.pace);
         hall.run.running(running);
         hall.run.start();
@@ -370,7 +372,9 @@ public final class Halls extends SavedData {
             case TASK -> {
                 Stage[] all = Stage.values();
                 hall.stage = all[Math.floorMod(hall.stage.ordinal() + (back ? -1 : 1), all.length)];
-                rebuild(level, hall, false, false);
+                hall.arch = hall.stage.fit(hall.arch);
+                // what was learned on one task is no start for another
+                rebuild(level, hall, true, false);
             }
             case WIDTH -> change(level, hall, arch.withWidth(turn(Arch.WIDTHS, arch.width(), back)), true);
             case HEADS -> {
@@ -382,7 +386,13 @@ public final class Halls extends SavedData {
             }
             case POSITIONS -> change(level, hall, arch.withPositions(!arch.positions()), false);
             case NORM -> change(level, hall, arch.withNorm(!arch.norm()), false);
-            case ADD_ATTENTION -> change(level, hall, arch.insert(console.part(), Arch.Kind.ATTENTION), false);
+            case ADD_ATTENTION -> {
+                if (hall.stage.allowsAttention(arch)) {
+                    change(level, hall, arch.insert(console.part(), Arch.Kind.ATTENTION), false);
+                } else {
+                    player.sendOverlayMessage(Component.translatable("residual.inside.limit.attention", hall.stage.attention));
+                }
+            }
             case ADD_FEED_FORWARD -> change(level, hall, arch.insert(console.part(), Arch.Kind.FEED_FORWARD), false);
             case SWITCH -> change(level, hall, arch.toggle(console.part()), false);
             case REMOVE -> {

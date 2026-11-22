@@ -895,10 +895,8 @@
   "residual.inside.passed": "通过",
   "residual.inside.diverged": "损失发散了。降低学习率并重新开始。",
   "residual.inside.missing": "只有玩家才能进入模型。",
-  "residual.stage.reading": "阅读",
   "residual.stage.reversal": "倒序",
   "residual.stage.pattern": "规律",
-  "residual.stage.recall": "回忆",
   "block.residual.console": "控制台",
   "residual.inside.run": "训练",
   "residual.inside.look.embed": "「%s」的数值",
@@ -907,5 +905,10 @@
   "residual.inside.look.added_feed_forward": "前馈给「%s」加的内容",
   "residual.inside.look.after": "「%s」目前的残差流",
   "residual.inside.look.number": "第%s个（共%s个）：%s",
-  "residual.inside.look.chances": "「%s」之后的概率"
+  "residual.inside.look.chances": "「%s」之后的概率",
+  "residual.stage.table": "一张表",
+  "residual.inside.goal.loss": "%s：通过需损失不高于 %s",
+  "residual.inside.goal.right": "%s：通过需答对 %s%%",
+  "residual.inside.limit.attention": "注意力最多 %s",
+  "residual.inside.follows": "左边字母之后，每个字母的概率"
 }

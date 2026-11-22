@@ -56,6 +56,8 @@ public final class Run {
     private final List<Snapshot.Point> curve = new ArrayList<>();
     private float testLoss = Float.NaN, score = Float.NaN;
     private boolean passed;
+    /** The test loss that passes, in place of the test's own target; or 0. */
+    private volatile double lossGoal;
     private float trainLoss = Float.NaN;
     private double stepNanos;
 
@@ -157,6 +159,11 @@ public final class Run {
         return List.copyOf(curve);
     }
 
+    /** Sets the test loss that passes, in place of the test's own target. */
+    public void lossGoal(double loss) {
+        lossGoal = loss;
+    }
+
     public boolean passed() {
         return passed;
     }
@@ -244,7 +251,7 @@ public final class Run {
         Trainer.Eval eval = Trainer.evaluate(model, test, TEST_BATCHES);
         testLoss = (float) eval.loss();
         score = test.metric == Task.Metric.ACCURACY ? (float) eval.accuracy() : Float.NaN;
-        passed = test.passes(eval.loss(), eval.accuracy()) && eval.causal();
+        passed = (lossGoal > 0 ? eval.loss() <= lossGoal : test.passes(eval.loss(), eval.accuracy())) && eval.causal();
         curve.add(new Snapshot.Point(steps(), trainLoss, testLoss, score));
         if (curve.size() > MOST_POINTS) {
             // keep the whole run in view at half the detail
@@ -316,7 +323,20 @@ public final class Run {
                 }
             }
             Snapshot.Grid places = place < 0 ? null : Snapshot.Grid.of(model.params(place).get("weight").data, 0, model.env.context(), width);
-            tables = new Snapshot.Tables(Snapshot.Grid.of(e.data, 0, vocab, width), Snapshot.Grid.of(turned, 0, vocab, width), places);
+            Snapshot.Grid follows = null;
+            if (arch.parts().isEmpty()) {
+                // each letter alone through the model: for a table, that is all there is to it
+                int[] letters = Snapshot.letters(test.vocab);
+                Tensor each = Ops.softmax(null, model.forward(null, new io.github.metrovoc.residual.tensor.Tokens(letters, letters.length, 1), null));
+                float[] cells = new float[letters.length * letters.length];
+                for (int a = 0; a < letters.length; a++) {
+                    for (int b = 0; b < letters.length; b++) {
+                        cells[a * letters.length + b] = each.data[a * vocab + letters[b]];
+                    }
+                }
+                follows = Snapshot.Grid.of(cells, 0, letters.length, letters.length);
+            }
+            tables = new Snapshot.Tables(Snapshot.Grid.of(e.data, 0, vocab, width), Snapshot.Grid.of(turned, 0, vocab, width), places, follows);
         }
         Snapshot.State state = diverged ? Snapshot.State.DIVERGED : running || owed.get() > 0 ? Snapshot.State.RUNNING : Snapshot.State.PAUSED;
         return new Snapshot(steps(), state, pace, rate, trainLoss, testLoss, score, passed, model.parameterCount(), (float) (stepNanos / 1e6),

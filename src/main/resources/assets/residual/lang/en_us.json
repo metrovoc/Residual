@@ -895,10 +895,8 @@
   "residual.inside.passed": "passed",
   "residual.inside.diverged": "The loss ran away. Lower the learning rate and start over.",
   "residual.inside.missing": "Only a player can enter a model.",
-  "residual.stage.reading": "Reading",
   "residual.stage.reversal": "Reversal",
   "residual.stage.pattern": "Pattern",
-  "residual.stage.recall": "Recall",
   "block.residual.console": "Console",
   "residual.inside.run": "Train",
   "residual.inside.look.embed": "“%s” as numbers",
@@ -907,5 +905,10 @@
   "residual.inside.look.added_feed_forward": "What feed-forward adds on “%s”",
   "residual.inside.look.after": "The stream on “%s” so far",
   "residual.inside.look.number": "Number %s of %s: %s",
-  "residual.inside.look.chances": "After “%s”, the chances"
+  "residual.inside.look.chances": "After “%s”, the chances",
+  "residual.stage.table": "A table",
+  "residual.inside.goal.loss": "%s: to pass, a loss of %s or lower",
+  "residual.inside.goal.right": "%s: to pass, %s%% right",
+  "residual.inside.limit.attention": "at most %s attention",
+  "residual.inside.follows": "After the letter at the left, the chance of each letter"
 }

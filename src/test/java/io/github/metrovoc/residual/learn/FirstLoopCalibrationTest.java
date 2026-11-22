@@ -63,6 +63,9 @@ class FirstLoopCalibrationTest {
         return g;
     }
 
+    /** A loss to reach in place of the test's own target, or 0. */
+    private static double lossTarget;
+
     /** Trains from {@link #SEEDS} starts and prints, for each, the first check that passed, the last score and the pace. */
     static void run(String label, GraphSpec spec, Benchmark bench, float rate, int steps, int every) throws Exception {
         Task practice = bench == Benchmark.READING ? archive() : bench.practice();
@@ -89,7 +92,7 @@ class FirstLoopCalibrationTest {
                     if (s % every == 0 || s == steps) {
                         Trainer.Eval ev = Trainer.evaluate(g, test, 8);
                         last[0] = test.score(ev.loss(), ev.accuracy());
-                        if (test.passes(ev.loss(), ev.accuracy()) && ev.causal()) {
+                        if ((lossTarget > 0 ? ev.loss() <= lossTarget : test.passes(ev.loss(), ev.accuracy())) && ev.causal()) {
                             passed[0] = s;
                         }
                     }
@@ -104,6 +107,27 @@ class FirstLoopCalibrationTest {
                     : passed[0] == -2 ? " diverged          " : String.format(" no %.3f          ", last[0]));
         }
         System.out.println(line);
+    }
+
+    /** How soon a table reaches what a table can: the first stage's goal and the time it takes. */
+    @Test
+    void table() throws Exception {
+        if (!wanted("table")) {
+            return;
+        }
+        try {
+            for (double target : new double[]{2.45, 2.40}) {
+                lossTarget = target;
+                System.out.println("== A table on reading, to loss " + target + " ==");
+                for (int dim : new int[]{8, 16, 32}) {
+                    for (float rate : new float[]{0.003f, 0.01f}) {
+                        run("embed " + dim + " read out, rate " + rate, stack(dim, 0, 1, false, true, false), Benchmark.READING, rate, 4000, 50);
+                    }
+                }
+            }
+        } finally {
+            lossTarget = 0;
+        }
     }
 
     @Test
