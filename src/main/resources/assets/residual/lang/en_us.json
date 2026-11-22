@@ -183,5 +183,6 @@
   "residual.inside.goal.loss": "%s: to pass, a loss of %s or lower",
   "residual.inside.goal.right": "%s: to pass, %s%% right",
   "residual.inside.limit.attention": "at most %s attention",
-  "residual.inside.follows": "After the letter at the left, the chance of each letter"
+  "residual.inside.follows": "After the letter at the left, the chance of each letter",
+  "residual.inside.written": "What it writes now, a letter at a time by its own chances"
 }

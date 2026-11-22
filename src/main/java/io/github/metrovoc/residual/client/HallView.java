@@ -254,9 +254,18 @@ public final class HallView {
             labels.add(new Label(new Vec3(c.x() + 1.02, 2.45, c.z() + 0.5), console(c, sync), 0.2f, Facing.WALKWAY));
         }
         HallPlan.Station end = plan.first(HallPlan.Type.END);
-        labels.add(new Label(new Vec3(HallPlan.WALK + plan.lanes() * plan.pitch() / 2.0, 9.6, end.end() - 0.6), status(sync), 0.9f, Facing.ENTRANCE));
-        labels.add(new Label(new Vec3(HallPlan.WALK + plan.lanes() * plan.pitch() / 2.0, 10.7, end.end() - 0.6), goal(sync.stage()), 0.55f, Facing.ENTRANCE));
+        labels.add(new Label(new Vec3(HallPlan.WALK + plan.lanes() * plan.pitch() / 2.0, 10.5, end.end() - 0.6), status(sync), 0.9f, Facing.ENTRANCE));
+        labels.add(new Label(new Vec3(HallPlan.WALK + plan.lanes() * plan.pitch() / 2.0, 11.6, end.end() - 0.6), goal(sync.stage()), 0.55f, Facing.ENTRANCE));
 
+        if (tables != null && tables.written() != null) {
+            StringBuilder text = new StringBuilder();
+            for (int id : tables.written()) {
+                text.append(show(vocab, id));
+            }
+            double mid = HallPlan.WALK + plan.lanes() * plan.pitch() / 2.0;
+            labels.add(new Label(new Vec3(mid, 9.55, end.end() - 0.6), Component.translatable("residual.inside.written").withColor(DIM), 0.4f, Facing.ENTRANCE));
+            labels.add(new Label(new Vec3(mid, 8.8, end.end() - 0.6), Component.literal(text.toString()).withColor(0xFFFFFF), 0.9f, Facing.ENTRANCE));
+        }
         if (tables != null && tables.follows() != null && sync.arch().parts().isEmpty()) {
             float x = wallX(plan) + 0.05f, z0 = plan.first(HallPlan.Type.TOKENS).z();
             int[] letters = Snapshot.letters(vocab);

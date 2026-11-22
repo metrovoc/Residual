@@ -33,6 +33,8 @@ public final class Run {
     private static final long TABLES_NANOS = 1_000_000_000L;
     private static final int MOST_POINTS = 240;
     private static final int TEST_BATCHES = 8;
+    /** How many tokens of its own writing a model shows. */
+    private static final int WRITTEN = 40;
 
     public final Arch arch;
     public final Task practice, test;
@@ -336,11 +338,39 @@ public final class Run {
                 }
                 follows = Snapshot.Grid.of(cells, 0, letters.length, letters.length);
             }
-            tables = new Snapshot.Tables(Snapshot.Grid.of(e.data, 0, vocab, width), Snapshot.Grid.of(turned, 0, vocab, width), places, follows);
+            int[] written = test instanceof io.github.metrovoc.residual.learn.TextTask ? write(one.input().ids[0], vocab) : null;
+            tables = new Snapshot.Tables(Snapshot.Grid.of(e.data, 0, vocab, width), Snapshot.Grid.of(turned, 0, vocab, width), places, follows, written);
         }
         Snapshot.State state = diverged ? Snapshot.State.DIVERGED : running || owed.get() > 0 ? Snapshot.State.RUNNING : Snapshot.State.PAUSED;
         return new Snapshot(steps(), state, pace, rate, trainLoss, testLoss, score, passed, model.parameterCount(), (float) (stepNanos / 1e6),
                 java.util.Arrays.copyOf(one.input().ids, lanes), java.util.Arrays.copyOf(one.targets(), lanes), scored, embed, position, parts, vocab, chances, laneLoss, tables, List.copyOf(curve));
+    }
+
+    /**
+     * What the model writes on from {@code first}: each token drawn by the chances the model gives, with the same
+     * draws every time, so the writing changes only as the model does.
+     */
+    private int[] write(int first, int vocab) {
+        Random draws = new Random(example);
+        int[] ids = new int[WRITTEN];
+        ids[0] = first;
+        for (int n = 1; n < WRITTEN; n++) {
+            int from = Math.max(0, n - test.context);
+            Tensor probs = Ops.softmax(null, model.forward(null,
+                    new io.github.metrovoc.residual.tensor.Tokens(java.util.Arrays.copyOfRange(ids, from, n), 1, n - from), null));
+            int last = (n - from - 1) * vocab;
+            float at = draws.nextFloat(), sum = 0;
+            int pick = vocab - 1;
+            for (int v = 0; v < vocab; v++) {
+                sum += probs.data[last + v];
+                if (at < sum) {
+                    pick = v;
+                    break;
+                }
+            }
+            ids[n] = pick;
+        }
+        return ids;
     }
 
     private Snapshot.Grid grid(Captures seen, String name, int lanes, int width) {

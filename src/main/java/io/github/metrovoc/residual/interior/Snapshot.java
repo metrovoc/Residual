@@ -85,8 +85,10 @@ public record Snapshot(int step, State state, int pace, float rate, float trainL
      * @param places the vector of every place, or null
      * @param follows for a model that is only a table: the chance it gives each of {@link #letters} after each of them,
      *                a row for the letter before; or null
+     * @param written for writing: what the model writes on from the example's first token, each token drawn by the
+     *                chances it gives, always with the same draws; or null
      */
-    public record Tables(Grid embed, Grid readout, @Nullable Grid places, @Nullable Grid follows) {
+    public record Tables(Grid embed, Grid readout, @Nullable Grid places, @Nullable Grid follows, @Nullable int[] written) {
     }
 
     /** The tokens a table's wall shows: the small letters and the space. */

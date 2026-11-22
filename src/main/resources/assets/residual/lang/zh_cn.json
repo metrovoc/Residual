@@ -183,5 +183,6 @@
   "residual.inside.goal.loss": "%s：通过需损失不高于 %s",
   "residual.inside.goal.right": "%s：通过需答对 %s%%",
   "residual.inside.limit.attention": "注意力最多 %s",
-  "residual.inside.follows": "左边字母之后，每个字母的概率"
+  "residual.inside.follows": "左边字母之后，每个字母的概率",
+  "residual.inside.written": "它现在写出的文字，按它自己给的概率逐字写下"
 }
