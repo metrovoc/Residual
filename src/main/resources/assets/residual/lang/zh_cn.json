@@ -900,5 +900,12 @@
   "residual.stage.pattern": "规律",
   "residual.stage.recall": "回忆",
   "block.residual.console": "控制台",
-  "residual.inside.run": "训练"
+  "residual.inside.run": "训练",
+  "residual.inside.look.embed": "「%s」的数值",
+  "residual.inside.look.position": "此位置的数值",
+  "residual.inside.look.added_attention": "注意力给「%s」加的内容",
+  "residual.inside.look.added_feed_forward": "前馈给「%s」加的内容",
+  "residual.inside.look.after": "「%s」目前的残差流",
+  "residual.inside.look.number": "第%s个（共%s个）：%s",
+  "residual.inside.look.chances": "「%s」之后的概率"
 }

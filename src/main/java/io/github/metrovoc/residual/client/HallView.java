@@ -25,6 +25,7 @@ import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 /**
  * Draws what stands in a model's hall and is not blocks: the tokens on their lanes, each lane's stream as a pane of
@@ -79,7 +80,83 @@ public final class HallView {
     /**
      * @param size how tall a line of it stands, in blocks
      */
-    private record Label(Vec3 at, Component text, float size, Facing facing) {
+    private record Label(Vec3 at, List<Component> lines, float size, Facing facing, int back) {
+        Label(Vec3 at, Component text, float size, Facing facing) {
+            this(at, List.of(text), size, facing, 0);
+        }
+    }
+
+    /** A lane's stream drawn across the hall at {@code z}; {@code what} names it in a label's key. */
+    private record Pane(Snapshot.Grid grid, double z, String what) {
+    }
+
+    /**
+     * What the crosshair rests on.
+     *
+     * @param frame the cell or bar it is, as x0, y0, x1, y1 and z
+     */
+    private record Looked(Label label, float[] frame) {
+    }
+
+    /** How far a number can be read from. */
+    private static final double REACH = 24;
+
+    /** The cell of a pane, or the bar at the far end, that the player looks at: what it is and its number. */
+    @Nullable
+    private static Looked looked(HallPlan plan, Snapshot s, List<Pane> panes, Vec3 eye, Vector3f look) {
+        if (Math.abs(look.z) < 1e-4) {
+            return null;
+        }
+        float half = plan.pitch() * 0.3f;
+        double nearest = REACH;
+        Looked found = null;
+        for (Pane p : panes) {
+            double t = (p.z - eye.z) / look.z;
+            if (t <= 0 || t >= nearest) {
+                continue;
+            }
+            double x = eye.x + look.x * t, y = eye.y + look.y * t;
+            int lane = plan.laneAt(x);
+            if (lane < 0 || lane >= p.grid.rows() || Math.abs(x - plan.lane(lane)) > half || y < LIFT || y >= LIFT + PANE) {
+                continue;
+            }
+            float cell = PANE / p.grid.cols();
+            int i = Math.min(p.grid.cols() - 1, (int) ((LIFT + PANE - y) / cell));
+            float cx = (float) plan.lane(lane), top = LIFT + PANE - i * cell;
+            List<Component> lines = List.of(
+                    Component.translatable("residual.inside.look." + p.what, show(Vocab.WORLD, s.tokens()[lane])).withColor(DIM),
+                    Component.translatable("residual.inside.look.number", i + 1, p.grid.cols(), String.format(Locale.ROOT, "%+.2f", p.grid.at(lane, i))));
+            nearest = t;
+            found = new Looked(new Label(new Vec3(x - look.x * 0.4, y + 0.6, p.z - look.z * 0.4), lines, 0.2f, Facing.VIEWER, 0xC0000000),
+                    new float[]{cx - half, top - cell, cx + half, top, (float) p.z});
+        }
+        HallPlan.Station readout = plan.first(HallPlan.Type.READOUT);
+        double z = readout.mid() + 1, t = (z - eye.z) / look.z;
+        if (t > 0 && t < nearest) {
+            double x = eye.x + look.x * t, y = eye.y + look.y * t;
+            int lane = plan.laneAt(x);
+            float bar = plan.pitch() * 0.3f;
+            if (lane >= 0 && lane < s.lanes() && Math.abs(x - plan.lane(lane)) <= bar && y >= LIFT && y < LIFT + PANE) {
+                List<Component> lines = new ArrayList<>();
+                lines.add(Component.translatable("residual.inside.look.chances", show(Vocab.WORLD, s.tokens()[lane])).withColor(DIM));
+                boolean[] taken = new boolean[s.vocab()];
+                for (int n = 0; n < 3; n++) {
+                    int best = -1;
+                    for (int v = 0; v < s.vocab(); v++) {
+                        if (!taken[v] && (best < 0 || s.chance(lane, v) > s.chance(lane, best))) {
+                            best = v;
+                        }
+                    }
+                    taken[best] = true;
+                    lines.add(Component.literal(show(Vocab.WORLD, best) + "  " + Math.round(s.chance(lane, best) * 100) + "%")
+                            .withColor(best == s.targets()[lane] ? GREEN : 0xFFFFFF));
+                }
+                float cx = (float) plan.lane(lane);
+                found = new Looked(new Label(new Vec3(x - look.x * 0.6, y + 1.1, z - look.z * 0.6), lines, 0.2f, Facing.VIEWER, 0xC0000000),
+                        new float[]{cx - bar, LIFT, cx + bar, LIFT + PANE, (float) z});
+            }
+        }
+        return found;
     }
 
     public static void submit(SubmitCustomGeometryEvent event) {
@@ -98,30 +175,49 @@ public final class HallView {
         List<Label> labels = new ArrayList<>();
         Vocab vocab = Vocab.WORLD;
 
-        event.getSubmitNodeCollector().submitCustomGeometry(event.getPoseStack(), RenderTypes.textBackground(), (pose, buffer) -> {
-            Quads q = new Quads(pose, buffer, base);
-            for (HallPlan.Station st : plan.stations()) {
-                switch (st.type()) {
-                    case EMBED -> panes(q, plan, s.embed(), st.mid());
-                    case POSITION -> {
-                        if (s.position() != null) {
-                            panes(q, plan, s.position(), st.mid());
-                        }
-                    }
-                    case ATTENTION, FEED_FORWARD -> {
-                        Snapshot.PartView part = part(s, st.part());
-                        if (part != null) {
-                            panes(q, plan, part.added(), st.mid());
-                            panes(q, plan, part.after(), st.end() - 0.5);
-                        }
-                    }
-                    case READOUT -> readout(q, plan, s, st);
-                    case END -> curve(q, plan, s, st);
-                    default -> {
+        List<Pane> panes = new ArrayList<>();
+        for (HallPlan.Station st : plan.stations()) {
+            switch (st.type()) {
+                case EMBED -> panes.add(new Pane(s.embed(), st.mid(), "embed"));
+                case POSITION -> {
+                    if (s.position() != null) {
+                        panes.add(new Pane(s.position(), st.mid(), "position"));
                     }
                 }
+                case ATTENTION, FEED_FORWARD -> {
+                    Snapshot.PartView part = part(s, st.part());
+                    if (part != null) {
+                        panes.add(new Pane(part.added(), st.mid(), st.type() == HallPlan.Type.ATTENTION ? "added_attention" : "added_feed_forward"));
+                        panes.add(new Pane(part.after(), st.end() - 0.5, "after"));
+                    }
+                }
+                default -> {
+                }
             }
+        }
+        Looked looked = looked(plan, s, panes, eye, event.getLevelRenderState().cameraRenderState.orientation.transform(new Vector3f(0, 0, -1)));
+        if (looked != null) {
+            labels.add(looked.label);
+        }
+
+        event.getSubmitNodeCollector().submitCustomGeometry(event.getPoseStack(), RenderTypes.textBackground(), (pose, buffer) -> {
+            Quads q = new Quads(pose, buffer, base);
+            for (Pane p : panes) {
+                panes(q, plan, p.grid, p.z);
+            }
+            readout(q, plan, s, plan.first(HallPlan.Type.READOUT));
+            curve(q, plan, s, plan.first(HallPlan.Type.END));
             scoredLanes(q, plan, s);
+            if (looked != null) {
+                float[] f = looked.frame;
+                float t = 0.03f;
+                for (float z : new float[]{f[4] - 0.03f, f[4] + 0.03f}) {
+                    q.wall(f[0] - t, f[1] - t, f[2] + t, f[1], z, 0xFFFFFFFF);
+                    q.wall(f[0] - t, f[3], f[2] + t, f[3] + t, z, 0xFFFFFFFF);
+                    q.wall(f[0] - t, f[1], f[0], f[3], z, 0xFFFFFFFF);
+                    q.wall(f[2], f[1], f[2] + t, f[3], z, 0xFFFFFFFF);
+                }
+            }
         });
         event.getSubmitNodeCollector().submitCustomGeometry(event.getPoseStack(), RenderTypes.lightning(), (pose, buffer) -> {
             Quads q = new Quads(pose, buffer, base);
@@ -173,9 +269,12 @@ public final class HallView {
             }
             float scale = l.size / font.lineHeight;
             pose.scale(scale, -scale, scale);
-            FormattedCharSequence line = l.text.getVisualOrderText();
-            event.getSubmitNodeCollector().submitText(pose, -font.width(line) / 2f, -font.lineHeight / 2f, line, false, Font.DisplayMode.NORMAL,
-                    FULL_BRIGHT, 0xFFFFFFFF, 0, 0);
+            for (int n = 0; n < l.lines.size(); n++) {
+                FormattedCharSequence line = l.lines.get(n).getVisualOrderText();
+                // what the player looks at is written over everything else
+                (l.back != 0 ? event.getSubmitNodeCollector().order(1) : event.getSubmitNodeCollector()).submitText(pose, -font.width(line) / 2f, -font.lineHeight / 2f + n * (font.lineHeight + 1), line, false,
+                        l.back != 0 ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, FULL_BRIGHT, 0xFFFFFFFF, l.back, 0);
+            }
             pose.popPose();
         }
     }

@@ -900,5 +900,12 @@
   "residual.stage.pattern": "Pattern",
   "residual.stage.recall": "Recall",
   "block.residual.console": "Console",
-  "residual.inside.run": "Train"
+  "residual.inside.run": "Train",
+  "residual.inside.look.embed": "“%s” as numbers",
+  "residual.inside.look.position": "This place as numbers",
+  "residual.inside.look.added_attention": "What attention adds on “%s”",
+  "residual.inside.look.added_feed_forward": "What feed-forward adds on “%s”",
+  "residual.inside.look.after": "The stream on “%s” so far",
+  "residual.inside.look.number": "Number %s of %s: %s",
+  "residual.inside.look.chances": "After “%s”, the chances"
 }
