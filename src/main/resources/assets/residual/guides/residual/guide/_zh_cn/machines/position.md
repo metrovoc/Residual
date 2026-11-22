@@ -39,4 +39,4 @@ GPT-2 用的就是学到的位置。多数近期模型则按位置把每个查�
 
 ## 制造
 
-可在<ItemLink id="fabricator" />中直接制造，无需光掩模。见[试验台与制造机](../bench.md)。
+<RecipeFor id="position" />

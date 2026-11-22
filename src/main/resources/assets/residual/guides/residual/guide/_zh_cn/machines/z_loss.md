@@ -30,4 +30,4 @@ item_ids:
 
 ## 制造
 
-<ItemLink id="fabricator" />用**Z 损失**光掩模制造它：在<ItemLink id="bench" />上验证规格，或者在[遗迹](../ruins.md)里找到打捞的光掩模（造出的是未融合的）。见[试验台与制造机](../bench.md)。
+<RecipeFor id="z_loss" />

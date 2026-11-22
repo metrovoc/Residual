@@ -37,6 +37,4 @@ Two grids of one shape, [B×T×C] or [B×H×T×C], in; [B×T×T] or [B×H×T×T]
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **QK Norm**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="qk_norm" />

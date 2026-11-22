@@ -1,7 +1,7 @@
 ---
 navigation:
   title: Training
-  icon: accelerator
+  icon: tensor_probe
   position: 50
 ---
 

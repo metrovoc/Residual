@@ -1,7 +1,7 @@
 ---
 navigation:
   title: 界面
-  icon: bench
+  icon: model_core
   position: 115
 ---
 

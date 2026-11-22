@@ -14,7 +14,7 @@ item_ids:
 
 ## 材料
 
-<ItemLink id="tensor_casing" />是每台机器的外壳；<ItemLink id="weight_crystal" />存放学到的数值，带权重的机器都要用到它。
+<ItemLink id="tensor_casing" />是每台机器的外壳；<ItemLink id="weight_crystal" />存放学到的数值，凡是保存模型的东西都要用它来做。
 
 <Row>
   <RecipeFor id="tensor_casing" />
@@ -29,12 +29,9 @@ item_ids:
   <RecipeFor id="forecast_dataset" />
 </Row>
 
-机器在<ItemLink id="fabricator" />里制造。不放光掩模时，它用一个机壳、一块<ItemLink id="wafer" />和一颗权重晶体造出嵌入表。
+嵌入表用一个机壳、红石和一本书合成。
 
-<Row>
-  <RecipeFor id="fabricator" />
-  <RecipeFor id="wafer" />
-</Row>
+<RecipeFor id="embedding" />
 
 ## 搭建
 
@@ -177,9 +174,6 @@ item_ids:
 
 ## 更进一步
 
-- 更好的模型需要按设计造出的机器：在[试验台](bench.md)上亲手接线，或者去[遗迹](ruins.md)里寻找旧世界的设计。
-- [存储](storage.md)收好熔炉做出的东西：每台熔炉下面放一个端口，把产物搬上驱动器，存储终端再把它找出来。
-- [智能体](agents.md)运行你拼出来的程序：挖矿、搬运、建造、分类，模型只在学习胜过规则的地方补位。
+- 更好的模型需要更多的机器：[机器](machines/index.md)里每台各有一页，附有配方。[遗迹](ruins.md)里还留着旧世界自己的东西。
 - 看向任意机器，就能看到它的名称、输出形状（或它出了什么问题），以及你所看的那一面的作用。
 - 潜行时对机器的某一面使用，可让它的输出朝向那一面。
-- 训练在独立的线程上运行。把<ItemLink id="accelerator" />贴着核心放置能给它更多线程，并注意让它们保持凉爽。

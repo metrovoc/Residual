@@ -25,6 +25,6 @@ You can do this to a fresh model of a design on a [Trial Rig](trials.md), and se
 
 Each model saved on this server goes on the leaderboards of the benchmarks it passes: who made it, what it scored and what a look-alike said, how many parameters it has, and its machines when you point at it. The best stand first, the smaller first among equals. One whose test flatters it stays on the board, under the rest.
 
-Beside the list are two histograms, by score and by size, with the model standing on this Core marked in amber. A Bench does the same for every spec once a design passes: everyone's verified designs, by the area they take to lay down.
+Beside the list are two histograms, by score and by size, with the model standing on this Core marked in amber.
 
 The boards are kept with the world, and each design counts once for each player, at its best.

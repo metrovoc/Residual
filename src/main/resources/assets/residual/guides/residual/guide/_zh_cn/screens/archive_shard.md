@@ -3,7 +3,7 @@ navigation:
   title: 档案残片
   icon: archive_shard
   parent: screens/index.md
-  position: 23
+  position: 5
 ---
 
 # 读档案残片

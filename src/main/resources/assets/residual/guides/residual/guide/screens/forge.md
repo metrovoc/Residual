@@ -3,7 +3,7 @@ navigation:
   title: BPE Forge
   icon: bpe_forge
   parent: screens/index.md
-  position: 4
+  position: 1
 ---
 
 # The BPE Forge's screen

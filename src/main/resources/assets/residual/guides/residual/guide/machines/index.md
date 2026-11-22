@@ -13,12 +13,11 @@ input on its back and, if it has one, its side input on any other face, and send
 
 <residual:Clip name="operator" alt="A machine's screen while it trains: its output and weights as they change" />
 
-Every machine comes out of the [Fabricator](../bench.md). The simple ones need no design; the rest need a photomask
-of the spec that describes them, verified on a Bench or salvaged from the ruins.
+Every machine is made at a crafting table, and its page has the recipe.
 
 [A machine's screen, part by part](../screens/operator.md).
 
-## No design needed
+## The parts
 
 - <ItemLink id="embedding" />: token ids to vectors.
 - <ItemLink id="position" />: a learned vector for every position.
@@ -30,26 +29,26 @@ of the spec that describes them, verified on a Bench or salvaged from the ruins.
 - <ItemLink id="shift" />: a fixed look back in time.
 - <ItemLink id="concat" />: two vectors joined end to end.
 
-## From a design
+## Built from them
 
-- <ItemLink id="matmul" />, from Matrix Multiply: grids multiplied, keys compared with queries.
-- <ItemLink id="softmax" />, from Softmax: scores turned into weights.
-- <ItemLink id="linear" />, from Linear Layer: a learned matrix, the workhorse of every model.
-- <ItemLink id="activation" />, from GELU: a nonlinear function on every number.
-- <ItemLink id="norm" />, from Layer Norm: vectors kept at a steady size.
-- <ItemLink id="attention" />, from Attention: multi-head attention in one machine.
-- <ItemLink id="mlp" />, from Feed-Forward Block: widen, bend, project back.
-- <ItemLink id="transformer" />, from Transformer Block: a whole transformer layer.
-- <ItemLink id="two_token_head" />, from Multi-Token Prediction: scores for the next token and the one after it.
+- <ItemLink id="matmul" />: grids multiplied, keys compared with queries.
+- <ItemLink id="softmax" />: scores turned into weights.
+- <ItemLink id="linear" />: a learned matrix, the workhorse of every model.
+- <ItemLink id="activation" />: a nonlinear function on every number.
+- <ItemLink id="norm" />: vectors kept at a steady size.
+- <ItemLink id="attention" />: multi-head attention in one machine.
+- <ItemLink id="mlp" />: widen, bend, project back.
+- <ItemLink id="transformer" />: a whole transformer layer.
+- <ItemLink id="two_token_head" />: scores for the next token and the one after it.
 
 ## The modern block
 
-Every one of these from a design too: see [The Modern Block](../modern.md).
+See [The Modern Block](../modern.md).
 
-- <ItemLink id="rms_norm" />, from RMS Norm: vectors kept at a steady size, with less work.
-- <ItemLink id="swiglu" />, from Gated Feed-Forward: a feed-forward block whose numbers have gates.
-- <ItemLink id="rotary" />, from Rotary Positions: a token's place, told by turning it.
-- <ItemLink id="qk_norm" />, from QK Norm: queries and keys compared at one size.
-- <ItemLink id="z_loss" />, from Z-Loss: a small penalty that holds a model's scores near zero.
-- <ItemLink id="modern_attention" />, from Modern Attention: all of that in one attention machine.
-- <ItemLink id="modern_block" />, from Modern Block: a whole modern layer.
+- <ItemLink id="rms_norm" />: vectors kept at a steady size, with less work.
+- <ItemLink id="swiglu" />: a feed-forward block whose numbers have gates.
+- <ItemLink id="rotary" />: a token's place, told by turning it.
+- <ItemLink id="qk_norm" />: queries and keys compared at one size.
+- <ItemLink id="z_loss" />: a small penalty that holds a model's scores near zero.
+- <ItemLink id="modern_attention" />: all of that in one attention machine.
+- <ItemLink id="modern_block" />: a whole modern layer.

@@ -11,7 +11,9 @@ item_ids:
 
 A model that passes its test has told you what it can do and nothing of how. The <ItemLink id="stream_scope" /> looks inside.
 
-On its **Model** tab it takes a <ItemLink id="checkpoint" />. With none, it reads the model standing on a Model Core it touches, and whatever it finds floats over that model's machines for a minute, in words and in light. It always works on a copy, so nothing it does touches the model, and Accelerators touching it lend it their threads.
+<RecipeFor id="stream_scope" />
+
+On its **Model** tab it takes a <ItemLink id="checkpoint" />. With none, it reads the model standing on a Model Core it touches, and whatever it finds floats over that model's machines for a minute, in words and in light. It always works on a copy, so nothing it does touches the model.
 
 Each of its other tabs is one instrument: choices in a row, then one display, with the details in tooltips. Most read a stretch of a benchmark's test, or what you type.
 
@@ -72,5 +74,3 @@ An **attribution graph** takes one thing a model says, and shows which features 
 A model this small can afford the exact answer: each thing is taken out of the stream, the rest of the model runs on, and what changes is what it put in. A larger one has to estimate. It holds attention patterns and norms still, so that what flows through is nearly linear, and multiplies a gradient by an amount. Every feature's tooltip has both, and the top line says how closely they agree. Where a model's work is done by attention they can disagree badly: holding attention still hides what a feature does by moving it.
 
 It needs a dictionary at each point, and fits the ones it lacks.
-
-The Fabricator makes it from a transformer photomask.

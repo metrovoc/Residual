@@ -88,7 +88,7 @@ def page(screen, position, code):
 
 
 def index(code):
-    return "\n".join(["---", "navigation:", f'  title: {say(INDEX["nav"], code)}', "  icon: bench", "  position: 115", "---", "",
+    return "\n".join(["---", "navigation:", f'  title: {say(INDEX["nav"], code)}', "  icon: model_core", "  position: 115", "---", "",
                       f'# {say(INDEX["nav"], code)}', "", say(INDEX["intro"], code), "", "<SubPages />", ""])
 
 

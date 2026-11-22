@@ -9,7 +9,7 @@ navigation:
 
 The <ItemLink id="transformer" /> is how the first models that talked seem to have been built. The old world's last ones
 kept its shape, a running sum that every layer reads and adds to, and changed what is inside it, a part at a time. Each
-part is a spec on the <ItemLink id="bench" /> and a machine of its own, and each can be tried and taken out again.
+part is a machine of its own, and each can be tried and taken out again.
 
 ## The parts
 
@@ -35,8 +35,7 @@ learned temperature, so no score can pass t·√C.
 ![normalized scores](/formulas/qknorm.png)
 
 **The online softmax.** An <ItemLink id="attention" /> writes out every score of every token against every other, T×T of
-them for each head, in several copies with their gradients. A <ItemLink id="modern_attention" /> made from a verified design
-never holds them. It works each token's scores out a tile at a time, keeping only the largest so far and the running sum:
+them for each head, in several copies with their gradients. A <ItemLink id="modern_attention" /> never holds them. It works each token's scores out a tile at a time, keeping only the largest so far and the running sum:
 
 ![the online softmax](/formulas/online.png)
 
@@ -58,10 +57,9 @@ Two layers of width 32 at a learning rate of 0.003, from three starts each, and 
 | Reversal | 250 | 250 to 500 | 250 |
 | Induction | 800 to 1,200 | 400 to 800 | one start of three |
 | Recall | none: 23% at 1,000 | 1,000 | none: 25% at 1,000 |
-| Survey | two starts of three, 500 and 1,000 | none: 85% at 1,000 | 500 to 750 |
 
 Turning tells a model how far apart two tokens are and nothing about where they stand. Recall and Induction ask how far.
-Survey asks where along a row the first of an ore lies, and a Position Table is what answers that. Choose by the job.
+A job that asks where wants a Position Table as well. Choose by the job.
 
 A step costs less as well. On four threads it took 34 milliseconds beside a Transformer Block model's 118 at width 32, and 90
 beside 186 at width 64; on one thread, 89 beside 121, and 276 beside 324.

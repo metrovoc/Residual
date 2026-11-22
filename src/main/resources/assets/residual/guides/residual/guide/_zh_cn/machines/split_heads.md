@@ -40,4 +40,4 @@ item_ids:
 
 ## 制造
 
-可在<ItemLink id="fabricator" />中直接制造，无需光掩模。见[试验台与制造机](../bench.md)。
+<RecipeFor id="split_heads" />

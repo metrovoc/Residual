@@ -34,4 +34,4 @@ Follow it with a Linear Layer to mix what the heads found: that is the output pr
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).
+<RecipeFor id="merge_heads" />

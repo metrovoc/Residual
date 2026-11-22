@@ -3,7 +3,7 @@ navigation:
   title: Machines
   icon: linear
   parent: screens/index.md
-  position: 5
+  position: 2
 ---
 
 # A machine's screen

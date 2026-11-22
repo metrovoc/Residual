@@ -3,7 +3,7 @@ navigation:
   title: 寻路仪
   icon: wayfinder
   parent: screens/index.md
-  position: 24
+  position: 6
 ---
 
 # 寻路仪的界面

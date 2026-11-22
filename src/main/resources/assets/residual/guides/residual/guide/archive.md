@@ -32,18 +32,14 @@ everything legible on it, or the next token with a [tokenizer](tokenizers.md), s
 to learn from. Reading is tested on records no shard ever carries. A model can only pass by learning how the old world
 wrote, not by remembering what it read.
 
-The boxes of fallen masts hold more than drives. A <ItemLink id="relay_dump" /> is all a relay passed on, repeats and bad lines
-included; it goes in those slots too, and it teaches worse than a drive until it has been through a [Refinery](refinery.md).
-
 ## The Reader
 
 <residual:Clip name="reader" alt="The Reader restoring a record's lost text, block by block" />
 
 <RecipeFor id="reader" />
 
-A <ItemLink id="reader" /> restores lost text. Put a shard in its tray and a model in its model slot: a checkpoint, or a
-Relay Card tuned to a Model Server for a model too big to hold. The Reader goes through the lost blocks one by one. For
-each, the model reads the text just before the block and then guesses the block letter by letter, seeing each true
+A <ItemLink id="reader" /> restores lost text. Put a shard in its tray and a checkpoint in its model slot. The Reader goes
+through the lost blocks one by one. For each, the model reads the text just before the block and then guesses the block letter by letter, seeing each true
 letter after its guess. If it guesses at least half of them, the block was predictable enough to restore, and it
 comes back.
 

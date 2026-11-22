@@ -32,6 +32,4 @@ None. Its penalty weighs 0.0001.
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **Z-Loss**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="z_loss" />

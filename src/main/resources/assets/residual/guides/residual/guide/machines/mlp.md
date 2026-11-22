@@ -42,6 +42,4 @@ these layers store much of what a model knows about the world.
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **Feed-Forward Block**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="mlp" />

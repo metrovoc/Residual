@@ -3,7 +3,7 @@ navigation:
   title: Stream Scope and Trial Rig
   icon: stream_scope
   parent: screens/index.md
-  position: 30
+  position: 7
 ---
 
 # The screens of the Scope and the Rig

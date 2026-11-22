@@ -43,6 +43,4 @@ In an attention build, the Softmax's output picture is the attention pattern: on
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **Softmax**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="softmax" />

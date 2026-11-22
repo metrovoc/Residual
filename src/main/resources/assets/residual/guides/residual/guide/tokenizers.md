@@ -11,7 +11,7 @@ item_ids:
 # Tokens
 
 A model never sees text, only tokens: numbers that each stand for a piece of text. Without a tokenizer, every
-character is a token, 89 in all: the letters, digits and marks, the space and the line break, and the marks only programs are written in. Reading by the character
+character is a token, 89 in all: the letters, digits and marks, the space and the line break. Reading by the character
 is simple but short-sighted. Every word costs several predictions, and the 64 tokens a model reads at once cover only
 64 characters.
 
@@ -49,8 +49,8 @@ a bigger size lets it learn more; choosing a smaller size cuts it back to the vo
 ## Using a tokenizer
 
 Put the tokenizer in the Model Core's **Tokenizer** slot, and models built there read and write its tokens. Archive
-text in the data slots is cut into them, and so is whatever you say to the model through a Terminal. Datasets and the
-orders agents are given are always spelled out one character at a time, which every vocabulary can do.
+text in the data slots is cut into them, and so is whatever you type for it on the **Try** tab. Datasets are always
+spelled out one character at a time, which every vocabulary can do.
 
 The tokenizer sets **V**: the rows of the embedding's table and the scores the last layer gives. Changing it reshapes
 those layers, so they start over. A saved model keeps the tokenizer it was trained with.

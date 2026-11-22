@@ -35,4 +35,4 @@ item_ids:
 
 ## 制造
 
-<ItemLink id="fabricator" />用**层归一化**的光掩模制造它：在<ItemLink id="bench" />上验证规格，或者在[遗迹](../ruins.md)中找到打捞来的光掩模，后者造出的是未融合的版本。见[试验台与制造机](../bench.md)。
+<RecipeFor id="norm" />

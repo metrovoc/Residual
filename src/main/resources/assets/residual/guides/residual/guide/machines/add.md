@@ -39,4 +39,4 @@ residual layers keep learning when plain stacks stall.
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).
+<RecipeFor id="add" />

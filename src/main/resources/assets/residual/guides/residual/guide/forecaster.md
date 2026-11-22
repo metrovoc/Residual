@@ -5,11 +5,8 @@ navigation:
   position: 15
 item_ids:
   - forecaster
-  - forecaster_ii
-  - forecaster_iii
   - field_log
   - forecast_dataset
-  - hourglass
 ---
 
 # The Forecaster
@@ -17,7 +14,7 @@ item_ids:
 <BlockImage id="forecaster" scale="3" float="left" />
 
 The <ItemLink id="forecaster" /> watches the blocks around it that make progress and writes down what they do:
-furnaces, smokers, blast furnaces, brewing stands, Fabricators, Smelters and plants. Give it a model that has learned what such blocks do next,
+furnaces, smokers, blast furnaces, brewing stands and plants. Give it a model that has learned what such blocks do next,
 and if the model's forecasts match what happened, it runs them ahead: it draws their next looks from the model and
 makes them so.
 
@@ -34,7 +31,7 @@ makes them so.
 It watches everything within four blocks of it, on its own level or one above or below, and writes a line for each
 block.
 
-**Machines.** It looks at each furnace, smoker, blast furnace, brewing stand, Fabricator and Smelter eight times an item, and
+**Machines.** It looks at each furnace, smoker, blast furnace and brewing stand eight times an item, and
 writes down how far through its item it is: `a` when it has just begun, up to `h` at seven eighths. A furnace at work writes
 
 `abcdefghabcdefghabcdefgh`
@@ -104,51 +101,8 @@ At every look at a machine, its line goes to the model the same way, and the mac
 model drew, a few ticks at a time: a furnace run four looks for every one cooks four items in the time of one, on the
 same fuel per item.
 
-A block being run ahead shimmers, faster the faster it runs: teal up to ×16, amber past that.
+A block being run ahead shimmers, faster the faster it runs.
 
 Every look drawn is the model's own work. A model that is slow to answer, or a server busy with other askers, runs fewer
 looks ahead. Lines the model wrote, or that a machine was run ahead through, are never written down: the log only ever
 holds what the blocks did by themselves.
-
-## Forecaster II
-
-<ItemLink id="forecaster_ii" /> watches and checks the same way, and runs blocks further ahead when its model comes
-closer: within 5% of what they did, eight looks for every one, and within 2.5%, sixteen. Every look it runs ahead is
-one more the model draws, so a block at ×16 asks fifteen of the model for each look the world takes; a slow model, or a
-busy server, runs fewer. The Fabricator makes it from a transformer photomask.
-
-A model of machines in general expects a run of items to end now and then, so it falls a few percent short of
-furnaces that never run out. One that has also learned from this Forecaster's own log knows better.
-
-## Forecaster III
-
-<ItemLink id="forecaster_iii" /> does all that Forecaster II does, and also keeps power, up to 4,000,000 FE, taken through Power
-Cables, and spends it on bursts: for thirty seconds, every machine and crop around it of a kind its model is trusted with runs
-at a pace you pick, up to ×256.
-
-A burst has three prices. The model sets the fastest: sixteen times the pace it runs that kind of block ahead at, so ×256 needs
-a model within 2.5% of what those blocks did. The compute sets it too: ×32 needs 4 compute, and each doubling needs twice as
-much, up to 32 for ×256. One cooled 90 nm <ItemLink id="accelerator" /> supplies one unit; finer [devices](compute.md) supply
-more. Join them directly, through each other or along <ItemLink id="interconnect" />. The first four standalone Accelerators
-run free; every other device needs power. And the power pays for
-every tick: each machine takes one FE for each tick beyond its own, and eight crops take as much as a machine, so ×256 on sixteen
-machines burns 4,080 FE a tick. It runs at most sixteen machines at once. When the power runs out, the burst ends.
-
-Lines of blocks a burst ran are never written down, as with everything run ahead.
-
-The Fabricator makes it from a transformer photomask.
-
-## The Hourglass
-
-The <ItemLink id="hourglass" /> keeps time while you carry it, a second for every second, up to an hour. The
-[Fabricator](bench.md) makes it from an attention photomask, out of a <ItemLink id="tensor_casing" />, four wafers and
-two weight crystals.
-
-Sneak-use a Forecaster to bind it. Then use it on a machine or a crop of a kind that Forecaster runs ahead, anywhere in
-the Forecaster's dimension while the Forecaster is loaded: the block runs twice as fast for thirty seconds. Use it on
-the block again before that ends and the pace doubles, for thirty seconds from then, up to sixteen times as fast. Each
-step costs twice the kept time of the one before: thirty seconds of it for twice as fast, four minutes for sixteen
-times.
-
-It works only on what its Forecaster's model is trusted with: while the model doesn't pass its check on machines, the
-Hourglass refuses machines too. A Forecaster never writes down the line of a block an Hourglass ran.

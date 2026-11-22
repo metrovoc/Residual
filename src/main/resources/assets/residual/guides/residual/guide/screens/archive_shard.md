@@ -3,7 +3,7 @@ navigation:
   title: Archive Shard
   icon: archive_shard
   parent: screens/index.md
-  position: 23
+  position: 5
 ---
 
 # An Archive Shard, read

@@ -44,4 +44,4 @@ simply read it, and its loss falls to almost nothing while it learns nothing.
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).
+<RecipeFor id="causal_mask" />

@@ -3,7 +3,7 @@ navigation:
   title: 机器
   icon: linear
   parent: screens/index.md
-  position: 5
+  position: 2
 ---
 
 # 机器的界面

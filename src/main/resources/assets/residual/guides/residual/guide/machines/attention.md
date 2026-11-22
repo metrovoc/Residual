@@ -51,6 +51,4 @@ position it can see.
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **Attention**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="attention" />

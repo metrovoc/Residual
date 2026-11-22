@@ -17,7 +17,7 @@ work: once its forecasts hold, your furnaces run four times as fast.
 ## Materials
 
 <ItemLink id="tensor_casing" /> is the shell of every machine; <ItemLink id="weight_crystal" /> holds learned
-numbers, so machines with weights need them.
+numbers, so whatever keeps a model is made with them.
 
 <Row>
   <RecipeFor id="tensor_casing" />
@@ -33,13 +33,9 @@ and machines at work, to learn from.
   <RecipeFor id="forecast_dataset" />
 </Row>
 
-Machines are made in a <ItemLink id="fabricator" />. With no photomask in it, it makes the Embedding Table from a
-casing, a <ItemLink id="wafer" /> and a weight crystal.
+The Embedding Table is a casing, redstone and a book.
 
-<Row>
-  <RecipeFor id="fabricator" />
-  <RecipeFor id="wafer" />
-</Row>
+<RecipeFor id="embedding" />
 
 ## Build it
 
@@ -193,14 +189,8 @@ and the machine works through them. Within 25%, two. [The Forecaster](forecaster
 
 ## Further
 
-- Better models need machines built from designs: wire them yourself on a [Bench](bench.md), or go looking for the old
-  ones in the [ruins](ruins.md).
-- [Storage](storage.md) keeps what your furnaces make: a Port under each one carries it onto drives, and a Storage
-  Terminal finds it again.
-- [Agents](agents.md) run programs you click together: they mine, carry, build and sort, and models fill in where
-  learning beats a rule.
+- Better models need more machines: [Machines](machines/index.md) has a page for each, recipe included. The
+  [ruins](ruins.md) hold what the old world left of its own.
 - Look at any machine to see its name, its output shape (or what is wrong with it) and what the face you are looking
   at does.
 - Sneak-use a machine's face to point its output there.
-- Training runs on its own threads. Place <ItemLink id="accelerator" /> blocks against the Core to give it more, and
-  keep them cool.

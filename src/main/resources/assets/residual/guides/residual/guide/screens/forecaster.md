@@ -3,7 +3,7 @@ navigation:
   title: Forecaster
   icon: forecaster
   parent: screens/index.md
-  position: 7
+  position: 4
 ---
 
 # A Forecaster's screen
@@ -34,6 +34,6 @@ What it sees around it, and how close its model comes to it.
     **Field Log**: A Field Log keeps a copy of everything the Forecaster watched, a line per crop or machine. In a Model Core's data slot, it is practice for Forecasting on these very blocks.
   </residual:Part>
   <residual:Part name="model">
-    **Model**: A model that has learned what crops and machines do next: a checkpoint, or a Relay Card tuned to its Model Server.
+    **Model**: A checkpoint holding a model that has learned what crops and machines do next.
   </residual:Part>
 </residual:Shot>

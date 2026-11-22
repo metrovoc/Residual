@@ -3,7 +3,7 @@ navigation:
   title: 预报机
   icon: forecaster
   parent: screens/index.md
-  position: 7
+  position: 4
 ---
 
 # 预报机的界面
@@ -34,6 +34,6 @@ navigation:
     **田间日志**：田间日志记下预报机看到的一切，每株作物或每台机器一行。放进模型核心的数据槽，就是针对这些方块练习预报。
   </residual:Part>
   <residual:Part name="model">
-    **模型**：一个学会了作物和机器接下来会怎样的模型：检查点，或调谐到其模型服务器的中继卡。
+    **模型**：一个检查点，里面的模型学会了作物和机器接下来会怎样。
   </residual:Part>
 </residual:Shot>

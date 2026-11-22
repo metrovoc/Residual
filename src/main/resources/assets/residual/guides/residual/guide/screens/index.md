@@ -1,7 +1,7 @@
 ---
 navigation:
   title: Screens
-  icon: bench
+  icon: model_core
   position: 115
 ---
 

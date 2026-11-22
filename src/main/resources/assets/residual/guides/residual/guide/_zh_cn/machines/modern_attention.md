@@ -12,7 +12,7 @@ item_ids:
 
 <BlockImage id="modern_attention" scale="3" float="left" />
 
-后来的设计所用的多头因果自注意力：查询和键上的<ItemLink id="rotary" />、两者之间的<ItemLink id="qk_norm" />，都装在一台机器里。用已验证设计造出的机器，以在线 softmax 把每行的分数一块一块地处理，从不把它们全存下来：见[现代块](../modern.md)。
+后来的设计所用的多头因果自注意力：查询和键上的<ItemLink id="rotary" />、两者之间的<ItemLink id="qk_norm" />，都装在一台机器里。它以在线 softmax 把每行的分数一块一块地处理，从不把它们全存下来：见[现代块](../modern.md)。
 
 ## 形状
 
@@ -40,4 +40,4 @@ item_ids:
 
 ## 制造
 
-<ItemLink id="fabricator" />用**现代注意力**光掩模制造它：在<ItemLink id="bench" />上验证规格，或者在[遗迹](../ruins.md)里找到打捞的光掩模（造出的是未融合的）。见[试验台与制造机](../bench.md)。
+<RecipeFor id="modern_attention" />

@@ -3,7 +3,7 @@ navigation:
   title: 阅读器
   icon: reader
   parent: screens/index.md
-  position: 6
+  position: 3
 ---
 
 # 阅读器的界面
@@ -19,7 +19,7 @@ navigation:
     **档案残片**：要复原的残片。
   </residual:Part>
   <residual:Part name="model">
-    **模型**：用来复原它的东西：一个检查点，或调谐到模型服务器的中继卡。
+    **模型**：一个检查点，用里面的模型来复原它。
   </residual:Part>
   <residual:Part name="text">
     **它的文字**：能读的部分和仍然磨损的文字块，复原时会亮起来。

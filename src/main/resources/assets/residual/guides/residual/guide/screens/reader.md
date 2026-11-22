@@ -3,7 +3,7 @@ navigation:
   title: Reader
   icon: reader
   parent: screens/index.md
-  position: 6
+  position: 3
 ---
 
 # The Reader's screen
@@ -19,7 +19,7 @@ A shard in its tray, its lost text worn away.
     **Archive Shard**: The shard to restore.
   </residual:Part>
   <residual:Part name="model">
-    **Model**: What restores it: a checkpoint, or a Relay Card tuned to a Model Server.
+    **Model**: The checkpoint whose model restores it.
   </residual:Part>
   <residual:Part name="text">
     **Its text**: What can be read, and the blocks still worn, lighting up as they come back.

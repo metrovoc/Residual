@@ -33,11 +33,9 @@ None: unlike a <ItemLink id="position" />, it has no table to fill and no longes
 
 ## Notes
 
-A query and a key learn how far apart they are this way, and never where they stand. A job that asks where, such as Survey,
+A query and a key learn how far apart they are this way, and never where they stand. A job that asks where
 wants a <ItemLink id="position" /> as well: see [The Modern Block](../modern.md).
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **Rotary Positions**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="rotary" />

@@ -3,7 +3,7 @@ navigation:
   title: BPE 锻炉
   icon: bpe_forge
   parent: screens/index.md
-  position: 4
+  position: 1
 ---
 
 # BPE 锻炉的界面

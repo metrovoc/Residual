@@ -78,26 +78,13 @@ navigation:
 
     <residual:Shot name="core_tests" alt="测试页：每项基准一行，带着分数">
       <residual:Part name="row:forecasting">
-        **一项基准**：每项基准一行：名称、一条通向及格线的进度条和分数，及格后变绿。滚动可看到其余基准。指向一行可看到它的用途、测试时间和测试方式。点击它可看到从新种子训练的结果、它的相似题，以及服务器的排行榜：见[比较模型](../evaluation.md)。
+        **一项基准**：每项基准一行：名称、一条通向及格线的进度条和分数，及格后变绿。指向一行可看到它的用途、测试时间和测试方式。点击它可看到从新种子训练的结果、它的相似题，以及服务器的排行榜：见[比较模型](../evaluation.md)。
       </residual:Part>
       <residual:Part name="core.test_all">
         **全部测试**：立即运行所有测试。
       </residual:Part>
       <residual:Part name="core.save">
         **存入检查点**：用每一项基准测试这个模型，并把它连同分数一起存进检查点。
-      </residual:Part>
-    </residual:Shot>
-  </residual:Step>
-
-  <residual:Step>
-    滚动测试页可看到每一项基准。
-
-    <residual:Shot name="core_tests_lower" alt="测试页下方的基准行，最后一项是地层">
-      <residual:Part name="row:ground">
-        **一项基准**：点击每行可打开它的比较视图。
-      </residual:Part>
-      <residual:Part name="scrollbar">
-        **滚动条**：显示当前看到的是哪些行。在列表上滚动，或点击滚动条，都可移动。
       </residual:Part>
     </residual:Shot>
   </residual:Step>
@@ -153,18 +140,15 @@ navigation:
   <residual:Step>
     **配方**：一次运行除了学习率之外怎么走。
 
-    <residual:Shot name="core_recipe" alt="配方页：各项设置、运行正在做的事、整次运行的学习率，以及核心身边的单元">
+    <residual:Shot name="core_recipe" alt="配方页：各项设置、运行正在做的事和整次运行的学习率">
       <residual:Part name="settings">
-        **设置**：相应的单元接触核心之前，它是暗的。每一项的作用见[配方](../recipe.md)。
+        **设置**：每一项现在的值。每一项的作用见[配方](../recipe.md)。
       </residual:Part>
       <residual:Part name="readings">
         **运行正在做的事**：当前的学习率、权重占用的大小、读到的文字、尖峰、最大的分数，以及第二个头猜对的比例。指向某一项可看到它的含义。
       </residual:Part>
       <residual:Part name="rate">
         **整次运行的学习率**：学习率从第一步到最后一步乘上的比例，并用一条线标出运行走到了哪里。
-      </residual:Part>
-      <residual:Part name="units">
-        **单元**：有单元接触核心（直接接触，或经由训练加速器和其他单元相连）时亮起。指向一个可看到它开放什么。
       </residual:Part>
       <residual:Part name="recipe.schedule">
         **计划**：学习率在一次运行中怎么变：保持不变，从预热结束起沿余弦下降，或者先保持、在最后五分之一下降。会下降的计划需要一个长度。
@@ -188,17 +172,11 @@ navigation:
   </residual:Step>
 
   <residual:Step>
-    **算力**：这次训练实际花了多少，以及它怎样分配工作。
+    **算力**：这次训练实际花了多少。
 
-    <residual:Shot name="core_compute" alt="算力页：这次训练的设备、内存、运算次数和电力，以及每个设备在上一步做了什么">
+    <residual:Shot name="core_compute" alt="算力页：这次训练的线程、内存和运算次数">
       <residual:Part name="reading">
-        **这次训练**：它怎样分配工作、用多少设备，内存和要放下它的容量，每秒运算次数、电力和 PUE，以及到目前为止花了多少。
-      </residual:Part>
-      <residual:Part name="timeline">
-        **上一步**：上一步中每个设备做的事：青色前向，琥珀色反向，紫色集合通信。暗处是在等待：在流水线并行中，那就是气泡。
-      </residual:Part>
-      <residual:Part name="compute.split">
-        **分摊工作**：一次训练如何把工作分给各个设备。下一次训练开始时生效。
+        **这次训练**：它训练用的线程、训练占用的内存、每秒运算次数、到目前为止数到的运算次数和词元，以及平均每个参数、每个词元用了多少次运算。
       </residual:Part>
     </residual:Shot>
   </residual:Step>

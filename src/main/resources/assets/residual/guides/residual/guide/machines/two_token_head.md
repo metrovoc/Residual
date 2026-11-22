@@ -33,6 +33,4 @@ counted in what a model weighs.
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **Multi-Token Prediction**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="two_token_head" />

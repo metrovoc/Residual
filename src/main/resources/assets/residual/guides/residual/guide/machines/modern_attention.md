@@ -13,8 +13,8 @@ item_ids:
 <BlockImage id="modern_attention" scale="3" float="left" />
 
 Multi-head causal self-attention as the late designs do it: <ItemLink id="rotary" /> on queries and keys, a
-<ItemLink id="qk_norm" /> between them, in one machine. A machine made from a verified design takes each row's scores
-a tile at a time with an online softmax and never holds them: see [The Modern Block](../modern.md).
+<ItemLink id="qk_norm" /> between them, in one machine. It takes each row's scores a tile at a time with an
+online softmax and never holds them: see [The Modern Block](../modern.md).
 
 ## Shapes
 
@@ -43,6 +43,4 @@ from a separate pass the plain way, which holds the scores; the steps of trainin
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **Modern Attention**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="modern_attention" />

@@ -4,7 +4,6 @@ navigation:
   icon: archive_shard
   position: 20
 item_ids:
-  - schematic_relays
   - wayfinder
 ---
 
@@ -38,7 +37,7 @@ and banded at each floor, and three rooms one over another, the store, the kitch
 room, with a ladder up the north wall. At the top a walk on corbels, railed, with the bell that calls for coal, goes
 round the lamp room of glass in a copper frame, its great lamp of glass and redstone under a flared roof of copper gone
 green. At the tower's foot stands the relay house: stone below and a spruce frame above, the keeper's desk with the
-tower book on its lectern, and the stand where a big mind stood, ringed by accelerators in their cooling water. Some
+tower book on its lectern, and the stand where a big mind stood, ringed by quickeners in their cooling water. Some
 towers have lost their tops. In grassland, forest, taiga, snow and hills, at most one in each region 48 chunks across.
 
 ## Waymarks
@@ -96,7 +95,7 @@ region 40 chunks across.
 ## Tutor houses
 
 Halls of tuff between pillars, two tiers of tall windows under a cornice of copper, a relay on the roof, where minds were
-drilled and tested. Apprentices still stand in their row before the tutor's Bench; the teaching room keeps its tray of
+drilled and tested. Apprentices of green copper still stand in their row before the tutor's bench; the teaching room keeps its tray of
 crystals, each on its card, in the light of its bay window; the apprentice hall across the yard keeps its dry box; and
 the drill yard, ringed with torches, has its boards drawn as small fields. In grassland, forest, taiga, savanna and
 cherry groves, at most one in each region 72 chunks across.
@@ -123,8 +122,7 @@ hills, meadows and savanna plateaus, at most one in each region 128 chunks acros
 Where a relay mast fell it broke a bowl in the ground, grassed over at the rim. The mast lies across it in three pieces
 of green copper, its relay half buried at the far end, stone thrown up round it; along the rim the keepers put a rope
 of chain on posts, and their sign. Its drive housing split open: the chest inside holds
-<ItemLink id="archive_drive" />s already filled with the relays' writing, and a <ItemLink id="relay_dump" /> or two, all the raw
-traffic that passed through it. At most one in each region 40 chunks across.
+<ItemLink id="archive_drive" />s already filled with the relays' writing. At most one in each region 40 chunks across.
 
 ## Sealed stacks
 
@@ -137,19 +135,13 @@ book on its lectern, and a lamp left on the long table; roots have come down thr
 
 Small houses of calcite between pillars of tuff under roofs of deepslate tiles, one corner usually fallen in, that kept
 records; open masts of green copper on stepped tuff footings, an old relay still on top of most of them; and, under a
-lantern on a post beside a hatch, deep rooms with a bank of old accelerators and two chests, every one holding a
+lantern on a post beside a hatch, deep rooms with a bank of old quickeners and two chests, every one holding a
 [salvaged model](salvage.md). At most one in each region 56 chunks across, the vaults 64.
 
 ## What they hold
 
 - <ItemLink id="archive_shard" />: pieces of the archive, mostly of what was written about the place they lie in: a
   relay tower's shards are mostly its keepers' writing. See [The Archive](archive.md).
-- Photomasks with salvaged designs: the Fabricator makes working but unfused machines from them, without a Bench.
-  Linear layer, softmax and GELU masks turn up in houses, matrix multiply ones under the gravel, and attention, layer
-  norm, feed-forward and transformer masks in vaults. Those of [the modern block](modern.md) and [the recipe](recipe.md)
-  lie in tutor houses, vaults and the Deep Works. See [The Bench and the Fabricator](bench.md).
-- <ItemLink id="schematic_relays" />: the plans for relays, a pattern to copy that stays in the crafting grid. In
-  relay towers, on masts and in vaults.
 - What each place kept: coal and food in the towers, flour and seed on the farms, remedies in the marsh, timber and
   tools at the slips; <ItemLink id="weight_crystal" />, blank <ItemLink id="checkpoint" />s and a little gold.
 - <ItemLink id="salvaged_model" />: see [Salvaged Models](salvage.md).

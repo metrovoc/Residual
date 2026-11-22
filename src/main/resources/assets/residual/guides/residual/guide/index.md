@@ -11,58 +11,34 @@ Someone lived in this world before you. They are no longer here, but traces of t
 
 These are field notes on building models again: language models made of machines that each do one operation, cabled into
 a network, trained on text, and tested on text they have never seen. A model that knows what the blocks around it will
-do next lets a Forecaster run them ahead of time. Others carry on a pattern, tell what a thing is by its name, turn what
-you say into programs for agents, and read what the old world wrote.
+do next lets a Forecaster run them ahead of time. Others carry on a pattern, tell what a thing is by its name, and read
+what the old world wrote.
 
-<residual:Clip name="hero" alt="A model training by a river at noon: a wave of light runs along its cables and each machine's output floats above it, while far behind it agents build small houses near a relay tower" />
+<residual:Clip name="hero" alt="A model training by a river at noon: a wave of light runs along its cables and each machine's output floats above it, with a relay tower far behind it" />
 
 ## Start here
 
 1. [Getting Started](getting-started.md): a first model, and furnaces that run four times as fast.
-2. [The Bench and the Fabricator](bench.md): machines wired from the smallest operations there are.
-3. [Ruins](ruins.md): where the old world's things are.
-4. [Milestones](milestones.md): every advancement, lit once you have made it, and how to make the rest.
+2. [Ruins](ruins.md): where the old world's things are.
+3. [Milestones](milestones.md): every advancement, lit once you have made it, and how to make the rest.
 
 ## Models
 
 - [The Archive](archive.md): shards, drives, and restoring what was lost.
-- [The Bench and the Fabricator](bench.md): designs wired from primitives, and the machines made from them.
 - [The Model Core](core.md): where models are built, trained, tested and saved.
 - [Tokens](tokenizers.md): the BPE Forge, and vocabularies learned from the archive.
-- [The Refinery](refinery.md): a hall of machines that turns the raw traffic of fallen masts into a counted supply of tokens, and
-  measures what each machine was worth.
 - [Training](training.md): reading a loss curve, and the settings that shape it.
 - [The Recipe](recipe.md): how a run's rate moves, what its numbers are rounded to, what moves its weights.
 - [The Modern Block](modern.md): the layer the old world's last models seem to have been made of, and what each part of it does.
-- [Models and Tests](models.md): the benchmarks, checkpoints, and how big a model may be.
+- [Models and Tests](models.md): the benchmarks and checkpoints.
 - [Salvaged Models](salvage.md): broken models from the ruins.
 
 ## Putting models to work
 
 - [The Forecaster](forecaster.md): a model of the blocks around it, trusted only as far as it is right, runs them ahead.
-- [Agents](agents.md): frames that run programs, with models where learning beats a rule.
-- [Programs](programs.md): one language for agents and Ports, what it can do, how fast and how far, and how to watch it run.
-- [The Architect](architect.md): agents that copy, move and repeat builds, read as letters a slice at a time.
-- [The Surveyor](surveyor.md): a model that finds the ores in the ground around it, read a row at a time.
 - [The Stream Scope](scope.md): what a model does inside, drawn over its machines.
 - [The Trial Rig](trials.md): what can go wrong with a model, done on purpose to a copy of it.
 - [Comparing Models](evaluation.md): how much of a score is luck, whether it has seen the test, and what everyone else made.
-- [The Arena](arena.md): a model that has learned how a mob fights plays it in a chamber, for what the mob drops.
-- [Serving Models](deployment.md): Model Servers, relays, gates, links and the Terminal.
-- [Tuning](tuning.md): changing a model that has finished practising, by what you choose and what a checker can verify.
-- [Thinking Longer](reasoning.md): many answers to a question, and how to keep the right one.
-
-## The base
-
-- [Storage](storage.md): drives that keep any number of kinds, a terminal that finds anything, and Ports that move
-  items between the network and every chest and machine, 1,280 a second.
-- [Power](power.md): generators from fire to steam to the sun, cables and cells, and a Smelter that makes two ingots from every
-  ore, three with a controller.
-- [The Reactor](reactor.md): the most power there is, for a model that can hold it.
-- [Compute](compute.md): process nodes, memory, racks and pods, and the ways of sharing out a run's work.
-- [Halls](datacenter.md): cooling lines, what cooling costs, and a load you can read across the room.
-- [Flight](flight.md): the flight frame, flown by a pilot you train.
-- [The Exosuit](exosuit.md): armour with a quantized model on board, whose compute sets what the suit can do.
 
 ## Reference
 

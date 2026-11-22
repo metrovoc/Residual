@@ -33,6 +33,4 @@ A sequence [B×T×C] in, the same shape out. It widens to 8/3 of C inside.
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **Gated Feed-Forward**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="swiglu" />

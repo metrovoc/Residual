@@ -37,4 +37,4 @@ width. LSTMs, the recurrent networks that came before transformers, controlled t
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).
+<RecipeFor id="multiply" />

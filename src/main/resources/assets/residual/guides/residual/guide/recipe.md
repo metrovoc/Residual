@@ -1,15 +1,8 @@
 ---
 navigation:
   title: The Recipe
-  icon: scheduler
+  icon: weight_crystal
   position: 55
-item_ids:
-  - scheduler
-  - bf16_unit
-  - fp8_unit
-  - fp4_unit
-  - orthogonalizer
-  - packer
 ---
 
 # The Recipe
@@ -18,19 +11,8 @@ A model and a learning rate don't make a run yet. How the rate moves over thousa
 to, what moves the weights and how the text is cut into rows all change what comes out. The old world's accounts of their
 largest runs seem to give all that as much room as the models.
 
-The Core's **Recipe** tab holds it. Each part opens when a unit for it touches the Core, directly or through Accelerators and
-other units, and a unit lights up while a run uses it. The <ItemLink id="fabricator" /> makes each from a photomask of its spec.
-
-| Unit | From | Opens |
-|---|---|---|
-| <ItemLink id="scheduler" /> | Schedule | **Schedule**, **Warmup** and **Length** |
-| <ItemLink id="bf16_unit" /> | bf16 | bf16 under **Precision** |
-| <ItemLink id="fp8_unit" /> | fp8 | fp8 under **Precision** |
-| <ItemLink id="fp4_unit" /> | fp4 | both kinds of fp4 under **Precision** |
-| <ItemLink id="orthogonalizer" /> | Orthogonalize | Muon under **Optimizer** |
-| <ItemLink id="packer" /> | Document Mask | **Packing** |
-
-With none of them a Core trains the plain way: 20 steps of warmup and a steady rate, in fp32, with AdamW, on windows of text.
+The Core's **Recipe** tab holds it: **Schedule**, **Warmup** and **Length**, **Precision**, **Optimizer** and **Packing**. Left alone, a Core
+trains the plain way: 20 steps of warmup and a steady rate, in fp32, with AdamW, on windows of text.
 
 The numbers below come from a model of two Transformer Blocks of width 32, reading the whole archive, unless they say otherwise.
 A model this small is noisy, and a few hundredths of a nat may be nothing but the start it had.
@@ -119,8 +101,7 @@ And what that costs, at a rate of 0.003, from one start each:
 | fp4, one scale | 33% | 3.78, with 3 spikes | 16 KB |
 | fp4, in blocks | 69% | 1.98 | 21 KB |
 
-What a narrow format buys is room. An agent or a flight frame carries 160 KB of weights: 40,000 parameters in fp32, 160,000 in fp8.
-Two blocks of width 64 have 115,161 parameters, too many for fp32. In fp8 an agent can carry them in its head, with no Model Server and no relay.
+What a narrow format buys is room: the tab's **Weights** says what a model's weights take.
 
 ## Muon
 

@@ -35,4 +35,4 @@ C 个。ε 为 1e-5。
 
 ## 制造
 
-<ItemLink id="fabricator" />用**RMS 归一化**光掩模制造它：在<ItemLink id="bench" />上验证规格，或者在[遗迹](../ruins.md)里找到打捞的光掩模（造出的是未融合的）。见[试验台与制造机](../bench.md)。
+<RecipeFor id="rms_norm" />

@@ -41,4 +41,4 @@ depends on its position (RoPE), so that attention scores depend on how far apart
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it with no mask. See [The Bench and the Fabricator](../bench.md).
+<RecipeFor id="position" />

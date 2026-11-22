@@ -11,7 +11,9 @@ item_ids:
 
 Some things that go wrong with models are easier to believe once you have done them yourself. The <ItemLink id="trial_rig" /> does them on purpose, to a copy of your model, for real.
 
-On its **Model** tab a <ItemLink id="checkpoint" /> goes on the left, or it takes the model on a Model Core it touches. What it works on goes in the middle: an <ItemLink id="archive_drive" />, a dataset or a Field Log. A checkpoint on the right keeps the model a trial leaves behind, so you can try it on your own machines. A trial takes minutes, and more with no Accelerators touching the Rig. It draws its curves as it goes.
+<RecipeFor id="trial_rig" />
+
+On its **Model** tab a <ItemLink id="checkpoint" /> goes on the left, or it takes the model on a Model Core it touches. What it works on goes in the middle: an <ItemLink id="archive_drive" />, a dataset or a Field Log. A checkpoint on the right keeps the model a trial leaves behind, so you can try it on your own machines. A trial takes minutes. It draws its curves as it goes.
 
 ## Memory
 
@@ -55,5 +57,3 @@ Some failures take a model capable enough to have something like beliefs, goals 
 - **Behaving while watched.** A model able to reason about its training can act one way when it believes its answers will change it, and another when it believes they will not.
 - **Hiding its reasoning.** Penalising a reasoning model for bad thoughts it writes down can teach it to go on with the behaviour and stop writing them down.
 - **Traits passed through noise.** A student trained on nothing but a teacher's lists of numbers can take on the teacher's unrelated preferences, when both started from the same weights.
-
-The Fabricator makes it from a transformer photomask.

@@ -48,8 +48,8 @@ server has made: see [Comparing Models](evaluation.md).
 
 ## Try
 
-Runs the model. Choose a benchmark: **Example** draws a fresh test example and shows the model answering it, the way an
-agent would ask. For Orders, type an order and **Ask**; for Reading, type the start of something and **Write**:
+Runs the model. Choose a benchmark: **Example** draws a fresh test example and shows the model answering it. For
+Sorting, name a thing and **Ask**; for Reading, type the start of something and **Write**:
 the model carries it on one letter at a time, drawing each from its predicted probabilities. **Temp** (temperature)
 sharpens or flattens those probabilities before drawing:
 
@@ -68,19 +68,16 @@ is a gradient that never arrives.
 
 How a run goes beside its learning rate: **Schedule**, **Warmup** and **Length**, **Precision**, **Optimizer** and
 **Packing**. The toolbar beside the window sets them: point at one for its value and what it does, click for the next
-value. Each needs its unit touching the Core before it will change. Under them is what the run is doing: the rate now, what
-the weights take beside what can be carried, the share of the text it ever reads, its spikes, the largest scores inside the
-model and how often a second head is right. Beside them are the rate over the whole run and the units the Core has. See
+value. Under them is what the run is doing: the rate now, what the weights take, the share of the text it ever reads, its spikes, the largest scores inside the
+model and how often a second head is right. Beside them is the rate over the whole run. See
 [The Recipe](recipe.md).
 
-## More threads
+## Compute
 
-<ItemImage id="accelerator" float="left" />
+What a run costs. Training a model is multiplying numbers, and the numbers can be counted. A flop is one multiply or one
+add. A model of N parameters reading D tokens takes about 6ND of them: two for each parameter on each token going
+forward, four coming back. The Core counts them as they happen, and the tab sets what it counted beside that six.
 
-Each <ItemLink id="accelerator" /> touching the Core, directly or through other Accelerators, lends it one more thread and
-its memory, up to the limit the server allows. An Accelerator with nothing to cool it runs hot and lends half: give it water,
-ice or snow to touch. The Fabricator makes them from a matrix multiply photomask. The first four run on what the Core can
-spare; more take power. A model also has to fit: sixteen bytes a parameter, and a Core alone holds 2 MiB. The **Compute** tab
-counts what a run has done and chooses how it shares out its work: see [Compute](compute.md).
-
-<br clear="all" />
+Above that are the threads the Core trains on, its flops a second, and the memory the run takes. To train a parameter
+takes four numbers of four bytes each: the weight, its gradient and Adam's two running averages. **Sixteen bytes a
+parameter.**

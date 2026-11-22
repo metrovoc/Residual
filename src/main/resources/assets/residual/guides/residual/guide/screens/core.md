@@ -78,26 +78,13 @@ Use a Model Core to open it. Its tabs take a model from its data to its tests; [
 
     <residual:Shot name="core_tests" alt="The Tests tab: a line for each benchmark, with its score">
       <residual:Part name="row:forecasting">
-        **A benchmark**: One line for each: its name, a bar toward what passes, and its score, green once it passes. Scroll for the rest. Point at a line for its job, when it was tested and how its test goes. Click it for its runs from fresh seeds, a look-alike of its test and the server's leaderboard: [Comparing Models](../evaluation.md) tells how they go.
+        **A benchmark**: One line for each: its name, a bar toward what passes, and its score, green once it passes. Point at a line for its job, when it was tested and how its test goes. Click it for its runs from fresh seeds, a look-alike of its test and the server's leaderboard: [Comparing Models](../evaluation.md) tells how they go.
       </residual:Part>
       <residual:Part name="core.test_all">
         **Test all**: Runs every test now.
       </residual:Part>
       <residual:Part name="core.save">
         **Save to checkpoint**: Tests the model on every benchmark and keeps it, scores and all, in the checkpoint.
-      </residual:Part>
-    </residual:Shot>
-  </residual:Step>
-
-  <residual:Step>
-    Scroll through the Tests tab to see every benchmark.
-
-    <residual:Shot name="core_tests_lower" alt="The lower rows of the Tests tab, ending with Ground">
-      <residual:Part name="row:ground">
-        **A benchmark**: Each row opens its comparison when clicked.
-      </residual:Part>
-      <residual:Part name="scrollbar">
-        **The scroll bar**: Shows which rows are in view. Scroll over the list or click the bar to move through it.
       </residual:Part>
     </residual:Shot>
   </residual:Step>
@@ -153,18 +140,15 @@ Use a Model Core to open it. Its tabs take a model from its data to its tests; [
   <residual:Step>
     **Recipe**: how a run goes beside its learning rate.
 
-    <residual:Shot name="core_recipe" alt="The Recipe tab: the settings, what the run is doing, the rate over the run and the units at the Core">
+    <residual:Shot name="core_recipe" alt="The Recipe tab: the settings, what the run is doing and the rate over the run">
       <residual:Part name="settings">
-        **The settings**: Each is dim until the unit for it touches the Core. [The Recipe](../recipe.md) says what each does.
+        **The settings**: The value each is set to. [The Recipe](../recipe.md) says what each does.
       </residual:Part>
       <residual:Part name="readings">
         **What the run is doing**: The rate now, what the weights take, the text read, the spikes, the largest scores and how often a second head is right. Point at one for what it means.
       </residual:Part>
       <residual:Part name="rate">
         **The rate over the run**: What the learning rate is multiplied by from the first step to the last, with a line where the run has reached.
-      </residual:Part>
-      <residual:Part name="units">
-        **The units**: Lit if one touches the Core, directly or through accelerators and other units. Point at one for what it opens.
       </residual:Part>
       <residual:Part name="recipe.schedule">
         **Schedule**: How the learning rate moves over a run: held steady, falling along a cosine from the end of warmup, or held and falling over the last fifth. A falling one needs a Length.
@@ -188,17 +172,11 @@ Use a Model Core to open it. Its tabs take a model from its data to its tests; [
   </residual:Step>
 
   <residual:Step>
-    **Compute**: what the run really costs, and how it shares out its work.
+    **Compute**: what the run really costs.
 
-    <residual:Shot name="core_compute" alt="The Compute tab: the run's devices, memory, flops and power, and what each device did through its last step">
+    <residual:Shot name="core_compute" alt="The Compute tab: the run's threads, memory and flops">
       <residual:Part name="reading">
-        **The run**: How it shares out and on how many devices, its memory against what has to hold it, its flops a second, its power and PUE, and what it has spent so far.
-      </residual:Part>
-      <residual:Part name="timeline">
-        **The last step**: What each device did through the last step: teal forward, amber back, violet collectives. Where it is dark it waited: with pipeline parallelism, those are its bubbles.
-      </residual:Part>
-      <residual:Part name="compute.split">
-        **Sharing out the work**: How a run shares its work among its devices. It takes effect when the next run starts.
+        **The run**: The threads it trains on, the memory it takes to train, its flops a second, the flops and tokens counted so far, and how many flops that comes to for each parameter and token.
       </residual:Part>
     </residual:Shot>
   </residual:Step>

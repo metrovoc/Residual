@@ -41,6 +41,4 @@ PyTorch stores the matrix the other way round, as [C_out × C_in].
 
 ## Making it
 
-The <ItemLink id="fabricator" /> makes it from a photomask of **Linear Layer**: verify the spec on a
-<ItemLink id="bench" />, or find a salvaged mask in the [ruins](../ruins.md), which makes it unfused. See
-[The Bench and the Fabricator](../bench.md).
+<RecipeFor id="linear" />
